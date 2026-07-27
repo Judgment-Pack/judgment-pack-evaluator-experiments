@@ -1,0 +1,593 @@
+{
+  "baseline": "A::mock::mock/deterministic-v1",
+  "bootstrap_replicates": 500,
+  "bootstrap_seed": 20260727,
+  "conditions": {
+    "A::mock::mock/deterministic-v1": {
+      "ci95": {
+        "accuracy": [
+          0.15625,
+          0.5
+        ],
+        "citation_f1": [
+          0.005681818181818182,
+          0.0457528409090909
+        ],
+        "citation_micro_f1": [
+          0.00787140376984127,
+          0.052830188679245285
+        ],
+        "citation_micro_precision": [
+          0.024375,
+          0.14893617021276595
+        ],
+        "citation_micro_recall": [
+          0.004607330954808019,
+          0.032750497931668454
+        ],
+        "citation_precision": [
+          0.015625,
+          0.109375
+        ],
+        "citation_recall": [
+          0.00390625,
+          0.029079861111111112
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": [
+          0.0,
+          0.32000000000000006
+        ],
+        "escalation_precision": [
+          0.0,
+          1.0
+        ],
+        "escalation_recall": [
+          0.0,
+          0.21428571428571427
+        ],
+        "parse_ok_rate": [
+          0.90625,
+          1.0
+        ],
+        "pass_at_k": [
+          0.02968750000000009,
+          0.375
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_f1": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_precision": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_recall": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_precision": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_recall": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "parse_ok_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "pass_at_k": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        }
+      },
+      "escalation_2x2": {
+        "neither": 14,
+        "should_and_did": 1,
+        "should_but_did_not": 15,
+        "should_not_but_did": 2
+      },
+      "point": {
+        "accuracy": 0.3125,
+        "citation_f1": 0.023295454545454543,
+        "citation_micro_f1": 0.02962962962962963,
+        "citation_micro_precision": 0.08695652173913043,
+        "citation_micro_recall": 0.017857142857142856,
+        "citation_precision": 0.057291666666666664,
+        "citation_recall": 0.014756944444444444,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": 0.10526315789473684,
+        "escalation_fn": 15.0,
+        "escalation_fp": 2.0,
+        "escalation_precision": 0.3333333333333333,
+        "escalation_recall": 0.0625,
+        "escalation_tn": 14.0,
+        "escalation_tp": 1.0,
+        "parse_ok_rate": 0.96875,
+        "pass_at_k": 0.1875
+      }
+    },
+    "Aprime::mock::mock/deterministic-v1": {
+      "ci95": {
+        "accuracy": [
+          0.0625,
+          0.4375
+        ],
+        "citation_f1": [
+          0.005681818181818181,
+          0.04983991702741702
+        ],
+        "citation_micro_f1": [
+          0.007764991554054054,
+          0.05273260232330908
+        ],
+        "citation_micro_precision": [
+          0.027383633633633636,
+          0.1624921433060968
+        ],
+        "citation_micro_recall": [
+          0.0045871559633027525,
+          0.031701548165137594
+        ],
+        "citation_precision": [
+          0.015625,
+          0.15104166666666669
+        ],
+        "citation_recall": [
+          0.003472222222222222,
+          0.032008167613636354
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": [
+          0.0,
+          0.0
+        ],
+        "escalation_precision": [
+          0.0,
+          0.0
+        ],
+        "escalation_recall": [
+          0.0,
+          0.0
+        ],
+        "parse_ok_rate": [
+          0.84375,
+          1.0
+        ],
+        "pass_at_k": [
+          0.0,
+          0.375
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            -0.21875,
+            0.0625
+          ],
+          "point": -0.0625,
+          "prob_gt_0": 0.14
+        },
+        "citation_f1": {
+          "ci95": [
+            -0.022645878427128428,
+            0.03047844516594516
+          ],
+          "point": 0.002723665223665229,
+          "prob_gt_0": 0.56
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            -0.027089294452707247,
+            0.02920883712335688
+          ],
+          "point": 0.0005590496156533883,
+          "prob_gt_0": 0.53
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            -0.06778489505667444,
+            0.08819777371606637
+          ],
+          "point": 0.010604453870625669,
+          "prob_gt_0": 0.578
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            -0.01732008995502249,
+            0.018269391159299413
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.38
+        },
+        "citation_precision": {
+          "ci95": [
+            -0.046875,
+            0.078125
+          ],
+          "point": 0.015624999999999993,
+          "prob_gt_0": 0.672
+        },
+        "citation_recall": {
+          "ci95": [
+            -0.0149542297979798,
+            0.02043185763888889
+          ],
+          "point": 0.0017124368686868702,
+          "prob_gt_0": 0.542
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": {
+          "ci95": [
+            -0.32000000000000006,
+            0.0
+          ],
+          "point": -0.10526315789473684,
+          "prob_gt_0": 0.0
+        },
+        "escalation_precision": {
+          "ci95": [
+            -1.0,
+            0.0
+          ],
+          "point": -0.3333333333333333,
+          "prob_gt_0": 0.0
+        },
+        "escalation_recall": {
+          "ci95": [
+            -0.21428571428571427,
+            0.0
+          ],
+          "point": -0.0625,
+          "prob_gt_0": 0.0
+        },
+        "parse_ok_rate": {
+          "ci95": [
+            -0.125,
+            0.0625
+          ],
+          "point": -0.03125,
+          "prob_gt_0": 0.18
+        },
+        "pass_at_k": {
+          "ci95": [
+            -0.1875,
+            0.1875
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.368
+        }
+      },
+      "escalation_2x2": {
+        "neither": 15,
+        "should_and_did": 0,
+        "should_but_did_not": 16,
+        "should_not_but_did": 1
+      },
+      "point": {
+        "accuracy": 0.25,
+        "citation_f1": 0.02601911976911977,
+        "citation_micro_f1": 0.03018867924528302,
+        "citation_micro_precision": 0.0975609756097561,
+        "citation_micro_recall": 0.017857142857142856,
+        "citation_precision": 0.07291666666666666,
+        "citation_recall": 0.016469381313131314,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": 0.0,
+        "escalation_fn": 16.0,
+        "escalation_fp": 1.0,
+        "escalation_precision": 0.0,
+        "escalation_recall": 0.0,
+        "escalation_tn": 15.0,
+        "escalation_tp": 0.0,
+        "parse_ok_rate": 0.9375,
+        "pass_at_k": 0.1875
+      }
+    },
+    "B::mock::judgment-pack-runtime": {
+      "ci95": {
+        "accuracy": [
+          0.25,
+          0.75
+        ],
+        "citation_f1": [
+          0.09401830808080808,
+          0.24776022588522578
+        ],
+        "citation_micro_f1": [
+          0.11316421895861149,
+          0.25516271186440675
+        ],
+        "citation_micro_precision": [
+          0.6,
+          0.9773809523809514
+        ],
+        "citation_micro_recall": [
+          0.061899005565185655,
+          0.14873604381714767
+        ],
+        "citation_precision": [
+          0.3125,
+          0.8125
+        ],
+        "citation_recall": [
+          0.055276199494949496,
+          0.14767045454545452
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": [
+          0.18181818181818182,
+          0.823529411764706
+        ],
+        "escalation_precision": [
+          0.18250000000000005,
+          1.0
+        ],
+        "escalation_recall": [
+          0.16666666666666666,
+          0.8665178571428567
+        ],
+        "parse_ok_rate": [
+          1.0,
+          1.0
+        ],
+        "pass_at_k": [
+          0.25,
+          0.75
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            -0.15625,
+            0.53125
+          ],
+          "point": 0.1875,
+          "prob_gt_0": 0.816
+        },
+        "citation_f1": {
+          "ci95": [
+            0.07340229215229216,
+            0.21888352966477953
+          ],
+          "point": 0.1465485902985903,
+          "prob_gt_0": 1.0
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            0.08932948681192662,
+            0.21937408920667345
+          ],
+          "point": 0.15934674832312629,
+          "prob_gt_0": 1.0
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            0.5291196641700159,
+            0.8776289926289924
+          ],
+          "point": 0.7130434782608697,
+          "prob_gt_0": 1.0
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            0.046855670103092786,
+            0.12626725663716803
+          ],
+          "point": 0.08928571428571427,
+          "prob_gt_0": 1.0
+        },
+        "citation_precision": {
+          "ci95": [
+            0.27083333333333337,
+            0.7425781249999996
+          ],
+          "point": 0.5052083333333334,
+          "prob_gt_0": 1.0
+        },
+        "citation_recall": {
+          "ci95": [
+            0.042421875000000005,
+            0.12871863162878783
+          ],
+          "point": 0.08584280303030302,
+          "prob_gt_0": 1.0
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": {
+          "ci95": [
+            -0.015754604872251932,
+            0.8
+          ],
+          "point": 0.4280701754385965,
+          "prob_gt_0": 0.964
+        },
+        "escalation_precision": {
+          "ci95": [
+            -0.5776785714285715,
+            0.8458333333333328
+          ],
+          "point": 0.23809523809523808,
+          "prob_gt_0": 0.722
+        },
+        "escalation_recall": {
+          "ci95": [
+            0.0,
+            0.8571428571428571
+          ],
+          "point": 0.4375,
+          "prob_gt_0": 0.97
+        },
+        "parse_ok_rate": {
+          "ci95": [
+            0.0,
+            0.09375
+          ],
+          "point": 0.03125,
+          "prob_gt_0": 0.632
+        },
+        "pass_at_k": {
+          "ci95": [
+            -0.0625,
+            0.625
+          ],
+          "point": 0.3125,
+          "prob_gt_0": 0.954
+        }
+      },
+      "escalation_2x2": {
+        "neither": 10,
+        "should_and_did": 8,
+        "should_but_did_not": 8,
+        "should_not_but_did": 6
+      },
+      "point": {
+        "accuracy": 0.5,
+        "citation_f1": 0.16984404484404483,
+        "citation_micro_f1": 0.1889763779527559,
+        "citation_micro_precision": 0.8,
+        "citation_micro_recall": 0.10714285714285714,
+        "citation_precision": 0.5625,
+        "citation_recall": 0.10059974747474747,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": 0.5333333333333333,
+        "escalation_fn": 8.0,
+        "escalation_fp": 6.0,
+        "escalation_precision": 0.5714285714285714,
+        "escalation_recall": 0.5,
+        "escalation_tn": 10.0,
+        "escalation_tp": 8.0,
+        "parse_ok_rate": 1.0,
+        "pass_at_k": 0.5
+      }
+    }
+  },
+  "instance_ids": [
+    "comp_0-000__answerable",
+    "comp_0-000__redacted",
+    "comp_0-001__answerable",
+    "comp_0-001__redacted",
+    "comp_0-002__answerable",
+    "comp_0-002__redacted",
+    "comp_0-003__answerable",
+    "comp_0-003__redacted",
+    "comp_0-004__answerable",
+    "comp_0-004__redacted",
+    "comp_0-005__answerable",
+    "comp_0-005__redacted",
+    "comp_0-006__answerable",
+    "comp_0-006__redacted",
+    "comp_0-007__answerable",
+    "comp_0-007__redacted"
+  ],
+  "paired_instances": 16,
+  "redacted_instances": 8,
+  "schema": "jps-study-001-score/1",
+  "trials_per_instance": {
+    "max": 2,
+    "min": 2
+  }
+}

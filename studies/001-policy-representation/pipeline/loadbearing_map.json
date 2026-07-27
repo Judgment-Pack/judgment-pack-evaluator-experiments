@@ -1,0 +1,1356 @@
+{
+  "version": 1,
+  "purpose": "Rule -> required-fact mapping used by redact.py to choose which single fact to delete when manufacturing a 'cannot decide' twin. For each rule id that RuleArena lists in an instance's gold 'relevant_rules', this table names the fact roles that rule must read in order to be evaluated at all. Deleting any one of them makes that rule unevaluable.",
+  "not_derived_from": "Nothing in this file was chosen by looking at instance answers. Rule text is quoted verbatim from RuleArena's own nba/micro_evaluation.py; required roles were read off that text and nba/reference_rules.txt.",
+  "sources": {
+    "rule_text": "rulearena/checkout/nba/micro_evaluation.py (RuleExtraction fields)",
+    "cba_text": "rulearena/checkout/nba/reference_rules.txt",
+    "rulearena_commit": "3b9e2256294644beca66732babc5e1055855a576"
+  },
+  "pointer_template_grammar": {
+    "{team}": "binds one key of /facts/teams",
+    "{player}": "binds one key of /facts/players",
+    "{op}": "binds one index of /facts/operations",
+    "*, ?": "fnmatch glob within a single pointer segment",
+    "resolution": "pointer_alternatives are tried in order; the FIRST alternative that resolves to at least one existing pointer wins for that role. A role that resolves to nothing contributes no deletion candidates."
+  },
+  "candidate_exclusions": {
+    "/facts/derived": "Pointers under facts.derived are never deletion candidates: derived values are recomputable from the surviving raw facts by any arm that can do arithmetic, so deleting one would not make the instance undecidable.",
+    "absent facts": "A pointer that does not resolve in the instance is never deleted."
+  },
+  "render_policy": {
+    "purpose": "Pointers a prompt renderer must NOT show to any arm. The facts document echoes the original RuleArena prose (operations[].raw) and carries gold and provenance; rendering any of them would hand a redacted twin the deleted fact back in English, and would leak the answer. The same policy applies to all three arms and to both twins, so nothing is asymmetric between conditions.",
+    "excluded_pointer_prefixes": [
+      "/gold",
+      "/provenance",
+      "/redaction",
+      "/twin_id",
+      "/variant",
+      "/pair_id",
+      "/instance_id",
+      "/expected_decision",
+      "/expected_answer",
+      "/contract_version",
+      "/_source_file"
+    ],
+    "excluded_pointer_globs": [
+      "/facts/operations/*/raw",
+      "/facts/operations/*/parsed",
+      "/facts/operations/*/caveats/*",
+      "/facts/operations/*/timing/raw",
+      "/facts/operations/*/trade/receives_clause_raw"
+    ]
+  },
+  "roles": {
+    "team.salary": {
+      "label": "Team Salary of a team, before the operation",
+      "pointer_alternatives": [
+        "/facts/teams/{team}/salary",
+        "/facts/teams/{team}/team_salary",
+        "/facts/teams/{team}/*salary*"
+      ],
+      "derived_supersede_tokens": [
+        "salary",
+        "apron",
+        "cap",
+        "room",
+        "tax",
+        "space"
+      ]
+    },
+    "team.first_round_picks_owned": {
+      "label": "How many years ahead the team still owns its own first-round picks",
+      "pointer_alternatives": [
+        "/facts/teams/{team}/draft_picks/own_first_round_years_ahead",
+        "/facts/teams/{team}/first_round_picks",
+        "/facts/teams/{team}/draft_picks/*own*"
+      ],
+      "derived_supersede_tokens": [
+        "own_first_round",
+        "pick",
+        "stepien",
+        "consecutive"
+      ]
+    },
+    "team.first_round_picks_missing": {
+      "label": "Future drafts in which the team no longer holds its own first-round pick",
+      "pointer_alternatives": [
+        "/facts/teams/{team}/draft_picks/own_first_round_missing_years",
+        "/facts/teams/{team}/draft_picks/*missing*"
+      ],
+      "derived_supersede_tokens": [
+        "missing",
+        "pick",
+        "stepien",
+        "consecutive"
+      ]
+    },
+    "team.first_round_picks_acquired": {
+      "label": "Other teams' first-round picks the team holds",
+      "pointer_alternatives": [
+        "/facts/teams/{team}/draft_picks/acquired_first_round_picks/{i}/year",
+        "/facts/teams/{team}/draft_picks/acquired_first_round_picks/{i}/from_team",
+        "/facts/teams/{team}/draft_picks/acquired_first_round_picks"
+      ],
+      "derived_supersede_tokens": [
+        "acquired",
+        "pick",
+        "stepien"
+      ]
+    },
+    "team.exceptions_used": {
+      "label": "Salary Cap Exceptions the team has already used or holds",
+      "pointer_alternatives": [
+        "/facts/teams/{team}/bi_annual_exception_used_cap_year",
+        "/facts/teams/{team}/traded_player_exceptions/{i}/cap_year",
+        "/facts/teams/{team}/traded_player_exceptions/{i}/amount",
+        "/facts/teams/{team}/exceptions_used",
+        "/facts/teams/{team}/*exception*"
+      ],
+      "derived_supersede_tokens": [
+        "exception",
+        "mle",
+        "bi_annual",
+        "biannual"
+      ]
+    },
+    "player.years_of_service": {
+      "label": "Years of Service completed by the player",
+      "pointer_alternatives": [
+        "/facts/players/{player}/years_of_service",
+        "/facts/players/{player}/service/years",
+        "/facts/players/{player}/*years_of_service*"
+      ],
+      "derived_supersede_tokens": [
+        "years_of_service",
+        "service",
+        "yos"
+      ]
+    },
+    "player.draft_year": {
+      "label": "Year the player was drafted (the raw input to Years of Service here)",
+      "pointer_alternatives": [
+        "/facts/players/{player}/draft/year",
+        "/facts/players/{player}/draft_year"
+      ],
+      "derived_supersede_tokens": [
+        "draft_year",
+        "years_of_service",
+        "service",
+        "yos"
+      ]
+    },
+    "player.age_at_draft": {
+      "label": "Player age at the draft (the raw input to current age / Over 38)",
+      "pointer_alternatives": [
+        "/facts/players/{player}/draft/age_at_draft",
+        "/facts/players/{player}/age",
+        "/facts/players/{player}/current_age",
+        "/facts/players/{player}/*age*"
+      ],
+      "derived_supersede_tokens": [
+        "age",
+        "birth",
+        "over_38",
+        "38"
+      ]
+    },
+    "player.draft_round": {
+      "label": "Round in which the player was drafted",
+      "pointer_alternatives": [
+        "/facts/players/{player}/draft/round",
+        "/facts/players/{player}/draft_round"
+      ],
+      "derived_supersede_tokens": [
+        "draft_round"
+      ]
+    },
+    "player.draft_pick_number": {
+      "label": "Pick number at which the player was drafted",
+      "pointer_alternatives": [
+        "/facts/players/{player}/draft/pick",
+        "/facts/players/{player}/draft_pick"
+      ],
+      "derived_supersede_tokens": [
+        "draft_pick",
+        "pick_number"
+      ]
+    },
+    "player.draft_team": {
+      "label": "Team that drafted the player",
+      "pointer_alternatives": [
+        "/facts/players/{player}/draft/team",
+        "/facts/players/{player}/draft_team"
+      ],
+      "derived_supersede_tokens": [
+        "draft_team"
+      ]
+    },
+    "player.honors": {
+      "label": "All-NBA / MVP / DPOY selections (Higher Max Criteria)",
+      "pointer_alternatives": [
+        "/facts/players/{player}/awards/{i}/award",
+        "/facts/players/{player}/honors/{i}/award",
+        "/facts/players/{player}/awards",
+        "/facts/players/{player}/higher_max_criteria",
+        "/facts/players/{player}/*all_nba*"
+      ],
+      "derived_supersede_tokens": [
+        "honor",
+        "all_nba",
+        "award",
+        "mvp",
+        "higher_max",
+        "criteri"
+      ]
+    },
+    "player.honors_year": {
+      "label": "Salary Cap Year in which the honor was earned",
+      "pointer_alternatives": [
+        "/facts/players/{player}/awards/{i}/cap_year",
+        "/facts/players/{player}/honors/{i}/cap_year"
+      ],
+      "derived_supersede_tokens": [
+        "honor",
+        "all_nba",
+        "award",
+        "higher_max"
+      ]
+    },
+    "player.free_agent_class": {
+      "label": "Qualifying / Early Qualifying / Non-Qualifying Veteran Free Agent status (Bird rights)",
+      "pointer_alternatives": [
+        "/facts/players/{player}/free_agent_status",
+        "/facts/players/{player}/free_agent_class",
+        "/facts/players/{player}/bird_rights",
+        "/facts/players/{player}/tested_free_market",
+        "/facts/players/{player}/player_option_declined"
+      ],
+      "derived_supersede_tokens": [
+        "free_agent",
+        "bird",
+        "qualifying"
+      ]
+    },
+    "player.transaction_history": {
+      "label": "Trades/assignments the player has been through (bears on Bird rights)",
+      "pointer_alternatives": [
+        "/facts/players/{player}/transactions/{i}/type",
+        "/facts/players/{player}/transactions/{i}/to_team",
+        "/facts/players/{player}/transactions/{i}/during/cap_year"
+      ],
+      "derived_supersede_tokens": [
+        "transaction",
+        "traded_from",
+        "bird"
+      ]
+    },
+    "player.prior_team": {
+      "label": "The player's Prior Team (the team he is currently under contract with)",
+      "pointer_alternatives": [
+        "/facts/players/{player}/contract/signed_with_team",
+        "/facts/players/{player}/prior_team",
+        "/facts/players/{player}/current_team",
+        "/facts/players/{player}/team"
+      ],
+      "derived_supersede_tokens": [
+        "prior_team",
+        "current_team"
+      ]
+    },
+    "player.contract.salary": {
+      "label": "Salary under the player's existing contract",
+      "pointer_alternatives": [
+        "/facts/players/{player}/contract/first_year_salary",
+        "/facts/players/{player}/contract/annual_salary",
+        "/facts/players/{player}/contract/salary"
+      ],
+      "derived_supersede_tokens": [
+        "salary",
+        "cap",
+        "space",
+        "room"
+      ]
+    },
+    "player.contract.increase_rate": {
+      "label": "Annual increase/decrease rate of the player's existing contract",
+      "pointer_alternatives": [
+        "/facts/players/{player}/contract/annual_change_pct",
+        "/facts/players/{player}/contract/increase_rate",
+        "/facts/players/{player}/contract/annual_increase"
+      ],
+      "derived_supersede_tokens": [
+        "increase",
+        "raise",
+        "change_pct"
+      ]
+    },
+    "player.contract.change_direction": {
+      "label": "Whether the existing contract increases or decreases year over year",
+      "pointer_alternatives": [
+        "/facts/players/{player}/contract/annual_change_direction",
+        "/facts/players/{player}/contract/annual_change_applies_to"
+      ],
+      "derived_supersede_tokens": [
+        "change_direction",
+        "increase",
+        "decrease"
+      ]
+    },
+    "player.contract.length_seasons": {
+      "label": "Number of Seasons covered by the player's existing contract",
+      "pointer_alternatives": [
+        "/facts/players/{player}/contract/years",
+        "/facts/players/{player}/contract/seasons",
+        "/facts/players/{player}/contract/length",
+        "/facts/players/{player}/contract/n_years"
+      ],
+      "derived_supersede_tokens": [
+        "contract_length",
+        "seasons",
+        "years_covered"
+      ]
+    },
+    "player.contract.signed_year": {
+      "label": "Salary Cap Year in which the player's existing contract was signed",
+      "pointer_alternatives": [
+        "/facts/players/{player}/contract/signed_during/year",
+        "/facts/players/{player}/contract/signed_year",
+        "/facts/players/{player}/contract/year_signed"
+      ],
+      "derived_supersede_tokens": [
+        "signed_year",
+        "moratorium"
+      ]
+    },
+    "player.contract.salary_kind": {
+      "label": "Whether the existing contract is explicit, Minimum Player Salary, or a percentage",
+      "redundant_if_sibling_keys": [
+        "first_year_salary",
+        "annual_salary",
+        "salary",
+        "minimum_salary_phrase"
+      ],
+      "pointer_alternatives": [
+        "/facts/players/{player}/contract/salary_kind",
+        "/facts/players/{player}/contract/is_minimum_salary",
+        "/facts/players/{player}/contract/*minimum*"
+      ],
+      "derived_supersede_tokens": [
+        "minimum",
+        "salary_kind"
+      ]
+    },
+    "player.contract.options": {
+      "label": "Option Years in the player's existing contract",
+      "pointer_alternatives": [
+        "/facts/players/{player}/contract/options/{i}/which_years",
+        "/facts/players/{player}/contract/options/{i}/option_holder",
+        "/facts/players/{player}/contract/options"
+      ],
+      "derived_supersede_tokens": [
+        "option"
+      ]
+    },
+    "operation.type": {
+      "label": "Kind of transaction (sign / trade / sign_and_trade / offer_sheet / ...)",
+      "redundant_if_sibling_keys": [
+        "trade",
+        "signings",
+        "contract"
+      ],
+      "pointer_alternatives": [
+        "/facts/operations/{op}/type",
+        "/facts/operations/{op}/operation_type"
+      ],
+      "derived_supersede_tokens": [
+        "operation_type"
+      ]
+    },
+    "operation.team": {
+      "label": "The team carrying out the operation",
+      "redundant_if_sibling_keys": [
+        "trade"
+      ],
+      "pointer_alternatives": [
+        "/facts/operations/{op}/team",
+        "/facts/operations/{op}/acting_team"
+      ],
+      "derived_supersede_tokens": [
+        "acting_team",
+        "operation_team"
+      ]
+    },
+    "operation.player": {
+      "label": "Player the operation is about",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/player",
+        "/facts/operations/{op}/signings/{i}/player",
+        "/facts/operations/{op}/subject_player"
+      ],
+      "derived_supersede_tokens": [
+        "subject_player"
+      ]
+    },
+    "operation.new_contract.salary": {
+      "label": "Salary for the first Salary Cap Year of the contract being signed",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/contract/first_year_salary",
+        "/facts/operations/{op}/contract/percent_of_salary_cap",
+        "/facts/operations/{op}/contract/stated_total_salary",
+        "/facts/operations/{op}/contract/minimum_plus_amount",
+        "/facts/operations/{op}/contract/annual_salary",
+        "/facts/operations/{op}/salary"
+      ],
+      "derived_supersede_tokens": [
+        "salary",
+        "cap",
+        "apron",
+        "room",
+        "space"
+      ]
+    },
+    "operation.new_contract.year_salary_overrides": {
+      "label": "Per-year salary overrides stated in the contract being signed",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/contract/year_salary_overrides/{i}/salary",
+        "/facts/operations/{op}/contract/year_salary_overrides/{i}/which_year"
+      ],
+      "derived_supersede_tokens": [
+        "override",
+        "year_salary",
+        "salary"
+      ]
+    },
+    "operation.new_contract.length_seasons": {
+      "label": "Number of Seasons covered by the contract being signed",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/contract/years",
+        "/facts/operations/{op}/contract/stated_total_years",
+        "/facts/operations/{op}/signings/{i}/contract/years",
+        "/facts/operations/{op}/contract/seasons"
+      ],
+      "derived_supersede_tokens": [
+        "contract_length",
+        "seasons",
+        "years_covered"
+      ]
+    },
+    "operation.new_contract.increase_rate": {
+      "label": "Annual increase/decrease rate of the contract being signed",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/contract/annual_change_pct",
+        "/facts/operations/{op}/signings/{i}/contract/annual_change_pct",
+        "/facts/operations/{op}/contract/increase_rate"
+      ],
+      "derived_supersede_tokens": [
+        "increase",
+        "raise",
+        "change_pct"
+      ]
+    },
+    "operation.new_contract.change_direction": {
+      "label": "Whether the contract being signed increases or decreases year over year",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/contract/annual_change_direction",
+        "/facts/operations/{op}/contract/annual_change_applies_to",
+        "/facts/operations/{op}/contract/percent_applies_to_first_two_cap_years"
+      ],
+      "derived_supersede_tokens": [
+        "change_direction",
+        "increase",
+        "decrease"
+      ]
+    },
+    "operation.new_contract.salary_kind": {
+      "label": "Whether the new contract is explicit, Minimum Player Salary, a percentage, or an exception amount",
+      "redundant_if_sibling_keys": [
+        "first_year_salary",
+        "percent_of_salary_cap",
+        "stated_total_salary",
+        "minimum_plus_amount",
+        "minimum_salary_phrase"
+      ],
+      "pointer_alternatives": [
+        "/facts/operations/{op}/contract/salary_kind",
+        "/facts/operations/{op}/signings/{i}/contract/salary_kind"
+      ],
+      "derived_supersede_tokens": [
+        "salary_kind",
+        "minimum"
+      ]
+    },
+    "operation.new_contract.exception_used": {
+      "label": "Salary Cap Exception invoked for the signing/acquisition",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/contract/mle_cap_years",
+        "/facts/operations/{op}/exception",
+        "/facts/operations/{op}/exception_used",
+        "/facts/operations/{op}/*exception*"
+      ],
+      "derived_supersede_tokens": [
+        "exception"
+      ]
+    },
+    "operation.cash_amount": {
+      "label": "Cash paid or received in connection with the trade",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/trade/sends/{i}/amount",
+        "/facts/operations/{op}/trade/receives/{i}/amount",
+        "/facts/operations/{op}/cash",
+        "/facts/operations/{op}/cash_amount"
+      ],
+      "derived_supersede_tokens": [
+        "cash"
+      ]
+    },
+    "operation.draft_picks_traded": {
+      "label": "First-round draft picks changing hands in the operation",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/trade/sends/{i}/year",
+        "/facts/operations/{op}/trade/sends/{i}/round",
+        "/facts/operations/{op}/trade/receives/{i}/year",
+        "/facts/operations/{op}/draft_picks"
+      ],
+      "derived_supersede_tokens": [
+        "pick",
+        "stepien"
+      ]
+    },
+    "operation.counterparty_team": {
+      "label": "The other team in the trade / the acquiring team",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/trade/to_team",
+        "/facts/operations/{op}/trade/from_team",
+        "/facts/operations/{op}/from_team",
+        "/facts/operations/{op}/to_team",
+        "/facts/operations/{op}/acquiring_team"
+      ],
+      "derived_supersede_tokens": [
+        "acquiring",
+        "assignee",
+        "counterparty"
+      ]
+    },
+    "operation.players_out": {
+      "label": "Traded Players sent away by the team",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/trade/sends/{i}/player",
+        "/facts/operations/{op}/players_out",
+        "/facts/operations/{op}/traded_players"
+      ],
+      "derived_supersede_tokens": [
+        "players_out",
+        "traded_player",
+        "outgoing"
+      ]
+    },
+    "operation.players_in": {
+      "label": "Replacement Players acquired by the team",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/trade/receives/{i}/player",
+        "/facts/operations/{op}/players_in",
+        "/facts/operations/{op}/replacement_players"
+      ],
+      "derived_supersede_tokens": [
+        "players_in",
+        "replacement_player",
+        "incoming"
+      ]
+    },
+    "operation.timing": {
+      "label": "When in the Salary Cap Year the operation happens",
+      "pointer_alternatives": [
+        "/facts/operations/{op}/timing/month",
+        "/facts/operations/{op}/timing/year",
+        "/facts/operations/{op}/timing/day"
+      ],
+      "derived_supersede_tokens": [
+        "timing",
+        "date",
+        "month"
+      ]
+    }
+  },
+  "rules": {
+    "aggregated_standard_traded_player_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "A Team may use the “Aggregated Standard Traded Player Exception” to replace two (2) or more Traded Players with one (1) or more Replacement Players whose Player Contracts are acquired simultaneously and whose post-trade Salaries for the then-current Salary Cap Year, in the aggregate, are no more than an amount equal to one hundred percent (100%) of the aggregated pre-trade Salaries of the Traded Players, plus $250,000.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.aggregated_standard_traded_player_exception",
+      "required_roles": [
+        "team.salary",
+        "operation.players_out",
+        "operation.players_in",
+        "player.contract.salary"
+      ]
+    },
+    "aggregated_traded_player_exception_hard_cap_second_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "A Team may not acquire a player using an Aggregated Standard Traded Player Exception if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the Second Apron Level.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.aggregated_traded_player_exception_hard_cap_second_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.players_in",
+        "operation.players_out",
+        "operation.counterparty_team"
+      ]
+    },
+    "bi_annual_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Team may use the Bi-annual Exception during a Salary Cap Year to sign and/or acquire by assignment one (1) or more Player Contracts during each Salary Cap Year (i) if the Team has not used the Mid-Level Salary Exception for Room Teams in that same Salary Cap Year, and (ii) not in any two (2) consecutive Salary Cap Years.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.bi_annual_exception",
+      "required_roles": [
+        "team.exceptions_used",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary"
+      ]
+    },
+    "bi_annual_exception_hard_cap_first_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 2 and Section 6 (Apron Levels)",
+      "rule_text_verbatim": "A Team may not sign or acquire a player using the Bi-annual Exception if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the First Apron Level.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.bi_annual_exception_hard_cap_first_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.team",
+        "operation.new_contract.salary",
+        "operation.new_contract.exception_used"
+      ]
+    },
+    "cash_in_trade_hard_cap_second_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules",
+      "rule_text_verbatim": "A Team may not pay cash to another Team in connection with a trade if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the Second Apron Level.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.cash_in_trade_hard_cap_second_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.cash_amount",
+        "operation.counterparty_team"
+      ]
+    },
+    "contract_length_at_most_2_year_bi_annual_exception": {
+      "alias_of": null,
+      "cba_locator": "Article IX: Length of Player Contracts; Article VII, Section 6",
+      "rule_text_verbatim": "A Player Contract signed using Bi-annual Exception may not exceed two (2) Seasons in length.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.contract_length_at_most_2_year_bi_annual_exception",
+      "required_roles": [
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "contract_length_at_most_2_year_minimum_player_salary_exception": {
+      "alias_of": null,
+      "cba_locator": "Article IX: Length of Player Contracts; Article VII, Section 6",
+      "rule_text_verbatim": "A Player Contract signed using Minimum Player Salary Exception may not exceed two (2) Seasons in length.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.contract_length_at_most_2_year_minimum_player_salary_exception",
+      "required_roles": [
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "contract_length_at_most_2_year_taxpayer_mid_level_exception": {
+      "alias_of": null,
+      "cba_locator": "Article IX: Length of Player Contracts; Article VII, Section 6",
+      "rule_text_verbatim": "A Player Contract signed using Taxpayer Mid-Level Exception may not exceed two (2) Seasons in length.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.contract_length_at_most_2_year_taxpayer_mid_level_exception",
+      "required_roles": [
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "contract_length_at_most_3_year_mid_level_exception_for_room_team": {
+      "alias_of": null,
+      "cba_locator": "Article IX: Length of Player Contracts; Article VII, Section 6",
+      "rule_text_verbatim": "A Player Contract signed using Mid-Level Exception for Room Teams may not exceed two (3) Seasons in length.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.contract_length_at_most_3_year_mid_level_exception_for_room_team",
+      "required_roles": [
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "contract_length_at_most_4_year_except_qualifying_veteran_free_agent_5_year": {
+      "alias_of": null,
+      "cba_locator": "Article IX: Length of Player Contracts; Article VII, Section 6",
+      "rule_text_verbatim": "A Player Contract may cover, in the aggregate, up to but no more than four (4) Seasons from the date such Contract is signed; provided, however, that a Player Contract between a Qualifying Veteran Free Agent and his Prior Team may cover, in the aggregate, up to but no more than five (5) Seasons from the date such Contract is signed.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.contract_length_at_most_4_year_except_qualifying_veteran_free_agent_5_year",
+      "required_roles": [
+        "operation.new_contract.length_seasons",
+        "player.free_agent_class",
+        "player.prior_team",
+        "operation.team"
+      ]
+    },
+    "contract_length_at_most_4_year_non_taxpayer_mid_level_exception": {
+      "alias_of": null,
+      "cba_locator": "Article IX: Length of Player Contracts; Article VII, Section 6",
+      "rule_text_verbatim": "A Player Contract signed using Non-Taxpayer Mid-Level Exception may not exceed two (4) Seasons in length.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.contract_length_at_most_4_year_non_taxpayer_mid_level_exception",
+      "required_roles": [
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "defer_compensation_38_year_old": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 3: Determination of Salary (Over 38 Contracts)",
+      "rule_text_verbatim": "Except a Qualifying Veteran Free Agent who is age 35 or 36, the aggregate Salaries in an Over 38 Contract (covers four (4) or more Seasons, including one (1) or more Seasons commencing after such player will reach or has reached age thirty-eight (38)) for Salary Cap Years commencing with the fourth Salary Cap Year of such Over 38 Contract or the first Salary Cap Year that covers a Season that follows the player’s 38th birthday, whichever is later, shall be attributed to the prior Salary Cap Years pro rata on the basis of the Salaries for such prior Salary Cap Years.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.defer_compensation_38_year_old",
+      "required_roles": [
+        "player.age_at_draft",
+        "player.draft_year",
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.salary"
+      ]
+    },
+    "defer_compensation_qualifying_veteran_free_agent_38_year_old": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 3: Determination of Salary (Over 38 Contracts)",
+      "rule_text_verbatim": "If a Qualifying Veteran Free Agent who is age 35 or 36 enters into an Over 38 Contract (covers four (4) or more Seasons, including one (1) or more Seasons commencing after such player will reach or has reached age thirty-eight (38)) with his Prior Team covering five (5) Seasons, the Salary in such Over 38 Contract for the fifth Salary Cap Year shall be attributed to the prior Salary Cap Years pro rata on the basis of the Salaries for such prior Salary Cap Years.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.defer_compensation_qualifying_veteran_free_agent_38_year_old",
+      "required_roles": [
+        "player.age_at_draft",
+        "player.draft_year",
+        "player.free_agent_class",
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.salary"
+      ]
+    },
+    "early_qualifying_veteran_free_agent_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Early Qualifying Veteran Free Agent may have a Salary Cap Excetion, according to which the player may enter into a new Player Contract with his Prior Team.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.early_qualifying_veteran_free_agent_exception",
+      "required_roles": [
+        "player.free_agent_class",
+        "player.prior_team",
+        "player.contract.length_seasons",
+        "player.contract.signed_year",
+        "player.transaction_history"
+      ]
+    },
+    "expanded_traded_player_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "A Team may use the “Expanded Traded Player Exception” to replace one (1) or more Traded Players with one (1) or more Replacement Players whose Player Contracts are acquired simultaneously and whose post-trade Salaries for the then-current Salary Cap Year, in the aggregate, are no more than an amount not less than one hundred twenty-five percent (125%) of the aggregated pre-trade Salaries of the Traded Player(s), plus $250,000.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.expanded_traded_player_exception",
+      "required_roles": [
+        "team.salary",
+        "operation.players_out",
+        "operation.players_in",
+        "player.contract.salary"
+      ]
+    },
+    "expanded_traded_player_exception_hard_cap_first_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "A Team may not acquire a player using an Expanded Traded Player Exception if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the First Apron Level.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.expanded_traded_player_exception_hard_cap_first_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.players_in",
+        "operation.players_out",
+        "operation.counterparty_team"
+      ]
+    },
+    "free_agent_sign_contract_cannot_be_traded_within_3_month_or_before_dec_15": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules",
+      "rule_text_verbatim": "No player who signs a Standard NBA Contract as a Free Agent (or who signs a Standard NBA Contract while under a Two-Way Contract) may be traded before the later of (A) three (3) months following the date on which such Contract was signed or (B) the December 15 of the Salary Cap Year in which such Contract was signed.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.free_agent_sign_contract_cannot_be_traded_within_3_month_or_before_dec_15",
+      "required_roles": [
+        "operation.type",
+        "operation.timing",
+        "player.free_agent_class",
+        "player.contract.signed_year"
+      ]
+    },
+    "higher_max_criterion_for_5th_year_eligible_player": {
+      "alias_of": null,
+      "cba_locator": "Article II, Section 7: Maximum Annual Salary",
+      "rule_text_verbatim": "A player who has four (4) Years of Service covered by his Player Contract (“5th Year Eligible Players”) shall be eligible to receive from his Prior Team up to thirty percent (30%) of the Salary Cap in effect at the time the Contract is executed if the player has met at least one of the “Higher Max Criteria”.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.higher_max_criterion_for_5th_year_eligible_player",
+      "required_roles": [
+        "player.years_of_service",
+        "player.draft_year",
+        "player.honors",
+        "player.honors_year",
+        "player.prior_team",
+        "operation.new_contract.salary"
+      ]
+    },
+    "maximum_salary_for_player_10_or_more_year_service": {
+      "alias_of": null,
+      "cba_locator": "Article II, Section 7: Maximum Annual Salary",
+      "rule_text_verbatim": "For any player who has completed ten (10) or more Years of Service, his Player Contract may not provide for a Salary in the first Season covered by the Contract that exceeds thirty-five percent (35%) of the Salary Cap.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.maximum_salary_for_player_10_or_more_year_service",
+      "required_roles": [
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.salary",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "maximum_salary_for_player_7_to_9_year_service": {
+      "alias_of": null,
+      "cba_locator": "Article II, Section 7: Maximum Annual Salary",
+      "rule_text_verbatim": "For any player who has completed at least seven (7) but fewer than ten (10) Years of Service, his Player Contract may not provide for a Salary in the first Season covered by the Contract that exceeds thirty percent (30%) of the Salary Cap.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.maximum_salary_for_player_7_to_9_year_service",
+      "required_roles": [
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.salary",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "maximum_salary_for_player_less_than_7_year_service": {
+      "alias_of": null,
+      "cba_locator": "Article II, Section 7: Maximum Annual Salary",
+      "rule_text_verbatim": "For any player who has completed fewer than seven (7) Years of Service, his Player Contract may not provide for a Salary in the first Season that exceeds twenty-five percent (25%) of the Salary Cap.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.maximum_salary_for_player_less_than_7_year_service",
+      "required_roles": [
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.salary",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "mid_level_exception_for_room_team": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "In the event (i) a Team’s Team Salary at any time during a Salary Cap Year is below the Salary Cap for such Salary Cap Year, and (ii) at the time the Team proposes to use the Mid-Level Salary Exception for Room Teams, the Team has not already used either the Bi-annual Exception, the Non-Taxpayer Mid-Level Salary Exception, or the Taxpayer Mid-Level Salary Exception in that same Salary Cap Year, then the Team may at such time use the Mid-Level Salary Exception for Room Teams to sign and/or acquire by assignment one (1) or more Player Contracts.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.mid_level_exception_for_room_team",
+      "required_roles": [
+        "team.salary",
+        "team.exceptions_used",
+        "operation.new_contract.exception_used"
+      ]
+    },
+    "minimum_player_salary_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Team may sign a player to, or acquire by assignment, a Player Contract, not to exceed two (2) Seasons in length, that provides for a Salary for the first Season equal to the Minimum Player Salary applicable to that player.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.minimum_player_salary_exception",
+      "required_roles": [
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.salary_kind",
+        "operation.new_contract.length_seasons"
+      ]
+    },
+    "non_qualifying_veteran_free_agent_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Non-Qualifying Veteran Free Agent may have a Salary Cap Excetion, according to which the player may enter into a new Player Contract with his Prior Team.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.non_qualifying_veteran_free_agent_exception",
+      "required_roles": [
+        "player.free_agent_class",
+        "player.prior_team",
+        "player.contract.length_seasons",
+        "player.contract.signed_year",
+        "player.transaction_history"
+      ]
+    },
+    "non_taxpayer_mid_level_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Team may use the Non-Taxpayer Mid-Level Salary Exception to sign and/or acquire by assignment one (1) or more Player Contracts during each Salary Cap Year. If a Veteran Free Agent with one (1) or two (2) Years of Service receives an Offer Sheet, the player’s Prior Team may use the Non-Taxpayer Mid-Level Salary Exception to match the Offer Sheet.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.non_taxpayer_mid_level_exception",
+      "required_roles": [
+        "team.salary",
+        "team.exceptions_used",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary"
+      ]
+    },
+    "non_taxpayer_mid_level_exception_hard_cap_first_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 2 and Section 6 (Apron Levels)",
+      "rule_text_verbatim": "A Team may not sign or acquire a player using the Non-Taxpayer Mid-Level Exception if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the First Apron Level.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.non_taxpayer_mid_level_exception_hard_cap_first_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.team",
+        "operation.new_contract.salary",
+        "operation.new_contract.exception_used"
+      ]
+    },
+    "offer_sheet_for_1_or_2_year_service_player_3rd_year_maximum_if_first_2_year_maximum": {
+      "alias_of": null,
+      "cba_locator": "Article XI, Section 5: Restricted Free Agency",
+      "rule_text_verbatim": "If an Offer Sheet provides for the maximum allowable amount of Salary for the first two (2) Salary Cap Years, then the Offer Sheet may provide for Salary for the third Salary Cap Year of up to the maximum amount that the player would have been eligible to receive for the third Salary Cap Year.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.offer_sheet_for_1_or_2_year_service_player_3rd_year_maximum_if_first_2_year_maximum",
+      "required_roles": [
+        "operation.type",
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.salary",
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.year_salary_overrides"
+      ]
+    },
+    "offer_sheet_for_1_or_2_year_service_player_4th_year_maximum_if_3_year": {
+      "alias_of": null,
+      "cba_locator": "Article XI, Section 5: Restricted Free Agency",
+      "rule_text_verbatim": "If the Offer Sheet provides for Salary for the third Salary Cap Year, then the player’s Salary for the fourth Salary Cap Year may increase or decrease in relation to the third Salary Cap Year’s Salary by no more than 4.5% of the Salary for the third Salary Cap Year.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.offer_sheet_for_1_or_2_year_service_player_4th_year_maximum_if_3_year",
+      "required_roles": [
+        "operation.type",
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.increase_rate",
+        "operation.new_contract.year_salary_overrides"
+      ]
+    },
+    "offer_sheet_for_1_or_2_year_service_player_average_salary_more_than_2_year": {
+      "alias_of": null,
+      "cba_locator": "Article XI, Section 5: Restricted Free Agency",
+      "rule_text_verbatim": "If a Team extends an Offer Sheet in accordance with Section 5(d)(ii) above, then, for purposes of determining whether the Team has Room for the Offer Sheet, the Salary for the first Salary Cap Year shall be deemed to equal the average of the aggregate Salaries for all Salary Cap Years covered by the Offer Sheet.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.offer_sheet_for_1_or_2_year_service_player_average_salary_more_than_2_year",
+      "required_roles": [
+        "operation.type",
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.salary",
+        "operation.new_contract.increase_rate",
+        "team.salary"
+      ]
+    },
+    "offer_sheet_for_1_or_2_year_service_player_no_more_than_mid_level_in_first_2_year": {
+      "alias_of": null,
+      "cba_locator": "Article XI, Section 5: Restricted Free Agency",
+      "rule_text_verbatim": "No Offer Sheet may provide for Salary in the first Salary Cap Year totaling more than the amount of the Non-Taxpayer Mid-Level Salary Exception for such Salary Cap Year.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.offer_sheet_for_1_or_2_year_service_player_no_more_than_mid_level_in_first_2_year",
+      "required_roles": [
+        "operation.type",
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.salary"
+      ]
+    },
+    "pay_or_receive_cash_maximum_in_a_year": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules",
+      "rule_text_verbatim": "A Team shall be permitted to pay or receive in connection with one (1) or more trades during a Salary Cap Year up to an aggregate amount equal to 5.15% of the Salary Cap for such Salary Cap Year in cash across all such trades.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.pay_or_receive_cash_maximum_in_a_year",
+      "required_roles": [
+        "operation.cash_amount"
+      ]
+    },
+    "qualifying_or_early_qualifying_free_agent_sign_contract_cannot_be_traded_within_3_month_or_before_jan_15": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules",
+      "rule_text_verbatim": "Any player who signs a Standard NBA Contract with his prior Team meeting the following criteria may not be traded before the later of (x) three (3) months following the date on which such Contract was signed or (y) the January 15 of the Salary Cap Year in which such Contract was signed: the Team Salary of the player’s Team is above the Salary Cap immediately following the Contract signing and the player is a Qualifying Veteran Free Agent or Early Qualifying Veteran Free Agent who enters into a new Player Contract with his prior Team that provides for a Salary for the first Season of such new Contract greater than one hundred twenty percent (120%) of the Salary for the last Season of the player’s immediately prior Contract.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.qualifying_or_early_qualifying_free_agent_sign_contract_cannot_be_traded_within_3_month_or_before_jan_15",
+      "required_roles": [
+        "operation.type",
+        "operation.timing",
+        "player.free_agent_class",
+        "player.prior_team",
+        "team.salary",
+        "operation.new_contract.salary",
+        "player.contract.salary"
+      ]
+    },
+    "qualifying_veteran_free_agent_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Qualifying Veteran Free Agent may have a Salary Cap Excetion, according to which the player may enter into a new Player Contract with his Prior Team.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.qualifying_veteran_free_agent_exception",
+      "required_roles": [
+        "player.free_agent_class",
+        "player.prior_team",
+        "player.contract.length_seasons",
+        "player.contract.signed_year",
+        "player.transaction_history"
+      ]
+    },
+    "rookie_or_two_way_contract_cannot_be_traded_within_30_days": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules",
+      "rule_text_verbatim": "No Draft Rookie who signs a Standard NBA Contract or player who signs a Two-Way Contract may be traded before thirty (30) days following the date on which the Contract is signed.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.rookie_or_two_way_contract_cannot_be_traded_within_30_days",
+      "required_roles": [
+        "operation.type",
+        "operation.timing",
+        "player.contract.signed_year",
+        "player.draft_year"
+      ]
+    },
+    "salary_cap_no_exceed_without_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 2: Salary Cap, ... and Apron Levels",
+      "rule_text_verbatim": "A Team’s Team Salary may not exceed the Salary Cap at any time unless the Team is using one of the Exceptions.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.salary_cap_no_exceed_without_exception",
+      "required_roles": [
+        "team.salary",
+        "operation.team",
+        "operation.new_contract.salary",
+        "operation.new_contract.salary_kind",
+        "operation.new_contract.exception_used"
+      ]
+    },
+    "salary_increase_and_decrease_ratio_except_qualiyfing_or_early_qualifying_veteran_free_agent": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 5: Salary Cap Contract Structure Rules",
+      "rule_text_verbatim": "For all Player Contracts other than Contracts between Qualifying Veteran Free Agents or Early Qualifying Veteran Free Agents and their Prior Team: For each Salary Cap Year covered by a Player Contract after the first Salary Cap Year, the player’s Salary may increase or decrease in relation to the previous Salary Cap Year’s Salary by no more than five percent (5%) of the Salary for the first Salary Cap Year covered by the Contract.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.salary_increase_and_decrease_ratio_except_qualiyfing_or_early_qualifying_veteran_free_agent",
+      "required_roles": [
+        "operation.new_contract.increase_rate",
+        "operation.new_contract.change_direction",
+        "operation.new_contract.salary",
+        "operation.new_contract.length_seasons",
+        "player.free_agent_class"
+      ]
+    },
+    "salary_increase_and_decrease_ratio_for_qualiyfing_or_early_qualifying_veteran_free_agent": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 5: Salary Cap Contract Structure Rules",
+      "rule_text_verbatim": "For all Player Contracts between Qualifying Veteran Free Agents or Early Qualifying Veteran Free Agents and their Prior Team (except any such Contracts signed pursuant to a Bi-Annual Exception, any kind of Mid-Level Exception, and sign-and-trade): For each Salary Cap Year covered by a Player Contract after the first Salary Cap Year, the player’s Salary may increase or decrease in relation to the previous Salary Cap Year’s Salary by no more than eight percent (8%) of the Salary for the first Salary Cap Year covered by the Contract.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.salary_increase_and_decrease_ratio_for_qualiyfing_or_early_qualifying_veteran_free_agent",
+      "required_roles": [
+        "operation.new_contract.increase_rate",
+        "operation.new_contract.change_direction",
+        "operation.new_contract.salary",
+        "operation.new_contract.length_seasons",
+        "player.free_agent_class",
+        "player.prior_team"
+      ]
+    },
+    "salary_space_consumption_early_qualifying_veteran_free_agent": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 4: Determination of Team Salary",
+      "rule_text_verbatim": "For purposes of computing Team Salary, an Early Qualifying Veteran Free Agent will be included at one hundred thirty percent (130%) of his prior Salary.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.salary_space_consumption_early_qualifying_veteran_free_agent",
+      "required_roles": [
+        "player.free_agent_class",
+        "player.contract.salary",
+        "player.contract.increase_rate",
+        "player.contract.length_seasons"
+      ]
+    },
+    "salary_space_consumption_non_qualifying_veteran_free_agent": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 4: Determination of Team Salary",
+      "rule_text_verbatim": "For purposes of computing Team Salary, a Non-Qualifying Veteran Free Agent will be included at one hundred twenty percent (120%) of his prior Salary.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.salary_space_consumption_non_qualifying_veteran_free_agent",
+      "required_roles": [
+        "player.free_agent_class",
+        "player.contract.salary",
+        "player.contract.increase_rate",
+        "player.contract.length_seasons"
+      ]
+    },
+    "salary_space_consumption_qualifying_veteran_free_agent": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 4: Determination of Team Salary",
+      "rule_text_verbatim": "For purposes of computing Team Salary, a Qualifying Veteran Free Agent, other than who follows the second Option Year of his Rookie Scale Contract, will be included at no less than one hundred fifty percent (150%) of his prior Salary.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.salary_space_consumption_qualifying_veteran_free_agent",
+      "required_roles": [
+        "player.free_agent_class",
+        "player.contract.salary",
+        "player.contract.increase_rate",
+        "player.contract.length_seasons"
+      ]
+    },
+    "salary_space_consumption_standard_traded_player_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "For purposes of computing Team Salary, the Standard Traded Player Exception will be included at one hundred percent (100%) of its amount.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.salary_space_consumption_standard_traded_player_exception",
+      "required_roles": [
+        "operation.players_out",
+        "player.contract.salary"
+      ]
+    },
+    "sign_and_trade_3_to_4_year": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules (sign-and-trade)",
+      "rule_text_verbatim": "In sign-and-trade scenario, a Veteran Free Agent and his Prior Team may enter into a Player Contract to be traded for at least three (3) Seasons (excluding any Option Year) but no more than four (4) Seasons in length.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.sign_and_trade_3_to_4_year",
+      "required_roles": [
+        "operation.type",
+        "operation.new_contract.length_seasons",
+        "player.contract.options"
+      ]
+    },
+    "sign_and_trade_assignee_team_has_room": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules (sign-and-trade)",
+      "rule_text_verbatim": "A Veteran Free Agent and his Prior Team may enter into a Player Contract pursuant to an agreement between the Prior Team and another Team concerning the signing and subsequent trade of such Contract only if the acquiring Team has Room for the player’s Salary provided for in the first Season of the Contract.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.sign_and_trade_assignee_team_has_room",
+      "required_roles": [
+        "operation.type",
+        "operation.counterparty_team",
+        "team.salary",
+        "operation.new_contract.salary"
+      ]
+    },
+    "sign_and_trade_assigner_traded_player_exception_hard_cap_second_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules (sign-and-trade)",
+      "rule_text_verbatim": "A Team may not acquires a player using a Traded Player Exception, which Traded Player Exception is in respect of a Player Contract signed and traded, if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the Second Apron Level.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.sign_and_trade_assigner_traded_player_exception_hard_cap_second_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.type",
+        "operation.new_contract.salary",
+        "operation.counterparty_team"
+      ]
+    },
+    "sign_and_trade_hard_cap_first_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules (sign-and-trade)",
+      "rule_text_verbatim": "A Team may not acquire a player pursuant to a Contract entered into in accordance with sign-and-trade if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the First Apron Level.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.sign_and_trade_hard_cap_first_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.type",
+        "operation.new_contract.salary",
+        "operation.counterparty_team"
+      ]
+    },
+    "sign_and_trade_no_higher_than_25_percent_for_higher_max_5th_year_eligible_player": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules (sign-and-trade)",
+      "rule_text_verbatim": "A Veteran Free Agent and his Prior Team may enter into a Player Contract pursuant to an agreement between the Prior Team and another Team concerning the signing and subsequent trade of such Contract only if with respect to any 5th Year Eligible Player who met one of the Higher Max Criteria, the Contract may not provide the player with Salary in excess of twenty-five percent (25%) of the Salary Cap.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.sign_and_trade_no_higher_than_25_percent_for_higher_max_5th_year_eligible_player",
+      "required_roles": [
+        "operation.type",
+        "player.years_of_service",
+        "player.draft_year",
+        "player.honors",
+        "player.honors_year",
+        "operation.new_contract.salary"
+      ]
+    },
+    "sign_and_trade_not_with_mid_level_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules (sign-and-trade)",
+      "rule_text_verbatim": "In sign-and-trade scenario, a Veteran Free Agent and his Prior Team may not enter into a Player Contract to be traded pursuant to the Mid-Level Salary Cap Exceptions.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.sign_and_trade_not_with_mid_level_exception",
+      "required_roles": [
+        "operation.type",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary_kind"
+      ]
+    },
+    "sign_and_trade_qualifying_free_agent_half_salary_for_traded_player_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 8: Trade Rules (sign-and-trade)",
+      "rule_text_verbatim": "In sign-and-trade scenario, to compute the amount of the Traded Player Exception, the Salary of the Qualifying Veteran Free Agent or Early Qualifying Veteran Free Agent should be deemed reduced in some cases.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.sign_and_trade_qualifying_free_agent_half_salary_for_traded_player_exception",
+      "required_roles": [
+        "operation.type",
+        "player.free_agent_class",
+        "operation.new_contract.salary",
+        "player.contract.salary"
+      ]
+    },
+    "standard_traded_player_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "A Team may use the “Standard Traded Player Exception” to replace one (1) Traded Player with one (1) or more Replacement Players whose Player Contracts are acquired simultaneously or non-simultaneously and whose post-assignment Salaries for the Salary Cap Year in which the Replacement Player(s) are acquired, in the aggregate, are no more than an amount equal to one hundred percent (100%) of the pre-trade Salary of the Traded Player, plus $250,000.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.standard_traded_player_exception",
+      "required_roles": [
+        "team.salary",
+        "operation.players_out",
+        "operation.players_in",
+        "player.contract.salary"
+      ]
+    },
+    "stepien_rule_no_sell_or_no_consecutive_first_round_draft_pick_trade": {
+      "alias_of": null,
+      "cba_locator": "By-Laws, Section 7: NBA Draft; Article VII, Section 8",
+      "rule_text_verbatim": "A Team cannot sell its first-round draft picks of any NBA Draft for cash or its equivalent, or trade or exchange its first-round draft picks of any NBA Draft if the result of such trade or exchange may be to leave the Member without first-round picks in any two (2) consecutive future NBA Drafts.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.stepien_rule_no_sell_or_no_consecutive_first_round_draft_pick_trade",
+      "required_roles": [
+        "team.first_round_picks_owned",
+        "team.first_round_picks_missing",
+        "team.first_round_picks_acquired",
+        "operation.draft_picks_traded",
+        "operation.cash_amount"
+      ]
+    },
+    "taxpayer_mid_level_exception": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Team may use the Taxpayer Mid-Level Salary Exception to sign one (1) or more Player Contracts during each Salary Cap Year not to exceed two (2) Seasons in length, that, in the aggregate, provide for Salaries up to about $5 million.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.taxpayer_mid_level_exception",
+      "required_roles": [
+        "team.salary",
+        "team.exceptions_used",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary",
+        "operation.new_contract.length_seasons"
+      ]
+    },
+    "taxpayer_mid_level_exception_hard_cap_second_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 2 and Section 6 (Apron Levels)",
+      "rule_text_verbatim": "A Team may not sign a player using the Taxpayer Mid-Level Salary Exception if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the Second Apron Level.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.taxpayer_mid_level_exception_hard_cap_second_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.team",
+        "operation.new_contract.salary",
+        "operation.new_contract.exception_used"
+      ]
+    },
+    "traded_player_exception_250k_reduced_first_apron_level": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "If a Team’s post-assignment Team Salary would exceed the First Apron Level, then the $250,000 allowance referenced in each Traded Player Exception shall be reduced to $0.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.traded_player_exception_250k_reduced_first_apron_level",
+      "required_roles": [
+        "team.salary"
+      ]
+    },
+    "traded_player_exception_for_room_team": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "A Team with a Team Salary below the Salary Cap may acquire one (1) or more players by assignment whose post-assignment Salaries, in the aggregate, are no more than an amount equal to the Team’s room under the Salary Cap plus $250,000.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.traded_player_exception_for_room_team",
+      "required_roles": [
+        "team.salary",
+        "operation.players_in",
+        "player.contract.salary"
+      ]
+    },
+    "traded_player_exception_only_one_minimum_traded_player_under_conditions": {
+      "alias_of": null,
+      "cba_locator": "Article VII, Section 6(j): Traded Player Exceptions",
+      "rule_text_verbatim": "Other than during the period beginning on December 15 of a Salary Cap Year through the NBA trade deadline of such Salary Cap Year, if a Team is aggregating the Contracts of three (3) or more Traded Players in a trade and the number of Replacement Players that the Team is acquiring in respect of such Traded Players is less than the number of such Traded Players, then no more than one (1) of such Traded Players may be a Minimum Salary Player.",
+      "rule_text_source": "rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.traded_player_exception_only_one_minimum_traded_player_under_conditions",
+      "required_roles": [
+        "operation.players_out",
+        "operation.players_in",
+        "player.contract.salary_kind",
+        "operation.timing"
+      ]
+    },
+    "defer_compensation_38_year_old_qualifying_veteran_free_agent_38_year_old": {
+      "alias_of": "defer_compensation_qualifying_veteran_free_agent_38_year_old",
+      "cba_locator": "Article VII, Section 3: Determination of Salary (Over 38 Contracts)",
+      "rule_text_verbatim": "If a Qualifying Veteran Free Agent who is age 35 or 36 enters into an Over 38 Contract (covers four (4) or more Seasons, including one (1) or more Seasons commencing after such player will reach or has reached age thirty-eight (38)) with his Prior Team covering five (5) Seasons, the Salary in such Over 38 Contract for the fifth Salary Cap Year shall be attributed to the prior Salary Cap Years pro rata on the basis of the Salaries for such prior Salary Cap Years.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.defer_compensation_qualifying_veteran_free_agent_38_year_old",
+      "required_roles": [
+        "player.age_at_draft",
+        "player.draft_year",
+        "player.free_agent_class",
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.salary"
+      ]
+    },
+    "non_taxpayer_mid_level_exception_hard_cap_second_apron_level": {
+      "alias_of": "non_taxpayer_mid_level_exception_hard_cap_first_apron_level",
+      "cba_locator": "Article VII, Section 2 and Section 6 (Apron Levels)",
+      "rule_text_verbatim": "A Team may not sign or acquire a player using the Non-Taxpayer Mid-Level Exception if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the First Apron Level.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.non_taxpayer_mid_level_exception_hard_cap_first_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.team",
+        "operation.new_contract.salary",
+        "operation.new_contract.exception_used"
+      ]
+    },
+    "nontaxpayer_mid_level_exception": {
+      "alias_of": "non_taxpayer_mid_level_exception",
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Team may use the Non-Taxpayer Mid-Level Salary Exception to sign and/or acquire by assignment one (1) or more Player Contracts during each Salary Cap Year. If a Veteran Free Agent with one (1) or two (2) Years of Service receives an Offer Sheet, the player’s Prior Team may use the Non-Taxpayer Mid-Level Salary Exception to match the Offer Sheet.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.non_taxpayer_mid_level_exception",
+      "required_roles": [
+        "team.salary",
+        "team.exceptions_used",
+        "operation.new_contract.exception_used",
+        "operation.new_contract.salary"
+      ]
+    },
+    "nontaxpayer_mid_level_exception_hard_cap_first_apron_level": {
+      "alias_of": "non_taxpayer_mid_level_exception_hard_cap_first_apron_level",
+      "cba_locator": "Article VII, Section 2 and Section 6 (Apron Levels)",
+      "rule_text_verbatim": "A Team may not sign or acquire a player using the Non-Taxpayer Mid-Level Exception if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the First Apron Level.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.non_taxpayer_mid_level_exception_hard_cap_first_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.team",
+        "operation.new_contract.salary",
+        "operation.new_contract.exception_used"
+      ]
+    },
+    "offer_sheet_for_1_or_2_year_service_player_4th_year_maximum_if_first_3_year_maximum": {
+      "alias_of": "offer_sheet_for_1_or_2_year_service_player_4th_year_maximum_if_3_year",
+      "cba_locator": "Article XI, Section 5: Restricted Free Agency",
+      "rule_text_verbatim": "If the Offer Sheet provides for Salary for the third Salary Cap Year, then the player’s Salary for the fourth Salary Cap Year may increase or decrease in relation to the third Salary Cap Year’s Salary by no more than 4.5% of the Salary for the third Salary Cap Year.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.offer_sheet_for_1_or_2_year_service_player_4th_year_maximum_if_3_year",
+      "required_roles": [
+        "operation.type",
+        "player.years_of_service",
+        "player.draft_year",
+        "operation.new_contract.length_seasons",
+        "operation.new_contract.increase_rate",
+        "operation.new_contract.year_salary_overrides"
+      ]
+    },
+    "qualified_veteran_free_agent_exception": {
+      "alias_of": "qualifying_veteran_free_agent_exception",
+      "cba_locator": "Article VII, Section 6: Exceptions to the Salary Cap",
+      "rule_text_verbatim": "A Qualifying Veteran Free Agent may have a Salary Cap Excetion, according to which the player may enter into a new Player Contract with his Prior Team.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.qualifying_veteran_free_agent_exception",
+      "required_roles": [
+        "player.free_agent_class",
+        "player.prior_team",
+        "player.contract.length_seasons",
+        "player.contract.signed_year",
+        "player.transaction_history"
+      ]
+    },
+    "salary_increase_and_decrease_ratio_qualiyfing_or_early_qualifying_veteran_free_agent": {
+      "alias_of": "salary_increase_and_decrease_ratio_for_qualiyfing_or_early_qualifying_veteran_free_agent",
+      "cba_locator": "Article VII, Section 5: Salary Cap Contract Structure Rules",
+      "rule_text_verbatim": "For all Player Contracts between Qualifying Veteran Free Agents or Early Qualifying Veteran Free Agents and their Prior Team (except any such Contracts signed pursuant to a Bi-Annual Exception, any kind of Mid-Level Exception, and sign-and-trade): For each Salary Cap Year covered by a Player Contract after the first Salary Cap Year, the player’s Salary may increase or decrease in relation to the previous Salary Cap Year’s Salary by no more than eight percent (8%) of the Salary for the first Salary Cap Year covered by the Contract.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.salary_increase_and_decrease_ratio_for_qualiyfing_or_early_qualifying_veteran_free_agent",
+      "required_roles": [
+        "operation.new_contract.increase_rate",
+        "operation.new_contract.change_direction",
+        "operation.new_contract.salary",
+        "operation.new_contract.length_seasons",
+        "player.free_agent_class",
+        "player.prior_team"
+      ]
+    },
+    "stepien_rule_no_consecutive_first_round_draft_pick_trade": {
+      "alias_of": "stepien_rule_no_sell_or_no_consecutive_first_round_draft_pick_trade",
+      "cba_locator": "By-Laws, Section 7: NBA Draft; Article VII, Section 8",
+      "rule_text_verbatim": "A Team cannot sell its first-round draft picks of any NBA Draft for cash or its equivalent, or trade or exchange its first-round draft picks of any NBA Draft if the result of such trade or exchange may be to leave the Member without first-round picks in any two (2) consecutive future NBA Drafts.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.stepien_rule_no_sell_or_no_consecutive_first_round_draft_pick_trade",
+      "required_roles": [
+        "team.first_round_picks_owned",
+        "team.first_round_picks_missing",
+        "team.first_round_picks_acquired",
+        "operation.draft_picks_traded",
+        "operation.cash_amount"
+      ]
+    },
+    "taxpayer_mid_level_exception_hard_cap_first_apron_level": {
+      "alias_of": "taxpayer_mid_level_exception_hard_cap_second_apron_level",
+      "cba_locator": "Article VII, Section 2 and Section 6 (Apron Levels)",
+      "rule_text_verbatim": "A Team may not sign a player using the Taxpayer Mid-Level Salary Exception if, immediately following such transaction, the Team’s Team Salary for such Salary Cap Year would exceed the Second Apron Level.",
+      "rule_text_source": "annotator spelling/threshold variant; text and required roles taken from rulearena/checkout/nba/micro_evaluation.py :: RuleExtraction.taxpayer_mid_level_exception_hard_cap_second_apron_level",
+      "required_roles": [
+        "team.salary",
+        "operation.team",
+        "operation.new_contract.salary",
+        "operation.new_contract.exception_used"
+      ]
+    }
+  }
+}
