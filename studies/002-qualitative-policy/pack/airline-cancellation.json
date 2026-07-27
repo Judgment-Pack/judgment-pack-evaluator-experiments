@@ -1,0 +1,181 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "urn:judgment-pack:study-002:cancel-flight",
+  "version": "0.1.0",
+  "title": "Airline flight cancellation eligibility",
+  "description": "Determines whether an airline agent may cancel a requested reservation under the supplied airline policy. A flown portion requires transfer rather than a cancellation outcome.",
+  "decision": {
+    "intent": "Determine whether an airline agent may cancel a flight reservation after obtaining the required request and reservation evidence.",
+    "question": "Given a flight cancellation request, may the reservation be cancelled?"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "user-id",
+      "description": "The user id supplied by the requester.",
+      "required": true,
+      "kind": "attestation"
+    },
+    {
+      "id": "reservation-id",
+      "description": "The reservation id supplied by the requester or located with the available tools.",
+      "required": true,
+      "kind": "fact"
+    },
+    {
+      "id": "cancellation-reason",
+      "description": "The requester's stated cancellation reason, retained as a policy category. Health and weather are the insurance-covered categories stated by the policy.",
+      "required": true,
+      "kind": "attestation"
+    },
+    {
+      "id": "reservation-record",
+      "description": "The reservation record needed to establish segment history, elapsed hours since booking, airline-cancellation status, cabin class, and travel-insurance status.",
+      "required": true,
+      "kind": "document"
+    }
+  ],
+  "sources": [
+    {
+      "id": "cancel-flight-policy",
+      "title": "Airline Agent Policy — Cancel flight",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "§ Cancel flight",
+        "excerpt": "If any portion of the flight has already been flown, the agent cannot help and transfer is needed. Otherwise, flight can be cancelled if any of the following is true: the booking was made within the last 24 hrs; the flight is cancelled by airline; it is a business flight; or the user has travel insurance and the reason for cancellation is covered by insurance."
+      }
+    },
+    {
+      "id": "insurance-coverage-policy",
+      "title": "Airline Agent Policy — Travel insurance",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "§ Book flight — Travel insurance",
+        "excerpt": "The travel insurance is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons."
+      }
+    },
+    {
+      "id": "transfer-policy",
+      "title": "Airline Agent Policy — Human transfer",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Introductory agent policy",
+        "excerpt": "You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions. To transfer, first make a tool call to transfer_to_human_agents, and then send the message 'YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.' to the user."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "may-cancel",
+      "label": "May cancel",
+      "description": "At least one policy eligibility ground is established and no flown portion requires transfer."
+    },
+    {
+      "id": "may-not-cancel",
+      "label": "May not cancel",
+      "description": "No policy eligibility ground for cancellation is established."
+    }
+  ],
+  "rules": [
+    {
+      "id": "eligible-cancellation",
+      "description": "Permit cancellation when at least one of the four stated eligibility grounds is established.",
+      "when": {
+        "op": "any",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/reservation/bookingAgeHours",
+            "operator": "less-than-or-equal",
+            "value": "24"
+          },
+          {
+            "op": "fact",
+            "path": "/reservation/airlineCancelled",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/reservation/cabinClass",
+            "operator": "equals",
+            "value": "business"
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/reservation/hasTravelInsurance",
+                "operator": "equals",
+                "value": true
+              },
+              {
+                "op": "fact",
+                "path": "/request/cancellationReason",
+                "operator": "in",
+                "value": [
+                  "health",
+                  "weather"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "outcome": "may-cancel",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "user-id",
+        "reservation-id",
+        "cancellation-reason",
+        "reservation-record"
+      ],
+      "sourceRefs": [
+        "cancel-flight-policy",
+        "insurance-coverage-policy"
+      ],
+      "rationale": "The policy uses disjunctive eligibility, with insurance status and a covered reason forming one conjunctive ground."
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "flown-portion",
+      "description": "Transfer the request when any portion of the flight has already been flown.",
+      "when": {
+        "op": "fact",
+        "path": "/reservation/anyPortionAlreadyFlown",
+        "operator": "equals",
+        "value": true
+      },
+      "effect": "escalate",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "cancel-flight-policy",
+        "transfer-policy"
+      ]
+    }
+  ],
+  "fallbackOutcome": "may-not-cancel",
+  "escalation": {
+    "triggers": [
+      "missing-required-evidence",
+      "unknown",
+      "conflict",
+      "no-match"
+    ],
+    "target": {
+      "kind": "human-role",
+      "name": "Human airline agent"
+    },
+    "message": "YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON."
+  }
+}

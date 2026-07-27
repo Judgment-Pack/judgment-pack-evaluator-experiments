@@ -28,7 +28,7 @@ executed action.
 | [`reference/`](reference/) | Pinned snapshots of the specification texts the rooms are built from |
 | [`harness/`](harness/) | The post-hoc referee: runs identical inputs through implementations and diffs dispositions |
 | [`python/`](python/) | **Agreement track.** Implementation #2 (the first lives in [`judgment-pack-runtime`](https://github.com/Judgment-Pack/judgment-pack-runtime)): stdlib-only Python, written clean-room by a coding agent from the reference texts, with its interpretation log in [`python/DECISIONS.md`](python/DECISIONS.md) |
-| [`studies/`](studies/) | **Efficacy track.** Preregistered experiments; see [`studies/001-policy-representation/`](studies/001-policy-representation/) |
+| [`studies/`](studies/) | **Efficacy and expressiveness track.** [`001-policy-representation/`](studies/001-policy-representation/) (preregistered, arithmetic-dense) and [`002-qualitative-policy/`](studies/002-qualitative-policy/) (the replication on qualitative policy) |
 | [`docs/adr/`](docs/adr/) | Decision records for this repository — why a given study is being run, and what comes next |
 
 Future implementations (TypeScript, Rust, …) get sibling directories — but the clean room itself
@@ -49,9 +49,19 @@ implementations. See the protocol.
 
 ### Efficacy track
 
-No results yet. [Study 001](studies/001-policy-representation/) is preregistered and its pipeline is
-being built; the rationale for running it on RuleArena, and the ordered list of what to run next, is
-[ADR-0001](docs/adr/0001-evaluate-on-rulearena-first.md).
+No efficacy result yet — no comparison arm has been run in either study. Two **expressiveness**
+results, on deliberately opposite policy types and by different model families:
+
+| | Study 001 — CBA, arithmetic-dense | Study 002 — airline, qualitative |
+| --- | ---: | ---: |
+| Prepared facts | 124 | 5 |
+| Prepared *determinations* | 13 | 1 |
+
+The format fits qualitative policy far better, but the escape reproduces — and in Study 002 it is
+caused by a **missing quantifier over runtime collections**, not by arithmetic. Both studies
+independently hit the same architectural constraint (§8 has no rule precedence). See
+[Study 002](studies/002-qualitative-policy/) and
+[RFC 0007](https://github.com/Judgment-Pack/judgment-pack-spec/blob/main/rfcs/0007-determination-boundary.md).
 
 ## License
 
