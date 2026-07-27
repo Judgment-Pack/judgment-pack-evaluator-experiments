@@ -205,8 +205,8 @@ On the 156 answerable instances the pack actually decided, accuracy is
 
 | | got `illegal` | got `legal` | got `cannot_decide` |
 | --- | ---: | ---: | ---: |
-| gold `illegal` (n = 166) | 115 | 13 | 51 |
-| gold `legal` (n = 50) | 18 | 10 | 9 |
+| gold `illegal` (n = 179) | 115 | 13 | 51 |
+| gold `legal` (n = 37) | 18 | 10 | 9 |
 
 Escalation 2×2 over the full corpus: 92 true escalations, 60 false escalations,
 124 missed → precision 0.605, recall 0.426, F1 0.500.
