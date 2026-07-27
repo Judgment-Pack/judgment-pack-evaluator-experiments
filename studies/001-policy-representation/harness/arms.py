@@ -75,6 +75,9 @@ __all__ = [
     "DECISIONS",
     "OUTPUT_CONTRACT",
     "SYSTEM_PROMPT",
+    "DEFAULT_RENDER_POLICY",
+    "apply_render_policy",
+    "instance_key",
     "redact_gold",
     "canonical_facts_json",
     "facts_sha256",
@@ -138,25 +141,109 @@ policy interpretation, not arithmetic."""
 # --------------------------------------------------------------------------- #
 
 
-def redact_gold(instance: Mapping[str, Any]) -> Dict[str, Any]:
-    """Return a deep copy of the instance document with the ``gold`` block removed.
+#: Applied when a document declares no ``render_policy`` of its own. It is the
+#: subset of ``redact.py``'s policy that is a leak under any circumstances: the
+#: answer itself, and the provenance block that carries RuleArena's original
+#: prose verbatim.
+DEFAULT_RENDER_POLICY: Dict[str, List[str]] = {
+    "excluded_pointer_prefixes": ["/gold", "/provenance"],
+    "excluded_pointer_globs": [],
+}
 
-    Every arm sees this redacted document and only this document. Leaving ``gold``
-    in would hand the answer to arms A and A-prime.
+
+def _glob_to_re(glob: str) -> re.Pattern:
+    parts = [re.escape(seg) if seg != "*" else r"[^/]*" for seg in glob.split("/")]
+    return re.compile("^" + "/".join(parts) + "(/.*)?$")
+
+
+def _prune(node: Any, prefix: str, excluded: Sequence[str],
+           globs: Sequence[re.Pattern]) -> Any:
+    """Recursively drop every member whose RFC 6901 pointer the policy excludes."""
+    def blocked(pointer: str) -> bool:
+        if any(pointer == p or pointer.startswith(p + "/") for p in excluded):
+            return True
+        return any(g.match(pointer) for g in globs)
+
+    if isinstance(node, dict):
+        out: Dict[str, Any] = {}
+        for key in node:
+            child = prefix + "/" + str(key).replace("~", "~0").replace("/", "~1")
+            if blocked(child):
+                continue
+            out[key] = _prune(node[key], child, excluded, globs)
+        return out
+    if isinstance(node, list):
+        out_list = []
+        for idx, item in enumerate(node):
+            child = "%s/%d" % (prefix, idx)
+            if blocked(child):
+                continue
+            out_list.append(_prune(item, child, excluded, globs))
+        return out_list
+    return node
+
+
+def apply_render_policy(instance: Mapping[str, Any],
+                        policy: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    """Return a deep copy of the document with every render-excluded pointer removed.
+
+    ``redact.py`` stamps a ``render_policy`` member into both twins of every pair,
+    identical across variants and arms. Honouring it is load-bearing, not
+    cosmetic: the facts document echoes RuleArena's original English in
+    ``facts.operations[].raw`` and carries ``gold``, ``provenance`` and the
+    ``redaction`` record (which names the deleted pointer and its value). Render
+    any of those and a redacted twin is handed its deleted fact back in prose, or
+    the answer outright.
+
+    The policy travels with the document, so all three arms strip the same
+    pointers and ``facts_sha256`` stays identical across arms.
     """
-    out = copy.deepcopy(dict(instance))
-    out.pop("gold", None)
-    return out
+    doc = copy.deepcopy(dict(instance))
+    pol = policy if policy is not None else doc.get("render_policy")
+    if not isinstance(pol, Mapping):
+        pol = DEFAULT_RENDER_POLICY
+    excluded = [p for p in (pol.get("excluded_pointer_prefixes") or []) if isinstance(p, str)]
+    globs = [_glob_to_re(g) for g in (pol.get("excluded_pointer_globs") or [])
+             if isinstance(g, str)]
+    pruned = _prune(doc, "", excluded, globs)
+    # The policy itself is metadata about the rendering, never part of it.
+    pruned.pop("render_policy", None)
+    return pruned
+
+
+def redact_gold(instance: Mapping[str, Any]) -> Dict[str, Any]:
+    """Backwards-compatible alias for :func:`apply_render_policy`.
+
+    Removing ``gold`` alone is not enough --- see ``apply_render_policy`` --- so this
+    name now delegates. It is kept because ``run.py`` and ``arm_b.py`` import it.
+    """
+    return apply_render_policy(instance)
+
+
+def instance_key(instance: Mapping[str, Any]) -> str:
+    """The identifier a result row is keyed by.
+
+    ``redact.py`` emits two twins per instance that deliberately share
+    ``instance_id`` (they are the same problem) and are told apart by ``twin_id``
+    and ``variant``. Keying rows on ``instance_id`` alone would collide the pair:
+    the resumable run would skip half of it and the scorer would collapse the
+    answerable and redacted conditions into one. ``twin_id`` wins when present.
+    """
+    twin = instance.get("twin_id")
+    if isinstance(twin, str) and twin:
+        return twin
+    return str(instance.get("instance_id", ""))
 
 
 def canonical_facts_json(instance: Mapping[str, Any]) -> str:
-    """Render the gold-redacted instance document to canonical, stable bytes.
+    """Render the render-policy-redacted instance document to canonical, stable bytes.
 
     ``sort_keys=True`` plus a fixed indent makes the rendering independent of dict
     insertion order, so two arms built from the same instance are byte-identical
     and the run is reproducible.
     """
-    return json.dumps(redact_gold(instance), sort_keys=True, indent=2, ensure_ascii=False)
+    return json.dumps(apply_render_policy(instance), sort_keys=True, indent=2,
+                      ensure_ascii=False)
 
 
 def facts_sha256(instance: Mapping[str, Any]) -> str:

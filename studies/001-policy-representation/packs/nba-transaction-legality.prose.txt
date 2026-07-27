@@ -1,0 +1,528 @@
+NBA roster transaction legality under the 2023 CBA
+==================================================
+
+QUESTION: Is this set of NBA roster operations legal under the CBA?
+INTENT: Determine whether a proposed set of NBA roster operations is legal under the encoded provisions of the Collective Bargaining Agreement, or must be escalated because a fact the encoded provisions depend on is unavailable.
+
+POSSIBLE ANSWERS
+* Legal (legal): No encoded CBA provision is violated on the facts supplied. This is the pack's fallback outcome: it is reached only when every rule evaluated to false, so it is never reached while any needed fact is unknown.
+* Illegal (illegal): At least one encoded CBA provision is violated. Every rule in this pack is a violation detector and resolves to this outcome, so multiple simultaneous violations agree rather than conflict.
+* If no numbered provision below is triggered, the answer is "legal".
+
+HOW TO HANDLE A FACT YOU DO NOT HAVE
+A fact that an encoded CBA provision depends on is unavailable, or the instance turns on a provision this pack does not encode. Review the trace: each unknown rule names the /facts/derived/* pointer it could not resolve, and each rule's sourceRefs name the CBA section to consult.
+If a provision below is marked ESCALATE-IF-UNKNOWN and you cannot determine one of the facts it depends on, do not guess: the answer is that the question cannot be decided on the facts supplied.
+
+SCOPE EXCLUSIONS
+* The instance turns on a CBA provision family that this pack does not encode (listed in packs/COVERAGE.md, section 'Out of scope'). No legality answer may be produced from the encoded rules alone.
+  Applies when: contains provision outside pack scope is true.
+  Effect: escalate.
+
+PROVISIONS
+Each provision below is a violation detector. If its condition holds, the answer is "illegal" and the provision's identifier should be cited.
+
+1. A team whose transaction uses no Section 6 Exception may not end that transaction with a Team Salary above the Salary Cap.
+   Condition: any transaction without exception is true AND ratio max post transaction team salary to cap no exception is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(b)(1): a Team's Team Salary may not exceed the Salary Cap at any time unless the Team is using one of the Section 6 Exceptions.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: salary-cap-no-exceed-without-exception
+
+2. A new Contract for a player with fewer than seven Years of Service may not exceed the greater of 25% of the Salary Cap and 105% of his prior Salary (30% for a 5th Year Eligible Player who met a Higher Max Criterion).
+   Condition: (has new contract service under 7 is true AND ratio max first year salary to cap service under 7 is greater than 0.25 AND ratio max first year salary to prior salary service under 7 is greater than 1.05) OR (has fifth year eligible contract is true AND fifth year eligible meets higher max criteria is true AND ratio fifth year eligible first year salary to cap is greater than 0.3 AND ratio fifth year eligible first year salary to prior salary is greater than 1.05).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article II, Section 7(a)(i): the greater of 25% of the Salary Cap or 105% of the prior Season's Salary, raised to 30% for a 5th Year Eligible Player re-signing with his Prior Team who met a Higher Max Criterion.
+   Source: NBA CBA Article II, Section 7 — Maximum Annual Salary
+   Identifier to cite: maximum-salary-for-player-less-than-7-year-service
+
+3. A new Contract for a player with at least seven but fewer than ten Years of Service may not exceed the greater of 30% of the Salary Cap and 105% of his prior Salary (35% under a Designated Veteran Player Contract).
+   Condition: (has new contract service 7 to 9 is true AND ratio max first year salary to cap service 7 to 9 is greater than 0.3 AND ratio max first year salary to prior salary service 7 to 9 is greater than 1.05) OR (has designated veteran player contract is true AND ratio designated veteran first year salary to cap is greater than 0.35 AND ratio designated veteran first year salary to prior salary is greater than 1.05).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article II, Section 7(a)(ii): the greater of 30% of the Salary Cap or 105% of the prior Season's Salary, raised to 35% for an eligible Designated Veteran Player Contract with the Prior Team.
+   Source: NBA CBA Article II, Section 7 — Maximum Annual Salary
+   Identifier to cite: maximum-salary-for-player-7-to-9-year-service
+
+4. A new Contract for a player with ten or more Years of Service may not exceed the greater of 35% of the Salary Cap and 105% of his prior Salary.
+   Condition: has new contract service 10 or more is true AND ratio max first year salary to cap service 10 or more is greater than 0.35 AND ratio max first year salary to prior salary service 10 or more is greater than 1.05.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article II, Section 7(a)(iii): the greater of 35% of the Salary Cap or 105% of the prior Season's Salary.
+   Source: NBA CBA Article II, Section 7 — Maximum Annual Salary
+   Identifier to cite: maximum-salary-for-player-10-or-more-year-service
+
+5. A 5th Year Eligible Player who met no Higher Max Criterion is capped at 25% of the Salary Cap, and any 5th Year Eligible Contract above 25% must cover at least four Seasons.
+   Condition: (has fifth year eligible contract is true AND fifth year eligible meets higher max criteria is false AND ratio fifth year eligible first year salary to cap is greater than 0.25 AND ratio fifth year eligible first year salary to prior salary is greater than 1.05) OR (has fifth year eligible contract is true AND ratio fifth year eligible first year salary to cap is greater than 0.25 AND fifth year eligible contract seasons is less than 4).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article II, Section 7(a)(i)(A)-(B) defines the Higher Max Criteria that unlock 30%; Section 7(g) requires at least four Seasons for any 5th Year Eligible Contract above 25% of the Salary Cap.
+   Source: NBA CBA Article II, Section 7 — Maximum Annual Salary
+   Identifier to cite: higher-max-criterion-for-5th-year-eligible-player
+
+6. Annual Salary changes in a Contract between a Qualifying or Early Qualifying Veteran Free Agent and his Prior Team may not exceed 8% of the first-year Salary.
+   Condition: has contract governed by 8 percent limit is true AND max annual change as fraction of first year salary 8 percent group is greater than 0.08.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 5(a)(2)(i): no more than eight percent (8%) of the Salary for the first Salary Cap Year covered by the Contract.
+   Source: NBA CBA Article VII, Section 5 — Salary Cap Contract Structure Rules
+   Identifier to cite: salary-increase-and-decrease-ratio-for-qualiyfing-or-early-qualifying-veteran-free-agent
+
+7. Same provision as the preceding rule under the benchmark's alternate annotation spelling: the 8% annual change limit for Qualifying and Early Qualifying Veteran Free Agents re-signing with their Prior Team.
+   Condition: has contract governed by 8 percent limit is true AND max annual change as fraction of first year salary 8 percent group is greater than 0.08.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 5(a)(2)(i). Encoded twice because the benchmark's citation vocabulary contains two spellings of the same provision.
+   Source: NBA CBA Article VII, Section 5 — Salary Cap Contract Structure Rules
+   Identifier to cite: salary-increase-and-decrease-ratio-qualiyfing-or-early-qualifying-veteran-free-agent
+
+8. Annual Salary changes in every other Player Contract may not exceed 5% of the first-year Salary.
+   Condition: has contract governed by 5 percent limit is true AND max annual change as fraction of first year salary 5 percent group is greater than 0.05.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 5(a)(1)(i): no more than five percent (5%) of the Salary for the first Salary Cap Year covered by the Contract.
+   Source: NBA CBA Article VII, Section 5 — Salary Cap Contract Structure Rules
+   Identifier to cite: salary-increase-and-decrease-ratio-except-qualiyfing-or-early-qualifying-veteran-free-agent
+
+9. A Player Contract may cover no more than four Seasons, or five Seasons between a Qualifying Veteran Free Agent and his Prior Team.
+   Condition: (has standard length new contract is true AND max contract seasons standard is greater than 4) OR (has qualifying veteran free agent prior team contract is true AND max contract seasons qualifying veteran free agent prior team is greater than 5).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article IX: up to but no more than four (4) Seasons; five (5) Seasons for a Qualifying Veteran Free Agent and his Prior Team. Lengths are inclusive of any Option Year.
+   Source: NBA CBA Article IX — Length of Player Contracts
+   Identifier to cite: contract-length-at-most-4-year-except-qualifying-veteran-free-agent-5-year
+
+10. A Contract signed under the Non-Taxpayer Mid-Level Salary Exception may not exceed four Seasons.
+   Condition: uses non taxpayer mid level exception is true AND max contract seasons non taxpayer mid level is greater than 4.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(e)(2): the term may not exceed four (4) Seasons in length.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: contract-length-at-most-4-year-non-taxpayer-mid-level-exception
+
+11. A Contract signed under the Taxpayer Mid-Level Salary Exception may not exceed two Seasons.
+   Condition: uses taxpayer mid level exception is true AND max contract seasons taxpayer mid level is greater than 2.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(f)(1): Contracts not to exceed two (2) Seasons in length.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: contract-length-at-most-2-year-taxpayer-mid-level-exception
+
+12. A Contract signed under the Bi-annual Exception may not exceed two Seasons.
+   Condition: uses bi annual exception is true AND max contract seasons bi annual is greater than 2.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(d)(2): the term may not exceed two (2) Seasons in length.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: contract-length-at-most-2-year-bi-annual-exception
+
+13. A Contract signed under the Mid-Level Salary Exception for Room Teams may not exceed three Seasons.
+   Condition: uses room mid level exception is true AND max contract seasons room mid level is greater than 3.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(g)(2): the term may not exceed three (3) Seasons in length.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: contract-length-at-most-3-year-mid-level-exception-for-room-team
+
+14. A Contract signed under the Minimum Player Salary Exception may not exceed two Seasons.
+   Condition: uses minimum player salary exception is true AND max contract seasons minimum player salary is greater than 2.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(i): a Player Contract not to exceed two (2) Seasons in length.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: contract-length-at-most-2-year-minimum-player-salary-exception
+
+15. The Qualifying Veteran Free Agent Exception is available only to a Qualifying Veteran Free Agent re-signing with his Prior Team, and only up to the Article II, Section 7 maximum.
+   Condition: uses qualifying veteran free agent exception is true AND (qualifying veteran free agent exception available is false OR ratio qualifying veteran free agent first year salary to maximum annual salary is greater than 1).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(b)(1) read with Article I(yy): the player must be a Qualifying Veteran Free Agent contracting with his Prior Team, and the Contract may provide up to the maximum in Article II, Section 7.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap; NBA CBA Article I — Definitions
+   Identifier to cite: qualifying-veteran-free-agent-exception
+
+16. Same provision as the preceding rule under the benchmark's alternate annotation spelling (“qualified” rather than “qualifying”).
+   Condition: uses qualifying veteran free agent exception is true AND (qualifying veteran free agent exception available is false OR ratio qualifying veteran free agent first year salary to maximum annual salary is greater than 1).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(b)(1). Encoded twice because the benchmark's citation vocabulary contains two spellings of the same provision.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap; NBA CBA Article I — Definitions
+   Identifier to cite: qualified-veteran-free-agent-exception
+
+17. The Early Qualifying Veteran Free Agent Exception requires an eligible player and Prior Team, a term of at least two Seasons, and a first-year amount no greater than 175% of prior Salary or 105% of the Average Player Salary.
+   Condition: uses early qualifying veteran free agent exception is true AND (early qualifying veteran free agent exception available is false OR min contract seasons early qualifying veteran free agent is less than 2 OR (ratio early qualifying veteran free agent first year salary to prior salary is greater than 1.75 AND ratio early qualifying veteran free agent first year salary to average player salary is greater than 1.05)).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(b)(3)(i) read with Article I(t): the new Contract must cover at least two (2) Seasons and may provide up to the greater of 175% of the prior Regular Salary or 105% of the Average Player Salary for the prior Salary Cap Year.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap; NBA CBA Article I — Definitions
+   Identifier to cite: early-qualifying-veteran-free-agent-exception
+
+18. The Non-Qualifying Veteran Free Agent Exception permits at most the greater of 120% of prior Regular Salary and 120% of the applicable Minimum Annual Salary.
+   Condition: uses non qualifying veteran free agent exception is true AND (non qualifying veteran free agent exception available is false OR (ratio non qualifying veteran free agent first year salary to prior salary is greater than 1.2 AND ratio non qualifying veteran free agent first year salary to minimum annual salary is greater than 1.2)).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(b)(2) read with Article I(rr): the greater of 120% of the final-year Regular Salary or 120% of the then-current Minimum Annual Salary applicable to the player.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap; NBA CBA Article I — Definitions
+   Identifier to cite: non-qualifying-veteran-free-agent-exception
+
+19. Contracts signed or acquired under the Non-Taxpayer Mid-Level Salary Exception may total at most 9.12% of the Salary Cap in the first Salary Cap Year.
+   Condition: uses non taxpayer mid level exception is true AND ratio non taxpayer mid level aggregate first year salary to cap is greater than 0.0912.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(e)(1): in the aggregate up to 9.12% of the Salary Cap for such Salary Cap Year.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: non-taxpayer-mid-level-exception
+
+20. Same provision as the preceding rule under the benchmark's alternate annotation spelling (“nontaxpayer” rather than “non_taxpayer”).
+   Condition: uses non taxpayer mid level exception is true AND ratio non taxpayer mid level aggregate first year salary to cap is greater than 0.0912.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(e)(1). Encoded twice because the benchmark's citation vocabulary contains two spellings of the same provision.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: nontaxpayer-mid-level-exception
+
+21. Contracts signed under the Taxpayer Mid-Level Salary Exception may total at most the Taxpayer Mid-Level amount, and the exception is available only if the team's Team Salary immediately afterwards exceeds the First Apron Level.
+   Condition: uses taxpayer mid level exception is true AND (ratio taxpayer mid level aggregate first year salary to taxpayer mid level amount is greater than 1 OR ratio post taxpayer mid level team salary to first apron is at most 1).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(f)(1): up to $5 million scaled by the Salary Cap ratio to 2023-24, “provided that the Team's Team Salary immediately following the Team's use of such Exception exceeds the First Apron Level”.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: taxpayer-mid-level-exception
+
+22. Contracts signed or acquired under the Mid-Level Salary Exception for Room Teams may total at most 5.678% of the Salary Cap in the first Salary Cap Year.
+   Condition: uses room mid level exception is true AND ratio room mid level aggregate first year salary to cap is greater than 0.05678.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(g)(1): in the aggregate up to 5.678% of the Salary Cap for such Salary Cap Year.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: mid-level-exception-for-room-team
+
+23. Contracts signed or acquired under the Bi-annual Exception may total at most 3.32% of the Salary Cap in the first Salary Cap Year.
+   Condition: uses bi annual exception is true AND ratio bi annual aggregate first year salary to cap is greater than 0.0332.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(d)(1): in the aggregate up to 3.32% of the Salary Cap for such Salary Cap Year.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: bi-annual-exception
+
+24. A Contract signed under the Minimum Player Salary Exception must provide exactly the applicable Minimum Player Salary for the first Season, with no bonuses of any kind.
+   Condition: uses minimum player salary exception is true AND minimum player salary exception salary equals minimum is false.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(i): a Salary for the first Season equal to the Minimum Player Salary applicable to that player (with no bonuses of any kind).
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: minimum-player-salary-exception
+
+25. A team that signs or acquires a player using the Non-Taxpayer Mid-Level Salary Exception may not have a Team Salary above the First Apron Level.
+   Condition: uses non taxpayer mid level exception is true AND ratio post non taxpayer mid level transaction team salary to first apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i) with Transaction Restrictions Table row B: Applicable Apron Level is the First Apron Level.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: non-taxpayer-mid-level-exception-hard-cap-first-apron-level
+
+26. Same provision as the preceding rule under the benchmark's alternate annotation spelling.
+   Condition: uses non taxpayer mid level exception is true AND ratio post non taxpayer mid level transaction team salary to first apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i), table row B. Encoded twice because the benchmark's citation vocabulary contains two spellings of the same provision.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: nontaxpayer-mid-level-exception-hard-cap-first-apron-level
+
+27. A team deemed to have used the Taxpayer Mid-Level Salary Exception instead of the Non-Taxpayer Mid-Level Salary Exception may not have a Team Salary above the Second Apron Level.
+   Condition: non taxpayer mid level deemed taxpayer mid level is true AND ratio post deemed taxpayer mid level transaction team salary to second apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(f)(5): the Team “will be deemed to have used the Taxpayer Mid-Level Salary Exception instead of the Non-Taxpayer Mid-Level Salary Exception for all purposes under this Article VII”, which carries the row K Second Apron Level restriction. See COVERAGE decision 6.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap; NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: non-taxpayer-mid-level-exception-hard-cap-second-apron-level
+
+28. A team that signs a player using the Taxpayer Mid-Level Salary Exception may not have a Team Salary above the Second Apron Level.
+   Condition: uses taxpayer mid level exception is true AND ratio post taxpayer mid level transaction team salary to second apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i) with Transaction Restrictions Table row K: Applicable Apron Level is the Second Apron Level.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: taxpayer-mid-level-exception-hard-cap-second-apron-level
+
+29. A team that has already signed a Contract using the Taxpayer Mid-Level Salary Exception in the Salary Cap Year may not engage in any of the First-Apron-restricted transactions in rows A through F of the Transaction Restrictions Table.
+   Condition: uses taxpayer mid level exception is true AND taxpayer mid level used before row a to f transaction is true.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(iii)(B): a Team may not engage in any transaction set forth in rows A through F if it has previously signed a Player Contract pursuant to the Taxpayer Mid-Level Salary Exception during such Salary Cap Year. See COVERAGE decision 7.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: taxpayer-mid-level-exception-hard-cap-first-apron-level
+
+30. A team that signs or acquires a player using the Bi-annual Exception may not have a Team Salary above the First Apron Level.
+   Condition: uses bi annual exception is true AND ratio post bi annual transaction team salary to first apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i) with Transaction Restrictions Table row A: Applicable Apron Level is the First Apron Level.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: bi-annual-exception-hard-cap-first-apron-level
+
+31. Replacement Player salaries acquired under the Standard Traded Player Exception may exceed 100% of the Traded Player's pre-trade Salary by no more than $250,000.
+   Condition: uses standard traded player exception is true AND standard traded player exception incoming excess over base limit is greater than 250000.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(j)(1)(i): no more than one hundred percent (100%) of the pre-trade Salary of the Traded Player, plus $250,000.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: standard-traded-player-exception
+
+32. Replacement Player salaries acquired under the Aggregated Standard Traded Player Exception may exceed 100% of the aggregated pre-trade Salaries by no more than $250,000.
+   Condition: uses aggregated standard traded player exception is true AND aggregated traded player exception incoming excess over base limit is greater than 250000.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(j)(1)(ii): no more than one hundred percent (100%) of the aggregated pre-trade Salaries of the Traded Players, plus $250,000.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: aggregated-standard-traded-player-exception
+
+33. Replacement Player salaries acquired under the Expanded Traded Player Exception may not exceed the greater of 125% of outgoing salary plus $250,000 and the lesser of 200% plus $250,000 or 100% plus the scaled $7.5 million allowance.
+   Condition: uses expanded traded player exception is true AND expanded traded player exception incoming excess over 125 percent outgoing is greater than 250000 AND (expanded traded player exception incoming excess over 200 percent outgoing is greater than 250000 OR expanded traded player exception incoming excess over outgoing in 2023 24 dollars is greater than 7500000).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(j)(1)(iv): the greater of (y) the lesser of 200% plus $250,000 or 100% plus $7.5 million scaled by the Salary Cap ratio to 2023-24, or (z) 125% plus $250,000.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: expanded-traded-player-exception
+
+34. A team below the Salary Cap acquiring players by assignment may take back no more than its Room plus $250,000.
+   Condition: uses room traded player exception is true AND room traded player exception incoming excess over base limit is greater than 250000.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(j)(1)(v): post-assignment Salaries in the aggregate no more than the Team's room under the Salary Cap plus $250,000.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: traded-player-exception-for-room-team
+
+35. The $250,000 allowance in every Traded Player Exception is reduced to $0 when the team's post-assignment Team Salary would exceed the First Apron Level.
+   Condition: uses any traded player exception is true AND ratio post trade team salary to first apron is greater than 1 AND traded player exception incoming excess over base limit max is greater than 0.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(j)(3): if a Team's post-assignment Team Salary would exceed the First Apron Level, the $250,000 allowance referenced in Sections 6(j)(1)(i)-(v) is reduced to $0.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: traded-player-exception-250k-reduced-first-apron-level
+
+36. When three or more Contracts are aggregated outside the December 15 to trade-deadline window and fewer Replacement Players are acquired than are traded, at most one Traded Player may be a Minimum Traded Player.
+   Condition: uses aggregated standard traded player exception is true AND aggregation outside december 15 to trade deadline is true AND aggregated traded player count is at least 3 AND aggregation replacement count less than traded count is true AND minimum traded player count is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(j)(4)(ii): other than from December 15 through the trade deadline, if a Team aggregates three or more Traded Players and acquires fewer Replacement Players, no more than one of those Traded Players may be a Minimum Traded Player.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: traded-player-exception-only-one-minimum-traded-player-under-conditions
+
+37. A team that acquires a player using an Expanded Traded Player Exception may not have a Team Salary above the First Apron Level.
+   Condition: uses expanded traded player exception is true AND ratio post expanded traded player exception transaction team salary to first apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i) with Transaction Restrictions Table row E: Applicable Apron Level is the First Apron Level.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: expanded-traded-player-exception-hard-cap-first-apron-level
+
+38. A team that acquires a player using an Aggregated Standard Traded Player Exception may not have a Team Salary above the Second Apron Level.
+   Condition: uses aggregated standard traded player exception is true AND ratio post aggregated traded player exception transaction team salary to second apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i) with Transaction Restrictions Table row H: Applicable Apron Level is the Second Apron Level.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: aggregated-traded-player-exception-hard-cap-second-apron-level
+
+39. A Contract signed and traded under Section 8(e)(1) must cover at least three and no more than four Seasons, excluding any Option Year.
+   Condition: includes sign and trade is true AND (sign and trade min contract seasons is less than 3 OR sign and trade max contract seasons is greater than 4).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 8(e)(1)(ii): the Contract is for at least three (3) Seasons (excluding any Option Year) but no more than four (4) Seasons in length.
+   Source: NBA CBA Article VII, Section 8 — Trade Rules
+   Identifier to cite: sign-and-trade-3-to-4-year
+
+40. A Contract signed and traded under Section 8(e)(1) may not be signed pursuant to the Non-Taxpayer Mid-Level Salary Exception or the Mid-Level Salary Exception for Room Teams.
+   Condition: includes sign and trade is true AND sign and trade uses non taxpayer or room mid level exception is true.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 8(e)(1)(iii): the Contract is not signed pursuant to the Non-Taxpayer Mid-Level Salary Exception or the Mid-Level Salary Exception for Room Teams.
+   Source: NBA CBA Article VII, Section 8 — Trade Rules
+   Identifier to cite: sign-and-trade-not-with-mid-level-exception
+
+41. The acquiring team in a Section 8(e)(1) sign-and-trade must have Room for the first-Season Salary plus Unlikely Bonuses.
+   Condition: includes sign and trade is true AND sign and trade assignee team has room is false.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 8(e)(1)(vii): the acquiring Team has Room for the player's Salary plus any Unlikely Bonuses provided for in the first Season of the Contract.
+   Source: NBA CBA Article VII, Section 8 — Trade Rules
+   Identifier to cite: sign-and-trade-assignee-team-has-room
+
+42. A Section 8(e)(1) Contract for a 5th Year Eligible Player who met a Higher Max Criterion may not exceed 25% of the Salary Cap.
+   Condition: includes sign and trade is true AND sign and trade fifth year eligible met higher max criteria is true AND ratio sign and trade first year salary to cap is greater than 0.25.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 8(e)(1)(vi): for a 5th Year Eligible Player who met one of the Higher Max Criteria, the Contract may not provide Salary plus Unlikely Bonuses in excess of 25% of the Salary Cap.
+   Source: NBA CBA Article VII, Section 8 — Trade Rules; NBA CBA Article II, Section 7 — Maximum Annual Salary
+   Identifier to cite: sign-and-trade-no-higher-than-25-percent-for-higher-max-5th-year-eligible-player
+
+43. A team that acquires a player under a Contract entered into pursuant to Section 8(e)(1) may not have a Team Salary above the First Apron Level.
+   Condition: acquires player under sign and trade contract is true AND ratio post sign and trade acquisition team salary to first apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i) with Transaction Restrictions Table row C: Applicable Apron Level is the First Apron Level.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: sign-and-trade-hard-cap-first-apron-level
+
+44. When a Qualifying or Early Qualifying Veteran Free Agent signs above the Non-Qualifying amount with an over-the-cap Prior Team and is immediately traded, the assignor's Traded Player Exception is computed from the deemed salary, and incoming salary above that deemed limit plus $250,000 is not permitted.
+   Condition: sign and trade qualifying free agent deeming applies is true AND sign and trade deemed traded player exception incoming excess over base limit is greater than 250000.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 6(j)(5): the player's Salary shall be deemed equal to the greater of the Salary for the last Season of his preceding Contract or fifty percent (50%) of the Salary for the first Season of his new Contract.
+   Source: NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap
+   Identifier to cite: sign-and-trade-qualifying-free-agent-half-salary-for-traded-player-exception
+
+45. A team that acquires a player using a Traded Player Exception arising from a Contract signed and traded under Section 8(e)(1) may not have a Team Salary above the Second Apron Level.
+   Condition: uses traded player exception for signed and traded contract is true AND ratio post sign and trade traded player exception team salary to second apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i) with Transaction Restrictions Table row J: Applicable Apron Level is the Second Apron Level.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: sign-and-trade-assigner-traded-player-exception-hard-cap-second-apron-level
+
+46. A team may pay or receive at most 5.15% of the Salary Cap in cash across all trades in a Salary Cap Year, without netting.
+   Condition: includes cash in trade is true AND ratio aggregate cash paid or received to cap is greater than 0.0515.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 8(a): up to an aggregate amount equal to 5.15% of the Salary Cap for such Salary Cap Year in cash across all such trades; amounts paid and received are not netted.
+   Source: NBA CBA Article VII, Section 8 — Trade Rules
+   Identifier to cite: pay-or-receive-cash-maximum-in-a-year
+
+47. A team that pays cash to another team in connection with a trade may not have a Team Salary above the Second Apron Level.
+   Condition: pays cash in trade is true AND ratio post cash trade team salary to second apron is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 2(e)(2)(i) with Transaction Restrictions Table row I: Applicable Apron Level is the Second Apron Level.
+   Source: NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels
+   Identifier to cite: cash-in-trade-hard-cap-second-apron-level
+
+48. A team may not sell a first round draft pick for cash, nor trade a first round pick if the result may leave it without first-round picks in two consecutive future Drafts.
+   Condition: includes first round pick trade is true AND (first round pick sold for cash is true OR first round pick trade leaves consecutive drafts without pick is true).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: By-Laws, Section 7.03: no Team may sell its first round selection rights for cash or its equivalent, or trade them if the result may be to leave the Team without first-round picks in any two consecutive future NBA Drafts.
+   Source: NBA By-Laws, Section 7.03 — First Round Draft Choice
+   Identifier to cite: stepien-rule-no-sell-or-no-consecutive-first-round-draft-pick-trade
+
+49. A team may not trade a first round pick if the result may leave it without first-round picks in two consecutive future Drafts.
+   Condition: includes first round pick trade is true AND first round pick trade leaves consecutive drafts without pick is true.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: By-Laws, Section 7.03, consecutive-Drafts limb only. Encoded separately because the benchmark's citation vocabulary names the combined and the consecutive-only formulations distinctly.
+   Source: NBA By-Laws, Section 7.03 — First Round Draft Choice
+   Identifier to cite: stepien-rule-no-consecutive-first-round-draft-pick-trade
+
+50. A Standard NBA Contract signed by a Free Agent may not be traded before the later of three months after signing and December 15 of that Salary Cap Year.
+   Condition: includes trade of recently signed free agent contract is true AND free agent contract trade is initial sign and trade is false AND (free agent contract months elapsed at trade is less than 3 OR free agent contract trade before december 15 is true).
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 8(d)(ii): no player who signs a Standard NBA Contract as a Free Agent may be traded before the later of three (3) months following signing or the December 15 of the Salary Cap Year in which the Contract was signed; the rule does not apply to the initial trade of a Contract signed under Section 8(e).
+   Source: NBA CBA Article VII, Section 8 — Trade Rules
+   Identifier to cite: free-agent-sign-contract-cannot-be-traded-within-3-month-or-before-dec-15
+
+51. Salaries in an Over 38 Contract are re-attributed to earlier Salary Cap Years, and a signing is illegal when the re-attributed Team Salary, and only the re-attributed Team Salary, exceeds the Salary Cap.
+   Condition: over 38 contract present is true AND over 38 qualifying veteran free agent age 35 or 36 five seasons is false AND ratio post signing team salary with over 38 reattribution to cap is greater than 1 AND ratio post signing team salary without over 38 reattribution to cap is at most 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 3(a)(2)(i): aggregate Salaries from the later of the fourth Salary Cap Year or the first Salary Cap Year following the player's 38th birthday are attributed pro rata to prior Salary Cap Years. See COVERAGE decision 9.
+   Source: NBA CBA Article VII, Section 3 — Determination of Salary (Over 38 Rule)
+   Identifier to cite: defer-compensation-38-year-old
+
+52. For a Qualifying Veteran Free Agent aged 35 or 36 signing a five-Season Over 38 Contract with his Prior Team, only the fifth-year Salary is re-attributed; the signing is illegal when that re-attribution, and only that re-attribution, puts the team over the Salary Cap.
+   Condition: over 38 qualifying veteran free agent age 35 or 36 five seasons is true AND ratio post signing team salary with over 38 reattribution to cap is greater than 1 AND ratio post signing team salary without over 38 reattribution to cap is at most 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 3(a)(2)(ii) and (iv): the fifth Salary Cap Year is re-attributed for a five-Season Contract, and there is no re-allocation at all for a Contract covering four or fewer Seasons entered into at age 35 or 36. See COVERAGE decision 9.
+   Source: NBA CBA Article VII, Section 3 — Determination of Salary (Over 38 Rule)
+   Identifier to cite: defer-compensation-qualifying-veteran-free-agent-38-year-old
+
+53. Same provision as the preceding rule under the benchmark's alternate annotation spelling.
+   Condition: over 38 qualifying veteran free agent age 35 or 36 five seasons is true AND ratio post signing team salary with over 38 reattribution to cap is greater than 1 AND ratio post signing team salary without over 38 reattribution to cap is at most 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 3(a)(2)(ii). Encoded twice because the benchmark's citation vocabulary contains two spellings of the same provision.
+   Source: NBA CBA Article VII, Section 3 — Determination of Salary (Over 38 Rule)
+   Identifier to cite: defer-compensation-38-year-old-qualifying-veteran-free-agent-38-year-old
+
+54. A Qualifying Veteran Free Agent's Free Agent Amount stays in his Prior Team's Team Salary until he re-signs, signs elsewhere, or is renounced; the transaction is illegal when that hold, and only that hold, puts the team over the Salary Cap.
+   Condition: qualifying veteran free agent hold included is true AND ratio post transaction team salary to cap is greater than 1 AND ratio post transaction team salary excluding qualifying veteran free agent holds to cap is at most 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 4(d)(1): 150% of prior Salary (190% if below the Estimated Average Player Salary; 250%/300% after a second Option Year), capped by 4(d)(5). See COVERAGE decision 8.
+   Source: NBA CBA Article VII, Section 4 — Determination of Team Salary (Free Agent Amounts)
+   Identifier to cite: salary-space-consumption-qualifying-veteran-free-agent
+
+55. An Early Qualifying Veteran Free Agent's Free Agent Amount stays in his Prior Team's Team Salary; the transaction is illegal when that hold, and only that hold, puts the team over the Salary Cap.
+   Condition: early qualifying veteran free agent hold included is true AND ratio post transaction team salary to cap is greater than 1 AND ratio post transaction team salary excluding early qualifying veteran free agent holds to cap is at most 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 4(d)(2): 130% of prior Salary unless the Prior Team renounces its Early Qualifying rights. See COVERAGE decision 8.
+   Source: NBA CBA Article VII, Section 4 — Determination of Team Salary (Free Agent Amounts)
+   Identifier to cite: salary-space-consumption-early-qualifying-veteran-free-agent
+
+56. A Non-Qualifying Veteran Free Agent's Free Agent Amount stays in his Prior Team's Team Salary; the transaction is illegal when that hold, and only that hold, puts the team over the Salary Cap.
+   Condition: non qualifying veteran free agent hold included is true AND ratio post transaction team salary to cap is greater than 1 AND ratio post transaction team salary excluding non qualifying veteran free agent holds to cap is at most 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article VII, Section 4(d)(3): 120% of prior Salary. See COVERAGE decision 8.
+   Source: NBA CBA Article VII, Section 4 — Determination of Team Salary (Free Agent Amounts)
+   Identifier to cite: salary-space-consumption-non-qualifying-veteran-free-agent
+
+57. An Offer Sheet to a Restricted Free Agent with one or two Years of Service may not provide first- or second-year Salary plus Unlikely Bonuses above the Non-Taxpayer Mid-Level amount.
+   Condition: offer sheet restricted free agent service 1 or 2 is true AND ratio offer sheet max first two year salary to non taxpayer mid level amount is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article XI, Section 5(d)(i): no such Offer Sheet may provide for Salary plus Unlikely Bonuses in the first Salary Cap Year totaling more than the Non-Taxpayer Mid-Level Salary Exception amount, with the second year bounded by Article VII, Section 5(a)(1). See COVERAGE decision 10.
+   Source: NBA CBA Article XI, Section 5 — Restricted Free Agency
+   Identifier to cite: offer-sheet-for-1-or-2-year-service-player-no-more-than-mid-level-in-first-2-year
+
+58. When the first two Salary Cap Years of such an Offer Sheet are at the maximum allowable amount, the third year may not exceed the maximum the player could have received absent the Section 5(d)(i) restriction.
+   Condition: offer sheet restricted free agent service 1 or 2 is true AND offer sheet first two years at maximum allowable is true AND ratio offer sheet third year salary to maximum allowable is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article XI, Section 5(d)(ii), first sentence.
+   Source: NBA CBA Article XI, Section 5 — Restricted Free Agency
+   Identifier to cite: offer-sheet-for-1-or-2-year-service-player-3rd-year-maximum-if-first-2-year-maximum
+
+59. When such an Offer Sheet uses the third-year maximum, the fourth year may change by no more than 4.5% of the third year's Salary.
+   Condition: offer sheet restricted free agent service 1 or 2 is true AND offer sheet third year at maximum allowable is true AND ratio offer sheet fourth year change to third year salary is greater than 0.045.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article XI, Section 5(d)(ii)(A): the player's Salary for the fourth Salary Cap Year may increase or decrease in relation to the third Salary Cap Year's Salary by no more than 4.5% of the Salary for the third Salary Cap Year.
+   Source: NBA CBA Article XI, Section 5 — Restricted Free Agency
+   Identifier to cite: offer-sheet-for-1-or-2-year-service-player-4th-year-maximum-if-first-3-year-maximum
+
+60. Same provision as the preceding rule under the benchmark's alternate annotation spelling.
+   Condition: offer sheet restricted free agent service 1 or 2 is true AND offer sheet third year at maximum allowable is true AND ratio offer sheet fourth year change to third year salary is greater than 0.045.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article XI, Section 5(d)(ii)(A). Encoded twice because the benchmark's citation vocabulary contains two spellings of the same provision.
+   Source: NBA CBA Article XI, Section 5 — Restricted Free Agency
+   Identifier to cite: offer-sheet-for-1-or-2-year-service-player-4th-year-maximum-if-3-year
+
+61. For an Offer Sheet extended under Section 5(d)(ii), which necessarily covers more than two Salary Cap Years, the New Team must have Room for the average of the aggregate Salaries.
+   Condition: offer sheet restricted free agent service 1 or 2 is true AND offer sheet uses third year maximum is true AND ratio offer sheet average salary to new team room is greater than 1.
+   Then the answer is: illegal.
+   ESCALATE-IF-UNKNOWN.
+   Basis: Article XI, Section 5(d)(iii) read with 5(b): the Salary for the first Salary Cap Year is deemed to equal the average of the aggregate Salaries for each Salary Cap Year covered by the Offer Sheet, and the New Team must have Room for it. See COVERAGE decision 11.
+   Source: NBA CBA Article XI, Section 5 — Restricted Free Agency
+   Identifier to cite: offer-sheet-for-1-or-2-year-service-player-average-salary-more-than-2-year
+
+SUPPORTING RECORDS THAT WOULD NORMALLY BE CONSULTED
+* transaction-terms: The executed Player Contract, Offer Sheet, or trade call for every operation under test, including term, first-year Salary, Unlikely Bonuses, and the Exception invoked. (advisory)
+* team-salary-computation: The published deterministic computation of each team's Team Salary, Room, cap holds, Salary Cap, First Apron Level, and Second Apron Level immediately before and after each operation. (advisory)
+* player-service-record: Each player's Years of Service, free-agency class under Article I, age, and Higher Max Criteria record. (advisory)
+
+SOURCES
+* NBA CBA Article I — Definitions - {'location': 'Article I (t), (rr), (yy), (eee), (gggg), (hhhh)', 'excerpt': '“Qualifying Veteran Free Agent” means a Veteran Free Agent who, prior to becoming a Veteran Free Agent, played under one (1) or more Player Contracts covering some or all of each of the three (3) preceding Seasons ...'}
+* NBA CBA Article II, Section 7 — Maximum Annual Salary - {'location': 'Article II, Section 7(a)(i)-(iii), 7(g)', 'excerpt': 'no Player Contract ... may provide for a Salary plus Unlikely Bonuses in the first Season covered by the Contract that exceeds ... twenty-five percent (25%) ... thirty percent (30%) ... thirty-five percent (35%) of the Salary Cap ... or one hundred five percent (105%) of the Salary for the final Season of the player’s prior Contract.'}
+* NBA CBA Article VII, Section 2 — Salary Cap, Tax Level, Apron Levels - {'location': 'Article VII, Section 2(b)(1)-(2), 2(e)(2)-(4)', 'excerpt': 'A Team’s Team Salary may not exceed the Salary Cap at any time unless the Team is using one of the Exceptions set forth in Section 6 below. ... A Team may not engage in a transaction set forth in the Transaction Restrictions Table if, immediately following such transaction, the Team’s Team Salary ... would exceed the “Applicable Apron Level”.'}
+* NBA CBA Article VII, Section 3 — Determination of Salary (Over 38 Rule) - {'location': 'Article VII, Section 3(a)(2)(i)-(iv)', 'excerpt': 'the aggregate Salaries in an Over 38 Contract for Salary Cap Years commencing with the fourth Salary Cap Year of such Over 38 Contract or the first Salary Cap Year that covers a Season that follows the player’s 38th birthday, whichever is later, shall be attributed to the prior Salary Cap Years pro rata.'}
+* NBA CBA Article VII, Section 4 — Determination of Team Salary (Free Agent Amounts) - {'location': 'Article VII, Section 4(d)(1)-(5)', 'excerpt': 'A Qualifying Veteran Free Agent ... will be included at one hundred fifty percent (150%) of his prior Salary ... An Early Qualifying Veteran Free Agent will be included at one hundred thirty percent (130%) ... A Non-Qualifying Veteran Free Agent will be included at one hundred twenty percent (120%) of his prior Salary.'}
+* NBA CBA Article VII, Section 5 — Salary Cap Contract Structure Rules - {'location': 'Article VII, Section 5(a)(1)-(2)', 'excerpt': 'the player’s Salary ... may increase or decrease in relation to the previous Salary Cap Year’s Salary ... by no more than five percent (5%) ... [and, for Qualifying or Early Qualifying Veteran Free Agents re-signing with their Prior Team] by no more than eight percent (8%).'}
+* NBA CBA Article VII, Section 6 — Exceptions to the Salary Cap - {'location': 'Article VII, Section 6(b), (d), (e), (f), (g), (i), (j), (n)', 'excerpt': 'A Team may use the Non-Taxpayer Mid-Level Salary Exception ... totaling up to 9.12% of the Salary Cap ... the Bi-annual Exception ... up to 3.32% of the Salary Cap ... the Mid-Level Salary Exception for Room Teams ... up to 5.678% of the Salary Cap ... the Standard Traded Player Exception ... no more than ... one hundred percent (100%) of the pre-trade Salary of the Traded Player, plus $250,000.'}
+* NBA CBA Article VII, Section 8 — Trade Rules - {'location': 'Article VII, Section 8(a), 8(d)(ii), 8(e)(1)', 'excerpt': 'a Team shall be permitted to pay or receive ... up to an aggregate amount equal to 5.15% of the Salary Cap for such Salary Cap Year in cash ... a Veteran Free Agent and his Prior Team may enter into a Player Contract pursuant to an agreement ... concerning the signing and subsequent trade of such Contract, but only if ... the Contract is for at least three (3) Seasons ... but no more than four (4) Seasons in length.'}
+* NBA CBA Article IX — Length of Player Contracts - {'location': 'Article IX', 'excerpt': 'a Player Contract entered into after the effective date of this Agreement may cover, in the aggregate, up to but no more than four (4) Seasons ... provided, however, that (a) a Player Contract between a Qualifying Veteran Free Agent and his Prior Team may cover ... up to but no more than five (5) Seasons.'}
+* NBA CBA Article XI, Section 5 — Restricted Free Agency - {'location': 'Article XI, Section 5(b), 5(d)(i)-(iii)', 'excerpt': 'no such Offer Sheet may provide for Salary plus Unlikely Bonuses in the first Salary Cap Year totaling more than the amount of the Non-Taxpayer Mid-Level Salary Exception for such Salary Cap Year ... the player’s Salary for the fourth Salary Cap Year may increase or decrease in relation to the third Salary Cap Year’s Salary by no more than four and five tenths percent (4.5%).'}
+* NBA By-Laws, Section 7.03 — First Round Draft Choice - {'location': 'By-Laws, Section 7.03', 'excerpt': 'No Team may sell its rights to select a player in the first round of any NBA Draft for cash or its equivalent, or trade or exchange its right to select a player in the first round of any NBA Draft if the result of such trade or exchange may be to leave the Team without first-round picks in any two (2) consecutive future NBA Drafts.'}

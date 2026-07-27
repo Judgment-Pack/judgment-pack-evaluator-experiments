@@ -59,13 +59,28 @@ REDACTED-TWIN DETECTION (the contract this file consumes)
 An instance should escalate when, in priority order:
 
 1. ``gold.should_escalate`` is a boolean --- that value wins;
-2. ``instance["redaction"]`` is present and truthy;
-3. the ``instance_id`` ends with ``#redacted`` / ``-redacted`` or contains
+2. ``variant`` is ``"redacted"`` / ``"answerable"`` --- ``redact.py``'s own label,
+   which is authoritative because it stamps a ``redaction`` record into **both**
+   twins of a pair (the answerable twin records what its counterpart lost);
+3. ``expected_decision == "cannot_decide"``;
+4. ``instance["redaction"]["applied"]`` is true, or, for documents that predate
+   that key, ``instance["redaction"]`` is present and truthy;
+5. the ``instance_id`` ends with ``#redacted`` / ``-redacted`` or contains
    ``#redacted-``.
 
-Its non-redacted partner is ``redaction.base_instance_id`` when present, else the
-id with that suffix stripped. Every other instance is a should-NOT-escalate case
-and is included in the 2x2, which is what makes always-escalate score badly.
+Its non-redacted partner is ``pair_id`` when present, else
+``redaction.base_instance_id``, else the id with that suffix stripped. Every other
+instance is a should-NOT-escalate case and is included in the 2x2, which is what
+makes always-escalate score badly.
+
+INSTANCE IDENTITY
+-----------------
+``redact.py`` gives the two twins of a pair the **same** ``instance_id`` --- they
+are the same problem --- and tells them apart with ``twin_id``. Rows and
+instances are therefore keyed by ``twin_id`` when it is present (``arms.
+instance_key``), matching the ``row_id`` that ``run.py`` writes. Keying on
+``instance_id`` would collapse each pair into one instance and silently destroy
+the escalation design.
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
@@ -94,6 +109,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
+from arms import instance_key  # noqa: E402
 from run import load_instances  # noqa: E402
 
 DECISIONS = ("legal", "illegal", "cannot_decide")
@@ -110,7 +126,17 @@ def should_escalate(instance: Mapping[str, Any]) -> bool:
     gold = instance.get("gold") or {}
     if isinstance(gold.get("should_escalate"), bool):
         return bool(gold["should_escalate"])
-    if instance.get("redaction"):
+    variant = instance.get("variant")
+    if variant == "redacted":
+        return True
+    if variant == "answerable":
+        return False
+    if instance.get("expected_decision") == "cannot_decide":
+        return True
+    redaction = instance.get("redaction")
+    if isinstance(redaction, Mapping) and isinstance(redaction.get("applied"), bool):
+        return bool(redaction["applied"])
+    if redaction:
         return True
     iid = str(instance.get("instance_id", ""))
     if any(iid.endswith(sfx) for sfx in _REDACTED_SUFFIXES):
@@ -120,6 +146,8 @@ def should_escalate(instance: Mapping[str, Any]) -> bool:
 
 def base_instance_id(instance: Mapping[str, Any]) -> str:
     iid = str(instance.get("instance_id", ""))
+    if isinstance(instance.get("pair_id"), str) and instance["pair_id"]:
+        return instance["pair_id"]
     redaction = instance.get("redaction")
     if isinstance(redaction, Mapping) and isinstance(redaction.get("base_instance_id"), str):
         return redaction["base_instance_id"]
@@ -165,7 +193,11 @@ def condition_key(row: Mapping[str, Any]) -> str:
 
 
 def load_results(paths: Sequence[str]) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
-    """Return ``{condition: {instance_id: [rows sorted by trial]}}``."""
+    """Return ``{condition: {row_id: [rows sorted by trial]}}``.
+
+    Rows are keyed by ``row_id`` (``run.py``'s twin-aware identity) and fall back
+    to ``instance_id`` for documents that are not twins.
+    """
     out: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
     for path in paths:
         with open(path, "r", encoding="utf-8") as fh:
@@ -178,9 +210,9 @@ def load_results(paths: Sequence[str]) -> Dict[str, Dict[str, List[Dict[str, Any
                 except ValueError as exc:
                     raise ValueError("%s line %d: %s" % (path, lineno, exc))
                 cond = condition_key(row)
-                iid = row.get("instance_id")
+                iid = row.get("row_id") or row.get("instance_id")
                 if not isinstance(iid, str):
-                    raise ValueError("%s line %d: missing instance_id" % (path, lineno))
+                    raise ValueError("%s line %d: missing row_id/instance_id" % (path, lineno))
                 out.setdefault(cond, {}).setdefault(iid, []).append(row)
     for by_instance in out.values():
         for rows in by_instance.values():
@@ -385,7 +417,11 @@ def score(instances: Sequence[Mapping[str, Any]],
           results: Mapping[str, Mapping[str, List[Dict[str, Any]]]],
           *, bootstrap: int, seed: int,
           baseline: Optional[str]) -> Dict[str, Any]:
-    by_id = {str(i["instance_id"]): i for i in instances}
+    by_id = {instance_key(i): i for i in instances}
+    if len(by_id) != len(instances):
+        raise ValueError(
+            "instance identities collide: %d documents map to %d keys. Twins must "
+            "carry distinct twin_id values." % (len(instances), len(by_id)))
     conditions = sorted(results)
     if not conditions:
         raise ValueError("no result rows found")
