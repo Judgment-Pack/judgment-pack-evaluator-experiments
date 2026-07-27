@@ -1,0 +1,14 @@
+{
+  "request": {
+    "userId": "usr-28419",
+    "reservationId": "res-73105",
+    "cancellationReason": "health"
+  },
+  "reservation": {
+    "anyPortionAlreadyFlown": false,
+    "bookingAgeHours": "31.5",
+    "airlineCancelled": false,
+    "cabinClass": "economy",
+    "hasTravelInsurance": true
+  }
+}
