@@ -1,0 +1,221 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "https://example.org/judgment-packs/retail/modify-pending-order-payment-method",
+  "version": "0.1.0",
+  "title": "Modify pending order: payment method",
+  "description": "Encodes the retail agent policy subsection 'Modify pending order -> Modify payment' as a permission decision over a single pending order.",
+  "decision": {
+    "intent": "Let a retail agent determine, before touching the database, whether the policy permits changing the payment method recorded on a specific pending order.",
+    "question": "May this order's payment method be modified?"
+  },
+  "applicability": {
+    "op": "fact",
+    "path": "/request/type",
+    "operator": "equals",
+    "value": "modify-order-payment-method"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "user-confirmation",
+      "description": "The user's explicit 'yes' confirming the listed payment-method change. The policy phrases the change as taking effect 'After user confirmation', so confirmation is a precondition to executing a permitted change; it is not a condition on whether the policy permits the change.",
+      "required": false,
+      "kind": "attestation"
+    }
+  ],
+  "sources": [
+    {
+      "id": "policy-modify-pending-status",
+      "title": "Retail agent policy - Modify pending order (status gate)",
+      "locator": { "kind": "path", "value": "reference/policy.md" },
+      "citation": {
+        "location": "## Modify pending order, first sentence",
+        "excerpt": "An order can only be modified if its status is 'pending', and you should check its status before taking the action."
+      }
+    },
+    {
+      "id": "policy-modify-pending-scope",
+      "title": "Retail agent policy - Modify pending order (permitted modifications)",
+      "locator": { "kind": "path", "value": "reference/policy.md" },
+      "citation": {
+        "location": "## Modify pending order, second sentence",
+        "excerpt": "For a pending order, you can take actions to modify its shipping address, payment method, or product item options, but nothing else."
+      }
+    },
+    {
+      "id": "policy-modify-payment-single-different",
+      "title": "Retail agent policy - Modify payment (single, different method)",
+      "locator": { "kind": "path", "value": "reference/policy.md" },
+      "citation": {
+        "location": "### Modify payment, first sentence",
+        "excerpt": "The user can only choose a single payment method different from the original payment method."
+      }
+    },
+    {
+      "id": "policy-modify-payment-gift-card-balance",
+      "title": "Retail agent policy - Modify payment (gift card balance)",
+      "locator": { "kind": "path", "value": "reference/policy.md" },
+      "citation": {
+        "location": "### Modify payment, second sentence",
+        "excerpt": "If the user wants the modify the payment method to gift card, it must have enough balance to cover the total amount."
+      }
+    },
+    {
+      "id": "policy-modify-payment-confirmation-effects",
+      "title": "Retail agent policy - Modify payment (confirmation and post-action effects)",
+      "locator": { "kind": "path", "value": "reference/policy.md" },
+      "citation": {
+        "location": "### Modify payment, third and fourth sentences",
+        "excerpt": "After user confirmation, the order status will be kept as 'pending'. The original payment method will be refunded immediately if it is a gift card, otherwise it will be refunded within 5 to 7 business days."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "payment-modification-permitted",
+      "label": "Payment method modification permitted",
+      "description": "Policy permits changing this pending order's payment method to the single requested method. The agent must still list the action details and obtain the user's explicit 'yes' before executing; the order status stays 'pending' and the original payment method is refunded immediately for a gift card, otherwise within 5 to 7 business days."
+    },
+    {
+      "id": "payment-modification-denied",
+      "label": "Payment method modification denied",
+      "description": "Policy does not permit this payment-method change. The agent should deny the request and explain which policy condition failed."
+    }
+  ],
+  "rules": [
+    {
+      "id": "permit-single-different-funded-method",
+      "description": "Permit the change when the order is pending, exactly one new payment method is chosen, it differs from the original payment method, and - if it is a gift card - its balance covers the order total.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "pending"
+          },
+          {
+            "op": "fact",
+            "path": "/request/newPaymentMethodCount",
+            "operator": "equals",
+            "value": 1
+          },
+          {
+            "op": "fact",
+            "path": "/request/newPaymentMethodDiffersFromOriginal",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "not",
+                "condition": {
+                  "op": "fact",
+                  "path": "/request/newPaymentMethodType",
+                  "operator": "equals",
+                  "value": "gift_card"
+                }
+              },
+              {
+                "op": "fact",
+                "path": "/request/newGiftCardCoversOrderTotal",
+                "operator": "equals",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "outcome": "payment-modification-permitted",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["user-confirmation"],
+      "sourceRefs": [
+        "policy-modify-pending-status",
+        "policy-modify-pending-scope",
+        "policy-modify-payment-single-different",
+        "policy-modify-payment-gift-card-balance",
+        "policy-modify-payment-confirmation-effects"
+      ],
+      "rationale": "The subsection permits exactly one payment-method substitution on a pending order, subject to the gift-card funding test. Every stated condition must hold, so the permission rule is a conjunction and any unavailable fact leaves the permission undetermined rather than granted."
+    },
+    {
+      "id": "deny-order-not-pending",
+      "description": "Deny when the order status is anything other than 'pending'.",
+      "when": {
+        "op": "fact",
+        "path": "/order/status",
+        "operator": "not-equals",
+        "value": "pending"
+      },
+      "outcome": "payment-modification-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": ["policy-modify-pending-status"],
+      "rationale": "'An order can only be modified if its status is pending' is an absolute gate; a processed, delivered, cancelled, or items-modified order cannot have its payment method changed."
+    },
+    {
+      "id": "deny-not-a-single-method",
+      "description": "Deny when the user asks to settle the order with a number of payment methods other than exactly one.",
+      "when": {
+        "op": "fact",
+        "path": "/request/newPaymentMethodCount",
+        "operator": "not-equals",
+        "value": 1
+      },
+      "outcome": "payment-modification-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": ["policy-modify-payment-single-different"],
+      "rationale": "'The user can only choose a single payment method' rules out splitting the order total across several methods and rules out a request that names none."
+    },
+    {
+      "id": "deny-same-as-original-method",
+      "description": "Deny when the requested payment method is the order's original payment method.",
+      "when": {
+        "op": "fact",
+        "path": "/request/newPaymentMethodDiffersFromOriginal",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "payment-modification-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": ["policy-modify-payment-single-different"],
+      "rationale": "'different from the original payment method' forbids a no-op substitution back onto the method already charged."
+    },
+    {
+      "id": "deny-gift-card-balance-insufficient",
+      "description": "Deny when the requested method is a gift card whose balance does not cover the order total.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/newPaymentMethodType",
+            "operator": "equals",
+            "value": "gift_card"
+          },
+          {
+            "op": "fact",
+            "path": "/request/newGiftCardCoversOrderTotal",
+            "operator": "equals",
+            "value": false
+          }
+        ]
+      },
+      "outcome": "payment-modification-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": ["policy-modify-payment-gift-card-balance"],
+      "rationale": "The balance test is stated only for gift cards, so it gates nothing when the requested method is a paypal account or a credit card."
+    }
+  ],
+  "escalation": {
+    "triggers": ["unknown", "conflict", "no-match"],
+    "target": { "kind": "human-role", "name": "Human retail agent" },
+    "message": "The payment-method change on this pending order cannot be settled within the agent's scope: a required fact could not be determined, the encoded rules disagree, or no rule applied. Call transfer_to_human_agents and then send 'YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.'"
+  },
+  "metadata": {
+    "authors": ["Policy engineer, room R2"],
+    "createdAt": "2026-07-27T00:00:00Z",
+    "license": "CC0-1.0"
+  }
+}

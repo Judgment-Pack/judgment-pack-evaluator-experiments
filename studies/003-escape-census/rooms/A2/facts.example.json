@@ -1,0 +1,11 @@
+{
+  "request": {
+    "type": "change-flights",
+    "preservesOrigin": true,
+    "preservesDestination": true,
+    "preservesTripType": true
+  },
+  "reservation": {
+    "cabinClass": "economy"
+  }
+}

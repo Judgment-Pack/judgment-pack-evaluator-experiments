@@ -1,0 +1,19 @@
+{
+  "request": {
+    "action": "cancel_order",
+    "orderId": "#W2378156",
+    "orderIdConfirmedByUser": true,
+    "reasonConfirmedByUser": true,
+    "cancellationReason": "no longer needed"
+  },
+  "order": {
+    "orderId": "#W2378156",
+    "userId": "sara_doe_496",
+    "status": "pending",
+    "total": "154.72",
+    "originalPaymentMethod": {
+      "id": "credit_card_1234567",
+      "type": "credit_card"
+    }
+  }
+}

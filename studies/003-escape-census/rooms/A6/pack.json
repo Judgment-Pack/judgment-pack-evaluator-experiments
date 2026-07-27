@@ -1,0 +1,324 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "https://judgmentpack.example/packs/airline-agent/cancel-flight",
+  "version": "0.1.0",
+  "title": "Airline agent: may this reservation be cancelled?",
+  "description": "Encodes the 'Cancel flight' section of the Airline Agent Policy as a decision about whether an existing reservation may be cancelled by the automated agent. The pack decides permissibility only; it does not perform the cancellation, compute a refund, or authorise any external action.",
+  "decision": {
+    "intent": "Let an airline support agent determine, before calling the cancellation API, whether the Airline Agent Policy permits cancelling a given reservation, since the API itself performs no policy check.",
+    "question": "May this reservation be cancelled?"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "user-id",
+      "description": "The user id of the account holder, stated directly by the user. The policy requires the user to provide it; the agent must not substitute an inferred or looked-up id.",
+      "required": true,
+      "kind": "fact"
+    },
+    {
+      "id": "reservation-id",
+      "description": "The reservation id of the reservation to be cancelled. Supplied by the user, or located by the agent with available tools when the user does not know it.",
+      "required": true,
+      "kind": "fact"
+    },
+    {
+      "id": "cancellation-reason",
+      "description": "The user's stated reason for cancellation, categorised as change of plan, airline cancelled flight, or other reasons. The policy requires the agent to obtain it before deciding.",
+      "required": true,
+      "kind": "attestation"
+    }
+  ],
+  "sources": [
+    {
+      "id": "policy-cancel-identification",
+      "title": "Airline Agent Policy - Cancel flight: identification prerequisites",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Cancel flight, first paragraph and bullets",
+        "excerpt": "First, the agent must obtain the user id and reservation id. - The user must provide their user id. - If the user doesn't know their reservation id, the agent should help locate it using available tools."
+      }
+    },
+    {
+      "id": "policy-cancel-reason",
+      "title": "Airline Agent Policy - Cancel flight: reason for cancellation",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Cancel flight, second paragraph",
+        "excerpt": "The agent must also obtain the reason for cancellation (change of plan, airline cancelled flight, or other reasons)"
+      }
+    },
+    {
+      "id": "policy-cancel-already-flown",
+      "title": "Airline Agent Policy - Cancel flight: flown portion requires transfer",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Cancel flight, third paragraph",
+        "excerpt": "If any portion of the flight has already been flown, the agent cannot help and transfer is needed."
+      }
+    },
+    {
+      "id": "policy-cancel-grounds",
+      "title": "Airline Agent Policy - Cancel flight: permitted grounds",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Cancel flight, fourth paragraph and bullets",
+        "excerpt": "Otherwise, flight can be cancelled if any of the following is true: - The booking was made within the last 24 hrs - The flight is cancelled by airline - It is a business flight - The user has travel insurance and the reason for cancellation is covered by insurance."
+      }
+    },
+    {
+      "id": "policy-cancel-agent-must-verify",
+      "title": "Airline Agent Policy - Cancel flight: the agent must verify the rules",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Cancel flight, fifth paragraph",
+        "excerpt": "The API does not check that cancellation rules are met, so the agent must make sure the rules apply before calling the API!"
+      }
+    },
+    {
+      "id": "policy-cancel-refund",
+      "title": "Airline Agent Policy - Cancel flight: refund handling",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Cancel flight, Refund",
+        "excerpt": "The refund will go to original payment methods within 5 to 7 business days."
+      }
+    },
+    {
+      "id": "policy-insurance-coverage",
+      "title": "Airline Agent Policy - Book flight: what travel insurance covers (context)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Book flight, Travel insurance",
+        "excerpt": "The travel insurance is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons."
+      }
+    },
+    {
+      "id": "policy-cabin-classes",
+      "title": "Airline Agent Policy - Domain Basic: cabin classes (context)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Domain Basic, Flight",
+        "excerpt": "There are three cabin classes: basic economy, economy, business. basic economy is its own class, completely distinct from economy."
+      }
+    },
+    {
+      "id": "policy-transfer-rule",
+      "title": "Airline Agent Policy - transfer to a human agent (context)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble",
+        "excerpt": "You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "cancellation-permitted",
+      "label": "Cancellation permitted",
+      "description": "The policy permits cancelling this reservation. Any refund goes to the original payment methods within 5 to 7 business days. This is a permissibility finding only; the agent must still list the action details and obtain explicit user confirmation before calling the cancellation API."
+    },
+    {
+      "id": "cancellation-denied",
+      "label": "Cancellation denied",
+      "description": "No portion of the trip has been flown, but none of the four grounds on which the policy permits cancellation is met, so the request must be denied."
+    }
+  ],
+  "rules": [
+    {
+      "id": "booked-within-24-hours",
+      "description": "The booking was made within the last 24 hours.",
+      "when": {
+        "op": "fact",
+        "path": "/reservation/hoursSinceBooking",
+        "operator": "less-than",
+        "value": "24"
+      },
+      "outcome": "cancellation-permitted",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": ["user-id", "reservation-id"],
+      "sourceRefs": ["policy-cancel-grounds"],
+      "rationale": "First bullet of the permitted grounds. Elapsed time is measured from the reservation's created time to the current time; exactly 24 hours or more is outside the window."
+    },
+    {
+      "id": "airline-cancelled-flight",
+      "description": "A flight in the reservation was cancelled by the airline.",
+      "when": {
+        "op": "fact",
+        "path": "/reservation/anySegmentCancelledByAirline",
+        "operator": "equals",
+        "value": true
+      },
+      "outcome": "cancellation-permitted",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": ["user-id", "reservation-id"],
+      "sourceRefs": ["policy-cancel-grounds"],
+      "rationale": "Second bullet of the permitted grounds. Read as satisfied when any flight segment of the reservation was cancelled by the airline."
+    },
+    {
+      "id": "business-cabin",
+      "description": "The reservation is a business flight, that is, its cabin class is business.",
+      "when": {
+        "op": "fact",
+        "path": "/reservation/cabinClass",
+        "operator": "equals",
+        "value": "business"
+      },
+      "outcome": "cancellation-permitted",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": ["user-id", "reservation-id"],
+      "sourceRefs": ["policy-cancel-grounds", "policy-cabin-classes"],
+      "rationale": "Third bullet of the permitted grounds. 'Business flight' is read as the business cabin class defined in Domain Basic, which is uniform across all flights of a reservation."
+    },
+    {
+      "id": "insured-and-reason-covered",
+      "description": "The reservation carries travel insurance and the user's stated reason for cancellation is covered by that insurance.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/reservation/hasTravelInsurance",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/cancellation/reasonCoveredByInsurance",
+            "operator": "equals",
+            "value": true
+          }
+        ]
+      },
+      "outcome": "cancellation-permitted",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": ["user-id", "reservation-id", "cancellation-reason"],
+      "sourceRefs": ["policy-cancel-grounds", "policy-cancel-reason", "policy-insurance-coverage"],
+      "rationale": "Fourth bullet of the permitted grounds. Both conjuncts are required. Whether the stated reason is covered is settled against the Book flight description of travel insurance, which names health or weather reasons."
+    },
+    {
+      "id": "no-permitted-ground",
+      "description": "None of the four grounds on which the policy permits cancellation is met.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/reservation/hoursSinceBooking",
+              "operator": "less-than",
+              "value": "24"
+            }
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/reservation/anySegmentCancelledByAirline",
+              "operator": "equals",
+              "value": true
+            }
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/reservation/cabinClass",
+              "operator": "equals",
+              "value": "business"
+            }
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "all",
+              "conditions": [
+                {
+                  "op": "fact",
+                  "path": "/reservation/hasTravelInsurance",
+                  "operator": "equals",
+                  "value": true
+                },
+                {
+                  "op": "fact",
+                  "path": "/cancellation/reasonCoveredByInsurance",
+                  "operator": "equals",
+                  "value": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "outcome": "cancellation-denied",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["user-id", "reservation-id", "cancellation-reason"],
+      "sourceRefs": ["policy-cancel-grounds", "policy-cancel-agent-must-verify"],
+      "rationale": "The word 'Otherwise' closes the list of grounds: if none applies the request is denied. This closure rule escalates on unknown because the policy makes the agent responsible for making sure the rules apply before calling the API, so an undetermined ground must not be silently read as absent."
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "portion-already-flown",
+      "description": "Any portion of the trip has already been flown, so the agent cannot help and the user must be transferred to a human agent.",
+      "when": {
+        "op": "fact",
+        "path": "/reservation/anySegmentFlown",
+        "operator": "equals",
+        "value": true
+      },
+      "effect": "escalate",
+      "onUnknown": "escalate",
+      "sourceRefs": ["policy-cancel-already-flown", "policy-transfer-rule"]
+    }
+  ],
+  "escalation": {
+    "triggers": ["unknown", "conflict", "no-match"],
+    "target": {
+      "kind": "human-role",
+      "name": "Human airline agent"
+    },
+    "message": "Transfer to a human agent: this cancellation request cannot be settled within the automated agent's scope. Call transfer_to_human_agents, then tell the user 'YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.'"
+  },
+  "metadata": {
+    "authors": ["Policy engineering, census room A6"],
+    "createdAt": "2024-05-15T15:00:00-05:00",
+    "reviews": []
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "request": {
+    "type": "modify-order-payment-method",
+    "orderId": "#W2378156",
+    "newPaymentMethodId": "gift_card_4332117",
+    "newPaymentMethodType": "gift_card",
+    "newPaymentMethodCount": 1,
+    "newPaymentMethodDiffersFromOriginal": true,
+    "newGiftCardCoversOrderTotal": true
+  },
+  "order": {
+    "id": "#W2378156",
+    "status": "pending",
+    "originalPaymentMethodId": "credit_card_9513926",
+    "totalAmount": "279.32"
+  }
+}

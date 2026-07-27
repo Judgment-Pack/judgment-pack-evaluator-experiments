@@ -1,0 +1,141 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "https://judgmentpack.example/packs/airline-agent/modify-flight/change-passengers",
+  "version": "1.0.0",
+  "title": "Airline Agent Policy - Modify flight: may the passengers be modified?",
+  "description": "Encodes the two-sentence 'Change passengers' subsection of the airline agent policy's 'Modify flight' section. Passenger details on an existing reservation may be modified; the number of passengers may not be changed by anyone, including a human agent. Scope is limited to that subsection: identification of the user and reservation, the global confirmation requirement, and the flight/cabin/baggage/insurance/payment subsections are handled by other packs.",
+  "decision": {
+    "intent": "Let an airline support agent determine, before calling the booking-update API, whether a requested change to the passengers on an existing reservation is permitted by policy, and whether a refusal is final or may be handed to a human.",
+    "question": "May the passengers on this reservation be modified as requested?"
+  },
+  "applicability": {
+    "op": "all",
+    "conditions": [
+      {
+        "op": "fact",
+        "path": "/request/action",
+        "operator": "equals",
+        "value": "modify-reservation"
+      },
+      {
+        "op": "fact",
+        "path": "/request/subject",
+        "operator": "equals",
+        "value": "passengers"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "policy-change-passengers-user",
+      "title": "Airline Agent Policy",
+      "publisher": "Airline customer operations",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Modify flight > Change passengers, first bullet",
+        "excerpt": "The user can modify passengers but cannot modify the number of passengers."
+      }
+    },
+    {
+      "id": "policy-change-passengers-human",
+      "title": "Airline Agent Policy",
+      "publisher": "Airline customer operations",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Modify flight > Change passengers, second bullet",
+        "excerpt": "Even a human agent cannot modify the number of passengers."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "allow-passenger-modification",
+      "label": "Passenger modification permitted",
+      "description": "The requested passenger change keeps the number of passengers on the reservation the same, so the passengers may be modified. This outcome states only that the 'Change passengers' subsection permits the change; it is not an authorization to call the booking-update API, which remains subject to the policy's separate identification and explicit-user-confirmation requirements."
+    },
+    {
+      "id": "refuse-passenger-count-change",
+      "label": "Refused: the number of passengers cannot be changed",
+      "description": "The request would change how many passengers are on the reservation. Policy forbids this outright. The refusal is final: it must not be transferred to a human agent for approval, because a human agent cannot modify the number of passengers either."
+    }
+  ],
+  "rules": [
+    {
+      "id": "allow-detail-change",
+      "description": "A passenger modification that leaves the number of passengers unchanged is permitted.",
+      "when": {
+        "op": "fact",
+        "path": "/derived/changesPassengerCount",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "allow-passenger-modification",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "policy-change-passengers-user"
+      ],
+      "rationale": "'The user can modify passengers but cannot modify the number of passengers.' The permission is stated without qualification for the passenger attributes themselves; the only stated limit is on the count. The subsection imposes no cabin-class, flown-segment, membership, or payment condition on passenger modification, so none is encoded here."
+    },
+    {
+      "id": "deny-count-change",
+      "description": "A passenger modification that would change the number of passengers on the reservation is refused.",
+      "when": {
+        "op": "fact",
+        "path": "/derived/changesPassengerCount",
+        "operator": "equals",
+        "value": true
+      },
+      "outcome": "refuse-passenger-count-change",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "policy-change-passengers-user",
+        "policy-change-passengers-human"
+      ],
+      "rationale": "'...but cannot modify the number of passengers.' Adding or removing a passenger is prohibited regardless of direction or of how the reservation was booked."
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "count-change-not-overridable",
+      "description": "A change to the number of passengers is absolutely barred: it is forced to a refusal ahead of ordinary rule resolution and must not be routed to a human agent for a different answer, because even a human agent cannot modify the number of passengers.",
+      "when": {
+        "op": "fact",
+        "path": "/derived/changesPassengerCount",
+        "operator": "equals",
+        "value": true
+      },
+      "effect": "force-outcome",
+      "outcome": "refuse-passenger-count-change",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "policy-change-passengers-human"
+      ]
+    }
+  ],
+  "escalation": {
+    "triggers": [
+      "unknown",
+      "conflict",
+      "no-match"
+    ],
+    "target": {
+      "kind": "human-role",
+      "name": "Human airline support agent"
+    },
+    "message": "The pack could not determine whether the requested passenger change alters the number of passengers on the reservation. A human agent may clarify the request and the current passenger roster with the customer. A human agent must not modify the number of passengers: if the clarified request adds or removes a passenger, the answer is still a refusal."
+  },
+  "metadata": {
+    "authors": [
+      "Policy engineering, room A5"
+    ],
+    "createdAt": "2026-07-27T12:00:00Z",
+    "license": "CC-BY-4.0",
+    "reviews": []
+  }
+}

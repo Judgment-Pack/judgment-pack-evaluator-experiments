@@ -1,0 +1,12 @@
+{
+  "reservation": {
+    "anySegmentFlown": false,
+    "hoursSinceBooking": "63.5",
+    "anySegmentCancelledByAirline": false,
+    "cabinClass": "economy",
+    "hasTravelInsurance": true
+  },
+  "cancellation": {
+    "reasonCoveredByInsurance": true
+  }
+}

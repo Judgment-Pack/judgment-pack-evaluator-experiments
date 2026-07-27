@@ -1,0 +1,24 @@
+{
+  "request": {
+    "phase": "post-booking-modification",
+    "target": "checked-bags",
+    "checkedBags": {
+      "effect": "increase",
+      "recordedTotal": 1,
+      "requestedTotal": 3,
+      "perPassengerRecorded": { "aarav-ramirez": 1, "mei-lin-ramirez": 0 },
+      "perPassengerRequested": { "aarav-ramirez": 2, "mei-lin-ramirez": 1 }
+    },
+    "insurance": {
+      "effect": "no-change",
+      "recordedHasInsurance": false,
+      "requestedHasInsurance": false
+    }
+  },
+  "reservation": {
+    "id": "HG7ZP2",
+    "userId": "mei_lin_8420",
+    "cabin": "economy",
+    "membershipLevel": "silver"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "request": {
+    "type": "book-flight"
+  },
+  "user": {
+    "membershipLevel": "gold"
+  },
+  "booking": {
+    "cabinClass": "economy",
+    "cabinClassUniformAcrossFlights": true,
+    "passengerCount": 2,
+    "allPassengersOnSameFlightsAndCabin": true,
+    "payment": {
+      "travelCertificateCount": 1,
+      "creditCardCount": 1,
+      "giftCardCount": 0,
+      "allMethodsInUserProfile": true
+    },
+    "baggage": {
+      "freeCheckedBagsPerPassenger": 3,
+      "extraCheckedBags": 1,
+      "extraBaggageFeePerBagUsd": 50,
+      "onlyBagsUserRequested": true
+    },
+    "travelInsurance": {
+      "purchased": true,
+      "pricePerPassengerUsd": 30
+    }
+  }
+}

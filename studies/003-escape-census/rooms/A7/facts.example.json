@@ -1,0 +1,19 @@
+{
+  "user": {
+    "membershipLevel": "silver"
+  },
+  "reservation": {
+    "cabinClass": "economy",
+    "hasTravelInsurance": false,
+    "passengerCount": 2,
+    "changeOrCancelCompleted": true
+  },
+  "complaint": {
+    "aboutCancelledFlights": false,
+    "aboutDelayedFlights": true,
+    "wantsChangeOrCancel": true
+  },
+  "request": {
+    "compensationExplicitlyRequested": true
+  }
+}

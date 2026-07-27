@@ -1,0 +1,970 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "https://example.com/judgment-packs/airline-agent/book-flight",
+  "version": "0.1.0",
+  "title": "Book flight — may this booking be made?",
+  "description": "Encodes the Book flight section of the Airline Agent Policy as a gate on a proposed new reservation. Scope is limited to that section; preamble obligations and other sections are not encoded.",
+  "decision": {
+    "intent": "Decide whether a proposed new flight reservation satisfies every requirement stated in the Book flight section of the Airline Agent Policy before the booking is written to the booking database.",
+    "question": "May this booking be made?"
+  },
+  "applicability": {
+    "op": "fact",
+    "path": "/request/type",
+    "operator": "equals",
+    "value": "book-flight"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "user-id",
+      "description": "The user id, obtained from the user before anything else in the booking flow.",
+      "required": true,
+      "kind": "fact"
+    },
+    {
+      "id": "trip-parameters",
+      "description": "Trip type, origin, and destination, asked of the user.",
+      "required": true,
+      "kind": "fact"
+    },
+    {
+      "id": "passenger-details",
+      "description": "First name, last name, and date of birth collected for every passenger on the reservation.",
+      "required": true,
+      "kind": "fact"
+    },
+    {
+      "id": "travel-insurance-offer",
+      "description": "A record that the agent asked the user whether they want to buy travel insurance.",
+      "required": true,
+      "kind": "attestation"
+    }
+  ],
+  "sources": [
+    {
+      "id": "book-flight-identification",
+      "title": "Airline Agent Policy — Book flight (identification and trip parameters)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Book flight, opening paragraphs",
+        "excerpt": "The agent must first obtain the user id from the user. The agent should then ask for the trip type, origin, destination."
+      },
+      "rights": "Exercise material supplied with the assignment."
+    },
+    {
+      "id": "book-flight-cabin",
+      "title": "Airline Agent Policy — Book flight (Cabin)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Book flight → Cabin",
+        "excerpt": "Cabin class must be the same across all the flights in a reservation."
+      },
+      "rights": "Exercise material supplied with the assignment."
+    },
+    {
+      "id": "book-flight-passengers",
+      "title": "Airline Agent Policy — Book flight (Passengers)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Book flight → Passengers",
+        "excerpt": "Each reservation can have at most five passengers. The agent needs to collect the first name, last name, and date of birth for each passenger. All passengers must fly the same flights in the same cabin."
+      },
+      "rights": "Exercise material supplied with the assignment."
+    },
+    {
+      "id": "book-flight-payment",
+      "title": "Airline Agent Policy — Book flight (Payment)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Book flight → Payment",
+        "excerpt": "Each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards. The remaining amount of a travel certificate is not refundable. All payment methods must already be in user profile for safety reasons."
+      },
+      "rights": "Exercise material supplied with the assignment."
+    },
+    {
+      "id": "book-flight-baggage",
+      "title": "Airline Agent Policy — Book flight (Checked bag allowance)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Book flight → Checked bag allowance",
+        "excerpt": "If the booking user is a regular member: 0 free checked bag for each basic economy passenger; 1 free checked bag for each economy passenger; 2 free checked bags for each business passenger. If the booking user is a silver member: 1 / 2 / 3. If the booking user is a gold member: 2 / 3 / 4. Each extra baggage is 50 dollars. Do not add checked bags that the user does not need."
+      },
+      "rights": "Exercise material supplied with the assignment."
+    },
+    {
+      "id": "book-flight-insurance",
+      "title": "Airline Agent Policy — Book flight (Travel insurance)",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Book flight → Travel insurance",
+        "excerpt": "The agent should ask if the user wants to buy the travel insurance. The travel insurance is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons."
+      },
+      "rights": "Exercise material supplied with the assignment."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "book-allowed",
+      "label": "Booking may be made",
+      "description": "Every requirement stated in the Book flight section is satisfied by the proposed reservation. This is not an authorization to call the booking API; obligations outside the Book flight section are not evaluated here."
+    },
+    {
+      "id": "book-denied",
+      "label": "Booking must not be made as proposed",
+      "description": "At least one requirement stated in the Book flight section is violated by the proposed reservation."
+    }
+  ],
+  "rules": [
+    {
+      "id": "allow-when-book-flight-requirements-met",
+      "description": "Allow the booking when the proposed reservation violates no requirement of the Book flight section and every required piece of collected information is present.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/booking/cabinClassUniformAcrossFlights",
+              "operator": "equals",
+              "value": false
+            }
+          },
+          {
+            "op": "fact",
+            "path": "/booking/passengerCount",
+            "operator": "in",
+            "value": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/booking/allPassengersOnSameFlightsAndCabin",
+              "operator": "equals",
+              "value": false
+            }
+          },
+          {
+            "op": "fact",
+            "path": "/booking/payment/travelCertificateCount",
+            "operator": "in",
+            "value": [
+              0,
+              1
+            ]
+          },
+          {
+            "op": "fact",
+            "path": "/booking/payment/creditCardCount",
+            "operator": "in",
+            "value": [
+              0,
+              1
+            ]
+          },
+          {
+            "op": "fact",
+            "path": "/booking/payment/giftCardCount",
+            "operator": "in",
+            "value": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/booking/payment/allMethodsInUserProfile",
+              "operator": "equals",
+              "value": false
+            }
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/booking/baggage/onlyBagsUserRequested",
+              "operator": "equals",
+              "value": false
+            }
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "any",
+              "conditions": [
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "regular"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "basic economy"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 0
+                    }
+                  ]
+                },
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "regular"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "economy"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 1
+                    }
+                  ]
+                },
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "regular"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "business"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 2
+                    }
+                  ]
+                },
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "silver"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "basic economy"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 1
+                    }
+                  ]
+                },
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "silver"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "economy"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 2
+                    }
+                  ]
+                },
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "silver"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "business"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 3
+                    }
+                  ]
+                },
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "gold"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "basic economy"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 2
+                    }
+                  ]
+                },
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "gold"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "economy"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 3
+                    }
+                  ]
+                },
+                {
+                  "op": "all",
+                  "conditions": [
+                    {
+                      "op": "fact",
+                      "path": "/user/membershipLevel",
+                      "operator": "equals",
+                      "value": "gold"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/cabinClass",
+                      "operator": "equals",
+                      "value": "business"
+                    },
+                    {
+                      "op": "fact",
+                      "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                      "operator": "not-equals",
+                      "value": 4
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "all",
+              "conditions": [
+                {
+                  "op": "fact",
+                  "path": "/booking/baggage/extraCheckedBags",
+                  "operator": "not-equals",
+                  "value": 0
+                },
+                {
+                  "op": "fact",
+                  "path": "/booking/baggage/extraBaggageFeePerBagUsd",
+                  "operator": "not-equals",
+                  "value": 50
+                }
+              ]
+            }
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "all",
+              "conditions": [
+                {
+                  "op": "fact",
+                  "path": "/booking/travelInsurance/purchased",
+                  "operator": "equals",
+                  "value": true
+                },
+                {
+                  "op": "fact",
+                  "path": "/booking/travelInsurance/pricePerPassengerUsd",
+                  "operator": "not-equals",
+                  "value": 30
+                }
+              ]
+            }
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "user-id"
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "trip-parameters"
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "passenger-details"
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "travel-insurance-offer"
+          }
+        ]
+      },
+      "outcome": "book-allowed",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "user-id",
+        "trip-parameters",
+        "passenger-details",
+        "travel-insurance-offer"
+      ],
+      "sourceRefs": [
+        "book-flight-identification",
+        "book-flight-cabin",
+        "book-flight-passengers",
+        "book-flight-payment",
+        "book-flight-baggage",
+        "book-flight-insurance"
+      ],
+      "rationale": "The Book flight section states its requirements as constraints on the reservation being created. A booking may be made only when none of them is violated, so this rule is the conjunction of the negations of every deny rule plus the collection obligations. onUnknown is escalate because an unverified requirement must never be read as a satisfied requirement."
+    },
+    {
+      "id": "deny-cabin-class-not-uniform",
+      "description": "Deny when the cabin class is not the same across all flights in the reservation.",
+      "when": {
+        "op": "fact",
+        "path": "/booking/cabinClassUniformAcrossFlights",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-cabin"
+      ],
+      "rationale": "\"Cabin class must be the same across all the flights in a reservation.\" onUnknown is ignore because the allow rule already blocks on the same unknown; a violation that cannot be established must not be asserted."
+    },
+    {
+      "id": "deny-more-than-five-passengers",
+      "description": "Deny when the reservation does not have between one and five passengers.",
+      "when": {
+        "op": "not",
+        "condition": {
+          "op": "fact",
+          "path": "/booking/passengerCount",
+          "operator": "in",
+          "value": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        }
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-passengers"
+      ],
+      "rationale": "\"Each reservation can have at most five passengers.\" Membership in the explicit set 1..5 is used instead of an ordered comparison because §2.2 assigns no portable ordering to decimal operands."
+    },
+    {
+      "id": "deny-passengers-not-on-same-flights-and-cabin",
+      "description": "Deny when the passengers do not all fly the same flights in the same cabin.",
+      "when": {
+        "op": "fact",
+        "path": "/booking/allPassengersOnSameFlightsAndCabin",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-passengers"
+      ],
+      "rationale": "\"All passengers must fly the same flights in the same cabin.\""
+    },
+    {
+      "id": "deny-more-than-one-travel-certificate",
+      "description": "Deny when the reservation uses more than one travel certificate.",
+      "when": {
+        "op": "not",
+        "condition": {
+          "op": "fact",
+          "path": "/booking/payment/travelCertificateCount",
+          "operator": "in",
+          "value": [
+            0,
+            1
+          ]
+        }
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-payment"
+      ],
+      "rationale": "\"Each reservation can use at most one travel certificate...\""
+    },
+    {
+      "id": "deny-more-than-one-credit-card",
+      "description": "Deny when the reservation uses more than one credit card.",
+      "when": {
+        "op": "not",
+        "condition": {
+          "op": "fact",
+          "path": "/booking/payment/creditCardCount",
+          "operator": "in",
+          "value": [
+            0,
+            1
+          ]
+        }
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-payment"
+      ],
+      "rationale": "\"...at most one credit card...\""
+    },
+    {
+      "id": "deny-more-than-three-gift-cards",
+      "description": "Deny when the reservation uses more than three gift cards.",
+      "when": {
+        "op": "not",
+        "condition": {
+          "op": "fact",
+          "path": "/booking/payment/giftCardCount",
+          "operator": "in",
+          "value": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-payment"
+      ],
+      "rationale": "\"...and at most three gift cards.\""
+    },
+    {
+      "id": "deny-payment-method-not-in-user-profile",
+      "description": "Deny when any payment method on the reservation is not already stored in the user profile.",
+      "when": {
+        "op": "fact",
+        "path": "/booking/payment/allMethodsInUserProfile",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-payment"
+      ],
+      "rationale": "\"All payment methods must already be in user profile for safety reasons.\""
+    },
+    {
+      "id": "deny-unrequested-checked-bags",
+      "description": "Deny when the reservation adds checked bags the user does not need.",
+      "when": {
+        "op": "fact",
+        "path": "/booking/baggage/onlyBagsUserRequested",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-baggage"
+      ],
+      "rationale": "\"Do not add checked bags that the user does not need.\""
+    },
+    {
+      "id": "deny-free-checked-bag-allowance-mismatch",
+      "description": "Deny when the free checked bag allowance recorded on the reservation does not match the allowance for the booking user's membership level and the reservation's cabin class.",
+      "when": {
+        "op": "any",
+        "conditions": [
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "regular"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "basic economy"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "regular"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "economy"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "regular"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "business"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "silver"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "basic economy"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "silver"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "economy"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "silver"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "business"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "gold"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "basic economy"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "gold"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "economy"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "op": "all",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "equals",
+                "value": "gold"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/cabinClass",
+                "operator": "equals",
+                "value": "business"
+              },
+              {
+                "op": "fact",
+                "path": "/booking/baggage/freeCheckedBagsPerPassenger",
+                "operator": "not-equals",
+                "value": 4
+              }
+            ]
+          }
+        ]
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-baggage"
+      ],
+      "rationale": "The nine membership-by-cabin combinations of the checked bag allowance table are encoded literally so the table stays in the pack rather than inside a derived fact. Because all passengers must fly the same cabin, one cabin class per reservation is assumed."
+    },
+    {
+      "id": "deny-extra-baggage-fee-not-fifty",
+      "description": "Deny when the reservation carries extra checked bags but does not charge 50 dollars for each of them.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/booking/baggage/extraCheckedBags",
+            "operator": "not-equals",
+            "value": 0
+          },
+          {
+            "op": "fact",
+            "path": "/booking/baggage/extraBaggageFeePerBagUsd",
+            "operator": "not-equals",
+            "value": 50
+          }
+        ]
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-baggage"
+      ],
+      "rationale": "\"Each extra baggage is 50 dollars.\" Read as a term the reservation must carry, so a proposed booking that prices extra bags differently is not the booking the section authorizes."
+    },
+    {
+      "id": "deny-travel-insurance-price-not-thirty",
+      "description": "Deny when travel insurance is purchased at a price other than 30 dollars per passenger.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/booking/travelInsurance/purchased",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/booking/travelInsurance/pricePerPassengerUsd",
+            "operator": "not-equals",
+            "value": 30
+          }
+        ]
+      },
+      "outcome": "book-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "book-flight-insurance"
+      ],
+      "rationale": "\"The travel insurance is 30 dollars per passenger...\" Read as a term the reservation must carry when insurance is bought."
+    }
+  ],
+  "escalation": {
+    "triggers": [
+      "missing-required-evidence",
+      "unknown",
+      "conflict",
+      "no-match"
+    ],
+    "target": {
+      "kind": "human-role",
+      "name": "Airline human agent"
+    },
+    "message": "The Book flight requirements could not be resolved for this proposed reservation. If the reason is missing-required-evidence or unknown because information was simply not collected yet, the agent should collect it from the user and re-evaluate; the Airline Agent Policy transfers to a human only when the request cannot be handled within the agent's scope."
+  },
+  "metadata": {
+    "authors": [
+      "Policy engineering room A1"
+    ],
+    "createdAt": "2026-07-27T00:00:00Z",
+    "license": "CC0-1.0"
+  }
+}

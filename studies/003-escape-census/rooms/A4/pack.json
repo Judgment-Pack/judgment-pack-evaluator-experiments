@@ -1,0 +1,230 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "https://judgmentpack.example/packs/airline/modify-baggage-and-insurance",
+  "version": "0.1.0",
+  "title": "Airline agent: may baggage or travel insurance be modified?",
+  "description": "Encodes the 'Modify flight -> Change baggage and insurance' subsection of the Airline Agent Policy. The pack decides one requested modification at a time: a change to the checked bags on an existing reservation, or a change to that reservation's travel insurance. It answers permissibility only; it does not authorize execution, price the change, or record the user confirmation that the policy requires before any booking-database update.",
+  "decision": {
+    "intent": "Let an airline support agent determine, before calling any booking API, whether a requested post-booking change to checked baggage or travel insurance is permitted by policy, denied by policy, or outside the agent's scope and therefore a transfer to a human agent.",
+    "question": "For an existing reservation, may this requested change to checked bags or to travel insurance be made?"
+  },
+  "applicability": {
+    "op": "all",
+    "conditions": [
+      {
+        "op": "fact",
+        "path": "/request/phase",
+        "operator": "equals",
+        "value": "post-booking-modification"
+      },
+      {
+        "op": "fact",
+        "path": "/request/target",
+        "operator": "in",
+        "value": ["checked-bags", "travel-insurance"]
+      }
+    ]
+  },
+  "evidenceRequirements": [
+    {
+      "id": "current-reservation-record",
+      "description": "The stored reservation record for the reservation being modified, showing its current baggages (checked-bag counts, overall and per passenger) and its current travel-insurance information. Needed to decide whether the requested baggage change is an increase or a decrease, and whether the requested insurance change is an addition.",
+      "required": false,
+      "kind": "fact"
+    }
+  ],
+  "sources": [
+    {
+      "id": "policy-bags-add-not-remove",
+      "title": "Airline Agent Policy - Modify flight - Change baggage and insurance (checked bags)",
+      "publisher": "Airline Agent Policy",
+      "publishedAt": "2024-05-15",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Modify flight > Change baggage and insurance, first bullet",
+        "excerpt": "The user can add but not remove checked bags."
+      }
+    },
+    {
+      "id": "policy-no-insurance-after-booking",
+      "title": "Airline Agent Policy - Modify flight - Change baggage and insurance (insurance)",
+      "publisher": "Airline Agent Policy",
+      "publishedAt": "2024-05-15",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Modify flight > Change baggage and insurance, second bullet",
+        "excerpt": "The user cannot add insurance after initial booking."
+      }
+    },
+    {
+      "id": "policy-deny-against-policy",
+      "title": "Airline Agent Policy - preamble, denial duty",
+      "publisher": "Airline Agent Policy",
+      "publishedAt": "2024-05-15",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble",
+        "excerpt": "You should deny user requests that are against this policy."
+      }
+    },
+    {
+      "id": "policy-transfer-to-human",
+      "title": "Airline Agent Policy - preamble, transfer condition",
+      "publisher": "Airline Agent Policy",
+      "publishedAt": "2024-05-15",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble",
+        "excerpt": "You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "permit-add-checked-bags",
+      "label": "Permitted: add checked bags",
+      "description": "The requested change only increases the number of checked bags on the reservation. The policy permits it. Permissibility only: the agent must still list the action details and obtain explicit user confirmation before updating the booking database, and must apply the separately specified baggage allowance and extra-bag pricing."
+    },
+    {
+      "id": "deny-remove-checked-bags",
+      "label": "Denied: checked bags cannot be removed",
+      "description": "The requested change would reduce the number of checked bags on the reservation (overall or for an individual passenger). The policy allows adding but not removing checked bags, so the request is denied."
+    },
+    {
+      "id": "deny-add-insurance",
+      "label": "Denied: travel insurance cannot be added after initial booking",
+      "description": "The reservation has no travel insurance and the user is asking to add it after the initial booking. The policy forbids this, so the request is denied."
+    }
+  ],
+  "rules": [
+    {
+      "id": "add-checked-bags-permitted",
+      "description": "A checked-bag change that only increases the number of checked bags is permitted.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/target",
+            "operator": "equals",
+            "value": "checked-bags"
+          },
+          {
+            "op": "fact",
+            "path": "/request/checkedBags/effect",
+            "operator": "equals",
+            "value": "increase"
+          }
+        ]
+      },
+      "outcome": "permit-add-checked-bags",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["current-reservation-record"],
+      "sourceRefs": ["policy-bags-add-not-remove"],
+      "rationale": "'The user can add but not remove checked bags' states an affirmative permission for additions. If it cannot be established that the requested configuration is an increase, the agent cannot confirm the rule applies and the matter is escalated rather than approved."
+    },
+    {
+      "id": "remove-checked-bags-denied",
+      "description": "A checked-bag change that reduces the number of checked bags is denied.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/target",
+            "operator": "equals",
+            "value": "checked-bags"
+          },
+          {
+            "op": "fact",
+            "path": "/request/checkedBags/effect",
+            "operator": "equals",
+            "value": "decrease"
+          }
+        ]
+      },
+      "outcome": "deny-remove-checked-bags",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["current-reservation-record"],
+      "sourceRefs": ["policy-bags-add-not-remove", "policy-deny-against-policy"],
+      "rationale": "'add but not remove' prohibits removal; the preamble directs the agent to deny requests that are against the policy. A request that both adds and removes checked bags is classified as a decrease and is therefore denied."
+    },
+    {
+      "id": "add-insurance-denied",
+      "description": "Adding travel insurance to a reservation after the initial booking is denied.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/target",
+            "operator": "equals",
+            "value": "travel-insurance"
+          },
+          {
+            "op": "fact",
+            "path": "/request/insurance/effect",
+            "operator": "equals",
+            "value": "add"
+          }
+        ]
+      },
+      "outcome": "deny-add-insurance",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["current-reservation-record"],
+      "sourceRefs": ["policy-no-insurance-after-booking", "policy-deny-against-policy"],
+      "rationale": "'The user cannot add insurance after initial booking.' The pack is scoped by its applicability condition to post-booking modification, so any insurance addition reaching this rule is after the initial booking and is denied."
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "insurance-removal-out-of-scope",
+      "description": "Removing or cancelling existing travel insurance is not addressed by the 'Change baggage and insurance' subsection. The subsection grants no power to do it and states no rule for refusing it, so the request cannot be handled within the scope of the agent's actions and is handed off to a human agent.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/target",
+            "operator": "equals",
+            "value": "travel-insurance"
+          },
+          {
+            "op": "fact",
+            "path": "/request/insurance/effect",
+            "operator": "equals",
+            "value": "remove"
+          }
+        ]
+      },
+      "effect": "escalate",
+      "onUnknown": "ignore",
+      "sourceRefs": ["policy-transfer-to-human"]
+    }
+  ],
+  "escalation": {
+    "triggers": ["missing-required-evidence", "unknown", "conflict", "no-match"],
+    "target": {
+      "kind": "human-role",
+      "name": "Human airline support agent (transfer_to_human_agents)"
+    },
+    "message": "YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON."
+  },
+  "metadata": {
+    "authors": ["Policy engineering, census room A4"],
+    "createdAt": "2024-05-15T15:00:00-05:00",
+    "license": "CC0-1.0"
+  }
+}

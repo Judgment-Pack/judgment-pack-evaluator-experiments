@@ -1,0 +1,13 @@
+{
+  "request": {
+    "type": "change-cabin",
+    "changesFlights": false,
+    "appliesToAllFlightsInReservation": true
+  },
+  "reservation": {
+    "anyFlightFlown": false
+  },
+  "pricing": {
+    "priceDifferenceDirection": "higher"
+  }
+}
