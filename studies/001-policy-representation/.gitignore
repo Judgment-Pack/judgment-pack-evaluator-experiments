@@ -1,0 +1,5 @@
+# Generated, deterministically reproducible from the pinned commit + pipeline scripts
+# (see PIPELINE-STATUS.md §7). The DOI'd corpus release carries them; the repo does not.
+pipeline/out/
+.pytest_cache/
+**/__pycache__/
