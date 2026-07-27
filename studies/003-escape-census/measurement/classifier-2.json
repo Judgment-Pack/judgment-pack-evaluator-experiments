@@ -1,0 +1,801 @@
+{
+ "rooms": [
+  {
+   "id": "A1",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/type",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token; the user states the ask."
+    },
+    {
+     "pointer": "/user/membershipLevel",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Single stored profile field, read as-is."
+    },
+    {
+     "pointer": "/booking/cabinClass",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Cabin the user chose for the draft reservation."
+    },
+    {
+     "pointer": "/booking/cabinClassUniformAcrossFlights",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Set-cardinality test over every proposed segment; the format has no quantifier or iteration."
+    },
+    {
+     "pointer": "/booking/passengerCount",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Cardinality of a passenger list. Counting is aggregation over a collection, which the definitions name as a determination even though the list itself is requester-supplied."
+    },
+    {
+     "pointer": "/booking/allPassengersOnSameFlightsAndCabin",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Build per-passenger itineraries and test all for equality."
+    },
+    {
+     "pointer": "/booking/payment/travelCertificateCount",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Classify each proposed method against profile types, then count."
+    },
+    {
+     "pointer": "/booking/payment/creditCardCount",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Same classify-then-count aggregation."
+    },
+    {
+     "pointer": "/booking/payment/giftCardCount",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Same classify-then-count aggregation."
+    },
+    {
+     "pointer": "/booking/payment/allMethodsInUserProfile",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Set-membership of every proposed method against the stored profile list."
+    },
+    {
+     "pointer": "/booking/baggage/onlyBagsUserRequested",
+     "cls": "prepared-determination",
+     "device": "materiality",
+     "note": "'Bags the user does not need' has no test in the policy; an open-textured judgment settled upstream."
+    },
+    {
+     "pointer": "/booking/baggage/freeCheckedBagsPerPassenger",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Override of encoder's 'computed'. As specified it is the allowance figure read off the priced draft reservation \u2014 one as-is read, no aggregation, no policy decision. (If a producer instead derives it by applying the nine-row table, the pack's check becomes vacuous; that is the encoder's own caveat, not a different class for the pointer as defined.)",
+     "overrode_encoder": true
+    },
+    {
+     "pointer": "/booking/baggage/extraCheckedBags",
+     "cls": "prepared-determination",
+     "device": "arithmetic",
+     "note": "total bags \u2212 (free per passenger \u00d7 passenger count), floored at zero; no pointer arithmetic exists in the format."
+    },
+    {
+     "pointer": "/booking/baggage/extraBaggageFeePerBagUsd",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Override of encoder's 'computed'. Unit price read off the priced draft as-is; no judgment and no comparison.",
+     "overrode_encoder": true
+    },
+    {
+     "pointer": "/booking/travelInsurance/purchased",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "The user answers whether they want insurance."
+    },
+    {
+     "pointer": "/booking/travelInsurance/pricePerPassengerUsd",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Override of encoder's 'computed'. Per-passenger price read off the priced draft as-is.",
+     "overrode_encoder": true
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "The agent must first obtain the user id from the user. / The agent should then ask for the trip type, origin, destination.",
+     "device": "state-sequencing",
+     "note": "Obligations survive only as two required evidence attestations; 'first'/'then' cannot be expressed (rules carry no order, evidence records only presence)."
+    },
+    {
+     "sentence": "The agent needs to collect the first name, last name, and date of birth for each passenger.",
+     "device": "collection-quantification",
+     "note": "Collapsed to one attestation proxy: the pack cannot check three fields, per passenger, over a list."
+    },
+    {
+     "sentence": "The remaining amount of a travel certificate is not refundable.",
+     "device": "other",
+     "note": "Downstream monetary consequence of the booking; the format has no vocabulary for post-decision effects, so nothing reads it. Not a condition on the booking."
+    },
+    {
+     "sentence": "If the booking user is a regular member: 0 free checked bag for each basic economy passenger \u2026 4 free checked bags for each business passenger.",
+     "device": "other",
+     "note": "Direction loss: all nine rows are encoded, but the format can only test a proposed allowance against a literal, never emit one. The 'for each \u2026 passenger' scaling also leaves the pack (into the computed extraCheckedBags)."
+    },
+    {
+     "sentence": "The travel insurance is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.",
+     "device": "other",
+     "note": "Second clause is a future cross-decision entitlement (Cancel flight); no representation at all. Only the unit price is encoded."
+    },
+    {
+     "sentence": "The agent should ask if the user wants to buy the travel insurance.",
+     "device": "other",
+     "note": "Speech-act duty plus deontic modality: encoded as a required attestation, which upgrades 'should' into a hard precondition that can make a compliant booking unresolved."
+    }
+   ]
+  },
+  {
+   "id": "A2",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/type",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/reservation/cabinClass",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored reservation field; the policy guarantees one reservation-level value, so no aggregation."
+    },
+    {
+     "pointer": "/request/preservesOrigin",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Requires reading two segment collections, deciding which segment defines the trip origin, and comparing; no iteration and no pointer-to-pointer comparison in the format."
+    },
+    {
+     "pointer": "/request/preservesDestination",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Same two-collection comparison, plus a policy reading (for a round trip 'destination' must mean the turnaround, not the final arrival airport)."
+    },
+    {
+     "pointer": "/request/preservesTripType",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Proposed itinerary has no stored trip type; it must be classified from the proposed segment list and compared with the stored value."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "Some flight segments can be kept, but their prices will not be updated based on the current price.",
+     "device": "other",
+     "note": "The pricing half has no representation in the machinery \u2014 outcomes carry no monetary payload; it survives only as rationale text on permit-shape-preserving-change."
+    },
+    {
+     "sentence": "The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!",
+     "device": "state-sequencing",
+     "note": "'Before calling the API' orders an external action; \u00a76.4 forbids outcomes from authorizing actions. Only approximated by a required attestation plus onUnknown: escalate."
+    }
+   ]
+  },
+  {
+   "id": "A3",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/type",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/request/changesFlights",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Read directly off what the user asked; no reservation data needed."
+    },
+    {
+     "pointer": "/request/appliesToAllFlightsInReservation",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Set equality between the segments the user named and the reservation's full segment list."
+    },
+    {
+     "pointer": "/reservation/anyFlightFlown",
+     "cls": "prepared-determination",
+     "device": "state-sequencing",
+     "note": "Records carry available/delayed/on time/flying, never 'flown'; someone must place each segment in the flight lifecycle and decide which states count. Also quantifies over segments; in this room the reading is 'has taken off' (A6 reads it as 'has landed' \u2014 same construct, divergent upstream definitions)."
+    },
+    {
+     "pointer": "/pricing/priceDifferenceDirection",
+     "cls": "prepared-determination",
+     "device": "arithmetic",
+     "note": "Price the whole reservation in the new cabin (sum over segments and passengers) and compare with the recorded original; the format has no pointer-to-pointer ordering and no portable decimal ordering."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "In other cases, all reservations, including basic economy, can change cabin without changing the flights.",
+     "device": "other",
+     "note": "The bare permission cannot be stated: every allow outcome bundles a money consequence, so a missing price direction yields unresolved on a change the policy plainly permits. 'Including basic economy' is encoded only by the absence of a condition \u2014 nothing a validator could check."
+    },
+    {
+     "sentence": "Cabin class must remain the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.",
+     "device": "collection-quantification",
+     "note": "Second clause encoded; the uniformity invariant itself is checked nowhere \u2014 the pack never reads any cabin class, so a request naming business outbound and economy return covers all segments and passes."
+    },
+    {
+     "sentence": "If the price after cabin change is higher than the original price, the user is required to pay for the difference. / If the price after cabin change is lower than the original price, the user is should be refunded the difference.",
+     "device": "arithmetic",
+     "note": "Directions encoded as outcomes; the amount ('the difference') is nowhere in the pack \u2014 outcomes are labels and cannot carry a computed decimal. Policy silence on equal prices is filled by an invented outcome (a gap, not residue)."
+    }
+   ]
+  },
+  {
+   "id": "A4",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/phase",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability scope; carries the 'after initial booking' qualifier structurally."
+    },
+    {
+     "pointer": "/request/target",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability/guard token for which limb of the section applies."
+    },
+    {
+     "pointer": "/request/checkedBags/effect",
+     "cls": "prepared-determination",
+     "device": "arithmetic",
+     "note": "Requires comparing requested end-state counts against recorded counts (pointer-to-pointer comparison the format lacks), and settling two questions the policy leaves open: per-passenger vs reservation-wide measurement, and how a mixed add+remove request classifies."
+    },
+    {
+     "pointer": "/request/insurance/effect",
+     "cls": "prepared-determination",
+     "device": "state-sequencing",
+     "note": "Classifies a requested transition of the reservation's recorded insurance state (has \u2192 wants), including whether asking for insurance already held counts as 'add'. Two record/request states must be compared outside the pack."
+    }
+   ],
+   "residues": []
+  },
+  {
+   "id": "A5",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/action",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/request/subject",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/derived/changesPassengerCount",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Build the post-change roster from free-text, count both rosters and compare; also settles whether substitution or an add-plus-remove nets to a count change \u2014 a policy call the sentence delegates."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "Even a human agent cannot modify the number of passengers.",
+     "device": "other",
+     "note": "No construct for terminality or for forbidding escalation: escalation is a trigger list keyed to reason codes and an outcome generates no reason, so the bar exists only by construction and in prose."
+    }
+   ]
+  },
+  {
+   "id": "A6",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/reservation/anySegmentFlown",
+     "cls": "prepared-determination",
+     "device": "state-sequencing",
+     "note": "Same construct as A3's anyFlightFlown: place each segment in the lifecycle and decide what 'flown' denotes against a status vocabulary that lacks the term; here it also needs scheduled-arrival vs current time and a disjunction over segments."
+    },
+    {
+     "pointer": "/reservation/hoursSinceBooking",
+     "cls": "prepared-determination",
+     "device": "date-time",
+     "note": "Elapsed hours between the stored created time and 'now'. More than unit conversion: the format has no clock and no duration arithmetic, so half of 'within the last 24 hrs' is discharged upstream (only the literal 24 stays in the pack)."
+    },
+    {
+     "pointer": "/reservation/anySegmentCancelledByAirline",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Disjunction over all segments of a per-segment record; mechanical but not expressible in the format."
+    },
+    {
+     "pointer": "/reservation/cabinClass",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored reservation field."
+    },
+    {
+     "pointer": "/reservation/hasTravelInsurance",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored reservation field."
+    },
+    {
+     "pointer": "/cancellation/reasonCoveredByInsurance",
+     "cls": "prepared-determination",
+     "device": "materiality",
+     "note": "The only coverage definition in the policy (health/weather, from Book flight) does not line up with the three reason categories Cancel flight collects, so someone must judge whether a narrative reason falls inside coverage."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "If the user doesn't know their reservation id, the agent should help locate it using available tools.",
+     "device": "other",
+     "note": "Procedural instruction about how to obtain an input; no tool/procedure vocabulary. Survives only in an evidence requirement's description."
+    },
+    {
+     "sentence": "The user must provide their user id.",
+     "device": "other",
+     "note": "Provenance constraint: evidence requirements are a bare tri-state with no authenticity or source model, so an agent-inferred id satisfies the same 'present'."
+    },
+    {
+     "sentence": "The agent must also obtain the reason for cancellation (change of plan, airline cancelled flight, or other reasons)",
+     "device": "other",
+     "note": "Obligation carried by an attestation, but the three-way enumeration is enforced nowhere; the category enters the decision only through the insurance-coverage determination."
+    },
+    {
+     "sentence": "The API does not check that cancellation rules are met, so the agent must make sure the rules apply before calling the API!",
+     "device": "state-sequencing",
+     "note": "Ordering of an external action; approximated by onUnknown: escalate on the closure rule."
+    },
+    {
+     "sentence": "The refund will go to original payment methods within 5 to 7 business days.",
+     "device": "state-sequencing",
+     "note": "Post-decision effect and service timing; no effect vocabulary, so it lives only in the permitted outcome's description."
+    },
+    {
+     "sentence": "First, the agent must obtain the user id and reservation id.",
+     "device": "state-sequencing",
+     "note": "The obligations are two required evidence requirements; 'First' \u2014 collection before anything else \u2014 has no representation."
+    }
+   ]
+  },
+  {
+   "id": "A7",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/compensationExplicitlyRequested",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Whether the user asked; supplied by the requester's own utterance."
+    },
+    {
+     "pointer": "/complaint/wantsChangeOrCancel",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Taken at face value from the user's statement."
+    },
+    {
+     "pointer": "/user/membershipLevel",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored profile field."
+    },
+    {
+     "pointer": "/reservation/hasTravelInsurance",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored reservation field."
+    },
+    {
+     "pointer": "/reservation/cabinClass",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored reservation field."
+    },
+    {
+     "pointer": "/complaint/aboutCancelledFlights",
+     "cls": "prepared-determination",
+     "device": "materiality",
+     "note": "Someone must judge that a free-text grievance is a complaint about cancelled flights in this reservation, and confirm it against records \u2014 applying the policy's own phrase."
+    },
+    {
+     "pointer": "/complaint/aboutDelayedFlights",
+     "cls": "prepared-determination",
+     "device": "materiality",
+     "note": "Same open-textured classification for delays."
+    },
+    {
+     "pointer": "/reservation/changeOrCancelCompleted",
+     "cls": "prepared-determination",
+     "device": "state-sequencing",
+     "note": "No stored field says the requested modification was carried out; it is a conclusion about before/after session state, and the policy makes it a precondition via 'after'."
+    },
+    {
+     "pointer": "/reservation/passengerCount",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Cardinality of the stored passenger list \u2014 aggregation over a collection, same construct as A1's passengerCount, even though no interpretation is involved."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "Always confirms the facts before offering compensation.",
+     "device": "state-sequencing",
+     "note": "'Before' cannot be expressed \u2014 the pack can only see an attestation at evaluation time; and 'always' is weakened because the requirement is declared required:false so refusals can resolve unconfirmed."
+    },
+    {
+     "sentence": "the agent can offer a certificate as a gesture (both grant sentences)",
+     "device": "other",
+     "note": "Deontic modality: outcomes are declared results with no third value between permitted and refused, so residual agent discretion to decline a permitted gesture is unrepresentable; the outcome labels ('Offer travel certificate \u2026') overstate the modality."
+    },
+    {
+     "sentence": "with the amount being $100 times the number of passengers / with the amount being $50 times the number of passengers",
+     "device": "arithmetic",
+     "note": "Override of the encoder, who scored this as fully preserved. The multiplication is executed nowhere in the pack: the multiplier survives only in prose and a non-normative extension, and the passenger count is read merely as an availability gate."
+    }
+   ]
+  },
+  {
+   "id": "R1",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/action",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/order/status",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored order field compared in-pack to the literal 'pending'."
+    },
+    {
+     "pointer": "/request/orderIdConfirmedByUser",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Records that the user confirmed; the user supplies it."
+    },
+    {
+     "pointer": "/request/reasonConfirmedByUser",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Records that the user confirmed a reason."
+    },
+    {
+     "pointer": "/request/cancellationReason",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "The user assents to one of the two enumerated reasons. (Deployments that map free text onto the enum would make this a classification determination; as specified it is requester-stated.)"
+    },
+    {
+     "pointer": "/order/originalPaymentMethod/type",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Not a stored field: the original charge must be selected out of the order's payment history (multi-entry collection) and then resolved to a profile method type. 'Original' is also undefined by the policy."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "An order can only be cancelled if its status is 'pending', and you should check its status before taking the action.",
+     "device": "state-sequencing",
+     "note": "Gate encoded; 'before taking the action' cannot be observed \u2014 pushed onto an attestation plus onUnknown: escalate."
+    },
+    {
+     "sentence": "After user confirmation, the order status will be changed to 'cancelled', and the total will be refunded via the original payment method immediately if it is gift card, otherwise in 5 to 7 business days.",
+     "device": "state-sequencing",
+     "note": "The gift-card branch survives as two outcome identities, but the state transition, the refund issuance and the timing are post-action effects with no field in the format."
+    }
+   ]
+  },
+  {
+   "id": "R2",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/type",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/order/status",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored order field."
+    },
+    {
+     "pointer": "/request/newPaymentMethodCount",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Override of encoder's 'requester'. The user names methods; the cardinality of that set is an aggregation, the same construct scored as a determination for A1's passengerCount. Trivial in the common one-method case, but the pack cannot count."
+    },
+    {
+     "pointer": "/request/newPaymentMethodType",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Attribute lookup on the profile's payment-method record once the id is known."
+    },
+    {
+     "pointer": "/request/newPaymentMethodDiffersFromOriginal",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Requires selecting the original charge from the order's payment history and an identity comparison between two ids \u2014 neither list selection nor pointer-to-pointer comparison exists in the format."
+    },
+    {
+     "pointer": "/request/newGiftCardCoversOrderTotal",
+     "cls": "prepared-determination",
+     "device": "arithmetic",
+     "note": "balance \u2265 order total, two runtime values; the format compares a pointer to a literal only and assigns no portable decimal ordering. Also fixes 'cover' as inclusive."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "An order can only be modified if its status is 'pending', and you should check its status before taking the action.",
+     "device": "state-sequencing",
+     "note": "Gate encoded; the lookup-before-acting directive is only approximated by escalate-on-unknown."
+    },
+    {
+     "sentence": "For a pending order, you can take actions to modify its shipping address, payment method, or product item options, but nothing else.",
+     "device": "other",
+     "note": "Closed-world scope claim: a single-question pack cannot assert the closure. Out-of-enumeration requests return not-applicable \u2014 silence, not the denial the sentence wants."
+    },
+    {
+     "sentence": "After user confirmation, the order status will be kept as 'pending'.",
+     "device": "state-sequencing",
+     "note": "Confirmation modelled as a non-blocking attestation used in no condition; the post-action state statement has no field and lives in outcome prose."
+    },
+    {
+     "sentence": "The original payment method will be refunded immediately if it is a gift card, otherwise it will be refunded within 5 to 7 business days.",
+     "device": "state-sequencing",
+     "note": "Pure post-action effect that gates nothing; carried only in the permitted outcome's description \u2014 the pack never reads the original method's type."
+    }
+   ]
+  },
+  {
+   "id": "R3",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/action",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/order/status",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored order field; also carries the once-only limit via the 'pending (items modifed)' value."
+    },
+    {
+     "pointer": "/modification/allNewItemsSameProduct",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Two catalog lookups per pair plus a conjunction over the whole substitution list; also fixes 'same product' as same product id."
+    },
+    {
+     "pointer": "/modification/allNewItemsDifferentOption",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Pairwise option-map inequality conjoined over the list; must also commit to what 'different product option' means."
+    },
+    {
+     "pointer": "/modification/allNewItemsAvailable",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Per-item availability is a plain lookup, but the pack reads one aggregate boolean, so the conjunction is discharged upstream."
+    },
+    {
+     "pointer": "/modification/customerConfirmedItemListComplete",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "The customer's own confirmation that the list is complete."
+    },
+    {
+     "pointer": "/payment/isGiftCard",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Type attribute of the named profile payment method."
+    },
+    {
+     "pointer": "/payment/giftCardBalanceCoversPriceDifference",
+     "cls": "prepared-determination",
+     "device": "arithmetic",
+     "note": "Price out both baskets, subtract, compare against balance; also decides that a non-positive difference imposes no balance requirement."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "This action can only be called once, and will change the order status to 'pending (items modifed)'.",
+     "device": "state-sequencing",
+     "note": "Once-only limit encoded via the status value; the post-action state transition has no representation (outcomes are results, not mutations)."
+    },
+    {
+     "sentence": "The agent will not be able to modify or cancel the order anymore.",
+     "device": "other",
+     "note": "A claim about the agent's future capability, half of it about a different decision (cancel); carried only as rationale and a source excerpt."
+    },
+    {
+     "sentence": "So you must confirm all the details are correct and be cautious before taking this action.",
+     "device": "other",
+     "note": "Open-ended diligence duty with no enumerable condition; 'be cautious' has no truth value. Approximated by a strong conjunction plus onUnknown: escalate."
+    },
+    {
+     "sentence": "In particular, remember to remind the customer to confirm they have provided all the items they want to modify.",
+     "device": "other",
+     "note": "Speech-act duty on the agent: the pack captures the customer's confirmation but nothing about issuing the reminder; \u00a76.1 forbids embedding prompts."
+    },
+    {
+     "sentence": "The user must provide a payment method to pay or receive refund of the price difference.",
+     "device": "arithmetic",
+     "note": "Provision of a method is encoded as evidence; the 'to pay or receive refund' direction is not \u2014 the pack never models the price difference or its sign."
+    },
+    {
+     "sentence": "An order can only be modified if its status is 'pending', and you should check its status before taking the action. (parent section, relied on by sentence 5)",
+     "device": "state-sequencing",
+     "note": "Only the 'before taking the action' clause is residual; the status gate itself is encoded."
+    }
+   ]
+  },
+  {
+   "id": "R4",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/type",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/order/status",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored order field; the pack does the comparison to 'delivered' itself."
+    },
+    {
+     "pointer": "/confirmation/orderIdConfirmed",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Records that the user confirmed the order id."
+    },
+    {
+     "pointer": "/confirmation/returnItemsConfirmed",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Records that the user confirmed the item list; deliberately asserts nothing about the items belonging to the order."
+    },
+    {
+     "pointer": "/refund/paymentMethodProvided",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Whether the user named a refund destination."
+    },
+    {
+     "pointer": "/confirmation/explicitYes",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "The user's explicit authorization."
+    },
+    {
+     "pointer": "/refund/destinationIsOriginalPaymentMethod",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Requires picking the original charge out of the order's payment history and an identity comparison; no order attribute holds this."
+    },
+    {
+     "pointer": "/refund/destinationIsExistingGiftCard",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Membership test of the named method against the authenticated user's profile list, plus a reading of the undefined word 'existing' (already on this user's profile) that changes the fact without changing the pack."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "An order can only be returned if its status is 'delivered', and you should check its status before taking the action.",
+     "device": "state-sequencing",
+     "note": "Gate encoded; the lookup-before-acting ordering cannot be expressed, only approximated by onUnknown: escalate."
+    },
+    {
+     "sentence": "After user confirmation, the order status will be changed to 'return requested', and the user will receive an email regarding how to return items.",
+     "device": "state-sequencing",
+     "note": "Precondition encoded via explicitYes; the state transition and the notification are post-action effects carried only in the outcome description."
+    }
+   ]
+  },
+  {
+   "id": "R5",
+   "has_determination": true,
+   "facts": [
+    {
+     "pointer": "/request/type",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Applicability-only scope token."
+    },
+    {
+     "pointer": "/order/status",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Stored order field read verbatim."
+    },
+    {
+     "pointer": "/request/allExchangesWithinSameProduct",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Resolve each old/new item to a parent product id and conjoin pairwise equality over the exchange list; also fixes 'product type' as catalogue product id."
+    },
+    {
+     "pointer": "/request/allNewItemsAvailable",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Per-item availability lookups conjoined over the list; the pack reads one aggregate boolean."
+    },
+    {
+     "pointer": "/request/allNewItemsDifferentOption",
+     "cls": "prepared-determination",
+     "device": "collection-quantification",
+     "note": "Pairwise option inequality conjoined over the list; reading 'of different product option' as a hard requirement is itself an interpretation made upstream."
+    },
+    {
+     "pointer": "/request/paymentMethodProvided",
+     "cls": "requester-stated",
+     "device": "n/a",
+     "note": "Whether the user named a method for the price difference."
+    },
+    {
+     "pointer": "/request/paymentMethodType",
+     "cls": "prepared-data",
+     "device": "n/a",
+     "note": "Type attribute read from the profile once the method is matched."
+    },
+    {
+     "pointer": "/request/giftCardBalanceMinusPriceDifference",
+     "cls": "prepared-determination",
+     "device": "arithmetic",
+     "note": "Sum both baskets, subtract to get the price difference, subtract from the gift-card balance; signed decimal supplied because ordered conditions compare a pointer to a literal only."
+    }
+   ],
+   "residues": [
+    {
+     "sentence": "An order can only be exchanged if its status is 'delivered', and you should check its status before taking the action.",
+     "device": "state-sequencing",
+     "note": "Gate encoded as an exception; the obligation that the value came from a tool call rather than the user's assertion is unrepresentable."
+    },
+    {
+     "sentence": "In particular, remember to remind the customer to confirm they have provided all items to be exchanged.",
+     "device": "other",
+     "note": "Speech-act duty: the attestation records that the customer confirmed, but nothing verifies the reminder was given."
+    },
+    {
+     "sentence": "After user confirmation, the order status will be changed to 'exchange requested', and the user will receive an email regarding how to return items.",
+     "device": "state-sequencing",
+     "note": "Confirmation half encoded as evidence; the state transition and the email are post-action effects with no field in the format."
+    },
+    {
+     "sentence": "There is no need to place a new order.",
+     "device": "other",
+     "note": "Agent guidance about what not to do next; constrains no input and selects no outcome, so it exists only as prose in the outcome description."
+    }
+   ]
+  }
+ ]
+}

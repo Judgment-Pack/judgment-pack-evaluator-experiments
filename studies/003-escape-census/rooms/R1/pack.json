@@ -1,0 +1,303 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "https://example.org/judgment-packs/retail-agent/cancel-pending-order",
+  "version": "1.0.0",
+  "title": "Cancel pending order",
+  "description": "Encodes the 'Cancel pending order' section of the retail agent policy: whether a cancellation request for an order may proceed, and if so how the refund is issued.",
+  "decision": {
+    "intent": "Let a retail agent determine whether a user's request to cancel an order may proceed under the 'Cancel pending order' section of the retail agent policy, and record the refund channel that follows from cancellation.",
+    "question": "May this pending order be cancelled?"
+  },
+  "applicability": {
+    "op": "fact",
+    "path": "/request/action",
+    "operator": "equals",
+    "value": "cancel_order"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "order-status-check",
+      "description": "The order's current status, retrieved from the order record as a check performed before any cancellation action is taken. Policy: 'you should check its status before taking the action'.",
+      "required": true,
+      "kind": "fact"
+    }
+  ],
+  "sources": [
+    {
+      "id": "policy-cancel-pending-order",
+      "title": "Retail agent policy - Cancel pending order",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md#cancel-pending-order"
+      },
+      "citation": {
+        "location": "Section 'Cancel pending order', sentence 1",
+        "excerpt": "An order can only be cancelled if its status is 'pending', and you should check its status before taking the action."
+      }
+    },
+    {
+      "id": "policy-cancel-confirmation-and-reason",
+      "title": "Retail agent policy - Cancel pending order (confirmation and acceptable reasons)",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md#cancel-pending-order"
+      },
+      "citation": {
+        "location": "Section 'Cancel pending order', sentence 2",
+        "excerpt": "The user needs to confirm the order id and the reason (either 'no longer needed' or 'ordered by mistake') for cancellation. Other reasons are not acceptable."
+      }
+    },
+    {
+      "id": "policy-cancel-effect-and-refund",
+      "title": "Retail agent policy - Cancel pending order (effect and refund timing)",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md#cancel-pending-order"
+      },
+      "citation": {
+        "location": "Section 'Cancel pending order', sentence 3",
+        "excerpt": "After user confirmation, the order status will be changed to 'cancelled', and the total will be refunded via the original payment method immediately if it is gift card, otherwise in 5 to 7 business days."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "cancel-refund-immediately",
+      "label": "Cancel the order; refund the total to the original gift card immediately",
+      "description": "Set the order status to 'cancelled' and refund the total via the original payment method, which is a gift card and is therefore refunded immediately."
+    },
+    {
+      "id": "cancel-refund-in-five-to-seven-business-days",
+      "label": "Cancel the order; refund the total to the original payment method in 5 to 7 business days",
+      "description": "Set the order status to 'cancelled' and refund the total via the original payment method, which is not a gift card and is therefore refunded in 5 to 7 business days."
+    },
+    {
+      "id": "request-user-confirmation",
+      "label": "Do not cancel yet; obtain the user's confirmation of the order id and the reason",
+      "description": "The order is pending but the user has not yet confirmed the order id and/or a cancellation reason. No database update may be made until that confirmation exists."
+    },
+    {
+      "id": "deny-cancellation",
+      "label": "Deny the cancellation request",
+      "description": "Cancellation is not permitted: either the order status is not 'pending', or the user confirmed a reason other than 'no longer needed' or 'ordered by mistake'."
+    }
+  ],
+  "rules": [
+    {
+      "id": "cancel-pending-original-gift-card",
+      "description": "A pending order whose order id and acceptable reason the user has confirmed is cancelled, with an immediate refund when the original payment method is a gift card.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "pending"
+          },
+          {
+            "op": "fact",
+            "path": "/request/orderIdConfirmedByUser",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/request/reasonConfirmedByUser",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/request/cancellationReason",
+            "operator": "in",
+            "value": ["no longer needed", "ordered by mistake"]
+          },
+          {
+            "op": "fact",
+            "path": "/order/originalPaymentMethod/type",
+            "operator": "equals",
+            "value": "gift_card"
+          }
+        ]
+      },
+      "outcome": "cancel-refund-immediately",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["order-status-check"],
+      "sourceRefs": [
+        "policy-cancel-pending-order",
+        "policy-cancel-confirmation-and-reason",
+        "policy-cancel-effect-and-refund"
+      ],
+      "rationale": "Cancellation requires status 'pending' and a user-confirmed order id plus one of the two acceptable reasons; the refund is immediate when the original payment method is a gift card."
+    },
+    {
+      "id": "cancel-pending-original-not-gift-card",
+      "description": "A pending order whose order id and acceptable reason the user has confirmed is cancelled, with a 5 to 7 business day refund when the original payment method is not a gift card.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "pending"
+          },
+          {
+            "op": "fact",
+            "path": "/request/orderIdConfirmedByUser",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/request/reasonConfirmedByUser",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/request/cancellationReason",
+            "operator": "in",
+            "value": ["no longer needed", "ordered by mistake"]
+          },
+          {
+            "op": "fact",
+            "path": "/order/originalPaymentMethod/type",
+            "operator": "not-equals",
+            "value": "gift_card"
+          }
+        ]
+      },
+      "outcome": "cancel-refund-in-five-to-seven-business-days",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["order-status-check"],
+      "sourceRefs": [
+        "policy-cancel-pending-order",
+        "policy-cancel-confirmation-and-reason",
+        "policy-cancel-effect-and-refund"
+      ],
+      "rationale": "Same cancellation preconditions as the gift-card rule; the refund is issued in 5 to 7 business days when the original payment method is not a gift card."
+    },
+    {
+      "id": "deny-status-not-pending",
+      "description": "An order whose status is not 'pending' cannot be cancelled.",
+      "when": {
+        "op": "fact",
+        "path": "/order/status",
+        "operator": "not-equals",
+        "value": "pending"
+      },
+      "outcome": "deny-cancellation",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["order-status-check"],
+      "sourceRefs": ["policy-cancel-pending-order"],
+      "rationale": "'An order can only be cancelled if its status is pending'; the status must be checked before acting, so an undeterminable status blocks resolution rather than being ignored."
+    },
+    {
+      "id": "deny-unacceptable-reason",
+      "description": "A cancellation reason the user has confirmed that is neither 'no longer needed' nor 'ordered by mistake' is not acceptable, so the request is denied.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/reasonConfirmedByUser",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/request/cancellationReason",
+              "operator": "in",
+              "value": ["no longer needed", "ordered by mistake"]
+            }
+          }
+        ]
+      },
+      "outcome": "deny-cancellation",
+      "onUnknown": "ignore",
+      "sourceRefs": ["policy-cancel-confirmation-and-reason"],
+      "rationale": "'Other reasons are not acceptable.' An undeterminable reason is not evidence of an unacceptable reason, so this rule is ignored when unknown; the cancellation rules already block on an unknown reason."
+    },
+    {
+      "id": "await-confirmation-of-order-id-and-reason",
+      "description": "A pending order for which the user has not yet confirmed the order id and/or the reason is not cancelled yet; the confirmation must be obtained first.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "pending"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/request/orderIdConfirmedByUser",
+                "operator": "not-equals",
+                "value": true
+              },
+              {
+                "op": "fact",
+                "path": "/request/reasonConfirmedByUser",
+                "operator": "not-equals",
+                "value": true
+              }
+            ]
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "all",
+              "conditions": [
+                {
+                  "op": "fact",
+                  "path": "/request/reasonConfirmedByUser",
+                  "operator": "equals",
+                  "value": true
+                },
+                {
+                  "op": "not",
+                  "condition": {
+                    "op": "fact",
+                    "path": "/request/cancellationReason",
+                    "operator": "in",
+                    "value": ["no longer needed", "ordered by mistake"]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "outcome": "request-user-confirmation",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["order-status-check"],
+      "sourceRefs": [
+        "policy-cancel-pending-order",
+        "policy-cancel-confirmation-and-reason",
+        "policy-cancel-effect-and-refund"
+      ],
+      "rationale": "'The user needs to confirm the order id and the reason ... for cancellation' and the status change happens only 'after user confirmation', so a missing confirmation withholds the action rather than denying the request. The third clause keeps this rule from competing with the denial of an already-confirmed unacceptable reason."
+    }
+  ],
+  "escalation": {
+    "triggers": ["missing-required-evidence", "unknown", "conflict", "no-match"],
+    "target": {
+      "kind": "human-role",
+      "name": "Human agent (transfer_to_human_agents)"
+    },
+    "message": "The cancellation request cannot be resolved within the scope of the cancel-pending-order policy. Call transfer_to_human_agents and then send: 'YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.'"
+  },
+  "metadata": {
+    "authors": ["Policy engineering (room R1)"],
+    "createdAt": "2026-07-27T00:00:00Z",
+    "license": "CC-BY-4.0"
+  }
+}

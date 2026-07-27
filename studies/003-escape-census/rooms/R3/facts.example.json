@@ -1,0 +1,48 @@
+{
+  "request": {
+    "action": "modify-order-items",
+    "userId": "yusuf_rossi_9620",
+    "orderId": "#W2378156"
+  },
+  "order": {
+    "orderId": "#W2378156",
+    "status": "pending"
+  },
+  "modification": {
+    "substitutions": [
+      {
+        "originalItemId": "1656367028",
+        "originalProductId": "9523456873",
+        "originalOptions": { "color": "blue", "size": "M" },
+        "newItemId": "9647292434",
+        "newProductId": "9523456873",
+        "newOptions": { "color": "blue", "size": "L" },
+        "newItemAvailable": true,
+        "originalPrice": "52.36",
+        "newPrice": "56.94"
+      },
+      {
+        "originalItemId": "4900661478",
+        "originalProductId": "6817146515",
+        "originalOptions": { "color": "black", "size": "9" },
+        "newItemId": "3812493782",
+        "newProductId": "6817146515",
+        "newOptions": { "color": "brown", "size": "9" },
+        "newItemAvailable": true,
+        "originalPrice": "150.01",
+        "newPrice": "146.75"
+      }
+    ],
+    "priceDifference": "1.32",
+    "allNewItemsSameProduct": true,
+    "allNewItemsDifferentOption": true,
+    "allNewItemsAvailable": true,
+    "customerConfirmedItemListComplete": true
+  },
+  "payment": {
+    "methodId": "credit_card_9513926",
+    "isGiftCard": false,
+    "giftCardBalance": null,
+    "giftCardBalanceCoversPriceDifference": null
+  }
+}

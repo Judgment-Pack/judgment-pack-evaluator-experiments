@@ -52,15 +52,16 @@ implementations. See the protocol.
 No efficacy result yet — no comparison arm has been run in either study. Two **expressiveness**
 results, on deliberately opposite policy types and by different model families:
 
-| | Study 001 — CBA, arithmetic-dense | Study 002 — airline, qualitative |
-| --- | ---: | ---: |
-| Prepared facts | 124 | 5 |
-| Prepared *determinations* | 13 | 1 |
+| | Study 001 — CBA, arithmetic-dense | Study 002 — airline, qualitative | Study 003 — census, 12 decisions |
+| --- | ---: | ---: | ---: |
+| Prepared facts | 124 | 5 | 58 |
+| Prepared *determinations* | 13 | 1 | 40 |
+| Decisions with ≥1 determination | 1/1 | 1/1 | **12/12** |
 
-The format fits qualitative policy far better, but the escape reproduces — and in Study 002 it is
-caused by a **missing quantifier over runtime collections**, not by arithmetic. Both studies
-independently hit the same architectural constraint (§8 has no rule precedence). See
-[Study 002](studies/002-qualitative-policy/) and
+The escape is universal in the census frame because real request inputs are collections — and one
+device dominates: **quantification over collections forced 25 of 40 determinations** (arithmetic:
+6). Encoders were hypothesis-blind; classification was two-way independent with **zero** fact-class
+disagreements. See [Study 003](studies/003-escape-census/), [Study 002](studies/002-qualitative-policy/) and
 [RFC 0007](https://github.com/Judgment-Pack/judgment-pack-spec/blob/main/rfcs/0007-determination-boundary.md).
 
 ## License

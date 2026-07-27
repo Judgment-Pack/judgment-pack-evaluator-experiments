@@ -1,0 +1,354 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "https://judgmentpack.example/packs/retail-agent/return-delivered-order",
+  "version": "0.1.0",
+  "title": "Return delivered order",
+  "description": "Encodes the 'Return delivered order' section of the retail agent policy: whether a return of a delivered order may be processed, refused, or is not yet actionable because a required user confirmation or refund destination has not been supplied.",
+  "decision": {
+    "intent": "Let a retail agent decide, before calling any return tool, whether the policy permits returning a delivered order as the request currently stands.",
+    "question": "May this delivered order be returned?"
+  },
+  "applicability": {
+    "op": "fact",
+    "path": "/request/type",
+    "operator": "equals",
+    "value": "return"
+  },
+  "sources": [
+    {
+      "id": "s-return-status",
+      "title": "Retail agent policy - Return delivered order - status precondition",
+      "publisher": "Retail agent policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Section 'Return delivered order', first paragraph",
+        "excerpt": "An order can only be returned if its status is 'delivered', and you should check its status before taking the action."
+      }
+    },
+    {
+      "id": "s-return-confirm",
+      "title": "Retail agent policy - Return delivered order - order id and item list confirmation",
+      "publisher": "Retail agent policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Section 'Return delivered order', second paragraph",
+        "excerpt": "The user needs to confirm the order id and the list of items to be returned."
+      }
+    },
+    {
+      "id": "s-return-payment-method",
+      "title": "Retail agent policy - Return delivered order - refund payment method must be provided",
+      "publisher": "Retail agent policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Section 'Return delivered order', third paragraph",
+        "excerpt": "The user needs to provide a payment method to receive the refund."
+      }
+    },
+    {
+      "id": "s-return-refund-destination",
+      "title": "Retail agent policy - Return delivered order - permitted refund destinations",
+      "publisher": "Retail agent policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Section 'Return delivered order', fourth paragraph",
+        "excerpt": "The refund must either go to the original payment method, or an existing gift card."
+      }
+    },
+    {
+      "id": "s-return-effect",
+      "title": "Retail agent policy - Return delivered order - effect of user confirmation",
+      "publisher": "Retail agent policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Section 'Return delivered order', fifth paragraph",
+        "excerpt": "After user confirmation, the order status will be changed to 'return requested', and the user will receive an email regarding how to return items."
+      }
+    },
+    {
+      "id": "s-policy-scope",
+      "title": "Retail agent policy - confirmation before database updates, denial, and transfer to a human agent",
+      "publisher": "Retail agent policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble, paragraphs on confirmation, denial, and transfer",
+        "excerpt": "Before taking any action that updates the database (cancel, modify, return, exchange), you must list the action details and obtain explicit user confirmation (yes) to proceed. ... You should deny user requests that are against this policy. ... You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "return-authorized",
+      "label": "Return may be processed",
+      "description": "Every condition the 'Return delivered order' section states is satisfied: the order status is 'delivered', the user has confirmed the order id and the list of items to be returned, a refund payment method has been provided, and that destination is either the original payment method or an existing gift card. On processing, the order status becomes 'return requested' and the user receives an email about how to return the items."
+    },
+    {
+      "id": "return-refused",
+      "label": "Return must be refused",
+      "description": "The request as stated is against the policy and must be denied: either the order status is not 'delivered', or the refund destination the user provided is neither the original payment method nor an existing gift card."
+    },
+    {
+      "id": "return-not-yet-actionable",
+      "label": "Return cannot be processed yet - a required user input is still missing",
+      "description": "The order is delivered and no policy prohibition applies, but at least one input the section requires from the user is still outstanding: confirmation of the order id, confirmation of the list of items to be returned, a payment method to receive the refund, or the explicit confirmation that authorizes the database update. This is not a denial; the agent must obtain the missing input from the user."
+    }
+  ],
+  "rules": [
+    {
+      "id": "r-authorize-return",
+      "description": "Authorize the return when the order is delivered, the user has confirmed the order id and the item list, a refund payment method has been provided, that destination is the original payment method or an existing gift card, and the user has explicitly confirmed the action.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "delivered"
+          },
+          {
+            "op": "fact",
+            "path": "/confirmation/orderIdConfirmed",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/confirmation/returnItemsConfirmed",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/refund/paymentMethodProvided",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/refund/destinationIsOriginalPaymentMethod",
+                "operator": "equals",
+                "value": true
+              },
+              {
+                "op": "fact",
+                "path": "/refund/destinationIsExistingGiftCard",
+                "operator": "equals",
+                "value": true
+              }
+            ]
+          },
+          {
+            "op": "fact",
+            "path": "/confirmation/explicitYes",
+            "operator": "equals",
+            "value": true
+          }
+        ]
+      },
+      "outcome": "return-authorized",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "s-return-status",
+        "s-return-confirm",
+        "s-return-payment-method",
+        "s-return-refund-destination",
+        "s-return-effect",
+        "s-policy-scope"
+      ],
+      "rationale": "The section states the status precondition as 'can only be returned if', and states three user-supplied prerequisites; the preamble additionally requires explicit user confirmation before any database update. All are necessary, so authorization requires the conjunction. onUnknown is 'escalate' because the section says the status must be checked before taking the action, so a return must never be authorized on facts the agent could not establish."
+    },
+    {
+      "id": "r-refuse-status-not-delivered",
+      "description": "Refuse the return when the order status is anything other than 'delivered'.",
+      "when": {
+        "op": "fact",
+        "path": "/order/status",
+        "operator": "not-equals",
+        "value": "delivered"
+      },
+      "outcome": "return-refused",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "s-return-status",
+        "s-policy-scope"
+      ],
+      "rationale": "'An order can only be returned if its status is delivered' makes a non-delivered status an absolute bar, and the preamble directs the agent to deny requests that are against the policy. If the status cannot be established the agent cannot perform the required check, so the case leaves the scope of the agent's actions and escalates."
+    },
+    {
+      "id": "r-refuse-refund-destination",
+      "description": "Refuse the return when the user has provided a refund payment method that is neither the original payment method of the order nor an existing gift card.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "delivered"
+          },
+          {
+            "op": "fact",
+            "path": "/refund/paymentMethodProvided",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "any",
+              "conditions": [
+                {
+                  "op": "fact",
+                  "path": "/refund/destinationIsOriginalPaymentMethod",
+                  "operator": "equals",
+                  "value": true
+                },
+                {
+                  "op": "fact",
+                  "path": "/refund/destinationIsExistingGiftCard",
+                  "operator": "equals",
+                  "value": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "outcome": "return-refused",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "s-return-refund-destination",
+        "s-policy-scope"
+      ],
+      "rationale": "'The refund must either go to the original payment method, or an existing gift card' admits exactly two destinations; any other destination makes the request one the agent must deny. onUnknown is 'ignore' because an unresolvable destination already leaves r-authorize-return unknown, which escalates; refusing on an unknown destination would deny a request the policy may permit."
+    },
+    {
+      "id": "r-await-user-input",
+      "description": "Report that the return is not yet actionable when the order is delivered, no prohibited refund destination has been supplied, and at least one of the user-supplied prerequisites - order id confirmation, item list confirmation, a refund payment method, or explicit confirmation - is still outstanding.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "delivered"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "not",
+                "condition": {
+                  "op": "fact",
+                  "path": "/confirmation/orderIdConfirmed",
+                  "operator": "equals",
+                  "value": true
+                }
+              },
+              {
+                "op": "not",
+                "condition": {
+                  "op": "fact",
+                  "path": "/confirmation/returnItemsConfirmed",
+                  "operator": "equals",
+                  "value": true
+                }
+              },
+              {
+                "op": "not",
+                "condition": {
+                  "op": "fact",
+                  "path": "/refund/paymentMethodProvided",
+                  "operator": "equals",
+                  "value": true
+                }
+              },
+              {
+                "op": "not",
+                "condition": {
+                  "op": "fact",
+                  "path": "/confirmation/explicitYes",
+                  "operator": "equals",
+                  "value": true
+                }
+              }
+            ]
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/refund/paymentMethodProvided",
+                "operator": "equals",
+                "value": false
+              },
+              {
+                "op": "fact",
+                "path": "/refund/destinationIsOriginalPaymentMethod",
+                "operator": "equals",
+                "value": true
+              },
+              {
+                "op": "fact",
+                "path": "/refund/destinationIsExistingGiftCard",
+                "operator": "equals",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "outcome": "return-not-yet-actionable",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "s-return-confirm",
+        "s-return-payment-method",
+        "s-return-effect",
+        "s-policy-scope"
+      ],
+      "rationale": "The section says the user 'needs to' confirm the order id and item list and 'needs to' provide a refund payment method, and describes the effect as following 'after user confirmation'. A missing prerequisite is a gap in the request rather than a policy violation, so the policy answer is that the agent must collect it, not deny. The third clause keeps this rule mutually exclusive with r-refuse-refund-destination so the two can never produce conflicting outcomes. onUnknown is 'ignore' because an unknown prerequisite is already caught by r-authorize-return, which escalates."
+    }
+  ],
+  "escalation": {
+    "triggers": [
+      "unknown",
+      "conflict",
+      "no-match"
+    ],
+    "target": {
+      "kind": "human-role",
+      "name": "Human agent (transfer_to_human_agents)"
+    },
+    "message": "The return request could not be resolved within the scope of the retail agent's actions. Transfer to a human agent and then send: 'YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.'"
+  },
+  "metadata": {
+    "authors": [
+      "R4 policy engineer"
+    ],
+    "createdAt": "2026-07-27T00:00:00Z"
+  }
+}

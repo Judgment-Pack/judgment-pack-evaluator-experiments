@@ -1,0 +1,29 @@
+{
+  "request": {
+    "action": "modify-reservation",
+    "subject": "passengers",
+    "reservationId": "HXH2N4",
+    "userId": "mia_li_3668",
+    "statedChange": "Replace passenger 'Aarav Ahmed' with 'Noah Ahmed' (born 1994-02-11); the other two passengers stay as they are.",
+    "requestedPassengers": [
+      { "firstName": "Mia", "lastName": "Li", "dateOfBirth": "1990-04-05" },
+      { "firstName": "Noah", "lastName": "Ahmed", "dateOfBirth": "1994-02-11" },
+      { "firstName": "Ivan", "lastName": "Smith", "dateOfBirth": "1986-11-30" }
+    ]
+  },
+  "reservation": {
+    "reservationId": "HXH2N4",
+    "userId": "mia_li_3668",
+    "cabin": "basic_economy",
+    "tripType": "round_trip",
+    "passengers": [
+      { "firstName": "Mia", "lastName": "Li", "dateOfBirth": "1990-04-05" },
+      { "firstName": "Aarav", "lastName": "Ahmed", "dateOfBirth": "1992-07-19" },
+      { "firstName": "Ivan", "lastName": "Smith", "dateOfBirth": "1986-11-30" }
+    ]
+  },
+  "derived": {
+    "changesPassengerCount": false,
+    "_note": "len(request.requestedPassengers)=3 == len(reservation.passengers)=3, so the requested change does not modify the number of passengers."
+  }
+}

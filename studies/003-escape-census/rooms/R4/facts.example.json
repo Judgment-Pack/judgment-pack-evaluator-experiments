@@ -1,0 +1,24 @@
+{
+  "request": {
+    "type": "return",
+    "orderId": "#W5565470"
+  },
+  "order": {
+    "orderId": "#W5565470",
+    "userId": "yusuf_rossi_9620",
+    "status": "delivered",
+    "originalPaymentMethodId": "credit_card_9513926",
+    "returnItemIds": ["1631806422"]
+  },
+  "confirmation": {
+    "orderIdConfirmed": true,
+    "returnItemsConfirmed": true,
+    "explicitYes": true
+  },
+  "refund": {
+    "providedPaymentMethodId": "gift_card_7773485",
+    "paymentMethodProvided": true,
+    "destinationIsOriginalPaymentMethod": false,
+    "destinationIsExistingGiftCard": true
+  }
+}
