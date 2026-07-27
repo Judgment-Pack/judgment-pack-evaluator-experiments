@@ -1,0 +1,225 @@
+{
+  "method": "See README.md in this directory.",
+  "n": 25,
+  "shape_disagreements": 3,
+  "expressibility_disagreements": 0,
+  "adjudicated_shape_counts": {
+    "uniformity": 2,
+    "count": 5,
+    "cross-collection-membership": 3,
+    "other": 7,
+    "element-predicate": 3,
+    "cardinality-exact": 1,
+    "pairwise-cross-list": 4
+  },
+  "expressibility_counts": {
+    "uniform": 2,
+    "neither": 20,
+    "exists-every": 3
+  },
+  "cases": [
+    {
+      "room": "A1",
+      "pointer": "/booking/allPassengersOnSameFlightsAndCabin",
+      "classifier1_shape": "uniformity",
+      "classifier2_shape": "uniformity",
+      "adjudicated_shape": "uniformity",
+      "expressible_with": "uniform"
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/cabinClassUniformAcrossFlights",
+      "classifier1_shape": "uniformity",
+      "classifier2_shape": "uniformity",
+      "adjudicated_shape": "uniformity",
+      "expressible_with": "uniform"
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/passengerCount",
+      "classifier1_shape": "count",
+      "classifier2_shape": "count",
+      "adjudicated_shape": "count",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/allMethodsInUserProfile",
+      "classifier1_shape": "cross-collection-membership",
+      "classifier2_shape": "cross-collection-membership",
+      "adjudicated_shape": "cross-collection-membership",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/creditCardCount",
+      "classifier1_shape": "count",
+      "classifier2_shape": "count",
+      "adjudicated_shape": "count",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/giftCardCount",
+      "classifier1_shape": "count",
+      "classifier2_shape": "count",
+      "adjudicated_shape": "count",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/travelCertificateCount",
+      "classifier1_shape": "count",
+      "classifier2_shape": "count",
+      "adjudicated_shape": "count",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesDestination",
+      "classifier1_shape": "pairwise-cross-list",
+      "classifier2_shape": "other",
+      "adjudicated_shape": "other",
+      "expressible_with": "neither",
+      "adjudication": "Classifier 1: pairwise-cross-list; classifier 2: other. Adjudicated OTHER, same grounds as preservesOrigin, with the added interpretive step that a round trip's destination is the turnaround point."
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesOrigin",
+      "classifier1_shape": "pairwise-cross-list",
+      "classifier2_shape": "other",
+      "adjudicated_shape": "other",
+      "expressible_with": "neither",
+      "adjudication": "Classifier 1: pairwise-cross-list; classifier 2: other. Adjudicated OTHER. The ledger operation selects one distinguished element from each of two lists (the outbound leg / first segment) and compares the two selected values; there is no element-by-element iteration over aligned pairs, which the taxonomy requires for pairwise-cross-list. Blockers are unanimous: two-collection access, ordinal/interpretive selection, fact-to-fact comparison."
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesTripType",
+      "classifier1_shape": "other",
+      "classifier2_shape": "other",
+      "adjudicated_shape": "other",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "A3",
+      "pointer": "/request/appliesToAllFlightsInReservation",
+      "classifier1_shape": "cross-collection-membership",
+      "classifier2_shape": "cross-collection-membership",
+      "adjudicated_shape": "cross-collection-membership",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "A5",
+      "pointer": "/derived/changesPassengerCount",
+      "classifier1_shape": "count",
+      "classifier2_shape": "other",
+      "adjudicated_shape": "other",
+      "expressible_with": "neither",
+      "adjudication": "Classifier 1: count; classifier 2: other. Adjudicated OTHER under the strict taxonomy: count requires matching-element cardinality compared to a literal bound, and here two cardinalities (requested roster vs current roster) are compared to each other; the roster construction itself applies policy. Kin to the count family, but not literal-bounded."
+    },
+    {
+      "room": "A6",
+      "pointer": "/reservation/anySegmentCancelledByAirline",
+      "classifier1_shape": "element-predicate",
+      "classifier2_shape": "element-predicate",
+      "adjudicated_shape": "element-predicate",
+      "expressible_with": "exists-every"
+    },
+    {
+      "room": "A7",
+      "pointer": "/reservation/passengerCount",
+      "classifier1_shape": "count",
+      "classifier2_shape": "count",
+      "adjudicated_shape": "count",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R1",
+      "pointer": "/order/originalPaymentMethod/type",
+      "classifier1_shape": "other",
+      "classifier2_shape": "other",
+      "adjudicated_shape": "other",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R2",
+      "pointer": "/request/newPaymentMethodCount",
+      "classifier1_shape": "cardinality-exact",
+      "classifier2_shape": "cardinality-exact",
+      "adjudicated_shape": "cardinality-exact",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R2",
+      "pointer": "/request/newPaymentMethodDiffersFromOriginal",
+      "classifier1_shape": "other",
+      "classifier2_shape": "other",
+      "adjudicated_shape": "other",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsAvailable",
+      "classifier1_shape": "element-predicate",
+      "classifier2_shape": "element-predicate",
+      "adjudicated_shape": "element-predicate",
+      "expressible_with": "exists-every"
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsDifferentOption",
+      "classifier1_shape": "pairwise-cross-list",
+      "classifier2_shape": "pairwise-cross-list",
+      "adjudicated_shape": "pairwise-cross-list",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsSameProduct",
+      "classifier1_shape": "pairwise-cross-list",
+      "classifier2_shape": "pairwise-cross-list",
+      "adjudicated_shape": "pairwise-cross-list",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R4",
+      "pointer": "/refund/destinationIsExistingGiftCard",
+      "classifier1_shape": "cross-collection-membership",
+      "classifier2_shape": "cross-collection-membership",
+      "adjudicated_shape": "cross-collection-membership",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R4",
+      "pointer": "/refund/destinationIsOriginalPaymentMethod",
+      "classifier1_shape": "other",
+      "classifier2_shape": "other",
+      "adjudicated_shape": "other",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allExchangesWithinSameProduct",
+      "classifier1_shape": "pairwise-cross-list",
+      "classifier2_shape": "pairwise-cross-list",
+      "adjudicated_shape": "pairwise-cross-list",
+      "expressible_with": "neither"
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allNewItemsAvailable",
+      "classifier1_shape": "element-predicate",
+      "classifier2_shape": "element-predicate",
+      "adjudicated_shape": "element-predicate",
+      "expressible_with": "exists-every"
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allNewItemsDifferentOption",
+      "classifier1_shape": "pairwise-cross-list",
+      "classifier2_shape": "pairwise-cross-list",
+      "adjudicated_shape": "pairwise-cross-list",
+      "expressible_with": "neither"
+    }
+  ]
+}

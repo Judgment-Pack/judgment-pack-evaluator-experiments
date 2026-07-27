@@ -1,0 +1,217 @@
+{
+  "cases": [
+    {
+      "room": "A1",
+      "pointer": "/booking/cabinClassUniformAcrossFlights",
+      "shape": "uniformity",
+      "expressible_with": "uniform",
+      "note": "Ledger: 'collect the cabin class of each proposed segment and test that the set has exactly one member.' Pure all-equal-at-a-sub-path over segments[].cabinClass. Not reachable by a bare every-quantifier: the target cabin is a runtime value, not an authoring-time literal. A dedicated uniformity op expresses it exactly. Pack consumes it as a single boolean in deny-cabin-class-not-uniform."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/passengerCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "note": "|passengers| tested with operator 'in' against [1,2,3,4,5] (the 'at most five' bound written as an enumeration). Bare cardinality, no filter predicate. A quantifier op does nothing for it; needs length-of-array plus an ordered comparison."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/allPassengersOnSameFlightsAndCabin",
+      "shape": "uniformity",
+      "expressible_with": "uniform",
+      "note": "Ledger: 'build the per-passenger itinerary from the proposed reservation and test all itineraries for equality.' Uniformity, but the weakest fit in that bucket: the compared sub-value is a DERIVED composite (set of segments + cabin) that no stored field holds, so a uniformity op only helps if the facts producer first materialises passengers[].itinerary and the op does deep JSON equality. The join/projection stays upstream."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/travelCertificateCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "note": "count(filter(proposedMethods, type == travel_certificate)) tested 'in [0,1]'. Doubly out of reach: (i) count-shaped, and (ii) the filter predicate is NOT element-local \u2014 the ledger says each method id must be looked up in the user profile to learn its type, so the predicate is a join."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/creditCardCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "note": "Same classify-then-count construct, tested 'in [0,1]'. Same two blockers: count(filter(...)) plus a profile join to classify each element."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/giftCardCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "note": "Same classify-then-count construct, tested 'in [0,1,2,3]'. Same two blockers."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/allMethodsInUserProfile",
+      "shape": "cross-collection-membership",
+      "expressible_with": "neither",
+      "note": "every(proposedMethodIds, id member-of profileMethodIds) \u2014 a join between two runtime arrays. A bare every whose predicate sees only the element cannot reach the profile list. Would need the quantifier's 'in' operand to accept an array-valued POINTER rather than an authored literal array; that is a strictly larger addition than the RFC's bounded quantifier."
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesOrigin",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "note": "Not actually a zip: the ledger requires ORDINAL SELECTION of the origin-defining segment out of each of two lists (stored and proposed), then a field comparison across them. No quantifier form covers indexed/first-element selection, and 'which segment defines the origin' is itself policy interpretation (for a round trip it is the start of the outbound leg). Quantifiers would not have removed this fact."
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesDestination",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "note": "Same two-list ordinal selection, heavier interpretive load: for a round trip the final arrival equals the origin, so 'destination' must be read as the turnaround point. Selection + cross-list comparison + policy-term interpretation; outside any quantifier."
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesTripType",
+      "shape": "other",
+      "expressible_with": "neither",
+      "note": "Whole-list CLASSIFICATION, not quantification: derive a trip-type token (one way / round trip) from the proposed segment list by asking whether the passenger returns to the origin, then compare that derived token to the stored scalar. A quantifier returns a boolean over elements; this needs to emit a value from the shape of the whole list."
+    },
+    {
+      "room": "A3",
+      "pointer": "/request/appliesToAllFlightsInReservation",
+      "shape": "cross-collection-membership",
+      "expressible_with": "neither",
+      "note": "Set EQUALITY between the segments the user named and the reservation's full segment list \u2014 mutual membership, i.e. two joins in both directions. Ledger flags the degenerate one-segment case. Needs array-valued-pointer membership; a bare element-local every cannot see the other list."
+    },
+    {
+      "room": "A5",
+      "pointer": "/derived/changesPassengerCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "note": "|post-change roster| != |current roster|: cardinality of two runtime lists compared to EACH OTHER, not to a literal bound \u2014 strictly harder than count-vs-limit. Adjudication resolved C1's 'arithmetic' to collection-quantification because roster 1 must first be CONSTRUCTED from the utterance. Step 4 of the ledger (is substitution a count change?) is policy application on top. This is the swing case for the count-shaped tally: RESULTS.md's 'count-shaped (6)' excludes it; on construct it belongs, making 7."
+    },
+    {
+      "room": "A6",
+      "pointer": "/reservation/anySegmentCancelledByAirline",
+      "shape": "element-predicate",
+      "expressible_with": "exists-every",
+      "note": "CLEANEST CASE IN THE CENSUS. Ledger: 'take the disjunction, over all flight segments of the reservation, of \"this segment was cancelled by the airline\".' Predicate reads one field of the element against a literal. A bare exists over an array-valued pointer expresses it exactly, with no arithmetic and no join. This is the E6 sentence RFC 0007 was built on."
+    },
+    {
+      "room": "A7",
+      "pointer": "/reservation/passengerCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "note": "HONESTY FLAG: the pack never quantifies over this. Its only condition is {not-equals null} \u2014 a bare availability gate so the pack refuses to name a certificate it cannot size. The real loss is value-carrying arithmetic ($100/$50 x N), pushed into the outcome description and the io.onword.compensation extension. Neither a quantifier nor a count op would remove this prepared fact; it is arguably mis-attributed to the quantification bucket."
+    },
+    {
+      "room": "R1",
+      "pointer": "/order/originalPaymentMethod/type",
+      "shape": "other",
+      "expressible_with": "neither",
+      "note": "SELECT-AND-PROJECT, not a predicate: pick the original charge out of the order's multi-entry payment history (not later refunds/adjustments), then resolve its method id against the profile list to obtain a TYPE string, which the pack compares to 'gift_card'. Quantifiers yield booleans; this must yield a value. Plus 'the original payment method' is undefined by the policy \u2014 the ordinal selection is the interpretive step. Adjudicated judgment-call (C1 said precedence-ordering)."
+    },
+    {
+      "room": "R2",
+      "pointer": "/request/newPaymentMethodCount",
+      "shape": "cardinality-exact",
+      "expressible_with": "neither",
+      "note": "|methods the user named| == 1, tested with equals 1 / not-equals 1. Bare cardinality against an exact literal \u2014 the simplest count-shaped case and the one most tempting to admit, but still length-of-array, not quantification. Encoder labelled it 'requester'; both classifiers overrode to prepared-determination."
+    },
+    {
+      "room": "R2",
+      "pointer": "/request/newPaymentMethodDiffersFromOriginal",
+      "shape": "other",
+      "expressible_with": "neither",
+      "note": "Same select-out-of-payment-history construct as R1/R4, then an id-vs-id identity test between two runtime pointers. Two devices missing at once: ordinal selection from a collection, and pointer-to-pointer comparison (\u00a77.4 compares a pointer to a literal only). Adjudicated judgment-call."
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsSameProduct",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "note": "every((old,new) pair, productId(old) == productId(new)). Two blockers even if the request supplies an array of pair objects: (i) two catalog lookups per element ('Product ID and Item ID have no relations'), and (ii) the predicate compares two FIELDS OF THE SAME ELEMENT to each other, which a \u00a77.4-style inner condition (pointer vs literal) cannot do. Also fixes 'same product' = same product id."
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsDifferentOption",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "note": "every(pair, optionMap(old) != optionMap(new)). Same two blockers as allNewItemsSameProduct, plus an undecided reading the pack must fix outside itself (any differing option value vs a wholly different option set, DECISIONS #8)."
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsAvailable",
+      "shape": "element-predicate",
+      "expressible_with": "exists-every",
+      "note": "every(requestedNewItems, available == true). Ledger: 'the per-item availability flag is a plain record lookup, but the pack reads one aggregated boolean, so the conjunction across all requested new items must be performed first.' Element-local predicate against a literal \u2014 a bounded every expresses it exactly, provided the facts producer attaches catalog availability onto each element (a data-shaping join, not a condition-language need)."
+    },
+    {
+      "room": "R4",
+      "pointer": "/refund/destinationIsOriginalPaymentMethod",
+      "shape": "other",
+      "expressible_with": "neither",
+      "note": "Third instance of the select-the-original-charge-from-payment-history construct (with R1 and R2). Ordinal selection plus identity test against the user-named method. Mechanical but not stored; no quantifier form reaches it. Adjudicated judgment-call."
+    },
+    {
+      "room": "R4",
+      "pointer": "/refund/destinationIsExistingGiftCard",
+      "shape": "cross-collection-membership",
+      "expressible_with": "neither",
+      "note": "exists(profile.paymentMethods, id == <the method the user named> AND type == gift_card). Existential in shape, but the predicate must compare an element field to ANOTHER RUNTIME POINTER, not a literal \u2014 so a bare element-local exists misses it. On top sits the undefined policy term 'existing' (DECISIONS \u00a74), which no op removes."
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allExchangesWithinSameProduct",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "note": "R3/allNewItemsSameProduct repeated in the retail exchange room: resolve each old and new item id to a parent product id, compare pairwise, AND over the list. Two catalog lookups per element plus an intra-element field-vs-field comparison. Interpretive overlay: 'product type' read as catalogue product id (DECISIONS #10)."
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allNewItemsAvailable",
+      "shape": "element-predicate",
+      "expressible_with": "exists-every",
+      "note": "Second clean case, the twin of R3/allNewItemsAvailable: every(requestedNewItems, availability == available). Element-local predicate against a literal. The R5 residue notes that collapsing this to one aggregate boolean loses per-item diagnostics ('item 3 is unavailable') \u2014 a bounded every would restore them."
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allNewItemsDifferentOption",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "note": "Per-pair option-map inequality AND-ed over the list; twin of R3/allNewItemsDifferentOption. Catalog joins plus intra-element field-vs-field inequality. Also fixes 'of different product option' as a hard requirement rather than description."
+    }
+  ],
+  "counts": {
+    "total_collection_quantification_determinations": 25,
+    "rooms_producing_them": 11,
+    "rooms_with_none": 1,
+    "shape_element_predicate": 3,
+    "shape_uniformity": 2,
+    "shape_cross_collection_membership": 3,
+    "shape_pairwise_cross_list": 6,
+    "shape_count": 6,
+    "shape_cardinality_exact": 1,
+    "shape_other": 4,
+    "count_shaped_total_count_plus_cardinality_exact": 7,
+    "expressible_bare_exists_every_element_local": 3,
+    "expressible_dedicated_uniformity_op": 2,
+    "expressible_neither": 20,
+    "addressed_by_quantifier_plus_uniformity_op_strict": 5,
+    "generous_reading_total_expressible": 12,
+    "generous_reading_neither": 13,
+    "generous_adds_outer_pointer_or_array_valued_in": 3,
+    "generous_adds_intra_element_two_field_compare": 4,
+    "rfc0007_published_exists_forall_shaped_claim": 19,
+    "strict_delta_vs_rfc0007_claim": -14,
+    "generous_delta_vs_rfc0007_claim": -7,
+    "rfc0007_published_count_shaped_claim": 6,
+    "count_shaped_delta_vs_rfc0007_claim": 1,
+    "residue_rooms_scanned": 12,
+    "residue_items_a_quantifier_would_have_prevented": 5,
+    "residue_items_fully_prevented": 3,
+    "residue_items_partly_prevented": 2,
+    "residue_items_explicitly_naming_the_missing_quantifier": 3,
+    "residue_hits_outside_the_25_facts": 1,
+    "blockers_element_local_predicate_insufficient": 12,
+    "blockers_count_or_cardinality": 7,
+    "blockers_ordinal_selection_from_collection": 5,
+    "blockers_join_to_second_collection": 9,
+    "blockers_intra_element_field_vs_field": 4,
+    "blockers_whole_list_classification_emitting_a_value": 2
+  }
+}
