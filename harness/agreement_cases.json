@@ -1,0 +1,15 @@
+[
+ {"name":"1-not-applicable","facts":{"request":{"type":"dataset-deletion"}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"2-applicability-unknown","facts":{"request":{"completeness":"complete","appropriateness":"pass","embargoedInformationToUnauthorizedRecipients":false}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"3-decline","facts":{"request":{"type":"one-time-extract","completeness":"complete","appropriateness":"hard-fail","embargoedInformationToUnauthorizedRecipients":false}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"4-clarify-incomplete","facts":{"request":{"type":"data-access","completeness":"incomplete","appropriateness":"pass","embargoedInformationToUnauthorizedRecipients":false}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"5-clarify-pending","facts":{"request":{"type":"data-access","completeness":"complete","appropriateness":"pending","embargoedInformationToUnauthorizedRecipients":false}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"6-proceed","facts":{"request":{"type":"new-data-pipeline","completeness":"complete","appropriateness":"pass","embargoedInformationToUnauthorizedRecipients":false}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"7a-evidence-unknown","facts":{"request":{"type":"dataset-onboarding","completeness":"complete","appropriateness":"pass","embargoedInformationToUnauthorizedRecipients":false}},"evidence":{"intake-form":"present","sponsor-endorsement":"unknown"}},
+ {"name":"7b-evidence-absent","facts":{"request":{"type":"dataset-onboarding","completeness":"complete","appropriateness":"pass","embargoedInformationToUnauthorizedRecipients":false}},"evidence":{"intake-form":"present","sponsor-endorsement":"absent"}},
+ {"name":"8-forced-outcome","facts":{"request":{"type":"reporting-feed","completeness":"complete","appropriateness":"pass","embargoedInformationToUnauthorizedRecipients":true}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"9-conflict","facts":{"request":{"type":"pipeline-change","completeness":"incomplete","appropriateness":"hard-fail","embargoedInformationToUnauthorizedRecipients":false}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"probe-omitted-evidence","facts":{"request":{"type":"data-access","completeness":"complete","appropriateness":"pass","embargoedInformationToUnauthorizedRecipients":false}},"evidence":null},
+ {"name":"probe-decimal-string-ordering","facts":{"request":{"type":"data-access","completeness":"complete","appropriateness":"pass","embargoedInformationToUnauthorizedRecipients":false,"amount":"150"}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}},
+ {"name":"probe-embargo-fact-missing","facts":{"request":{"type":"data-access","completeness":"complete","appropriateness":"pass"}},"evidence":{"intake-form":"present","sponsor-endorsement":"present"}}
+]
