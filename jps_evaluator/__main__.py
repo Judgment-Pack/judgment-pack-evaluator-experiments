@@ -1,0 +1,68 @@
+"""Command-line interface for ``python -m jps_evaluator``."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from typing import Sequence
+
+from .errors import EvaluationError, EvaluationInputError
+from .evaluator import evaluate
+from .json_input import load_json_file
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="python -m jps_evaluator",
+        description="Apply the experimental RFC 0006 evaluator semantics to one pack.",
+    )
+    parser.add_argument("--pack", required=True, help="path to a conformant pack JSON document")
+    parser.add_argument("--facts", required=True, help="path to a facts JSON document")
+    parser.add_argument("--evidence", help="path to an evidence-availability JSON object")
+    parser.add_argument(
+        "--supported-extension",
+        action="append",
+        nargs="+",
+        default=[],
+        metavar="NAME",
+        help="declare one or more supported extension capabilities; may be repeated",
+    )
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parser().parse_args(argv)
+    try:
+        pack = load_json_file(args.pack)
+        facts = load_json_file(args.facts)
+        evidence = load_json_file(args.evidence) if args.evidence else None
+        if args.evidence and evidence is None:
+            raise EvaluationInputError("evidence availability must be a JSON object")
+        disposition = evaluate(
+            pack,
+            facts,
+            evidence,
+            supported_extensions=[
+                name for group in args.supported_extension for name in group
+            ],
+        )
+    except EvaluationError as exc:
+        json.dump(
+            {
+                "error": {"kind": exc.code, "message": str(exc)},
+                "experimental": True,
+                "conformanceClaim": "none",
+            },
+            sys.stderr,
+            sort_keys=True,
+        )
+        sys.stderr.write("\n")
+        return 2
+    json.dump(disposition, sys.stdout, indent=2, sort_keys=True)
+    sys.stdout.write("\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
