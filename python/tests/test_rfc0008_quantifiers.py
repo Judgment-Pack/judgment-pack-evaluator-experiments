@@ -10,6 +10,7 @@ import pytest
 from jps_evaluator import (
     EvaluationBudget,
     EvaluationInputError,
+    PackNotConformantError,
     ResourceLimitError,
     TriValue,
     evaluate,
@@ -356,7 +357,7 @@ def _wrapped_third_aggregate(wrapper):
 @pytest.mark.parametrize("wrapper", ["all", "any", "not"])
 def test_boolean_wrappers_do_not_launder_depth_three(wrapper):
     pack = condition_pack(_wrapped_third_aggregate(wrapper))
-    with pytest.raises(EvaluationInputError, match="aggregate depth 2"):
+    with pytest.raises(PackNotConformantError, match="aggregate depth 2"):
         evaluate(pack, {}, enable_rfc0008=True)
 
 
@@ -380,7 +381,7 @@ def test_uniform_counts_as_valid_depth_two_and_invalid_depth_three():
             where={"op": "uniform", "path": "/members", "at": ""},
         ),
     )
-    with pytest.raises(EvaluationInputError, match="aggregate depth 2"):
+    with pytest.raises(PackNotConformantError, match="aggregate depth 2"):
         evaluate(condition_pack(invalid), {}, enable_rfc0008=True)
 
 
@@ -446,7 +447,7 @@ def test_permutation_and_duplicate_invariance_at_disposition_level(op, items):
 
 def test_rfc0008_is_rejected_without_explicit_opt_in():
     pack = condition_pack(aggregate("exists"))
-    with pytest.raises(EvaluationInputError, match="enable_rfc0008=True"):
+    with pytest.raises(PackNotConformantError, match="enable_rfc0008=True"):
         evaluate(pack, {"items": [{"ok": True}]})
 
 
@@ -455,7 +456,7 @@ def test_low_level_opt_in_must_also_be_an_explicit_boolean():
         evaluate_condition(aggregate("exists"), {"items": []}, enable_rfc0008="yes")
 
 
-def test_opted_in_disposition_keeps_experimental_no_claim_markers():
+def test_opted_in_disposition_keeps_core_shape():
     result = evaluate(
         condition_pack(aggregate("exists")),
         {"items": [{"ok": True}]},
@@ -465,9 +466,7 @@ def test_opted_in_disposition_keeps_experimental_no_claim_markers():
         "kind": "outcome",
         "outcomeId": "outcome-a",
         "reasons": [],
-        "handoff": "none",
-        "experimental": True,
-        "conformanceClaim": "none",
+        "handoff": {"state": "none"},
     }
 
 

@@ -34,10 +34,10 @@ def expected(kind, *, outcome_id=None, reasons=(), handoff="none"):
     result = {
         "kind": kind,
         "reasons": list(reasons),
-        "handoff": handoff,
-        "experimental": True,
-        "conformanceClaim": "none",
+        "handoff": {"state": handoff},
     }
+    if handoff == "requested":
+        result["handoff"]["triggeredBy"] = list(reasons)
     if outcome_id is not None:
         result["outcomeId"] = outcome_id
     return result
