@@ -1,5 +1,6 @@
-"""Experimental RFC 0006 evaluator with opt-in RFC 0008 aggregates."""
+"""Judgment Pack Core evaluator with opt-in experimental RFC 0008 aggregates."""
 
+from .canonical import canonicalize_disposition
 from .conditions import (
     DEFAULT_EVALUATION_WORK_LIMIT,
     EvaluationBudget,
@@ -17,6 +18,8 @@ from .conditions import (
 from .errors import (
     EvaluationError,
     EvaluationInputError,
+    MalformedInputError,
+    PackNotConformantError,
     PointerResolutionError,
     PointerSyntaxError,
     ResourceLimitError,
@@ -31,12 +34,15 @@ __all__ = [
     "EvaluationError",
     "EvaluationInputError",
     "ExactJSONNumber",
+    "MalformedInputError",
+    "PackNotConformantError",
     "PointerResolutionError",
     "PointerSyntaxError",
     "ResourceLimitError",
     "TriValue",
     "UnsupportedExtensionError",
     "compare_decimal_strings",
+    "canonicalize_disposition",
     "evaluate",
     "evaluate_condition",
     "is_decimal_string",

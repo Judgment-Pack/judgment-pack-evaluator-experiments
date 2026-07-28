@@ -6,6 +6,7 @@ import pytest
 
 from jps_evaluator import (
     EvaluationInputError,
+    PackNotConformantError,
     UnsupportedExtensionError,
     evaluate,
 )
@@ -93,7 +94,7 @@ def test_no_match_without_fallback():
     result = evaluate(base_pack(), {})
     assert result["kind"] == "unresolved"
     assert result["reasons"] == ["no-match"]
-    assert result["handoff"] == "none"
+    assert result["handoff"] == {"state": "none"}
 
 
 def test_suppression_removes_rule_and_force_bypasses_normal_rules():
@@ -123,7 +124,10 @@ def test_conflicting_forced_outcomes_block_and_request_configured_handoff():
     result = evaluate(pack, {})
     assert result["kind"] == "unresolved"
     assert result["reasons"] == ["conflict"]
-    assert result["handoff"] == "requested"
+    assert result["handoff"] == {
+        "state": "requested",
+        "triggeredBy": ["conflict"],
+    }
 
 
 def test_direct_exception_escalation_requests_handoff_without_configuration():
@@ -132,7 +136,10 @@ def test_direct_exception_escalation_requests_handoff_without_configuration():
     result = evaluate(pack, {})
     assert result["kind"] == "unresolved"
     assert result["reasons"] == ["exception-escalation"]
-    assert result["handoff"] == "requested"
+    assert result["handoff"] == {
+        "state": "requested",
+        "triggeredBy": ["exception-escalation"],
+    }
 
 
 def test_missing_evidence_does_not_prevent_exception_reason_inspection():
@@ -175,11 +182,10 @@ def test_unsupported_required_extension_is_an_error_and_optional_is_inert():
     assert result["reasons"] == ["no-match"]
 
 
-def test_outcome_id_is_forbidden_on_non_outcome_and_markers_are_always_present():
+def test_outcome_id_is_forbidden_on_non_outcome_and_disposition_has_only_core_members():
     result = evaluate(base_pack(), {})
     assert "outcomeId" not in result
-    assert result["experimental"] is True
-    assert result["conformanceClaim"] == "none"
+    assert set(result) == {"kind", "reasons", "handoff"}
 
 
 def test_malformed_pack_condition_is_an_explicit_error():
@@ -190,7 +196,7 @@ def test_malformed_pack_condition_is_an_explicit_error():
         "operator": "equals",
         "value": True,
     }
-    with pytest.raises(EvaluationInputError, match="Pointer"):
+    with pytest.raises(PackNotConformantError, match="Pointer"):
         evaluate(pack, {})
 
 
@@ -206,5 +212,5 @@ def test_malformed_pack_condition_is_an_explicit_error():
 def test_malformed_evaluation_fields_never_leak_python_type_errors(mutation):
     pack = base_pack()
     mutation(pack)
-    with pytest.raises(EvaluationInputError):
+    with pytest.raises(PackNotConformantError):
         evaluate(pack, {})

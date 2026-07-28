@@ -1,31 +1,17 @@
 # JPS evaluator (Python, experimental)
 
-This is the second independent implementation built to supply the evidence requested by draft
-RFC 0006. It was derived only from the RFC, Judgment Pack Core `0.1.0-draft`, and the Core JSON
-Schema in `reference/`. It also contains a clean-room prototype of RFC 0008’s `exists`, `every`,
-and `uniform` aggregate conditions.
+This standard-library-only Python package evaluates Judgment Pack Core inputs under the
+`0.2.0-draft` semantics in `reference/`. It also retains a separately enabled experimental
+prototype of RFC 0008's `exists`, `every`, and `uniform` conditions.
 
-This package makes **no evaluator-conformance claim**. Core `0.1.0-draft` defines no evaluator
-conformance class, and nothing produced here evaluates as a standard. Every serialized output
-payload therefore contains:
-
-```json
-{
-  "experimental": true,
-  "conformanceClaim": "none"
-}
-```
-
-It is an offline, keyless Python 3.10+ package with no runtime dependencies outside the standard
-library. It does not validate full Judgment Pack document conformance; a fully conformant pack is
-an input precondition. It does perform evaluation-focused sanity checks and rejects malformed
-runtime inputs, unsupported required extensions, duplicate JSON members at the text boundary, and
-resource-limit failures as errors rather than dispositions.
+This package makes **no evaluator-conformance claim**. Corpus results are reported as test results
+only; they do not establish a claim or anything about the truth, authority, safety, or fitness of a
+pack or disposition.
 
 ## Python API
 
 ```python
-from jps_evaluator import evaluate
+from jps_evaluator import canonicalize_disposition, evaluate
 
 disposition = evaluate(
     pack,
@@ -35,24 +21,48 @@ disposition = evaluate(
         "sponsor-endorsement": "unknown",
     },
     supported_extensions=[],
-    enable_rfc0008=False,
     evaluation_work_limit=200_000,
 )
+
+canonical_bytes = canonicalize_disposition(disposition)
 ```
 
-`evidence` is optional. Its keys must be declared evidence-requirement ids and each value must be
-`"present"`, `"absent"`, or `"unknown"`; omitted keys are unknown. `evaluate()` returns only a
-successful disposition. Invalid inputs raise an `EvaluationError` subclass.
+`evidence` is optional. Omitting it supplies the implicit empty object; an omitted requirement key
+is `"unknown"`. A supplied evidence document must be an object keyed only by declared evidence
+requirement ids, with values `"present"`, `"absent"`, or `"unknown"`.
 
-RFC 0008 is disabled by default. A pack using any of its operators remains structurally invalid
-under JPS `0.1.0-draft`; setting `enable_rfc0008=True` only opts this experimental evaluator into
-the local draft prototype. It does not change the pack’s conformance status or create a conformance
-claim. When enabled, aggregate depth is at most two, counted structurally through `all`, `any`, and
-`not`.
+`evaluate()` returns only the §8.3 disposition:
 
-The disposition has `kind`, `reasons`, `handoff`, and the two markers above. `outcomeId` is present
-exactly when `kind` is `"outcome"`. The JSON `reasons` array represents an unordered,
-deduplicated set; its stable serialization order carries no priority.
+```json
+{
+  "kind": "outcome",
+  "outcomeId": "proceed",
+  "reasons": [],
+  "handoff": {
+    "state": "none"
+  }
+}
+```
+
+`outcomeId` is present exactly for an outcome. `reasons` and `handoff.triggeredBy` are
+duplicate-free arrays sorted by Unicode code point. `canonicalize_disposition()` implements the
+closed strings/arrays/objects subset of RFC 8785 and returns UTF-8 bytes.
+
+Failures raise an `EvaluationError` subclass. Every error has an `error_class` and `phase`:
+
+| Class | Phase |
+| --- | --- |
+| `pack-not-conformant` | `preflight` |
+| `malformed-input` | `preflight` |
+| `unsupported-required-extension` | `preflight` |
+| `resource-exhaustion` | `evaluation` |
+
+Preflight is ordered pack, facts, evidence, then supported extensions, and completes before
+resolution starts. Errors never return a disposition.
+
+Both `0.1.0-draft` and `0.2.0-draft` packs are accepted. RFC 0008 remains disabled by default;
+`enable_rfc0008=True` only enables the local prototype and does not change a pack's status or create
+a claim.
 
 ## CLI
 
@@ -62,46 +72,51 @@ python -m jps_evaluator \
   --facts facts.json \
   --evidence evidence.json \
   --supported-extension com.example.capability \
-  --enable-rfc0008 \
   --evaluation-work-limit 200000
 ```
 
-One `--supported-extension` accepts one or more names and the option may be repeated.
-`--evidence`, all supported extensions, and RFC 0008 opt-in are optional. The positive-integer work
-limit defaults to 200,000 units. A disposition is printed as JSON to stdout. An evaluation error is
-printed as a distinct JSON error envelope to stderr, includes the same experimental/no-claim
-markers, and exits with status 2.
+On success, stdout contains a compact JSON envelope whose `disposition` member is emitted from its
+RFC 8785 canonical bytes:
+
+```json
+{"conformanceClaim":"none","disposition":{"handoff":{"state":"none"},"kind":"outcome","outcomeId":"proceed","reasons":[]},"experimental":true}
+```
+
+On error, stdout is empty, stderr contains an envelope with separate `class`, `phase`, and `message`
+members, and the process exits with status 2. Error envelopes contain no `disposition`.
 
 ## Tests
+
+From the repository root:
 
 ```console
 python3 -m pytest python/tests -q
 ```
 
-`tests/test_appendix.py` walks all ten input rows in the RFC appendix (the RFC calls them nine
-logical instances because 7a and 7b are two variants of instance 7). The remaining tests cover
-the three-valued operator tables, exact JSON equality, decimal grammar and ordering, RFC 6901
-pointer resolution, evidence tri-state behavior, resolution precedence, extensions, errors, the
-CLI, and every RFC 0008 Conformance row named by the clean-room brief.
+The suite covers Core §§7–8, strict JSON input, full pack structure and semantic references,
+preflight precedence, every Core error class and phase, portable disposition invariants, JCS bytes,
+the CLI, and the supplied evaluation corpus manifest.
+
+The clean-room corpus snapshot contains the fixture needed by thirteen cases. Those thirteen match
+their expected canonical bytes. Three other manifest-declared fixtures are absent, affecting seven
+cases; those rows are reported as explicit xfails rather than run against invented inputs. See
+decision 26 in `DECISIONS.md`.
 
 ## Resource limits
 
-These are implementation limits, not Judgment Pack semantics:
+These are implementation limits, not portable Core semantics:
 
-- 16 MiB per CLI JSON text;
+- 16 MiB per JSON text;
 - nesting depth 128;
 - 200,000 JSON values and object members per input;
 - 1 MiB per string or object member name;
-- 4,096 characters per JSON-number token; and
-- 200,000 preflight evaluation-work units per disposition by default, configurable through the
-  Python API or CLI.
+- 4,096 characters per JSON-number token;
+- 10,000 combined authored evaluation collection items across evidence requirements, outcomes,
+  rules, and exceptions; and
+- 200,000 evaluation-work units by default, configurable through the Python API and CLI.
 
-Crossing a limit is an explicit `resource-limit` error, never an incomplete or partial
-disposition. RFC 0008 work is precharged per condition before any predicate in that condition
-runs. The measure includes all Boolean branches; actual ragged members at each nesting level;
-successful and failed pointer attempts; runtime-sized deep comparisons; all sibling aggregates;
-and `uniform`’s member pointers and unordered resolved-value pairs. Element order cannot change the
-charge. The exact unit formula and alternatives are recorded in decision 22 of `DECISIONS.md`.
+A pack that reaches a document/carrier admission limit is `pack-not-conformant`. A facts or evidence
+document that reaches one is `malformed-input`. Reaching the collection or work limit after admission
+is `resource-exhaustion`. No limit produces a partial disposition.
 
-See `DECISIONS.md` for every underdetermined choice and the exact reference text used to resolve
-it.
+See `DECISIONS.md` for underdetermined choices and their source text.

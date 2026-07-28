@@ -1,10 +1,12 @@
-"""RFC 0006 evaluation with an explicitly opt-in RFC 0008 prototype."""
+"""Core 0.2.0-draft evaluation with an explicitly opt-in RFC 0008 prototype."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 import re
 from typing import Any, Iterable, Mapping
+from urllib.parse import urlsplit
 
 from .conditions import (
     DEFAULT_EVALUATION_WORK_LIMIT,
@@ -14,11 +16,33 @@ from .conditions import (
     evaluate_condition,
     is_decimal_string,
 )
-from .errors import EvaluationInputError, PointerSyntaxError, UnsupportedExtensionError
+from .errors import (
+    EvaluationInputError,
+    PackNotConformantError,
+    PointerSyntaxError,
+    ResourceLimitError,
+    UnsupportedExtensionError,
+)
 from .json_input import normalize_json
 
 
 _LOCAL_ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
+_VERSION_RE = re.compile(r"^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$")
+_EXTENSION_RE = re.compile(
+    r"^(?!org\.judgmentpack\.)[a-z][a-z0-9]*(?:\.[a-z][a-z0-9-]*)+$"
+)
+_URI_SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
+_URI_CHAR_RE = re.compile(r"^[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
+_BAD_PERCENT_RE = re.compile(r"%(?![0-9A-Fa-f]{2})")
+_DATE_RE = re.compile(r"^(?P<year>[0-9]{4})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2})$")
+_DATETIME_RE = re.compile(
+    r"^(?P<date>[0-9]{4}-[0-9]{2}-[0-9]{2})[Tt]"
+    r"(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2}):(?P<second>[0-9]{2})"
+    r"(?:\.[0-9]+)?(?:[Zz]|(?P<offset_sign>[+-])"
+    r"(?P<offset_hour>[0-9]{2}):(?P<offset_minute>[0-9]{2}))$"
+)
+_ACCEPTED_SPEC_VERSIONS = {"0.1.0-draft", "0.2.0-draft"}
+MAX_EVALUATION_COLLECTION_ITEMS = 10_000
 _CORE_CONDITION_OPS = {"literal", "all", "any", "not", "fact", "evidence-present"}
 _RFC0008_AGGREGATE_OPS = {"exists", "every", "uniform"}
 _FACT_OPERATORS = {
@@ -43,13 +67,23 @@ _TRIGGERS = {
     "conflict",
     "no-match",
 }
-_REASON_ORDER = {
-    "not-applicable": 0,
-    "missing-required-evidence": 1,
-    "unknown": 2,
-    "conflict": 3,
-    "no-match": 4,
-    "exception-escalation": 5,
+_ROOT_MEMBERS = {
+    "specVersion",
+    "id",
+    "version",
+    "title",
+    "description",
+    "decision",
+    "applicability",
+    "evidenceRequirements",
+    "sources",
+    "outcomes",
+    "rules",
+    "exceptions",
+    "fallbackOutcome",
+    "escalation",
+    "metadata",
+    "extensions",
 }
 
 
@@ -63,6 +97,8 @@ class _PackView:
     exceptions: tuple[dict[str, Any], ...]
     fallback: str | None
     escalation: dict[str, Any] | None
+    required_extensions: frozenset[str]
+    evaluation_collection_items: int
 
 
 def evaluate(
@@ -74,28 +110,41 @@ def evaluate(
     enable_rfc0008: bool = False,
     evaluation_work_limit: int = DEFAULT_EVALUATION_WORK_LIMIT,
 ) -> dict[str, Any]:
-    """Evaluate one conformant pack and return an experimental disposition.
+    """Evaluate one admitted input set and return only its portable disposition.
 
     RFC 0008 aggregate operators are accepted only when ``enable_rfc0008`` is
-    explicitly true. Invalid inputs, structural aggregate-depth violations, and
-    unsupported required extensions raise EvaluationError subclasses.
+    explicitly true. Every failure raises an EvaluationError carrying exactly
+    one Core class and a preflight/evaluation phase; errors are never returned
+    as dispositions.
     """
 
     if not isinstance(enable_rfc0008, bool):
         raise EvaluationInputError("enable_rfc0008 must be a Boolean")
-    normalized_pack = normalize_json(pack, source="pack")
+
+    # Core §8.2 fixes this admission order. Pack normalization and semantic
+    # validation are deliberately completed before touching the facts input.
+    normalized_pack, view = _admit_pack(
+        pack, enable_rfc0008=enable_rfc0008
+    )
+
     normalized_facts = normalize_json(facts, source="facts")
     normalized_evidence = (
         {} if evidence is None else normalize_json(evidence, source="evidence availability")
     )
-    supported = _normalize_supported_extensions(supported_extensions)
-    view = _prepare_pack(
-        normalized_pack,
-        supported,
-        enable_rfc0008=enable_rfc0008,
-    )
     evidence_states = _prepare_evidence(normalized_evidence, view.requirement_ids)
+    supported = _normalize_supported_extensions(supported_extensions)
+    unsupported = view.required_extensions - supported
+    if unsupported:
+        raise UnsupportedExtensionError(
+            "unsupported required extension(s): " + ", ".join(sorted(unsupported))
+        )
+
     budget = EvaluationBudget(evaluation_work_limit)
+    if view.evaluation_collection_items > MAX_EVALUATION_COLLECTION_ITEMS:
+        raise ResourceLimitError(
+            "evaluation collections exceed configured limit of "
+            f"{MAX_EVALUATION_COLLECTION_ITEMS} items"
+        )
 
     if view.applicability is None:
         applicability = TriValue.TRUE
@@ -203,38 +252,79 @@ def evaluate(
     )
 
 
+def _admit_pack(
+    pack: Any, *, enable_rfc0008: bool
+) -> tuple[Any, _PackView]:
+    """Normalize and validate only the pack stage of §8.2 preflight."""
+
+    try:
+        normalized_pack = normalize_json(pack, source="pack")
+        return normalized_pack, _prepare_pack(
+            normalized_pack,
+            enable_rfc0008=enable_rfc0008,
+        )
+    except PackNotConformantError:
+        raise
+    except EvaluationInputError as exc:
+        raise PackNotConformantError(str(exc)) from exc
+
+
 def _prepare_pack(
     pack: Any,
-    supported: frozenset[str],
     *,
     enable_rfc0008: bool,
 ) -> _PackView:
-    if not isinstance(pack, dict):
-        raise EvaluationInputError("pack must be a JSON object")
-    for member in ("specVersion", "id", "version", "title", "decision", "outcomes", "rules"):
-        if member not in pack:
-            raise EvaluationInputError(f"pack is missing required member {member!r}")
-    if pack["specVersion"] != "0.1.0-draft":
-        raise EvaluationInputError("pack specVersion must be '0.1.0-draft'")
-
-    required_extensions = _required_extensions(pack)
-    missing_values = [
-        name for name in required_extensions if not _has_extension_value(pack, name)
-    ]
-    if missing_values:
+    _validate_object(
+        pack,
+        "pack",
+        required={"specVersion", "id", "version", "title", "decision", "outcomes", "rules"},
+        allowed=_ROOT_MEMBERS,
+    )
+    if (
+        not isinstance(pack["specVersion"], str)
+        or pack["specVersion"] not in _ACCEPTED_SPEC_VERSIONS
+    ):
         raise EvaluationInputError(
-            "required extension has no corresponding value: " + ", ".join(sorted(missing_values))
+            "pack specVersion must be '0.1.0-draft' or '0.2.0-draft'"
         )
-    unsupported = required_extensions - supported
-    if unsupported:
-        raise UnsupportedExtensionError(
-            "unsupported required extension(s): " + ", ".join(sorted(unsupported))
-        )
+    _validate_absolute_uri(pack["id"], "pack id")
+    if not isinstance(pack["version"], str) or _VERSION_RE.fullmatch(pack["version"]) is None:
+        raise EvaluationInputError("pack version must be a three-component version string")
+    _require_non_empty_string(pack["title"], "pack title")
+    if "description" in pack:
+        _require_non_empty_string(pack["description"], "pack description")
+
+    extension_values: set[str] = set()
+    if "extensions" in pack:
+        _validate_extensions(pack["extensions"], "pack extensions", extension_values)
+    _validate_decision(pack["decision"], extension_values)
 
     outcomes_raw = pack["outcomes"]
     if not isinstance(outcomes_raw, list) or len(outcomes_raw) < 2:
         raise EvaluationInputError("pack outcomes must be an array with at least two items")
-    outcomes = _collect_object_ids(outcomes_raw, "outcome")
+    outcomes: set[str] = set()
+    for index, outcome in enumerate(outcomes_raw):
+        _validate_object(
+            outcome,
+            f"outcome {index}",
+            required={"id", "label"},
+            allowed={"id", "label", "description", "extensions"},
+        )
+        outcome_id = _require_local_id(outcome["id"], "outcome id")
+        if outcome_id in outcomes:
+            raise EvaluationInputError(f"duplicate outcome id {outcome_id!r}")
+        _require_non_empty_string(outcome["label"], f"outcome {outcome_id!r} label")
+        if "description" in outcome:
+            _require_non_empty_string(
+                outcome["description"], f"outcome {outcome_id!r} description"
+            )
+        if "extensions" in outcome:
+            _validate_extensions(
+                outcome["extensions"],
+                f"outcome {outcome_id!r} extensions",
+                extension_values,
+            )
+        outcomes.add(outcome_id)
 
     requirements_raw = pack.get("evidenceRequirements", [])
     if not isinstance(requirements_raw, list):
@@ -242,17 +332,51 @@ def _prepare_pack(
     requirements: list[dict[str, Any]] = []
     requirement_ids: set[str] = set()
     for index, requirement in enumerate(requirements_raw):
-        if not isinstance(requirement, dict):
-            raise EvaluationInputError(f"evidence requirement {index} must be an object")
-        requirement_id = _require_local_id(requirement.get("id"), "evidence requirement id")
+        _validate_object(
+            requirement,
+            f"evidence requirement {index}",
+            required={"id", "description", "required"},
+            allowed={"id", "description", "required", "kind", "extensions"},
+        )
+        requirement_id = _require_local_id(
+            requirement["id"], "evidence requirement id"
+        )
         if requirement_id in requirement_ids:
             raise EvaluationInputError(f"duplicate evidence requirement id {requirement_id!r}")
-        if not isinstance(requirement.get("required"), bool):
+        _require_non_empty_string(
+            requirement["description"],
+            f"evidence requirement {requirement_id!r} description",
+        )
+        if not isinstance(requirement["required"], bool):
             raise EvaluationInputError(
                 f"evidence requirement {requirement_id!r} has invalid required flag"
             )
+        if "kind" in requirement and (
+            not isinstance(requirement["kind"], str)
+            or requirement["kind"]
+            not in {"document", "fact", "measurement", "attestation"}
+        ):
+            raise EvaluationInputError(
+                f"evidence requirement {requirement_id!r} has invalid kind"
+            )
+        if "extensions" in requirement:
+            _validate_extensions(
+                requirement["extensions"],
+                f"evidence requirement {requirement_id!r} extensions",
+                extension_values,
+            )
         requirement_ids.add(requirement_id)
         requirements.append(requirement)
+
+    sources_raw = pack.get("sources", [])
+    if not isinstance(sources_raw, list):
+        raise EvaluationInputError("sources must be an array")
+    source_ids: set[str] = set()
+    for index, source in enumerate(sources_raw):
+        source_id = _validate_source(source, index, extension_values)
+        if source_id in source_ids:
+            raise EvaluationInputError(f"duplicate source id {source_id!r}")
+        source_ids.add(source_id)
 
     if "applicability" in pack and pack["applicability"] is None:
         raise EvaluationInputError("applicability must be a condition when present")
@@ -271,11 +395,26 @@ def _prepare_pack(
     rule_ids: set[str] = set()
     rules: list[dict[str, Any]] = []
     for index, rule in enumerate(rules_raw):
-        if not isinstance(rule, dict):
-            raise EvaluationInputError(f"rule {index} must be an object")
-        rule_id = _require_local_id(rule.get("id"), "rule id")
+        _validate_object(
+            rule,
+            f"rule {index}",
+            required={"id", "description", "when", "outcome", "onUnknown"},
+            allowed={
+                "id",
+                "description",
+                "when",
+                "outcome",
+                "onUnknown",
+                "evidenceRequirementRefs",
+                "sourceRefs",
+                "rationale",
+                "extensions",
+            },
+        )
+        rule_id = _require_local_id(rule["id"], "rule id")
         if rule_id in rule_ids:
             raise EvaluationInputError(f"duplicate rule id {rule_id!r}")
+        _require_non_empty_string(rule["description"], f"rule {rule_id!r} description")
         if not isinstance(rule.get("outcome"), str) or rule["outcome"] not in outcomes:
             raise EvaluationInputError(f"rule {rule_id!r} names an undeclared outcome")
         if (
@@ -289,13 +428,21 @@ def _prepare_pack(
             f"rule {rule_id!r}",
             enable_rfc0008=enable_rfc0008,
         )
-        evidence_refs = rule.get("evidenceRequirementRefs", [])
-        if not isinstance(evidence_refs, list) or any(
-            not isinstance(ref, str) or ref not in requirement_ids
-            for ref in evidence_refs
-        ):
-            raise EvaluationInputError(
-                f"rule {rule_id!r} has invalid evidenceRequirementRefs"
+        _validate_reference_list(
+            rule.get("evidenceRequirementRefs", []),
+            requirement_ids,
+            f"rule {rule_id!r} evidenceRequirementRefs",
+        )
+        _validate_reference_list(
+            rule.get("sourceRefs", []),
+            source_ids,
+            f"rule {rule_id!r} sourceRefs",
+        )
+        if "rationale" in rule:
+            _require_non_empty_string(rule["rationale"], f"rule {rule_id!r} rationale")
+        if "extensions" in rule:
+            _validate_extensions(
+                rule["extensions"], f"rule {rule_id!r} extensions", extension_values
             )
         rule_ids.add(rule_id)
         rules.append(rule)
@@ -306,11 +453,28 @@ def _prepare_pack(
     exceptions: list[dict[str, Any]] = []
     exception_ids: set[str] = set()
     for index, exception in enumerate(exceptions_raw):
-        if not isinstance(exception, dict):
-            raise EvaluationInputError(f"exception {index} must be an object")
-        exception_id = _require_local_id(exception.get("id"), "exception id")
+        _validate_object(
+            exception,
+            f"exception {index}",
+            required={"id", "description", "when", "effect", "onUnknown"},
+            allowed={
+                "id",
+                "description",
+                "when",
+                "effect",
+                "targetRule",
+                "outcome",
+                "onUnknown",
+                "sourceRefs",
+                "extensions",
+            },
+        )
+        exception_id = _require_local_id(exception["id"], "exception id")
         if exception_id in exception_ids:
             raise EvaluationInputError(f"duplicate exception id {exception_id!r}")
+        _require_non_empty_string(
+            exception["description"], f"exception {exception_id!r} description"
+        )
         if (
             not isinstance(exception.get("onUnknown"), str)
             or exception["onUnknown"] not in {"ignore", "escalate"}
@@ -348,6 +512,17 @@ def _prepare_pack(
                 )
         else:
             raise EvaluationInputError(f"exception {exception_id!r} has invalid effect")
+        _validate_reference_list(
+            exception.get("sourceRefs", []),
+            source_ids,
+            f"exception {exception_id!r} sourceRefs",
+        )
+        if "extensions" in exception:
+            _validate_extensions(
+                exception["extensions"],
+                f"exception {exception_id!r} extensions",
+                extension_values,
+            )
         exception_ids.add(exception_id)
         exceptions.append(exception)
 
@@ -359,7 +534,16 @@ def _prepare_pack(
             raise EvaluationInputError("fallbackOutcome names an undeclared outcome")
     if "escalation" in pack and pack["escalation"] is None:
         raise EvaluationInputError("escalation must be an object when present")
-    escalation = _validate_escalation(pack.get("escalation"))
+    escalation = _validate_escalation(pack.get("escalation"), extension_values)
+    if "metadata" in pack and pack["metadata"] is None:
+        raise EvaluationInputError("metadata must be an object when present")
+    required_extensions = _validate_metadata(pack.get("metadata"), extension_values)
+    missing_values = required_extensions - extension_values
+    if missing_values:
+        raise EvaluationInputError(
+            "required extension has no corresponding value: "
+            + ", ".join(sorted(missing_values))
+        )
 
     return _PackView(
         applicability=applicability,
@@ -370,19 +554,202 @@ def _prepare_pack(
         exceptions=tuple(exceptions),
         fallback=fallback,
         escalation=escalation,
+        required_extensions=required_extensions,
+        evaluation_collection_items=(
+            len(requirements) + len(outcomes) + len(rules) + len(exceptions)
+        ),
     )
 
 
-def _collect_object_ids(items: list[Any], kind: str) -> set[str]:
-    identifiers: set[str] = set()
-    for index, item in enumerate(items):
-        if not isinstance(item, dict):
-            raise EvaluationInputError(f"{kind} {index} must be an object")
-        identifier = _require_local_id(item.get("id"), f"{kind} id")
-        if identifier in identifiers:
-            raise EvaluationInputError(f"duplicate {kind} id {identifier!r}")
-        identifiers.add(identifier)
-    return identifiers
+def _validate_object(
+    value: Any,
+    description: str,
+    *,
+    required: set[str],
+    allowed: set[str],
+) -> None:
+    if not isinstance(value, dict):
+        raise EvaluationInputError(f"{description} must be an object")
+    missing = required - value.keys()
+    if missing:
+        raise EvaluationInputError(
+            f"{description} is missing required member {sorted(missing)[0]!r}"
+        )
+    extra = value.keys() - allowed
+    if extra:
+        raise EvaluationInputError(
+            f"{description} has undeclared member {sorted(extra)[0]!r}"
+        )
+
+
+def _require_non_empty_string(value: Any, description: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise EvaluationInputError(f"{description} must be a non-empty string")
+    return value
+
+
+def _validate_absolute_uri(value: Any, description: str) -> None:
+    if (
+        not isinstance(value, str)
+        or not value
+        or _URI_SCHEME_RE.match(value) is None
+        or _URI_CHAR_RE.fullmatch(value) is None
+        or _BAD_PERCENT_RE.search(value) is not None
+    ):
+        raise EvaluationInputError(f"{description} must be an absolute RFC 3986 URI")
+    try:
+        parsed = urlsplit(value)
+    except ValueError as exc:
+        raise EvaluationInputError(
+            f"{description} must be an absolute RFC 3986 URI"
+        ) from exc
+    if not parsed.scheme:
+        raise EvaluationInputError(f"{description} must be an absolute RFC 3986 URI")
+
+
+def _validate_extensions(
+    value: Any, description: str, found: set[str]
+) -> None:
+    if not isinstance(value, dict):
+        raise EvaluationInputError(f"{description} must be an object")
+    for name in value:
+        if _EXTENSION_RE.fullmatch(name) is None:
+            raise EvaluationInputError(
+                f"{description} has invalid extension name {name!r}"
+            )
+        found.add(name)
+
+
+def _validate_decision(value: Any, extension_values: set[str]) -> None:
+    _validate_object(
+        value,
+        "decision",
+        required={"intent", "question"},
+        allowed={"intent", "question", "extensions"},
+    )
+    _require_non_empty_string(value["intent"], "decision intent")
+    _require_non_empty_string(value["question"], "decision question")
+    if "extensions" in value:
+        _validate_extensions(
+            value["extensions"], "decision extensions", extension_values
+        )
+
+
+def _validate_source(
+    value: Any, index: int, extension_values: set[str]
+) -> str:
+    description = f"source {index}"
+    _validate_object(
+        value,
+        description,
+        required={"id", "title", "locator"},
+        allowed={
+            "id",
+            "title",
+            "publisher",
+            "publishedAt",
+            "locator",
+            "citation",
+            "rights",
+            "extensions",
+        },
+    )
+    source_id = _require_local_id(value["id"], "source id")
+    _require_non_empty_string(value["title"], f"source {source_id!r} title")
+    for member in ("publisher", "rights"):
+        if member in value:
+            _require_non_empty_string(
+                value[member], f"source {source_id!r} {member}"
+            )
+    if "publishedAt" in value:
+        _validate_date(value["publishedAt"], f"source {source_id!r} publishedAt")
+
+    locator = value["locator"]
+    _validate_object(
+        locator,
+        f"source {source_id!r} locator",
+        required={"kind", "value"},
+        allowed={"kind", "value"},
+    )
+    if (
+        not isinstance(locator["kind"], str)
+        or locator["kind"] not in {"uri", "repository", "path", "other"}
+    ):
+        raise EvaluationInputError(f"source {source_id!r} locator kind is invalid")
+    _require_non_empty_string(
+        locator["value"], f"source {source_id!r} locator value"
+    )
+
+    if "citation" in value:
+        citation = value["citation"]
+        _validate_object(
+            citation,
+            f"source {source_id!r} citation",
+            required={"location", "excerpt"},
+            allowed={"location", "excerpt"},
+        )
+        _require_non_empty_string(
+            citation["location"], f"source {source_id!r} citation location"
+        )
+        _require_non_empty_string(
+            citation["excerpt"], f"source {source_id!r} citation excerpt"
+        )
+    if "extensions" in value:
+        _validate_extensions(
+            value["extensions"], f"source {source_id!r} extensions", extension_values
+        )
+    return source_id
+
+
+def _validate_reference_list(
+    value: Any, declared: set[str], description: str
+) -> None:
+    if (
+        not isinstance(value, list)
+        or any(not isinstance(item, str) or item not in declared for item in value)
+        or len(set(value)) != len(value)
+    ):
+        raise EvaluationInputError(f"{description} is invalid")
+
+
+def _validate_date(value: Any, description: str) -> None:
+    if not isinstance(value, str):
+        raise EvaluationInputError(f"{description} must be an RFC 3339 full-date")
+    match = _DATE_RE.fullmatch(value)
+    if match is None:
+        raise EvaluationInputError(f"{description} must be an RFC 3339 full-date")
+    try:
+        date(
+            int(match.group("year")),
+            int(match.group("month")),
+            int(match.group("day")),
+        )
+    except ValueError as exc:
+        raise EvaluationInputError(
+            f"{description} must be an RFC 3339 full-date"
+        ) from exc
+
+
+def _validate_datetime(value: Any, description: str) -> None:
+    if not isinstance(value, str):
+        raise EvaluationInputError(f"{description} must be an RFC 3339 date-time")
+    match = _DATETIME_RE.fullmatch(value)
+    if match is None:
+        raise EvaluationInputError(f"{description} must be an RFC 3339 date-time")
+    _validate_date(match.group("date"), description)
+    if (
+        int(match.group("hour")) > 23
+        or int(match.group("minute")) > 59
+        or int(match.group("second")) > 60
+        or (
+            match.group("offset_hour") is not None
+            and (
+                int(match.group("offset_hour")) > 23
+                or int(match.group("offset_minute")) > 59
+            )
+        )
+    ):
+        raise EvaluationInputError(f"{description} must be an RFC 3339 date-time")
 
 
 def _require_local_id(value: Any, description: str) -> str:
@@ -512,13 +879,19 @@ def _validate_pointer(path: Any, description: str) -> None:
         raise EvaluationInputError(f"{description} has invalid JSON Pointer") from exc
 
 
-def _validate_escalation(value: Any) -> dict[str, Any] | None:
+def _validate_escalation(
+    value: Any, extension_values: set[str]
+) -> dict[str, Any] | None:
     if value is None:
         return None
-    if not isinstance(value, dict):
-        raise EvaluationInputError("escalation must be an object")
-    triggers = value.get("triggers")
-    target = value.get("target")
+    _validate_object(
+        value,
+        "escalation",
+        required={"triggers", "target"},
+        allowed={"triggers", "target", "message", "extensions"},
+    )
+    triggers = value["triggers"]
+    target = value["target"]
     if (
         not isinstance(triggers, list)
         or not triggers
@@ -527,44 +900,105 @@ def _validate_escalation(value: Any) -> dict[str, Any] | None:
         or any(trigger not in _TRIGGERS for trigger in triggers)
     ):
         raise EvaluationInputError("escalation triggers are invalid")
+    _validate_object(
+        target,
+        "escalation target",
+        required={"kind", "name"},
+        allowed={"kind", "name"},
+    )
     if (
-        not isinstance(target, dict)
-        or not isinstance(target.get("kind"), str)
+        not isinstance(target["kind"], str)
         or target["kind"] not in {"human-role", "queue", "system"}
-        or not isinstance(target.get("name"), str)
-        or not target["name"]
     ):
         raise EvaluationInputError("escalation target is invalid")
+    _require_non_empty_string(target["name"], "escalation target name")
+    if "message" in value:
+        _require_non_empty_string(value["message"], "escalation message")
+    if "extensions" in value:
+        _validate_extensions(
+            value["extensions"], "escalation extensions", extension_values
+        )
     return value
 
 
-def _required_extensions(pack: Mapping[str, Any]) -> frozenset[str]:
-    if "metadata" in pack and pack["metadata"] is None:
-        raise EvaluationInputError("metadata must be an object when present")
-    metadata = pack.get("metadata")
-    if metadata is None:
+def _validate_metadata(
+    value: Any, extension_values: set[str]
+) -> frozenset[str]:
+    if value is None:
         return frozenset()
-    if not isinstance(metadata, dict):
-        raise EvaluationInputError("metadata must be an object")
-    required = metadata.get("requiredExtensions", [])
+    _validate_object(
+        value,
+        "metadata",
+        required=set(),
+        allowed={
+            "authors",
+            "createdAt",
+            "license",
+            "requiredExtensions",
+            "reviews",
+            "extensions",
+        },
+    )
+    if "authors" in value:
+        authors = value["authors"]
+        if (
+            not isinstance(authors, list)
+            or not authors
+            or any(not isinstance(author, str) or not author for author in authors)
+            or len(set(authors)) != len(authors)
+        ):
+            raise EvaluationInputError("metadata.authors is invalid")
+    if "createdAt" in value:
+        _validate_datetime(value["createdAt"], "metadata.createdAt")
+    if "license" in value:
+        _require_non_empty_string(value["license"], "metadata.license")
+
+    required = value.get("requiredExtensions", [])
     if (
         not isinstance(required, list)
-        or any(not isinstance(name, str) for name in required)
+        or any(
+            not isinstance(name, str) or _EXTENSION_RE.fullmatch(name) is None
+            for name in required
+        )
         or len(set(required)) != len(required)
     ):
         raise EvaluationInputError("metadata.requiredExtensions is invalid")
+
+    if "reviews" in value:
+        reviews = value["reviews"]
+        if not isinstance(reviews, list):
+            raise EvaluationInputError("metadata.reviews must be an array")
+        for index, review in enumerate(reviews):
+            _validate_object(
+                review,
+                f"metadata review {index}",
+                required={"reviewer", "reviewedAt", "disposition"},
+                allowed={"reviewer", "reviewedAt", "disposition", "note"},
+            )
+            _require_non_empty_string(
+                review["reviewer"], f"metadata review {index} reviewer"
+            )
+            _validate_datetime(
+                review["reviewedAt"], f"metadata review {index} reviewedAt"
+            )
+            if (
+                not isinstance(review["disposition"], str)
+                or review["disposition"]
+                not in {"approved", "changes-requested", "rejected"}
+            ):
+                raise EvaluationInputError(
+                    f"metadata review {index} disposition is invalid"
+                )
+            if "note" in review:
+                _require_non_empty_string(
+                    review["note"], f"metadata review {index} note"
+                )
+
+    if "extensions" in value:
+        _validate_extensions(
+            value["extensions"], "metadata extensions", extension_values
+        )
     return frozenset(required)
-
-
-def _has_extension_value(value: Any, name: str) -> bool:
-    if isinstance(value, dict):
-        extensions = value.get("extensions")
-        if isinstance(extensions, dict) and name in extensions:
-            return True
-        return any(_has_extension_value(child, name) for child in value.values())
-    if isinstance(value, list):
-        return any(_has_extension_value(child, name) for child in value)
-    return False
 
 
 def _normalize_supported_extensions(value: Iterable[str]) -> frozenset[str]:
@@ -610,19 +1044,23 @@ def _make_disposition(
     direct_escalation: bool = False,
 ) -> dict[str, Any]:
     reasons = reasons or set()
-    ordered_reasons = sorted(
-        reasons, key=lambda reason: (_REASON_ORDER.get(reason, 100), reason)
+    ordered_reasons = sorted(reasons)
+    triggered_by = (
+        reasons.intersection(escalation.get("triggers", []))
+        if escalation is not None
+        else set()
     )
-    requested = direct_escalation or (
-        escalation is not None
-        and bool(reasons.intersection(escalation.get("triggers", [])))
-    )
+    if direct_escalation:
+        triggered_by.add("exception-escalation")
+    handoff: dict[str, Any] = {
+        "state": "requested" if triggered_by else "none",
+    }
+    if triggered_by:
+        handoff["triggeredBy"] = sorted(triggered_by)
     result: dict[str, Any] = {
         "kind": kind,
         "reasons": ordered_reasons,
-        "handoff": "requested" if requested else "none",
-        "experimental": True,
-        "conformanceClaim": "none",
+        "handoff": handoff,
     }
     if kind == "outcome":
         if outcome_id is None:

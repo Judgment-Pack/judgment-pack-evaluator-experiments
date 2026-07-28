@@ -24,6 +24,10 @@ exact text relied on. The implementation was not compared with another evaluator
    ordered array. I chose an array, ordered by the vocabulary’s specification order solely for
    reproducible bytes. Consumers and tests compare it as a set; the order has no semantics.
 
+   **0.2.0-draft alignment:** Core §8.3 now closes the ordering question: the array is sorted
+   ascending by Unicode code point. The current implementation uses that required order; the
+   historical choice above is retained only as lineage.
+
 3. **`handoff` is serialized as the string `none` or `requested`, with no additional portable
    target member.**
 
@@ -35,6 +39,10 @@ exact text relied on. The implementation was not compared with another evaluator
    `handoff` to two string values and specifies no target member or object shape. I chose the
    explicit enum and did not invent an extra field. This leaves the target-echo phrase
    under-specified.
+
+   **0.2.0-draft alignment:** Core §8.3 now closes this shape: `handoff` is an object with always
+   present `state` and conditionally present `triggeredBy`. The current implementation uses that
+   required object; the historical choice above is retained only as lineage.
 
 4. **A direct exception escalation requests handoff even when the pack has no `escalation`
    object.**
@@ -117,6 +125,11 @@ exact text relied on. The implementation was not compared with another evaluator
     identifiers used by evaluation, references, exception effect fields, fallback, escalation,
     and required extensions. I do not implement unrelated URI, timestamp, citation, or metadata
     format validation.
+
+    **0.2.0-draft alignment:** §8.2 and §8.4 now make a non-semantically-conforming pack the
+    `pack-not-conformant` error. The current implementation therefore validates the complete Core
+    structure, asserted URI/date/date-time formats, and semantic references. The historical
+    narrower choice above no longer describes the implementation.
 
 12. **Supported extension names are exact, case-sensitive capabilities; duplicate names in the
     caller’s supported list are harmless.**
@@ -207,8 +220,11 @@ exact text relied on. The implementation was not compared with another evaluator
 
     I chose limits large enough for the corpus: 16 MiB per CLI JSON text, nesting depth 128,
     200,000 JSON values/members, 1 MiB per string or member name, 4,096 characters per JSON-number
-    token, and (as refined by decision 22) 200,000 preflight evaluation-work units. These are
-    implementation limits, not semantics, and are documented in the README.
+    token, (as refined by decision 25) 10,000 authored evaluation collection items, and (as refined
+    by decision 22) 200,000 evaluation-work units. These are implementation limits, not semantics,
+    and are documented in the README. Under Core 0.2.0-draft, document/carrier admission limits are
+    classified during preflight and collection/work limits as evaluation-phase
+    `resource-exhaustion`.
 
 20. **Duplicate evidence keys are rejected at the JSON-text boundary; an already parsed Python
     dictionary cannot express a duplicate.**
@@ -291,13 +307,56 @@ exact text relied on. The implementation was not compared with another evaluator
     a later exact `specVersion`; a `0.1.0-draft` reader rejects them structurally; and no
     evaluator-conformance claim is available.
 
-    I keep the existing exact `specVersion` sanity check. By default, encountering `exists`,
-    `every`, or `uniform` is an explicit input error. `enable_rfc0008=True` (or CLI
-    `--enable-rfc0008`) locally admits the three draft shapes and applies the prototype semantics;
-    it does not reinterpret the document as structurally conforming, register an extension, or
-    alter the disposition markers. The alternatives were silently enabling the operators, treating
-    them as an optional extension, or inventing a future `specVersion`; each would contradict the
-    stated prototype boundary or claim a specification artifact the supplied texts do not define.
+    By default, encountering `exists`, `every`, or `uniform` is an explicit pack error.
+    `enable_rfc0008=True` (or CLI `--enable-rfc0008`) locally admits the three draft shapes and
+    applies the prototype semantics; it does not reinterpret the document as structurally
+    conforming, register an extension, alter the Core disposition, or create a claim. The Core
+    evaluator accepts both the historical `0.1.0-draft` inputs and the newly re-declared
+    `0.2.0-draft` inputs as the alignment brief expressly requires. The alternatives were silently
+    enabling the operators, treating them as an optional extension, or inventing a future
+    `specVersion`; each would contradict the stated prototype boundary or claim a specification
+    artifact the supplied texts do not define.
+
+24. **The CLI uses an outer diagnostic envelope and places the exact §8.3 object in its
+    `disposition` member.**
+
+    Text relied on: Core §8.3 says, “Nothing else belongs in the disposition object” and permits
+    diagnostics only “outside the disposition.” Core §8.4 says the error transport and wire format
+    are not defined. The alignment brief says, “The CLI's JSON output carries this canonical form
+    as the disposition member,” while the prior clean-room surface requires its
+    experimental/no-claim labels on every output payload.
+
+    A raw disposition would have nowhere to put those payload labels without violating §8.3; putting
+    them inside the disposition is now expressly forbidden. I chose a success envelope with
+    `disposition`, `experimental`, and `conformanceClaim`, and a distinct error envelope with
+    `error`, the same two labels, and no `disposition`. The bytes of the nested disposition are the
+    RFC 8785 bytes. This transport choice is not part of the portable disposition.
+
+25. **The evaluation collection-size limit is 10,000 authored evaluation collection items.**
+
+    Text relied on: Core §10 requires an evaluator to define collection-size and evaluation-work
+    limits, but defines neither a portable size nor which collections share one counter. It says
+    reaching the collection limit during evaluation is `resource-exhaustion`.
+
+    I count the combined lengths of `evidenceRequirements`, `outcomes`, `rules`, and `exceptions`
+    and cap that sum at 10,000. Sources and extension payloads are not consulted by ordinary
+    evaluation; condition-tree expansion is bounded by the separate 200,000-unit work limit; and
+    all JSON input is independently bounded by the 200,000-value/member carrier limit. Alternatives
+    included one limit per array and counting every optional/non-evaluated collection. A shared
+    evaluator-relevant counter is deterministic and makes the phase split explicit.
+
+26. **A manifest `packs/<name>.json` reference is also tried as `<manifest-dir>/<name>.json` in
+    this clean-room snapshot.**
+
+    Text relied on: the alignment brief says the corpus “pack path resolves to the fixture in the
+    same directory.” The supplied manifest spells its paths under `packs/`, but the one supplied
+    pack fixture is beside the manifest and no `packs/` directory exists.
+
+    The corpus test first honors the declared path, then tries only the named basename beside the
+    manifest. It does not search elsewhere, synthesize a pack, or edit `reference/`. This resolves
+    the thirteen rows using `data-request-intake-triage.json`. The other three declared fixture
+    basenames are absent, so their seven rows remain explicitly blocked rather than being made to
+    agree with reconstructed inputs.
 
 ## Appendix comparison
 

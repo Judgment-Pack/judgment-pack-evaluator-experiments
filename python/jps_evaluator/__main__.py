@@ -7,9 +7,10 @@ import json
 import sys
 from typing import Sequence
 
+from .canonical import canonicalize_disposition
 from .conditions import DEFAULT_EVALUATION_WORK_LIMIT
-from .errors import EvaluationError, EvaluationInputError
-from .evaluator import evaluate
+from .errors import EvaluationError, EvaluationInputError, PackNotConformantError
+from .evaluator import _admit_pack, evaluate
 from .json_input import load_json_file
 
 
@@ -17,8 +18,8 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m jps_evaluator",
         description=(
-            "Apply RFC 0006 semantics, optionally with the RFC 0008 prototype, "
-            "to one pack."
+            "Apply Judgment Pack Core evaluator semantics, optionally with the "
+            "experimental RFC 0008 prototype, to one pack."
         ),
     )
     parser.add_argument("--pack", required=True, help="path to a conformant pack JSON document")
@@ -43,7 +44,7 @@ def _parser() -> argparse.ArgumentParser:
         default=DEFAULT_EVALUATION_WORK_LIMIT,
         metavar="UNITS",
         help=(
-            "preflight work-unit budget "
+            "evaluation work-unit limit "
             f"(default: {DEFAULT_EVALUATION_WORK_LIMIT})"
         ),
     )
@@ -53,11 +54,17 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
-        pack = load_json_file(args.pack)
+        try:
+            pack = load_json_file(args.pack)
+        except EvaluationInputError as exc:
+            raise PackNotConformantError(str(exc)) from exc
+        _admit_pack(pack, enable_rfc0008=args.enable_rfc0008)
         facts = load_json_file(args.facts)
         evidence = load_json_file(args.evidence) if args.evidence else None
         if args.evidence and evidence is None:
-            raise EvaluationInputError("evidence availability must be a JSON object")
+            raise EvaluationInputError(
+                "evidence availability must be a JSON object"
+            )
         disposition = evaluate(
             pack,
             facts,
@@ -71,17 +78,30 @@ def main(argv: Sequence[str] | None = None) -> int:
     except EvaluationError as exc:
         json.dump(
             {
-                "error": {"kind": exc.code, "message": str(exc)},
+                "error": {
+                    "class": exc.error_class,
+                    "phase": exc.phase,
+                    "message": str(exc),
+                },
                 "experimental": True,
                 "conformanceClaim": "none",
             },
             sys.stderr,
+            ensure_ascii=False,
+            separators=(",", ":"),
             sort_keys=True,
         )
         sys.stderr.write("\n")
         return 2
-    json.dump(disposition, sys.stdout, indent=2, sort_keys=True)
-    sys.stdout.write("\n")
+
+    # Keep diagnostics/claim markers outside the §8.3 object. The nested member
+    # is emitted from the exact RFC 8785 bytes used for corpus comparison.
+    canonical = canonicalize_disposition(disposition)
+    sys.stdout.buffer.write(
+        b'{"conformanceClaim":"none","disposition":'
+        + canonical
+        + b',"experimental":true}\n'
+    )
     return 0
 
 
