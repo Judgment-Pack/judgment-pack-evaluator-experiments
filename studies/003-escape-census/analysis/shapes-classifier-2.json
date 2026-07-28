@@ -1,0 +1,191 @@
+{
+  "cases": [
+    {
+      "room": "A1",
+      "pointer": "/booking/cabinClassUniformAcrossFlights",
+      "shape": "uniformity",
+      "expressible_with": "uniform",
+      "blocker_or_note": "Ledger: 'collect the cabin class of each proposed segment and test that the set has exactly one member.' Textbook all-elements-equal-at-sub-path over the proposed segment array at /cabinClass; literal-free, no outer reference. Vacuous truth on a 0- or 1-segment itinerary is the right answer here."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/passengerCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "blocker_or_note": "Cardinality of the passenger array, consumed by 'in [1,2,3,4,5]' (at least one, at most five). A boolean exists/every quantifier cannot produce or bound a cardinality; you would need a count operator with a literal bound (or ordinal indexing, e.g. 'no element at index 5', which is outside element-rooted exists/every)."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/allPassengersOnSameFlightsAndCabin",
+      "shape": "uniformity",
+      "expressible_with": "uniform",
+      "blocker_or_note": "'Build the per-passenger itinerary ... and test all itineraries for equality' \u2014 set-of-values-has-one-member over passengers at a composite sub-path. Reachable by a uniform operator only if the caller materializes passengers[]/itinerary as a sub-object and canonicalizes segment order, since \u00a77 equality on arrays is order-sensitive; the projection itself is data preparation, not a quantifier."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/travelCertificateCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "blocker_or_note": "Classify-then-count: per-element type resolved by profile lookup, then cardinality of matches against 'at most one' (in [0,1]). The classification could be denormalized onto each element as a literal-comparable field, but the counting cannot \u2014 exists/every yields a boolean, not a number, and cannot express 'at most one matching element'."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/creditCardCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "blocker_or_note": "Same classify-then-count construct against 'at most one credit card' (in [0,1]). Blocker is the cardinality of matching elements, not the per-element predicate."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/giftCardCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "blocker_or_note": "Same classify-then-count against 'at most three gift cards' (in [0,1,2,3]). Cardinality of matching elements is the missing device."
+    },
+    {
+      "room": "A1",
+      "pointer": "/booking/payment/allMethodsInUserProfile",
+      "shape": "cross-collection-membership",
+      "expressible_with": "neither",
+      "blocker_or_note": "Every proposed payment-method id must be a member of the profile's stored payment-method list \u2014 a join. An element-rooted inner predicate cannot see the profile collection, and \u00a77 'in' requires a literal non-empty array as the condition value, so a runtime-supplied list cannot serve as the right operand."
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesOrigin",
+      "shape": "other",
+      "expressible_with": "neither",
+      "blocker_or_note": "Ordinal/interpretive selection of ONE element from EACH of two segment lists (stored and proposed), then comparison of the two selected airport values. Three blockers: selection of a distinguished element (not every/exists), access to two collections at once, and a pointer-to-pointer comparison with no literal. Overlaid with a policy reading of 'origin' (outbound-leg start vs first-segment origin)."
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesDestination",
+      "shape": "other",
+      "expressible_with": "neither",
+      "blocker_or_note": "Same two-list distinguished-element selection and pointer-to-pointer comparison as preservesOrigin, with a heavier interpretive step: for a round trip 'destination' must be read as the turnaround point (arrival of the outbound leg), not the final arrival."
+    },
+    {
+      "room": "A2",
+      "pointer": "/request/preservesTripType",
+      "shape": "other",
+      "expressible_with": "neither",
+      "blocker_or_note": "Must derive a classification VALUE (one way / round trip) from the proposed segment list \u2014 a first-vs-last cross-element comparison over the whole list \u2014 and then compare that derived value against another fact (the stored trip type). Quantifiers emit booleans, not classifications, and \u00a77 has no fact-to-fact comparison."
+    },
+    {
+      "room": "A3",
+      "pointer": "/request/appliesToAllFlightsInReservation",
+      "shape": "cross-collection-membership",
+      "expressible_with": "neither",
+      "blocker_or_note": "Set EQUALITY between the segments the user named and the reservation's full segment list \u2014 bidirectional membership (every reservation segment named, and vice versa), i.e. a join in both directions. The inner predicate would have to reference the other collection. Ledger also flags the degenerate one-segment case, where a naive 'which segments did they name?' reading is unsound."
+    },
+    {
+      "room": "A5",
+      "pointer": "/derived/changesPassengerCount",
+      "shape": "other",
+      "expressible_with": "neither",
+      "blocker_or_note": "Cardinality of TWO collections compared to each other (requested roster vs current roster), not to a literal bound \u2014 so not even a bounded count operator suffices. Compounded by step 1 (constructing the post-change roster from natural language) and step 4 (deciding whether substitution or add-then-remove counts as a count change), which is policy application."
+    },
+    {
+      "room": "A6",
+      "pointer": "/reservation/anySegmentCancelledByAirline",
+      "shape": "element-predicate",
+      "expressible_with": "exists-every",
+      "blocker_or_note": "Pure disjunction over segments of a per-segment boolean field: exists(segment) where segment/cancelledByAirline equals true. Element-rooted, literal right operand, no outer scope. The only clean exists case in the census."
+    },
+    {
+      "room": "A7",
+      "pointer": "/reservation/passengerCount",
+      "shape": "count",
+      "expressible_with": "neither",
+      "blocker_or_note": "Cardinality of the stored passengers array. Note the pack only tests not-equals null (availability); the VALUE is consumed as an arithmetic operand ($100/$50 x N) carried in the outcome text and the io.onword.compensation extension. So this needs a cardinality operator that emits a number, which is strictly beyond any boolean quantifier \u2014 no bound is even applied."
+    },
+    {
+      "room": "R1",
+      "pointer": "/order/originalPaymentMethod/type",
+      "shape": "other",
+      "expressible_with": "neither",
+      "blocker_or_note": "Two-stage reach: (a) ordinal/temporal selection of the initial charge out of the order's multi-entry payment history (not later refunds or adjustments), then (b) resolving that id against the profile's payment-method list to obtain a type \u2014 a join. Emits a value (compared to 'gift_card' by the pack), not a boolean, so no quantifier shape applies. 'The original payment method' is also undefined by the policy."
+    },
+    {
+      "room": "R2",
+      "pointer": "/request/newPaymentMethodCount",
+      "shape": "cardinality-exact",
+      "expressible_with": "neither",
+      "blocker_or_note": "Consumed as equals 1 / not-equals 1 \u2014 an exactly-one test on the cardinality of the methods the user named. Exists/every cannot distinguish one from two; expressing exactly-N requires counting (or pairwise distinctness plus a bound)."
+    },
+    {
+      "room": "R2",
+      "pointer": "/request/newPaymentMethodDiffersFromOriginal",
+      "shape": "other",
+      "expressible_with": "neither",
+      "blocker_or_note": "Select the original charge out of the order's payment history (ordinal selection, undefined term 'original'), then an identity test between two fact pointers. Both /order/originalPaymentMethodId and /request/newPaymentMethodId are present in the facts document yet unreadable by any condition, because \u00a77 fact conditions compare a pointer only against a literal."
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsSameProduct",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "blocker_or_note": "Element-by-element (aligned) comparison of the old-item list against the new-item list: two catalog lookups per pair to resolve product ids, then equality per pair, then conjunction. Even with the pairs pre-zipped (as facts.example.json does, with originalProductId/newProductId on each substitution element), the inner predicate is a field-vs-field comparison \u2014 \u00a77 admits no pointer-to-pointer operand, only literals. Also commits to reading 'same product' as same product id."
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsDifferentOption",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "blocker_or_note": "Per-pair inequality of two option maps (originalOptions vs newOptions), conjoined over the list. Field-vs-field comparison within the element, so not literal-comparable; additionally the policy does not fix whether 'different product option' means any differing value or a wholly different option set, so the reading is fixed outside the pack."
+    },
+    {
+      "room": "R3",
+      "pointer": "/modification/allNewItemsAvailable",
+      "shape": "element-predicate",
+      "expressible_with": "exists-every",
+      "blocker_or_note": "every(substitution) where newItemAvailable equals true. The catalog availability lookup is per-element data preparation that denormalizes onto the element (facts.example.json already carries newItemAvailable per substitution), leaving a literal-valued, element-rooted predicate. The conjunction across the list is exactly what an every operator supplies."
+    },
+    {
+      "room": "R4",
+      "pointer": "/refund/destinationIsOriginalPaymentMethod",
+      "shape": "other",
+      "expressible_with": "neither",
+      "blocker_or_note": "Identify the original charge within the order's payment history (ordinal selection out of a collection), then an identity test against the method the user named. Mechanical but doubly inexpressible: no collection reach and no pointer-to-pointer equality \u2014 both /order/originalPaymentMethodId and /refund/providedPaymentMethodId sit in the facts document unread."
+    },
+    {
+      "room": "R4",
+      "pointer": "/refund/destinationIsExistingGiftCard",
+      "shape": "cross-collection-membership",
+      "expressible_with": "neither",
+      "blocker_or_note": "Degenerate join: some element of the profile's payment-method list must equal the single named refund destination AND be of type gift card. The exists predicate must compare the element's id against an outer fact (/refund/providedPaymentMethodId), not a literal \u2014 outer-scope access is the blocker. Plus the undefined policy term 'existing', which the pack reads as already on this authenticated user's profile."
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allExchangesWithinSameProduct",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "blocker_or_note": "Resolve each old and each new item id to its parent product id, compare pairwise, AND over the exchange list. Same blocker as R3 allNewItemsSameProduct: the inner predicate is a comparison of two resolved fields, with no literal operand. Interpretive overlay: 'product type' read as catalogue product id."
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allNewItemsAvailable",
+      "shape": "element-predicate",
+      "expressible_with": "exists-every",
+      "blocker_or_note": "every(requested new item) where availability equals available. Pure lookup plus aggregation per the ledger, no policy interpretation; once the catalog availability flag is attached to each element (as R3's sibling facts document does), the predicate is element-rooted against a literal and the conjunction is the whole of what is missing."
+    },
+    {
+      "room": "R5",
+      "pointer": "/request/allNewItemsDifferentOption",
+      "shape": "pairwise-cross-list",
+      "expressible_with": "neither",
+      "blocker_or_note": "Per-pair option-map inequality AND-ed over the exchange list \u2014 field-vs-field comparison, no literal operand. Also commits to reading 'of different product option' as a hard requirement rather than description."
+    }
+  ],
+  "counts": {
+    "element-predicate": 3,
+    "uniformity": 2,
+    "cross-collection-membership": 3,
+    "pairwise-cross-list": 4,
+    "count": 5,
+    "cardinality-exact": 1,
+    "other": 7,
+    "exists-every": 3,
+    "uniform": 2,
+    "neither": 20
+  }
+}
