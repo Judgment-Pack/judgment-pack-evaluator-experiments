@@ -3948,6 +3948,92 @@
   "note": "uniform clause 1: path unresolved -> unknown."
  },
  {
+  "name": "J15-uniform-huge-exponent-unequal-is-decided-false",
+  "pack": {
+   "specVersion": "0.1.0-draft",
+   "id": "https://judgmentpack.example/packs/rfc0008-probe/J15-uniform-huge-exponent-unequal-is-decided-false",
+   "version": "0.1.0",
+   "title": "RFC 0008 probe: J15-uniform-huge-exponent-unequal-is-decided-false",
+   "description": "Minimal probe pack. Its single rule fires on the condition under test, so the disposition reveals the condition's three-valued result: true -> outcome cond-true, false -> the fallback outcome cond-false, unknown -> unresolved/unknown when the rule escalates on unknown, or cond-false when it ignores unknown.",
+   "decision": {
+    "intent": "Expose one RFC 0008 condition's three-valued result as a disposition.",
+    "question": "Does the condition under test hold?"
+   },
+   "outcomes": [
+    {
+     "id": "cond-true",
+     "label": "Condition true"
+    },
+    {
+     "id": "cond-false",
+     "label": "Condition false, or unknown and ignored"
+    }
+   ],
+   "rules": [
+    {
+     "id": "probe",
+     "description": "Fires exactly when the condition under test is true.",
+     "when": {
+      "op": "uniform",
+      "path": "/segments",
+      "at": "/cabin"
+     },
+     "outcome": "cond-true",
+     "onUnknown": "escalate"
+    }
+   ],
+   "fallbackOutcome": "cond-false"
+  },
+  "facts": null,
+  "evidence": null,
+  "rfc_expectation": "false - determinacy rule: numeric equality decided by normalized token, never unknown for carrier-valid numbers",
+  "note": "uniform clause 2: empty array -> true.",
+  "facts_raw": "{\"segments\": [{\"cabin\": 1e999999999}, {\"cabin\": 2e999999999}]}"
+ },
+ {
+  "name": "J16-uniform-huge-exponent-equal-forms-are-decided-true",
+  "pack": {
+   "specVersion": "0.1.0-draft",
+   "id": "https://judgmentpack.example/packs/rfc0008-probe/J16-uniform-huge-exponent-equal-forms-are-decided-true",
+   "version": "0.1.0",
+   "title": "RFC 0008 probe: J16-uniform-huge-exponent-equal-forms-are-decided-true",
+   "description": "Minimal probe pack. Its single rule fires on the condition under test, so the disposition reveals the condition's three-valued result: true -> outcome cond-true, false -> the fallback outcome cond-false, unknown -> unresolved/unknown when the rule escalates on unknown, or cond-false when it ignores unknown.",
+   "decision": {
+    "intent": "Expose one RFC 0008 condition's three-valued result as a disposition.",
+    "question": "Does the condition under test hold?"
+   },
+   "outcomes": [
+    {
+     "id": "cond-true",
+     "label": "Condition true"
+    },
+    {
+     "id": "cond-false",
+     "label": "Condition false, or unknown and ignored"
+    }
+   ],
+   "rules": [
+    {
+     "id": "probe",
+     "description": "Fires exactly when the condition under test is true.",
+     "when": {
+      "op": "uniform",
+      "path": "/segments",
+      "at": "/cabin"
+     },
+     "outcome": "cond-true",
+     "onUnknown": "escalate"
+    }
+   ],
+   "fallbackOutcome": "cond-false"
+  },
+  "facts": null,
+  "evidence": null,
+  "rfc_expectation": "true - 1e999999999 == 1.0e999999999 == 10e999999998 under sign/significand/exponent normalization",
+  "note": "uniform clause 2: empty array -> true.",
+  "facts_raw": "{\"segments\": [{\"cabin\": 1e999999999}, {\"cabin\": 1.0e999999999}, {\"cabin\": 10e999999998}]}"
+ },
+ {
   "name": "K1-depth-two-sibling-aggregates-under-all-valid",
   "pack": {
    "specVersion": "0.1.0-draft",

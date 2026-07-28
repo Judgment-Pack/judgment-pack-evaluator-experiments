@@ -39,6 +39,13 @@ import sys
 import tempfile
 
 
+class RawJSON:
+    """A JSON document carried as verbatim text, for tokens json.dump cannot re-emit."""
+
+    def __init__(self, text):
+        self.text = text
+
+
 # --- error classification -------------------------------------------------
 #
 # Neither implementation's error vocabulary is specified: RFC 0008 says limit
@@ -68,7 +75,10 @@ PY_ERROR_CLASS = {
 
 def _tmp(value):
     handle = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
-    json.dump(value, handle)
+    if isinstance(value, RawJSON):
+        handle.write(value.text)  # verbatim: preserves numeric tokens json.dump cannot
+    else:
+        json.dump(value, handle)
     handle.close()
     return handle.name
 
@@ -200,9 +210,11 @@ def run_cases(args):
     cases = json.load(open(args.cases))
     results, agree = [], 0
     for case in cases:
-        go = normalize(run_go(args.go_binary, case["pack"], case["facts"],
+        facts = (RawJSON(case["facts_raw"]) if case.get("facts_raw") is not None
+                 else case["facts"])
+        go = normalize(run_go(args.go_binary, case["pack"], facts,
                               case.get("evidence")))
-        py = normalize(run_py(args.python_repo, case["pack"], case["facts"],
+        py = normalize(run_py(args.python_repo, case["pack"], facts,
                               case.get("evidence")))
         ok = rows_agree(go, py)
         agree += bool(ok)

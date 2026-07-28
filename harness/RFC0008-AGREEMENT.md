@@ -53,8 +53,8 @@ refusal.
 
 | | |
 | --- | ---: |
-| Corpus rows | **80** |
-| Agreements | **79** |
+| Corpus rows | **82** |
+| Agreements | **81** |
 | Divergences on rows the RFC pins | **0** |
 | Divergences on rows the RFC leaves unpinned | **1** (`L3`, where the limit is drawn) |
 | Rows where both agree but land off the RFC's pinned value | **0** |
@@ -223,6 +223,20 @@ and, as the RFC says, "cannot be part of the check". Note also that the twin pac
 under `0.1.0-draft`** — `spec validate` rejects them — which is expected and is the whole point of
 the two opt-in flags.
 
+## J15/J16 — a disagreement found, resolved, and pinned
+
+Rows J15 and J16 did not exist in the first 80. The cross-vendor review of the RFC's
+implementation-experience amendment reproduced a live disagreement no earlier row exercised: on
+`1e999999999` vs `2e999999999`, the Go prototype's first reading returned `unknown` (its number
+representation could not hold the value) while the Python prototype compared the values and
+returned `false`. The RFC resolved it by pinning **determinacy** — numeric equality is decided by
+sign/significand/exponent normalization of the tokens, never by materialising the value, and an
+implementation unable to decide within its limits errors rather than answering `unknown`. The Go
+prototype was repaired to normalized-token equality (its formerly quadratic huge-token `uniform`
+case became linear), these two rows were added with `facts_raw` verbatim documents (`json.dump`
+cannot re-emit such tokens), and both implementations now agree on both rows. This is the corpus's
+second demonstration, after L3, that the rows discriminate rather than confirm.
+
 ## Divergences and adjudications
 
 ### D-1 (semantic, unpinned) — `L3-between-the-two-default-budgets`
@@ -312,7 +326,7 @@ unresolved pointer over tens of thousands of elements — tens of gigabytes of p
 attack committed as a regression (refused in 0.07 s). One implementation cycle produced and killed a
 plausible-but-wrong accounting model; the RFC's claim that the model is an acceptance precondition
 rather than an implementation detail is not hypothetical. This matrix was re-run in full against the
-repaired model: the same 79/80 agreement and the same single unpinned divergence (L3).
+repaired model: the same 81/82 agreement and the same single unpinned divergence (L3).
 
 Both models satisfy every bullet the RFC's list demands, and both satisfy the settled intent — "the
 budget MUST be charged **before any element is evaluated** and **independently of element order**, so
