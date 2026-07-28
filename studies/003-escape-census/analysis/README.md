@@ -30,8 +30,10 @@ emission. The corrections to RESULTS.md and RFC 0007 cite this directory.
   inner predicate is a §7 condition tree seeing only the element as document root, comparisons
   against literals only; `uniform` — expressible by an all-elements-equal-at-sub-path operator;
   `neither` — with the specific blocker named.
-- **Two independent classifiers**, mutually blind, each blind to the RFC draft and to this
-  directory; separate model contexts. Raw outputs preserved unedited:
+- **Two separate blinded model runs** under author-written briefs, in isolated contexts — mutually
+  blind, each barred from this directory and from any RFC draft text. The exact briefs and run
+  metadata (models, dates, what each run could and could not see) are committed verbatim in
+  [`briefs.md`](briefs.md). Raw outputs preserved unedited:
   [`shapes-classifier-1.json`](shapes-classifier-1.json),
   [`shapes-classifier-2.json`](shapes-classifier-2.json).
 - **Adjudication:** [`shapes-adjudicated.json`](shapes-adjudicated.json) records both readings per
@@ -45,7 +47,7 @@ emission. The corrections to RESULTS.md and RFC 0007 cite this directory.
 
 | Measure | Value |
 | --- | ---: |
-| Expressibility agreement between classifiers | **25 / 25** |
+| Expressibility agreement between the two runs | **25 / 25** |
 | Shape-bucket agreement | 22 / 25 |
 | Expressible with bare `exists`/`every` (element-rooted, literal comparisons) | **3** |
 | Expressible with a dedicated `uniform` operator | 2 |
@@ -70,8 +72,9 @@ literal only), and constructs that must emit a value rather than test one.
 
 ## Honest limits
 
-Two model classifiers with the same instructions are less independent than two human experts; they
-may share systematic blind spots. The expressibility judgment embeds one reading of §7's semantics
+Agreement between two model runs under one author's briefs is output agreement, not human-grade
+independence; the runs may share systematic blind spots, and both models — and the adjudicator of
+the three disagreements — are from the same vendor (see [`briefs.md`](briefs.md)). The expressibility judgment embeds one reading of §7's semantics
 (element-rooted scope, literal-only comparisons); a differently-scoped quantifier proposal would
 move cases between buckets — which is precisely the design information the RFC needs. The
 adjudicator wrote the classifier brief; the raw outputs are preserved so the adjudication can be

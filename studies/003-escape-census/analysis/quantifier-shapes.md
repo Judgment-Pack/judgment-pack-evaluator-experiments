@@ -11,8 +11,9 @@ It is:
 
 - **not** preregistered — `PREREGISTRATION.md` registers no sub-classification of the device
   buckets; the deviation is recorded in `DEVIATIONS.md`;
-- **adjudicated at a second pass**: two independent shape readers, mutually blind and blind to the
-  RFC draft, classified all 25 facts; their raw outputs are preserved unedited in
+- **adjudicated at a second pass**: two separate blinded model runs under author-written briefs
+  ([`briefs.md`](briefs.md)), mutually blind and barred from any RFC draft text, classified all 25
+  facts; their raw outputs are preserved unedited in
   [`shapes-classifier-1.json`](shapes-classifier-1.json) and
   [`shapes-classifier-2.json`](shapes-classifier-2.json), and the adjudication of every
   disagreement is in [`shapes-adjudicated.json`](shapes-adjudicated.json). Expressibility

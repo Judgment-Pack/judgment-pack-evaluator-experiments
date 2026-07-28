@@ -123,7 +123,8 @@
       "classifier1_shape": "element-predicate",
       "classifier2_shape": "element-predicate",
       "adjudicated_shape": "element-predicate",
-      "expressible_with": "exists-every"
+      "expressible_with": "exists-every",
+      "erratum": "Run 1's raw note calls this fact 'the E6 sentence RFC 0007 was built on'. That is wrong: RFC 0007's E6 sentence ('any portion of the flight has already been flown') corresponds to A6:/reservation/anySegmentFlown and A3:/reservation/anyFlightFlown, whose adjudicated device is state-sequencing \u2014 outside these 25. This fact is the airline-cancelled clause, a different policy sentence. The shape and expressibility judgments are unaffected; only the raw note's attribution is."
     },
     {
       "room": "A7",

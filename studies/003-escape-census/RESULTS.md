@@ -66,7 +66,7 @@ Within the 25, the constructs are not uniform, and this matters for any remedy:
 
 > **Amendment, 2026-07-27 — the "~19" estimate is withdrawn.** That figure was estimated from shape
 > names, not from a per-fact reading. A later per-fact re-analysis of the same 25 facts
-> ([`analysis/`](analysis/): two independent readers, mutually blind, adjudicated; expressibility
+> ([`analysis/`](analysis/): two separate blinded model runs, adjudicated; expressibility
 > agreement 25/25) finds that a bounded ∃/∀ condition over an array-valued pointer expresses
 > **3**, and **5** with an additional all-equal-at-a-sub-path operator. The remaining 20 need
 > joins, counts, ordinal selection, fact-to-fact comparison, or whole-list classification. The
@@ -111,7 +111,7 @@ place — recurring families, several matching RFC 0007's previously *unevidence
 - **For the expansion question:** the evidence is now concentrated. Collection quantification is
   the single largest cause of determination escape (25 of 40). ~~A bounded ∃/∀ condition over
   array-valued facts addresses (~19 of 40) with no arithmetic implied.~~ **Amended 2026-07-27:** a
-  per-fact re-analysis ([`analysis/`](analysis/) — two independent readers, adjudicated,
+  per-fact re-analysis ([`analysis/`](analysis/) — two separate blinded model runs, adjudicated,
   unregistered) puts the bounded quantifier's reach at **3 of the 25**,
   or 5 with an all-equal operator — so *the size of the cause is not the size of the remedy*.
   Whether that is enough to license the addition is now
