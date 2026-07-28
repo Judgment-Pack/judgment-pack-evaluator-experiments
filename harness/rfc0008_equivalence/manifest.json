@@ -1,0 +1,92 @@
+[
+  {
+    "room": "A6",
+    "fact": "/reservation/anySegmentCancelledByAirline",
+    "operator": "exists",
+    "original_pack": "A6/original.pack.json",
+    "twin_pack": "A6/twin.pack.json",
+    "scenarios": [
+      {
+        "name": "quantified-true",
+        "original_facts": "A6/facts.quantified-true.original.json",
+        "twin_facts": "A6/facts.quantified-true.twin.json",
+        "evidence": "A6/evidence.json",
+        "expected_disposition": "outcome:cancellation-permitted"
+      },
+      {
+        "name": "quantified-false",
+        "original_facts": "A6/facts.quantified-false.original.json",
+        "twin_facts": "A6/facts.quantified-false.twin.json",
+        "evidence": "A6/evidence.json",
+        "expected_disposition": "outcome:cancellation-denied"
+      },
+      {
+        "name": "quantified-unknown",
+        "original_facts": "A6/facts.quantified-unknown.original.json",
+        "twin_facts": "A6/facts.quantified-unknown.twin.json",
+        "evidence": "A6/evidence.json",
+        "expected_disposition": "unresolved:unknown"
+      }
+    ]
+  },
+  {
+    "room": "R3",
+    "fact": "/modification/allNewItemsAvailable",
+    "operator": "every",
+    "original_pack": "R3/original.pack.json",
+    "twin_pack": "R3/twin.pack.json",
+    "scenarios": [
+      {
+        "name": "quantified-true",
+        "original_facts": "R3/facts.quantified-true.original.json",
+        "twin_facts": "R3/facts.quantified-true.twin.json",
+        "evidence": "R3/evidence.json",
+        "expected_disposition": "outcome:allow-item-modification"
+      },
+      {
+        "name": "quantified-false",
+        "original_facts": "R3/facts.quantified-false.original.json",
+        "twin_facts": "R3/facts.quantified-false.twin.json",
+        "evidence": "R3/evidence.json",
+        "expected_disposition": "outcome:deny-item-modification"
+      },
+      {
+        "name": "quantified-unknown",
+        "original_facts": "R3/facts.quantified-unknown.original.json",
+        "twin_facts": "R3/facts.quantified-unknown.twin.json",
+        "evidence": "R3/evidence.json",
+        "expected_disposition": "unresolved:unknown"
+      }
+    ]
+  },
+  {
+    "room": "R5",
+    "fact": "/request/allNewItemsAvailable",
+    "operator": "every",
+    "original_pack": "R5/original.pack.json",
+    "twin_pack": "R5/twin.pack.json",
+    "scenarios": [
+      {
+        "name": "quantified-true",
+        "original_facts": "R5/facts.quantified-true.original.json",
+        "twin_facts": "R5/facts.quantified-true.twin.json",
+        "evidence": "R5/evidence.json",
+        "expected_disposition": "outcome:exchange-permitted"
+      },
+      {
+        "name": "quantified-false",
+        "original_facts": "R5/facts.quantified-false.original.json",
+        "twin_facts": "R5/facts.quantified-false.twin.json",
+        "evidence": "R5/evidence.json",
+        "expected_disposition": "outcome:exchange-denied"
+      },
+      {
+        "name": "quantified-unknown",
+        "original_facts": "R5/facts.quantified-unknown.original.json",
+        "twin_facts": "R5/facts.quantified-unknown.twin.json",
+        "evidence": "R5/evidence.json",
+        "expected_disposition": "unresolved:unknown"
+      }
+    ]
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "request": {
+    "type": "exchange-delivered-order",
+    "orderId": "#W2378156",
+    "allExchangesWithinSameProduct": true,
+    "allNewItemsDifferentOption": true,
+    "paymentMethodProvided": true,
+    "paymentMethodType": "gift_card",
+    "giftCardBalanceMinusPriceDifference": "27.50",
+    "exchanges": [
+      {
+        "itemId": "item-0",
+        "newItemId": "new-0",
+        "newItemAvailable": true
+      },
+      {
+        "itemId": "item-1",
+        "newItemId": "new-1",
+        "newItemAvailable": true
+      }
+    ]
+  },
+  "order": {
+    "orderId": "#W2378156",
+    "userId": "yusuf_rossi_9620",
+    "status": "delivered"
+  }
+}
