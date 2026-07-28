@@ -1,4 +1,4 @@
-"""Three-valued condition interpretation pinned by RFC 0006."""
+"""Three-valued conditions from RFC 0006 plus opt-in RFC 0008 aggregates."""
 
 from __future__ import annotations
 
@@ -16,7 +16,9 @@ from .errors import (
 from .json_input import ExactJSONNumber
 
 
-MAX_CONDITION_EVALUATIONS = 200_000
+DEFAULT_EVALUATION_WORK_LIMIT = 200_000
+# Retained as a compatibility alias for the original prototype's internal name.
+MAX_CONDITION_EVALUATIONS = DEFAULT_EVALUATION_WORK_LIMIT
 
 _DECIMAL_RE = re.compile(r"^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$")
 _ARRAY_INDEX_RE = re.compile(r"^(?:0|[1-9][0-9]*)$")
@@ -35,19 +37,24 @@ class TriValue(str, Enum):
 
 
 class EvaluationBudget:
-    """Shared condition-work counter for one evaluation."""
+    """Shared preflight-work budget for one evaluation."""
 
-    __slots__ = ("remaining",)
+    __slots__ = ("limit", "remaining")
 
-    def __init__(self, limit: int = MAX_CONDITION_EVALUATIONS) -> None:
+    def __init__(self, limit: int = DEFAULT_EVALUATION_WORK_LIMIT) -> None:
+        if isinstance(limit, bool) or not isinstance(limit, int) or limit <= 0:
+            raise EvaluationInputError("evaluation_work_limit must be a positive integer")
+        self.limit = limit
         self.remaining = limit
 
-    def consume(self) -> None:
-        self.remaining -= 1
-        if self.remaining < 0:
+    def charge(self, units: int) -> None:
+        """Atomically precharge units, raising before any measured predicate runs."""
+
+        if units > self.remaining:
             raise ResourceLimitError(
-                f"evaluation exceeds {MAX_CONDITION_EVALUATIONS} condition evaluations"
+                f"evaluation work exceeds configured limit of {self.limit} units"
             )
+        self.remaining -= units
 
 
 def strong_all(values: Iterable[TriValue]) -> TriValue:
@@ -149,13 +156,42 @@ def evaluate_condition(
     evidence: Mapping[str, str] | None = None,
     *,
     budget: EvaluationBudget | None = None,
+    enable_rfc0008: bool = False,
 ) -> TriValue:
-    """Interpret one condition. Malformed/unsupported low-level shapes produce unknown."""
+    """Interpret one condition after precharging its whole runtime-expanded tree.
 
+    Malformed or unsupported low-level shapes produce ``unknown``. Pack-level
+    evaluation validates shapes and aggregate depth before reaching this helper.
+    """
+
+    if not isinstance(enable_rfc0008, bool):
+        raise EvaluationInputError("enable_rfc0008 must be a Boolean")
     if budget is None:
         budget = EvaluationBudget()
-    budget.consume()
     evidence = evidence or {}
+    budget.charge(
+        measure_condition_work(
+            condition,
+            facts,
+            enable_rfc0008=enable_rfc0008,
+        )
+    )
+    return _evaluate_condition(
+        condition,
+        facts,
+        evidence,
+        enable_rfc0008=enable_rfc0008,
+    )
+
+
+def _evaluate_condition(
+    condition: Any,
+    condition_root: Any,
+    evidence: Mapping[str, str],
+    *,
+    enable_rfc0008: bool,
+) -> TriValue:
+    """Evaluate a condition whose full tree has already been precharged."""
 
     if not isinstance(condition, dict):
         return TriValue.UNKNOWN
@@ -173,16 +209,27 @@ def evaluate_condition(
         children = condition.get("conditions")
         if not isinstance(children, list) or not children:
             return TriValue.UNKNOWN
-        values = (
-            evaluate_condition(child, facts, evidence, budget=budget) for child in children
-        )
+        values = [
+            _evaluate_condition(
+                child,
+                condition_root,
+                evidence,
+                enable_rfc0008=enable_rfc0008,
+            )
+            for child in children
+        ]
         return strong_all(values) if op == "all" else strong_any(values)
 
     if op == "not":
         if "condition" not in condition:
             return TriValue.UNKNOWN
         return tri_not(
-            evaluate_condition(condition["condition"], facts, evidence, budget=budget)
+            _evaluate_condition(
+                condition["condition"],
+                condition_root,
+                evidence,
+                enable_rfc0008=enable_rfc0008,
+            )
         )
 
     if op == "evidence-present":
@@ -196,6 +243,62 @@ def evaluate_condition(
             return TriValue.FALSE
         return TriValue.UNKNOWN
 
+    if enable_rfc0008 and op in {"exists", "every"}:
+        path = condition.get("path")
+        where = condition.get("where")
+        if not isinstance(path, str) or not isinstance(where, dict):
+            return TriValue.UNKNOWN
+        try:
+            selected = resolve_pointer(condition_root, path)
+        except PointerError:
+            return TriValue.UNKNOWN
+        if not isinstance(selected, list):
+            return TriValue.UNKNOWN
+        values = [
+            _evaluate_condition(
+                where,
+                element,
+                evidence,
+                enable_rfc0008=enable_rfc0008,
+            )
+            for element in selected
+        ]
+        return strong_any(values) if op == "exists" else strong_all(values)
+
+    if enable_rfc0008 and op == "uniform":
+        path = condition.get("path")
+        at = condition.get("at")
+        if not isinstance(path, str) or not isinstance(at, str):
+            return TriValue.UNKNOWN
+        try:
+            selected = resolve_pointer(condition_root, path)
+        except PointerError:
+            return TriValue.UNKNOWN
+        if not isinstance(selected, list):
+            return TriValue.UNKNOWN
+        if not selected:
+            return TriValue.TRUE
+
+        resolved: list[Any] = []
+        missing = False
+        for member in selected:
+            try:
+                resolved.append(resolve_pointer(member, at))
+            except PointerError:
+                missing = True
+
+        indeterminate = False
+        for index, left in enumerate(resolved):
+            for right in resolved[index + 1 :]:
+                equal = json_equal(left, right)
+                if equal is False:
+                    return TriValue.FALSE
+                if equal is None:
+                    indeterminate = True
+        if missing or indeterminate:
+            return TriValue.UNKNOWN
+        return TriValue.TRUE
+
     if op != "fact":
         return TriValue.UNKNOWN
     path = condition.get("path")
@@ -203,7 +306,7 @@ def evaluate_condition(
     if not isinstance(path, str) or not isinstance(operator, str) or "value" not in condition:
         return TriValue.UNKNOWN
     try:
-        selected = resolve_pointer(facts, path)
+        selected = resolve_pointer(condition_root, path)
     except PointerError:
         return TriValue.UNKNOWN
 
@@ -241,6 +344,179 @@ def evaluate_condition(
         return TriValue.TRUE if matches else TriValue.FALSE
 
     return TriValue.UNKNOWN
+
+
+def measure_condition_work(
+    condition: Any,
+    condition_root: Any,
+    *,
+    enable_rfc0008: bool = False,
+) -> int:
+    """Return the order-independent preflight charge for one condition tree.
+
+    This function resolves pointers so runtime collection shapes can be measured,
+    but it never performs a predicate comparison.
+    """
+
+    # Every authored condition node costs one unit, including malformed nodes.
+    charge = 1
+    if not isinstance(condition, dict):
+        return charge
+    op = condition.get("op")
+    if not isinstance(op, str):
+        return charge
+
+    if op in {"all", "any"}:
+        children = condition.get("conditions")
+        if not isinstance(children, list):
+            return charge
+        return charge + sum(
+            measure_condition_work(
+                child,
+                condition_root,
+                enable_rfc0008=enable_rfc0008,
+            )
+            for child in children
+        )
+
+    if op == "not":
+        if "condition" not in condition:
+            return charge
+        return charge + measure_condition_work(
+            condition["condition"],
+            condition_root,
+            enable_rfc0008=enable_rfc0008,
+        )
+
+    if op == "evidence-present":
+        requirement = condition.get("evidenceRequirement")
+        if isinstance(requirement, str):
+            charge += 1 + len(requirement)
+        return charge
+
+    if enable_rfc0008 and op in {"exists", "every"}:
+        path = condition.get("path")
+        where = condition.get("where")
+        if not isinstance(path, str):
+            return charge
+        resolved, selected, pointer_charge = _resolve_pointer_for_work(
+            condition_root, path
+        )
+        charge += pointer_charge
+        if not resolved or not isinstance(selected, list) or not isinstance(where, dict):
+            return charge
+        return charge + sum(
+            measure_condition_work(
+                where,
+                element,
+                enable_rfc0008=enable_rfc0008,
+            )
+            for element in selected
+        )
+
+    if enable_rfc0008 and op == "uniform":
+        path = condition.get("path")
+        at = condition.get("at")
+        if not isinstance(path, str) or not isinstance(at, str):
+            return charge
+        resolved_path, selected, pointer_charge = _resolve_pointer_for_work(
+            condition_root, path
+        )
+        charge += pointer_charge
+        if not resolved_path or not isinstance(selected, list):
+            return charge
+
+        value_weights: list[int] = []
+        for member in selected:
+            resolved_at, value, at_charge = _resolve_pointer_for_work(member, at)
+            charge += at_charge
+            if resolved_at:
+                value_weights.append(_json_work_size(value))
+        # This equals sum(size(left) + size(right)) over every unordered
+        # pair, without making the preflight itself quadratic.
+        if len(value_weights) > 1:
+            charge += (len(value_weights) - 1) * sum(value_weights)
+        return charge
+
+    if op != "fact":
+        return charge
+    path = condition.get("path")
+    operator = condition.get("operator")
+    if not isinstance(path, str) or not isinstance(operator, str):
+        return charge
+    resolved, selected, pointer_charge = _resolve_pointer_for_work(
+        condition_root, path
+    )
+    charge += pointer_charge
+    if not resolved or "value" not in condition:
+        return charge
+
+    operand = condition["value"]
+    if operator in {"equals", "not-equals"} or operator in _ORDERED_OPERATORS:
+        return charge + _json_work_size(selected) + _json_work_size(operand)
+    if operator == "in" and isinstance(operand, list):
+        selected_size = _json_work_size(selected)
+        return charge + sum(
+            selected_size + _json_work_size(candidate) for candidate in operand
+        )
+    return charge
+
+
+def _resolve_pointer_for_work(
+    document: Any, pointer: str
+) -> tuple[bool, Any, int]:
+    """Resolve while measuring every attempted token, including a failing one."""
+
+    charge = 1
+    try:
+        tokens = _pointer_tokens(pointer)
+    except PointerError:
+        return False, None, charge
+
+    current = document
+    for token in tokens:
+        charge += 1 + len(token)
+        if isinstance(current, dict):
+            if token not in current:
+                return False, None, charge
+            current = current[token]
+            continue
+        if isinstance(current, list):
+            if _ARRAY_INDEX_RE.fullmatch(token) is None:
+                return False, None, charge
+            if len(token) > len(str(max(len(current) - 1, 0))) + 1:
+                return False, None, charge
+            try:
+                index = int(token)
+            except ValueError:
+                return False, None, charge
+            if index >= len(current):
+                return False, None, charge
+            current = current[index]
+            continue
+        return False, None, charge
+    return True, current, charge
+
+
+def _json_work_size(value: Any) -> int:
+    """Measure runtime JSON size in scalar/character inspection units."""
+
+    kind = _json_kind(value)
+    if kind in {"null", "boolean"}:
+        return 1
+    if kind == "string":
+        return 1 + len(value)
+    if kind == "number":
+        if isinstance(value, ExactJSONNumber):
+            return 1 + len(value.lexeme)
+        return 1 + len(repr(value))
+    if kind == "array":
+        return 1 + sum(_json_work_size(item) for item in value)
+    if kind == "object":
+        return 1 + sum(
+            1 + len(key) + _json_work_size(item) for key, item in value.items()
+        )
+    return 1
 
 
 def json_equal(left: Any, right: Any) -> bool | None:

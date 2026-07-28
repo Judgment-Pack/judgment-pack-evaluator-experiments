@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "jps-evaluator"
 version = "0.1.0"
-description = "Independent experimental Python evaluator for the RFC 0006 sketch"
+description = "Experimental RFC 0006 evaluator with opt-in RFC 0008 aggregates"
 requires-python = ">=3.10"
 dependencies = []
 

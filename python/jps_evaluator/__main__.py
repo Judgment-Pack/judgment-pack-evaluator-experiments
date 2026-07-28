@@ -7,6 +7,7 @@ import json
 import sys
 from typing import Sequence
 
+from .conditions import DEFAULT_EVALUATION_WORK_LIMIT
 from .errors import EvaluationError, EvaluationInputError
 from .evaluator import evaluate
 from .json_input import load_json_file
@@ -15,7 +16,10 @@ from .json_input import load_json_file
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m jps_evaluator",
-        description="Apply the experimental RFC 0006 evaluator semantics to one pack.",
+        description=(
+            "Apply RFC 0006 semantics, optionally with the RFC 0008 prototype, "
+            "to one pack."
+        ),
     )
     parser.add_argument("--pack", required=True, help="path to a conformant pack JSON document")
     parser.add_argument("--facts", required=True, help="path to a facts JSON document")
@@ -27,6 +31,21 @@ def _parser() -> argparse.ArgumentParser:
         default=[],
         metavar="NAME",
         help="declare one or more supported extension capabilities; may be repeated",
+    )
+    parser.add_argument(
+        "--enable-rfc0008",
+        action="store_true",
+        help="opt in to the draft RFC 0008 exists/every/uniform prototype",
+    )
+    parser.add_argument(
+        "--evaluation-work-limit",
+        type=int,
+        default=DEFAULT_EVALUATION_WORK_LIMIT,
+        metavar="UNITS",
+        help=(
+            "preflight work-unit budget "
+            f"(default: {DEFAULT_EVALUATION_WORK_LIMIT})"
+        ),
     )
     return parser
 
@@ -46,6 +65,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             supported_extensions=[
                 name for group in args.supported_extension for name in group
             ],
+            enable_rfc0008=args.enable_rfc0008,
+            evaluation_work_limit=args.evaluation_work_limit,
         )
     except EvaluationError as exc:
         json.dump(

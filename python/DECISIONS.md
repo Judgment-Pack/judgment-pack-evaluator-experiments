@@ -207,8 +207,8 @@ exact text relied on. The implementation was not compared with another evaluator
 
     I chose limits large enough for the corpus: 16 MiB per CLI JSON text, nesting depth 128,
     200,000 JSON values/members, 1 MiB per string or member name, 4,096 characters per JSON-number
-    token, and 200,000 condition evaluations. These are implementation limits, not semantics, and
-    are documented in the README.
+    token, and (as refined by decision 22) 200,000 preflight evaluation-work units. These are
+    implementation limits, not semantics, and are documented in the README.
 
 20. **Duplicate evidence keys are rejected at the JSON-text boundary; an already parsed Python
     dictionary cannot express a duplicate.**
@@ -235,6 +235,69 @@ exact text relied on. The implementation was not compared with another evaluator
     were accepting `01` as index 1 or treating `-` as an append/index value; neither identifies an
     existing array element in pointer resolution. `~0` decodes to `~` and `~1` to `/`; any other
     tilde escape is malformed.
+
+22. **RFC 0008 work is an order-independent, runtime-expanded preflight measure with a default
+    shared limit of 200,000 units.**
+
+    Text relied on: RFC 0008 requires a work unit and a preflight function; charging before any
+    element evaluates and independently of element order; ragged child work as `Σᵢ |Bᵢ|`; all
+    Boolean branches and sibling aggregates; deep equality by runtime value size; `uniform`; and a
+    stated treatment of successful, unresolved, and non-array pointer paths. It explicitly leaves
+    the model and portable limit undefined. Core §10 asks implementations to define evaluation-work
+    limits, and RFC 0006 makes exhaustion an error rather than a disposition.
+
+    I chose the following candidate model. One evaluation owns a shared integer budget. Immediately
+    before a condition reached by §8 is evaluated, a pure preflight function expands and measures
+    that whole condition against its current runtime root; the complete charge is applied
+    atomically, and no predicate in that condition runs if it does not fit. Conditions in §8 stages
+    that are never reached (for example, rules after false applicability) are not charged.
+
+    The unit formulas are:
+
+    - every condition node costs 1;
+    - a pointer attempt costs 1 plus `1 + len(decoded-token)` for every token attempted, including
+      the token on which resolution fails; the empty pointer therefore costs 1;
+    - JSON runtime size is 1 for `null` or a Boolean, `1 + character-count` for a string or number
+      token, `1 + Σ child-size` for an array, and
+      `1 + Σ(1 + key-character-count + member-value-size)` for an object;
+    - `all`, `any`, and `not` add every child charge, including branches runtime evaluation could
+      short-circuit; `evidence-present` adds `1 + id-character-count` for its lookup;
+    - a resolved `fact` equality or ordered comparison adds the sizes of both compared values;
+      `in` adds that same pair charge for every authored candidate, including candidates after a
+      match; an unresolved `fact.path` stops after its charged pointer attempt;
+    - `exists` and `every` add their charged `path` attempt and, only when it resolves to an array,
+      `Σ preflight(where, element)` over the actual members. Thus nested ragged arrays are summed,
+      never replaced by a rectangular product. Unresolved and non-array aggregate paths stop after
+      the pointer charge;
+    - `uniform` adds its `path` attempt, every member-relative `at` attempt (including failures), and
+      `size(left) + size(right)` for every unordered pair of resolved `at` values. Algebraically the
+      pair charge is `(resolved-count - 1) × Σ resolved-value-size`, computed without a quadratic
+      preflight loop.
+
+    This model deliberately charges comparison work that semantic short-circuiting may avoid. That
+    makes dominant-first and dominant-last permutations consume the same budget. Sibling costs add
+    by recursion, and the same formula covers aggregates below Boolean wrappers. The Python API’s
+    `evaluation_work_limit` and the CLI’s `--evaluation-work-limit` configure the positive-integer
+    limit; the default is 200,000. Alternatives considered were dynamic charging (rejected because
+    element order could decide whether the limit trips), a rectangular nested-array product
+    (rejected by the RFC), and charging only authored condition nodes (rejected because it prices
+    composite equality and `uniform` as constants).
+
+23. **The RFC 0008 prototype is a local evaluator opt-in, not a claim that its pack is valid under
+    `0.1.0-draft`.**
+
+    Text relied on: the clean-room brief requires an explicit opt-in defaulting off and says a pack
+    using these operators remains invalid under JPS `0.1.0-draft`. RFC 0008 says the operators need
+    a later exact `specVersion`; a `0.1.0-draft` reader rejects them structurally; and no
+    evaluator-conformance claim is available.
+
+    I keep the existing exact `specVersion` sanity check. By default, encountering `exists`,
+    `every`, or `uniform` is an explicit input error. `enable_rfc0008=True` (or CLI
+    `--enable-rfc0008`) locally admits the three draft shapes and applies the prototype semantics;
+    it does not reinterpret the document as structurally conforming, register an extension, or
+    alter the disposition markers. The alternatives were silently enabling the operators, treating
+    them as an optional extension, or inventing a future `specVersion`; each would contradict the
+    stated prototype boundary or claim a specification artifact the supplied texts do not define.
 
 ## Appendix comparison
 

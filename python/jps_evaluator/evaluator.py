@@ -1,4 +1,4 @@
-"""RFC 0006 experimental pack evaluation."""
+"""RFC 0006 evaluation with an explicitly opt-in RFC 0008 prototype."""
 
 from __future__ import annotations
 
@@ -7,17 +7,20 @@ import re
 from typing import Any, Iterable, Mapping
 
 from .conditions import (
+    DEFAULT_EVALUATION_WORK_LIMIT,
     EvaluationBudget,
     TriValue,
+    _pointer_tokens,
     evaluate_condition,
+    is_decimal_string,
 )
 from .errors import EvaluationInputError, PointerSyntaxError, UnsupportedExtensionError
 from .json_input import normalize_json
-from .conditions import _pointer_tokens, is_decimal_string
 
 
 _LOCAL_ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
-_CONDITION_OPS = {"literal", "all", "any", "not", "fact", "evidence-present"}
+_CORE_CONDITION_OPS = {"literal", "all", "any", "not", "fact", "evidence-present"}
+_RFC0008_AGGREGATE_OPS = {"exists", "every", "uniform"}
 _FACT_OPERATORS = {
     "equals",
     "not-equals",
@@ -67,27 +70,42 @@ def evaluate(
     facts: Any,
     evidence: Any = None,
     supported_extensions: Iterable[str] = (),
+    *,
+    enable_rfc0008: bool = False,
+    evaluation_work_limit: int = DEFAULT_EVALUATION_WORK_LIMIT,
 ) -> dict[str, Any]:
     """Evaluate one conformant pack and return an experimental disposition.
 
-    Invalid inputs and unsupported required extensions raise EvaluationError subclasses.
+    RFC 0008 aggregate operators are accepted only when ``enable_rfc0008`` is
+    explicitly true. Invalid inputs, structural aggregate-depth violations, and
+    unsupported required extensions raise EvaluationError subclasses.
     """
 
+    if not isinstance(enable_rfc0008, bool):
+        raise EvaluationInputError("enable_rfc0008 must be a Boolean")
     normalized_pack = normalize_json(pack, source="pack")
     normalized_facts = normalize_json(facts, source="facts")
     normalized_evidence = (
         {} if evidence is None else normalize_json(evidence, source="evidence availability")
     )
     supported = _normalize_supported_extensions(supported_extensions)
-    view = _prepare_pack(normalized_pack, supported)
+    view = _prepare_pack(
+        normalized_pack,
+        supported,
+        enable_rfc0008=enable_rfc0008,
+    )
     evidence_states = _prepare_evidence(normalized_evidence, view.requirement_ids)
-    budget = EvaluationBudget()
+    budget = EvaluationBudget(evaluation_work_limit)
 
     if view.applicability is None:
         applicability = TriValue.TRUE
     else:
         applicability = evaluate_condition(
-            view.applicability, normalized_facts, evidence_states, budget=budget
+            view.applicability,
+            normalized_facts,
+            evidence_states,
+            budget=budget,
+            enable_rfc0008=enable_rfc0008,
         )
     if applicability is TriValue.FALSE:
         return _make_disposition(
@@ -119,7 +137,11 @@ def evaluate(
     direct_escalation = False
     for exception in view.exceptions:
         result = evaluate_condition(
-            exception["when"], normalized_facts, evidence_states, budget=budget
+            exception["when"],
+            normalized_facts,
+            evidence_states,
+            budget=budget,
+            enable_rfc0008=enable_rfc0008,
         )
         if result is TriValue.UNKNOWN:
             if exception["onUnknown"] == "escalate":
@@ -155,7 +177,11 @@ def evaluate(
         if rule["id"] in suppressed_rules:
             continue
         result = evaluate_condition(
-            rule["when"], normalized_facts, evidence_states, budget=budget
+            rule["when"],
+            normalized_facts,
+            evidence_states,
+            budget=budget,
+            enable_rfc0008=enable_rfc0008,
         )
         if result is TriValue.TRUE:
             candidate_outcomes.add(rule["outcome"])
@@ -177,7 +203,12 @@ def evaluate(
     )
 
 
-def _prepare_pack(pack: Any, supported: frozenset[str]) -> _PackView:
+def _prepare_pack(
+    pack: Any,
+    supported: frozenset[str],
+    *,
+    enable_rfc0008: bool,
+) -> _PackView:
     if not isinstance(pack, dict):
         raise EvaluationInputError("pack must be a JSON object")
     for member in ("specVersion", "id", "version", "title", "decision", "outcomes", "rules"):
@@ -227,7 +258,12 @@ def _prepare_pack(pack: Any, supported: frozenset[str]) -> _PackView:
         raise EvaluationInputError("applicability must be a condition when present")
     applicability = pack.get("applicability")
     if applicability is not None:
-        _validate_condition(applicability, requirement_ids, "applicability")
+        _validate_condition(
+            applicability,
+            requirement_ids,
+            "applicability",
+            enable_rfc0008=enable_rfc0008,
+        )
 
     rules_raw = pack["rules"]
     if not isinstance(rules_raw, list) or not rules_raw:
@@ -247,7 +283,12 @@ def _prepare_pack(pack: Any, supported: frozenset[str]) -> _PackView:
             or rule["onUnknown"] not in {"ignore", "escalate"}
         ):
             raise EvaluationInputError(f"rule {rule_id!r} has invalid onUnknown")
-        _validate_condition(rule.get("when"), requirement_ids, f"rule {rule_id!r}")
+        _validate_condition(
+            rule.get("when"),
+            requirement_ids,
+            f"rule {rule_id!r}",
+            enable_rfc0008=enable_rfc0008,
+        )
         evidence_refs = rule.get("evidenceRequirementRefs", [])
         if not isinstance(evidence_refs, list) or any(
             not isinstance(ref, str) or ref not in requirement_ids
@@ -276,7 +317,10 @@ def _prepare_pack(pack: Any, supported: frozenset[str]) -> _PackView:
         ):
             raise EvaluationInputError(f"exception {exception_id!r} has invalid onUnknown")
         _validate_condition(
-            exception.get("when"), requirement_ids, f"exception {exception_id!r}"
+            exception.get("when"),
+            requirement_ids,
+            f"exception {exception_id!r}",
+            enable_rfc0008=enable_rfc0008,
         )
         effect = exception.get("effect")
         if effect == "suppress-rule":
@@ -348,12 +392,24 @@ def _require_local_id(value: Any, description: str) -> str:
 
 
 def _validate_condition(
-    condition: Any, requirement_ids: set[str], description: str
+    condition: Any,
+    requirement_ids: set[str],
+    description: str,
+    *,
+    enable_rfc0008: bool,
+    aggregate_depth: int = 0,
 ) -> None:
     if not isinstance(condition, dict):
         raise EvaluationInputError(f"{description} condition must be an object")
     op = condition.get("op")
-    if not isinstance(op, str) or op not in _CONDITION_OPS:
+    if not isinstance(op, str):
+        raise EvaluationInputError(f"{description} condition has unsupported op")
+    if op in _RFC0008_AGGREGATE_OPS and not enable_rfc0008:
+        raise EvaluationInputError(
+            f"{description} condition uses RFC 0008 op {op!r}; "
+            "pass enable_rfc0008=True to opt in"
+        )
+    if op not in _CORE_CONDITION_OPS | _RFC0008_AGGREGATE_OPS:
         raise EvaluationInputError(f"{description} condition has unsupported op")
     if op == "literal":
         if set(condition) != {"op", "value"} or not isinstance(condition["value"], bool):
@@ -366,12 +422,24 @@ def _validate_condition(
         if not isinstance(children, list) or not children:
             raise EvaluationInputError(f"{description} {op} condition needs children")
         for child in children:
-            _validate_condition(child, requirement_ids, description)
+            _validate_condition(
+                child,
+                requirement_ids,
+                description,
+                enable_rfc0008=enable_rfc0008,
+                aggregate_depth=aggregate_depth,
+            )
         return
     if op == "not":
         if set(condition) != {"op", "condition"}:
             raise EvaluationInputError(f"{description} not condition is malformed")
-        _validate_condition(condition["condition"], requirement_ids, description)
+        _validate_condition(
+            condition["condition"],
+            requirement_ids,
+            description,
+            enable_rfc0008=enable_rfc0008,
+            aggregate_depth=aggregate_depth,
+        )
         return
     if op == "evidence-present":
         if set(condition) != {"op", "evidenceRequirement"}:
@@ -387,6 +455,33 @@ def _validate_condition(
             )
         return
 
+    if op in _RFC0008_AGGREGATE_OPS:
+        next_depth = aggregate_depth + 1
+        if next_depth > 2:
+            raise EvaluationInputError(
+                f"{description} condition exceeds RFC 0008 aggregate depth 2"
+            )
+        if op == "uniform":
+            if set(condition) != {"op", "path", "at"}:
+                raise EvaluationInputError(
+                    f"{description} uniform condition is malformed"
+                )
+            _validate_pointer(condition["path"], description)
+            _validate_pointer(condition["at"], description)
+            return
+
+        if set(condition) != {"op", "path", "where"}:
+            raise EvaluationInputError(f"{description} {op} condition is malformed")
+        _validate_pointer(condition["path"], description)
+        _validate_condition(
+            condition["where"],
+            requirement_ids,
+            description,
+            enable_rfc0008=enable_rfc0008,
+            aggregate_depth=next_depth,
+        )
+        return
+
     if set(condition) != {"op", "path", "operator", "value"}:
         raise EvaluationInputError(f"{description} fact condition is malformed")
     path = condition["path"]
@@ -397,10 +492,7 @@ def _validate_condition(
         or operator not in _FACT_OPERATORS
     ):
         raise EvaluationInputError(f"{description} fact condition is malformed")
-    try:
-        _pointer_tokens(path)
-    except PointerSyntaxError as exc:
-        raise EvaluationInputError(f"{description} has invalid JSON Pointer") from exc
+    _validate_pointer(path, description)
     if operator in _ORDERED_OPERATORS and not is_decimal_string(condition["value"]):
         raise EvaluationInputError(
             f"{description} ordered condition operand is not a decimal string"
@@ -409,6 +501,15 @@ def _validate_condition(
         not isinstance(condition["value"], list) or not condition["value"]
     ):
         raise EvaluationInputError(f"{description} in operand must be a non-empty array")
+
+
+def _validate_pointer(path: Any, description: str) -> None:
+    if not isinstance(path, str):
+        raise EvaluationInputError(f"{description} condition has invalid JSON Pointer")
+    try:
+        _pointer_tokens(path)
+    except PointerSyntaxError as exc:
+        raise EvaluationInputError(f"{description} has invalid JSON Pointer") from exc
 
 
 def _validate_escalation(value: Any) -> dict[str, Any] | None:
