@@ -1,0 +1,415 @@
+{
+  "specVersion": "0.1.0-draft",
+  "id": "https://judgmentpack.example/packs/retail-agent/exchange-delivered-order",
+  "version": "1.0.0",
+  "title": "Exchange delivered order",
+  "description": "Encodes the 'Exchange delivered order' section of the retail agent policy: whether a delivered order may be exchanged, denied, or held pending user confirmation.",
+  "decision": {
+    "intent": "Let a retail agent decide, before calling the exchange tool, whether the policy permits exchanging a delivered order as requested.",
+    "question": "May this delivered order be exchanged?"
+  },
+  "applicability": {
+    "op": "fact",
+    "path": "/request/type",
+    "operator": "equals",
+    "value": "exchange-delivered-order"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "ev-user-confirmation",
+      "description": "Explicit user confirmation ('yes') to proceed, obtained after the agent listed the full exchange action details. Absence does not block resolution: it yields the 'await-user-confirmation' outcome rather than a denial.",
+      "required": false,
+      "kind": "attestation"
+    },
+    {
+      "id": "ev-item-list-complete",
+      "description": "Record that the agent reminded the customer to confirm they have provided all items to be exchanged, and that the customer confirmed the list is complete. Absence does not block resolution: it yields the 'await-user-confirmation' outcome rather than a denial.",
+      "required": false,
+      "kind": "attestation"
+    }
+  ],
+  "sources": [
+    {
+      "id": "s-exchange-status",
+      "title": "Retail agent policy - Exchange delivered order - status precondition",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md#exchange-delivered-order"
+      },
+      "citation": {
+        "location": "Section 'Exchange delivered order', sentence 1",
+        "excerpt": "An order can only be exchanged if its status is 'delivered', and you should check its status before taking the action."
+      }
+    },
+    {
+      "id": "s-exchange-reminder",
+      "title": "Retail agent policy - Exchange delivered order - completeness reminder",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md#exchange-delivered-order"
+      },
+      "citation": {
+        "location": "Section 'Exchange delivered order', sentence 2",
+        "excerpt": "In particular, remember to remind the customer to confirm they have provided all items to be exchanged."
+      }
+    },
+    {
+      "id": "s-exchange-item-swap",
+      "title": "Retail agent policy - Exchange delivered order - permitted item swaps",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md#exchange-delivered-order"
+      },
+      "citation": {
+        "location": "Section 'Exchange delivered order', paragraph 2",
+        "excerpt": "For a delivered order, each item can be exchanged to an available new item of the same product but of different product option. There cannot be any change of product types, e.g. modify shirt to shoe."
+      }
+    },
+    {
+      "id": "s-exchange-payment",
+      "title": "Retail agent policy - Exchange delivered order - price difference payment",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md#exchange-delivered-order"
+      },
+      "citation": {
+        "location": "Section 'Exchange delivered order', paragraph 3",
+        "excerpt": "The user must provide a payment method to pay or receive refund of the price difference. If the user provides a gift card, it must have enough balance to cover the price difference."
+      }
+    },
+    {
+      "id": "s-exchange-effect",
+      "title": "Retail agent policy - Exchange delivered order - effect after confirmation",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md#exchange-delivered-order"
+      },
+      "citation": {
+        "location": "Section 'Exchange delivered order', paragraph 4",
+        "excerpt": "After user confirmation, the order status will be changed to 'exchange requested', and the user will receive an email regarding how to return items. There is no need to place a new order."
+      }
+    },
+    {
+      "id": "s-global-confirmation",
+      "title": "Retail agent policy - global confirmation requirement",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble, confirmation paragraph",
+        "excerpt": "Before taking any action that updates the database (cancel, modify, return, exchange), you must list the action details and obtain explicit user confirmation (yes) to proceed."
+      }
+    },
+    {
+      "id": "s-global-deny",
+      "title": "Retail agent policy - global denial rule",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble, denial paragraph",
+        "excerpt": "You should deny user requests that are against this policy."
+      }
+    },
+    {
+      "id": "s-global-transfer",
+      "title": "Retail agent policy - global transfer rule",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble, transfer paragraph",
+        "excerpt": "You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "exchange-permitted",
+      "label": "Exchange permitted",
+      "description": "Every precondition in the 'Exchange delivered order' section is satisfied and the user has confirmed. The agent may call the exchange tool once for the confirmed item list; the order status becomes 'exchange requested' and the user is emailed return instructions."
+    },
+    {
+      "id": "exchange-denied",
+      "label": "Exchange denied",
+      "description": "The request as stated is against the 'Exchange delivered order' section, so the agent denies it. Denial is within the agent's scope and is not a transfer to a human."
+    },
+    {
+      "id": "await-user-confirmation",
+      "label": "Do not act yet; collect confirmation",
+      "description": "No policy ground for denial is present, but the agent does not yet hold explicit user confirmation and/or the customer's confirmation that all items to be exchanged were provided. The agent must list the action details, remind the customer about completeness, and obtain a 'yes' before acting."
+    }
+  ],
+  "rules": [
+    {
+      "id": "r-permit-exchange",
+      "description": "Permit the exchange when the order status is 'delivered', every requested swap is to an available new item of the same product with a different product option, the user has provided a payment method for the price difference (with sufficient gift card balance if a gift card was provided), and the user has confirmed both the action details and that all items to be exchanged were provided.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "delivered"
+          },
+          {
+            "op": "fact",
+            "path": "/request/allExchangesWithinSameProduct",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "every",
+            "path": "/request/exchanges",
+            "where": {
+              "op": "fact",
+              "path": "/newItemAvailable",
+              "operator": "equals",
+              "value": true
+            }
+          },
+          {
+            "op": "fact",
+            "path": "/request/allNewItemsDifferentOption",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/request/paymentMethodProvided",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "not",
+                "condition": {
+                  "op": "fact",
+                  "path": "/request/paymentMethodType",
+                  "operator": "equals",
+                  "value": "gift_card"
+                }
+              },
+              {
+                "op": "fact",
+                "path": "/request/giftCardBalanceMinusPriceDifference",
+                "operator": "greater-than-or-equal",
+                "value": "0"
+              }
+            ]
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "ev-user-confirmation"
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "ev-item-list-complete"
+          }
+        ]
+      },
+      "outcome": "exchange-permitted",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "ev-user-confirmation",
+        "ev-item-list-complete"
+      ],
+      "sourceRefs": [
+        "s-exchange-status",
+        "s-exchange-item-swap",
+        "s-exchange-payment",
+        "s-exchange-effect",
+        "s-global-confirmation"
+      ],
+      "rationale": "The section states the exchange preconditions cumulatively; all must hold at once. onUnknown is 'escalate' because the policy forbids making up information ('You should not make up any information or knowledge or procedures not provided by the user or the tools'), so an undetermined precondition must never yield a permission."
+    },
+    {
+      "id": "r-await-confirmation",
+      "description": "When no denial ground applies but explicit user confirmation and/or the customer's confirmation that all items were provided is not yet on record, the agent must not act; it must collect the confirmation first.",
+      "when": {
+        "op": "any",
+        "conditions": [
+          {
+            "op": "not",
+            "condition": {
+              "op": "evidence-present",
+              "evidenceRequirement": "ev-user-confirmation"
+            }
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "evidence-present",
+              "evidenceRequirement": "ev-item-list-complete"
+            }
+          }
+        ]
+      },
+      "outcome": "await-user-confirmation",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": [
+        "ev-user-confirmation",
+        "ev-item-list-complete"
+      ],
+      "sourceRefs": [
+        "s-exchange-reminder",
+        "s-exchange-effect",
+        "s-global-confirmation"
+      ],
+      "rationale": "'After user confirmation, the order status will be changed to exchange requested' plus the global 'obtain explicit user confirmation (yes) to proceed' make an unconfirmed request a not-yet-actionable request rather than a policy violation. onUnknown is 'ignore' because r-permit-exchange already blocks on the same undetermined evidence."
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "x-status-not-delivered",
+      "description": "The order status is anything other than 'delivered', so it cannot be exchanged.",
+      "when": {
+        "op": "fact",
+        "path": "/order/status",
+        "operator": "not-equals",
+        "value": "delivered"
+      },
+      "effect": "force-outcome",
+      "outcome": "exchange-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "s-exchange-status",
+        "s-global-deny"
+      ]
+    },
+    {
+      "id": "x-product-type-change",
+      "description": "At least one requested swap crosses product types (e.g. shirt to shoe) rather than staying within the same product.",
+      "when": {
+        "op": "fact",
+        "path": "/request/allExchangesWithinSameProduct",
+        "operator": "equals",
+        "value": false
+      },
+      "effect": "force-outcome",
+      "outcome": "exchange-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "s-exchange-item-swap",
+        "s-global-deny"
+      ]
+    },
+    {
+      "id": "x-new-item-unavailable",
+      "description": "At least one requested new item is not available.",
+      "when": {
+        "op": "not",
+        "condition": {
+          "op": "every",
+          "path": "/request/exchanges",
+          "where": {
+            "op": "fact",
+            "path": "/newItemAvailable",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      },
+      "effect": "force-outcome",
+      "outcome": "exchange-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "s-exchange-item-swap",
+        "s-global-deny"
+      ]
+    },
+    {
+      "id": "x-same-product-option",
+      "description": "At least one requested new item carries the same product option as the item it would replace, so it is not an exchange to a different product option.",
+      "when": {
+        "op": "fact",
+        "path": "/request/allNewItemsDifferentOption",
+        "operator": "equals",
+        "value": false
+      },
+      "effect": "force-outcome",
+      "outcome": "exchange-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "s-exchange-item-swap",
+        "s-global-deny"
+      ]
+    },
+    {
+      "id": "x-no-payment-method",
+      "description": "The user has not provided a payment method to pay or receive refund of the price difference.",
+      "when": {
+        "op": "fact",
+        "path": "/request/paymentMethodProvided",
+        "operator": "equals",
+        "value": false
+      },
+      "effect": "force-outcome",
+      "outcome": "exchange-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "s-exchange-payment",
+        "s-global-deny"
+      ]
+    },
+    {
+      "id": "x-gift-card-insufficient",
+      "description": "The provided payment method is a gift card whose balance does not cover the price difference.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/paymentMethodProvided",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/request/paymentMethodType",
+            "operator": "equals",
+            "value": "gift_card"
+          },
+          {
+            "op": "fact",
+            "path": "/request/giftCardBalanceMinusPriceDifference",
+            "operator": "less-than",
+            "value": "0"
+          }
+        ]
+      },
+      "effect": "force-outcome",
+      "outcome": "exchange-denied",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "s-exchange-payment",
+        "s-global-deny"
+      ]
+    }
+  ],
+  "escalation": {
+    "triggers": [
+      "unknown",
+      "conflict",
+      "no-match"
+    ],
+    "target": {
+      "kind": "human-role",
+      "name": "Human agent (transfer_to_human_agents)"
+    },
+    "message": "The exchange request cannot be resolved within the scope of the agent's actions. Call transfer_to_human_agents, then send: YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON."
+  },
+  "metadata": {
+    "authors": [
+      "Policy engineering, room R5"
+    ],
+    "createdAt": "2026-07-27T00:00:00Z",
+    "license": "CC-BY-4.0"
+  }
+}

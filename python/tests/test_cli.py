@@ -5,7 +5,10 @@ from pathlib import Path
 import subprocess
 import sys
 
-from tests.pack_fixtures import appendix_pack
+from tests.pack_fixtures import appendix_pack, base_pack
+
+
+PYTHON_ROOT = Path(__file__).parents[1]
 
 
 def test_cli_produces_appendix_instance_disposition(tmp_path: Path):
@@ -48,6 +51,7 @@ def test_cli_produces_appendix_instance_disposition(tmp_path: Path):
         check=False,
         capture_output=True,
         text=True,
+        cwd=PYTHON_ROOT,
     )
     assert completed.returncode == 0, completed.stderr
     result = json.loads(completed.stdout)
@@ -79,6 +83,7 @@ def test_cli_errors_are_not_dispositions(tmp_path: Path):
         check=False,
         capture_output=True,
         text=True,
+        cwd=PYTHON_ROOT,
     )
     assert completed.returncode == 2
     assert completed.stdout == ""
@@ -110,6 +115,54 @@ def test_cli_rejects_null_evidence_document(tmp_path: Path):
         check=False,
         capture_output=True,
         text=True,
+        cwd=PYTHON_ROOT,
     )
     assert completed.returncode == 2
     assert json.loads(completed.stderr)["error"]["kind"] == "invalid-input"
+
+
+def test_cli_requires_and_accepts_explicit_rfc0008_opt_in(tmp_path: Path):
+    pack = base_pack()
+    pack["rules"][0]["when"] = {
+        "op": "exists",
+        "path": "/items",
+        "where": {
+            "op": "fact",
+            "path": "/ok",
+            "operator": "equals",
+            "value": True,
+        },
+    }
+    pack_path = tmp_path / "pack.json"
+    facts_path = tmp_path / "facts.json"
+    pack_path.write_text(json.dumps(pack), encoding="utf-8")
+    facts_path.write_text('{"items":[{"ok":true}]}', encoding="utf-8")
+
+    command = [
+        sys.executable,
+        "-m",
+        "jps_evaluator",
+        "--pack",
+        str(pack_path),
+        "--facts",
+        str(facts_path),
+    ]
+    disabled = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=PYTHON_ROOT,
+    )
+    assert disabled.returncode == 2
+    assert json.loads(disabled.stderr)["error"]["kind"] == "invalid-input"
+
+    enabled = subprocess.run(
+        command + ["--enable-rfc0008", "--evaluation-work-limit", "100"],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=PYTHON_ROOT,
+    )
+    assert enabled.returncode == 0, enabled.stderr
+    assert json.loads(enabled.stdout)["outcomeId"] == "outcome-a"

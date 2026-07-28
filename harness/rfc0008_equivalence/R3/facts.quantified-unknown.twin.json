@@ -1,0 +1,34 @@
+{
+  "request": {
+    "action": "modify-order-items",
+    "userId": "yusuf_rossi_9620",
+    "orderId": "#W2378156"
+  },
+  "order": {
+    "orderId": "#W2378156",
+    "status": "pending"
+  },
+  "modification": {
+    "allNewItemsSameProduct": true,
+    "allNewItemsDifferentOption": true,
+    "customerConfirmedItemListComplete": true,
+    "priceDifference": "1.32",
+    "substitutions": [
+      {
+        "originalItemId": "item-0",
+        "newItemId": "new-0",
+        "newItemAvailable": true
+      },
+      {
+        "originalItemId": "item-1",
+        "newItemId": "new-1"
+      }
+    ]
+  },
+  "payment": {
+    "methodId": "credit_card_9513926",
+    "isGiftCard": false,
+    "giftCardBalance": null,
+    "giftCardBalanceCoversPriceDifference": null
+  }
+}
