@@ -28,7 +28,7 @@ executed action.
 | [`reference/`](reference/) | Pinned snapshots of the specification texts the rooms are built from |
 | [`harness/`](harness/) | The post-hoc referee: runs identical inputs through implementations and diffs dispositions |
 | [`python/`](python/) | **Agreement track.** Implementation #2 (the first lives in [`judgment-pack-runtime`](https://github.com/Judgment-Pack/judgment-pack-runtime)): stdlib-only Python, written clean-room by a coding agent from the reference texts, with its interpretation log in [`python/DECISIONS.md`](python/DECISIONS.md) |
-| [`studies/`](studies/) | **Efficacy and expressiveness track.** [`001-policy-representation/`](studies/001-policy-representation/) (preregistered, arithmetic-dense) and [`002-qualitative-policy/`](studies/002-qualitative-policy/) (the replication on qualitative policy) |
+| [`studies/`](studies/) | **Efficacy and expressiveness track.** [`001-policy-representation/`](studies/001-policy-representation/) (preregistered, arithmetic-dense), [`002-qualitative-policy/`](studies/002-qualitative-policy/) (the replication on qualitative policy), [`003-escape-census/`](studies/003-escape-census/) (the 12-decision census), and [`004-composition-closure/`](studies/004-composition-closure/) (preregistered, not yet run: does declared composition close the census's cross-decision escape?) |
 | [`docs/adr/`](docs/adr/) | Decision records for this repository — why a given study is being run, and what comes next |
 
 Future implementations (TypeScript, Rust, …) get sibling directories — but the clean room itself
