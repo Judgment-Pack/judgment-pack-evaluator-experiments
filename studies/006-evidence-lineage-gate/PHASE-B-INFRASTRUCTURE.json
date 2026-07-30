@@ -1,0 +1,34 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "cellId": "r01-s01",
+      "errorCode": "invalid_json_schema",
+      "errorDetail": "factClaims.items.properties.target requires an explicit type",
+      "httpStatus": 400,
+      "treatmentReceived": false
+    },
+    {
+      "attempt": 2,
+      "cellId": "r01-s01",
+      "errorCode": "invalid_json_schema",
+      "errorDetail": "uniqueItems is not permitted for evidenceClaim.basisPointers",
+      "httpStatus": 400,
+      "treatmentReceived": false
+    }
+  ],
+  "cellsCompleted": 0,
+  "cellsNotStarted": 23,
+  "cellsStarted": 1,
+  "modelEndpoints": {
+    "M1": "not-estimable",
+    "M2": "not-estimable",
+    "M3": "not-estimable",
+    "M4": "not-estimable",
+    "M5": "not-estimable"
+  },
+  "registeredInfrastructureRerunsExhausted": true,
+  "status": "terminated-before-treatment",
+  "study": "006-evidence-lineage-gate",
+  "treatmentReceivedByAnyModel": false
+}
