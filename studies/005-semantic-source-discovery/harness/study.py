@@ -550,6 +550,12 @@ def run_cell(
         print("%s already complete; retained" % row["cellId"])
         return
     cell_dir.mkdir(parents=True, exist_ok=True)
+    prior_infra_attempts = sorted(cell_dir.glob("INFRA-ATTEMPT-*.json"))
+    if len(prior_infra_attempts) >= 2:
+        raise ValidationError(
+            "%s exhausted its one preregistered infrastructure rerun"
+            % row["cellId"]
+        )
     room_path = cell_dir / "room"
     room_path.mkdir(exist_ok=True)
     prompt = render_prompt(document, scenario, row["arm"])
@@ -620,12 +626,59 @@ def run_cell(
             timed_out = True
     events = read_jsonl(event_path)
     final, final_errors = parse_final(final_path)
+    treatment_received = bool(
+        read_jsonl(receipt_path)
+        or final_path.exists()
+        or any(
+            isinstance(event, dict)
+            and event.get("type")
+            in {
+                "turn.started",
+                "turn.completed",
+                "item.started",
+                "item.completed",
+                "item.updated",
+            }
+            for event in events
+        )
+    )
+    if (return_code not in {0} or timed_out) and not treatment_received:
+        attempt_number = len(prior_infra_attempts) + 1
+        retained = {}
+        for label, path in (
+            ("events", event_path),
+            ("stderr", stderr_path),
+            ("final", final_path),
+        ):
+            if path.exists():
+                destination = cell_dir / (
+                    "%s-infra-attempt-%d%s"
+                    % (path.stem, attempt_number, path.suffix)
+                )
+                path.replace(destination)
+                retained[label] = destination.name
+        infrastructure = {
+            "cellId": row["cellId"],
+            "attempt": attempt_number,
+            "returnCode": return_code,
+            "timedOut": timed_out,
+            "treatmentReceived": False,
+            "retained": retained,
+        }
+        (cell_dir / ("INFRA-ATTEMPT-%d.json" % attempt_number)).write_text(
+            pretty(infrastructure), encoding="utf-8"
+        )
+        raise ValidationError(
+            "%s infrastructure attempt %d failed before treatment; stopped before "
+            "the next cell" % (row["cellId"], attempt_number)
+        )
     done = {
         "cellId": row["cellId"],
         "returnCode": return_code,
         "timedOut": timed_out,
         "eventCount": len(events),
         "receiptCount": len(read_jsonl(receipt_path)),
+        "treatmentReceived": treatment_received,
         "finalValid": final is not None and not final_errors,
         "finalErrors": final_errors,
         "protocolViolations": protocol_violations(events),
