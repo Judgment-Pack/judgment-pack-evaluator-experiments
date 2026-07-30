@@ -1,0 +1,637 @@
+{
+ "unitF": [
+  {
+   "room": "A1",
+   "pointer": "/booking/cabinClassUniformAcrossFlights",
+   "in": false,
+   "reason": "This is a quantification over the current booking's segments, not another inventory decision's answer."
+  },
+  {
+   "room": "A1",
+   "pointer": "/booking/passengerCount",
+   "in": false,
+   "reason": "This is a collection count reused elsewhere, not a verdict produced by another inventory decision."
+  },
+  {
+   "room": "A1",
+   "pointer": "/booking/allPassengersOnSameFlightsAndCabin",
+   "in": false,
+   "reason": "This compares passenger itineraries for the booking decision itself and is not another decision's answer."
+  },
+  {
+   "room": "A1",
+   "pointer": "/booking/payment/travelCertificateCount",
+   "in": false,
+   "reason": "This is a count of proposed payment methods, not the result of applying another inventory decision's policy."
+  },
+  {
+   "room": "A1",
+   "pointer": "/booking/payment/creditCardCount",
+   "in": false,
+   "reason": "This is a count of proposed credit cards, not another inventory decision's answer."
+  },
+  {
+   "room": "A1",
+   "pointer": "/booking/payment/giftCardCount",
+   "in": false,
+   "reason": "This is a count of proposed gift cards, not another inventory decision's answer."
+  },
+  {
+   "room": "A1",
+   "pointer": "/booking/payment/allMethodsInUserProfile",
+   "in": false,
+   "reason": "This is a membership test over booking inputs, not a verdict from another inventory decision."
+  },
+  {
+   "room": "A1",
+   "pointer": "/booking/baggage/onlyBagsUserRequested",
+   "in": false,
+   "reason": "This applies an open-textured baggage standard within A1 rather than supplying another decision's answer."
+  },
+  {
+   "room": "A1",
+   "pointer": "/booking/baggage/extraCheckedBags",
+   "in": false,
+   "reason": "This is an arithmetic computation over A1 booking inputs, not another decision's verdict."
+  },
+  {
+   "room": "A2",
+   "pointer": "/request/preservesOrigin",
+   "in": false,
+   "reason": "This compares the proposed and stored itineraries for A2 and does not reproduce another decision's answer."
+  },
+  {
+   "room": "A2",
+   "pointer": "/request/preservesDestination",
+   "in": false,
+   "reason": "This compares destinations for the current flight-change request rather than applying another decision's policy."
+  },
+  {
+   "room": "A2",
+   "pointer": "/request/preservesTripType",
+   "in": false,
+   "reason": "This classifies and compares itinerary structure for A2, not another inventory decision's verdict."
+  },
+  {
+   "room": "A3",
+   "pointer": "/request/appliesToAllFlightsInReservation",
+   "in": false,
+   "reason": "This set comparison is a condition of the cabin-change decision itself, not another decision's answer."
+  },
+  {
+   "room": "A3",
+   "pointer": "/reservation/anyFlightFlown",
+   "in": false,
+   "reason": "Although A6 uses a similar construct, this fact answers whether any flight has flown rather than A6's cancellation decision."
+  },
+  {
+   "room": "A3",
+   "pointer": "/pricing/priceDifferenceDirection",
+   "in": false,
+   "reason": "This is an arithmetic reduction used within A3 and is not the answer of another inventory decision."
+  },
+  {
+   "room": "A4",
+   "pointer": "/request/checkedBags/effect",
+   "in": false,
+   "reason": "This classifies the requested baggage transition for A4 itself rather than importing another decision's verdict."
+  },
+  {
+   "room": "A4",
+   "pointer": "/request/insurance/effect",
+   "in": false,
+   "reason": "This classifies the requested insurance transition within A4 and is not another inventory decision's answer."
+  },
+  {
+   "room": "A5",
+   "pointer": "/derived/changesPassengerCount",
+   "in": false,
+   "reason": "This determines whether A5's own request changes the roster count, not the outcome of another inventory decision."
+  },
+  {
+   "room": "A6",
+   "pointer": "/reservation/anySegmentFlown",
+   "in": false,
+   "reason": "Although A3 has a similar fact, this is a shared structural determination rather than A3's cabin-change verdict."
+  },
+  {
+   "room": "A6",
+   "pointer": "/reservation/hoursSinceBooking",
+   "in": false,
+   "reason": "This is elapsed-time arithmetic over A6 inputs, not another inventory decision's answer."
+  },
+  {
+   "room": "A6",
+   "pointer": "/reservation/anySegmentCancelledByAirline",
+   "in": false,
+   "reason": "This aggregates segment records and does not reproduce the verdict of another inventory decision."
+  },
+  {
+   "room": "A6",
+   "pointer": "/cancellation/reasonCoveredByInsurance",
+   "in": false,
+   "reason": "Although it applies coverage language from A1's section, it answers a coverage subquestion rather than A1's booking decision."
+  },
+  {
+   "room": "A7",
+   "pointer": "/complaint/aboutCancelledFlights",
+   "in": false,
+   "reason": "This classifies and verifies an A7 complaint trigger, not the outcome of A6 or another inventory decision."
+  },
+  {
+   "room": "A7",
+   "pointer": "/complaint/aboutDelayedFlights",
+   "in": false,
+   "reason": "This classifies and verifies an A7 complaint trigger rather than importing another decision's verdict."
+  },
+  {
+   "room": "A7",
+   "pointer": "/reservation/changeOrCancelCompleted",
+   "in": false,
+   "reason": "This records whether an action was completed and explicitly involves no application of the A2 or A6 decision policy."
+  },
+  {
+   "room": "A7",
+   "pointer": "/reservation/passengerCount",
+   "in": false,
+   "reason": "This is a count of stored passengers, not another inventory decision's answer."
+  },
+  {
+   "room": "R1",
+   "pointer": "/order/originalPaymentMethod/type",
+   "in": false,
+   "reason": "This selects and looks up a payment record for R1 rather than applying another inventory decision's policy."
+  },
+  {
+   "room": "R2",
+   "pointer": "/request/newPaymentMethodCount",
+   "in": false,
+   "reason": "This is a count of requester-named methods, not another inventory decision's verdict."
+  },
+  {
+   "room": "R2",
+   "pointer": "/request/newPaymentMethodDiffersFromOriginal",
+   "in": false,
+   "reason": "This selects and compares payment records for R2 rather than reproducing another decision's answer."
+  },
+  {
+   "room": "R2",
+   "pointer": "/request/newGiftCardCoversOrderTotal",
+   "in": false,
+   "reason": "This is a numeric comparison used by R2 itself, not the verdict of another inventory decision."
+  },
+  {
+   "room": "R3",
+   "pointer": "/modification/allNewItemsSameProduct",
+   "in": false,
+   "reason": "This applies R3's same-product condition across item pairs and is not another decision's answer."
+  },
+  {
+   "room": "R3",
+   "pointer": "/modification/allNewItemsDifferentOption",
+   "in": false,
+   "reason": "This applies R3's option-change condition across item pairs rather than importing another decision's verdict."
+  },
+  {
+   "room": "R3",
+   "pointer": "/modification/allNewItemsAvailable",
+   "in": false,
+   "reason": "This aggregates availability lookups for R3 and is not another inventory decision's answer."
+  },
+  {
+   "room": "R3",
+   "pointer": "/payment/giftCardBalanceCoversPriceDifference",
+   "in": false,
+   "reason": "This computes and compares amounts within R3 rather than applying another inventory decision's policy."
+  },
+  {
+   "room": "R4",
+   "pointer": "/refund/destinationIsOriginalPaymentMethod",
+   "in": false,
+   "reason": "This identifies and compares a refund destination for R4, not another inventory decision's answer."
+  },
+  {
+   "room": "R4",
+   "pointer": "/refund/destinationIsExistingGiftCard",
+   "in": false,
+   "reason": "This is a profile-membership and type test within R4 rather than another decision's verdict."
+  },
+  {
+   "room": "R5",
+   "pointer": "/request/allExchangesWithinSameProduct",
+   "in": false,
+   "reason": "This applies R5's same-product condition across exchanges and is not another inventory decision's answer."
+  },
+  {
+   "room": "R5",
+   "pointer": "/request/allNewItemsAvailable",
+   "in": false,
+   "reason": "This aggregates item availability for R5 rather than reproducing another decision's verdict."
+  },
+  {
+   "room": "R5",
+   "pointer": "/request/allNewItemsDifferentOption",
+   "in": false,
+   "reason": "This applies R5's option-change condition across exchanges and is not another inventory decision's answer."
+  },
+  {
+   "room": "R5",
+   "pointer": "/request/giftCardBalanceMinusPriceDifference",
+   "in": false,
+   "reason": "This is arithmetic over R5 payment inputs, not the answer of another inventory decision."
+  }
+ ],
+ "unitR": [
+  {
+   "room": "A1",
+   "index": 0,
+   "sentence": "The agent must first obtain the user id from the user.",
+   "in": false,
+   "reason": "This is an agent-procedure ordering obligation with no reference to another inventory decision's outcome."
+  },
+  {
+   "room": "A1",
+   "index": 1,
+   "sentence": "The agent should then ask for the trip type, origin, destination.",
+   "in": false,
+   "reason": "This is a sequencing obligation for collecting A1 inputs and references no other decision's outcome."
+  },
+  {
+   "room": "A1",
+   "index": 2,
+   "sentence": "The agent needs to collect the first name, last name, and date of birth for each",
+   "in": false,
+   "reason": "This is a per-passenger data-collection obligation unrelated to another inventory decision's outcome."
+  },
+  {
+   "room": "A1",
+   "index": 3,
+   "sentence": "The remaining amount of a travel certificate is not refundable.",
+   "in": true,
+   "reason": "This nonrefundability constraint supplies downstream content for the separate A7 refund determination.",
+   "clause": "The remaining amount of a travel certificate is not refundable"
+  },
+  {
+   "room": "A1",
+   "index": 4,
+   "sentence": "If the booking user is a regular member: 0 free checked bag for each basic econo",
+   "in": false,
+   "reason": "This is an allowance table internal to the booking decision and references no other decision's outcome."
+  },
+  {
+   "room": "A1",
+   "index": 5,
+   "sentence": "Do not add checked bags that the user does not need.",
+   "in": false,
+   "reason": "This is an open-textured baggage standard within A1 and has no cross-decision outcome reference."
+  },
+  {
+   "room": "A1",
+   "index": 6,
+   "sentence": "Each extra baggage is 50 dollars.",
+   "in": false,
+   "reason": "This states a booking fee and does not depend on or reference another inventory decision's outcome."
+  },
+  {
+   "room": "A1",
+   "index": 7,
+   "sentence": "The travel insurance is 30 dollars per passenger and enables full refund if the ",
+   "in": true,
+   "reason": "This grants a refund entitlement conditional on the separate A6 cancellation decision and its reason.",
+   "clause": "enables full refund if the user needs to cancel the flight given health or weather reasons"
+  },
+  {
+   "room": "A1",
+   "index": 8,
+   "sentence": "The agent should ask if the user wants to buy the travel insurance.",
+   "in": false,
+   "reason": "This is a conversational obligation within A1 and references no other inventory decision's outcome."
+  },
+  {
+   "room": "A2",
+   "index": 0,
+   "sentence": "Some flight segments can be kept, but their prices will not be updated based on ",
+   "in": false,
+   "reason": "This concerns pricing treatment within the flight-change decision and does not reference another decision's outcome."
+  },
+  {
+   "room": "A2",
+   "index": 1,
+   "sentence": "The API does not check these for the agent, so the agent must make sure the rule",
+   "in": false,
+   "reason": "This is an agent-verification and action-ordering duty with no cross-decision outcome reference."
+  },
+  {
+   "room": "A3",
+   "index": 0,
+   "sentence": "Cabin cannot be changed if any flight in the reservation has already been flown.",
+   "in": false,
+   "reason": "This is a condition of A3 itself, and the shared flown concept is not another decision's outcome."
+  },
+  {
+   "room": "A3",
+   "index": 1,
+   "sentence": "In other cases, all reservations, including basic economy, can change cabin with",
+   "in": false,
+   "reason": "Mentioning that flights remain unchanged describes the A3 request and does not reference A2's verdict."
+  },
+  {
+   "room": "A3",
+   "index": 2,
+   "sentence": "Cabin class must remain the same across all the flights in the same reservation;",
+   "in": false,
+   "reason": "This is a cabin-uniformity constraint internal to A3 with no other decision's outcome involved."
+  },
+  {
+   "room": "A3",
+   "index": 3,
+   "sentence": "If the price after cabin change is higher than the original price, the user is r",
+   "in": false,
+   "reason": "This payment obligation is a consequence of A3, but no separate inventory decision governs collecting the difference."
+  },
+  {
+   "room": "A3",
+   "index": 4,
+   "sentence": "If the price after cabin change is lower than the original price, the user is sh",
+   "in": true,
+   "reason": "This creates a refund entitlement from the A3 cabin-change outcome for the separate A7 refund determination.",
+   "clause": "the user is should be refunded the difference"
+  },
+  {
+   "room": "A4",
+   "index": 0,
+   "sentence": "The user can add but not remove checked bags.",
+   "in": false,
+   "reason": "This directly states A4's baggage-modification rule and references no other decision's outcome."
+  },
+  {
+   "room": "A4",
+   "index": 1,
+   "sentence": "The user cannot add insurance after initial booking.",
+   "in": false,
+   "reason": "This directly states A4's insurance-modification rule rather than an outcome of another decision."
+  },
+  {
+   "room": "A5",
+   "index": 0,
+   "sentence": "Even a human agent cannot modify the number of passengers.",
+   "in": false,
+   "reason": "This concerns terminality of A5's own refusal and has no cross-decision outcome reference."
+  },
+  {
+   "room": "A6",
+   "index": 0,
+   "sentence": "If the user doesn't know their reservation id, the agent should help locate it u",
+   "in": false,
+   "reason": "This is a procedural instruction for obtaining an A6 input and references no other decision's outcome."
+  },
+  {
+   "room": "A6",
+   "index": 1,
+   "sentence": "The user must provide their user id.",
+   "in": false,
+   "reason": "This is an input-provenance obligation for A6 with no cross-decision dependency."
+  },
+  {
+   "room": "A6",
+   "index": 2,
+   "sentence": "The agent must also obtain the reason for cancellation (change of plan, airline ",
+   "in": false,
+   "reason": "This is an A6 evidence-collection obligation and does not state another inventory decision's outcome."
+  },
+  {
+   "room": "A6",
+   "index": 3,
+   "sentence": "The API does not check that cancellation rules are met, so the agent must make s",
+   "in": false,
+   "reason": "This is an agent-verification and sequencing obligation concerning A6 itself."
+  },
+  {
+   "room": "A6",
+   "index": 4,
+   "sentence": "The refund will go to original payment methods within 5 to 7 business days.",
+   "in": true,
+   "reason": "This states the downstream refund routing and timing entitlement from A6 for the separate A7 refund determination.",
+   "clause": "The refund will go to original payment methods within 5 to 7 business days"
+  },
+  {
+   "room": "A6",
+   "index": 5,
+   "sentence": "First, the agent must obtain the user id and reservation id.",
+   "in": false,
+   "reason": "This is an ordering requirement for collecting A6 inputs and references no other decision's outcome."
+  },
+  {
+   "room": "A7",
+   "index": 0,
+   "sentence": "Always confirms the facts before offering compensation.",
+   "in": false,
+   "reason": "This is a procedure and sequencing obligation within A7 rather than a reference to another decision's outcome."
+  },
+  {
+   "room": "A7",
+   "index": 1,
+   "sentence": "with the amount being $100 times the number of passengers (in: If the user compl",
+   "in": false,
+   "reason": "This is an arithmetic payload for A7's own compensation outcome and has no cross-decision dependency."
+  },
+  {
+   "room": "A7",
+   "index": 2,
+   "sentence": "with the amount being $50 times the number of passengers (in: If the user compla",
+   "in": true,
+   "reason": "The sentence makes A7 compensation depend on completion of the separate A2 change or A6 cancellation decision.",
+   "clause": "after confirming the facts and changing or cancelling the reservation"
+  },
+  {
+   "room": "A7",
+   "index": 3,
+   "sentence": "the agent can offer a certificate as a gesture (both grant sentences)",
+   "in": false,
+   "reason": "This concerns discretionary modality of A7's own compensation outcome and references no other decision."
+  },
+  {
+   "room": "A7",
+   "index": 4,
+   "sentence": "Refunds and Compensation (section heading \u2014 the refunds half)",
+   "in": false,
+   "reason": "This heading identifies A7's own scope but does not state a dependency on any other decision's outcome."
+  },
+  {
+   "room": "R1",
+   "index": 0,
+   "sentence": "An order can only be cancelled if its status is 'pending', and you should check ",
+   "in": false,
+   "reason": "This combines R1's own status gate with an agent-procedure obligation and has no cross-decision reference."
+  },
+  {
+   "room": "R1",
+   "index": 1,
+   "sentence": "After user confirmation, the order status will be changed to 'cancelled', and th",
+   "in": false,
+   "reason": "These are post-action effects of R1 itself, and no separate retail inventory decision governs the refund."
+  },
+  {
+   "room": "R2",
+   "index": 0,
+   "sentence": "An order can only be modified if its status is 'pending', and you should check i",
+   "in": false,
+   "reason": "This combines R2's own status gate with a procedural check and references no other decision's outcome."
+  },
+  {
+   "room": "R2",
+   "index": 1,
+   "sentence": "For a pending order, you can take actions to modify its shipping address, paymen",
+   "in": false,
+   "reason": "This enumerates request types, including R3's subject, but does not reference any other decision's outcome."
+  },
+  {
+   "room": "R2",
+   "index": 2,
+   "sentence": "If the user wants the modify the payment method to gift card, it must have enoug",
+   "in": false,
+   "reason": "This is a numeric condition of R2 itself and has no dependency on another inventory decision."
+  },
+  {
+   "room": "R2",
+   "index": 3,
+   "sentence": "After user confirmation, the order status will be kept as 'pending'.",
+   "in": false,
+   "reason": "This states R2's own post-action state and does not identify a dependency on another decision's outcome."
+  },
+  {
+   "room": "R2",
+   "index": 4,
+   "sentence": "The original payment method will be refunded immediately if it is a gift card, o",
+   "in": false,
+   "reason": "This is an effect of R2 itself, and the retail inventory contains no separate refund decision."
+  },
+  {
+   "room": "R3",
+   "index": 0,
+   "sentence": "This action can only be called once, and will change the order status to 'pendin",
+   "in": false,
+   "reason": "This states R3's once-only rule and post-action state without referencing another decision's outcome."
+  },
+  {
+   "room": "R3",
+   "index": 1,
+   "sentence": "The agent will not be able to modify or cancel the order anymore.",
+   "in": true,
+   "reason": "This states that R3's outcome removes entitlement under later modification decisions and the separate R1 cancellation decision.",
+   "clause": "will not be able to modify or cancel the order anymore"
+  },
+  {
+   "room": "R3",
+   "index": 2,
+   "sentence": "So you must confirm all the details are correct and be cautious before taking th",
+   "in": false,
+   "reason": "This is an agent confirmation and caution obligation unrelated to another decision's outcome."
+  },
+  {
+   "room": "R3",
+   "index": 3,
+   "sentence": "In particular, remember to remind the customer to confirm they have provided all",
+   "in": false,
+   "reason": "This is a conversational duty within R3 and has no cross-decision outcome reference."
+  },
+  {
+   "room": "R3",
+   "index": 4,
+   "sentence": "For a pending order, each item can be modified to an available new item of the s",
+   "in": false,
+   "reason": "This states R3's own per-item eligibility rule rather than another inventory decision's outcome."
+  },
+  {
+   "room": "R3",
+   "index": 5,
+   "sentence": "There cannot be any change of product types, e.g. modify shirt to shoe.",
+   "in": false,
+   "reason": "This is a product-compatibility rule internal to R3 and references no other decision's outcome."
+  },
+  {
+   "room": "R3",
+   "index": 6,
+   "sentence": "The user must provide a payment method to pay or receive refund of the price dif",
+   "in": false,
+   "reason": "This is a monetary effect of R3 itself, and no separate retail refund decision exists in the inventory."
+  },
+  {
+   "room": "R3",
+   "index": 7,
+   "sentence": "If the user provides a gift card, it must have enough balance to cover the price",
+   "in": false,
+   "reason": "This is an arithmetic payment condition within R3 and has no cross-decision outcome dependency."
+  },
+  {
+   "room": "R3",
+   "index": 8,
+   "sentence": "An order can only be modified if its status is 'pending', and you should check i",
+   "in": false,
+   "reason": "This is R3's inherited status gate plus a procedural obligation, not another decision's outcome."
+  },
+  {
+   "room": "R4",
+   "index": 0,
+   "sentence": "An order can only be returned if its status is 'delivered', and you should check",
+   "in": false,
+   "reason": "This combines R4's own status gate with a procedural check and has no cross-decision reference."
+  },
+  {
+   "room": "R4",
+   "index": 1,
+   "sentence": "After user confirmation, the order status will be changed to 'return requested',",
+   "in": false,
+   "reason": "These are post-action effects of R4 itself and do not reference another inventory decision's outcome."
+  },
+  {
+   "room": "R5",
+   "index": 0,
+   "sentence": "An order can only be exchanged if its status is 'delivered', and you should chec",
+   "in": false,
+   "reason": "This combines R5's own status gate with a procedural check and has no cross-decision reference."
+  },
+  {
+   "room": "R5",
+   "index": 1,
+   "sentence": "In particular, remember to remind the customer to confirm they have provided all",
+   "in": false,
+   "reason": "This is a conversational obligation within R5 and references no other decision's outcome."
+  },
+  {
+   "room": "R5",
+   "index": 2,
+   "sentence": "For a delivered order, each item can be exchanged to an available new item of th",
+   "in": false,
+   "reason": "This states R5's own per-item exchange rule rather than another inventory decision's outcome."
+  },
+  {
+   "room": "R5",
+   "index": 3,
+   "sentence": "There cannot be any change of product types, e.g. modify shirt to shoe.",
+   "in": false,
+   "reason": "This is a product-compatibility rule internal to R5 and has no cross-decision outcome reference."
+  },
+  {
+   "room": "R5",
+   "index": 4,
+   "sentence": "If the user provides a gift card, it must have enough balance to cover the price",
+   "in": false,
+   "reason": "This is an arithmetic payment condition within R5 and does not depend on another decision's outcome."
+  },
+  {
+   "room": "R5",
+   "index": 5,
+   "sentence": "After user confirmation, the order status will be changed to 'exchange requested",
+   "in": false,
+   "reason": "These are post-action effects of R5 itself and do not reference another inventory decision's outcome."
+  },
+  {
+   "room": "R5",
+   "index": 6,
+   "sentence": "There is no need to place a new order.",
+   "in": false,
+   "reason": "This is negative procedural guidance, and the inventory contains no retail new-order decision whose outcome it references."
+  }
+ ]
+}
