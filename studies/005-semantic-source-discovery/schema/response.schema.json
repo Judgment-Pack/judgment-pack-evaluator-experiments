@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:judgmentpack:experiment:semantic-source-response:1",
+  "title": "Study 005 acquisition response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "facts",
+    "evidenceAvailability",
+    "acquisitionStatus",
+    "sourceId",
+    "explanation"
+  ],
+  "properties": {
+    "facts": {
+      "type": "object"
+    },
+    "evidenceAvailability": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": ["present", "absent", "unknown"]
+      }
+    },
+    "acquisitionStatus": {
+      "enum": ["resolved", "absent", "unknown", "ambiguous"]
+    },
+    "sourceId": {
+      "type": ["string", "null"]
+    },
+    "explanation": {
+      "type": "string"
+    }
+  }
+}
