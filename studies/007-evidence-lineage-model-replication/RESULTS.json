@@ -1,0 +1,659 @@
+{
+  "cells": [
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r01-s01",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 0,
+      "scenarioId": "S01",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 32256,
+        "input_tokens": 51536,
+        "output_tokens": 542,
+        "reasoning_output_tokens": 121
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r01-s02",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 0,
+      "scenarioId": "S02",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 32256,
+        "input_tokens": 50101,
+        "output_tokens": 458,
+        "reasoning_output_tokens": 145
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r01-s03",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 0,
+      "scenarioId": "S03",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 32256,
+        "input_tokens": 50229,
+        "output_tokens": 488,
+        "reasoning_output_tokens": 104
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r01-s04",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 0,
+      "scenarioId": "S04",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 43264,
+        "input_tokens": 50189,
+        "output_tokens": 523,
+        "reasoning_output_tokens": 163
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r01-s05",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 0,
+      "scenarioId": "S05",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 27136,
+        "input_tokens": 50855,
+        "output_tokens": 508,
+        "reasoning_output_tokens": 135
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r01-s06",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 0,
+      "scenarioId": "S06",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 43264,
+        "input_tokens": 50023,
+        "output_tokens": 420,
+        "reasoning_output_tokens": 148
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r01-s07",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 0,
+      "scenarioId": "S07",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 32256,
+        "input_tokens": 50548,
+        "output_tokens": 494,
+        "reasoning_output_tokens": 205
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r01-s08",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 0,
+      "scenarioId": "S08",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 43264,
+        "input_tokens": 50406,
+        "output_tokens": 466,
+        "reasoning_output_tokens": 199
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r02-s01",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 1,
+      "scenarioId": "S01",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 43264,
+        "input_tokens": 51567,
+        "output_tokens": 550,
+        "reasoning_output_tokens": 113
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r02-s02",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 1,
+      "scenarioId": "S02",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 16128,
+        "input_tokens": 50076,
+        "output_tokens": 465,
+        "reasoning_output_tokens": 149
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r02-s03",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 1,
+      "scenarioId": "S03",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 44288,
+        "input_tokens": 50008,
+        "output_tokens": 428,
+        "reasoning_output_tokens": 145
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r02-s04",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 1,
+      "scenarioId": "S04",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 46336,
+        "input_tokens": 49792,
+        "output_tokens": 466,
+        "reasoning_output_tokens": 195
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r02-s05",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 1,
+      "scenarioId": "S05",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 46336,
+        "input_tokens": 49975,
+        "output_tokens": 380,
+        "reasoning_output_tokens": 112
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r02-s06",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 1,
+      "scenarioId": "S06",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 46336,
+        "input_tokens": 50085,
+        "output_tokens": 461,
+        "reasoning_output_tokens": 183
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": false,
+      "M3": false,
+      "cellId": "r02-s07",
+      "dispositionCorrect": false,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 1,
+      "scenarioId": "S07",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 30208,
+        "input_tokens": 49975,
+        "output_tokens": 437,
+        "reasoning_output_tokens": 173
+      },
+      "verificationErrors": [
+        "evidence: required basis pointers are missing"
+      ]
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r02-s08",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 1,
+      "scenarioId": "S08",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 32256,
+        "input_tokens": 50393,
+        "output_tokens": 396,
+        "reasoning_output_tokens": 122
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r03-s01",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 2,
+      "scenarioId": "S01",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 44288,
+        "input_tokens": 50034,
+        "output_tokens": 497,
+        "reasoning_output_tokens": 182
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": false,
+      "M3": false,
+      "cellId": "r03-s02",
+      "dispositionCorrect": false,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 2,
+      "scenarioId": "S02",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 43264,
+        "input_tokens": 50929,
+        "output_tokens": 527,
+        "reasoning_output_tokens": 114
+      },
+      "verificationErrors": [
+        "receipt: referenced receipt is missing"
+      ]
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r03-s03",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 2,
+      "scenarioId": "S03",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 46336,
+        "input_tokens": 49795,
+        "output_tokens": 481,
+        "reasoning_output_tokens": 208
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r03-s04",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 2,
+      "scenarioId": "S04",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 46336,
+        "input_tokens": 49929,
+        "output_tokens": 364,
+        "reasoning_output_tokens": 107
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": false,
+      "M3": false,
+      "cellId": "r03-s05",
+      "dispositionCorrect": false,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 2,
+      "scenarioId": "S05",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 32256,
+        "input_tokens": 50193,
+        "output_tokens": 506,
+        "reasoning_output_tokens": 123
+      },
+      "verificationErrors": [
+        "evidence: required basis pointers are missing",
+        "claim: basis pointer /payload/screenedLegalName does not exist",
+        "claim: basis pointer /payload/status does not exist"
+      ]
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r03-s06",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 2,
+      "scenarioId": "S06",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 43264,
+        "input_tokens": 50891,
+        "output_tokens": 547,
+        "reasoning_output_tokens": 172
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r03-s07",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 2,
+      "scenarioId": "S07",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 46336,
+        "input_tokens": 50000,
+        "output_tokens": 427,
+        "reasoning_output_tokens": 139
+      },
+      "verificationErrors": []
+    },
+    {
+      "M1": true,
+      "M2": true,
+      "M3": true,
+      "cellId": "r03-s08",
+      "dispositionCorrect": true,
+      "evaluationErrors": [],
+      "exactMapping": true,
+      "finalErrors": [],
+      "finalValid": true,
+      "protocolViolations": [],
+      "receiptCorrect": true,
+      "repetition": 2,
+      "scenarioId": "S08",
+      "tokenUsage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 46336,
+        "input_tokens": 49971,
+        "output_tokens": 422,
+        "reasoning_output_tokens": 168
+      },
+      "verificationErrors": []
+    }
+  ],
+  "qualification": {
+    "attempt": 1,
+    "cellId": "q00-schema",
+    "eventsDigest": "sha256:c1cffe58b7a29b4a720564d5dda74f836801947569e156719d68a79329cc6376",
+    "finalDigest": "sha256:d3a611d1394378bee522779178322b3547d251f25893d3a7900e237583babed0",
+    "pass": true,
+    "qualificationPromptDigest": "sha256:391bec98971aee6043fe58dc1c78af7e8c14eb75c74d3cf48d22ed65a63cb699",
+    "responseSchemaDigest": "sha256:c2f6edc6345ec38f21cc57cdfa04afccfc6ba986803e1307947cd236c24a3913",
+    "resultDigest": "sha256:6c79b37d108f2ed9547f39e9d1d2b7d9d04e440a1ecec9888ada2f7916c08448",
+    "stderrDigest": "sha256:f5d90e70b2fc4ee16316293315306fc6f8bf43435c8fd0148a411fb853191d11"
+  },
+  "runnerVersion": "1",
+  "sourceStudy": "006-evidence-lineage-gate",
+  "study": "007-evidence-lineage-model-replication",
+  "summary": {
+    "M1": {
+      "successes": 24,
+      "total": 24
+    },
+    "M2": {
+      "successes": 21,
+      "total": 24
+    },
+    "M3": {
+      "successes": 21,
+      "total": 24
+    },
+    "M4": {
+      "successes": 16,
+      "total": 18
+    },
+    "M5": {
+      "protocolViolations": 0,
+      "successes": 2,
+      "total": 3
+    },
+    "byScenario": {
+      "S01": {
+        "M1": 3,
+        "M2": 3,
+        "M3": 3,
+        "total": 3
+      },
+      "S02": {
+        "M1": 3,
+        "M2": 2,
+        "M3": 2,
+        "total": 3
+      },
+      "S03": {
+        "M1": 3,
+        "M2": 3,
+        "M3": 3,
+        "total": 3
+      },
+      "S04": {
+        "M1": 3,
+        "M2": 3,
+        "M3": 3,
+        "total": 3
+      },
+      "S05": {
+        "M1": 3,
+        "M2": 2,
+        "M3": 2,
+        "total": 3
+      },
+      "S06": {
+        "M1": 3,
+        "M2": 3,
+        "M3": 3,
+        "total": 3
+      },
+      "S07": {
+        "M1": 3,
+        "M2": 2,
+        "M3": 2,
+        "total": 3
+      },
+      "S08": {
+        "M1": 3,
+        "M2": 3,
+        "M3": 3,
+        "total": 3
+      }
+    },
+    "predictionHit": true,
+    "tokenUsage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 939520,
+      "input_tokens": 1207500,
+      "output_tokens": 11253,
+      "reasoning_output_tokens": 3625
+    }
+  }
+}

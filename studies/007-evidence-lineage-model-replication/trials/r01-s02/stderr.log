@@ -1,0 +1,4 @@
+2026-07-30T16:28:11.701689Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-07-30T16:28:11.708420Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-07-30T16:28:11.713503Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-07-30T16:28:25.044167Z  WARN codex_file_watcher: failed to unwatch /home/onword/.codex/skills/.system: No watch was found. about ["/home/onword/.codex/skills/.system"]

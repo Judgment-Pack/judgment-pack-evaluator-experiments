@@ -23,3 +23,8 @@ python3 harness/study.py score
 `qualify` makes one registered hosted schema-compatibility call with no MCP server and no efficacy
 scenario. `run` sends the 24 authorized fictional prompts and synthetic MCP payloads only after the
 qualification artifacts and complete harness have been committed.
+
+The completed endpoint table is in [`RESULTS.md`](RESULTS.md).
+[`ANALYSIS.md`](ANALYSIS.md) audits the three fail-closed lineage misses and gives the implementation
+recommendation. [`ADVERSARIAL-REVIEW.md`](ADVERSARIAL-REVIEW.md) records the internal red-team pass
+and the remaining independent-review requirement.

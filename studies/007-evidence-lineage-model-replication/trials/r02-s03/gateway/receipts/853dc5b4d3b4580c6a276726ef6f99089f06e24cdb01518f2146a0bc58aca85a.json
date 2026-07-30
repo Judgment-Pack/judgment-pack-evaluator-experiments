@@ -1,0 +1,18 @@
+{
+  "arguments": {
+    "legal_name": "Northwind Analytics Ltd"
+  },
+  "artifactDigest": "sha256:95ebeda67ec650ec7c1bb6498316bf135fc12c219f3c0763e1443b6fa7f82a33",
+  "attestation": "hmac-sha256:55a425ad6f0d53f12f1ecadb20bc9275562252e881c1b53541b8ee81e1243b33",
+  "bindingDigest": "sha256:33c403d0324f2fa2c81a19db3ab8e4586b0b5bc3ad2d7b62e809e65007ba7a6a",
+  "callIndex": 1,
+  "cellId": "r02-s03",
+  "receiptVersion": "1",
+  "repetition": 1,
+  "retrievedAt": "2026-07-30T15:00:00Z",
+  "server": "acquisition_gateway",
+  "sideEffect": "read",
+  "sourceRef": "org.example.input-source.us-ofac.entity-screening",
+  "subject": "Northwind Analytics Ltd",
+  "tool": "acquire_screening"
+}
