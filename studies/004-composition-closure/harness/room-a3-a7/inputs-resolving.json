@@ -1,0 +1,27 @@
+{
+ "change-cabin": {
+  "facts": {
+   "request": {
+    "type": "change-cabin",
+    "changesFlights": false
+   },
+   "pricing": {
+    "priceDifferenceDirection": "higher"
+   }
+  },
+  "evidence": {
+   "user-id": "present",
+   "reservation-id": "present"
+  }
+ },
+ "refunds-and-compensation": {
+  "facts": {
+   "request": {
+    "compensationExplicitlyRequested": false
+   }
+  },
+  "evidence": {
+   "facts-confirmed": "present"
+  }
+ }
+}

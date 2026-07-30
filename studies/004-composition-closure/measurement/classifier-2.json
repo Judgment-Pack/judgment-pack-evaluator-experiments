@@ -1,0 +1,34 @@
+{
+ "items": [
+  {
+   "item": "A1 3",
+   "verdict": "open",
+   "device": "needs-effect-or-entitlement",
+   "justification": "room-a1-a7 produced a graph that validates at exit 0 (harness validate_exit 0) but declares an empty edges array, so there are no declared edges at all and therefore no live carrying edge for the clause \"is not refundable\" \u2014 step 2 of the procedure yields open. The clause's content is a restriction on what a later refund determination may return, and a7 declares no refund outcome, no refund rule, and no pointer a refundability restriction could be written to (its nine fact pointers are booleans, a membership level, a cabin class and a passenger count), which the room's residue entry 5 and the a1-a6 room's entry 5 both record as \"there is no downstream input for an edge to feed\"; the reference therefore changes a later decision's rules rather than its facts, ahead of the secondary observations that the unspent magnitude and the booking's payment facts are also uncarried."
+  },
+  {
+   "item": "A1 7",
+   "verdict": "open",
+   "device": "needs-effect-or-entitlement",
+   "justification": "room-a1-a6's graph validates at exit 0 with two nodes and zero edges, so no edge carries the clause \"enables full refund if the user needs to cancel the flight given health or weather reasons\" and the item is open at step 2. The clause's operative content is a full-refund entitlement created by a booking-time purchase and exercisable in the cancellation decision, and a6 decides permissibility only (outcomes cancellation-permitted / cancellation-denied, no refund rule or amount pointer), so the reference alters what the downstream decision grants rather than feeding one of its facts; that the a1 verdict does not report whether insurance was bought (needs-upstream-facts) and that the grant is conditioned on the cancellation reason (needs-conditional-edge) are secondary under the precedence order."
+  },
+  {
+   "item": "A3 4",
+   "verdict": "open",
+   "device": "needs-effect-or-entitlement",
+   "justification": "room-a3-a7's graph validates at exit 0 and declares no edges in either direction, so the clause \"should be refunded the difference\" has no live carrying edge and the item is open. The room's residue R2 records that a7 \"declares no refund outcome, no refund rule, and no input pointer that a refund determination could be written to, so there is nothing for an edge to feed\" \u2014 the refund a3 establishes must enter a7 as a rule-level entitlement it does not have, which takes precedence over the secondary fact that a3's outcome id allow-refund-difference names the entitlement without carrying its magnitude (needs-outcome-payload)."
+  },
+  {
+   "item": "A7 2",
+   "verdict": "open",
+   "device": "needs-conditional-edge",
+   "justification": "room-a2-a6-a7's graph validates at exit 0 with three nodes and an explicitly empty edges array, so nothing carries the clause \"changing or cancelling the reservation\" into a7's /reservation/changeOrCancelCompleted and the item is open. The feature label records that only the upstream outcome identity is consumed (no parameters, so needs-outcome-payload does not apply) and a7 already reads the coupling as its own fact, so the missing capability is a feed that fires only under a condition: the room's residue shows the unconditional fact channel injects \"cancellation-permitted\" where the rule tests equals true (permanently falsifying grant-delayed-flight-certificate) and that feeding both a2 and a6 into the one pointer is refused with JPS-GRAPH-EDGE-DUPLICATE-FACT, with permission-versus-performance and the evidence-channel misuse of facts-confirmed as secondary observations."
+  },
+  {
+   "item": "R3 1",
+   "verdict": "open",
+   "device": "needs-conditional-edge",
+   "justification": "room-r1-r3's graph validates at exit 0 with two nodes and zero edges, so no live carrying edge exists for the clause \"will not be able to modify or cancel the order anymore\" and the item is open. The relationship travels through /order/status, which r1's deny-status-not-pending rule already reads as a fact, so the content is fact-shaped rather than a rule change; what the grammar lacks is a feed conditional on r3 having resolved to allow-item-modification and on the modify action having been taken \u2014 the room's residue shows the unconditional edge injects \"deny-item-modification\" as a status and denies a cancellation the policy permits, and names value-mapping (outcome to 'pending (items modifed)') as the missing capability, with the r1-side converse (needs-cycle-or-mutual-reference) and the order-status-check evidence misuse as secondary."
+  }
+ ]
+}

@@ -1,0 +1,18 @@
+{
+  "formatVersion": "1",
+  "id": "airline-cabin-change-and-compensation",
+  "version": "1.0.0",
+  "description": "The two airline-agent decisions this room holds, declared side by side with no edge between them: the policy states no relationship in which one decision's outcome is an input to the other, and every candidate coupling is recorded in RESIDUE.md instead of being wired.",
+  "nodes": {
+    "change-cabin": {
+      "pack": "a3",
+      "description": "May the cabin be changed for this reservation, and if so is the price difference collected from or refunded to the user? (Modify flight > Change cabin.)"
+    },
+    "refunds-and-compensation": {
+      "pack": "a7",
+      "description": "Is the user owed a refund or compensation, and what kind? (Refunds and Compensation; this pack answers the compensation half and asserts no refund.)"
+    }
+  },
+  "edges": [],
+  "result": "refunds-and-compensation"
+}

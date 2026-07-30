@@ -1,0 +1,43 @@
+{
+ "verdictDisagreements": 0,
+ "deviceDisagreements": 2,
+ "items": [
+  {
+   "item": "A1 3",
+   "verdict": "open",
+   "verdictSource": "agreed",
+   "device": "needs-effect-or-entitlement",
+   "deviceSource": "agreed"
+  },
+  {
+   "item": "A1 7",
+   "verdict": "open",
+   "verdictSource": "agreed",
+   "device": "needs-effect-or-entitlement",
+   "deviceSource": "agreed"
+  },
+  {
+   "item": "A3 4",
+   "verdict": "open",
+   "verdictSource": "agreed",
+   "device": "needs-effect-or-entitlement",
+   "deviceSource": "agreed"
+  },
+  {
+   "item": "A7 2",
+   "verdict": "open",
+   "verdictSource": "agreed",
+   "device": "other (action-completion: the downstream needs the performance of an act, which no decision outcome carries; secondarily a change-or-cancel disjunction the format refuses as a duplicate fact target)",
+   "deviceSource": "adjudicated",
+   "adjudication": "Neither needs-effect-or-entitlement (nothing modifies A7 rules) nor needs-conditional-edge (a conditional edge would still inject permission, not performance) describes the loss; by the precedence rule other is reached only when no earlier device applies, and none does."
+  },
+  {
+   "item": "R3 1",
+   "verdict": "open",
+   "verdictSource": "agreed",
+   "device": "needs-effect-or-entitlement",
+   "deviceSource": "adjudicated",
+   "adjudication": "The sentence states that R3 outcome forecloses R1 and R3 availability \u2014 it changes later decisions rules, not their facts, which is needs-effect-or-entitlement, first in precedence among the applicable devices."
+  }
+ ]
+}

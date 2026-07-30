@@ -1,0 +1,37 @@
+{
+ "change-flights": {
+  "facts": {
+   "request": {
+    "type": "change-flights",
+    "preservesOrigin": true,
+    "preservesDestination": true,
+    "preservesTripType": true
+   }
+  },
+  "evidence": {
+   "verified-reservation-record": "present"
+  }
+ },
+ "cancel-flight": {
+  "facts": {
+   "reservation": {
+    "hoursSinceBooking": "0"
+   }
+  },
+  "evidence": {
+   "user-id": "present",
+   "reservation-id": "present",
+   "cancellation-reason": "present"
+  }
+ },
+ "refund-compensation": {
+  "facts": {
+   "request": {
+    "compensationExplicitlyRequested": false
+   }
+  },
+  "evidence": {
+   "facts-confirmed": "present"
+  }
+ }
+}

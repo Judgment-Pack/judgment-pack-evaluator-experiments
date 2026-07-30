@@ -1,0 +1,119 @@
+[
+ {
+  "room": "room-a1-a7",
+  "validate_exit": 0,
+  "edges": 0,
+  "sets": {
+   "resolving": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "book-flight": "unresolved",
+     "refunds-and-compensation": "no-compensation"
+    }
+   },
+   "unresolvable": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "book-flight": "unresolved",
+     "refunds-and-compensation": "unresolved"
+    }
+   }
+  }
+ },
+ {
+  "room": "room-a1-a6",
+  "validate_exit": 0,
+  "edges": 0,
+  "sets": {
+   "resolving": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "book-flight": "unresolved",
+     "cancel-flight": "unresolved"
+    }
+   },
+   "unresolvable": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "book-flight": "unresolved",
+     "cancel-flight": "unresolved"
+    }
+   }
+  }
+ },
+ {
+  "room": "room-a3-a7",
+  "validate_exit": 0,
+  "edges": 0,
+  "sets": {
+   "resolving": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "change-cabin": "unresolved",
+     "refunds-and-compensation": "no-compensation"
+    }
+   },
+   "unresolvable": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "change-cabin": "unresolved",
+     "refunds-and-compensation": "unresolved"
+    }
+   }
+  }
+ },
+ {
+  "room": "room-a2-a6-a7",
+  "validate_exit": 0,
+  "edges": 0,
+  "sets": {
+   "resolving": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "cancel-flight": "unresolved",
+     "change-flights": "unresolved",
+     "refund-compensation": "no-compensation"
+    }
+   },
+   "unresolvable": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "cancel-flight": "unresolved",
+     "change-flights": "unresolved",
+     "refund-compensation": "unresolved"
+    }
+   }
+  }
+ },
+ {
+  "room": "room-r1-r3",
+  "validate_exit": 0,
+  "edges": 0,
+  "sets": {
+   "resolving": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "cancel-pending-order": "cancel-refund-immediately",
+     "modify-pending-order-items": "unresolved"
+    }
+   },
+   "unresolvable": {
+    "exit": 0,
+    "byte_identical": true,
+    "dispositions": {
+     "cancel-pending-order": "unresolved",
+     "modify-pending-order-items": "unresolved"
+    }
+   }
+  }
+ }
+]

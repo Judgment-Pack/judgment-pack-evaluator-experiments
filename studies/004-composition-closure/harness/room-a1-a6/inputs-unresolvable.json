@@ -1,0 +1,19 @@
+{
+ "book-flight": {
+  "facts": {},
+  "evidence": {
+   "user-id": "present",
+   "trip-parameters": "present",
+   "passenger-details": "present",
+   "travel-insurance-offer": "present"
+  }
+ },
+ "cancel-flight": {
+  "facts": {},
+  "evidence": {
+   "user-id": "present",
+   "reservation-id": "present",
+   "cancellation-reason": "present"
+  }
+ }
+}

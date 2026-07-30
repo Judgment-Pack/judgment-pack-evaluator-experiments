@@ -1,0 +1,14 @@
+{
+ "configVersion": "1",
+ "packs": {
+  "a2": {
+   "path": "packs/a2.pack.json"
+  },
+  "a6": {
+   "path": "packs/a6.pack.json"
+  },
+  "a7": {
+   "path": "packs/a7.pack.json"
+  }
+ }
+}

@@ -1,0 +1,487 @@
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://onword.io/judgment-packs/airline-agent/refunds-and-compensation",
+  "version": "0.1.0",
+  "title": "Airline Agent — Refunds and Compensation",
+  "description": "Encodes the 'Refunds and Compensation' section of the Airline Agent Policy: whether a compensation gesture may be offered to a user, and which one. The section text defines only certificate gestures; it states no independent refund entitlement, so this pack resolves the compensation half of the question and never asserts a refund.",
+  "decision": {
+    "intent": "Let an airline support agent determine, within the bounds of the Refunds and Compensation policy section, whether a compensation gesture may be offered to a user and of what kind, without proactively offering compensation and without exceeding the two enumerated grounds.",
+    "question": "Is the user owed a refund or compensation, and what kind?"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "facts-confirmed",
+      "description": "An agent attestation that the facts underlying the complaint have been confirmed against the reservation and flight records before any compensation is offered: the reservation exists and belongs to the user, the flights in it were in fact cancelled or delayed as claimed, and the membership level, travel-insurance status, cabin class, and passenger count are as recorded.",
+      "required": false,
+      "kind": "attestation"
+    }
+  ],
+  "sources": [
+    {
+      "id": "policy-no-proactive-offer",
+      "title": "Airline Agent Policy — Refunds and Compensation — no proactive offers",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Refunds and Compensation, line 155",
+        "excerpt": "Do not proactively offer a compensation unless the user explicitly asks for one."
+      }
+    },
+    {
+      "id": "policy-exclusion-regular-economy",
+      "title": "Airline Agent Policy — Refunds and Compensation — exclusion for regular economy passengers",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Refunds and Compensation, line 157",
+        "excerpt": "Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy."
+      }
+    },
+    {
+      "id": "policy-confirm-facts",
+      "title": "Airline Agent Policy — Refunds and Compensation — confirm the facts first",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Refunds and Compensation, line 159",
+        "excerpt": "Always confirms the facts before offering compensation."
+      }
+    },
+    {
+      "id": "policy-eligibility",
+      "title": "Airline Agent Policy — Refunds and Compensation — eligibility gate",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Refunds and Compensation, line 161",
+        "excerpt": "Only compensate if the user is a silver/gold member or has travel insurance or flies business."
+      }
+    },
+    {
+      "id": "policy-cancelled-certificate",
+      "title": "Airline Agent Policy — Refunds and Compensation — cancelled-flight certificate",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Refunds and Compensation, line 163",
+        "excerpt": "If the user complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers."
+      }
+    },
+    {
+      "id": "policy-delayed-certificate",
+      "title": "Airline Agent Policy — Refunds and Compensation — delayed-flight certificate",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Refunds and Compensation, line 165",
+        "excerpt": "If the user complains about delayed flights in a reservation and wants to change or cancel the reservation, the agent can offer a certificate as a gesture after confirming the facts and changing or cancelling the reservation, with the amount being $50 times the number of passengers."
+      }
+    },
+    {
+      "id": "policy-no-other-reason",
+      "title": "Airline Agent Policy — Refunds and Compensation — closed list of grounds",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Refunds and Compensation, line 167",
+        "excerpt": "Do not offer compensation for any other reason than the ones listed above."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "no-compensation",
+      "label": "No compensation offered",
+      "description": "No compensation gesture is offered. The user was not asking for one, or is outside the eligibility gate, or the ground for the complaint is not one of the two enumerated grounds, or the facts could not be confirmed."
+    },
+    {
+      "id": "certificate-cancelled-flight",
+      "label": "Offer travel certificate for cancelled flights ($100 per passenger)",
+      "description": "Offer a travel certificate as a gesture for cancelled flights in the reservation. Amount = 100 USD multiplied by the number of passengers on the reservation.",
+      "extensions": {
+        "io.onword.compensation": {
+          "instrument": "travel-certificate",
+          "amountPerPassengerUsd": "100",
+          "formula": "100 * reservation.passengerCount"
+        }
+      }
+    },
+    {
+      "id": "certificate-delayed-flight",
+      "label": "Offer travel certificate for delayed flights ($50 per passenger)",
+      "description": "Offer a travel certificate as a gesture for delayed flights in the reservation, after the requested change or cancellation has been carried out. Amount = 50 USD multiplied by the number of passengers on the reservation.",
+      "extensions": {
+        "io.onword.compensation": {
+          "instrument": "travel-certificate",
+          "amountPerPassengerUsd": "50",
+          "formula": "50 * reservation.passengerCount"
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "deny-not-requested",
+      "description": "No compensation when the user has not explicitly asked for compensation.",
+      "when": {
+        "op": "fact",
+        "path": "/request/compensationExplicitlyRequested",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "no-compensation",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-no-proactive-offer"
+      ],
+      "rationale": "The section forbids proactive offers, so an unrequested compensation is never offered. If it is unclear whether the user asked, the rule contributes nothing and the fallback still yields no compensation, which is the conservative direction the sentence points."
+    },
+    {
+      "id": "deny-ineligible",
+      "description": "No compensation when the user meets none of the eligibility conditions: not a silver or gold member, no travel insurance on the reservation, and not flying business.",
+      "when": {
+        "op": "not",
+        "condition": {
+          "op": "any",
+          "conditions": [
+            {
+              "op": "fact",
+              "path": "/user/membershipLevel",
+              "operator": "in",
+              "value": [
+                "silver",
+                "gold"
+              ]
+            },
+            {
+              "op": "fact",
+              "path": "/reservation/hasTravelInsurance",
+              "operator": "equals",
+              "value": true
+            },
+            {
+              "op": "fact",
+              "path": "/reservation/cabinClass",
+              "operator": "equals",
+              "value": "business"
+            }
+          ]
+        }
+      },
+      "outcome": "no-compensation",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-eligibility"
+      ],
+      "rationale": "'Only compensate if X or Y or Z' is read as a necessary condition on every compensation outcome; its negation is an independent ground for refusing."
+    },
+    {
+      "id": "deny-other-reason",
+      "description": "No compensation when the user asked and is eligible but the complaint is neither a cancelled-flight complaint nor a delayed-flight complaint coupled with a completed change or cancellation.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/compensationExplicitlyRequested",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "in",
+                "value": [
+                  "silver",
+                  "gold"
+                ]
+              },
+              {
+                "op": "fact",
+                "path": "/reservation/hasTravelInsurance",
+                "operator": "equals",
+                "value": true
+              },
+              {
+                "op": "fact",
+                "path": "/reservation/cabinClass",
+                "operator": "equals",
+                "value": "business"
+              }
+            ]
+          },
+          {
+            "op": "fact",
+            "path": "/complaint/aboutCancelledFlights",
+            "operator": "equals",
+            "value": false
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "all",
+              "conditions": [
+                {
+                  "op": "fact",
+                  "path": "/complaint/aboutDelayedFlights",
+                  "operator": "equals",
+                  "value": true
+                },
+                {
+                  "op": "fact",
+                  "path": "/complaint/wantsChangeOrCancel",
+                  "operator": "equals",
+                  "value": true
+                },
+                {
+                  "op": "fact",
+                  "path": "/reservation/changeOrCancelCompleted",
+                  "operator": "equals",
+                  "value": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "outcome": "no-compensation",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-no-other-reason"
+      ],
+      "rationale": "The two enumerated grounds are a closed list; an eligible user with a genuine but unlisted grievance still receives nothing."
+    },
+    {
+      "id": "grant-cancelled-flight-certificate",
+      "description": "Offer a $100-per-passenger travel certificate when the user explicitly asked for compensation, is inside the eligibility gate, complains about cancelled flights in a reservation, the facts have been confirmed, and the passenger count needed to size the certificate is known.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/compensationExplicitlyRequested",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "in",
+                "value": [
+                  "silver",
+                  "gold"
+                ]
+              },
+              {
+                "op": "fact",
+                "path": "/reservation/hasTravelInsurance",
+                "operator": "equals",
+                "value": true
+              },
+              {
+                "op": "fact",
+                "path": "/reservation/cabinClass",
+                "operator": "equals",
+                "value": "business"
+              }
+            ]
+          },
+          {
+            "op": "fact",
+            "path": "/complaint/aboutCancelledFlights",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "facts-confirmed"
+          },
+          {
+            "op": "fact",
+            "path": "/reservation/passengerCount",
+            "operator": "not-equals",
+            "value": null
+          }
+        ]
+      },
+      "outcome": "certificate-cancelled-flight",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "facts-confirmed"
+      ],
+      "sourceRefs": [
+        "policy-cancelled-certificate",
+        "policy-eligibility",
+        "policy-no-proactive-offer",
+        "policy-confirm-facts"
+      ],
+      "rationale": "The cancelled-flight gesture is discretionary ('can offer'), so it is gated on the user having asked, on the eligibility sentence, and on the confirm-the-facts sentence. If a fact on this grant path is unavailable the agent can neither confirm the facts nor size the certificate, which is outside the scope of its actions, so the case is handed off rather than silently denied. A user who never asked still makes this condition plainly false, so the common case never escalates."
+    },
+    {
+      "id": "grant-delayed-flight-certificate",
+      "description": "Offer a $50-per-passenger travel certificate when the user explicitly asked for compensation, is inside the eligibility gate, complains about delayed flights in a reservation, wants to change or cancel that reservation, the change or cancellation has actually been carried out, the facts have been confirmed, and the passenger count needed to size the certificate is known.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/compensationExplicitlyRequested",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/user/membershipLevel",
+                "operator": "in",
+                "value": [
+                  "silver",
+                  "gold"
+                ]
+              },
+              {
+                "op": "fact",
+                "path": "/reservation/hasTravelInsurance",
+                "operator": "equals",
+                "value": true
+              },
+              {
+                "op": "fact",
+                "path": "/reservation/cabinClass",
+                "operator": "equals",
+                "value": "business"
+              }
+            ]
+          },
+          {
+            "op": "fact",
+            "path": "/complaint/aboutDelayedFlights",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/complaint/wantsChangeOrCancel",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/reservation/changeOrCancelCompleted",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "facts-confirmed"
+          },
+          {
+            "op": "fact",
+            "path": "/reservation/passengerCount",
+            "operator": "not-equals",
+            "value": null
+          }
+        ]
+      },
+      "outcome": "certificate-delayed-flight",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "facts-confirmed"
+      ],
+      "sourceRefs": [
+        "policy-delayed-certificate",
+        "policy-eligibility",
+        "policy-no-proactive-offer",
+        "policy-confirm-facts"
+      ],
+      "rationale": "The delayed-flight gesture is ordered after the change or cancellation ('after confirming the facts and changing or cancelling the reservation'), so the completed modification is a precondition of the outcome, not merely a stated wish."
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "excluded-regular-uninsured-economy",
+      "description": "A regular member with no travel insurance flying basic economy or economy is never compensated, whatever the complaint.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/user/membershipLevel",
+            "operator": "equals",
+            "value": "regular"
+          },
+          {
+            "op": "fact",
+            "path": "/reservation/hasTravelInsurance",
+            "operator": "equals",
+            "value": false
+          },
+          {
+            "op": "fact",
+            "path": "/reservation/cabinClass",
+            "operator": "in",
+            "value": [
+              "basic economy",
+              "economy"
+            ]
+          }
+        ]
+      },
+      "effect": "force-outcome",
+      "outcome": "no-compensation",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-exclusion-regular-economy"
+      ]
+    }
+  ],
+  "fallbackOutcome": "no-compensation",
+  "escalation": {
+    "triggers": [
+      "unknown",
+      "conflict"
+    ],
+    "target": {
+      "kind": "human-role",
+      "name": "Human airline agent"
+    },
+    "message": "The Refunds and Compensation section does not settle this case: either a fact needed to confirm or size a compensation gesture is unavailable, or the same reservation is being complained about as both cancelled and delayed, which the section prices two different ways. Transfer to a human agent."
+  },
+  "metadata": {
+    "authors": [
+      "Policy engineering, room A7"
+    ],
+    "createdAt": "2026-07-27T00:00:00Z",
+    "license": "CC-BY-4.0",
+    "reviews": []
+  }
+}

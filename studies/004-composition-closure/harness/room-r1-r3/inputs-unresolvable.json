@@ -1,0 +1,14 @@
+{
+ "cancel-pending-order": {
+  "facts": {},
+  "evidence": {
+   "order-status-check": "present"
+  }
+ },
+ "modify-pending-order-items": {
+  "facts": {},
+  "evidence": {
+   "payment-method-for-difference": "present"
+  }
+ }
+}

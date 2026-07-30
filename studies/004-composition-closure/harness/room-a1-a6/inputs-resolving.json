@@ -1,0 +1,35 @@
+{
+ "book-flight": {
+  "facts": {
+   "request": {
+    "type": "book-flight"
+   },
+   "booking": {
+    "passengerCount": 1,
+    "payment": {
+     "travelCertificateCount": 0,
+     "creditCardCount": 0,
+     "giftCardCount": 0
+    }
+   }
+  },
+  "evidence": {
+   "user-id": "present",
+   "trip-parameters": "present",
+   "passenger-details": "present",
+   "travel-insurance-offer": "present"
+  }
+ },
+ "cancel-flight": {
+  "facts": {
+   "reservation": {
+    "hoursSinceBooking": "0"
+   }
+  },
+  "evidence": {
+   "user-id": "present",
+   "reservation-id": "present",
+   "cancellation-reason": "present"
+  }
+ }
+}

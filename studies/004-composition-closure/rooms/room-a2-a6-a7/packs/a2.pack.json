@@ -1,0 +1,236 @@
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://packs.example.org/airline/modify-flight/change-flights",
+  "version": "1.0.0",
+  "title": "Airline reservation — may the flights be changed?",
+  "description": "Encodes the Change flights subsection of the Modify flight section of the Airline Agent Policy. It answers only whether a requested flight change is permitted; it does not price the change, select payment, change cabin, baggage, insurance, or passengers, and it does not authorise any call to the booking API.",
+  "decision": {
+    "intent": "Let an airline support agent determine, before calling the flight-update API, whether the Change flights rules permit changing the flights on an existing reservation, because the API does not enforce those rules itself.",
+    "question": "May the flights in this reservation be changed?"
+  },
+  "applicability": {
+    "op": "fact",
+    "path": "/request/type",
+    "operator": "equals",
+    "value": "change-flights"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "verified-reservation-record",
+      "description": "The agent has retrieved the reservation record from the booking system and has compared the proposed itinerary against it, so that cabin class, origin, destination, and trip type are established from the record rather than from the user's description. The policy requires this because the API does not check the Change flights rules.",
+      "required": true,
+      "kind": "fact"
+    }
+  ],
+  "sources": [
+    {
+      "id": "policy-basic-economy",
+      "title": "Airline Agent Policy — Modify flight › Change flights",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Modify flight › Change flights, bullet 1",
+        "excerpt": "Basic economy flights cannot be modified."
+      }
+    },
+    {
+      "id": "policy-preserve-itinerary-shape",
+      "title": "Airline Agent Policy — Modify flight › Change flights",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Modify flight › Change flights, bullet 2",
+        "excerpt": "Other reservations can be modified without changing the origin, destination, and trip type."
+      }
+    },
+    {
+      "id": "policy-kept-segment-pricing",
+      "title": "Airline Agent Policy — Modify flight › Change flights",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Modify flight › Change flights, bullet 3",
+        "excerpt": "Some flight segments can be kept, but their prices will not be updated based on the current price."
+      }
+    },
+    {
+      "id": "policy-agent-must-verify",
+      "title": "Airline Agent Policy — Modify flight › Change flights",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Modify flight › Change flights, bullet 4",
+        "excerpt": "The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!"
+      }
+    },
+    {
+      "id": "policy-deny-against-policy",
+      "title": "Airline Agent Policy — preamble",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble",
+        "excerpt": "You should deny user requests that are against this policy."
+      }
+    },
+    {
+      "id": "policy-transfer-out-of-scope",
+      "title": "Airline Agent Policy — preamble",
+      "publisher": "Airline Agent Policy",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "Preamble",
+        "excerpt": "You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "change-permitted",
+      "label": "Flights may be changed",
+      "description": "The Change flights rules permit the requested change. This is a policy-eligibility result only: the agent must still list the action details, obtain explicit user confirmation, and settle payment or refund before the booking database is updated."
+    },
+    {
+      "id": "change-denied",
+      "label": "Flights may not be changed",
+      "description": "The Change flights rules do not permit the requested change, either because the reservation is basic economy or because the request would change the origin, destination, or trip type. The agent denies the request."
+    }
+  ],
+  "rules": [
+    {
+      "id": "permit-shape-preserving-change",
+      "description": "A reservation that is not basic economy may have its flights changed when the request keeps the reservation's origin, destination, and trip type.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/request/preservesOrigin",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/request/preservesDestination",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/request/preservesTripType",
+            "operator": "equals",
+            "value": true
+          }
+        ]
+      },
+      "outcome": "change-permitted",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "verified-reservation-record"
+      ],
+      "sourceRefs": [
+        "policy-preserve-itinerary-shape",
+        "policy-kept-segment-pricing",
+        "policy-agent-must-verify"
+      ],
+      "rationale": "The basic-economy carve-out is applied ahead of this rule by the basic-economy-not-modifiable exception, so this rule only runs for reservations the policy calls 'other reservations'. Kept segments are allowed by the policy but keep their original prices; that pricing consequence is recorded here rather than as a condition, because it does not affect whether the change is permitted."
+    },
+    {
+      "id": "deny-itinerary-shape-change",
+      "description": "The flights may not be changed when the request would change the reservation's origin, destination, or trip type.",
+      "when": {
+        "op": "not",
+        "condition": {
+          "op": "all",
+          "conditions": [
+            {
+              "op": "fact",
+              "path": "/request/preservesOrigin",
+              "operator": "equals",
+              "value": true
+            },
+            {
+              "op": "fact",
+              "path": "/request/preservesDestination",
+              "operator": "equals",
+              "value": true
+            },
+            {
+              "op": "fact",
+              "path": "/request/preservesTripType",
+              "operator": "equals",
+              "value": true
+            }
+          ]
+        }
+      },
+      "outcome": "change-denied",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "verified-reservation-record"
+      ],
+      "sourceRefs": [
+        "policy-preserve-itinerary-shape",
+        "policy-deny-against-policy",
+        "policy-agent-must-verify"
+      ],
+      "rationale": "The policy grants permission only for changes that leave the origin, destination, and trip type intact, and instructs the agent to deny requests that are against the policy. The condition is written as the exact negation of the permitting rule so that the two rules can never both be true and can never both be false."
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "basic-economy-not-modifiable",
+      "description": "A basic economy reservation's flights cannot be modified at all, whatever the requested itinerary looks like.",
+      "when": {
+        "op": "fact",
+        "path": "/reservation/cabinClass",
+        "operator": "equals",
+        "value": "basic economy"
+      },
+      "effect": "force-outcome",
+      "outcome": "change-denied",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "policy-basic-economy",
+        "policy-deny-against-policy"
+      ]
+    }
+  ],
+  "escalation": {
+    "triggers": [
+      "missing-required-evidence",
+      "unknown",
+      "conflict",
+      "no-match"
+    ],
+    "target": {
+      "kind": "human-role",
+      "name": "Airline human agent (transfer_to_human_agents)"
+    },
+    "message": "The Change flights rules could not be confirmed to apply. The policy warns that the API does not check these rules, so the agent must not call it on an unconfirmed basis; hand the request to a human agent."
+  },
+  "metadata": {
+    "authors": [
+      "Policy engineering room A2"
+    ],
+    "createdAt": "2026-07-27T00:00:00Z"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "formatVersion": "1",
+  "id": "airline-agent-change-cancel-compensation",
+  "version": "1.0.0",
+  "description": "The three airline-agent decisions a2, a6 and a7 side by side, with no edges: the one relationship the policy states between them (the delayed-flight certificate is offered only after the reservation has actually been changed or cancelled) is a relationship between a completed action and a decision, and this format's edge can only feed one decision's outcome id into another's inputs, so it is recorded verbatim in RESIDUE.md instead of being declared here.",
+  "nodes": {
+    "change-flights": {
+      "pack": "a2",
+      "description": "May the flights in this reservation be changed? Decides permissibility only; the policy relates it to the compensation decision through the change having been carried out, which no edge of this format can carry (RESIDUE.md item 1)."
+    },
+    "cancel-flight": {
+      "pack": "a6",
+      "description": "May this reservation be cancelled? Decides permissibility only; the policy relates it to the compensation decision through the cancellation having been carried out, which no edge of this format can carry (RESIDUE.md item 1)."
+    },
+    "refund-compensation": {
+      "pack": "a7",
+      "description": "Is the user owed a refund or compensation, and what kind? Named as the result because it is the decision the policy makes conditional on the other two, but its /reservation/changeOrCancelCompleted gate is fed by the caller, not by an edge (RESIDUE.md item 1)."
+    }
+  },
+  "edges": [],
+  "result": "refund-compensation"
+}

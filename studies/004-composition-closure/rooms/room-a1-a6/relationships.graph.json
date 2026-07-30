@@ -1,0 +1,18 @@
+{
+  "formatVersion": "1",
+  "id": "airline-book-and-cancel",
+  "version": "0.1.0",
+  "description": "The Book flight and Cancel flight decisions of the Airline Agent Policy, composed with no edges: the policy states no relationship between them that this graph format can carry.",
+  "nodes": {
+    "book-flight": {
+      "pack": "a1",
+      "description": "May this proposed booking be made? Gates a new reservation on the Book flight section; no other node's outcome is an input to it."
+    },
+    "cancel-flight": {
+      "pack": "a6",
+      "description": "May this existing reservation be cancelled? Decided from the reservation's own attributes, not from any outcome of the booking decision."
+    }
+  },
+  "edges": [],
+  "result": "cancel-flight"
+}
