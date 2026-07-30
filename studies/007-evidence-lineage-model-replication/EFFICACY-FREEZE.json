@@ -1,0 +1,150 @@
+{
+  "artifacts": {
+    "/home/onword/repo/judgment-pack/judgment-pack-demo/projects/enterprise-demo/packs/sanctions-screening.pack.json": "sha256:d587abe5c247fbcf0b890222792eadb18b22837d9555dbd1ef1fd15d015a4ea0",
+    "/home/onword/repo/judgment-pack/judgment-pack-runtime/bin/judgment-pack": "sha256:b8cfe3a99ad683c0df9de0bc8d79fafdeea3f6cee639b143f46dc3a92827776d",
+    "fixtures/PROMPT.txt": "sha256:3457bc4eebdc016ad28e09488a99c4f2b41b9064d24614e5ae63ac5dcaf9faaf",
+    "fixtures/binding-lock.json": "sha256:55a3d791ee48f8c2a4d5f57de40a80e6f694600017f0dacd29afd2e53fb2598c",
+    "fixtures/cases.json": "sha256:80edea6f51f957c451863ea92d5296670ab5f3d449521468e9d6f253c8f3ed0c",
+    "fixtures/gateway.key": "sha256:9019844959035cee4d662881ba6fb90d9f273bbc912a39d6eb66e30a0ab71143",
+    "harness/acquisition_gateway.py": "sha256:638ddf1eee88b2b53d25fa7988d79c281f82b44cde01aa3b9a5d67913d4a50a4",
+    "harness/common.py": "sha256:5b540d15feb46bc46363362fbf4750db93117a7fb837fa4e2912a626bc71b6fd",
+    "harness/study.py": "sha256:aed66e4ef312139e0bf9aa87ee4fa4ec056748792e6b5ea9e10e901bd12c3b34",
+    "schema/candidate.schema.json": "sha256:ac94113119b79fb8ffbe0d1786bea9e453bc536cd3bbb7e5f43b8580cd1fb3a3",
+    "schema/response.schema.json": "sha256:c2f6edc6345ec38f21cc57cdfa04afccfc6ba986803e1307947cd236c24a3913"
+  },
+  "preregistrationCommit": "ce133bb",
+  "qualified": {
+    "attempt": 1,
+    "cellId": "q00-schema",
+    "eventsDigest": "sha256:c1cffe58b7a29b4a720564d5dda74f836801947569e156719d68a79329cc6376",
+    "finalDigest": "sha256:d3a611d1394378bee522779178322b3547d251f25893d3a7900e237583babed0",
+    "pass": true,
+    "qualificationPromptDigest": "sha256:391bec98971aee6043fe58dc1c78af7e8c14eb75c74d3cf48d22ed65a63cb699",
+    "responseSchemaDigest": "sha256:c2f6edc6345ec38f21cc57cdfa04afccfc6ba986803e1307947cd236c24a3913",
+    "resultDigest": "sha256:6c79b37d108f2ed9547f39e9d1d2b7d9d04e440a1ecec9888ada2f7916c08448",
+    "stderrDigest": "sha256:f5d90e70b2fc4ee16316293315306fc6f8bf43435c8fd0148a411fb853191d11"
+  },
+  "study": "007-evidence-lineage-model-replication",
+  "trialOrder": [
+    {
+      "cellId": "r01-s01",
+      "repetition": 0,
+      "scenarioId": "S01"
+    },
+    {
+      "cellId": "r01-s02",
+      "repetition": 0,
+      "scenarioId": "S02"
+    },
+    {
+      "cellId": "r01-s03",
+      "repetition": 0,
+      "scenarioId": "S03"
+    },
+    {
+      "cellId": "r01-s04",
+      "repetition": 0,
+      "scenarioId": "S04"
+    },
+    {
+      "cellId": "r01-s05",
+      "repetition": 0,
+      "scenarioId": "S05"
+    },
+    {
+      "cellId": "r01-s06",
+      "repetition": 0,
+      "scenarioId": "S06"
+    },
+    {
+      "cellId": "r01-s07",
+      "repetition": 0,
+      "scenarioId": "S07"
+    },
+    {
+      "cellId": "r01-s08",
+      "repetition": 0,
+      "scenarioId": "S08"
+    },
+    {
+      "cellId": "r02-s01",
+      "repetition": 1,
+      "scenarioId": "S01"
+    },
+    {
+      "cellId": "r02-s02",
+      "repetition": 1,
+      "scenarioId": "S02"
+    },
+    {
+      "cellId": "r02-s03",
+      "repetition": 1,
+      "scenarioId": "S03"
+    },
+    {
+      "cellId": "r02-s04",
+      "repetition": 1,
+      "scenarioId": "S04"
+    },
+    {
+      "cellId": "r02-s05",
+      "repetition": 1,
+      "scenarioId": "S05"
+    },
+    {
+      "cellId": "r02-s06",
+      "repetition": 1,
+      "scenarioId": "S06"
+    },
+    {
+      "cellId": "r02-s07",
+      "repetition": 1,
+      "scenarioId": "S07"
+    },
+    {
+      "cellId": "r02-s08",
+      "repetition": 1,
+      "scenarioId": "S08"
+    },
+    {
+      "cellId": "r03-s01",
+      "repetition": 2,
+      "scenarioId": "S01"
+    },
+    {
+      "cellId": "r03-s02",
+      "repetition": 2,
+      "scenarioId": "S02"
+    },
+    {
+      "cellId": "r03-s03",
+      "repetition": 2,
+      "scenarioId": "S03"
+    },
+    {
+      "cellId": "r03-s04",
+      "repetition": 2,
+      "scenarioId": "S04"
+    },
+    {
+      "cellId": "r03-s05",
+      "repetition": 2,
+      "scenarioId": "S05"
+    },
+    {
+      "cellId": "r03-s06",
+      "repetition": 2,
+      "scenarioId": "S06"
+    },
+    {
+      "cellId": "r03-s07",
+      "repetition": 2,
+      "scenarioId": "S07"
+    },
+    {
+      "cellId": "r03-s08",
+      "repetition": 2,
+      "scenarioId": "S08"
+    }
+  ]
+}

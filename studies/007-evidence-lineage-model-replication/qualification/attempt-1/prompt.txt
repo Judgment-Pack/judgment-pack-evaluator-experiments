@@ -1,0 +1,15 @@
+Return exactly one JSON object matching the supplied response schema. Use these fixed values:
+
+- facts: empty object
+- evidenceAvailability screening-record: unknown
+- acquisitionStatus: unknown
+- sourceRef: qualification.fixture
+- receiptDigest: qualification-receipt
+- artifactDigest: qualification-artifact
+- factClaims: empty array
+- evidenceClaim requirementId: screening-record
+- evidenceClaim availability: unknown
+- evidenceClaim basisPointers: empty array
+- explanation: Schema qualification fixture.
+
+Do not call or use any tool. Return only the JSON object.

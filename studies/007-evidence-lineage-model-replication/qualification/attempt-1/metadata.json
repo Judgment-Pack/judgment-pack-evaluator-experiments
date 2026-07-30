@@ -1,0 +1,8 @@
+{
+  "attempt": 1,
+  "cellId": "q00-schema",
+  "mcpServers": [],
+  "model": "gpt-5.6-terra",
+  "reasoningEffort": "low",
+  "responseSchemaDigest": "sha256:c2f6edc6345ec38f21cc57cdfa04afccfc6ba986803e1307947cd236c24a3913"
+}
