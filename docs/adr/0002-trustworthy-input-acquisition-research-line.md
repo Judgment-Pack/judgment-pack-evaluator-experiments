@@ -114,12 +114,27 @@ attested path; it can never *be* the guarantee. The deterministic proof layer mu
 - **content-addressed artifacts surfaced as MCP resources** — the retained bytes read-only at a
   hash-named URI, so the artifact store is the resource layer.
 
+**Deployment shape: inline first, gateway as target.** The attestation core is the same mechanism
+whether it runs *inline* — a stdio proxy wrapping one downstream MCP server, one process per client,
+a key per instance — or *hosted* — a gateway fronting many sources over the network, one signing
+identity, central binding policy. The gateway is the deployment target for scale, and its single
+attestation authority is a cleaner trust root than a fleet of per-proxy keys; but it is not item 1.
+A network gateway adds attack and operational surface the byte-lineage guarantee does not need in
+order to be established, and because the guarantee is identical in both shapes, it is established
+most cheaply inline. Two requirements bind whichever shape ships, and neither is about scale: the
+attestation boundary MUST sit at the point of source contact — a hop that carries bytes before they
+are stamped is exactly where tampering re-enters — and the attestation authority MUST be nameable
+and auditable. Establish the guarantee inline; host it as a gateway once it holds.
+
 **Build order.** Deliberately not a re-run of Study 005 first: 005 is an honest null on a question that
 turned out to be the wrong one, and polishing it advances nothing.
 
-1. **The generic receipt-stamping MCP proxy** (product artifact). Replaces the synthetic gateway with
-   one general trusted component and makes every later study's trust boundary real rather than a
-   fixture. This is the largest single strengthening available.
+1. **The attestation core — content-address, attest, retain, exclude the model — built
+   deployment-shape-agnostic** (product artifact). Established inline as a stdio proxy because that
+   is the smallest testable trusted base, and designed to be hosted as a gateway (above) once the
+   guarantee holds. Replaces the synthetic per-domain gateway with one general trusted component and
+   makes every later study's trust boundary real rather than a fixture. This is the largest single
+   strengthening available.
 2. **The portable derivation-rule declaration + a clean-room second implementation** (spec seam +
    agreement track). Breaks the 006/007 circularity and makes layer-4 fidelity conformance-testable.
 3. **A focused study: does receipt-required admission eliminate fabrication?** The `not_found → "0"`
