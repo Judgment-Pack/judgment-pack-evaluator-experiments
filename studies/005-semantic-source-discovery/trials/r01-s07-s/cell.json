@@ -1,0 +1,17 @@
+{
+  "arm": "S",
+  "cellId": "r01-s07-s",
+  "expected": {
+    "acquisitionStatus": "ambiguous",
+    "evidenceAvailability": {
+      "screening-record": "unknown"
+    },
+    "facts": {},
+    "toolKeys": []
+  },
+  "model": "gpt-5.6-terra",
+  "reasoningEffort": "low",
+  "repetition": 0,
+  "scenarioId": "S07",
+  "sourceId": "org.example.input-source.us-ofac.entity-screening"
+}

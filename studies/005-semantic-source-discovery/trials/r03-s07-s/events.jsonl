@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"019fb386-99d7-7623-8c86-d6db6e7fb73a"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"unknown\"},\"acquisitionStatus\":\"unknown\",\"sourceId\":null,\"explanation\":\"Locating an eligible read-only acquisition source.\"}"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"unknown\"},\"acquisitionStatus\":\"ambiguous\",\"sourceId\":null,\"explanation\":\"Two equally authoritative exact bindings were available with no tie-break rule, so no acquisition tool was called.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":32638,"cached_input_tokens":29184,"cache_write_input_tokens":0,"output_tokens":230,"reasoning_output_tokens":64}}

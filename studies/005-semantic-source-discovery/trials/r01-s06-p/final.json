@@ -1,0 +1,1 @@
+{"facts":{"screening":{"matchCount":"0"}},"evidenceAvailability":{"screening-record":"absent"},"acquisitionStatus":"resolved","sourceId":"org.example.input-source.saved-ofac-screening-record","explanation":"Exact entity was successfully checked; no OFAC screening record was found."}

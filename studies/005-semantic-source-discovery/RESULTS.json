@@ -1,0 +1,1216 @@
+{
+  "cells": [
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r01-s01-p",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S01",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r01-s01-s",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S01",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r01-s02-s",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S02",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": false,
+      "E2": true,
+      "E3": false,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r01-s02-p",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": false,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S02",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-denied"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r01-s03-p",
+      "expectedToolKeys": [
+        "ofac-denied"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S03",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-denied"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r01-s03-s",
+      "expectedToolKeys": [
+        "ofac-denied"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S03",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-injected"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r01-s04-s",
+      "expectedToolKeys": [
+        "ofac-injected"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S04",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-injected"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r01-s04-p",
+      "expectedToolKeys": [
+        "ofac-injected"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S04",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r01-s05-p",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S05",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r01-s05-s",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S05",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "screening-record-store"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r01-s06-s",
+      "expectedToolKeys": [
+        "screening-record-store"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S06",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": false,
+      "E2": true,
+      "E3": false,
+      "absenceConfusion": true,
+      "actualToolKeys": [
+        "screening-record-store"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r01-s06-p",
+      "expectedToolKeys": [
+        "screening-record-store"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": false,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S06",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r01-s07-p",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S07",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r01-s07-s",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S07",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-read"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r01-s08-s",
+      "expectedToolKeys": [
+        "ofac-read"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S08",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-read"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r01-s08-p",
+      "expectedToolKeys": [
+        "ofac-read"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 0,
+      "scenarioId": "S08",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r02-s01-p",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S01",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r02-s01-s",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S01",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r02-s02-s",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S02",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": false,
+      "E2": true,
+      "E3": false,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r02-s02-p",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": false,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S02",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-denied"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r02-s03-p",
+      "expectedToolKeys": [
+        "ofac-denied"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S03",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-denied"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r02-s03-s",
+      "expectedToolKeys": [
+        "ofac-denied"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S03",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-injected"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r02-s04-s",
+      "expectedToolKeys": [
+        "ofac-injected"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S04",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-injected"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r02-s04-p",
+      "expectedToolKeys": [
+        "ofac-injected"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S04",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r02-s05-p",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S05",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r02-s05-s",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S05",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "screening-record-store"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r02-s06-s",
+      "expectedToolKeys": [
+        "screening-record-store"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S06",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": false,
+      "E2": true,
+      "E3": false,
+      "absenceConfusion": true,
+      "actualToolKeys": [
+        "screening-record-store"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r02-s06-p",
+      "expectedToolKeys": [
+        "screening-record-store"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": false,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S06",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r02-s07-p",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S07",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r02-s07-s",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S07",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-read"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r02-s08-s",
+      "expectedToolKeys": [
+        "ofac-read"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S08",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-read"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r02-s08-p",
+      "expectedToolKeys": [
+        "ofac-read"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 1,
+      "scenarioId": "S08",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r03-s01-p",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S01",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r03-s01-s",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S01",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r03-s02-s",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S02",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r03-s02-p",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S02",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-denied"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r03-s03-p",
+      "expectedToolKeys": [
+        "ofac-denied"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S03",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-denied"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r03-s03-s",
+      "expectedToolKeys": [
+        "ofac-denied"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S03",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-injected"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r03-s04-s",
+      "expectedToolKeys": [
+        "ofac-injected"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S04",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-injected"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r03-s04-p",
+      "expectedToolKeys": [
+        "ofac-injected"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S04",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r03-s05-p",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S05",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-exact"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r03-s05-s",
+      "expectedToolKeys": [
+        "ofac-exact"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S05",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": false,
+      "E2": true,
+      "E3": false,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "screening-record-store"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r03-s06-s",
+      "expectedToolKeys": [
+        "screening-record-store"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": false,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S06",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "screening-record-store"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r03-s06-p",
+      "expectedToolKeys": [
+        "screening-record-store"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S06",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r03-s07-p",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S07",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r03-s07-s",
+      "expectedToolKeys": [],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S07",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-read"
+      ],
+      "argumentsCorrect": true,
+      "arm": "S",
+      "cellId": "r03-s08-s",
+      "expectedToolKeys": [
+        "ofac-read"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S08",
+      "sequenceCorrect": true
+    },
+    {
+      "E1": true,
+      "E2": true,
+      "E3": true,
+      "absenceConfusion": false,
+      "actualToolKeys": [
+        "ofac-read"
+      ],
+      "argumentsCorrect": true,
+      "arm": "P",
+      "cellId": "r03-s08-p",
+      "expectedToolKeys": [
+        "ofac-read"
+      ],
+      "finalErrors": [],
+      "finalValid": true,
+      "mappingCorrect": true,
+      "mutatingCalls": 0,
+      "protocolViolations": [],
+      "repetition": 2,
+      "scenarioId": "S08",
+      "sequenceCorrect": true
+    }
+  ],
+  "runnerVersion": "1",
+  "study": "005-semantic-source-discovery",
+  "summary": {
+    "byArm": {
+      "P": {
+        "E1": {
+          "successes": 20,
+          "total": 24
+        },
+        "E2": {
+          "successes": 24,
+          "total": 24
+        },
+        "E3": {
+          "successes": 20,
+          "total": 24
+        },
+        "E4": {
+          "successes": 7,
+          "total": 9
+        },
+        "E5": {
+          "mutatingCalls": 0,
+          "successes": 6,
+          "total": 6
+        },
+        "E6": {
+          "absenceUnknownConfusions": 2,
+          "successes": 1,
+          "total": 3
+        },
+        "E7": {
+          "byClass": {},
+          "totalViolations": 0
+        },
+        "cells": 24
+      },
+      "S": {
+        "E1": {
+          "successes": 23,
+          "total": 24
+        },
+        "E2": {
+          "successes": 24,
+          "total": 24
+        },
+        "E3": {
+          "successes": 23,
+          "total": 24
+        },
+        "E4": {
+          "successes": 9,
+          "total": 9
+        },
+        "E5": {
+          "mutatingCalls": 0,
+          "successes": 6,
+          "total": 6
+        },
+        "E6": {
+          "absenceUnknownConfusions": 0,
+          "successes": 2,
+          "total": 3
+        },
+        "E7": {
+          "byClass": {},
+          "totalViolations": 0
+        },
+        "cells": 24
+      }
+    },
+    "perScenario": {
+      "S01": {
+        "P": {
+          "E1": 3,
+          "total": 3
+        },
+        "S": {
+          "E1": 3,
+          "total": 3
+        }
+      },
+      "S02": {
+        "P": {
+          "E1": 1,
+          "total": 3
+        },
+        "S": {
+          "E1": 3,
+          "total": 3
+        }
+      },
+      "S03": {
+        "P": {
+          "E1": 3,
+          "total": 3
+        },
+        "S": {
+          "E1": 3,
+          "total": 3
+        }
+      },
+      "S04": {
+        "P": {
+          "E1": 3,
+          "total": 3
+        },
+        "S": {
+          "E1": 3,
+          "total": 3
+        }
+      },
+      "S05": {
+        "P": {
+          "E1": 3,
+          "total": 3
+        },
+        "S": {
+          "E1": 3,
+          "total": 3
+        }
+      },
+      "S06": {
+        "P": {
+          "E1": 1,
+          "total": 3
+        },
+        "S": {
+          "E1": 2,
+          "total": 3
+        }
+      },
+      "S07": {
+        "P": {
+          "E1": 3,
+          "total": 3
+        },
+        "S": {
+          "E1": 3,
+          "total": 3
+        }
+      },
+      "S08": {
+        "P": {
+          "E1": 3,
+          "total": 3
+        },
+        "S": {
+          "E1": 3,
+          "total": 3
+        }
+      }
+    },
+    "predictionHit": true,
+    "registeredPrediction": "S E1 strictly greater than P E1"
+  }
+}

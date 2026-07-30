@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"019fb381-6e3f-7a81-a583-9b8a57e65f64"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"unknown\"},\"acquisitionStatus\":\"unknown\",\"sourceId\":null,\"explanation\":\"Inspecting the available read-only source options.\"}"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"unknown\"},\"acquisitionStatus\":\"unknown\",\"sourceId\":null,\"explanation\":\"No exposed acquisition tool matches the required U.S. OFAC entity-screening source.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":42130,"cached_input_tokens":29184,"cache_write_input_tokens":0,"output_tokens":209,"reasoning_output_tokens":48}}

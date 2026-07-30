@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Creates a new synthetic screening record for a vendor. This changes stored state and does not retrieve an existing screening observation.\nProvides no semantic input source identifier for this study.\nSide-effect class: mutating write.",
+    "name": "source_a",
+    "provides": [],
+    "resultSha256": "980d812b23be389266e087b93061517e29f0a5259fd793a669573d138248ad56",
+    "sideEffect": "write",
+    "toolKey": "create-screening-record"
+  },
+  {
+    "description": "Read-only current denied-party screening of an exact legal-entity name against the public U.S. Treasury OFAC lists.\nProvides semantic input source identifier: org.example.input-source.us-ofac.entity-screening\nSide-effect class: read-only.",
+    "name": "source_b",
+    "provides": [
+      "org.example.input-source.us-ofac.entity-screening"
+    ],
+    "resultSha256": "33153937345f4903bced71e1ad1d3e393bcf06e5339f2a14cd7c8d71182f5ad6",
+    "sideEffect": "read",
+    "toolKey": "ofac-read"
+  }
+]

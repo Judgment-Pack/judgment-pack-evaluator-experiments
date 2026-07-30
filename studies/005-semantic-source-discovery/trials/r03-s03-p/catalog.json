@@ -1,0 +1,22 @@
+[
+  {
+    "description": "Read-only exact-name screening against the European Union consolidated financial-sanctions list, not the U.S. OFAC lists.\nProvides semantic input source identifier: org.example.input-source.eu.consolidated-sanctions-screening\nSide-effect class: read-only.",
+    "name": "source_a",
+    "provides": [
+      "org.example.input-source.eu.consolidated-sanctions-screening"
+    ],
+    "resultSha256": "5e9d48171ae76caa436aeab299652f96c47ca8aef4b83a93865f0182e2b0d390",
+    "sideEffect": "read",
+    "toolKey": "eu-sanctions"
+  },
+  {
+    "description": "Read-only current denied-party screening of an exact legal-entity name against the public U.S. Treasury OFAC lists.\nProvides semantic input source identifier: org.example.input-source.us-ofac.entity-screening\nSide-effect class: read-only.",
+    "name": "source_b",
+    "provides": [
+      "org.example.input-source.us-ofac.entity-screening"
+    ],
+    "resultSha256": "fa5ef56f70ebb6967cc2568cea95a1804d004b3c9348f7528a1ca42c5cfd1721",
+    "sideEffect": "read",
+    "toolKey": "ofac-denied"
+  }
+]

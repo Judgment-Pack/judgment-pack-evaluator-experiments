@@ -1,0 +1,22 @@
+[
+  {
+    "description": "Read-only search of saved vendor tax forms; it contains no sanctions screening records.\nProvides semantic input source identifier: org.example.input-source.saved-vendor-tax-form\nSide-effect class: read-only.",
+    "name": "source_a",
+    "provides": [
+      "org.example.input-source.saved-vendor-tax-form"
+    ],
+    "resultSha256": "944ffd9bf6e3e6bb0da87f0f06bb6935f0790d51fa7e9b0442b9a6bc0fe9e50a",
+    "sideEffect": "read",
+    "toolKey": "tax-form-store"
+  },
+  {
+    "description": "Read-only search of the organization's saved, dated OFAC screening records by exact legal-entity name.\nProvides semantic input source identifier: org.example.input-source.saved-ofac-screening-record\nSide-effect class: read-only.",
+    "name": "source_b",
+    "provides": [
+      "org.example.input-source.saved-ofac-screening-record"
+    ],
+    "resultSha256": "0d56233e32ca4b5bf60cab5515d701121742c0299574dee36c6a5b628b8695c9",
+    "sideEffect": "read",
+    "toolKey": "screening-record-store"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "attempt": 1,
+  "cellId": "r03-s05-p",
+  "reason": "OpenAI rejected the response schema before inference.",
+  "retained": {
+    "done": "DONE-infra-attempt-1.json",
+    "events": "events-infra-attempt-1.jsonl",
+    "stderr": "stderr-infra-attempt-1.log"
+  },
+  "returnCode": 1,
+  "timedOut": false,
+  "treatmentReceived": false
+}

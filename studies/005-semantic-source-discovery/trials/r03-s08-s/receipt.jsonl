@@ -1,0 +1,1 @@
+{"arguments":{"legal_name":"Northwind Analytics Ltd"},"callIndex":1,"cellId":"r03-s08-s","provides":["org.example.input-source.us-ofac.entity-screening"],"resultSha256":"33153937345f4903bced71e1ad1d3e393bcf06e5339f2a14cd7c8d71182f5ad6","sideEffect":"read","toolKey":"ofac-read","toolName":"source_b"}

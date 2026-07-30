@@ -1,0 +1,1 @@
+{"facts":{"screening":{"matchCount":"2"}},"evidenceAvailability":{"screening-record":"present"},"acquisitionStatus":"resolved","sourceId":"org.example.input-source.us-ofac.entity-screening","explanation":"Exact-name current OFAC screening returned a record with match count 2."}

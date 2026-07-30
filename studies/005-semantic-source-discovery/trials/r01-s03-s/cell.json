@@ -1,0 +1,19 @@
+{
+  "arm": "S",
+  "cellId": "r01-s03-s",
+  "expected": {
+    "acquisitionStatus": "unknown",
+    "evidenceAvailability": {
+      "screening-record": "unknown"
+    },
+    "facts": {},
+    "toolKeys": [
+      "ofac-denied"
+    ]
+  },
+  "model": "gpt-5.6-terra",
+  "reasoningEffort": "low",
+  "repetition": 0,
+  "scenarioId": "S03",
+  "sourceId": "org.example.input-source.us-ofac.entity-screening"
+}
