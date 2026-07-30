@@ -1,0 +1,11 @@
+{
+  "attempt": 1,
+  "cellId": "q00-schema",
+  "eventsDigest": "sha256:c1cffe58b7a29b4a720564d5dda74f836801947569e156719d68a79329cc6376",
+  "finalDigest": "sha256:d3a611d1394378bee522779178322b3547d251f25893d3a7900e237583babed0",
+  "pass": true,
+  "qualificationPromptDigest": "sha256:391bec98971aee6043fe58dc1c78af7e8c14eb75c74d3cf48d22ed65a63cb699",
+  "responseSchemaDigest": "sha256:c2f6edc6345ec38f21cc57cdfa04afccfc6ba986803e1307947cd236c24a3913",
+  "resultDigest": "sha256:6c79b37d108f2ed9547f39e9d1d2b7d9d04e440a1ecec9888ada2f7916c08448",
+  "stderrDigest": "sha256:f5d90e70b2fc4ee16316293315306fc6f8bf43435c8fd0148a411fb853191d11"
+}

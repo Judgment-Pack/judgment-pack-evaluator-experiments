@@ -62,3 +62,13 @@
 | 22 | `r03-s06` | 3 | S06 |
 | 23 | `r03-s07` | 3 | S07 |
 | 24 | `r03-s08` | 3 | S08 |
+
+## Qualified transport schema
+
+- qualification attempt: `1`
+- response schema: `sha256:c2f6edc6345ec38f21cc57cdfa04afccfc6ba986803e1307947cd236c24a3913`
+- qualification prompt: `sha256:391bec98971aee6043fe58dc1c78af7e8c14eb75c74d3cf48d22ed65a63cb699`
+- qualification result: `sha256:6c79b37d108f2ed9547f39e9d1d2b7d9d04e440a1ecec9888ada2f7916c08448`
+- qualification events: `sha256:c1cffe58b7a29b4a720564d5dda74f836801947569e156719d68a79329cc6376`
+- qualification final: `sha256:d3a611d1394378bee522779178322b3547d251f25893d3a7900e237583babed0`
+- efficacy freeze manifest: `sha256:6b5bbb533a24976977f84ad4f4db1e8ce0ac8dfadc2915f06bdeea9c2bf7260f`
