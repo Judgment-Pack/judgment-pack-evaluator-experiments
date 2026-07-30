@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:judgmentpack:experiment:semantic-source-cases:1",
+  "title": "Study 005 fixed cases",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["studyVersion", "request", "scenarios"],
+  "properties": {
+    "studyVersion": {
+      "const": "1"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["legalName"],
+      "properties": {
+        "legalName": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/scenario"
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "description",
+        "provides",
+        "sideEffect",
+        "result"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provides": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "sideEffect": {
+          "enum": ["read", "write"]
+        },
+        "result": {}
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "toolKeys",
+        "facts",
+        "evidenceAvailability",
+        "acquisitionStatus"
+      ],
+      "properties": {
+        "toolKeys": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "facts": {
+          "type": "object"
+        },
+        "evidenceAvailability": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": ["present", "absent", "unknown"]
+          }
+        },
+        "acquisitionStatus": {
+          "enum": ["resolved", "absent", "unknown", "ambiguous"]
+        }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "source",
+        "hint",
+        "factPointer",
+        "evidenceRequirement",
+        "tools",
+        "expected"
+      ],
+      "properties": {
+        "id": {
+          "pattern": "^S0[1-8]$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "factPointer": {
+          "const": "/screening/matchCount"
+        },
+        "evidenceRequirement": {
+          "const": "screening-record"
+        },
+        "tools": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/tool"
+          }
+        },
+        "expected": {
+          "$ref": "#/$defs/expected"
+        }
+      }
+    }
+  }
+}
