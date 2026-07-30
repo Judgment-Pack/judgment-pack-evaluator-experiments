@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:judgmentpack:experiment:006:binding-lock:1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lockVersion",
+    "sourceRef",
+    "binding",
+    "subjectArgument",
+    "payloadSchemaId",
+    "adapterId",
+    "maxAgeSeconds",
+    "approvedBy",
+    "approvedAt"
+  ],
+  "properties": {
+    "lockVersion": {
+      "const": "1"
+    },
+    "sourceRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transport", "server", "tool"],
+      "properties": {
+        "transport": {
+          "const": "mcp"
+        },
+        "server": {
+          "const": "acquisition_gateway"
+        },
+        "tool": {
+          "const": "acquire_screening"
+        }
+      }
+    },
+    "subjectArgument": {
+      "const": "legal_name"
+    },
+    "payloadSchemaId": {
+      "type": "string"
+    },
+    "adapterId": {
+      "type": "string"
+    },
+    "maxAgeSeconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "approvedBy": {
+      "type": "string"
+    },
+    "approvedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
