@@ -13,12 +13,40 @@
   ],
   "properties": {
     "facts": {
-      "type": "object"
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {},
+          "required": []
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["screening"],
+          "properties": {
+            "screening": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["matchCount"],
+              "properties": {
+                "matchCount": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "evidenceAvailability": {
       "type": "object",
-      "additionalProperties": {
-        "enum": ["present", "absent", "unknown"]
+      "additionalProperties": false,
+      "required": ["screening-record"],
+      "properties": {
+        "screening-record": {
+          "enum": ["present", "absent", "unknown"]
+        }
       }
     },
     "acquisitionStatus": {
