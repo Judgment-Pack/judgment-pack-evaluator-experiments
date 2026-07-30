@@ -1,0 +1,17 @@
+{
+  "cellId": "r01-s03",
+  "eventCount": 7,
+  "finalErrors": [],
+  "finalValid": true,
+  "protocolViolations": [],
+  "receiptCount": 1,
+  "returnCode": 0,
+  "timedOut": false,
+  "tokenUsage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 32256,
+    "input_tokens": 50229,
+    "output_tokens": 488,
+    "reasoning_output_tokens": 104
+  }
+}

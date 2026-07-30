@@ -72,3 +72,21 @@
 - qualification events: `sha256:c1cffe58b7a29b4a720564d5dda74f836801947569e156719d68a79329cc6376`
 - qualification final: `sha256:d3a611d1394378bee522779178322b3547d251f25893d3a7900e237583babed0`
 - efficacy freeze manifest: `sha256:6b5bbb533a24976977f84ad4f4db1e8ce0ac8dfadc2915f06bdeea9c2bf7260f`
+
+## Efficacy execution and scoring
+
+- efficacy-start commit: `ca36e70`
+- efficacy cells completed: `24/24`
+- first-attempt completions: `24/24`
+- retained efficacy infrastructure failures: `0`
+- exact gateway receipts: `24/24`
+- exact fact/evidence/status/source mappings: `24/24`
+- verified lineage admissions: `21/24`
+- verified evaluator receipts: `21/24`
+- protocol violations: `0`
+- `RESULTS.json`: `sha256:8df8c8bd1c67a7841e714b6f8cc6cf6e8389c1f32b5408c8d115c436ca5d5511`
+- `RESULTS.md`: `sha256:d920630f37b048345ad769932496a13527639ae0dc87f615834bbad50d8ee2c4`
+- efficacy token usage:
+  `{"cache_write_input_tokens":0,"cached_input_tokens":939520,"input_tokens":1207500,"output_tokens":11253,"reasoning_output_tokens":3625}`
+- qualification token usage:
+  `{"cache_write_input_tokens":0,"cached_input_tokens":0,"input_tokens":16366,"output_tokens":89,"reasoning_output_tokens":0}`

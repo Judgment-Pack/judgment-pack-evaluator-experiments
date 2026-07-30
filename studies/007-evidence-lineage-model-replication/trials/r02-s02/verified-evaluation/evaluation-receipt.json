@@ -1,0 +1,11 @@
+{
+  "acquisitionReceiptDigest": "sha256:2d75cdb37f53bd8effb1a899ab81447c741ba2bfaa2d16aad1a36cce83207c7a",
+  "attestation": "hmac-sha256:71572dd1ab504c9d5b7f97f8e688e6015caedc1dcd63d03b91181b80d5c70979",
+  "dispositionDigest": "sha256:bb461f59cf4ae393538d34d7a4db06edbf3e41f9813b10f5efbb3dd148491ac7",
+  "evaluationReceiptVersion": "1",
+  "evaluatorDigest": "sha256:b8cfe3a99ad683c0df9de0bc8d79fafdeea3f6cee639b143f46dc3a92827776d",
+  "evidenceDigest": "sha256:b32efac7504a3bbd5dde29fb6a1fbd57e7b0cee3426b9a31bd0857eb3c8d03ba",
+  "factsDigest": "sha256:55edafb4d3b031156343d24754a6d728b250572e39ee2041dc57ec4c7a9e850c",
+  "gate": "verified-lineage",
+  "packDigest": "sha256:d587abe5c247fbcf0b890222792eadb18b22837d9555dbd1ef1fd15d015a4ea0"
+}

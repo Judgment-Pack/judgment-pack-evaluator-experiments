@@ -1,0 +1,17 @@
+{
+  "bindingDigest": "sha256:33c403d0324f2fa2c81a19db3ab8e4586b0b5bc3ad2d7b62e809e65007ba7a6a",
+  "cellId": "r03-s07",
+  "expected": {
+    "acquisitionStatus": "unknown",
+    "evidenceAvailability": {
+      "screening-record": "unknown"
+    },
+    "facts": {},
+    "outcome": null
+  },
+  "model": "gpt-5.6-terra",
+  "reasoningEffort": "low",
+  "repetition": 2,
+  "responseSchemaDigest": "sha256:c2f6edc6345ec38f21cc57cdfa04afccfc6ba986803e1307947cd236c24a3913",
+  "scenarioId": "S07"
+}
