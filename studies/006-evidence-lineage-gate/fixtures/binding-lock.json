@@ -1,0 +1,15 @@
+{
+  "lockVersion": "1",
+  "sourceRef": "org.example.input-source.us-ofac.entity-screening",
+  "binding": {
+    "transport": "mcp",
+    "server": "acquisition_gateway",
+    "tool": "acquire_screening"
+  },
+  "subjectArgument": "legal_name",
+  "payloadSchemaId": "urn:judgmentpack:experiment:006:screening-payload:1",
+  "adapterId": "urn:judgmentpack:experiment:006:screening-adapter:1",
+  "maxAgeSeconds": 86400,
+  "approvedBy": "study-006-fixture-authority",
+  "approvedAt": "2026-07-30T15:00:00Z"
+}

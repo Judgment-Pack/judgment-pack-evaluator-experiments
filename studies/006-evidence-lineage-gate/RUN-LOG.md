@@ -1,0 +1,60 @@
+# Run log — Study 006
+
+- preregistration commit: `7790cb4`
+- preregistration SHA-256: `sha256:a6d39674b4ad65e2a21eee666565731ef9d08a63082d0821c616f03aacacf134`
+- runner version: `1`
+- model: `gpt-5.6-terra`
+- reasoning effort: `low`
+- client: `codex-cli 0.145.0`
+- Python: `3.8.20 (default, Jun 12 2025, 17:51:52)  [GCC 9.4.0]`
+
+## Repository baselines
+
+- experiment: `7790cb4114c04d6e6a3ccd303b18a3c6939f1aca`
+- spec: `b3db68eae470ccb401362b3dc549192c10b86158`
+- runtime: `bdf4b16159265fedd582bdcb2aeda18ec9ac7a3d`
+- demo: `3069ab8f5b11127d267b0f23df989f8533d0ca5d`
+
+## Artifact SHA-256
+
+- `PREREGISTRATION.md`: `sha256:a6d39674b4ad65e2a21eee666565731ef9d08a63082d0821c616f03aacacf134`
+- `fixtures/cases.json`: `sha256:80edea6f51f957c451863ea92d5296670ab5f3d449521468e9d6f253c8f3ed0c`
+- `fixtures/binding-lock.json`: `sha256:55a3d791ee48f8c2a4d5f57de40a80e6f694600017f0dacd29afd2e53fb2598c`
+- `fixtures/gateway.key`: `sha256:9019844959035cee4d662881ba6fb90d9f273bbc912a39d6eb66e30a0ab71143`
+- `fixtures/PROMPT.txt`: `sha256:3457bc4eebdc016ad28e09488a99c4f2b41b9064d24614e5ae63ac5dcaf9faaf`
+- `schema/candidate.schema.json`: `sha256:d0dd95c0da10d933a2f4584ce3c1cd3398521ed9c2bcebf4e62e9bf28c5bfc26`
+- `schema/binding-lock.schema.json`: `sha256:4846afc9994e51da0a54ac16503d3cfaf69ffcd16917ab5977ec47293d6b7b20`
+- `harness/common.py`: `sha256:5b540d15feb46bc46363362fbf4750db93117a7fb837fa4e2912a626bc71b6fd`
+- `harness/acquisition_gateway.py`: `sha256:638ddf1eee88b2b53d25fa7988d79c281f82b44cde01aa3b9a5d67913d4a50a4`
+- `harness/study.py`: `sha256:18be4575b09ce3d06886047dca02645fc7161e63bd657873824a072ff8cbb159`
+- `/home/onword/repo/judgment-pack/judgment-pack-runtime/bin/judgment-pack`: `sha256:b8cfe3a99ad683c0df9de0bc8d79fafdeea3f6cee639b143f46dc3a92827776d`
+- `/home/onword/repo/judgment-pack/judgment-pack-demo/projects/enterprise-demo/packs/sanctions-screening.pack.json`: `sha256:d587abe5c247fbcf0b890222792eadb18b22837d9555dbd1ef1fd15d015a4ea0`
+
+## Fixed model trial order
+
+| # | cell | repetition | scenario |
+|---:|---|---:|---|
+| 1 | `r01-s01` | 1 | S01 |
+| 2 | `r01-s02` | 1 | S02 |
+| 3 | `r01-s03` | 1 | S03 |
+| 4 | `r01-s04` | 1 | S04 |
+| 5 | `r01-s05` | 1 | S05 |
+| 6 | `r01-s06` | 1 | S06 |
+| 7 | `r01-s07` | 1 | S07 |
+| 8 | `r01-s08` | 1 | S08 |
+| 9 | `r02-s01` | 2 | S01 |
+| 10 | `r02-s02` | 2 | S02 |
+| 11 | `r02-s03` | 2 | S03 |
+| 12 | `r02-s04` | 2 | S04 |
+| 13 | `r02-s05` | 2 | S05 |
+| 14 | `r02-s06` | 2 | S06 |
+| 15 | `r02-s07` | 2 | S07 |
+| 16 | `r02-s08` | 2 | S08 |
+| 17 | `r03-s01` | 3 | S01 |
+| 18 | `r03-s02` | 3 | S02 |
+| 19 | `r03-s03` | 3 | S03 |
+| 20 | `r03-s04` | 3 | S04 |
+| 21 | `r03-s05` | 3 | S05 |
+| 22 | `r03-s06` | 3 | S06 |
+| 23 | `r03-s07` | 3 | S07 |
+| 24 | `r03-s08` | 3 | S08 |
