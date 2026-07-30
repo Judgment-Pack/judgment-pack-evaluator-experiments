@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:judgmentpack:experiment:006:candidate:1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "facts",
+    "evidenceAvailability",
+    "acquisitionStatus",
+    "sourceRef",
+    "lineage",
+    "explanation"
+  ],
+  "properties": {
+    "facts": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {},
+          "required": []
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["screening"],
+          "properties": {
+            "screening": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["matchCount"],
+              "properties": {
+                "matchCount": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidenceAvailability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["screening-record"],
+      "properties": {
+        "screening-record": {
+          "enum": ["present", "absent", "unknown"]
+        }
+      }
+    },
+    "acquisitionStatus": {
+      "enum": ["resolved", "absent", "unknown"]
+    },
+    "sourceRef": {
+      "type": "string"
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receiptDigest",
+        "artifactDigest",
+        "factClaims",
+        "evidenceClaim"
+      ],
+      "properties": {
+        "receiptDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "artifactDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "factClaims": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["target", "jsonPointer", "value"],
+            "properties": {
+              "target": {
+                "const": "/screening/matchCount"
+              },
+              "jsonPointer": {
+                "const": "/matchCount"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "evidenceClaim": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["requirementId", "availability", "basisPointers"],
+          "properties": {
+            "requirementId": {
+              "const": "screening-record"
+            },
+            "availability": {
+              "enum": ["present", "absent", "unknown"]
+            },
+            "basisPointers": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^/"
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      }
+    },
+    "explanation": {
+      "type": "string"
+    }
+  }
+}
