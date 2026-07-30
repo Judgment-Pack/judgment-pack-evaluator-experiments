@@ -18,3 +18,20 @@ never by editing the preregistration.
    attempt and permits only the one rerun allowed by the preregistration. This prevents a common
    launch or configuration failure from being repeated across all 48 cells; treatment, fixtures,
    completed-cell handling, and scoring are unchanged.
+
+## Launch-time infrastructure repair
+
+4. All 48 first CLI attempts were rejected by the OpenAI API with HTTP 400
+   `invalid_json_schema`: the service's strict structured-output subset requires every object to
+   declare `additionalProperties: false`. The rejection occurred before model inference or MCP
+   tool discovery; there were no agent messages, tool receipts, or final responses. The runner had
+   incorrectly treated its local `turn.started` event as proof that treatment was received, so it
+   continued instead of stopping after the first rejection.
+
+   Every original prompt, event log, stderr log, and completion marker is retained as
+   infrastructure attempt 1. The response schema was mechanically closed over the same registered
+   output domain: facts are either `{}` or the registered `screening.matchCount` shape, and
+   evidence has the registered `screening-record` member. Expected outputs and comparison logic did
+   not change. The runner now recognizes the explicit pre-inference schema rejection and
+   reclassifies it transparently. Each cell will use its single preregistered infrastructure rerun;
+   no model result is being replaced.

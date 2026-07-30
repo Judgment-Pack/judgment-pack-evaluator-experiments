@@ -541,14 +541,91 @@ def parse_final(path: Path) -> Tuple[Optional[Dict[str, Any]], List[str]]:
     return value if isinstance(value, dict) else None, errors
 
 
+def pre_treatment_infrastructure_failure(
+    events: Iterable[Any],
+    receipt_path: Path,
+    final_path: Path,
+    return_code: Optional[int],
+) -> bool:
+    if return_code == 0 or receipt_path.exists() or final_path.exists():
+        return False
+    event_list = list(events)
+    serialized = canonical(event_list)
+    if "invalid_json_schema" in serialized:
+        return True
+    # A CLI process that never created a thread could not have delivered the
+    # frozen prompt or tool catalog. Timeouts and post-thread failures are not
+    # inferred to be infrastructure failures without an explicit rejection.
+    return not any(
+        isinstance(event, dict) and event.get("type") == "thread.started"
+        for event in event_list
+    )
+
+
+def retain_infrastructure_attempt(
+    cell_dir: Path,
+    row: Dict[str, Any],
+    attempt_number: int,
+    return_code: Optional[int],
+    timed_out: bool,
+    paths: Iterable[Tuple[str, Path]],
+    reason: str,
+) -> None:
+    retained = {}
+    for label, path in paths:
+        if path.exists():
+            destination = cell_dir / (
+                "%s-infra-attempt-%d%s"
+                % (path.stem, attempt_number, path.suffix)
+            )
+            path.replace(destination)
+            retained[label] = destination.name
+    infrastructure = {
+        "cellId": row["cellId"],
+        "attempt": attempt_number,
+        "returnCode": return_code,
+        "timedOut": timed_out,
+        "treatmentReceived": False,
+        "reason": reason,
+        "retained": retained,
+    }
+    (cell_dir / ("INFRA-ATTEMPT-%d.json" % attempt_number)).write_text(
+        pretty(infrastructure), encoding="utf-8"
+    )
+
+
 def run_cell(
     document: Dict[str, Any], scenario: Dict[str, Any], row: Dict[str, Any]
 ) -> None:
     cell_dir = TRIALS_PATH / row["cellId"]
     done_path = cell_dir / "DONE.json"
     if done_path.exists():
-        print("%s already complete; retained" % row["cellId"])
-        return
+        prior_events = read_jsonl(cell_dir / "events.jsonl")
+        prior_done = load_json(done_path)
+        if pre_treatment_infrastructure_failure(
+            prior_events,
+            cell_dir / "receipt.jsonl",
+            cell_dir / "final.json",
+            prior_done.get("returnCode"),
+        ):
+            retain_infrastructure_attempt(
+                cell_dir,
+                row,
+                1,
+                prior_done.get("returnCode"),
+                bool(prior_done.get("timedOut")),
+                (
+                    ("events", cell_dir / "events.jsonl"),
+                    ("stderr", cell_dir / "stderr.log"),
+                    ("final", cell_dir / "final.json"),
+                    ("done", done_path),
+                ),
+                "OpenAI rejected the response schema before inference.",
+            )
+            print("%s reclassified and retained as infrastructure attempt 1" % row["cellId"])
+        else:
+            print("%s already complete; retained" % row["cellId"])
+            return
     cell_dir.mkdir(parents=True, exist_ok=True)
     prior_infra_attempts = sorted(cell_dir.glob("INFRA-ATTEMPT-*.json"))
     if len(prior_infra_attempts) >= 2:
@@ -631,42 +708,30 @@ def run_cell(
         or final_path.exists()
         or any(
             isinstance(event, dict)
-            and event.get("type")
-            in {
-                "turn.started",
-                "turn.completed",
-                "item.started",
-                "item.completed",
-                "item.updated",
-            }
+            and event.get("type") in {"item.started", "item.completed", "item.updated"}
+            and isinstance(event.get("item"), dict)
+            and event["item"].get("type")
+            in {"agent_message", "reasoning", "mcp_tool_call", "mcp_call"}
             for event in events
         )
     )
-    if (return_code not in {0} or timed_out) and not treatment_received:
+    pre_treatment_failure = pre_treatment_infrastructure_failure(
+        events, receipt_path, final_path, return_code
+    )
+    if pre_treatment_failure:
         attempt_number = len(prior_infra_attempts) + 1
-        retained = {}
-        for label, path in (
-            ("events", event_path),
-            ("stderr", stderr_path),
-            ("final", final_path),
-        ):
-            if path.exists():
-                destination = cell_dir / (
-                    "%s-infra-attempt-%d%s"
-                    % (path.stem, attempt_number, path.suffix)
-                )
-                path.replace(destination)
-                retained[label] = destination.name
-        infrastructure = {
-            "cellId": row["cellId"],
-            "attempt": attempt_number,
-            "returnCode": return_code,
-            "timedOut": timed_out,
-            "treatmentReceived": False,
-            "retained": retained,
-        }
-        (cell_dir / ("INFRA-ATTEMPT-%d.json" % attempt_number)).write_text(
-            pretty(infrastructure), encoding="utf-8"
+        retain_infrastructure_attempt(
+            cell_dir,
+            row,
+            attempt_number,
+            return_code,
+            timed_out,
+            (
+                ("events", event_path),
+                ("stderr", stderr_path),
+                ("final", final_path),
+            ),
+            "CLI or service rejected the request before treatment.",
         )
         raise ValidationError(
             "%s infrastructure attempt %d failed before treatment; stopped before "
