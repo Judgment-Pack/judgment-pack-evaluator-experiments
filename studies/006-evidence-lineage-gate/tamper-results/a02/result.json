@@ -1,0 +1,28 @@
+{
+  "caseId": "A02",
+  "expectedFailureStage": "evidence",
+  "localized": true,
+  "syntaxErrors": [],
+  "trustAccepted": true,
+  "trustDisposition": {
+    "handoff": {
+      "state": "requested",
+      "triggeredBy": [
+        "missing-required-evidence"
+      ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+      "missing-required-evidence"
+    ]
+  },
+  "verifiedAccepted": false,
+  "verifiedDisposition": null,
+  "verifiedErrors": [
+    "mapping: facts differ from artifact",
+    "evidence: availability differs from artifact classification",
+    "evidence: acquisition status differs from artifact classification",
+    "claim: fact claims differ from artifact",
+    "evidence: evidence claim availability differs"
+  ]
+}

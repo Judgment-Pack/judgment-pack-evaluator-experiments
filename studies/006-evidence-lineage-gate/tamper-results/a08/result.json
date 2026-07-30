@@ -1,0 +1,27 @@
+{
+  "caseId": "A08",
+  "expectedFailureStage": "evaluation-output",
+  "localized": true,
+  "syntaxErrors": [],
+  "trustAccepted": true,
+  "trustDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+  },
+  "verifiedAccepted": false,
+  "verifiedDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+  },
+  "verifiedErrors": [
+    "evaluation-output: disposition digest mismatch"
+  ]
+}

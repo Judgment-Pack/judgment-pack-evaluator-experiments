@@ -16,6 +16,7 @@ python3 harness/study.py validate
 python3 -m unittest -v harness/test_study.py
 python3 harness/study.py prepare
 python3 harness/study.py tamper
+python3 harness/study.py audit-d4
 python3 harness/study.py run
 python3 harness/study.py score
 ```

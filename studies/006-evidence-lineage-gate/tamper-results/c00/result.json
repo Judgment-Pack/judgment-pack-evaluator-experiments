@@ -1,0 +1,25 @@
+{
+  "caseId": "C00",
+  "expectedFailureStage": null,
+  "localized": true,
+  "syntaxErrors": [],
+  "trustAccepted": true,
+  "trustDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+  },
+  "verifiedAccepted": true,
+  "verifiedDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+  },
+  "verifiedErrors": []
+}
