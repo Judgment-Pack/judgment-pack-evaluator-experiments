@@ -1,0 +1,34 @@
+{
+  "labels": [
+    {
+      "room": "A1",
+      "index": 3,
+      "label": "non-scalar",
+      "justification": "The refund decision (A7) cannot act on this by learning that A1 produced a booking-permitted outcome; it needs the booking's payment facts — that a travel certificate was applied and how much of it remains unspent — and must exclude that amount from the refundable base. The clause therefore carries an amount-bearing entitlement exclusion and upstream facts rather than an outcome identity compared for equality."
+    },
+    {
+      "room": "A1",
+      "index": 7,
+      "label": "non-scalar",
+      "justification": "The clause grants a full-refund entitlement conditioned on the cancellation being for health or weather reasons, so the consumer needs A1's insurance-purchased fact plus the cancellation decision's reason — an input to A6, not its verdict. It also carries the entitlement's scope (full refund), making the reference parameter- and fact-bearing rather than an outcome identity."
+    },
+    {
+      "room": "A3",
+      "index": 4,
+      "label": "non-scalar",
+      "justification": "A7 needs the refund's magnitude — the difference between the post-change price and the original price — which A3's outcome id allow-refund-difference names in its label but never carries as a value. Knowing only which outcome A3 produced leaves the entitlement unsized, so the reference carries a magnitude and is non-scalar."
+    },
+    {
+      "room": "A7",
+      "index": 2,
+      "label": "scalar-status",
+      "justification": "The clause conditions A7's gesture only on whether the change (A2) or cancellation (A6) decision was carried through — a membership test over two upstream outcomes, which A7 already reads as the boolean /reservation/changeOrCancelCompleted compared for equality. No upstream input, parameter, or amount is consumed: the $50-times-passengers arithmetic is A7's own content and lies outside the extracted clause."
+    },
+    {
+      "room": "R3",
+      "index": 1,
+      "label": "scalar-status",
+      "justification": "The later modification decisions and R1 need only to know that R3 produced allow-item-modification, which they consume as an equality test on /order/status against \"pending\" — no property of which items were modified matters. The reference is a single upstream outcome identity compared for equality, carrying no parameters, magnitudes, per-item entitlements, or R3 input facts."
+    }
+  ]
+}
