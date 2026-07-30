@@ -72,3 +72,13 @@ D1–D3 were not rerun. The separate D4 audit reads retained Phase A artifacts a
   `sha256:780809c997518e37a75e1cac10da8b68147b8f37b128405c61a009885b8fe496`
 - separate D4 audit JSON SHA-256:
   `sha256:4ec9e0208d2a07912726e1aa5f877bf05e870d03aa5a5764b005687f53494fcc`
+
+## Phase-B pre-treatment schema repair
+
+The retained first `r01-s01` attempt was rejected before inference or MCP discovery as recorded in
+`DEVIATIONS.md`.
+
+- original candidate-schema SHA-256:
+  `sha256:d0dd95c0da10d933a2f4584ce3c1cd3398521ed9c2bcebf4e62e9bf28c5bfc26`
+- explicit-string-type candidate-schema SHA-256 used for the allowed rerun:
+  `sha256:ac94113119b79fb8ffbe0d1786bea9e453bc536cd3bbb7e5f43b8580cd1fb3a3`

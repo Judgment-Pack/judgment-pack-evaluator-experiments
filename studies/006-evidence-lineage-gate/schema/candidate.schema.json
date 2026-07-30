@@ -82,9 +82,11 @@
             "required": ["target", "jsonPointer", "value"],
             "properties": {
               "target": {
+                "type": "string",
                 "const": "/screening/matchCount"
               },
               "jsonPointer": {
+                "type": "string",
                 "const": "/matchCount"
               },
               "value": {
@@ -99,6 +101,7 @@
           "required": ["requirementId", "availability", "basisPointers"],
           "properties": {
             "requirementId": {
+              "type": "string",
               "const": "screening-record"
             },
             "availability": {

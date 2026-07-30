@@ -1,0 +1,20 @@
+{
+  "bindingDigest": "sha256:33c403d0324f2fa2c81a19db3ab8e4586b0b5bc3ad2d7b62e809e65007ba7a6a",
+  "cellId": "r01-s01",
+  "expected": {
+    "acquisitionStatus": "resolved",
+    "evidenceAvailability": {
+      "screening-record": "present"
+    },
+    "facts": {
+      "screening": {
+        "matchCount": "0"
+      }
+    },
+    "outcome": "clear"
+  },
+  "model": "gpt-5.6-terra",
+  "reasoningEffort": "low",
+  "repetition": 0,
+  "scenarioId": "S01"
+}

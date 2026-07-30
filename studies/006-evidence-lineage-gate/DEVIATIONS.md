@@ -10,3 +10,13 @@ never by editing the preregistration.
    compute it. The original `TAMPER-RESULTS.json` and `TAMPER-RESULTS.md` are not rerun or changed.
    Before any model trial, a separate `audit-d4` command was added to read those retained artifacts
    and report D4 without changing attack semantics, expected stages, or D1–D3 scoring.
+
+## Phase-B pre-treatment schema repair
+
+2. The first Phase B launch (`r01-s01`) was rejected by the OpenAI API with HTTP 400
+   `invalid_json_schema` before model inference or MCP discovery. The strict structured-output
+   subset requires an explicit `type` beside string `const` constraints. The exact event and stderr
+   logs are retained as infrastructure attempt 1. `type: string` was added beside the existing
+   `const` values for fact-claim target, fact-claim JSON pointer, and evidence requirement id. This
+   changes no representable candidate, fixture, prompt, verifier rule, endpoint, or expected result.
+   The cell will use its single preregistered infrastructure rerun.
