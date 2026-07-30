@@ -1,0 +1,11 @@
+{
+  "attempt": 2,
+  "cellId": "r01-s01",
+  "retained": {
+    "events": "events-infra-attempt-2.jsonl",
+    "stderr": "stderr-infra-attempt-2.log"
+  },
+  "returnCode": 1,
+  "timedOut": false,
+  "treatmentReceived": false
+}

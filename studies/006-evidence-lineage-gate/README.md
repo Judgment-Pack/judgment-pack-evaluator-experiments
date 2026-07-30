@@ -2,8 +2,9 @@
 
 This study tests whether a product-side binding lock, MCP acquisition receipt, content-addressed
 artifact, claim verifier, and evaluation receipt prevent unsupported source data from crossing into
-or out of JPS evaluation. It also measures whether one model can author envelopes the deterministic
-gate accepts.
+or out of JPS evaluation. Its deterministic phase completed successfully. Its model-authoring
+phase terminated before inference after exhausting its registered infrastructure rerun, so model
+usability is not estimable in this study.
 
 The study was frozen before implementation in
 [`PREREGISTRATION.md`](PREREGISTRATION.md). The binding lock and evidence envelope are experimental
@@ -22,6 +23,8 @@ python3 harness/study.py score
 ```
 
 `tamper` uses the exact sibling runtime binary and demo sanctions pack recorded in `RUN-LOG.md`.
-`run` sends 24 frozen synthetic prompts and MCP catalogs to the preregistered hosted model, only
-after explicit user approval. All model, gateway, verification, and evaluator artifacts are
-retained per cell.
+`run` was authorized to send 24 frozen synthetic prompts and MCP catalogs to the preregistered
+hosted model. Both attempts at the first cell were rejected by the service's output-schema
+validator before treatment; no model received a prompt or MCP payload. The retained outcome is
+reported in [`RESULTS.md`](RESULTS.md), analyzed in [`ANALYSIS.md`](ANALYSIS.md), and challenged in
+[`ADVERSARIAL-REVIEW.md`](ADVERSARIAL-REVIEW.md).

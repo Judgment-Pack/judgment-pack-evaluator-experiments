@@ -82,3 +82,22 @@ The retained first `r01-s01` attempt was rejected before inference or MCP discov
   `sha256:d0dd95c0da10d933a2f4584ce3c1cd3398521ed9c2bcebf4e62e9bf28c5bfc26`
 - explicit-string-type candidate-schema SHA-256 used for the allowed rerun:
   `sha256:ac94113119b79fb8ffbe0d1786bea9e453bc536cd3bbb7e5f43b8580cd1fb3a3`
+
+## Phase-B termination
+
+The one allowed rerun was rejected before inference or MCP discovery because the hosted strict
+schema subset does not permit `uniqueItems`. No third launch was made. No model cell completed and
+M1–M5 are not estimable.
+
+- attempt 1 marker:
+  `sha256:67840576c64995f0cb38b94446e76d6860983224cf340a141b27104d8fdae75f`
+- attempt 1 events:
+  `sha256:606096993a0d2bb4e9affbc82d96397fb90b4cbf307c89e78ee2bcd34b38f794`
+- attempt 1 stderr:
+  `sha256:6c535592cccb63e2b481fee7ca1ed970797dcd5ce27c0dbeac998e186c074d08`
+- attempt 2 marker:
+  `sha256:476d1629b6bf5519b7282c6540da9e36f7ed71ba198292357412aa853da14af3`
+- attempt 2 events:
+  `sha256:23f9ae673d76b0be9d7278b3baaaabfa75339204a2fb704375ffb5fbdc1a9bbb`
+- attempt 2 stderr:
+  `sha256:5f964eb2335413f329205b209246c120e39292202d9bf5864920d0e9491537a6`

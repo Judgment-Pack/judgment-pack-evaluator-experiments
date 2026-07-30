@@ -1,0 +1,42 @@
+{
+  "phaseA": {
+    "D1": {
+      "pass": true,
+      "totalAttacks": 8,
+      "trustUnsafeAccepted": 8,
+      "verifiedUnsafeAccepted": 0
+    },
+    "D2": {
+      "localized": 8,
+      "pass": true,
+      "totalAttacks": 8
+    },
+    "D3": {
+      "controlDisposition": "clear",
+      "pass": true,
+      "trustAccepted": true,
+      "verifiedAccepted": true
+    },
+    "D4": {
+      "admittedVerifiedInputs": 2,
+      "pass": true,
+      "successfulIntegrityChecks": 2
+    },
+    "status": "complete"
+  },
+  "phaseB": {
+    "attempts": 2,
+    "cellsCompleted": 0,
+    "modelEndpoints": {
+      "M1": "not-estimable",
+      "M2": "not-estimable",
+      "M3": "not-estimable",
+      "M4": "not-estimable",
+      "M5": "not-estimable"
+    },
+    "prediction": "not-estimable",
+    "status": "terminated-before-treatment",
+    "treatmentReceivedByAnyModel": false
+  },
+  "study": "006-evidence-lineage-gate"
+}
