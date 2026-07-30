@@ -13,3 +13,8 @@ never by editing the preregistration.
 2. The first pre-trial harness commit accidentally tracked one generated Python bytecode file.
    Before any model trial, the file was removed and a study-local ignore rule was added for Python
    caches. No executable source, fixture, prompt, or score changed.
+3. Before any model trial, the runner was hardened to stop the fixed sequence on a CLI failure
+   that occurs before any turn, tool call, or final response. It retains the failed infrastructure
+   attempt and permits only the one rerun allowed by the preregistration. This prevents a common
+   launch or configuration failure from being repeated across all 48 cells; treatment, fixtures,
+   completed-cell handling, and scoring are unchanged.
