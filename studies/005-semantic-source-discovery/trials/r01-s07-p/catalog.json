@@ -1,0 +1,22 @@
+[
+  {
+    "description": "Read-only current denied-party screening against a mirror of the public U.S. Treasury OFAC lists. No precedence over other exact bindings is declared.\nProvides semantic input source identifier: org.example.input-source.us-ofac.entity-screening\nSide-effect class: read-only.",
+    "name": "source_a",
+    "provides": [
+      "org.example.input-source.us-ofac.entity-screening"
+    ],
+    "resultSha256": "89969a8a2ce1bef73d7c8cd91c1514ea728845fe7f2685d4dc450dfb54005d33",
+    "sideEffect": "read",
+    "toolKey": "ofac-mirror-one"
+  },
+  {
+    "description": "Read-only current denied-party screening against another mirror of the public U.S. Treasury OFAC lists. No precedence over other exact bindings is declared.\nProvides semantic input source identifier: org.example.input-source.us-ofac.entity-screening\nSide-effect class: read-only.",
+    "name": "source_b",
+    "provides": [
+      "org.example.input-source.us-ofac.entity-screening"
+    ],
+    "resultSha256": "cc89769fe21afac22b2fcaa9a67dab1b08418a59f50caa31ba5b664b7459307a",
+    "sideEffect": "read",
+    "toolKey": "ofac-mirror-two"
+  }
+]

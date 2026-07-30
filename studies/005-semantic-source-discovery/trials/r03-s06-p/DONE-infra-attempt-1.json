@@ -1,0 +1,13 @@
+{
+  "cellId": "r03-s06-p",
+  "eventCount": 4,
+  "finalErrors": [
+    "final response file is missing"
+  ],
+  "finalValid": false,
+  "protocolViolations": [],
+  "receiptCount": 0,
+  "returnCode": 1,
+  "timedOut": false,
+  "treatmentReceived": true
+}

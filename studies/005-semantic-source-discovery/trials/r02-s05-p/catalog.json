@@ -1,0 +1,22 @@
+[
+  {
+    "description": "Read-only fuzzy vendor-alias search. It may return records for similar names and is not an exact-legal-name OFAC screening.\nProvides semantic input source identifier: org.example.input-source.vendor.alias-search\nSide-effect class: read-only.",
+    "name": "source_a",
+    "provides": [
+      "org.example.input-source.vendor.alias-search"
+    ],
+    "resultSha256": "fe12fde1712e8761099df2400e5d686fdc3ce348955e34ac9a1c2224e08acc52",
+    "sideEffect": "read",
+    "toolKey": "vendor-aliases"
+  },
+  {
+    "description": "Read-only current denied-party screening of an exact legal-entity name against the public U.S. Treasury OFAC lists.\nProvides semantic input source identifier: org.example.input-source.us-ofac.entity-screening\nSide-effect class: read-only.",
+    "name": "source_b",
+    "provides": [
+      "org.example.input-source.us-ofac.entity-screening"
+    ],
+    "resultSha256": "6b4ab0abe7a045e2cd2597542cc7d2764d306809a6ff820b528d81cb807569e3",
+    "sideEffect": "read",
+    "toolKey": "ofac-exact"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "cellId": "r01-s06-p",
+  "eventCount": 8,
+  "finalErrors": [],
+  "finalValid": true,
+  "protocolViolations": [],
+  "receiptCount": 1,
+  "returnCode": 0,
+  "timedOut": false,
+  "treatmentReceived": true
+}

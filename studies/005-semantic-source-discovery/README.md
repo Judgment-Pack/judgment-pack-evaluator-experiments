@@ -23,3 +23,8 @@ python3 harness/study.py score
 `run` invokes the preregistered Codex model and therefore needs the operator's existing Codex
 authentication and network access. It retains every prompt, event log, stderr log, final response,
 and MCP receipt under `trials/`.
+
+The completed study's mechanically generated endpoint table is in [`RESULTS.md`](RESULTS.md).
+[`ANALYSIS.md`](ANALYSIS.md) separates source selection from final mapping and gives the
+implementation recommendation. [`ADVERSARIAL-REVIEW.md`](ADVERSARIAL-REVIEW.md) records the
+internal red-team pass and the remaining cross-vendor review requirement.

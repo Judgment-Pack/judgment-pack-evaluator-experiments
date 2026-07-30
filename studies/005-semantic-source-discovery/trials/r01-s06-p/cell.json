@@ -1,0 +1,19 @@
+{
+  "arm": "P",
+  "cellId": "r01-s06-p",
+  "expected": {
+    "acquisitionStatus": "absent",
+    "evidenceAvailability": {
+      "screening-record": "absent"
+    },
+    "facts": {},
+    "toolKeys": [
+      "screening-record-store"
+    ]
+  },
+  "model": "gpt-5.6-terra",
+  "reasoningEffort": "low",
+  "repetition": 0,
+  "scenarioId": "S06",
+  "sourceId": "org.example.input-source.saved-ofac-screening-record"
+}

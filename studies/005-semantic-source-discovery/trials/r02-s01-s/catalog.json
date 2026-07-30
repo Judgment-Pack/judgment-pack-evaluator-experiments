@@ -1,0 +1,32 @@
+[
+  {
+    "description": "Read-only lookup of beneficial-ownership reports filed with FinCEN; this is not a sanctions screening.\nProvides semantic input source identifier: org.example.input-source.us-fincen.beneficial-ownership\nSide-effect class: read-only.",
+    "name": "source_a",
+    "provides": [
+      "org.example.input-source.us-fincen.beneficial-ownership"
+    ],
+    "resultSha256": "b6a0863259147f22ba4ae563cc208c80c532291b2834897ccd88ff15ba63f854",
+    "sideEffect": "read",
+    "toolKey": "fincen-ownership"
+  },
+  {
+    "description": "Read-only exact-name screening against the European Union consolidated financial-sanctions list, not the U.S. OFAC lists.\nProvides semantic input source identifier: org.example.input-source.eu.consolidated-sanctions-screening\nSide-effect class: read-only.",
+    "name": "source_b",
+    "provides": [
+      "org.example.input-source.eu.consolidated-sanctions-screening"
+    ],
+    "resultSha256": "e3ac86874eebe6464d76978778e137e620fae0eafe3998750a80e5d409013433",
+    "sideEffect": "read",
+    "toolKey": "eu-sanctions"
+  },
+  {
+    "description": "Read-only current denied-party screening of an exact legal-entity name against the public U.S. Treasury OFAC lists.\nProvides semantic input source identifier: org.example.input-source.us-ofac.entity-screening\nSide-effect class: read-only.",
+    "name": "source_c",
+    "provides": [
+      "org.example.input-source.us-ofac.entity-screening"
+    ],
+    "resultSha256": "2ff510d5c00cab11340236930964522f91316b953848f6309c2ca941d7b5b262",
+    "sideEffect": "read",
+    "toolKey": "ofac-exact"
+  }
+]

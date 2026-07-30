@@ -28,10 +28,10 @@ never by editing the preregistration.
    incorrectly treated its local `turn.started` event as proof that treatment was received, so it
    continued instead of stopping after the first rejection.
 
-   Every original prompt, event log, stderr log, and completion marker is retained as
-   infrastructure attempt 1. The response schema was mechanically closed over the same registered
-   output domain: facts are either `{}` or the registered `screening.matchCount` shape, and
-   evidence has the registered `screening-record` member. Expected outputs and comparison logic did
-   not change. The runner now recognizes the explicit pre-inference schema rejection and
-   reclassifies it transparently. Each cell will use its single preregistered infrastructure rerun;
-   no model result is being replaced.
+   Each prompt remained byte-identical for the rerun; every original event log, stderr log, and
+   completion marker is separately retained as infrastructure attempt 1. The response schema was
+   mechanically closed over the same registered output domain: facts are either `{}` or the
+   registered `screening.matchCount` shape, and evidence has the registered `screening-record`
+   member. Expected outputs and comparison logic did not change. The runner now recognizes the
+   explicit pre-inference schema rejection and reclassifies it transparently. Each cell used its
+   single preregistered infrastructure rerun; no model result was replaced.

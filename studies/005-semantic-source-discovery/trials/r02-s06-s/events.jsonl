@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"019fb382-e8d5-71b0-8143-40ae366973e3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"unknown\"},\"acquisitionStatus\":\"unknown\",\"sourceId\":null,\"explanation\":\"Checking the available read-only source.\"}"}}
+{"type":"item.started","item":{"id":"item_1","type":"mcp_tool_call","server":"source_harness","tool":"source_b","arguments":{"legal_name":"Northwind Analytics Ltd"},"result":null,"error":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"mcp_tool_call","server":"source_harness","tool":"source_b","arguments":{"legal_name":"Northwind Analytics Ltd"},"result":{"content":[{"type":"text","text":"{\"checkedSuccessfully\":true,\"screenedLegalName\":\"Northwind Analytics Ltd\",\"status\":\"not_found\"}"}],"structured_content":{"checkedSuccessfully":true,"screenedLegalName":"Northwind Analytics Ltd","status":"not_found"}},"error":null,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"absent\"},\"acquisitionStatus\":\"absent\",\"sourceId\":\"org.example.input-source.saved-ofac-screening-record\",\"explanation\":\"Exact-name screening check completed; no record found.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":95882,"cached_input_tokens":80896,"cache_write_input_tokens":0,"output_tokens":358,"reasoning_output_tokens":82}}

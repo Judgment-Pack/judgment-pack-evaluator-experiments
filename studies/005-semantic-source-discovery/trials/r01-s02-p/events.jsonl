@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"019fb37e-e02a-7b93-a357-2ebb6c773261"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"unknown\"},\"acquisitionStatus\":\"unknown\",\"sourceId\":null,\"explanation\":\"I’m locating the read-only screening source.\"}"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"unknown\"},\"acquisitionStatus\":\"absent\",\"sourceId\":null,\"explanation\":\"No exposed read-only source matched a current OFAC exact-name screening.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":68361,"cached_input_tokens":50432,"cache_write_input_tokens":0,"output_tokens":284,"reasoning_output_tokens":82}}

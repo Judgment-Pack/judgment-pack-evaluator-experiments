@@ -1,0 +1,22 @@
+[
+  {
+    "description": "Read-only lookup of beneficial-ownership reports filed with FinCEN; this is not a sanctions screening.\nProvides semantic input source identifier: org.example.input-source.us-fincen.beneficial-ownership\nSide-effect class: read-only.",
+    "name": "source_a",
+    "provides": [
+      "org.example.input-source.us-fincen.beneficial-ownership"
+    ],
+    "resultSha256": "2a9346742388a070d139724594f96e199782f9d9b073cefd3c87512336d849ae",
+    "sideEffect": "read",
+    "toolKey": "fincen-ownership"
+  },
+  {
+    "description": "Read-only exact-name screening against the European Union consolidated financial-sanctions list, not the U.S. OFAC lists.\nProvides semantic input source identifier: org.example.input-source.eu.consolidated-sanctions-screening\nSide-effect class: read-only.",
+    "name": "source_b",
+    "provides": [
+      "org.example.input-source.eu.consolidated-sanctions-screening"
+    ],
+    "resultSha256": "b125869d013dced3d27c17daa4b2b2142b72048d6a56d3cb756613696f68d229",
+    "sideEffect": "read",
+    "toolKey": "eu-sanctions"
+  }
+]

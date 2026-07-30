@@ -1,0 +1,23 @@
+{
+  "arm": "S",
+  "cellId": "r03-s08-s",
+  "expected": {
+    "acquisitionStatus": "resolved",
+    "evidenceAvailability": {
+      "screening-record": "present"
+    },
+    "facts": {
+      "screening": {
+        "matchCount": "3"
+      }
+    },
+    "toolKeys": [
+      "ofac-read"
+    ]
+  },
+  "model": "gpt-5.6-terra",
+  "reasoningEffort": "low",
+  "repetition": 2,
+  "scenarioId": "S08",
+  "sourceId": "org.example.input-source.us-ofac.entity-screening"
+}

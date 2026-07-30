@@ -1,0 +1,6 @@
+{"type":"thread.started","thread_id":"019fb37f-52a2-77d0-85db-57037df4417f"}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_0","type":"mcp_tool_call","server":"source_harness","tool":"source_a","arguments":{"legal_name":"Northwind Analytics Ltd"},"result":null,"error":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_0","type":"mcp_tool_call","server":"source_harness","tool":"source_a","arguments":{"legal_name":"Northwind Analytics Ltd"},"result":{"content":[{"type":"text","text":"{\"detail\":\"The caller is not permitted to use this synthetic provider.\",\"status\":\"permission_denied\"}"}],"structured_content":{"detail":"The caller is not permitted to use this synthetic provider.","status":"permission_denied"}},"error":null,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"facts\":{},\"evidenceAvailability\":{\"screening-record\":\"unknown\"},\"acquisitionStatus\":\"unknown\",\"sourceId\":\"org.example.input-source.us-ofac.entity-screening\",\"explanation\":\"Matched OFAC screening source, but access was denied; no result was obtained.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":68123,"cached_input_tokens":40448,"cache_write_input_tokens":0,"output_tokens":317,"reasoning_output_tokens":154}}
