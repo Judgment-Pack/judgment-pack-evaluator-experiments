@@ -1017,6 +1017,72 @@ def run_tamper_suite(output_root: Path = TAMPER_PATH) -> Dict[str, Any]:
     return result
 
 
+def audit_tamper_d4(output_root: Path = TAMPER_PATH) -> Dict[str, Any]:
+    key = KEY_PATH.read_bytes().strip()
+    rows = []
+    for case_id in ("C00", "A08"):
+        directory = output_root / case_id.lower()
+        candidate = load_json(directory / "candidate.json")
+        facts = load_json(directory / "verified" / "facts.json")
+        evidence = load_json(directory / "verified" / "evidence.json")
+        output = load_json(directory / "verified" / "evaluation.json")
+        receipt = load_json(directory / "verified" / "evaluation-receipt.json")
+        input_equal = (
+            facts == candidate["facts"]
+            and evidence == candidate["evidenceAvailability"]
+            and receipt.get("factsDigest") == digest(facts)
+            and receipt.get("evidenceDigest") == digest(evidence)
+        )
+        receipt_errors = verify_evaluation_handoff(output, receipt, key)
+        row = {
+            "caseId": case_id,
+            "inputJsonEqual": input_equal,
+            "receiptErrors": receipt_errors,
+            "pass": input_equal and not receipt_errors,
+        }
+        rows.append(row)
+    result = {
+        "endpoint": "D4 evaluator integrity",
+        "admittedVerifiedInputs": len(rows),
+        "successes": sum(row["pass"] for row in rows),
+        "pass": all(row["pass"] for row in rows),
+        "cases": rows,
+    }
+    (ROOT / "TAMPER-D4-AUDIT.json").write_text(pretty(result), encoding="utf-8")
+    (ROOT / "TAMPER-D4-AUDIT.md").write_text(
+        "\n".join(
+            [
+                "# D4 evaluator-integrity audit — Study 006",
+                "",
+                "This independent audit reads the retained Phase A artifacts without rerunning or "
+                "changing D1–D3.",
+                "",
+                "| Case | Input JSON-equal | Evaluation receipt valid |",
+                "|---|---:|---:|",
+                *[
+                    "| %s | %s | %s |"
+                    % (
+                        row["caseId"],
+                        "yes" if row["inputJsonEqual"] else "no",
+                        "yes" if not row["receiptErrors"] else "no",
+                    )
+                    for row in rows
+                ],
+                "",
+                "D4: **%s** (%d/%d)."
+                % (
+                    "PASS" if result["pass"] else "FAIL",
+                    result["successes"],
+                    result["admittedVerifiedInputs"],
+                ),
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return result
+
+
 def mcp_config(
     scenario_id: str, repetition: int, cell_id: str, store: Path
 ) -> List[str]:
@@ -1345,6 +1411,7 @@ def score_trials() -> Dict[str, Any]:
         "study": "006-evidence-lineage-gate",
         "runnerVersion": RUNNER_VERSION,
         "tamperSummary": load_json(ROOT / "TAMPER-RESULTS.json")["summary"],
+        "tamperD4": load_json(ROOT / "TAMPER-D4-AUDIT.json"),
         "cells": rows,
         "summary": summary,
     }
@@ -1370,6 +1437,11 @@ def score_trials() -> Dict[str, Any]:
         % (
             result["tamperSummary"]["D2"]["localized"],
             result["tamperSummary"]["D2"]["total"],
+        ),
+        "| D4 verified evaluator handoffs | %d/%d |"
+        % (
+            result["tamperD4"]["successes"],
+            result["tamperD4"]["admittedVerifiedInputs"],
         ),
         "",
         "## Model usability",
@@ -1514,7 +1586,8 @@ def smoke_evaluator() -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "command", choices=["validate", "prepare", "tamper", "run", "score"]
+        "command",
+        choices=["validate", "prepare", "tamper", "audit-d4", "run", "score"],
     )
     args = parser.parse_args()
     try:
@@ -1538,6 +1611,12 @@ def main() -> int:
                     result["summary"]["D1"]["verifiedUnsafeAccepted"],
                     result["summary"]["D2"]["localized"],
                 )
+            )
+        elif args.command == "audit-d4":
+            result = audit_tamper_d4()
+            print(
+                "tamper D4=%d/%d"
+                % (result["successes"], result["admittedVerifiedInputs"])
             )
         elif args.command == "run":
             run_trials()

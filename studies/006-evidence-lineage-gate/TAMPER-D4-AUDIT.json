@@ -1,0 +1,20 @@
+{
+  "admittedVerifiedInputs": 2,
+  "cases": [
+    {
+      "caseId": "C00",
+      "inputJsonEqual": true,
+      "pass": true,
+      "receiptErrors": []
+    },
+    {
+      "caseId": "A08",
+      "inputJsonEqual": true,
+      "pass": true,
+      "receiptErrors": []
+    }
+  ],
+  "endpoint": "D4 evaluator integrity",
+  "pass": true,
+  "successes": 2
+}

@@ -1,0 +1,32 @@
+{
+  "acquisitionStatus": "resolved",
+  "evidenceAvailability": {
+    "screening-record": "present"
+  },
+  "explanation": "Prepared from the gateway-linked synthetic source artifact.",
+  "facts": {
+    "screening": {
+      "matchCount": "4"
+    }
+  },
+  "lineage": {
+    "artifactDigest": "sha256:c898213567f71e8c96c5f080ca18c3674f0d0c46383fe278138e99f2335d4328",
+    "evidenceClaim": {
+      "availability": "present",
+      "basisPointers": [
+        "/screenedLegalName",
+        "/status"
+      ],
+      "requirementId": "screening-record"
+    },
+    "factClaims": [
+      {
+        "jsonPointer": "/matchCount",
+        "target": "/screening/matchCount",
+        "value": "4"
+      }
+    ],
+    "receiptDigest": "sha256:5694e6dd65cf17beef11c2e6109ab4cc4a449a44e583b8467f3d1b8a3c38951b"
+  },
+  "sourceRef": "org.example.input-source.us-ofac.entity-screening"
+}

@@ -1,0 +1,24 @@
+{
+  "caseId": "A07",
+  "expectedFailureStage": "freshness",
+  "localized": true,
+  "syntaxErrors": [],
+  "trustAccepted": true,
+  "trustDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+  },
+  "verifiedAccepted": false,
+  "verifiedDisposition": null,
+  "verifiedErrors": [
+    "freshness: facts differ from artifact",
+    "evidence: availability differs from artifact classification",
+    "evidence: acquisition status differs from artifact classification",
+    "claim: fact claims differ from artifact",
+    "evidence: evidence claim availability differs"
+  ]
+}

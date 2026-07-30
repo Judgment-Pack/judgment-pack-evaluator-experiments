@@ -58,3 +58,17 @@
 | 22 | `r03-s06` | 3 | S06 |
 | 23 | `r03-s07` | 3 | S07 |
 | 24 | `r03-s08` | 3 | S08 |
+
+## Post-Phase-A reporting repair
+
+D1–D3 were not rerun. The separate D4 audit reads retained Phase A artifacts as recorded in
+`DEVIATIONS.md`.
+
+- pre-Phase-A runner SHA-256:
+  `sha256:18be4575b09ce3d06886047dca02645fc7161e63bd657873824a072ff8cbb159`
+- model-run/scorer runner SHA-256 after D4 reporting repair:
+  `sha256:bc555b3dc2f1a5e868a8d8c6d72a964de972bc53510bdc81c883a13446cdaaeb`
+- original D1–D3 JSON SHA-256:
+  `sha256:780809c997518e37a75e1cac10da8b68147b8f37b128405c61a009885b8fe496`
+- separate D4 audit JSON SHA-256:
+  `sha256:4ec9e0208d2a07912726e1aa5f877bf05e870d03aa5a5764b005687f53494fcc`

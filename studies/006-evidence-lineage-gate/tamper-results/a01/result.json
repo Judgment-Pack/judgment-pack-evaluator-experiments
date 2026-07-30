@@ -1,0 +1,21 @@
+{
+  "caseId": "A01",
+  "expectedFailureStage": "claim",
+  "localized": true,
+  "syntaxErrors": [],
+  "trustAccepted": true,
+  "trustDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+  },
+  "verifiedAccepted": false,
+  "verifiedDisposition": null,
+  "verifiedErrors": [
+    "mapping: facts differ from artifact",
+    "claim: fact claims differ from artifact"
+  ]
+}

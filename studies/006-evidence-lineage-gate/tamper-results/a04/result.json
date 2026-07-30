@@ -1,0 +1,21 @@
+{
+  "caseId": "A04",
+  "expectedFailureStage": "receipt",
+  "localized": true,
+  "syntaxErrors": [],
+  "trustAccepted": true,
+  "trustDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+  },
+  "verifiedAccepted": false,
+  "verifiedDisposition": null,
+  "verifiedErrors": [
+    "receipt: content digest mismatch",
+    "receipt: gateway attestation mismatch"
+  ]
+}

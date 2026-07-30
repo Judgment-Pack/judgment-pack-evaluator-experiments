@@ -1,0 +1,15 @@
+{
+  "adapterId": "urn:judgmentpack:experiment:006:unapproved-adapter",
+  "approvedAt": "2026-07-30T15:00:00Z",
+  "approvedBy": "study-006-fixture-authority",
+  "binding": {
+    "server": "acquisition_gateway",
+    "tool": "acquire_screening",
+    "transport": "mcp"
+  },
+  "lockVersion": "1",
+  "maxAgeSeconds": 86400,
+  "payloadSchemaId": "urn:judgmentpack:experiment:006:screening-payload:1",
+  "sourceRef": "org.example.input-source.us-ofac.entity-screening",
+  "subjectArgument": "legal_name"
+}

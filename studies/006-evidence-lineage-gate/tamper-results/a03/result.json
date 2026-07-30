@@ -1,0 +1,20 @@
+{
+  "caseId": "A03",
+  "expectedFailureStage": "artifact",
+  "localized": true,
+  "syntaxErrors": [],
+  "trustAccepted": true,
+  "trustDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+  },
+  "verifiedAccepted": false,
+  "verifiedDisposition": null,
+  "verifiedErrors": [
+    "artifact: content digest mismatch"
+  ]
+}

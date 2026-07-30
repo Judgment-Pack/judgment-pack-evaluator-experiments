@@ -1,0 +1,20 @@
+{
+  "caseId": "A05",
+  "expectedFailureStage": "binding",
+  "localized": true,
+  "syntaxErrors": [],
+  "trustAccepted": true,
+  "trustDisposition": {
+    "handoff": {
+      "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+  },
+  "verifiedAccepted": false,
+  "verifiedDisposition": null,
+  "verifiedErrors": [
+    "binding: receipt does not use approved binding"
+  ]
+}

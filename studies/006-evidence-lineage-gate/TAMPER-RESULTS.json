@@ -1,0 +1,251 @@
+{
+  "cases": [
+    {
+      "caseId": "C00",
+      "expectedFailureStage": null,
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      },
+      "verifiedAccepted": true,
+      "verifiedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      },
+      "verifiedErrors": []
+    },
+    {
+      "caseId": "A01",
+      "expectedFailureStage": "claim",
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "match",
+        "reasons": []
+      },
+      "verifiedAccepted": false,
+      "verifiedDisposition": null,
+      "verifiedErrors": [
+        "mapping: facts differ from artifact",
+        "claim: fact claims differ from artifact"
+      ]
+    },
+    {
+      "caseId": "A02",
+      "expectedFailureStage": "evidence",
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ]
+      },
+      "verifiedAccepted": false,
+      "verifiedDisposition": null,
+      "verifiedErrors": [
+        "mapping: facts differ from artifact",
+        "evidence: availability differs from artifact classification",
+        "evidence: acquisition status differs from artifact classification",
+        "claim: fact claims differ from artifact",
+        "evidence: evidence claim availability differs"
+      ]
+    },
+    {
+      "caseId": "A03",
+      "expectedFailureStage": "artifact",
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      },
+      "verifiedAccepted": false,
+      "verifiedDisposition": null,
+      "verifiedErrors": [
+        "artifact: content digest mismatch"
+      ]
+    },
+    {
+      "caseId": "A04",
+      "expectedFailureStage": "receipt",
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      },
+      "verifiedAccepted": false,
+      "verifiedDisposition": null,
+      "verifiedErrors": [
+        "receipt: content digest mismatch",
+        "receipt: gateway attestation mismatch"
+      ]
+    },
+    {
+      "caseId": "A05",
+      "expectedFailureStage": "binding",
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      },
+      "verifiedAccepted": false,
+      "verifiedDisposition": null,
+      "verifiedErrors": [
+        "binding: receipt does not use approved binding"
+      ]
+    },
+    {
+      "caseId": "A06",
+      "expectedFailureStage": "subject",
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "match",
+        "reasons": []
+      },
+      "verifiedAccepted": false,
+      "verifiedDisposition": null,
+      "verifiedErrors": [
+        "subject: receipt arguments differ",
+        "subject: canonical subject differs",
+        "subject: facts differ from artifact",
+        "evidence: availability differs from artifact classification",
+        "evidence: acquisition status differs from artifact classification",
+        "claim: fact claims differ from artifact",
+        "evidence: evidence claim availability differs"
+      ]
+    },
+    {
+      "caseId": "A07",
+      "expectedFailureStage": "freshness",
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "match",
+        "reasons": []
+      },
+      "verifiedAccepted": false,
+      "verifiedDisposition": null,
+      "verifiedErrors": [
+        "freshness: facts differ from artifact",
+        "evidence: availability differs from artifact classification",
+        "evidence: acquisition status differs from artifact classification",
+        "claim: fact claims differ from artifact",
+        "evidence: evidence claim availability differs"
+      ]
+    },
+    {
+      "caseId": "A08",
+      "expectedFailureStage": "evaluation-output",
+      "localized": true,
+      "syntaxErrors": [],
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "match",
+        "reasons": []
+      },
+      "verifiedAccepted": false,
+      "verifiedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "match",
+        "reasons": []
+      },
+      "verifiedErrors": [
+        "evaluation-output: disposition digest mismatch"
+      ]
+    }
+  ],
+  "study": "006-evidence-lineage-gate",
+  "summary": {
+    "D1": {
+      "pass": true,
+      "total": 8,
+      "trustUnsafeAccepted": 8,
+      "verifiedUnsafeAccepted": 0
+    },
+    "D2": {
+      "localized": 8,
+      "pass": true,
+      "total": 8
+    },
+    "D3": {
+      "pass": true,
+      "trustAccepted": true,
+      "trustDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      },
+      "verifiedAccepted": true,
+      "verifiedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    }
+  }
+}
