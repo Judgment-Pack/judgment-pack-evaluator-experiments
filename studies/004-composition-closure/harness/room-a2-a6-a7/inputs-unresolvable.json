@@ -1,0 +1,22 @@
+{
+ "change-flights": {
+  "facts": {},
+  "evidence": {
+   "verified-reservation-record": "present"
+  }
+ },
+ "cancel-flight": {
+  "facts": {},
+  "evidence": {
+   "user-id": "present",
+   "reservation-id": "present",
+   "cancellation-reason": "present"
+  }
+ },
+ "refund-compensation": {
+  "facts": {},
+  "evidence": {
+   "facts-confirmed": "present"
+  }
+ }
+}

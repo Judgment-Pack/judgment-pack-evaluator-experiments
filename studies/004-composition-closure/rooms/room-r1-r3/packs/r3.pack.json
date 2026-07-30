@@ -1,0 +1,340 @@
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://example.com/judgment-packs/retail/modify-pending-order-items",
+  "version": "1.0.0",
+  "title": "Modify pending order — modify items",
+  "description": "Encodes the 'Modify items' subsection of the retail agent policy's 'Modify pending order' section: whether the requested item substitutions on a pending order may be performed.",
+  "decision": {
+    "intent": "Let a retail agent decide, before calling the irreversible modify-order-items tool, whether the requested item substitutions on a pending order are permitted by the retail agent policy.",
+    "question": "May these items be modified?"
+  },
+  "applicability": {
+    "op": "fact",
+    "path": "/request/action",
+    "operator": "equals",
+    "value": "modify-order-items"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "payment-method-for-difference",
+      "description": "A payment method supplied by the user to pay, or to receive a refund of, the price difference produced by the item modification.",
+      "required": false,
+      "kind": "fact"
+    }
+  ],
+  "sources": [
+    {
+      "id": "policy-modify-pending-status",
+      "title": "Retail agent policy — Modify pending order",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Modify pending order",
+        "excerpt": "An order can only be modified if its status is 'pending', and you should check its status before taking the action."
+      }
+    },
+    {
+      "id": "policy-modify-items-once",
+      "title": "Retail agent policy — Modify items (single call, terminal status)",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Modify pending order / ### Modify items",
+        "excerpt": "This action can only be called once, and will change the order status to 'pending (items modifed)'. The agent will not be able to modify or cancel the order anymore."
+      }
+    },
+    {
+      "id": "policy-modify-items-caution",
+      "title": "Retail agent policy — Modify items (caution and completeness confirmation)",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Modify pending order / ### Modify items",
+        "excerpt": "So you must confirm all the details are correct and be cautious before taking this action. In particular, remember to remind the customer to confirm they have provided all the items they want to modify."
+      }
+    },
+    {
+      "id": "policy-modify-items-scope",
+      "title": "Retail agent policy — Modify items (same product, different option, available)",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Modify pending order / ### Modify items",
+        "excerpt": "For a pending order, each item can be modified to an available new item of the same product but of different product option. There cannot be any change of product types, e.g. modify shirt to shoe."
+      }
+    },
+    {
+      "id": "policy-modify-items-payment",
+      "title": "Retail agent policy — Modify items (payment for the price difference)",
+      "locator": {
+        "kind": "path",
+        "value": "reference/policy.md"
+      },
+      "citation": {
+        "location": "## Modify pending order / ### Modify items",
+        "excerpt": "The user must provide a payment method to pay or receive refund of the price difference. If the user provides a gift card, it must have enough balance to cover the price difference."
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "allow-item-modification",
+      "label": "Allow the item modification",
+      "description": "Every condition the 'Modify items' subsection imposes is satisfied; the agent may proceed to call the modify-order-items tool once, for the complete confirmed item list."
+    },
+    {
+      "id": "deny-item-modification",
+      "label": "Deny the item modification",
+      "description": "At least one condition the 'Modify items' subsection imposes is definitely not satisfied; the agent must not call the modify-order-items tool for this request as it stands."
+    }
+  ],
+  "rules": [
+    {
+      "id": "allow-when-all-conditions-met",
+      "description": "Allow the modification when the order is still 'pending', every substitution stays inside the same product with a different and available option, the customer has confirmed the item list is complete, a payment method for the price difference has been supplied, and any gift card supplied covers the price difference.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/order/status",
+            "operator": "equals",
+            "value": "pending"
+          },
+          {
+            "op": "fact",
+            "path": "/modification/allNewItemsSameProduct",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/modification/allNewItemsDifferentOption",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/modification/allNewItemsAvailable",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/modification/customerConfirmedItemListComplete",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "payment-method-for-difference"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/payment/isGiftCard",
+                "operator": "equals",
+                "value": false
+              },
+              {
+                "op": "fact",
+                "path": "/payment/giftCardBalanceCoversPriceDifference",
+                "operator": "equals",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "outcome": "allow-item-modification",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "payment-method-for-difference"
+      ],
+      "sourceRefs": [
+        "policy-modify-pending-status",
+        "policy-modify-items-scope",
+        "policy-modify-items-payment",
+        "policy-modify-items-caution"
+      ],
+      "rationale": "The action is irreversible ('The agent will not be able to modify or cancel the order anymore'), so approval requires every stated precondition to be affirmatively established. Unknown facts escalate rather than approve."
+    },
+    {
+      "id": "deny-when-order-not-pending",
+      "description": "Deny when the order status is anything other than 'pending'.",
+      "when": {
+        "op": "fact",
+        "path": "/order/status",
+        "operator": "not-equals",
+        "value": "pending"
+      },
+      "outcome": "deny-item-modification",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-modify-pending-status",
+        "policy-modify-items-scope"
+      ],
+      "rationale": "'An order can only be modified if its status is pending' and 'For a pending order, each item can be modified...'."
+    },
+    {
+      "id": "deny-when-items-already-modified",
+      "description": "Deny when the order already carries the post-modification status 'pending (items modifed)', because the modify-items action may be called only once.",
+      "when": {
+        "op": "fact",
+        "path": "/order/status",
+        "operator": "equals",
+        "value": "pending (items modifed)"
+      },
+      "outcome": "deny-item-modification",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-modify-items-once"
+      ],
+      "rationale": "'This action can only be called once, and will change the order status to pending (items modifed). The agent will not be able to modify or cancel the order anymore.' The status string is reproduced verbatim from the policy, including its spelling."
+    },
+    {
+      "id": "deny-when-product-type-changes",
+      "description": "Deny when any requested new item is not a variant of the same product as the item it replaces.",
+      "when": {
+        "op": "fact",
+        "path": "/modification/allNewItemsSameProduct",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "deny-item-modification",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-modify-items-scope"
+      ],
+      "rationale": "'There cannot be any change of product types, e.g. modify shirt to shoe.'"
+    },
+    {
+      "id": "deny-when-option-not-different",
+      "description": "Deny when any requested new item does not differ in product option from the item it replaces.",
+      "when": {
+        "op": "fact",
+        "path": "/modification/allNewItemsDifferentOption",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "deny-item-modification",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-modify-items-scope"
+      ],
+      "rationale": "'each item can be modified to an available new item of the same product but of different product option'."
+    },
+    {
+      "id": "deny-when-new-item-unavailable",
+      "description": "Deny when any requested new item is not available.",
+      "when": {
+        "op": "fact",
+        "path": "/modification/allNewItemsAvailable",
+        "operator": "equals",
+        "value": false
+      },
+      "outcome": "deny-item-modification",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-modify-items-scope"
+      ],
+      "rationale": "'each item can be modified to an available new item'."
+    },
+    {
+      "id": "deny-when-no-payment-method-provided",
+      "description": "Deny when the user has not provided a payment method to settle the price difference.",
+      "when": {
+        "op": "not",
+        "condition": {
+          "op": "evidence-present",
+          "evidenceRequirement": "payment-method-for-difference"
+        }
+      },
+      "outcome": "deny-item-modification",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": [
+        "payment-method-for-difference"
+      ],
+      "sourceRefs": [
+        "policy-modify-items-payment"
+      ],
+      "rationale": "'The user must provide a payment method to pay or receive refund of the price difference.'"
+    },
+    {
+      "id": "deny-when-gift-card-balance-insufficient",
+      "description": "Deny when the payment method provided is a gift card whose balance does not cover the price difference.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/payment/isGiftCard",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/payment/giftCardBalanceCoversPriceDifference",
+            "operator": "equals",
+            "value": false
+          }
+        ]
+      },
+      "outcome": "deny-item-modification",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": [
+        "payment-method-for-difference"
+      ],
+      "sourceRefs": [
+        "policy-modify-items-payment"
+      ],
+      "rationale": "'If the user provides a gift card, it must have enough balance to cover the price difference.'"
+    },
+    {
+      "id": "deny-when-item-list-not-confirmed-complete",
+      "description": "Deny while the customer has not confirmed that they have provided all the items they want to modify.",
+      "when": {
+        "op": "fact",
+        "path": "/modification/customerConfirmedItemListComplete",
+        "operator": "not-equals",
+        "value": true
+      },
+      "outcome": "deny-item-modification",
+      "onUnknown": "ignore",
+      "sourceRefs": [
+        "policy-modify-items-caution"
+      ],
+      "rationale": "'remember to remind the customer to confirm they have provided all the items they want to modify' — because the tool may be called only once, an unconfirmed list must not be submitted."
+    }
+  ],
+  "escalation": {
+    "triggers": [
+      "unknown",
+      "conflict",
+      "no-match",
+      "missing-required-evidence"
+    ],
+    "target": {
+      "kind": "human-role",
+      "name": "Human retail agent (transfer_to_human_agents)"
+    },
+    "message": "The item-modification preconditions could not be resolved from the available facts. Because the modify-items action is single-use and irreversible, hand the request to a human agent rather than acting."
+  },
+  "metadata": {
+    "authors": [
+      "Policy engineer, room R3"
+    ],
+    "createdAt": "2026-07-27T00:00:00Z",
+    "license": "CC-BY-4.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+ "change-cabin": {
+  "facts": {},
+  "evidence": {
+   "user-id": "present",
+   "reservation-id": "present"
+  }
+ },
+ "refunds-and-compensation": {
+  "facts": {},
+  "evidence": {
+   "facts-confirmed": "present"
+  }
+ }
+}

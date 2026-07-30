@@ -1,0 +1,18 @@
+{
+  "formatVersion": "1",
+  "id": "retail-cancel-and-modify-items-relationships",
+  "version": "1.0.0",
+  "description": "The two retail-agent decisions this project declares, composed with no edges: the policy relates them only through the order record's status, which this graph format's edges cannot carry faithfully (see RESIDUE.md).",
+  "nodes": {
+    "cancel-pending-order": {
+      "pack": "r1",
+      "description": "May this pending order be cancelled? Gates on the order status retrieved from the order record."
+    },
+    "modify-pending-order-items": {
+      "pack": "r3",
+      "description": "May these items be modified? Single-use and irreversible; taking it sets the order status to 'pending (items modifed)'."
+    }
+  },
+  "edges": [],
+  "result": "cancel-pending-order"
+}

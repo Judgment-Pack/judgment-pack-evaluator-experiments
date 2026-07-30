@@ -1,0 +1,40 @@
+{
+ "cancel-pending-order": {
+  "facts": {
+   "request": {
+    "action": "cancel_order",
+    "orderIdConfirmedByUser": true,
+    "reasonConfirmedByUser": true,
+    "cancellationReason": "no longer needed"
+   },
+   "order": {
+    "status": "pending",
+    "originalPaymentMethod": {
+     "type": "gift_card"
+    }
+   }
+  },
+  "evidence": {
+   "order-status-check": "present"
+  }
+ },
+ "modify-pending-order-items": {
+  "facts": {
+   "request": {
+    "action": "modify-order-items"
+   },
+   "order": {
+    "status": "pending"
+   },
+   "modification": {
+    "allNewItemsSameProduct": true,
+    "allNewItemsDifferentOption": true,
+    "allNewItemsAvailable": true,
+    "customerConfirmedItemListComplete": true
+   }
+  },
+  "evidence": {
+   "payment-method-for-difference": "present"
+  }
+ }
+}

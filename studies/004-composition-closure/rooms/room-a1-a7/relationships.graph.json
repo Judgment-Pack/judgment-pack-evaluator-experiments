@@ -1,0 +1,18 @@
+{
+  "formatVersion": "1",
+  "id": "airline-agent-book-flight-and-compensation",
+  "version": "0.1.0",
+  "description": "Composes the two decisions this room declares and states, by an empty edge list, that the Airline Agent Policy relates neither decision's outcome to the other's inputs; the unrepresented cross-section couplings are recorded verbatim in RESIDUE.md.",
+  "nodes": {
+    "book-flight": {
+      "pack": "a1",
+      "description": "May this booking be made? Gate on a proposed new reservation, from the policy's Book flight section."
+    },
+    "refunds-and-compensation": {
+      "pack": "a7",
+      "description": "Is the user owed a refund or compensation, and what kind? Gesture decision on an existing reservation, from the policy's Refunds and Compensation section."
+    }
+  },
+  "edges": [],
+  "result": "book-flight"
+}

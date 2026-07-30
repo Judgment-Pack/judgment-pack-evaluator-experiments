@@ -1,0 +1,115 @@
+[
+ {
+  "sentence": "Only compensate if the user is a silver/gold member or has travel insurance or flies business.",
+  "rooms": [
+   "room-a1-a7",
+   "room-a3-a7"
+  ]
+ },
+ {
+  "sentence": "Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.",
+  "rooms": [
+   "room-a1-a7",
+   "room-a3-a7"
+  ]
+ },
+ {
+  "sentence": "If the user complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers.",
+  "rooms": [
+   "room-a1-a7",
+   "room-a2-a6-a7"
+  ]
+ },
+ {
+  "sentence": "Each reservation can have at most five passengers.",
+  "rooms": [
+   "room-a1-a7"
+  ]
+ },
+ {
+  "sentence": "Cabin class must be the same across all the flights in a reservation.",
+  "rooms": [
+   "room-a1-a7"
+  ]
+ },
+ {
+  "sentence": "All passengers must fly the same flights in the same cabin.",
+  "rooms": [
+   "room-a1-a7"
+  ]
+ },
+ {
+  "sentence": "Each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards.",
+  "rooms": [
+   "room-a1-a7"
+  ]
+ },
+ {
+  "sentence": "The user has travel insurance and the reason for cancellation is covered by insurance.",
+  "rooms": [
+   "room-a1-a6"
+  ]
+ },
+ {
+  "sentence": "The booking was made within the last 24 hrs",
+  "rooms": [
+   "room-a1-a6"
+  ]
+ },
+ {
+  "sentence": "The refund will go to original payment methods within 5 to 7 business days.",
+  "rooms": [
+   "room-a1-a6",
+   "room-a2-a6-a7"
+  ]
+ },
+ {
+  "sentence": "As an airline agent, you can help users **book**, **modify**, or **cancel** flight reservations.",
+  "rooms": [
+   "room-a1-a6"
+  ]
+ },
+ {
+  "sentence": "- The user cannot add insurance after initial booking.",
+  "rooms": [
+   "room-a1-a6"
+  ]
+ },
+ {
+  "sentence": "In other cases, all reservations, including basic economy, can change cabin without changing the flights.",
+  "rooms": [
+   "room-a3-a7"
+  ]
+ },
+ {
+  "sentence": "Always confirms the facts before offering compensation.",
+  "rooms": [
+   "room-a3-a7",
+   "room-a2-a6-a7"
+  ]
+ },
+ {
+  "sentence": "This action can only be called once, and will change the order status to 'pending (items modifed)'.",
+  "rooms": [
+   "room-r1-r3"
+  ]
+ },
+ {
+  "sentence": "After user confirmation, the order status will be changed to 'cancelled', and the total will be refunded via the original payment method immediately if it is gift card, otherwise in 5 to 7 business days.",
+  "rooms": [
+   "room-r1-r3"
+  ]
+ },
+ {
+  "sentence": "Exchange or modify order tools can only be called once per order.",
+  "rooms": [
+   "room-r1-r3"
+  ]
+ },
+ {
+  "sentence": "Generally, you can only take action on pending or delivered orders.",
+  "rooms": [
+   "room-r1-r3"
+  ]
+ }
+]

@@ -1,0 +1,33 @@
+{
+ "book-flight": {
+  "facts": {
+   "request": {
+    "type": "book-flight"
+   },
+   "booking": {
+    "passengerCount": 1,
+    "payment": {
+     "travelCertificateCount": 0,
+     "creditCardCount": 0,
+     "giftCardCount": 0
+    }
+   }
+  },
+  "evidence": {
+   "user-id": "present",
+   "trip-parameters": "present",
+   "passenger-details": "present",
+   "travel-insurance-offer": "present"
+  }
+ },
+ "refunds-and-compensation": {
+  "facts": {
+   "request": {
+    "compensationExplicitlyRequested": false
+   }
+  },
+  "evidence": {
+   "facts-confirmed": "present"
+  }
+ }
+}

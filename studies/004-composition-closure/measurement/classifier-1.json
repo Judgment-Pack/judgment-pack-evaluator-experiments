@@ -1,0 +1,34 @@
+{
+ "items": [
+  {
+   "item": "A1 3",
+   "verdict": "open",
+   "device": "needs-effect-or-entitlement",
+   "justification": "The graph validated at exit 0 but declares zero edges, so no live edge carries the clause \u201cis not refundable.\u201d A1 only gates certificate counts while A7 explicitly never asserts refunds, making this primarily a missing constraint on a later entitlement."
+  },
+  {
+   "item": "A1 7",
+   "verdict": "open",
+   "device": "needs-effect-or-entitlement",
+   "justification": "The graph validated at exit 0 but declares zero edges, so no live edge carries the conditional full-refund clause. A1\u2019s outcome does not report insurance purchase and A6 decides cancellation permissibility without computing a refund, leaving the entitlement itself unrepresented."
+  },
+  {
+   "item": "A3 4",
+   "verdict": "open",
+   "device": "needs-effect-or-entitlement",
+   "justification": "The graph validated at exit 0 but declares zero edges, so no live edge carries the requirement to refund the difference. Although its magnitude is also absent, the clause first creates a refund entitlement that A7 expressly does not adjudicate, so the precedence rule selects needs-effect-or-entitlement."
+  },
+  {
+   "item": "A7 2",
+   "verdict": "open",
+   "device": "other (needs action-completion state and disjunctive fan-in)",
+   "justification": "The graph validated at exit 0 but declares zero edges, so no live edge carries \u201cchanging or cancelling the reservation.\u201d A7 requires a true completion fact, whereas A2 and A6 produce permission outcomes without performing either action and the room cannot merge the two alternatives into that fact."
+  },
+  {
+   "item": "R3 1",
+   "verdict": "open",
+   "device": "needs-effect-or-entitlement",
+   "justification": "The graph validated at exit 0 but declares zero edges, so no live edge carries the loss of modification or cancellation ability. R3 merely permits the modification tool call while both packs rely on caller-supplied order status, leaving the action\u2019s withdrawal of later entitlements undeclared."
+  }
+ ]
+}

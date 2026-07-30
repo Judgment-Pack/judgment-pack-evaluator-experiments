@@ -1,0 +1,11 @@
+{
+ "configVersion": "1",
+ "packs": {
+  "r1": {
+   "path": "packs/r1.pack.json"
+  },
+  "r3": {
+   "path": "packs/r3.pack.json"
+  }
+ }
+}
