@@ -1,0 +1,25 @@
+{
+  "acquisitionStatus": "unknown",
+  "evidenceAvailability": {
+    "screening-record": "unknown"
+  },
+  "explanation": "Prepared from the gateway-linked synthetic source artifact.",
+  "facts": {},
+  "lineage": {
+    "artifactDigest": "sha256:d2218cc56941ca69f4c228eae75bb5629525a9e014415cd0990d15f928799057",
+    "evidenceClaim": {
+      "availability": "unknown",
+      "basisPointers": [
+        "/datedRecord",
+        "/matchCount",
+        "/observedAt",
+        "/screenedLegalName",
+        "/status"
+      ],
+      "requirementId": "screening-record"
+    },
+    "factClaims": [],
+    "receiptDigest": "sha256:2fa162061f374b3d1c8f04d4996e0b85598f71b8d511db57fe700aa76d7d7127"
+  },
+  "sourceRef": "org.example.input-source.us-ofac.entity-screening"
+}

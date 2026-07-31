@@ -1,0 +1,21 @@
+{
+  "acquisitionStatus": "unknown",
+  "evidenceAvailability": {
+    "screening-record": "unknown"
+  },
+  "explanation": "Derived by the portable derivation rule over the attested artifact.",
+  "facts": {},
+  "lineage": {
+    "artifactDigest": "sha256:991930431f2a692728a1e5203616b05ea5883bf8ffae3da36c6f184ad862272d",
+    "evidenceClaim": {
+      "availability": "unknown",
+      "basisPointers": [
+        "/status"
+      ],
+      "requirementId": "screening-record"
+    },
+    "factClaims": [],
+    "receiptDigest": "sha256:5e6b3245052ccc38a118d5dc5f29a67fb4d82c4597a6e50cb1db9c5504cae24d"
+  },
+  "sourceRef": "org.example.input-source.us-ofac.entity-screening"
+}

@@ -1,0 +1,80 @@
+{
+  "armA": {
+    "admitted": null,
+    "basisPointers": [
+      "/status",
+      "/screenedLegalName",
+      "/observedAt",
+      "/datedRecord",
+      "/matchCount"
+    ]
+  },
+  "armB": {
+    "admitted": true,
+    "basisPointers": [
+      "/datedRecord",
+      "/matchCount",
+      "/observedAt",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "disposition": {
+      "disposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "match",
+        "reasons": []
+      },
+      "outcome": null,
+      "reasons": null
+    },
+    "errors": [],
+    "reason": "resolved",
+    "runtime": {
+      "returnCode": 0
+    }
+  },
+  "armC": {
+    "admitted": true,
+    "basisPointers": [
+      "/datedRecord",
+      "/matchCount",
+      "/observedAt",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "disposition": {
+      "disposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "match",
+        "reasons": []
+      },
+      "outcome": null,
+      "reasons": null
+    },
+    "errors": [],
+    "reason": "resolved",
+    "runtime": {
+      "returnCode": 0
+    }
+  },
+  "cellId": "r03-s02",
+  "expected": {
+    "acquisitionStatus": "resolved",
+    "evidenceAvailability": {
+      "screening-record": "present"
+    },
+    "facts": {
+      "screening": {
+        "matchCount": "2"
+      }
+    },
+    "outcome": "match"
+  },
+  "scenarioId": "S02"
+}

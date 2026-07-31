@@ -1,0 +1,36 @@
+{
+  "cells": [
+    "r01-s01",
+    "r01-s02",
+    "r01-s03",
+    "r01-s04",
+    "r01-s05",
+    "r01-s06",
+    "r01-s07",
+    "r01-s08",
+    "r02-s01",
+    "r02-s02",
+    "r02-s03",
+    "r02-s04",
+    "r02-s05",
+    "r02-s06",
+    "r02-s07",
+    "r02-s08",
+    "r03-s01",
+    "r03-s02",
+    "r03-s03",
+    "r03-s04",
+    "r03-s05",
+    "r03-s06",
+    "r03-s07",
+    "r03-s08"
+  ],
+  "frozenInputs": {
+    "bindingLock": "sha256:55a3d791ee48f8c2a4d5f57de40a80e6f694600017f0dacd29afd2e53fb2598c",
+    "cases": "sha256:80edea6f51f957c451863ea92d5296670ab5f3d449521468e9d6f253c8f3ed0c",
+    "portableEvaluator": "sha256:1b02e70a3e0d84169fb05c695d091ce1e2033dd8aadfdb217d36e14b2f0162cc",
+    "rule": "sha256:f6c028ed4d834abcb857ef97df6b6ab901e7c193c9c433135342f1701c8567d6",
+    "s007Harness": "sha256:aed66e4ef312139e0bf9aa87ee4fa4ec056748792e6b5ea9e10e901bd12c3b34"
+  },
+  "note": "Frozen before the first scored cell. Endpoints D1-D5 are defined in PREREGISTRATION.md and computed only by `score`."
+}
