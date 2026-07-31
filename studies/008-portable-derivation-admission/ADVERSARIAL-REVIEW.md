@@ -33,7 +33,7 @@ This is accepted in full. `ANALYSIS.md` now leads with it.
 | 2 | D1's basis test is a **superset** test (`:499`); a kitchen-sink basis passes | Major | **Accepted and measured.** Added calibration controls to the harness: an un-derived wide basis is admitted **24/24**, a one-short basis **0/24**. Reported in `RESULTS.md` above the endpoint discussion. |
 | 3 | D2 cannot fail while D1 passes, so the preregistration's named "worst outcome" is unreachable | Major | **Accepted.** Stated in the endpoint table and in `ANALYSIS.md`; the registered guard against silently admitting a wrong mapping did not exist. |
 | 4 | D4 is vacuous — the verifier forces both arms' runtime inputs byte-identical | Major | **Accepted.** Labelled as a determinism check. Scoring also tightened so a `None == None` runtime failure no longer counts as agreement. |
-| 5 | D5 is entailed by D1 and reflects **host assembly**, shared with Arm B, not the portable rule | Major | **Accepted.** The recovery table in `ANALYSIS.md` is now attributed to `envelope()`/`cell_inputs()`, which both arms share. |
+| 5 | D5 is entailed by D1 and reflects **host assembly**, shared with Arm B, not the portable rule | Major | **Accepted.** The credit-taking recovery table was **removed** from `ANALYSIS.md` rather than re-attributed. The concession now reads in the `RESULTS.md` D5 row ("Entailed by D1; Arm B recovers the same three") and in `ANALYSIS.md` ("D5 is a subset of D1 that Arm B satisfies equally"; "D5 tested nothing D1 did not"; the arm difference is "who assembles the envelope"). |
 | 6 | "Built separately … without either being written against the other" is contradicted by `derivation-rule/README.md:26-27` | Critical (framing) | **Accepted.** The preregistration is frozen and not edited; `DEVIATIONS.md` §4 records the premise as false and confines the study's contribution to D3 and the probe. |
 | 7 | The probe's divergence was already recorded in `derivation-rule/corpus/type-notdated.json`, committed before the preregistration | Major (framing) | **Accepted.** `RESULTS.md` and `ANALYSIS.md` now say the probe *confirms the verifier rejects* that basis rather than discovering the divergence. |
 | 8 | The freeze omitted `gateway.key`, `common.py`, `acquisition_gateway.py` and all per-cell data, and nothing checked the freeze was committed (Study 007 had `verify_committed_freeze`; Study 008 dropped it) | Major | **Fixed.** `FROZEN_INPUTS` extended; `cell_data_digest()` freezes every per-cell artifact, receipt, `cell.json` and `final.json`; `verify_committed_freeze()` restored and enforced in `run`. |
@@ -47,8 +47,14 @@ This is accepted in full. `ANALYSIS.md` now leads with it.
 
 Recorded because a review that only confirms is not a review:
 
-- **Preregistration ordering.** Sound. `dac8d56` contains only `PREREGISTRATION.md` and `README.md`;
-  the harness first appears in the results commit.
+- **Preregistration ordering.** Sound. `63c45c2` contains only `PREREGISTRATION.md` and `README.md`;
+  the harness first appears in the results commit, `2e79bf6`. The chain as merged is `63c45c2`
+  (preregistration) → `2e79bf6` (results) → `c596ea8` (review acceptance), and the check is
+  reproducible without trusting these hashes at all:
+  `git log --diff-filter=A -- studies/008-portable-derivation-admission/PREREGISTRATION.md` and the
+  same for `harness/study.py`. (An earlier draft of this file cited `dac8d56`, a pre-merge object
+  unreachable from the published history — same tree and same parent, but not a hash a reader can
+  resolve.)
 - **Rule tuned mid-run.** No evidence. The rule and `derive.py` each have exactly one commit,
   predating the preregistration, and their on-disk digests match the freeze.
 - **Verifier edited.** Unchanged; the runtime monkeypatch touches only `runtime_binary` and
