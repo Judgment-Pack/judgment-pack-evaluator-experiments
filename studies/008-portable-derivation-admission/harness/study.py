@@ -195,14 +195,24 @@ def arm_control_short(inputs, document, binding):
                              inputs["artifactDigest"], EXPLANATION)
 
 
+def _resolve_common_dir(reported):
+    """Resolve `git rev-parse --git-common-dir` output. A plain checkout reports it
+    RELATIVE to the directory git ran in (STUDY); a worktree reports it absolute.
+    Resolving a relative report against the process working directory instead of
+    STUDY makes the study runnable from exactly one directory, which defeats the
+    third-party reproducibility this study claims."""
+    path = Path(reported)
+    return (path if path.is_absolute() else (STUDY / path)).resolve()
+
+
 def _bind_sibling_repos():
     """Study 007 locates the runtime binary and pack as siblings of the experiment
     repository's git toplevel. In a git worktree that toplevel is the worktree, so
     resolve the siblings from the *common* git dir instead. Path resolution only --
     no verifier or evaluation semantics change."""
-    common = Path(subprocess.run(
+    common = _resolve_common_dir(subprocess.run(
         ["git", "rev-parse", "--git-common-dir"], cwd=str(STUDY), check=True,
-        stdout=subprocess.PIPE, text=True).stdout.strip()).resolve()
+        stdout=subprocess.PIPE, text=True).stdout.strip())
     parent = common.parent.parent  # <real experiment repo>/.git -> repo -> parent
     s007.runtime_binary = lambda: parent / "judgment-pack-runtime" / "bin" / "judgment-pack"
     s007.screening_pack = lambda: (parent / "judgment-pack-demo" / "projects" /

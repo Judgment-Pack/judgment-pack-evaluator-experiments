@@ -63,6 +63,41 @@ class Arms(unittest.TestCase):
         self.assertNotIn("untrustedRecordText", json.dumps(envelope))
 
 
+class Reproducibility(unittest.TestCase):
+    def test_relative_common_dir_resolves_against_study_not_cwd(self):
+        """The discriminating test: a plain checkout reports --git-common-dir
+        relative to STUDY. Resolving it against the process cwd yields the wrong
+        repository. (This test file may itself live in a worktree, where git
+        reports an absolute path, so the relative case is supplied directly.)"""
+        import os
+        original = os.getcwd()
+        try:
+            os.chdir("/")
+            resolved = study._resolve_common_dir("../../.git")
+            self.assertEqual(resolved, (Path(study.STUDY) / ".." / ".." / ".git").resolve())
+            self.assertNotEqual(resolved, Path("/.git"))
+        finally:
+            os.chdir(original)
+
+    def test_absolute_common_dir_is_left_alone(self):
+        self.assertEqual(study._resolve_common_dir("/tmp/x/.git"), Path("/tmp/x/.git"))
+
+    def test_sibling_repos_resolve_from_any_working_directory(self):
+        """git reports --git-common-dir relative to where it ran, so resolving it
+        against the process cwd made the study runnable from one directory only.
+        A third party must be able to run it from anywhere."""
+        import os
+        original = os.getcwd()
+        for where in ("/", str(Path(study.STUDY).parent), str(study.EXPERIMENT)):
+            try:
+                os.chdir(where)
+                study._bind_sibling_repos()
+                self.assertTrue(study.s007.runtime_binary().exists(),
+                                "runtime binary unresolved from cwd %s" % where)
+            finally:
+                os.chdir(original)
+
+
 class Scoring(unittest.TestCase):
     def test_score_recomputes_from_retained_files(self):
         results_path = study.STUDY / "RESULTS.json"
