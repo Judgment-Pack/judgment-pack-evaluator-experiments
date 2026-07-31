@@ -3,7 +3,7 @@
   "evidenceAvailability": {
     "screening-record": "unknown"
   },
-  "explanation": "Prepared from the gateway-linked synthetic source artifact.",
+  "explanation": "Host-assembled from the attested artifact.",
   "facts": {},
   "lineage": {
     "artifactDigest": "sha256:e0e79d730c400e392472a83f6a0a360a5027ca3f16159680447551414b227eed",

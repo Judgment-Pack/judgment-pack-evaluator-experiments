@@ -1,6 +1,6 @@
 {
   "armA": {
-    "admitted": null,
+    "admitted": true,
     "basisPointers": [
       "/status",
       "/screenedLegalName"
@@ -63,6 +63,24 @@
     }
   },
   "cellId": "r02-s05",
+  "controlShortBasis": {
+    "admitted": false,
+    "errors": [
+      "evidence: required basis pointers are missing"
+    ]
+  },
+  "controlWideBasis": {
+    "admitted": true,
+    "basisPointers": [
+      "/datedRecord",
+      "/matchCount",
+      "/observedAt",
+      "/recordId",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "errors": []
+  },
   "expected": {
     "acquisitionStatus": "unknown",
     "evidenceAvailability": {
