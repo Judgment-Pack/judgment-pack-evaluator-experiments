@@ -1,4 +1,14 @@
 {
+  "CONTROL_shortBasis_admitted": {
+    "note": "Arm B's basis minus one pointer; expected 0.",
+    "of": 24,
+    "value": 0
+  },
+  "CONTROL_wideBasis_admitted": {
+    "note": "Un-derived kitchen-sink basis carrying Arm B's claim. Admission here means D1 does not evidence that a derived basis beats an authored one.",
+    "of": 24,
+    "value": 24
+  },
   "D1_armC_admitted": {
     "of": 24,
     "predicted": 24,
@@ -25,7 +35,9 @@
     "predicted": 3,
     "value": 3
   },
+  "armA_admitted_per_study007": 21,
   "armB_admitted": 24,
   "armCRejections": [],
-  "basisDisagreements": []
+  "basisDisagreements": [],
+  "runtimeInputsIdenticalAcrossArms": 24
 }

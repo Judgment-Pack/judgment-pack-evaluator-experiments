@@ -3,7 +3,7 @@
   "evidenceAvailability": {
     "screening-record": "present"
   },
-  "explanation": "Prepared from the gateway-linked synthetic source artifact.",
+  "explanation": "Host-assembled from the attested artifact.",
   "facts": {
     "screening": {
       "matchCount": "2"

@@ -20,6 +20,7 @@ See PREREGISTRATION.md. Endpoints D1-D5 are computed only by `score`.
 import hashlib
 import importlib.util
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -56,12 +57,20 @@ FREEZE_PATH = STUDY / "FREEZE.json"
 
 # Files whose bytes must not change during the study; frozen before the first
 # scored cell so a third party can confirm nothing was tuned mid-run.
+# One shared explanation string: the arms must differ only in claim and basis.
+EXPLANATION = "Host-assembled from the attested artifact."
+
 FROZEN_INPUTS = {
     "rule": RULE_PATH,
     "portableEvaluator": EXPERIMENT / "derivation-rule" / "derive.py",
     "s007Harness": S007 / "harness" / "study.py",
+    # The verifier's semantics live partly in these: digest, attest,
+    # verify_attestation, canonical. Freezing study.py alone left them loose.
+    "s007Common": S007 / "harness" / "common.py",
+    "s007Gateway": S007 / "harness" / "acquisition_gateway.py",
     "cases": S007 / "fixtures" / "cases.json",
     "bindingLock": S007 / "fixtures" / "binding-lock.json",
+    "gatewayKey": S007 / "fixtures" / "gateway.key",
 }
 
 
@@ -145,7 +154,7 @@ def arm_b(inputs, document, binding):
         binding["maxAgeSeconds"])
     return derived, envelope(
         derived, derived["basis"], binding, inputs["receiptDigest"], inputs["artifactDigest"],
-        "Prepared from the gateway-linked synthetic source artifact.")
+        EXPLANATION)
 
 
 def arm_c(inputs, document, binding, rule):
@@ -157,7 +166,33 @@ def arm_c(inputs, document, binding, rule):
     })
     return derived, envelope(
         derived, derived["basis"], binding, inputs["receiptDigest"], inputs["artifactDigest"],
-        "Derived by the portable derivation rule over the attested artifact.")
+        EXPLANATION)
+
+
+def arm_control_wide(inputs, document, binding):
+    """CALIBRATION CONTROL (not a registered endpoint). Arm B's claim carried with
+    an un-derived kitchen-sink basis: every top-level pointer in the payload. The
+    verifier's basis check is a SUPERSET test (007 study.py:499), so if this is
+    admitted, admission does not evidence that a *derived* basis beats an authored
+    one -- it only rules out lists that are too short."""
+    derived = s007.derive_payload(
+        inputs["payload"], document["request"]["legalName"], document["asOf"],
+        binding["maxAgeSeconds"])
+    wide = {"/" + str(k).replace("~", "~0").replace("/", "~1") for k in inputs["payload"]}
+    return derived, envelope(derived, wide, binding, inputs["receiptDigest"],
+                             inputs["artifactDigest"], EXPLANATION)
+
+
+def arm_control_short(inputs, document, binding):
+    """CALIBRATION CONTROL (not a registered endpoint). Arm B's basis minus one
+    pointer: the complementary control, expected to be rejected. Together with the
+    wide control this brackets what D1 can and cannot distinguish."""
+    derived = s007.derive_payload(
+        inputs["payload"], document["request"]["legalName"], document["asOf"],
+        binding["maxAgeSeconds"])
+    short = sorted(derived["basis"])[1:]
+    return derived, envelope(derived, short, binding, inputs["receiptDigest"],
+                             inputs["artifactDigest"], EXPLANATION)
 
 
 def _bind_sibling_repos():
@@ -203,9 +238,40 @@ def cmd_validate():
     print("validate: 24 cells, frozen inputs present, rule valid")
 
 
+def cell_data_digest():
+    """One digest over every per-cell input the study replays, so the DATA is
+    frozen and not merely the code that reads it."""
+    parts = []
+    for cell_id in cells():
+        trial = S007 / "trials" / cell_id
+        for relative in ("cell.json", "final.json"):
+            if (trial / relative).exists():
+                parts.append("%s/%s=%s" % (cell_id, relative, sha256_file(trial / relative)))
+        for sub in ("artifacts", "receipts"):
+            for path in sorted((trial / "gateway" / sub).glob("*.json")):
+                parts.append("%s/%s/%s=%s" % (cell_id, sub, path.name, sha256_file(path)))
+    return "sha256:" + hashlib.sha256("\n".join(parts).encode("utf-8")).hexdigest()
+
+
+def verify_committed_freeze():
+    """FREEZE.json must be committed before `run`, so a third party can see the
+    freeze preceded the results. Study 007 had this control; Study 008 initially
+    dropped it (see DEVIATIONS.md)."""
+    repo = Path(subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(STUDY),
+                               check=True, stdout=subprocess.PIPE, text=True).stdout.strip())
+    relative = str(FREEZE_PATH.relative_to(repo))
+    committed = subprocess.run(["git", "show", "HEAD:" + relative], cwd=str(repo),
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if committed.returncode != 0:
+        raise StudyError("FREEZE.json is not committed at HEAD; commit the freeze before `run`")
+    if committed.stdout != FREEZE_PATH.read_bytes():
+        raise StudyError("FREEZE.json differs from the committed copy")
+
+
 def cmd_freeze():
     dump(FREEZE_PATH, {
         "frozenInputs": {name: sha256_file(path) for name, path in FROZEN_INPUTS.items()},
+        "cellData": cell_data_digest(),
         "cells": cells(),
         "note": "Frozen before the first scored cell. Endpoints D1-D5 are defined in "
                 "PREREGISTRATION.md and computed only by `score`.",
@@ -216,10 +282,15 @@ def cmd_freeze():
 def cmd_run():
     if not FREEZE_PATH.exists():
         raise StudyError("run `freeze` before `run`")
-    frozen = load(FREEZE_PATH)["frozenInputs"]
+    manifest = load(FREEZE_PATH)
+    frozen = manifest["frozenInputs"]
     for name, path in FROZEN_INPUTS.items():
         if sha256_file(path) != frozen[name]:
             raise StudyError("frozen input changed since freeze: %s" % name)
+    if cell_data_digest() != manifest["cellData"]:
+        raise StudyError("per-cell data changed since freeze")
+    if os.environ.get("STUDY008_ALLOW_UNCOMMITTED_FREEZE") != "1":
+        verify_committed_freeze()
 
     _bind_sibling_repos()
     document = load(S007 / "fixtures" / "cases.json")
@@ -236,17 +307,21 @@ def cmd_run():
 
         b_claim, b_env = arm_b(inputs, document, binding)
         c_claim, c_env = arm_c(inputs, document, binding, rule)
+        _, wide_env = arm_control_wide(inputs, document, binding)
+        _, short_env = arm_control_short(inputs, document, binding)
 
         # The admission authority is Study 007's verifier, used unchanged.
         b_errors = s007.verify_candidate(b_env, inputs["store"], document, binding, key)
         c_errors = s007.verify_candidate(c_env, inputs["store"], document, binding, key)
+        wide_errors = s007.verify_candidate(wide_env, inputs["store"], document, binding, key)
+        short_errors = s007.verify_candidate(short_env, inputs["store"], document, binding, key)
 
         record = {
             "cellId": cell_id,
             "scenarioId": inputs["cell"]["scenarioId"],
             "expected": inputs["cell"]["expected"],
             "armA": {
-                "admitted": inputs["cell"].get("armAAdmitted"),
+                "admitted": arm_a_admitted().get(cell_id),
                 "basisPointers": (inputs["modelFinal"] or {}).get("lineage", {})
                                   .get("evidenceClaim", {}).get("basisPointers"),
             },
@@ -254,6 +329,11 @@ def cmd_run():
                      "admitted": not b_errors, "errors": b_errors},
             "armC": {"reason": c_claim["reason"], "basisPointers": sorted(c_claim["basis"]),
                      "admitted": not c_errors, "errors": c_errors},
+            # Calibration controls: not registered endpoints. They bracket what the
+            # verifier's superset basis test can and cannot distinguish.
+            "controlWideBasis": {"admitted": not wide_errors, "errors": wide_errors,
+                                 "basisPointers": wide_env["lineage"]["evidenceClaim"]["basisPointers"]},
+            "controlShortBasis": {"admitted": not short_errors, "errors": short_errors},
         }
 
         # D4: real-runtime disposition for cells each arm admits.
@@ -280,7 +360,9 @@ def cmd_score():
     d2 = sum(1 for r in records if _claim_matches_expected(r))
     d3 = sum(1 for r in records if r["armC"]["basisPointers"] == r["armB"]["basisPointers"])
     both = [r for r in records if r["armB"]["admitted"] and r["armC"]["admitted"]]
-    d4 = sum(1 for r in both if r["armB"].get("disposition") == r["armC"].get("disposition"))
+    d4 = sum(1 for r in both
+             if r["armB"].get("disposition") is not None
+             and r["armB"].get("disposition") == r["armC"].get("disposition"))
     d5 = sum(1 for r in records if r["cellId"] in arm_a_lost and r["armC"]["admitted"])
 
     results = {
@@ -290,6 +372,16 @@ def cmd_score():
         "D4_disposition_agreement": {"value": d4, "of": len(both), "predicted": len(both)},
         "D5_armA_losses_recovered": {"value": d5, "of": 3, "predicted": 3},
         "armB_admitted": sum(1 for r in records if r["armB"]["admitted"]),
+        "armA_admitted_per_study007": sum(1 for r in records if r["armA"]["admitted"]),
+        "CONTROL_wideBasis_admitted": {
+            "value": sum(1 for r in records if r["controlWideBasis"]["admitted"]), "of": 24,
+            "note": "Un-derived kitchen-sink basis carrying Arm B's claim. Admission here means "
+                    "D1 does not evidence that a derived basis beats an authored one."},
+        "CONTROL_shortBasis_admitted": {
+            "value": sum(1 for r in records if r["controlShortBasis"]["admitted"]), "of": 24,
+            "note": "Arm B's basis minus one pointer; expected 0."},
+        "runtimeInputsIdenticalAcrossArms": sum(
+            1 for r in records if r["armB"]["admitted"] and r["armC"]["admitted"]),
         "basisDisagreements": [
             {"cellId": r["cellId"], "armB": r["armB"]["basisPointers"], "armC": r["armC"]["basisPointers"]}
             for r in records if r["armC"]["basisPointers"] != r["armB"]["basisPointers"]],
@@ -302,6 +394,18 @@ def cmd_score():
         if isinstance(value, dict) and "value" in value:
             print("%-38s %s/%s" % (key, value["value"], value["of"]))
     print("score: wrote RESULTS.json")
+
+
+def arm_a_admitted():
+    """Per-cell Arm A admission read from Study 007's own RESULTS.json, so the
+    reference column is derived rather than transcribed."""
+    results = load(S007 / "RESULTS.json")
+    admitted = {}
+    for cell in results.get("cells", []):
+        if isinstance(cell, dict) and "cellId" in cell:
+            # M2 is Study 007's "exact verified preparation" endpoint: admission.
+            admitted[cell["cellId"]] = bool(cell["M2"])
+    return admitted
 
 
 def _claim_matches_expected(record):

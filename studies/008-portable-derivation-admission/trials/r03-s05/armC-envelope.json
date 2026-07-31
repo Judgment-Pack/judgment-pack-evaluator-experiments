@@ -3,7 +3,7 @@
   "evidenceAvailability": {
     "screening-record": "unknown"
   },
-  "explanation": "Derived by the portable derivation rule over the attested artifact.",
+  "explanation": "Host-assembled from the attested artifact.",
   "facts": {},
   "lineage": {
     "artifactDigest": "sha256:c898213567f71e8c96c5f080ca18c3674f0d0c46383fe278138e99f2335d4328",

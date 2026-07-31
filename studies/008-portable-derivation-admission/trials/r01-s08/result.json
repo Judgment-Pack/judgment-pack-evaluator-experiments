@@ -1,6 +1,6 @@
 {
   "armA": {
-    "admitted": null,
+    "admitted": true,
     "basisPointers": [
       "/status"
     ]
@@ -60,6 +60,20 @@
     }
   },
   "cellId": "r01-s08",
+  "controlShortBasis": {
+    "admitted": false,
+    "errors": [
+      "evidence: required basis pointers are missing"
+    ]
+  },
+  "controlWideBasis": {
+    "admitted": true,
+    "basisPointers": [
+      "/detail",
+      "/status"
+    ],
+    "errors": []
+  },
   "expected": {
     "acquisitionStatus": "unknown",
     "evidenceAvailability": {

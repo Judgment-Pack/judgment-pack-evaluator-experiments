@@ -1,4 +1,5 @@
 {
+  "cellData": "sha256:9a027cfc653700148a9a29a5e557710af416d934ff2b97d33207ae8e7fd726f7",
   "cells": [
     "r01-s01",
     "r01-s02",
@@ -28,8 +29,11 @@
   "frozenInputs": {
     "bindingLock": "sha256:55a3d791ee48f8c2a4d5f57de40a80e6f694600017f0dacd29afd2e53fb2598c",
     "cases": "sha256:80edea6f51f957c451863ea92d5296670ab5f3d449521468e9d6f253c8f3ed0c",
+    "gatewayKey": "sha256:9019844959035cee4d662881ba6fb90d9f273bbc912a39d6eb66e30a0ab71143",
     "portableEvaluator": "sha256:1b02e70a3e0d84169fb05c695d091ce1e2033dd8aadfdb217d36e14b2f0162cc",
     "rule": "sha256:f6c028ed4d834abcb857ef97df6b6ab901e7c193c9c433135342f1701c8567d6",
+    "s007Common": "sha256:5b540d15feb46bc46363362fbf4750db93117a7fb837fa4e2912a626bc71b6fd",
+    "s007Gateway": "sha256:638ddf1eee88b2b53d25fa7988d79c281f82b44cde01aa3b9a5d67913d4a50a4",
     "s007Harness": "sha256:aed66e4ef312139e0bf9aa87ee4fa4ec056748792e6b5ea9e10e901bd12c3b34"
   },
   "note": "Frozen before the first scored cell. Endpoints D1-D5 are defined in PREREGISTRATION.md and computed only by `score`."
