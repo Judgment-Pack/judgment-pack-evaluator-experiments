@@ -94,3 +94,31 @@ from scratch afterwards with unchanged values.
 **Bearing on endpoints.** No registered value changed. The wide control (admitted 24/24) is what
 establishes that D1 cannot distinguish a derived basis from a generous authored one — i.e. it was
 added specifically because it weakens the study's headline.
+
+## 7. Two citation errors in `ADVERSARIAL-REVIEW.md`, corrected after merge
+
+**What.** An independent post-merge audit found two inaccuracies in the one file whose whole purpose
+is third-party auditability:
+
+- The "Preregistration ordering" entry cited `dac8d56`, a pre-merge object **unreachable from the
+  published history** (same tree and parent as the merged `63c45c2`, but not a hash any reader can
+  resolve — a fresh clone answers `fatal: bad object`).
+- Disposition row 5 claimed "The recovery table in `ANALYSIS.md` is now attributed to
+  `envelope()`/`cell_inputs()`." No such attribution exists: the credit-taking table was **deleted**
+  rather than re-attributed, and neither symbol appears anywhere in the study's prose.
+
+**Scope.** Documentation only. No number, endpoint, control, or conclusion is affected, and the
+underlying claims are both true of the merged history: the preregistration commit does contain only
+`PREREGISTRATION.md` and `README.md`, the harness does first appear in the results commit, and the
+D5 concession was made — in fact more strongly than row 5 described.
+
+**Bearing on endpoints.** None. The defect is audit-trail accuracy: a reader checking "was finding 5
+repaired?" was pointed at the wrong file, and a reader checking the ordering control was pointed at a
+commit that does not resolve. The ordering claim is now stated so it can be reproduced **without
+trusting any hash** (`git log --diff-filter=A -- <path>`). The other eleven disposition rows were
+spot-checked against the source and their file and symbol references are accurate.
+
+**Lesson recorded rather than repaired away.** A disposition table is the one artifact where a
+claimed-but-unmade repair is maximally costly, because it is what a reader consults *instead of*
+re-deriving. Each row should name a file that demonstrably contains the change before the table is
+published.
