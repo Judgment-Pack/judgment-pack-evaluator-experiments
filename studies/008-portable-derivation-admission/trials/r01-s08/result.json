@@ -1,0 +1,72 @@
+{
+  "armA": {
+    "admitted": null,
+    "basisPointers": [
+      "/status"
+    ]
+  },
+  "armB": {
+    "admitted": true,
+    "basisPointers": [
+      "/status"
+    ],
+    "disposition": {
+      "disposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "outcome": null,
+      "reasons": null
+    },
+    "errors": [],
+    "reason": "unknown",
+    "runtime": {
+      "returnCode": 0
+    }
+  },
+  "armC": {
+    "admitted": true,
+    "basisPointers": [
+      "/status"
+    ],
+    "disposition": {
+      "disposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "outcome": null,
+      "reasons": null
+    },
+    "errors": [],
+    "reason": "unknown",
+    "runtime": {
+      "returnCode": 0
+    }
+  },
+  "cellId": "r01-s08",
+  "expected": {
+    "acquisitionStatus": "unknown",
+    "evidenceAvailability": {
+      "screening-record": "unknown"
+    },
+    "facts": {},
+    "outcome": null
+  },
+  "scenarioId": "S08"
+}

@@ -1,0 +1,78 @@
+{
+  "armA": {
+    "admitted": null,
+    "basisPointers": [
+      "/status",
+      "/screenedLegalName",
+      "/observedAt"
+    ]
+  },
+  "armB": {
+    "admitted": true,
+    "basisPointers": [
+      "/observedAt",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "disposition": {
+      "disposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "outcome": null,
+      "reasons": null
+    },
+    "errors": [],
+    "reason": "freshness",
+    "runtime": {
+      "returnCode": 0
+    }
+  },
+  "armC": {
+    "admitted": true,
+    "basisPointers": [
+      "/observedAt",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "disposition": {
+      "disposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "outcome": null,
+      "reasons": null
+    },
+    "errors": [],
+    "reason": "freshness",
+    "runtime": {
+      "returnCode": 0
+    }
+  },
+  "cellId": "r01-s06",
+  "expected": {
+    "acquisitionStatus": "unknown",
+    "evidenceAvailability": {
+      "screening-record": "unknown"
+    },
+    "facts": {},
+    "outcome": null
+  },
+  "scenarioId": "S06"
+}

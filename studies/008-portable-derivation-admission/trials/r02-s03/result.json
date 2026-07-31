@@ -1,0 +1,78 @@
+{
+  "armA": {
+    "admitted": null,
+    "basisPointers": [
+      "/status",
+      "/checkedSuccessfully",
+      "/screenedLegalName"
+    ]
+  },
+  "armB": {
+    "admitted": true,
+    "basisPointers": [
+      "/checkedSuccessfully",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "disposition": {
+      "disposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ]
+      },
+      "outcome": null,
+      "reasons": null
+    },
+    "errors": [],
+    "reason": "absent",
+    "runtime": {
+      "returnCode": 0
+    }
+  },
+  "armC": {
+    "admitted": true,
+    "basisPointers": [
+      "/checkedSuccessfully",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "disposition": {
+      "disposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ]
+      },
+      "outcome": null,
+      "reasons": null
+    },
+    "errors": [],
+    "reason": "absent",
+    "runtime": {
+      "returnCode": 0
+    }
+  },
+  "cellId": "r02-s03",
+  "expected": {
+    "acquisitionStatus": "absent",
+    "evidenceAvailability": {
+      "screening-record": "absent"
+    },
+    "facts": {},
+    "outcome": null
+  },
+  "scenarioId": "S03"
+}

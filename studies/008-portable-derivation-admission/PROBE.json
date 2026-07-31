@@ -1,0 +1,32 @@
+{
+  "armB": {
+    "admitted": true,
+    "basisPointers": [
+      "/datedRecord",
+      "/matchCount",
+      "/observedAt",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "errors": [],
+    "reason": "type"
+  },
+  "armC": {
+    "admitted": false,
+    "basisPointers": [
+      "/datedRecord",
+      "/observedAt",
+      "/screenedLegalName",
+      "/status"
+    ],
+    "errors": [
+      "evidence: required basis pointers are missing"
+    ],
+    "reason": "type"
+  },
+  "basesAgree": false,
+  "claimsAgree": true,
+  "probe": "datedRecord-false (absent from Study 007's corpus)",
+  "registeredRisk": "short-circuit evaluation reads fewer pointers than the verifier requires",
+  "riskRealized": true
+}

@@ -1,0 +1,31 @@
+{
+  "D1_armC_admitted": {
+    "of": 24,
+    "predicted": 24,
+    "threshold": ">= 22",
+    "value": 24
+  },
+  "D2_armC_claim_equals_expected": {
+    "of": 24,
+    "predicted": 24,
+    "value": 24
+  },
+  "D3_armC_basis_equals_armB_basis": {
+    "of": 24,
+    "predicted": 24,
+    "value": 24
+  },
+  "D4_disposition_agreement": {
+    "of": 24,
+    "predicted": 24,
+    "value": 24
+  },
+  "D5_armA_losses_recovered": {
+    "of": 3,
+    "predicted": 3,
+    "value": 3
+  },
+  "armB_admitted": 24,
+  "armCRejections": [],
+  "basisDisagreements": []
+}
