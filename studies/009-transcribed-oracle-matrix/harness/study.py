@@ -26,8 +26,12 @@ sys.path.insert(0, os.path.join(LINE, "derivation-rule"))
 sys.path.insert(0, os.path.join(LINE, "fabrication-gate"))
 
 import attest  # noqa: E402
-import gate as study_gate  # noqa: E402
 import pnf_check  # noqa: E402
+import importlib.util as _importlib_util
+
+_spec = _importlib_util.spec_from_file_location("study_gate", os.path.join(HERE, "gate.py"))
+study_gate = _importlib_util.module_from_spec(_spec)
+_spec.loader.exec_module(study_gate)
 
 AUTHORITY = "study-009:records"
 TOOL = "get_record"
@@ -381,13 +385,26 @@ def rows_of(test_payload: dict) -> dict:
     return rows
 
 
+def primary_attempt() -> tuple[int, str]:
+    """The first attempt that reached DONE. Crashed attempts stay on disk
+    with their exit metadata and are never overwritten (DEVIATIONS.md
+    records why one exists)."""
+    number = 1
+    while os.path.exists(os.path.join(TRIALS, "ATTEMPT-%d" % number)):
+        attempt = os.path.join(TRIALS, "ATTEMPT-%d" % number)
+        if os.path.exists(os.path.join(attempt, "DONE")):
+            return number, attempt
+        number += 1
+    raise StudyError("no completed attempt to score")
+
+
 def cmd_score() -> None:
-    attempt = os.path.join(TRIALS, "ATTEMPT-1")
+    number, attempt = primary_attempt()
     runs = json.load(open(os.path.join(attempt, "runs.json")))
     manifest = defect()
     sets = manifest["sets"]
     tables = manifest["expectedDispositions"]["perRecord"]
-    results = {"attempt": 1, "prerequisites": {}, "endpoints": {}}
+    results = {"attempt": number, "prerequisites": {}, "endpoints": {}}
 
     # P-A: the circular arm is a deterministic self-replay, completely run.
     test_a = runs["A-circular-D"]["test"]["payload"]

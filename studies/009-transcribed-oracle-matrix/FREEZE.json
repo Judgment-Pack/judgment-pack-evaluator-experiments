@@ -8,7 +8,7 @@
     "source/record_source.py": "sha256:ad8af3b1d75a2653c9ea67987341d2d0ca83bbbf01e4be6288a71b842072fbc1",
     "transcription/record.rule.json": "sha256:69b2d44974d748b488f7b6f989c9f3ef88db593d8e187c4fed49226d5affab6d",
     "transcription/transcribe.py": "sha256:815f45a4d364b67b860969a77eb2a69a0c5f9559f03da3e277bab51ca3f39ac6",
-    "harness/study.py": "sha256:1a2c2477c9cf107cbdeecae34d7493267154fa6ea75f80d4ee096b4b8aa9d850",
+    "harness/study.py": "sha256:3604c3083677348d8ec8348dbef2f3f4076f8e9c1fe447c2c37600bc8799540f",
     "harness/pnf_check.py": "sha256:7b672ab372bde4d45bf04665692e9eb365abd55c682249044ee73c73526acb35",
     "harness/gate.py": "sha256:1291a10ddc89bf62bef10a0bf9a51af145a5a037e1a4a72e2dfcf7665e144752",
     "harness/test_study.py": "sha256:34faf3c70039a564aaafffdc968af93aa46d42def34c2f4451a04a9c3cb9d37d",
