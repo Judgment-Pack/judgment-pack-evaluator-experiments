@@ -1,0 +1,13 @@
+{
+  "caseId": "f-boundary-2",
+  "vendor": {
+    "legalName": "Inglewood Surveys",
+    "sanctionsHit": false,
+    "riskScore": "70"
+  },
+  "decision": {
+    "outcome": "manual-review",
+    "decidedBy": "reviewer-1",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}

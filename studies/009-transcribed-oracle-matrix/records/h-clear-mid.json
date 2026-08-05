@@ -1,0 +1,13 @@
+{
+  "caseId": "h-clear-mid",
+  "vendor": {
+    "legalName": "Birchway Materials",
+    "sanctionsHit": false,
+    "riskScore": "40"
+  },
+  "decision": {
+    "outcome": "clear",
+    "decidedBy": "reviewer-2",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}

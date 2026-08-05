@@ -1,0 +1,25 @@
+{
+  "ruleVersion": "1",
+  "clauses": [
+    {
+      "when": {
+        "op": "always"
+      },
+      "claim": {
+        "facts": [
+          {
+            "pointer": "/vendor/sanctionsHit",
+            "from": "/vendor/sanctionsHit"
+          },
+          {
+            "pointer": "/vendor/riskScore",
+            "from": "/vendor/riskScore"
+          }
+        ],
+        "evidence": {},
+        "acquisitionStatus": "resolved"
+      },
+      "reason": "projection"
+    }
+  ]
+}

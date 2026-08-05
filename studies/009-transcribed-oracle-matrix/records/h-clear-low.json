@@ -1,0 +1,13 @@
+{
+  "caseId": "h-clear-low",
+  "vendor": {
+    "legalName": "Alder Logistics Ltd",
+    "sanctionsHit": false,
+    "riskScore": "12.5"
+  },
+  "decision": {
+    "outcome": "clear",
+    "decidedBy": "reviewer-1",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}

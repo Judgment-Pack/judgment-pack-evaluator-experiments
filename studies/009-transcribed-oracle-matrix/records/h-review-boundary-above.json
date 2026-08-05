@@ -1,0 +1,13 @@
+{
+  "caseId": "h-review-boundary-above",
+  "vendor": {
+    "legalName": "Dunmore Assay Services",
+    "sanctionsHit": false,
+    "riskScore": "70.01"
+  },
+  "decision": {
+    "outcome": "manual-review",
+    "decidedBy": "reviewer-3",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}
