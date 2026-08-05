@@ -40,7 +40,12 @@ DECIMAL = re.compile(r"^(0|[1-9][0-9]*)(\.[0-9]*[1-9])?$")
 FREEZE = os.path.join(STUDY, "FREEZE.json")
 TRIALS = os.path.join(STUDY, "trials")
 
-FROZEN = [
+def _record_files():
+    records = os.path.join(STUDY, "records")
+    return sorted("records/" + name for name in os.listdir(records) if name.endswith(".json"))
+
+
+FROZEN_BASE = [
     "policy/POLICY.md",
     "packs/vendor-screening-correct.pack.json",
     "packs/vendor-screening-defective.pack.json",
@@ -57,6 +62,7 @@ FROZEN = [
     "../../derivation-rule/derive.py",
     "../../fabrication-gate/gate.py",
 ]
+FROZEN = FROZEN_BASE + _record_files()
 
 RECORD_MEMBERS = {"caseId", "vendor", "decision"}
 VENDOR_MEMBERS = {"legalName", "sanctionsHit", "riskScore"}
@@ -128,6 +134,28 @@ def cmd_validate() -> None:
         in_f = vendor["sanctionsHit"] is False and vendor["riskScore"] == "70"
         if in_f != (case_id in sets["F"]):
             raise StudyError("record %s disagrees with the defect predicate" % case_id)
+    from decimal import Decimal
+
+    def policy_verdict(sanctions, score):
+        if sanctions:
+            return "reject"
+        return "manual-review" if Decimal(score) >= 70 else "clear"
+
+    table_text = open(os.path.join(STUDY, "RECORDS.md")).read()
+    for case_id in all_ids:
+        record = load_record(case_id)
+        vendor, decision = record["vendor"], record["decision"]
+        verdict = policy_verdict(vendor["sanctionsHit"], vendor["riskScore"])
+        if case_id in sets["H"] and decision["outcome"] != verdict:
+            raise StudyError("H record %s disagrees with POLICY.md" % case_id)
+        if case_id in sets["F"] and decision["outcome"] != "manual-review":
+            raise StudyError("F record %s must record P2's verdict" % case_id)
+        if case_id in sets["K"] and decision["outcome"] == verdict:
+            raise StudyError("K record %s is not wrong against POLICY.md" % case_id)
+        expected_row = "| `%s` | %s | \"%s\" | %s |" % (
+            case_id, str(vendor["sanctionsHit"]).lower(), vendor["riskScore"], decision["outcome"])
+        if expected_row not in table_text:
+            raise StudyError("RECORDS.md's table diverges from record %s" % case_id)
     for case_id in sets["K"]:
         entry = tables[case_id]
         if entry["underC"] != entry["underD"]:
@@ -188,6 +216,13 @@ def verify_freeze() -> dict:
     jpack = os.environ.get("JPACK_BIN", "")
     if not jpack or sha256_file(jpack) != frozen["jpack"]:
         raise StudyError("JPACK_BIN is not the frozen 0.14.0 binary")
+    if frozen["python"]["version"] != platform.python_version():
+        raise StudyError("the interpreter is not the frozen one")
+    ancestry = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", frozen["preregistrationCommit"], "HEAD"],
+        cwd=STUDY)
+    if ancestry.returncode != 0:
+        raise StudyError("the preregistration commit is not an ancestor of HEAD")
     return frozen
 
 
@@ -233,7 +268,8 @@ def acquire(attempt: str) -> tuple[str, bytes, list[dict]]:
             proxy.kill()
             raise StudyError("acquisition failed for %s: %r" % (case_id, reply))
     proxy.stdin.close()
-    proxy.wait(timeout=30)
+    if proxy.wait(timeout=30) != 0:
+        raise StudyError("the acquisition proxy exited nonzero")
 
     sessions = os.listdir(os.path.join(store, "receipts"))
     if len(sessions) != 1:
@@ -251,6 +287,10 @@ def check_acquisition(store: str, key: bytes, refs: list[dict]) -> list[dict]:
     receipts_dir = os.path.join(store, "receipts")
     if not ok or not os.path.isdir(receipts_dir):
         raise StudyError("acquisition verification failed: %r" % findings)
+    session_dir = os.path.join(receipts_dir, refs[0]["sessionId"])
+    receipt_files = [n for n in os.listdir(session_dir) if n.endswith(".json")]
+    if len(receipt_files) != len(refs):
+        raise StudyError("the store holds %d receipts for %d records" % (len(receipt_files), len(refs)))
     manifest = []
     for ref in refs:
         receipt = json.load(open(os.path.join(
@@ -312,11 +352,37 @@ def mcp_test_packs(jpack: str, project: str) -> dict:
     raise StudyError("the MCP run returned no experimental_test_packs result")
 
 
+def seal_attempt(attempt: str) -> None:
+    manifest = {}
+    for base, _, names in os.walk(attempt):
+        for name in names:
+            path = os.path.join(base, name)
+            manifest[os.path.relpath(path, attempt)] = sha256_file(path)
+    with open(os.path.join(attempt, "MANIFEST.json"), "w") as handle:
+        json.dump(manifest, handle, indent=2, sort_keys=True)
+    for base, _, names in os.walk(attempt):
+        for name in names:
+            os.chmod(os.path.join(base, name), 0o444)
+
+
 def cmd_run() -> None:
     frozen = verify_freeze()
     cmd_validate()
     jpack = os.environ["JPACK_BIN"]
     attempt = start_attempt()
+    with open(os.path.join(attempt, "FREEZE-DIGEST"), "w") as handle:
+        handle.write(sha256_file(FREEZE) + "\n")
+    try:
+        _run_body(frozen, jpack, attempt)
+    except BaseException as error:
+        import traceback
+        with open(os.path.join(attempt, "CRASHED.json"), "w") as handle:
+            json.dump({"error": repr(error), "traceback": traceback.format_exc(),
+                       "argv": sys.argv, "freeze": sha256_file(FREEZE)}, handle, indent=2)
+        raise
+
+
+def _run_body(frozen, jpack, attempt) -> None:
     rule_digest = frozen["frozenInputs"]["transcription/record.rule.json"]
 
     store, key, refs = acquire(attempt)
@@ -374,7 +440,8 @@ def cmd_run() -> None:
         json.dump(runs, handle, indent=2)
     with open(os.path.join(attempt, "DONE"), "w") as handle:
         handle.write("complete\n")
-    print("run: retained under %s" % attempt)
+    seal_attempt(attempt)
+    print("run: retained and sealed under %s" % attempt)
 
 
 def rows_of(test_payload: dict) -> dict:
@@ -386,69 +453,121 @@ def rows_of(test_payload: dict) -> dict:
 
 
 def primary_attempt() -> tuple[int, str]:
-    """The first attempt that reached DONE. Crashed attempts stay on disk
-    with their exit metadata and are never overwritten (DEVIATIONS.md
-    records why one exists)."""
+    """The first attempt that reached DONE under the CURRENT committed
+    freeze, its seal verified. Crashed attempts stay on disk with their exit
+    metadata and are never overwritten (DEVIATIONS.md records why each
+    exists)."""
+    current = sha256_file(FREEZE)
     number = 1
     while os.path.exists(os.path.join(TRIALS, "ATTEMPT-%d" % number)):
         attempt = os.path.join(TRIALS, "ATTEMPT-%d" % number)
-        if os.path.exists(os.path.join(attempt, "DONE")):
+        digest_path = os.path.join(attempt, "FREEZE-DIGEST")
+        done = os.path.exists(os.path.join(attempt, "DONE"))
+        bound = os.path.exists(digest_path) and open(digest_path).read().strip() == current
+        if done and bound:
+            verify_seal(attempt)
             return number, attempt
         number += 1
-    raise StudyError("no completed attempt to score")
+    raise StudyError("no completed attempt under the current freeze")
+
+
+def verify_seal(attempt: str) -> None:
+    manifest = json.load(open(os.path.join(attempt, "MANIFEST.json")))
+    for relative, digest in manifest.items():
+        if relative == "MANIFEST.json":
+            continue
+        if sha256_file(os.path.join(attempt, relative)) != digest:
+            raise StudyError("the sealed attempt drifted: %s" % relative)
+
+
+def rows_of(test_payload: dict) -> dict:
+    rows = {}
+    total = 0
+    for pack in test_payload["packs"]:
+        for row in pack["rows"]:
+            total += 1
+            rows[row["id"]] = row
+    if total != len(rows):
+        raise StudyError("duplicate row ids in a test payload")
+    return rows
+
+
+def parse_disposition(value):
+    return json.loads(value) if isinstance(value, str) else value
 
 
 def cmd_score() -> None:
+    verify_freeze()
     number, attempt = primary_attempt()
     runs = json.load(open(os.path.join(attempt, "runs.json")))
+    matrix_b = json.load(open(os.path.join(attempt, "matrix-b.json")))
+    origins = {row["id"]: row["origin"] for row in matrix_b["cases"]}
     manifest = defect()
     sets = manifest["sets"]
     tables = manifest["expectedDispositions"]["perRecord"]
+    everyone = record_ids()
     results = {"attempt": number, "prerequisites": {}, "endpoints": {}}
 
-    # P-A: the circular arm is a deterministic self-replay, completely run.
+    # P-A: complete deterministic self-replay — full row set, one valid
+    # actual disposition per row, all passed, run status passed.
     test_a = runs["A-circular-D"]["test"]["payload"]
     rows_a = rows_of(test_a)
-    results["prerequisites"]["P-A"] = {
-        "status": test_a["status"],
-        "rowIds": sorted(rows_a) == record_ids(),
-        "mismatches": [i for i, r in rows_a.items() if r["status"] != "passed"],
-        "pass": test_a["status"] == "passed" and sorted(rows_a) == record_ids(),
-    }
+    pa_ok = (test_a["status"] == "passed" and sorted(rows_a) == everyone
+             and all(r["status"] == "passed" and parse_disposition(r.get("actual"))
+                     for r in rows_a.values()))
+    results["prerequisites"]["P-A"] = {"status": test_a["status"],
+                                       "rowIds": sorted(rows_a) == everyone,
+                                       "pass": bool(pa_ok)}
 
-    def endpoint(arm: str, under: str, expected_set: list[str]) -> dict:
+    def endpoint(arm: str, under: str, expected_set: list) -> dict:
         payload = runs[arm]["test"]["payload"]
         rows = rows_of(payload)
-        table_conform, mismatched = [], []
+        if sorted(rows) != everyone:
+            raise StudyError("%s did not run the full row set" % arm)
+        table_divergences, entailed, reported = [], [], []
         for case_id, row in rows.items():
-            actual = json.loads(row["actual"]) if isinstance(row["actual"], str) else row["actual"]
+            actual = parse_disposition(row.get("actual"))
+            expected = parse_disposition(row.get("expected"))
+            wrapped = {"kind": "outcome",
+                       "outcomeId": load_record(case_id)["decision"]["outcome"],
+                       "reasons": [], "handoff": {"state": "none"}}
+            if expected != wrapped:
+                raise StudyError("%s row %s expectation is not the gated wrapper" % (arm, case_id))
             if actual != tables[case_id][under]:
-                table_conform.append(case_id)
+                table_divergences.append(case_id)
+            if actual != expected:
+                entailed.append(case_id)
             if row["status"] != "passed":
-                mismatched.append(case_id)
+                reported.append(case_id)
+        if sorted(entailed) != sorted(reported):
+            raise StudyError("%s's reported mismatches disagree with the recomputation" % arm)
         return {
-            "tableDivergences": sorted(table_conform),
-            "mismatchedRows": sorted(mismatched),
+            "tableDivergences": sorted(table_divergences),
+            "mismatchedRows": sorted(reported),
             "expectedMismatches": sorted(expected_set),
-            "pass": not table_conform and sorted(mismatched) == sorted(expected_set),
+            "pass": not table_divergences and sorted(reported) == sorted(expected_set),
         }
 
     results["endpoints"]["E2"] = endpoint("B-transcribed-D", "underD", sets["F"] + sets["K"])
     results["endpoints"]["E3"] = endpoint("Bprime-transcribed-C", "underC", sets["K"])
 
+    validates = all(runs[arm]["validate"]["payload"]["status"] == "valid"
+                    for arm in ("A-circular-D", "B-transcribed-D", "Bprime-transcribed-C"))
+    origin_exact = True
+    for arm in ("B-transcribed-D", "Bprime-transcribed-C"):
+        for case_id, row in rows_of(runs[arm]["test"]["payload"]).items():
+            if row.get("origin") != origins[case_id]:
+                origin_exact = False
     cli = dict(runs["Bprime-transcribed-C"]["test"]["payload"])
     wire = dict(runs["Bprime-mcp"]["structuredContent"])
     for field in ("command",):
         cli.pop(field, None)
         wire.pop(field, None)
-    origins = all(row.get("origin", "").startswith("transcribed:")
-                  for row in rows_of(runs["Bprime-transcribed-C"]["test"]["payload"]).values())
     results["endpoints"]["E5"] = {
-        "validatePassed": runs["Bprime-transcribed-C"]["validate"]["payload"]["status"] == "valid",
-        "originsEchoed": origins,
+        "allProjectsValidate": validates,
+        "originsExact": origin_exact,
         "wireEqualsShell": cli == wire,
-        "pass": runs["Bprime-transcribed-C"]["validate"]["payload"]["status"] == "valid"
-                and origins and cli == wire,
+        "pass": validates and origin_exact and cli == wire,
     }
     results["pass"] = (results["prerequisites"]["P-A"]["pass"]
                        and all(e["pass"] for e in results["endpoints"].values()))

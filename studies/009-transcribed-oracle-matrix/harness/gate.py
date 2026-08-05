@@ -110,14 +110,20 @@ def admit_matrix(matrix: dict, refs: list[dict], store_root: str, key: bytes,
     lineages = []
     by_case = {ref["caseId"]: ref for ref in refs}
     for row in cases:
-        ref = by_case.get(row.get("id"))
+        # References are consumed: a duplicated row id, like an omitted one,
+        # leaves the accounting wrong and is refused.
+        ref = by_case.pop(row.get("id"), None)
         if ref is None:
-            raise GateError("row %r has no verified reference" % row.get("id"))
+            raise GateError("row %r has no unconsumed verified reference" % row.get("id"))
         expected, lineage = reconstruct_row(
             store_root, key, ref["sessionId"], ref["callIndex"], rule, authority)
-        if row != expected:
+        # Canonical BYTES, not Python equality: False == 0 in Python, and the
+        # evaluator would see the difference this comparison must not miss.
+        if attest.canon(row) != attest.canon(expected):
             raise GateError(
                 "row %r differs from its reconstruction:\nemitted  %s\nadmitted %s"
                 % (row.get("id"), json.dumps(row, sort_keys=True), json.dumps(expected, sort_keys=True)))
         lineages.append(lineage)
+    if by_case:
+        raise GateError("rows missing for verified references: %s" % sorted(by_case))
     return lineages
