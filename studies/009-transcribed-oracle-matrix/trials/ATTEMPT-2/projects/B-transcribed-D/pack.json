@@ -1,0 +1,117 @@
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://example.invalid/judgment-packs/vendor-screening",
+  "version": "0.1.0",
+  "title": "Synthetic vendor screening",
+  "description": "Invented vendor-screening policy for Study 009's constructed existence witness: route a vendor to clear, manual review, or reject from a sanctions flag and a risk score. Synthetic content for a study fixture; it authorizes nothing.",
+  "decision": {
+    "intent": "Screen a vendor into exactly one outcome from its sanctions flag and risk score.",
+    "question": "Is this vendor cleared, sent to manual review, or rejected?"
+  },
+  "sources": [
+    {
+      "id": "screening-standard",
+      "title": "Example vendor screening standard (POLICY.md)",
+      "publisher": "Study 009",
+      "publishedAt": "2026-08-05",
+      "locator": {
+        "kind": "uri",
+        "value": "https://example.invalid/study-009/POLICY.md"
+      },
+      "citation": {
+        "location": "Clauses P1-P3",
+        "excerpt": "P1: a sanctions hit is rejected regardless of score. P2: absent a sanctions hit, a risk score of 70 or above goes to manual review. P3: absent a sanctions hit, a risk score below 70 is cleared."
+      },
+      "rights": "Invented content for a study fixture; not an operational policy."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "clear",
+      "label": "Clear",
+      "description": "No sanctions hit and the risk score is below the review threshold."
+    },
+    {
+      "id": "manual-review",
+      "label": "Manual review",
+      "description": "No sanctions hit and the risk score is at or above the review threshold."
+    },
+    {
+      "id": "reject",
+      "label": "Reject",
+      "description": "A sanctions hit, regardless of score."
+    }
+  ],
+  "rules": [
+    {
+      "id": "reject-sanctions-hit",
+      "description": "A sanctions hit is rejected regardless of score.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/sanctionsHit",
+        "operator": "equals",
+        "value": true
+      },
+      "outcome": "reject",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "screening-standard"
+      ],
+      "rationale": "POLICY.md P1."
+    },
+    {
+      "id": "review-high-risk",
+      "description": "Absent a sanctions hit, a risk score of 70 or above goes to manual review.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsHit",
+            "operator": "equals",
+            "value": false
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than",
+            "value": "70"
+          }
+        ]
+      },
+      "outcome": "manual-review",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "screening-standard"
+      ],
+      "rationale": "POLICY.md P2."
+    },
+    {
+      "id": "clear-low-risk",
+      "description": "Absent a sanctions hit, a risk score below 70 is cleared.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsHit",
+            "operator": "equals",
+            "value": false
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          }
+        ]
+      },
+      "outcome": "clear",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "screening-standard"
+      ],
+      "rationale": "POLICY.md P3."
+    }
+  ]
+}

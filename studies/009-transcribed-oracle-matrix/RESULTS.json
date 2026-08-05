@@ -1,0 +1,50 @@
+{
+  "attempt": 2,
+  "prerequisites": {
+    "P-A": {
+      "status": "passed",
+      "rowIds": true,
+      "mismatches": [],
+      "pass": true
+    }
+  },
+  "endpoints": {
+    "E2": {
+      "tableDivergences": [],
+      "mismatchedRows": [
+        "f-boundary-1",
+        "f-boundary-2",
+        "f-boundary-3",
+        "k-wrong-clear",
+        "k-wrong-reject"
+      ],
+      "expectedMismatches": [
+        "f-boundary-1",
+        "f-boundary-2",
+        "f-boundary-3",
+        "k-wrong-clear",
+        "k-wrong-reject"
+      ],
+      "pass": true
+    },
+    "E3": {
+      "tableDivergences": [],
+      "mismatchedRows": [
+        "k-wrong-clear",
+        "k-wrong-reject"
+      ],
+      "expectedMismatches": [
+        "k-wrong-clear",
+        "k-wrong-reject"
+      ],
+      "pass": true
+    },
+    "E5": {
+      "validatePassed": true,
+      "originsEchoed": true,
+      "wireEqualsShell": true,
+      "pass": true
+    }
+  },
+  "pass": true
+}

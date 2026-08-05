@@ -1,0 +1,236 @@
+{
+  "matrixVersion": "1",
+  "cases": [
+    {
+      "id": "f-boundary-1",
+      "origin": "circular:f-boundary-1",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "no-match"
+        ]
+      }
+    },
+    {
+      "id": "f-boundary-2",
+      "origin": "circular:f-boundary-2",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "no-match"
+        ]
+      }
+    },
+    {
+      "id": "f-boundary-3",
+      "origin": "circular:f-boundary-3",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "no-match"
+        ]
+      }
+    },
+    {
+      "id": "h-clear-boundary-below",
+      "origin": "circular:h-clear-boundary-below",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "69.99"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    },
+    {
+      "id": "h-clear-low",
+      "origin": "circular:h-clear-low",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "12.5"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    },
+    {
+      "id": "h-clear-mid",
+      "origin": "circular:h-clear-mid",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "40"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    },
+    {
+      "id": "h-reject-boundary-70",
+      "origin": "circular:h-reject-boundary-70",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "h-reject-plain",
+      "origin": "circular:h-reject-plain",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "riskScore": "90"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "h-review-boundary-above",
+      "origin": "circular:h-review-boundary-above",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "70.01"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    },
+    {
+      "id": "h-review-high",
+      "origin": "circular:h-review-high",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "85"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    },
+    {
+      "id": "k-wrong-clear",
+      "origin": "circular:k-wrong-clear",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "riskScore": "95"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "k-wrong-reject",
+      "origin": "circular:k-wrong-reject",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "10"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    }
+  ]
+}
