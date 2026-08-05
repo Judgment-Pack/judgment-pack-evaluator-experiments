@@ -1,0 +1,67 @@
+{
+  "frozenInputs": {
+    "policy/POLICY.md": "sha256:3011e1024f51bc4fa272a30fbc1fc8cdb19fd6cf11d1539fca9ccebda92935a5",
+    "packs/vendor-screening-correct.pack.json": "sha256:3e261bd7d2bb3f0094b8c4ff6fdd85e93164c597ccd08b865f322f9fff266346",
+    "packs/vendor-screening-defective.pack.json": "sha256:48f13604d3fe86645c23a98e93ab3d424fe8c5c0f7c5409216d4cb1b3e3e79fd",
+    "DEFECT.json": "sha256:f201c5c507d8ad6088cf9b3ea74a6448c1c3031dd4b19c5155b0d9f868941012",
+    "RECORDS.md": "sha256:e9885e7fcc6c83e7e3ab536b847657c9206497781c8a113526ed3e5bcc6f8de6",
+    "source/record_source.py": "sha256:ad8af3b1d75a2653c9ea67987341d2d0ca83bbbf01e4be6288a71b842072fbc1",
+    "transcription/record.rule.json": "sha256:69b2d44974d748b488f7b6f989c9f3ef88db593d8e187c4fed49226d5affab6d",
+    "transcription/transcribe.py": "sha256:815f45a4d364b67b860969a77eb2a69a0c5f9559f03da3e277bab51ca3f39ac6",
+    "harness/study.py": "sha256:1a2c2477c9cf107cbdeecae34d7493267154fa6ea75f80d4ee096b4b8aa9d850",
+    "harness/pnf_check.py": "sha256:7b672ab372bde4d45bf04665692e9eb365abd55c682249044ee73c73526acb35",
+    "harness/gate.py": "sha256:1291a10ddc89bf62bef10a0bf9a51af145a5a037e1a4a72e2dfcf7665e144752",
+    "harness/test_study.py": "sha256:34faf3c70039a564aaafffdc968af93aa46d42def34c2f4451a04a9c3cb9d37d",
+    "../../acquisition-proxy/attest.py": "sha256:6b2dc42f5ec6307e4c1ee99bbe202e77ff603466e905dc245cf33ef48d62647f",
+    "../../derivation-rule/derive.py": "sha256:1b02e70a3e0d84169fb05c695d091ce1e2033dd8aadfdb217d36e14b2f0162cc",
+    "../../fabrication-gate/gate.py": "sha256:00c50b0f2255816d11b27e55c3210acd7ef8d877f745f84a7d3aa93f080a6047"
+  },
+  "jpack": "sha256:a76091a30b2e595dd7259161d423066805664ad30394d313ffeb0e8d7e0ce782",
+  "python": {
+    "implementation": "CPython",
+    "version": "3.8.20"
+  },
+  "invocation": {
+    "authority": "study-009:records",
+    "tool": "get_record",
+    "arguments": {
+      "caseId": "<id>"
+    },
+    "evaluate": [
+      "<jpack>",
+      "experimental",
+      "evaluate",
+      "<pack>",
+      "--facts",
+      "<facts>",
+      "--format",
+      "json"
+    ],
+    "packsValidate": [
+      "<jpack>",
+      "packs",
+      "validate",
+      "--format",
+      "json"
+    ],
+    "packsTest": [
+      "<jpack>",
+      "packs",
+      "test",
+      "--format",
+      "json"
+    ],
+    "mcp": [
+      "<jpack>",
+      "mcp"
+    ],
+    "environment": [
+      "PATH",
+      "HOME",
+      "JPACK_CONFIG"
+    ],
+    "cwd": "<the arm's generated project directory>"
+  },
+  "preregistrationCommit": "1900defd4ea6e359c7df0590c9ccbd578bf2773d",
+  "note": "PREREGISTRATION.md governs; this file only pins bytes."
+}
