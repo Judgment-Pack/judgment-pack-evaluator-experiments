@@ -458,7 +458,16 @@ def cmd_witness() -> None:
         record = next(iter(entry.values()))
         records.append({"uuid": uuid, "logIndex": record["logIndex"]})
     strangers = [r for r in records if r["uuid"] not in known]
-    with open(os.path.join(WITNESS_DIR, "SEARCH.json"), "w") as handle:
+    # Before the freeze, SEARCH.json may be overwritten (the wait-for-index
+    # loop). Once FREEZE.json exists it is a frozen input, so later re-runs
+    # — the post-run review's included — land in numbered siblings.
+    target = os.path.join(WITNESS_DIR, "SEARCH.json")
+    if os.path.exists(FREEZE):
+        number = 2
+        while os.path.exists(target):
+            target = os.path.join(WITNESS_DIR, "SEARCH-%d.json" % number)
+            number += 1
+    with open(target, "w") as handle:
         json.dump({"queried": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                    "hits": records, "known": sorted(known)}, handle, indent=2)
         handle.write("\n")
