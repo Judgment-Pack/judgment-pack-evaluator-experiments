@@ -118,3 +118,142 @@ Output format: numbered findings, each with severity (blocking / should-fix / ni
 The strongest surviving choices are the canonical outcome wrapper, reuse of one byte-identical B matrix as a paired C/D isolation control, exact pre-run row IDs, calibration controls once constrained, and §9’s byte-lineage-not-truth and one-defect/no-rate bounds. These are construction controls and honest limitations, not independent efficacy evidence.
 
 **Verdict:** redesign. As written, the meaningful-looking result is largely fixed by fixture construction, while E1 is tautological and the rule can covertly reintroduce the oracle. The study could freeze after substantial changes only if recast as a narrow end-to-end integration witness; retaining the claim that independently recorded decisions close the circular-oracle hole requires independent or blinded outcome/pack authorship and ordering.
+
+
+---
+
+# Second pre-freeze review — of the first revision
+
+**Verdict: freeze only with the named changes** — the constructed-witness
+concept needs no further redesign; the revision must not freeze as written.
+The third revision (the sibling `PREREGISTRATION.md` at this commit)
+implements every named change; the closure table and new findings below are
+the conditions it implements.
+
+**Drafting model:** Anthropic `claude-fable-5` (Claude Code), 2026-08-05.
+**Reviewing model:** OpenAI `gpt-5.6-sol` via codex-cli 0.145.0 (`codex exec`, sandbox `workspace-write`, `mcp_servers={}`, reasoning effort ultra), 2026-08-05.
+**Runs:** one, completed; reproduced unedited below. No run discarded.
+
+## Maintainer response — how each named change landed in the third revision
+
+- Stage-bounded claim (new finding 1): §1's claim statement rewritten — the
+  bound is on post-freeze generation, checked by reconstruction; the
+  informed-author fact and the probe-evaluation provenance are disclosed
+  (§5's provenance note, §10's no-bypass paragraph).
+- Closed mapping and rule identity (new findings 2, 3): the record schema is
+  closed with one canonical decimal representation; the rule is required to
+  be canonically byte-equal to the one registered identity projection; the
+  gate loads the freeze-verified rule itself, asserts its digest per row,
+  and exposes no rule or params argument.
+- Call contract and artifact↔record equality (new finding 4): §7.1 registers
+  tool, arguments, result-is-the-record, extraction identity, authority, and
+  key procedure; P-ACQ adds recomputed argumentsDigests, the one-session
+  requirement, and canonical retained-artifact ≡ frozen-record equality.
+- Complete-row admission (new finding 5): the gate reparses the emitted
+  matrix and requires exact equality of every member per row, applies the
+  wrapper itself, forbids extras, and keeps acquisition status in a gated
+  sidecar because `MatrixCase` is strict.
+- Load-bearing tables (new finding 6, original 3): DEFECT.json registers
+  full C and D dispositions for every id; scoring compares every actual to
+  its table entry; mismatch sets are entailed summaries.
+- DEFECT strictness and the lexical predicate (new finding 7): strict
+  manifest shape with preimage equality and RFC 8785 patched-C ≡ D; one
+  canonical risk-score representation makes the lexical predicate safe.
+- Dependency DAG (new finding 8, original 9): E4 folded into prerequisites;
+  E2 and E3 each depend on all four pipeline prerequisites; the K coupling
+  is table-verified; P-A's completeness predicate repaired (original 2).
+- Hermetic freeze (new finding 9, original 12): generated configurations
+  digested and matrix-bound; exact argv/cwd/JPACK_CONFIG/environment/
+  interpreter/import-closure registered; the prereg commit itself named in
+  FREEZE.json.
+- First-attempt ledger and ordering honesty (new finding 10): the
+  development bypass is gone; STARTED markers, append-only attempts, sealed
+  outputs; the ordering claim is scoped to the later paths and anchored on
+  the named commit; the scratchpad prototypes are disclosed in the status
+  header.
+
+## Prompt (verbatim)
+
+````
+You are performing the SECOND pre-freeze adversarial review of a study preregistration. You are the reviewing model; a Claude model drafted it. Your first review (PREREG-REVIEW.md in the study directory) rejected the previous draft with a redesign verdict and thirteen findings. The revision is studies/009-transcribed-oracle-matrix/PREREGISTRATION.md in this working tree. Your job now: (1) verify each of your thirteen findings is actually resolved by the revision — resolved in substance, not by softer wording; (2) attack the revision fresh — new circularity, new endpoints that cannot fail, new smuggling channels, mechanics still underspecified enough to rationalize after the fact.
+
+Context: studies/008-portable-derivation-admission/ (format + its harness/study.py freeze mechanics), derivation-rule/SPEC.md + derive.py (the projection-normal-form restriction is defined against this grammar), acquisition-proxy/SPEC.md + attest.py (what wrap/attest/verify actually do — including verify's empty-store vacuous pass), fabrication-gate/gate.py (admit()'s actual checks). The runtime dependency: jpack 0.14.0's packs test / experimental_test_packs payloads (described in the prereg).
+
+Specific pressure points:
+1. Finding-by-finding: for each of the 13 original findings, state RESOLVED / PARTIALLY RESOLVED / UNRESOLVED with the revision text that does or does not resolve it.
+2. The witness reframe: does §1's claim statement still overreach anywhere? Is the E2 "evidence about the pipeline and the mechanism, not about discovery" framing consistent with the rest of the document?
+3. The PNF checker spec (§7.3): is the whitelist complete against derive.py's actual permissiveness? Can a rule passing the stated checks still smuggle (e.g. via the artifact-pointer side of one-to-one copies, via record_source.py itself, via params absent but the transcriber passing params anyway)?
+4. The gate (§7.4): does recompute-and-compare actually bind the matrix row to the verified artifact, or is there a gap between what the gate checks and what the row carries (e.g. the wrapper's outcome id — read from the artifact, but who checks the WRAPPED disposition equals the registered wrapper shape)?
+5. DEFECT.json (§5): is "C and D differ by exactly the registered patch" well-defined (canonical comparison after applying the patch)? Are the expected-disposition requirements complete enough to prevent post-hoc classification of surprises?
+6. The dependency map (§9): is it honest and complete? Is P-A truly unscorable-as-evidence now?
+7. Freeze/procedure (§10): any executable or input still outside the freeze? Is "first post-freeze run is primary, no retry rule" actually enforceable from the text?
+8. Anything else that could make a meaningful-looking result that is not.
+
+Output format: Part 1 — a 13-row table (# / original finding, compressed / status / where resolved). Part 2 — numbered NEW findings with severity (blocking / should-fix / nit / observation), section, concrete failure scenario, fix. End with a one-paragraph verdict: freeze as-is, freeze with named changes, or redesign again.
+````
+
+## Complete output (unedited)
+
+## Part 1 — Closure of the original thirteen findings
+
+Three findings are fully resolved; ten are only partially resolved.
+
+| # | Original finding, compressed | Status | Where resolved—or not |
+|---:|---|---|---|
+| 1 | The contrast is engineered; it cannot evidence independent human oracles or unknown-defect discovery. | **RESOLVED** | §§1 and 11 now say “**constructed existence witness**,” disclose “every fixture…is authored by one mind” with full knowledge, and exclude real-record fidelity, detection rates, representativeness, and discovery. The remaining overreach in “provably never passes through” is a new, narrower problem below. |
+| 2 | E1 is `D(x)=D(x)`, not evidence, and zero mismatches can hide a failed/empty run. | **PARTIALLY RESOLVED** | §9 correctly relabels E1 as unscored **P-A**, a “deterministic self-replay,” whose failure is never evidence. But P-A still requires only “reports 0 mismatches.” It does not require status `passed`, exactly N rows and frozen IDs, N actual dispositions, or no load/evaluation errors. A pack/matrix load failure can still report zero row mismatches. |
+| 3 | The defect class was not operationally defined; any allowed mismatch could be credited post hoc. | **PARTIALLY RESOLVED** | §5 now registers the patch, violated clause, independent F predicate, disjoint sets, boundaries, and C/D dispositions for F. However, E2 accepts **any valid D disposition** different from the expectation; it never compares actual D with DEFECT.json’s registered D disposition. The new fields are therefore not yet load-bearing. |
+| 4 | `record.rule.json` can be a covert oracle. | **PARTIALLY RESOLVED** | §7.3 removes branching, declared parameters, evidence variation, and status variation. But arbitrary `/vendor` source selection and arbitrary destination pointers remain programmable; the vendor schema and exact projection are not closed, runtime params remain possible, and the requested read-constrained execution is absent. |
+| 5 | No fabrication gate bound emitted evaluator inputs to the verified artifact. | **PARTIALLY RESOLVED** | §7.4 adds `admit()`, recomputation, and comparisons for facts/evidence/status plus statements about IDs. It does not bind the complete serialized row—especially `expectedDisposition`, `origin`, `supportedExtensions`, and absence of extras—to a reconstruction from the artifact. Nor does it bind the executed rule object to the PNF-checked frozen rule. |
+| 6 | Acquisition misdescribed `attest.py`; no real MCP adapter contract existed. | **PARTIALLY RESOLVED** | §§3 and 7.1 introduce `record_source.py`, retain `canon(result)`, and pass artifact references rather than record paths. Still absent: exact tool name, arguments, result schema, extraction pointer, authority, key procedure, downstream command, and equality between retained result data and `records/<caseId>.json`. |
+| 7 | `attest.verify` is vacuous on an empty store and does not establish current-run completeness. | **PARTIALLY RESOLVED** | §7.2 adds a fresh store, non-vacuity, counts, contiguous indexes, authority/tool checks, non-error results, and a case/receipt bijection. It does not require exactly the currently spawned session, recompute each request’s `argumentsDigest`, bind result data to the requested case, or retain the proposed row-to-receipt/rule/claim digest manifest. |
+| 8 | Arm isolation and causal attribution omitted carrier fields, completeness, and expected actual deltas. | **PARTIALLY RESOLVED** | §4 adds equality of IDs, facts, evidence, and supported extensions; §8 separates refusals and carrier failures. But configuration/evaluator options and full row completeness remain outside P-ISO, and E2 requires only a valid mismatch rather than the preregistered D disposition or C→D delta. |
+| 9 | Endpoint dependencies should be registered; construction invariants must not be double-counted. | **PARTIALLY RESOLVED** | §9 candidly says E2’s F-half follows from fixtures if the pipeline is faithful and is mechanism evidence, not discovery. But E4 remains scored although its components are construction checks, the stated K coupling is not logically valid without C=D on K, and E3’s dependence on acquisition/PNF/gate fidelity is omitted. |
+| 10 | The wrapper is valid, but unexpected non-outcomes cannot automatically be blamed on C. | **RESOLVED** | §5 registers complete C dispositions for H/K and C/D dispositions for F; unexpected non-outcomes become fixture/pipeline failures. §11 explicitly limits the study to outcome rows and disclaims ADR-0014 reason probes. |
+| 11 | Calibration controls could overlap F, satisfy coverage quotas, or use impossible outcomes. | **RESOLVED** | §§5–6 make H/F/K disjoint, use H alone for coverage minima, require declared/producible wrong K outcomes, and register `C=K`, `D=F∪K`. |
+| 12 | Freeze omitted executables/dependencies and allowed tuning or run selection. | **PARTIALLY RESOLVED** | §10 now names the harness, tests, source, gates, reused modules, fixtures, and exact jpack binary; it names the first post-freeze run as primary. But project configuration, invocation/environment, Python runtime, key procedure, imported dependency closure, and protocol/review digests remain outside the freeze. The development bypass permits real-fixture rehearsals, and crash/discarded attempts remain invisible. |
+| 13 | E5’s CLI/MCP comparison domain and provenance were underspecified. | **PARTIALLY RESOLVED** | §8 now compares parsed CLI JSON with MCP `structuredContent`, deleting exactly `["command"]`, and keeps receipt verification separate. Exact argv, working directory, selected pack, absolute `JPACK_CONFIG`, and common configuration digest remain unspecified. |
+
+## Part 2 — New findings
+
+1. **Blocking — §§1, 7, E4: “provably never passes through the evaluator or pack” remains too strong.**  
+   **Failure scenario:** The same informed author can seed record outcomes from C’s evaluator output before freeze, while `record_source.py` or `transcribe.py` can read the packs or invoke jpack. Every endpoint can still show the registered pattern. Moreover, expectations necessarily enter the evaluator later as `packs test` inputs; the intended claim is about their generation, not whether they ever “pass through” it.  
+   **Fix:** State the stage-bounded property: after records are frozen, each emitted `expectedDisposition` is reconstructed solely from the verified record artifact and is not generated from evaluator output during transcription. Enforce output noninterference through the complete-row gate below or use hermetic read/exec allowlists. §§9 and 11’s “mechanism, not discovery” framing is otherwise consistent.
+
+2. **Blocking — §7.3: the proposed PNF remains a programmable transform, not a fixed projection.**  
+   **Failure scenario:** With an open `vendor` object, a record can contain `/vendor/oracleRisk` or a duplicate outcome-derived flag, and a PNF-passing rule can copy it to `/vendor/riskScore` or `/vendor/sanctionsHit`. Mutating `/decision/outcome` leaves that duplicate unchanged, so the registered metamorphic test passes. Actual `derive.py` pointer behavior adds further gaps: `/vendorOutcome` can pass a naïve prefix check; `/vendor~1x` addresses a root key named `vendor/x`; `/vendor/a~` and `/vendor/a~0` alias; and injective destinations `/x` then `/x/y` clobber one copy.  
+   **Fix:** Freeze a closed vendor schema and the exact complete mapping—apparently `/vendor/sanctionsHit → /vendor/sanctionsHit` and `/vendor/riskScore → /vendor/riskScore`. Require scalar leaves only, canonical RFC 6901 syntax, decoded first token exactly `vendor`, and no aliases or ancestor/descendant destinations.
+
+3. **Blocking — §§7.3–7.4: the whitelist, executed rule, and params channel are not closed.**  
+   **Failure scenario:** [`derive.py`](derivation-rule/derive.py:221) accepts ignored extra members, defaults an absent `parameters` member to `{}`, permits undeclared runtime params, and returns an effectively unconstrained `reason`. A transcriber can read an ignored member, `reason`, raw rule whitespace, or params as an oracle map. Separately, P-PNF checks a file, while both `admit()` and `derive_canonical()` accept caller-supplied rule objects; passing the same alternate rule to both makes recomputation agree.  
+   **Fix:** Specify exact recursive member sets, require `"parameters": {}`, fix `reason` to one literal, reject duplicate/noncanonical rule bytes, and ban ignored members. The gate must load the freeze-verified PNF rule itself, assert its digest per row, expose no rule/params argument, and pass literal `{}` internally.
+
+4. **Blocking — §§3, 7.1–7.2: attestation does not bind the artifact to the registered record.**  
+   **Failure scenario:** [`attest.py`](acquisition-proxy/attest.py:287) retains the entire MCP `result`, not the record file. `record_source.py` can ignore or transform the selected file, add oracle metadata, or return another case; attestation and the derivation gate will faithfully bless those bytes. The unspecified normal MCP result wrapper also makes the assumed top-level `/vendor` path ambiguous.  
+   **Fix:** Register one exact tool, exact `{"caseId": id}` arguments, a closed CallToolResult shape and extraction pointer, authority, downstream command, and key procedure. Recompute `argumentsDigest`; require exactly one current session; and require canonical equality between the designated result subvalue and the corresponding frozen record.
+
+5. **Blocking — §§7.4–7.5: P-GATE does not admit the complete emitted row, and one stated comparison is impossible.**  
+   **Failure scenario:** [`fabrication-gate/admit()`](fabrication-gate/gate.py:52) knows nothing about row ID, expectation, origin, or extensions. On a K control whose record says `manual-review`, the transcriber can emit `reject`; both remain valid mismatches over C and D, so E2 and E3 pass. Merely “reading” the record outcome does not bind it. Also, jpack 0.14’s strict [`MatrixCase`](judgment-pack-runtime:internal/evaluation/corpus.go:48) has no `acquisitionStatus`; adding that field makes the matrix unloadable.  
+   **Fix:** Reparse the emitted matrix and require exact equality for every row: ID, admitted facts/evidence, `supportedExtensions: []`, canonical wrapper of `artifact.decision.outcome`, and registered origin. Reject extras and error expectations. Keep acquisition status and lineage in a gated sidecar. Bind each jpack configuration to the gated matrix digest.
+
+6. **Blocking — §§5, 8: DEFECT.json’s disposition tables are decorative, and D behavior on K is unregistered.**  
+   **Failure scenario:** If D produces `reject` on every F row where DEFECT.json predicts `unresolved/no-match`, E2 still passes because `reject` is a valid disposition and differs from `manual-review`. An unexpected C or D disposition on K can likewise remain a mismatch and escape both endpoint predicates.  
+   **Fix:** Register complete C and D dispositions for every H/F/K ID and mechanically compare every actual disposition with its table entry. Treat the mismatch sets as derived summaries entailed by those comparisons plus exact record-wrapper binding—not separate evidence.
+
+7. **Should-fix — §5: the patch and defect predicate need a stricter data contract.**  
+   **Failure scenario:** RFC 6902 `replace` has `path` and `value`; `old/new` is a custom manifest shape. Current text does not explicitly require the preimage at `path` to equal `old`, reject duplicate members, or name the canonicalizer. The F predicate is also lexical: `"70.0"` is mathematically equal to `"70"` under Core ordered comparison and is affected by `>= → >`, but `riskScore == "70"` excludes it.  
+   **Fix:** Freeze a strict DEFECT schema; require exactly one replace, preimage equality with `old`, and RFC 8785 equality of patched C with D. Define F using Core decimal parsing and mathematical equality to 70, or enforce one canonical risk-score representation.
+
+8. **Should-fix — §9: the dependency map still overstates independence.**  
+   **Failure scenario:** “A K row failing to mismatch fails both E2 and E3” is false unless C and D are first required to have identical registered behavior on K. E4’s byte reuse and metamorphic tests are construction checks, while E3 depends on P-ACQ/P-PNF/P-GATE just as E2 does. E5 is primarily a shared-code-path integration check.  
+   **Fix:** Register a dependency DAG after adding full C/D tables. Move E4 into prerequisites, attach pipeline prerequisites to both E2 and E3, and state which mismatch-set results are entailed. P-A is now genuinely unscored as evidence, but its completeness predicate still needs the repair identified in original finding 2.
+
+9. **Blocking — §§8, 10: executable and runtime inputs remain outside the freeze.**  
+   **Failure scenario:** The gate can approve one matrix while a generated `jpack.json` points jpack at another. CLI and MCP can select different configurations through cwd, `--config`, or `JPACK_CONFIG`. Python version, `PYTHONPATH`, helper imports, source launch argv, the key, and environment can also change behavior without violating the enumerated digests.  
+   **Fix:** Freeze—or deterministically generate, retain, and digest—every project configuration and its matrix binding. Register exact CLI/MCP requests, cwd, one absolute `JPACK_CONFIG`, selected IDs, sanitized environment, Python interpreter identity, key lifecycle, and the complete imported executable closure.
+
+10. **Blocking — §10: “first post-freeze run” is not enforceable and the proposed ordering proof checks the wrong revision.**  
+    **Failure scenario:** `STUDY009_ALLOW_UNCOMMITTED_FREEZE=1` explicitly permits rehearsing the real C/D/records, tuning, refreezing, and then calling the next attempt primary. A crash before output or deletion before commit is invisible. In this history, `git log --diff-filter=A` identifies commit `ba80d5b`, which added the rejected draft—not this revision or its second review. The supplied scratchpad also already contains exact-named C/D prototypes under `../s009-build/packs/`, contradicting the unqualified statement that no fixture exists.  
+    **Fix:** Remove real-fixture development runs; pre-freeze tests must use disjoint fixtures. Before any primary work, atomically create and fsync an exclusive `STARTED` marker, never overwrite/delete attempt directories, retain failure/exit metadata, and seal outputs. Record the exact revision-and-second-review commit and blobs in FREEZE.json and verify ancestry. Disclose the existing prototypes and narrow the claim to “no frozen study fixture or scored run.”
+
+**Verdict:** freeze only with the named changes—closed exact PNF mapping and call contract, retained-result-to-record equality, freeze-bound rule with literal empty params, complete serialized-row admission, full C/D disposition scoring, repaired P-A/dependency semantics, and a hermetic freeze plus non-bypassable first-attempt ledger. The constructed-witness concept no longer needs another conceptual redesign, but the current revision should not freeze: its central structural proof can still be bypassed while producing exactly the meaningful-looking E2/E3 pattern it predicts.
