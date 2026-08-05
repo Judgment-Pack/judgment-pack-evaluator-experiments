@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
-"""Study 010 driver: lock | draw | validate | freeze | run | score
-(PREREGISTRATION.md §8's ordering).
+"""Study 010 driver: lock | timestamp-lock | publish | witness | draw |
+validate | freeze | run | score (PREREGISTRATION.md §8's ordering).
 
-`lock` writes PROTOCOL-LOCK.json (the protocol lock) after proving pack C
-matches POLICY.md on all 24 truth regions and every family patch applies.
-The authoring call happens outside this driver (its artifacts land in
-transcription/authoring/); records_compile.py turns its stdout into
-records/. `draw` runs after the records commit is pushed: it computes the
-target drand round from the commit's public timestamp, fetches the round,
-derives the sampled index, writes DRAW.json, generates pack D, and derives
-DEFECT.json's sets and per-record disposition tables. `freeze` then pins
-everything executable and generated; `run` and `score` are Study 009's
-repaired forms with the four-way E1.
+`lock` writes PROTOCOL-LOCK.json after proving pack C matches POLICY.md on
+the 44-probe battery, every family patch applies, and the witness keys,
+Rekor log key, codex binary, and drand chain constants are pinned;
+`timestamp-lock` puts the lock commit in the Rekor transparency log. The
+authoring call happens through transcription/authoring_call.sh (immutable
+call-N slots); records_compile.py turns the transcript-bound completion
+into records/. `publish` makes the records commit's Rekor inclusion — the
+publication whose AUTHENTICATED integratedTime is the draw clock.
+`witness` is the online uniqueness check over both locked keys. `draw`
+computes the target drand round, fetches it from two relays by chain hash,
+derives the sampled index, and derives DEFECT.json from the PUBLISHED
+commit tree, never the worktree. `freeze` re-runs the uniqueness check
+itself and pins everything; `run` and `score` carry the four-way E1.
 
 Endpoints are computed only in `score`, from files `run` retained. `run`
-refuses an unverified or uncommitted freeze, creates an exclusive attempt
-ledger before any work, and never overwrites an attempt. The first DONE
-attempt under the current freeze is primary.
+opens the attempt ledger before any fallible work and seals every exit;
+the primary attempt is the FIRST attempt started under the current freeze,
+whatever its terminal state — a crashed primary scores pipeline-invalid.
 """
 from __future__ import annotations
 import hashlib
@@ -65,12 +68,19 @@ DRAW_DEADLINE_SECONDS = 3600
 LOCK = os.path.join(STUDY, "PROTOCOL-LOCK.json")
 FREEZE = os.path.join(STUDY, "FREEZE.json")
 TRIALS = os.path.join(STUDY, "trials")
-COMPLETION = os.path.join(STUDY, "transcription", "authoring", "completion.txt")
+AUTHORING_DIR = os.path.join(STUDY, "transcription", "authoring")
+MAX_AUTHORING_CALLS = 3
 WITNESS_DIR = os.path.join(STUDY, "transcription", "witness")
-WITNESS_PUB = os.path.join(STUDY, "transcription", "witness-pub.pem")
-# The private key never enters the repository; substituting a different key
-# is inert because every verification runs against the LOCKED public key.
-WITNESS_KEY = os.environ.get("STUDY010_WITNESS_KEY") or os.path.expanduser("~/.study-010-witness.key")
+# Two locked public keys (PREREGISTRATION.md §5): one signs the lock
+# timestamp, the other signs exactly one records publication — separate
+# keys make "the minimal-logIndex entry under the records key" unambiguous.
+LOCK_PUB = os.path.join(STUDY, "transcription", "witness-lock-pub.pem")
+RECORDS_PUB = os.path.join(STUDY, "transcription", "witness-records-pub.pem")
+# The private keys never enter the repository; substituting different keys
+# is inert because every verification runs against the LOCKED public keys.
+_KEY_BASE = os.environ.get("STUDY010_WITNESS_KEYDIR") or os.path.expanduser("~")
+LOCK_KEY = os.path.join(_KEY_BASE, ".study-010-witness-lock.key")
+RECORDS_KEY = os.path.join(_KEY_BASE, ".study-010-witness-records.key")
 
 # The protocol lock: everything that must exist, byte-pinned, before the
 # authoring call may begin (PREREGISTRATION.md §8 step 1).
@@ -84,7 +94,8 @@ LOCKED = [
     "transcription/record.rule.json",
     "transcription/transcribe.py",
     "transcription/authoring_call.sh",
-    "transcription/witness-pub.pem",
+    "transcription/witness-lock-pub.pem",
+    "transcription/witness-records-pub.pem",
     "controls/k-wrong-1.json",
     "controls/k-wrong-2.json",
     "source/record_source.py",
@@ -101,17 +112,14 @@ LOCKED = [
     "../../fabrication-gate/gate.py",
 ]
 
-# The artifact freeze adds what the authoring call, the compiler, the
-# witness, and the draw generated (§8 step 3). Record files and remaining
-# authoring retention are enumerated at freeze time.
+# The artifact freeze adds what the authoring calls, the compiler, the
+# witness, and the draw generated (§8 step 3). Record files and the
+# authoring retention (every call slot) are enumerated at freeze time.
 GENERATED_BASE = [
     "RECORDS.md",
     "DRAW.json",
     "DEFECT.json",
     "packs/vendor-screening-defective.pack.json",
-    "transcription/authoring/stdout.raw",
-    "transcription/authoring/completion.txt",
-    "transcription/authoring/CALL.json",
     "transcription/witness/INCLUSION.json",
     "transcription/witness/LOCK-INCLUSION.json",
     "transcription/witness/SEARCH.json",
@@ -134,11 +142,47 @@ def _record_files() -> list[str]:
 
 
 def frozen_inputs() -> list[str]:
-    transcript_dir = os.path.join(STUDY, "transcription", "authoring")
-    transcripts = sorted(
-        "transcription/authoring/" + name for name in os.listdir(transcript_dir)
-        if name not in ("stdout.raw", "CALL.json"))
-    return LOCKED + GENERATED_BASE + transcripts + _record_files()
+    retained = []
+    for base, _, names in os.walk(AUTHORING_DIR):
+        for name in names:
+            path = os.path.join(base, name)
+            retained.append(os.path.relpath(path, STUDY))
+    return LOCKED + GENERATED_BASE + sorted(retained) + _record_files()
+
+
+def authoring_call() -> tuple[str, str]:
+    """(the admissible call directory, its completion path): call slots are
+    transcription/authoring/call-N; the admissible slot is the single one
+    whose CALL.json records integer exit 0 — every earlier slot must be a
+    retained transport failure (nonzero exit), and a second completed slot
+    is a refused retry-after-completion (PREREGISTRATION.md §4)."""
+    slots = sorted(name for name in os.listdir(AUTHORING_DIR)
+                   if name.startswith("call-")) if os.path.isdir(AUTHORING_DIR) else []
+    if not slots or slots != ["call-%d" % n for n in range(1, len(slots) + 1)]:
+        raise StudyError("authoring call slots are missing or non-contiguous: %r" % slots)
+    if len(slots) > MAX_AUTHORING_CALLS:
+        raise StudyError("more than %d authoring call slots exist" % MAX_AUTHORING_CALLS)
+    completed = []
+    for name in slots:
+        call = json.load(open(os.path.join(AUTHORING_DIR, name, "CALL.json")))
+        status = call.get("exitStatus")
+        sessions = call.get("newSessionCount")
+        if isinstance(status, int) and not isinstance(status, bool) and status == 0:
+            if not (isinstance(sessions, int) and not isinstance(sessions, bool) and sessions == 1):
+                raise StudyError("%s completed without exactly one new session" % name)
+            for required in ("session.jsonl", "completion.txt", "stdout.raw", "stderr.raw"):
+                if not os.path.isfile(os.path.join(AUTHORING_DIR, name, required)):
+                    raise StudyError("%s completed without retaining %s" % (name, required))
+            completed.append(name)
+    if len(completed) != 1:
+        raise StudyError("exactly one completed authoring call is admissible, found %d"
+                         % len(completed))
+    admissible = completed[0]
+    for name in slots:
+        if name > admissible:
+            raise StudyError("a call slot follows the completed call: %s" % name)
+    call_dir = os.path.join(AUTHORING_DIR, admissible)
+    return call_dir, os.path.join(call_dir, "completion.txt")
 
 
 def family() -> dict:
@@ -227,6 +271,13 @@ def http_json_retry(url: str, body: dict | None = None, attempts: int = 5) -> di
     raise StudyError("unreachable after %d attempts: %s (%r)" % (attempts, url, last))
 
 
+def http_get_text(url: str, timeout: int = 60) -> str:
+    request = urllib.request.Request(url)
+    request.add_header("User-Agent", "study-010-harness/1")
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read().decode()
+
+
 # ------------------------------------------------------------- witness
 
 
@@ -236,24 +287,24 @@ def manifest_bytes(prefix: str, oid: str) -> bytes:
     return ("%s\n%s\n" % (prefix, oid)).encode("ascii")
 
 
-def witness_sign(payload: bytes) -> bytes:
-    """P-256/SHA-256 signature with the uncommitted witness private key."""
+def _openssl_sign(key_path: str, payload: bytes) -> bytes:
+    """P-256/SHA-256 signature with an uncommitted witness private key."""
     import tempfile
-    if not os.path.exists(WITNESS_KEY):
-        raise StudyError("no witness private key at %s" % WITNESS_KEY)
+    if not os.path.exists(key_path):
+        raise StudyError("no witness private key at %s" % key_path)
     with tempfile.NamedTemporaryFile(delete=False) as handle:
         handle.write(payload)
         payload_path = handle.name
     try:
         completed = subprocess.run(
-            ["openssl", "dgst", "-sha256", "-sign", WITNESS_KEY, payload_path],
+            ["openssl", "dgst", "-sha256", "-sign", key_path, payload_path],
             capture_output=True, check=True)
         return completed.stdout
     finally:
         os.unlink(payload_path)
 
 
-def witness_verify(payload: bytes, signature: bytes) -> None:
+def _openssl_verify(pub_path: str, payload: bytes, signature: bytes) -> bool:
     import tempfile
     paths = {}
     for name, blob in (("payload", payload), ("signature", signature)):
@@ -262,26 +313,39 @@ def witness_verify(payload: bytes, signature: bytes) -> None:
             paths[name] = handle.name
     try:
         completed = subprocess.run(
-            ["openssl", "dgst", "-sha256", "-verify", WITNESS_PUB,
+            ["openssl", "dgst", "-sha256", "-verify", pub_path,
              "-signature", paths["signature"], paths["payload"]],
             capture_output=True)
-        if completed.returncode != 0:
-            raise StudyError("the witness signature does not verify")
+        return completed.returncode == 0
     finally:
         for path in paths.values():
             os.unlink(path)
 
 
-def rekor_include(payload: bytes) -> dict:
-    """Upload one hashedrekord entry over payload; return the log's record."""
+def witness_verify(pub_path: str, payload: bytes, signature: bytes) -> None:
+    if not _openssl_verify(pub_path, payload, signature):
+        raise StudyError("the witness signature does not verify under %s"
+                         % os.path.basename(pub_path))
+
+
+def _pem_der(pem_path: str) -> bytes:
     import base64
-    signature = witness_sign(payload)
+    pem = open(pem_path).read()
+    return base64.b64decode("".join(
+        line for line in pem.splitlines() if "-----" not in line))
+
+
+def rekor_include(key_path: str, pub_path: str, payload: bytes) -> dict:
+    """Upload one hashedrekord entry over payload; return the log's record
+    with the raw response retained."""
+    import base64
+    signature = _openssl_sign(key_path, payload)
     body = {
         "kind": "hashedrekord", "apiVersion": "0.0.1",
         "spec": {
             "signature": {
                 "content": base64.b64encode(signature).decode(),
-                "publicKey": {"content": base64.b64encode(open(WITNESS_PUB, "rb").read()).decode()},
+                "publicKey": {"content": base64.b64encode(open(pub_path, "rb").read()).decode()},
             },
             "data": {"hash": {"algorithm": "sha256",
                               "value": hashlib.sha256(payload).hexdigest()}},
@@ -291,10 +355,62 @@ def rekor_include(payload: bytes) -> dict:
     uuid, record = next(iter(entry.items()))
     return {"uuid": uuid, "logIndex": record["logIndex"],
             "integratedTime": record["integratedTime"],
+            "logID": record["logID"],
             "body": record["body"], "verification": record.get("verification", {}),
             "signature": base64.b64encode(signature).decode(),
             "artifactSha256": hashlib.sha256(payload).hexdigest(),
-            "manifest": payload.decode("ascii")}
+            "manifest": payload.decode("ascii"),
+            "publicKeyFile": os.path.basename(pub_path),
+            "rawResponse": entry}
+
+
+def verify_inclusion(inclusion: dict, pub_path: str, expected_manifest: bytes,
+                     rekor_pub_pem: str) -> None:
+    """Offline authentication of a retained Rekor inclusion
+    (PREREGISTRATION.md §5): the entry's body binds the manifest and the
+    locked witness key; the UUID is the leaf hash of that body; and the
+    log's signed entry timestamp authenticates integratedTime/logIndex
+    under the pinned Rekor log key. After this, the publication clock is
+    the log's word, not the operator's."""
+    import base64
+    import tempfile
+    if inclusion["artifactSha256"] != hashlib.sha256(expected_manifest).hexdigest():
+        raise StudyError("the inclusion's artifact digest does not bind the manifest")
+    witness_verify(pub_path, expected_manifest, base64.b64decode(inclusion["signature"]))
+    body_bytes = base64.b64decode(inclusion["body"])
+    body = json.loads(body_bytes)
+    if body.get("kind") != "hashedrekord":
+        raise StudyError("the inclusion body is not a hashedrekord")
+    spec = body.get("spec", {})
+    if spec.get("data", {}).get("hash", {}).get("value") != inclusion["artifactSha256"]:
+        raise StudyError("the inclusion body does not carry the manifest digest")
+    if spec.get("signature", {}).get("content") != inclusion["signature"]:
+        raise StudyError("the inclusion body does not carry the witness signature")
+    body_pub = base64.b64decode(spec.get("signature", {}).get("publicKey", {}).get("content", ""))
+    if body_pub != open(pub_path, "rb").read():
+        raise StudyError("the inclusion body does not carry the locked witness key")
+    leaf = hashlib.sha256(b"\x00" + body_bytes).hexdigest()
+    if not inclusion["uuid"].endswith(leaf):
+        raise StudyError("the inclusion UUID is not the leaf hash of its body")
+    with tempfile.NamedTemporaryFile("w", suffix=".pem", delete=False) as handle:
+        handle.write(rekor_pub_pem)
+        rekor_pub_path = handle.name
+    try:
+        der = _pem_der(rekor_pub_path)
+        if hashlib.sha256(der).hexdigest() != inclusion["logID"]:
+            raise StudyError("the inclusion's logID is not the pinned Rekor log key")
+        set_payload = json.dumps({
+            "body": inclusion["body"],
+            "integratedTime": inclusion["integratedTime"],
+            "logID": inclusion["logID"],
+            "logIndex": inclusion["logIndex"],
+        }, sort_keys=True, separators=(",", ":")).encode()
+        set_signature = base64.b64decode(inclusion["verification"]["signedEntryTimestamp"])
+        if not _openssl_verify(rekor_pub_path, set_payload, set_signature):
+            raise StudyError("the log's signed entry timestamp does not verify; "
+                             "integratedTime is unauthenticated")
+    finally:
+        os.unlink(rekor_pub_path)
 
 
 def head_oid(repo_root: str) -> str:
@@ -309,13 +425,14 @@ def cmd_lock() -> None:
     jpack = os.environ.get("JPACK_BIN", "")
     if not jpack or sha256_file(jpack) != JPACK_DIGEST:
         raise StudyError("JPACK_BIN must be the pinned v0.15.0 binary")
-    if not os.path.exists(WITNESS_PUB):
-        os.makedirs(os.path.dirname(WITNESS_PUB), exist_ok=True)
-        subprocess.run(["openssl", "ecparam", "-genkey", "-name", "prime256v1",
-                        "-noout", "-out", WITNESS_KEY], check=True, capture_output=True)
-        os.chmod(WITNESS_KEY, 0o600)
-        subprocess.run(["openssl", "ec", "-in", WITNESS_KEY, "-pubout",
-                        "-out", WITNESS_PUB], check=True, capture_output=True)
+    for key_path, pub_path in ((LOCK_KEY, LOCK_PUB), (RECORDS_KEY, RECORDS_PUB)):
+        if not os.path.exists(pub_path):
+            os.makedirs(os.path.dirname(pub_path), exist_ok=True)
+            subprocess.run(["openssl", "ecparam", "-genkey", "-name", "prime256v1",
+                            "-noout", "-out", key_path], check=True, capture_output=True)
+            os.chmod(key_path, 0o600)
+            subprocess.run(["openssl", "ec", "-in", key_path, "-pubout",
+                            "-out", pub_path], check=True, capture_output=True)
     pnf_check.check(json.load(open(os.path.join(STUDY, "transcription/record.rule.json"))))
     correct = json.load(open(os.path.join(STUDY, "packs/vendor-screening-correct.pack.json")))
     manifest = family()
@@ -335,6 +452,14 @@ def cmd_lock() -> None:
                 raise StudyError("%s intersects family predicate %d" % (control, mutation["index"]))
     checked = regions_check.check(jpack)
     info = http_json_retry(DRAND_INFO)
+    rekor_pub = http_get_text(REKOR + "/api/v1/log/publicKey")
+    if "BEGIN PUBLIC KEY" not in rekor_pub:
+        raise StudyError("the Rekor log key endpoint did not return a PEM")
+    codex = shutil.which("codex")
+    if not codex:
+        raise StudyError("no codex CLI on PATH to pin")
+    codex_version = subprocess.run(["codex", "--version"], capture_output=True,
+                                   text=True, check=True).stdout.strip()
     body = {
         "lockedInputs": {relative: sha256_file(os.path.join(STUDY, relative))
                          for relative in LOCKED},
@@ -342,6 +467,7 @@ def cmd_lock() -> None:
         "python": {"implementation": platform.python_implementation(),
                    "version": platform.python_version()},
         "probesChecked": checked,
+        "codex": {"binarySha256": sha256_file(codex), "version": codex_version},
         "drand": {
             "chainHash": info["chain_hash"],
             "publicKey": info["public_key"],
@@ -351,9 +477,12 @@ def cmd_lock() -> None:
             "relays": list(DRAND_RELAYS),
             "rawInfo": info,
         },
-        "rekor": {"log": REKOR, "witnessPublicKey": sha256_file(WITNESS_PUB)},
+        "rekor": {"log": REKOR,
+                  "logPublicKeyPem": rekor_pub,
+                  "lockWitnessKey": sha256_file(LOCK_PUB),
+                  "recordsWitnessKey": sha256_file(RECORDS_PUB)},
         "drawRule": {
-            "publication": "the Rekor inclusion's integratedTime over the records-commit manifest",
+            "publication": "the authenticated Rekor integratedTime over the records-commit manifest",
             "offsetSeconds": DRAW_OFFSET_SECONDS,
             "deadlineSeconds": DRAW_DEADLINE_SECONDS,
             "round": "the first R with genesisTime + (R-1)*period >= integratedTime + offset",
@@ -372,13 +501,67 @@ def cmd_lock() -> None:
           % (len(LOCKED), checked))
 
 
+def repo_prefix() -> str:
+    return subprocess.run(["git", "rev-parse", "--show-prefix"], cwd=STUDY,
+                          capture_output=True, text=True, check=True).stdout.strip()
+
+
+def head_blob(relative: str) -> bytes:
+    """The committed bytes of a study-relative path, required to be a
+    regular (non-symlink, non-executable-surprise) blob in HEAD."""
+    listed = subprocess.run(
+        ["git", "ls-tree", "HEAD", "--", relative], cwd=STUDY,
+        capture_output=True, text=True, check=True).stdout.strip()
+    if not listed:
+        raise StudyError("%s is not in the HEAD tree" % relative)
+    mode = listed.split()[0]
+    if mode not in ("100644", "100755"):
+        raise StudyError("%s is not a regular file in HEAD (mode %s)" % (relative, mode))
+    shown = subprocess.run(["git", "show", "HEAD:./" + relative], cwd=STUDY,
+                           capture_output=True)
+    if shown.returncode != 0:
+        raise StudyError("cannot read %s from HEAD" % relative)
+    return shown.stdout
+
+
 def verify_lock() -> dict:
+    """The canonical-manifest check (PREREGISTRATION.md §8): the lock's key
+    set is exactly the registered list; every locked input matches BOTH the
+    worktree and its HEAD blob; the draw constants are the module's; the
+    lock file itself equals its committed bytes."""
     if not os.path.exists(LOCK):
         raise StudyError("no PROTOCOL-LOCK.json; run lock and commit it first")
     locked = json.load(open(LOCK))
-    for relative, digest in locked["lockedInputs"].items():
-        if sha256_file(os.path.join(STUDY, relative)) != digest:
+    if set(locked["lockedInputs"]) != set(LOCKED):
+        raise StudyError("the lock's input set is not the registered list: %s"
+                         % sorted(set(locked["lockedInputs"]) ^ set(LOCKED)))
+    for relative in LOCKED:
+        digest = locked["lockedInputs"][relative]
+        path = os.path.join(STUDY, relative)
+        if os.path.islink(path) or not os.path.isfile(path):
+            raise StudyError("locked input is not a regular file: %s" % relative)
+        if sha256_file(path) != digest:
             raise StudyError("locked input drifted: %s" % relative)
+        committed = "sha256:" + hashlib.sha256(head_blob(relative)).hexdigest()
+        if committed != digest:
+            raise StudyError("locked input's HEAD blob differs from the lock: %s" % relative)
+    rule = locked["drawRule"]
+    if rule["offsetSeconds"] != DRAW_OFFSET_SECONDS \
+            or rule["deadlineSeconds"] != DRAW_DEADLINE_SECONDS:
+        raise StudyError("the lock's draw constants are not the registered constants")
+    if locked["drand"]["periodSeconds"] <= 0 or locked["drand"]["genesisTime"] <= 0:
+        raise StudyError("the lock's chain constants are malformed")
+    if locked["drand"]["relays"] != list(DRAND_RELAYS):
+        raise StudyError("the lock's relay list is not the registered pair")
+    if locked["probesChecked"] != 44:
+        raise StudyError("the lock does not record the 44-probe battery")
+    if locked["jpack"] != JPACK_DIGEST:
+        raise StudyError("the lock does not pin the registered jpack digest")
+    for member, pub_path in (("lockWitnessKey", LOCK_PUB), ("recordsWitnessKey", RECORDS_PUB)):
+        if locked["rekor"][member] != sha256_file(pub_path):
+            raise StudyError("the lock does not pin %s" % member)
+    if "BEGIN PUBLIC KEY" not in locked["rekor"]["logPublicKeyPem"]:
+        raise StudyError("the lock does not pin the Rekor log key")
     committed = subprocess.run(
         ["git", "show", "HEAD:./PROTOCOL-LOCK.json"], cwd=STUDY, capture_output=True)
     if committed.returncode != 0 or committed.stdout != open(LOCK, "rb").read():
@@ -406,60 +589,82 @@ def records_commit() -> str:
 
 
 def cmd_timestamp_lock() -> None:
-    verify_lock()
+    locked = verify_lock()
     os.makedirs(WITNESS_DIR, exist_ok=True)
     target = os.path.join(WITNESS_DIR, "LOCK-INCLUSION.json")
     if os.path.exists(target):
         raise StudyError("the lock is already timestamped")
-    entry = rekor_include(manifest_bytes("study-010-lock-commit", head_oid(STUDY)))
+    payload = manifest_bytes("study-010-lock-commit", head_oid(STUDY))
+    entry = rekor_include(LOCK_KEY, LOCK_PUB, payload)
+    verify_inclusion(entry, LOCK_PUB, payload, locked["rekor"]["logPublicKeyPem"])
     with open(target, "w") as handle:
         json.dump(entry, handle, indent=2)
         handle.write("\n")
-    print("lock timestamped: logIndex %d, integratedTime %d; commit the inclusion"
+    print("lock timestamped and authenticated: logIndex %d, integratedTime %d; commit the inclusion"
           % (entry["logIndex"], entry["integratedTime"]))
 
 
 def cmd_publish() -> None:
-    verify_lock()
-    records_compile.cmd_verify(COMPLETION)
+    locked = verify_lock()
+    call_dir, completion = authoring_call()
+    records_compile.cmd_verify(completion)
     transcript_check.check(
-        os.path.join(STUDY, "transcription/authoring/session.jsonl"),
+        os.path.join(call_dir, "session.jsonl"),
         os.path.join(STUDY, "transcription/PROMPT.txt"),
-        COMPLETION,
-        os.path.join(STUDY, "transcription/authoring/CALL.json"))
+        completion,
+        os.path.join(call_dir, "CALL.json"))
     revision = records_commit()
     os.makedirs(WITNESS_DIR, exist_ok=True)
     target = os.path.join(WITNESS_DIR, "INCLUSION.json")
     if os.path.exists(target):
         raise StudyError("a records publication already exists; it is binding")
-    entry = rekor_include(manifest_bytes("study-010-records-commit", revision))
+    payload = manifest_bytes("study-010-records-commit", revision)
+    entry = rekor_include(RECORDS_KEY, RECORDS_PUB, payload)
     entry["recordsCommit"] = revision
+    verify_inclusion(entry, RECORDS_PUB, payload, locked["rekor"]["logPublicKeyPem"])
     with open(target, "w") as handle:
         json.dump(entry, handle, indent=2)
         handle.write("\n")
-    print("published: records commit %s at integratedTime %d (logIndex %d); commit and push, then draw"
+    print("published: records commit %s at authenticated integratedTime %d (logIndex %d); commit and push, then draw"
           % (revision[:12], entry["integratedTime"], entry["logIndex"]))
 
 
-def cmd_witness() -> None:
-    """The online minimal-logIndex check: no earlier inclusion under the
-    witness key may exist. Rekor's search index lags; run this before the
-    freeze and again in the post-run review."""
+def witness_search() -> tuple[dict, list]:
+    """One online uniqueness pass (PREREGISTRATION.md §5): every indexed
+    inclusion under either locked witness key must be one the protocol
+    made, and the records inclusion must be indexed. Returns (the retained
+    search body, the stranger list)."""
     import base64
     inclusion = json.load(open(os.path.join(WITNESS_DIR, "INCLUSION.json")))
-    body = {"publicKey": {"format": "x509",
-                          "content": base64.b64encode(open(WITNESS_PUB, "rb").read()).decode()}}
-    hits = http_json_retry(REKOR + "/api/v1/index/retrieve", body)
-    known = {inclusion["uuid"]}
     lock_path = os.path.join(WITNESS_DIR, "LOCK-INCLUSION.json")
+    known = {inclusion["uuid"]: "records"}
     if os.path.exists(lock_path):
-        known.add(json.load(open(lock_path))["uuid"])
-    records = []
-    for uuid in hits:
-        entry = http_json_retry(REKOR + "/api/v1/log/entries/" + uuid)
-        record = next(iter(entry.values()))
-        records.append({"uuid": uuid, "logIndex": record["logIndex"]})
-    strangers = [r for r in records if r["uuid"] not in known]
+        known[json.load(open(lock_path))["uuid"]] = "lock"
+    hits_by_key = {}
+    for name, pub_path in (("lock", LOCK_PUB), ("records", RECORDS_PUB)):
+        body = {"publicKey": {"format": "x509",
+                              "content": base64.b64encode(open(pub_path, "rb").read()).decode()}}
+        uuids = http_json_retry(REKOR + "/api/v1/index/retrieve", body)
+        entries = []
+        for uuid in uuids:
+            entry = http_json_retry(REKOR + "/api/v1/log/entries/" + uuid)
+            record = next(iter(entry.values()))
+            entries.append({"uuid": uuid, "logIndex": record["logIndex"],
+                            "integratedTime": record["integratedTime"]})
+        hits_by_key[name] = entries
+    search = {"queried": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "hits": hits_by_key, "known": known,
+              "recordsUuid": inclusion["uuid"]}
+    strangers = [entry for name, entries in hits_by_key.items() for entry in entries
+                 if known.get(entry["uuid"]) != name]
+    search["ok"] = not strangers and any(
+        entry["uuid"] == inclusion["uuid"] for entry in hits_by_key["records"])
+    return search, strangers
+
+
+def cmd_witness() -> None:
+    verify_lock()
+    search, strangers = witness_search()
     # Before the freeze, SEARCH.json may be overwritten (the wait-for-index
     # loop). Once FREEZE.json exists it is a frozen input, so later re-runs
     # — the post-run review's included — land in numbered siblings.
@@ -470,32 +675,106 @@ def cmd_witness() -> None:
             target = os.path.join(WITNESS_DIR, "SEARCH-%d.json" % number)
             number += 1
     with open(target, "w") as handle:
-        json.dump({"queried": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                   "hits": records, "known": sorted(known)}, handle, indent=2)
+        json.dump(search, handle, indent=2)
         handle.write("\n")
-    # Every inclusion under the key must be one of the two the protocol
-    # made; with strangers refused, the records inclusion is minimal among
-    # records-manifest entries by construction.
     if strangers:
-        raise StudyError("unknown inclusions under the witness key: %r" % strangers)
-    indexed = [r["logIndex"] for r in records if r["uuid"] == inclusion["uuid"]]
-    print("witness: %d inclusions under the key, all known (records entry %s)"
-          % (len(records), "logIndex %d" % indexed[0] if indexed else "not yet indexed"))
+        raise StudyError("unknown inclusions under a witness key: %r" % strangers)
+    if not search["ok"]:
+        raise StudyError("the records inclusion is not yet indexed; re-run witness until it is")
+    print("witness: ok (%d lock + %d records inclusions, all known, records entry indexed)"
+          % (len(search["hits"]["lock"]), len(search["hits"]["records"])))
 
 
 # ---------------------------------------------------------------- draw
 
 
+def tree_files(revision: str, relative_dirs: list) -> dict:
+    """{study-relative path: bytes} for the named paths as committed in
+    revision — regular blobs only, read from the tree, never the worktree.
+    ls-tree pathspecs are cwd-relative, so the listing runs from the repo
+    root with the study prefix applied."""
+    prefix = repo_prefix()
+    root = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=STUDY,
+                          capture_output=True, text=True, check=True).stdout.strip()
+    listed = subprocess.run(
+        ["git", "ls-tree", "-r", revision, "--"] + [prefix + d for d in relative_dirs],
+        cwd=root, capture_output=True, text=True, check=True).stdout
+    result = {}
+    for line in listed.splitlines():
+        meta, path = line.split("\t", 1)
+        mode = meta.split()[0]
+        if mode not in ("100644", "100755"):
+            raise StudyError("%s is not a regular file in %s (mode %s)" % (path, revision[:12], mode))
+        relative = path[len(prefix):]
+        shown = subprocess.run(["git", "show", "%s:%s" % (revision, path)],
+                               cwd=STUDY, capture_output=True, check=True)
+        result[relative] = shown.stdout
+    return result
+
+
+def published_tree(revision: str) -> dict:
+    """The published records commit's own bytes for everything the draw
+    depends on (PREREGISTRATION.md §5): records, the ledger, the authoring
+    retention. Derivation reads THESE, never the worktree."""
+    files = tree_files(revision, ["records", "RECORDS.md", "transcription/authoring"])
+    if not any(path.startswith("records/") for path in files):
+        raise StudyError("the records commit holds no records")
+    return files
+
+
+def assert_worktree_is(files: dict, revision: str, relative_dirs: list) -> None:
+    """The worktree's view of the published paths must equal the published
+    tree exactly — same file set, same bytes, regular files only."""
+    actual = set()
+    for relative_dir in relative_dirs:
+        base = os.path.join(STUDY, relative_dir)
+        if os.path.isfile(base):
+            actual.add(relative_dir)
+            continue
+        for walk_base, _, names in os.walk(base):
+            for name in names:
+                path = os.path.join(walk_base, name)
+                actual.add(os.path.relpath(path, STUDY))
+    expected = {path for path in files
+                if any(path == d or path.startswith(d.rstrip("/") + "/") for d in relative_dirs)}
+    if actual != expected:
+        raise StudyError("the worktree's published paths differ from the records commit: %s"
+                         % sorted(actual ^ expected))
+    for relative in sorted(expected):
+        path = os.path.join(STUDY, relative)
+        if os.path.islink(path) or not os.path.isfile(path):
+            raise StudyError("%s is not a regular file in the worktree" % relative)
+        if open(path, "rb").read() != files[relative]:
+            raise StudyError("%s differs from the records commit %s" % (relative, revision[:12]))
+
+
 def fetch_round(chain_hash: str, target_round: int) -> list[dict]:
-    """The fixed round from both relays, by chain hash, byte-equal."""
+    """The fixed round from both relays, by chain hash, raw bytes retained,
+    byte-equal signatures and previous signatures required."""
     responses = []
     for relay in DRAND_RELAYS:
-        responses.append(http_json_retry(
-            "%s/%s/public/%d" % (relay, chain_hash, target_round), attempts=8))
+        url = "%s/%s/public/%d" % (relay, chain_hash, target_round)
+        last = None
+        raw = None
+        for attempt in range(8):
+            try:
+                raw = http_get_text(url)
+                break
+            except Exception as error:  # noqa: BLE001 - refused after the loop
+                last = error
+                time.sleep(5 * (attempt + 1))
+        if raw is None:
+            raise StudyError("unreachable after 8 attempts: %s (%r)" % (url, last))
+        parsed = json.loads(raw)
+        responses.append({"relay": relay, "url": url, "raw": raw,
+                          "retrievedAt": int(time.time()), **parsed})
     signatures = {response["signature"] for response in responses}
+    previous = {response.get("previous_signature") for response in responses}
     rounds = {response["round"] for response in responses}
     if len(signatures) != 1 or rounds != {target_round}:
         raise StudyError("the relays disagree: %r" % responses)
+    if len(previous) != 1 or None in previous or "" in previous:
+        raise StudyError("previous_signature is missing or disagrees between relays")
     return responses
 
 
@@ -507,19 +786,51 @@ def draw_index(randomness_hex: str, commit_hex: str, family_hex: str) -> tuple[b
     return preimage, int.from_bytes(hashlib.sha256(preimage).digest(), "big") % 6
 
 
+def derive_defect(published: dict, mutation: dict, index: int) -> dict:
+    """DEFECT.json's canonical body, derived from the PUBLISHED record
+    bytes and the locked reference semantics only (PREREGISTRATION.md §5).
+    validate recomputes this same body and byte-compares."""
+    authored = {}
+    for relative, blob in published.items():
+        if relative.startswith("records/") and relative.endswith(".json"):
+            record = json.loads(blob.decode("utf-8"))
+            authored[record["caseId"]] = record
+    controls = {name: json.load(open(os.path.join(STUDY, "controls", name + ".json")))
+                for name in ("k-wrong-1", "k-wrong-2")}
+    sets = {"H": [], "Q": [], "F": [], "K": sorted(controls)}
+    tables = {}
+    for case_id in sorted(authored):
+        vendor = authored[case_id]["vendor"]
+        tables[case_id] = table_entry(vendor, mutation)
+        if policy_mirror.predicate_matches(mutation["predicate"], vendor):
+            sets["F"].append(case_id)
+        if authored[case_id]["decision"]["outcome"] == policy_mirror.verdict(vendor):
+            sets["H"].append(case_id)
+        else:
+            sets["Q"].append(case_id)
+    for case_id in sets["K"]:
+        tables[case_id] = table_entry(controls[case_id]["vendor"], mutation)
+    return {
+        "sampledIndex": index,
+        "mutation": mutation,
+        "sets": {name: sorted(ids) for name, ids in sets.items()},
+        "expectedDispositions": {"perRecord": tables},
+    }
+
+
 def cmd_draw() -> None:
     locked = verify_lock()
-    records_compile.cmd_verify(COMPLETION)
+    _, completion = authoring_call()
+    records_compile.cmd_verify(completion)
     revision = records_commit()
     inclusion = json.load(open(os.path.join(WITNESS_DIR, "INCLUSION.json")))
     if inclusion["recordsCommit"] != revision:
         raise StudyError("the publication binds %s, not the records commit %s"
                          % (inclusion["recordsCommit"], revision))
     expected_manifest = manifest_bytes("study-010-records-commit", revision)
-    if inclusion["artifactSha256"] != hashlib.sha256(expected_manifest).hexdigest():
-        raise StudyError("the inclusion's artifact digest does not bind the records commit")
-    import base64
-    witness_verify(expected_manifest, base64.b64decode(inclusion["signature"]))
+    verify_inclusion(inclusion, RECORDS_PUB, expected_manifest,
+                     locked["rekor"]["logPublicKeyPem"])
+    published_files = published_tree(revision)
     published = inclusion["integratedTime"]
     genesis = locked["drand"]["genesisTime"]
     period = locked["drand"]["periodSeconds"]
@@ -528,12 +839,20 @@ def cmd_draw() -> None:
     scheduled = genesis + (target_round - 1) * period
     if scheduled < target_time:
         raise StudyError("round arithmetic is wrong: %d < %d" % (scheduled, target_time))
-    if time.time() > scheduled + locked["drawRule"]["deadlineSeconds"]:
-        raise StudyError("the retrieval deadline for round %d has passed; the attempt is pipeline-invalid"
-                         % target_round)
     while time.time() < scheduled:
         time.sleep(min(15, scheduled - time.time() + 1))
     responses = fetch_round(locked["drand"]["chainHash"], target_round)
+    # The deadline binds retrieval COMPLETION (PREREGISTRATION.md §5).
+    if max(r["retrievedAt"] for r in responses) > scheduled + locked["drawRule"]["deadlineSeconds"]:
+        raise StudyError("round %d was not retrieved inside the deadline; the attempt is pipeline-invalid"
+                         % target_round)
+    # The records commit must still be what the worktree holds — a record
+    # set swapped during the beacon wait fails here, and derivation below
+    # reads the PUBLISHED tree regardless.
+    if records_commit() != revision:
+        raise StudyError("the records commit changed during the beacon wait")
+    assert_worktree_is(published_files, revision,
+                       ["records", "RECORDS.md", "transcription/authoring"])
     signature = responses[0]["signature"]
     # drand's chained scheme defines the round's randomness as
     # sha256(signature); the signature itself is the externally verifiable
@@ -550,7 +869,7 @@ def cmd_draw() -> None:
         "scheduledTime": scheduled,
         "randomness": randomness,
         "signature": signature,
-        "previousSignature": responses[0].get("previous_signature", ""),
+        "previousSignature": responses[0]["previous_signature"],
         "relayResponses": responses,
         "chain": locked["drand"],
         "familyDigest": "sha256:" + family_digest,
@@ -561,37 +880,18 @@ def cmd_draw() -> None:
         json.dump(draw, handle, indent=2)
         handle.write("\n")
 
-    mutation = family()["mutations"][index]
+    mutation = next(m for m in family()["mutations"] if m["index"] == index)
     correct = json.load(open(os.path.join(STUDY, "packs/vendor-screening-correct.pack.json")))
     defective = apply_patch(correct, mutation["patch"])
     with open(os.path.join(STUDY, "packs/vendor-screening-defective.pack.json"), "w") as handle:
         json.dump(defective, handle, indent=2)
         handle.write("\n")
 
-    sets = {"H": [], "Q": [], "F": [], "K": ["k-wrong-1", "k-wrong-2"]}
-    tables = {}
-    for case_id in record_ids():
-        record = load_record(case_id)
-        vendor = record["vendor"]
-        tables[case_id] = table_entry(vendor, mutation)
-        if case_id in sets["K"]:
-            continue
-        if policy_mirror.predicate_matches(mutation["predicate"], vendor):
-            sets["F"].append(case_id)
-        if record["decision"]["outcome"] == policy_mirror.verdict(vendor):
-            sets["H"].append(case_id)
-        else:
-            sets["Q"].append(case_id)
-    manifest = {
-        "sampledIndex": index,
-        "mutation": mutation,
-        "patch": mutation["patch"],
-        "sets": {name: sorted(ids) for name, ids in sets.items()},
-        "expectedDispositions": {"perRecord": tables},
-    }
+    manifest = derive_defect(published_files, mutation, index)
     with open(os.path.join(STUDY, "DEFECT.json"), "w") as handle:
         json.dump(manifest, handle, indent=2)
         handle.write("\n")
+    sets = manifest["sets"]
     in_h = sorted(set(sets["H"]) & set(sets["F"]))
     print("draw: round %d -> index %d (%s); |F|=%d, |H∩F|=%d; commit DRAW.json, DEFECT.json, pack D"
           % (target_round, index, mutation["title"], len(sets["F"]), len(in_h)))
@@ -601,32 +901,24 @@ def cmd_draw() -> None:
 
 
 def cmd_validate() -> None:
-    verify_lock()
+    locked_manifest = verify_lock()
     for relative in frozen_inputs():
         if not os.path.exists(os.path.join(STUDY, relative)):
             raise StudyError("missing input: " + relative)
-    records_compile.cmd_verify(COMPLETION)
+    call_dir, completion = authoring_call()
+    records_compile.cmd_verify(completion)
     transcript_check.check(
-        os.path.join(STUDY, "transcription/authoring/session.jsonl"),
+        os.path.join(call_dir, "session.jsonl"),
         os.path.join(STUDY, "transcription/PROMPT.txt"),
-        COMPLETION,
-        os.path.join(STUDY, "transcription/authoring/CALL.json"))
+        completion,
+        os.path.join(call_dir, "CALL.json"))
+    call = json.load(open(os.path.join(call_dir, "CALL.json")))
+    if call.get("binarySha256") != locked_manifest["codex"]["binarySha256"]:
+        raise StudyError("the authoring call did not use the locked codex binary")
     manifest = defect()
-    sets = manifest["sets"]
-    everyone = record_ids()
-    accepted = sorted(sets["H"] + sets["Q"])
-    if sorted(accepted + sets["K"]) != everyone:
-        raise StudyError("H+Q+K do not cover exactly the record ids")
-    if set(sets["H"]) & set(sets["Q"]):
-        raise StudyError("H and Q intersect")
-    if not set(sets["F"]).isdisjoint(sets["K"]):
-        raise StudyError("F must not contain controls")
-    tables = manifest["expectedDispositions"]["perRecord"]
-    if set(tables) != set(everyone):
-        raise StudyError("the disposition tables do not cover exactly the record ids")
     mutation = manifest["mutation"]
-    fam = family()["mutations"][manifest["sampledIndex"]]
-    if mutation != fam:
+    fam = [m for m in family()["mutations"] if m["index"] == manifest["sampledIndex"]]
+    if len(fam) != 1 or mutation != fam[0]:
         raise StudyError("DEFECT.json's mutation is not FAMILY.json's at the sampled index")
     draw = json.load(open(os.path.join(STUDY, "DRAW.json")))
     if draw["index"] != manifest["sampledIndex"]:
@@ -639,23 +931,28 @@ def cmd_validate() -> None:
         raise StudyError("the sampled index does not recompute from the draw")
     if hashlib.sha256(bytes.fromhex(draw["signature"])).hexdigest() != draw["randomness"]:
         raise StudyError("the draw's randomness is not sha256(signature)")
-    signatures = {response["signature"] for response in draw["relayResponses"]}
-    rounds = {response["round"] for response in draw["relayResponses"]}
-    if len(draw["relayResponses"]) < 2 or signatures != {draw["signature"]} \
-            or rounds != {draw["targetRound"]}:
-        raise StudyError("the retained relay responses do not agree on the round")
+    responses = draw["relayResponses"]
+    if len(responses) != 2 or [r["relay"] for r in responses] != list(DRAND_RELAYS):
+        raise StudyError("the retained relay responses are not the two registered relays")
+    for response in responses:
+        parsed = json.loads(response["raw"])
+        if parsed["signature"] != draw["signature"] or parsed["round"] != draw["targetRound"] \
+                or parsed.get("previous_signature") != draw["previousSignature"]:
+            raise StudyError("a retained raw relay response does not carry the drawn round")
+    if not draw["previousSignature"]:
+        raise StudyError("the draw retains no previous_signature")
+    locked = json.load(open(LOCK))
+    if draw["chain"] != locked["drand"]:
+        raise StudyError("the draw's chain constants are not the locked chain")
     inclusion = draw["publication"]
     if inclusion["recordsCommit"] != draw["recordsCommit"]:
         raise StudyError("the publication does not bind the records commit")
     expected_manifest = manifest_bytes("study-010-records-commit", draw["recordsCommit"])
-    if inclusion["artifactSha256"] != hashlib.sha256(expected_manifest).hexdigest():
-        raise StudyError("the inclusion's artifact digest does not bind the records commit")
-    import base64
-    witness_verify(expected_manifest, base64.b64decode(inclusion["signature"]))
+    verify_inclusion(inclusion, RECORDS_PUB, expected_manifest,
+                     locked["rekor"]["logPublicKeyPem"])
     on_disk = json.load(open(os.path.join(WITNESS_DIR, "INCLUSION.json")))
     if on_disk != inclusion:
         raise StudyError("DRAW.json's publication is not the retained inclusion")
-    locked = json.load(open(LOCK))
     genesis = locked["drand"]["genesisTime"]
     period = locked["drand"]["periodSeconds"]
     target_time = inclusion["integratedTime"] + locked["drawRule"]["offsetSeconds"]
@@ -664,33 +961,35 @@ def cmd_validate() -> None:
         raise StudyError("the target round does not recompute from the publication clock")
     if genesis + (draw["targetRound"] - 1) * period != draw["scheduledTime"]:
         raise StudyError("the scheduled time does not recompute")
-    for case_id in everyone:
+    if max(r["retrievedAt"] for r in responses) > draw["scheduledTime"] \
+            + locked["drawRule"]["deadlineSeconds"]:
+        raise StudyError("the retained retrieval finished after the deadline")
+    # The published tree is the derivation source (PREREGISTRATION.md §5):
+    # the worktree must equal it, and DEFECT.json must byte-recompute from
+    # it — one canonical body, no separate patch authority, exact sets.
+    published_files = published_tree(draw["recordsCommit"])
+    assert_worktree_is(published_files, draw["recordsCommit"],
+                       ["records", "RECORDS.md", "transcription/authoring"])
+    if derive_defect(published_files, mutation, draw["index"]) != manifest:
+        raise StudyError("DEFECT.json does not recompute from the published records")
+    everyone = record_ids()
+    sets = manifest["sets"]
+    if sorted(sets["H"] + sets["Q"] + sets["K"]) != everyone:
+        raise StudyError("H+Q+K do not cover exactly the record ids")
+    for case_id in sets["K"]:
         record = load_record(case_id)
-        vendor = record["vendor"]
-        if record["caseId"] != case_id:
+        if policy_mirror.predicate_matches(mutation["predicate"], record["vendor"]):
+            raise StudyError("control %s intersects the sampled predicate" % case_id)
+    for case_id in everyone:
+        if load_record(case_id)["caseId"] != case_id:
             raise StudyError("record %s misnames itself" % case_id)
-        expected = table_entry(vendor, mutation)
-        if tables[case_id] != expected:
-            raise StudyError("table row %s does not recompute" % case_id)
-        in_f = policy_mirror.predicate_matches(mutation["predicate"], vendor)
-        if case_id in sets["K"]:
-            if in_f:
-                raise StudyError("control %s intersects the sampled predicate" % case_id)
-            if record["decision"]["outcome"] == policy_mirror.verdict(vendor):
-                raise StudyError("control %s is not wrong against POLICY.md" % case_id)
-            continue
-        if in_f != (case_id in sets["F"]):
-            raise StudyError("record %s disagrees with the F set" % case_id)
-        concordant = record["decision"]["outcome"] == policy_mirror.verdict(vendor)
-        if concordant != (case_id in sets["H"]):
-            raise StudyError("record %s disagrees with the H/Q split" % case_id)
     correct = json.load(open(os.path.join(STUDY, "packs/vendor-screening-correct.pack.json")))
     defective = json.load(open(os.path.join(STUDY, "packs/vendor-screening-defective.pack.json")))
-    if apply_patch(correct, manifest["patch"]) != defective:
-        raise StudyError("C with the sampled patch applied is not D")
+    if apply_patch(correct, mutation["patch"]) != defective:
+        raise StudyError("C with the sampled mutation's patch applied is not D")
     pnf_check.check(json.load(open(os.path.join(STUDY, "transcription/record.rule.json"))))
-    print("validate: ok (%d records+controls, draw bound, patch bound, rule is the registered projection)"
-          % len(everyone))
+    print("validate: ok (%d records+controls, publication authenticated, draw bound, "
+          "DEFECT recomputed, rule is the registered projection)" % len(everyone))
 
 
 # ---------------------------------------------------------------- freeze
@@ -724,14 +1023,20 @@ def freeze_body() -> dict:
 
 
 def cmd_freeze() -> None:
+    # The freeze gate runs the uniqueness check ITSELF (PREREGISTRATION.md
+    # §8): a hand-authored search file convinces nobody; the online result
+    # is retained as evidence inside the freeze, then everything validates.
+    verify_lock()
+    search, strangers = witness_search()
+    target = os.path.join(WITNESS_DIR, "SEARCH.json")
+    with open(target, "w") as handle:
+        json.dump(search, handle, indent=2)
+        handle.write("\n")
+    if strangers:
+        raise StudyError("unknown inclusions under a witness key: %r" % strangers)
+    if not search["ok"]:
+        raise StudyError("the records inclusion is not yet indexed; re-run freeze once it is")
     cmd_validate()
-    search_path = os.path.join(WITNESS_DIR, "SEARCH.json")
-    if not os.path.exists(search_path):
-        raise StudyError("run witness (online minimal-logIndex check) before freezing")
-    search = json.load(open(search_path))
-    inclusion = json.load(open(os.path.join(WITNESS_DIR, "INCLUSION.json")))
-    if inclusion["uuid"] not in [hit["uuid"] for hit in search["hits"]]:
-        raise StudyError("the records inclusion is not yet indexed; re-run witness until it is")
     with open(FREEZE, "w") as handle:
         json.dump(freeze_body(), handle, indent=2)
         handle.write("\n")
@@ -739,12 +1044,24 @@ def cmd_freeze() -> None:
 
 
 def verify_freeze() -> dict:
+    """The canonical-manifest check for the artifact freeze: exact key set,
+    worktree AND HEAD blob agreement for every input, the lock bound, the
+    interpreter and binary pinned."""
     if not os.path.exists(FREEZE):
         raise StudyError("no FREEZE.json; run freeze and commit it first")
     frozen = json.load(open(FREEZE))
+    if set(frozen["frozenInputs"]) != set(frozen_inputs()):
+        raise StudyError("the freeze's input set is not the enumerated set: %s"
+                         % sorted(set(frozen["frozenInputs"]) ^ set(frozen_inputs())))
     for relative, digest in frozen["frozenInputs"].items():
-        if sha256_file(os.path.join(STUDY, relative)) != digest:
+        path = os.path.join(STUDY, relative)
+        if os.path.islink(path) or not os.path.isfile(path):
+            raise StudyError("frozen input is not a regular file: %s" % relative)
+        if sha256_file(path) != digest:
             raise StudyError("frozen input drifted: %s" % relative)
+        committed = "sha256:" + hashlib.sha256(head_blob(relative)).hexdigest()
+        if committed != digest:
+            raise StudyError("frozen input's HEAD blob differs from the freeze: %s" % relative)
     if frozen["protocolLock"] != sha256_file(LOCK):
         raise StudyError("the freeze does not bind the committed protocol lock")
     committed = subprocess.run(
@@ -908,18 +1225,23 @@ def seal_attempt(attempt: str) -> None:
 
 
 def cmd_run() -> None:
-    frozen = verify_freeze()
-    cmd_validate()
-    jpack = os.environ["JPACK_BIN"]
+    # The attempt ledger opens BEFORE any fallible prerequisite work
+    # (PREREGISTRATION.md §6): a validation failure is a crashed primary
+    # attempt that scores pipeline-invalid, never a silent non-attempt. The
+    # only pre-attempt requirement is that a freeze file exists to bind to.
+    if not os.path.exists(FREEZE):
+        raise StudyError("no FREEZE.json; run freeze and commit it first")
     attempt = start_attempt()
     with open(os.path.join(attempt, "FREEZE-DIGEST"), "w") as handle:
         handle.write(sha256_file(FREEZE) + "\n")
     try:
+        frozen = verify_freeze()
+        cmd_validate()
+        jpack = os.environ["JPACK_BIN"]
         _run_body(frozen, jpack, attempt)
     except BaseException as error:
-        # Every exit receives a terminal state and a seal (PREREGISTRATION.md
-        # §6): a crashed primary attempt scores pipeline-invalid, it is not
-        # skipped.
+        # Every exit receives a terminal state and a seal: a crashed
+        # primary attempt scores pipeline-invalid, it is not skipped.
         import traceback
         with open(os.path.join(attempt, "CRASHED.json"), "w") as handle:
             json.dump({"error": repr(error), "traceback": traceback.format_exc(),
@@ -1013,7 +1335,17 @@ def primary_attempt() -> tuple[int, str, bool]:
 
 
 def verify_seal(attempt: str) -> None:
+    """The sealed set must be EXACT: every manifested file unchanged, and
+    no file present that the manifest does not name — an added DONE or a
+    removed CRASHED.json is a drifted seal, not a promotion."""
     manifest = json.load(open(os.path.join(attempt, "MANIFEST.json")))
+    actual = set()
+    for base, _, names in os.walk(attempt):
+        for name in names:
+            actual.add(os.path.relpath(os.path.join(base, name), attempt))
+    if actual != set(manifest) | {"MANIFEST.json"}:
+        raise StudyError("the sealed attempt's file set drifted: %s"
+                         % sorted(actual ^ (set(manifest) | {"MANIFEST.json"})))
     for relative, digest in manifest.items():
         if relative == "MANIFEST.json":
             continue
@@ -1062,6 +1394,20 @@ def write_results(results: dict) -> None:
 def cmd_score() -> None:
     verify_freeze()
     number, attempt, done = primary_attempt()
+    try:
+        _score_body(number, attempt, done)
+    except (StudyError, KeyError, ValueError, TypeError, FileNotFoundError) as error:
+        # E1's partition is total (PREREGISTRATION.md §6): malformed or
+        # missing retained data is pipeline-invalid, not a bare exception.
+        write_results({
+            "attempt": number,
+            "prerequisites": {"scoring": "malformed or missing retained data"},
+            "endpoints": {"E1": {"outcome": "pipeline-invalid", "error": repr(error)}},
+            "pipelineValid": False,
+        })
+
+
+def _score_body(number: int, attempt: str, done: bool) -> None:
     manifest = defect()
     sets = {name: set(ids) for name, ids in manifest["sets"].items()}
     h_and_f = sorted(sets["H"] & sets["F"])

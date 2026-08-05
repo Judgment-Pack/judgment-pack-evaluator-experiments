@@ -20,7 +20,11 @@ registered prompt), so it is the whole of what the two sides share.
   vendor that does handle personal data clears only below 40.
 
 Risk scores are decimal strings and compare numerically. Registered
-countries are ISO 3166-1 alpha-2 codes, uppercase; embargo-list membership
-is exact and case-sensitive. The three outcomes — clear, manual review,
-reject — are exhaustive over known inputs; an unknown input is nobody's
-outcome and escalates.
+countries are two-letter uppercase codes in the ISO 3166-1 alpha-2 style;
+the policy consults no registry — embargo-list membership is exact,
+case-sensitive string comparison against KP, IR, and SY, and any other
+two-letter code is a non-embargoed registration. The three outcomes —
+clear, manual review, reject — are exhaustive over complete inputs (all
+four facts present and well-formed, which is what the study's gates admit);
+the policy takes no position on incomplete inputs, which no admitted
+record can present.

@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
-"""The frozen stdout-to-records compiler (PREREGISTRATION.md §4): raw
-authoring stdout in, record files and RECORDS.md out, with no operator
-judgment anywhere in between.
+"""The frozen completion-to-records compiler (PREREGISTRATION.md §4): the
+transcript-bound completion in, record files and RECORDS.md out, with no
+operator judgment anywhere in between.
 
-Extraction: the single JSON array from the first `[` to its matching `]`,
-found by parsing, not bracket counting — everything before and after is
-retained in the raw stream but ignored. Admission: an element is accepted
-iff it matches the closed record schema exactly; there is no repair of any
-kind. Every source index is accounted for in RECORDS.md as either its
-accepted caseId or a stable drop code:
+Extraction: the parseable JSON array spanning the most characters (ties to
+the earliest), scanned by strict parsing — duplicate object keys and
+non-JSON constants disqualify a candidate; everything outside the selected
+span is retained but ignored, and its offsets are recorded. Admission: an
+element is accepted iff it passes, in this registered order, each check —
+the first failure's code is the drop code; there is no repair of any kind:
 
-  schema        - not the closed record object shape (members, types)
-  decimal-form  - riskScore is not a canonical decimal string
-  country-form  - registeredCountry is not an uppercase ISO-alpha-2 shape
-  id-form       - caseId is not kebab-case
-  outcome-value - decision.outcome is not one of the three outcomes
-  duplicate-id  - a previously accepted element already claimed the caseId
+  schema         - not the closed record object shape (members, types)
+  decimal-form   - riskScore is not a canonical decimal string
+  country-form   - registeredCountry is not two uppercase ASCII letters
+  id-form        - caseId is not kebab-case, or claims the reserved k- prefix
+  outcome-value  - decision.outcome is not one of the three outcomes
+  timestamp-form - decision.decidedAt is not YYYY-MM-DDTHH:MM:SSZ
+  duplicate-id   - a previously ACCEPTED element already claimed the caseId
 
-`compile` writes records/ and RECORDS.md; `verify` regenerates both from the
-retained raw stdout and requires byte equality with what is on disk.
+`compile` writes records/ and RECORDS.md; `verify` regenerates both from
+the retained completion bytes and requires byte equality and the exact
+file set, nothing extra, all regular files.
 
-Usage: records_compile.py compile|verify <raw-stdout-file>
+Usage: records_compile.py compile|verify <completion-file>
 """
 from __future__ import annotations
 import json
@@ -34,9 +36,10 @@ STUDY = os.path.dirname(HERE)
 RECORDS_DIR = os.path.join(STUDY, "records")
 RECORDS_MD = os.path.join(STUDY, "RECORDS.md")
 
-DECIMAL = re.compile(r"^(0|[1-9][0-9]*)(\.[0-9]*[1-9])?$")
-COUNTRY = re.compile(r"^[A-Z]{2}$")
-KEBAB = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+DECIMAL = re.compile(r"(0|[1-9][0-9]*)(\.[0-9]*[1-9])?")
+COUNTRY = re.compile(r"[A-Z]{2}")
+KEBAB = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
+TIMESTAMP = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
 OUTCOMES = ("clear", "manual-review", "reject")
 
 RECORD_MEMBERS = {"caseId", "vendor", "decision"}
@@ -56,6 +59,12 @@ def _refuse_duplicate_keys(pairs):
     return dict(pairs)
 
 
+def _refuse_constants(value):
+    # NaN/Infinity are Python-decoder extensions, not JSON; a candidate
+    # containing them is not a JSON array and must not win extraction.
+    raise ValueError("non-JSON constant %r" % value)
+
+
 def extract_array(raw: str) -> tuple[list, tuple[int, int]]:
     """(the array, its [start, end) span): the parseable JSON array spanning
     the most characters; ties go to the earliest. Deterministic and
@@ -65,7 +74,8 @@ def extract_array(raw: str) -> tuple[list, tuple[int, int]]:
     parses as a short bracketed aside that any real record array out-spans.
     Nothing is repaired.
     """
-    decoder = json.JSONDecoder(object_pairs_hook=_refuse_duplicate_keys)
+    decoder = json.JSONDecoder(object_pairs_hook=_refuse_duplicate_keys,
+                               parse_constant=_refuse_constants)
     best, best_span = None, None
     start = raw.find("[")
     while start >= 0:
@@ -99,14 +109,16 @@ def classify(element, seen: set) -> tuple[str, str]:
             or not isinstance(decision["decidedBy"], str) \
             or not isinstance(decision["decidedAt"], str):
         return "", "schema"
-    if not DECIMAL.match(vendor["riskScore"]):
+    if not DECIMAL.fullmatch(vendor["riskScore"]):
         return "", "decimal-form"
-    if not COUNTRY.match(vendor["registeredCountry"]):
+    if not COUNTRY.fullmatch(vendor["registeredCountry"]):
         return "", "country-form"
-    if not KEBAB.match(element["caseId"]) or element["caseId"].startswith("k-"):
+    if not KEBAB.fullmatch(element["caseId"]) or element["caseId"].startswith("k-"):
         return "", "id-form"
     if decision["outcome"] not in OUTCOMES:
         return "", "outcome-value"
+    if not TIMESTAMP.fullmatch(decision["decidedAt"]):
+        return "", "timestamp-form"
     if element["caseId"] in seen:
         return "", "duplicate-id"
     return element["caseId"], ""
@@ -165,8 +177,14 @@ def render(accepted: dict, ledger: list, span: tuple[int, int, int]) -> dict:
     return files
 
 
+def read_completion(raw_path: str) -> str:
+    """Byte-exact read: no newline translation, so spans and equality track
+    the transcript-bound completion bytes."""
+    return open(raw_path, "rb").read().decode("utf-8")
+
+
 def cmd_compile(raw_path: str) -> None:
-    raw = open(raw_path, encoding="utf-8").read()
+    raw = read_completion(raw_path)
     accepted, ledger, span = compile_records(raw)
     if os.path.isdir(RECORDS_DIR) and os.listdir(RECORDS_DIR):
         raise CompileError("records/ already holds files; the compiler never overwrites")
@@ -179,15 +197,23 @@ def cmd_compile(raw_path: str) -> None:
 
 
 def cmd_verify(raw_path: str) -> None:
-    raw = open(raw_path, encoding="utf-8").read()
+    raw = read_completion(raw_path)
     accepted, ledger, span = compile_records(raw)
     for relative, body in render(accepted, ledger, span).items():
         on_disk = open(os.path.join(STUDY, relative), "rb").read()
         if on_disk != body:
             raise CompileError("%s is not what the retained completion compiles to" % relative)
-    present = set(name for name in os.listdir(RECORDS_DIR) if name.endswith(".json"))
-    if present != {case_id + ".json" for case_id in accepted}:
-        raise CompileError("records/ holds files the retained completion does not compile to")
+    # The directory must hold EXACTLY the compiled record files — no extra
+    # entries of any name or type.
+    present = set(os.listdir(RECORDS_DIR))
+    expected = {case_id + ".json" for case_id in accepted}
+    if present != expected:
+        raise CompileError("records/ holds entries the retained completion does not compile to: %s"
+                           % sorted(present ^ expected))
+    for name in present:
+        path = os.path.join(RECORDS_DIR, name)
+        if os.path.islink(path) or not os.path.isfile(path):
+            raise CompileError("records/%s is not a regular file" % name)
     print("verify: ok (%d records regenerate byte-for-byte)" % len(accepted))
 
 

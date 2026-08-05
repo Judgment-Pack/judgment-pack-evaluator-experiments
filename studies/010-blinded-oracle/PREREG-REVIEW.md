@@ -424,3 +424,284 @@ widest-span rule (finding 7 made the first-position rule's fragility
 concrete); the drop-code list gained `id-form`; the compiler input moved
 from raw stdout to the transcript-bound completion (finding 8). Each is a
 strictly tighter registration than revision 2's text.
+
+---
+
+# Pre-freeze adversarial review — revision 3 (the first complete-candidate review)
+
+**Verdict: redesign. Nothing froze; revision 4 implements every finding.**
+
+Review basis: commit `0c9bdaa` (the reviewer notes the candidate advanced
+twice during the review window — the SEARCH-drift and relay User-Agent
+fixes — and re-reviewed the final diffs; revision 4 is committed once,
+before its review launches, so the basis cannot drift again).
+
+**Drafting model:** Anthropic `claude-fable-5` (Claude Code), 2026-08-05.
+**Reviewing model:** OpenAI `gpt-5.6-sol` via codex-cli 0.145.0 (`codex exec`,
+sandbox `workspace-write`, reasoning effort ultra), 2026-08-05. One run,
+reproduced unedited below; no run discarded.
+
+## Prompt (verbatim)
+
+```
+You are performing the pre-freeze adversarial review of Study 010's COMPLETE protocol-lock candidate. You reviewed revision 1 (verdict: redesign) and revision 2 (verdict: redesign, 14 findings). The maintainer accepted all 14, rewrote the preregistration as revision 3, and — per your finding 12 — assembled every protocol-lock artifact so this review covers the exact bytes that would lock. Your prior reviews and the maintainer's dispositions are recorded in PREREG-REVIEW.md.
+
+Review, in studies/010-blinded-oracle/:
+- PREREGISTRATION.md (revision 3, governing)
+- PREREG-REVIEW.md (both prior reviews + the 14-finding disposition table — check each disposition against the actual artifacts, not just the prose)
+- policy/POLICY.md, packs/vendor-screening-correct.pack.json (pack C's exact bytes)
+- FAMILY.json (six mutations: patch/predicate/reasonsUnderD are the normative members)
+- transcription/PROMPT.txt, transcription/record.rule.json, transcription/transcribe.py, transcription/authoring_call.sh
+- controls/k-wrong-1.json, k-wrong-2.json
+- source/record_source.py
+- harness/study.py (the driver: lock|timestamp-lock|publish|witness|draw|validate|freeze|run|score), harness/gate.py, harness/pnf_check.py, harness/policy_mirror.py, harness/records_compile.py, harness/regions_check.py, harness/transcript_check.py, harness/test_study.py
+
+Also available for inheritance comparison: studies/009-transcribed-oracle-matrix/ (the predecessor whose gates the port adapts) and the shared line code at acquisition-proxy/attest.py, derivation-rule/derive.py, fabrication-gate/gate.py.
+
+Verification context you may rely on (the maintainer rehearsed the pipeline end to end in throwaway repositories, real Rekor and real drand): lock passes with 44 agreeing probes; compile/publish/witness/draw/freeze/run/score complete; E1 produced "caught" on a covering record set and "coverage-miss" on a non-covering one; the 17 unit tests pass. Rehearsal claims are the maintainer's, not evidence — re-derive anything you rely on from the artifact bytes.
+
+Attack surfaces, at minimum:
+1. Per prior finding: check each of the 14 dispositions is actually implemented in the bytes (not just claimed). Name any that is partial or cosmetic.
+2. The witness scheme: the P-256 key is generated at lock time, public key locked, private key outside the repo, publication = minimal-logIndex Rekor hashedrekord under that key over "study-010-records-commit\n<oid>\n". Can the operator still steer the draw (multiple keys? multiple inclusions the search misses? re-lock with a fresh key after seeing records? integratedTime manipulation?)? Is the freeze gate (witness SEARCH.json must show the inclusion indexed) sound?
+3. The draw arithmetic in harness/study.py cmd_draw/draw_index vs PREREGISTRATION §5 — any divergence between the registered pseudocode and the implementation, byte for byte? The round formula's edge cases (integratedTime exactly on a round boundary)?
+4. records_compile.py vs §4: extraction (widest span, ties earliest, duplicate-key rejection), classify precedence, k- reservation, render byte-stability, verify completeness. Any input where compile and verify disagree, or where two runs differ?
+5. transcript_check.py vs §4: can a transcript with tool use pass (payload types it misses)? Can completion.txt diverge from what the compiler consumed? Is the last-user-message prompt equality check bypassable?
+6. study.py's validate/freeze/run/score: does validate actually re-verify everything §5/§8 says it does? Does the primary-attempt rule match §6 (first started under current freeze, crashed → pipeline-invalid)? Is E1's ordered partition implemented in the registered order? Are the derived mismatch sets truly derived (grep for hard-coded set unions)?
+7. The tables: confirm table_entry derives from policy_mirror + reasonsUnderD only, and that regions_check's 44 probes cover what §2 claims. Check the six FAMILY predicates against pack C's actual rule structure (rules array indexes in the patch paths — do they point where the titles say?).
+8. Pack C's bytes: disjointness/totality claims, the `in`/`not` structure, `onUnknown` semantics, anything in the pack that could dispose differently than the mirror on non-probe inputs.
+9. K controls: verify their facts avoid every predicate and their wrongness under the mirror; verify their table rows are D-invariant across ALL six mutations, not just the sampled one.
+10. §9's ceiling: is anything claimed as "mechanically enforced" that the code does not enforce?
+
+For each finding: number, severity (blocker / material / minor), the exact file/text at fault, the failure it permits, the minimal fix. End with a verdict: "lock as is", "lock with amendments" (list them exactly), or "redesign". The maintainer will execute the lock on your verdict; findings you miss here are findings the post-run review will hold against both of us.
+```
+
+## Complete output (unedited)
+
+## Verdict: redesign
+
+Do not protocol-lock this candidate.
+
+Review basis is commit `0c9bdaa183c14cb29c78b18ed06f37ce38629852`. The candidate advanced from `2051da8` through `0252252` to `0c9bdaa` during review; I re-reviewed the final diffs, but this verdict covers no later bytes.
+
+### Findings
+
+1. **Blocker — Rekor does not authenticate the publication clock.**
+
+   **At fault:** [study.py:273](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:273), [study.py:508](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:508), [study.py:645](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:645).
+
+   `body` and `verification` returned by Rekor are retained but never checked. Validation verifies only the operator’s witness signature and a locally stated artifact hash; UUID, `logIndex`, and `integratedTime` remain unauthenticated.
+
+   **Failure:** The operator can sign the real manifest, fabricate an `integratedTime` corresponding to any favorable recent drand round, and pass validation with an unrelated or empty Rekor proof.
+
+   **Minimal fix:** Pin the Rekor log key/checkpoint; decode and require the exact hashedrekord body; verify UUID/body binding, signed-entry timestamp, `integratedTime`, `logIndex`, and inclusion proof before using the clock.
+
+2. **Blocker — publication uniqueness and the witness SEARCH gate are unsound.**
+
+   **At fault:** [PREREGISTRATION.md:177](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:177), [study.py:406](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:406), [study.py:442](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:442), [study.py:724](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:724).
+
+   - The same key signs the earlier lock inclusion and records inclusion, so §5’s literal “minimal logIndex among entries under that key” selects the lock entry.
+   - `cmd_witness` writes `SEARCH.json` before raising on strangers.
+   - `cmd_freeze` checks only that the nominated UUID appears in `hits`; it ignores strangers, known-set equality, indexes, authenticity, and whether witness itself refused.
+   - A hand-authored SEARCH passes.
+   - An eventually consistent search response is not proof that no earlier entry exists.
+   - Fresh keys on parallel lock branches are invisible to one another.
+
+   **Failure:** Same-key competing inclusions can pass freeze. More fundamentally, the operator can create several fresh-key branches, publish each before its beacon, then retain the favorable draw. Re-locking after seeing records is also not mechanically excluded.
+
+   **Minimal fix:** Externally designate one canonical study lock/key before records, verify lock chronology and ancestry, use separate lock/publication keys, and establish authenticated completeness. Prefer one fixed future round with no operator-variable commit salt. This is a design change.
+
+3. **Blocker — the records used after the draw need not be the published records.**
+
+   **At fault:** [study.py:390](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:390), [study.py:508](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:508), [study.py:569](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:569), [study.py:601](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:601).
+
+   `cmd_draw` checks `records_commit()` before waiting for the future round, but derives H/Q/F and tables from live files after fetching the beacon. It never rechecks the commit. `cmd_validate` never compares current authoring/record bytes with `DRAW.recordsCommit`.
+
+   **Failure:** Publish set A, begin draw, wait for the beacon, replace the live completion/transcript/records with a prebuilt set B tailored to the sampled index, and let draw derive B. Freeze validates B’s internal consistency while retaining A’s publication OID. Symlinks provide an additional variant because Git binds only the link target string.
+
+   **Minimal fix:** Publish an exact closed manifest of regular-file paths, modes, and blobs. Materialize and derive from the published commit tree, not the worktree; compare it again after beacon retrieval, during validation, and at freeze.
+
+4. **Blocker — protocol lock and artifact freeze are open, non-canonical manifests.**
+
+   **At fault:** [study.py:77](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:77), [study.py:373](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:373), [study.py:697](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:697), [study.py:739](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:739).
+
+   `verify_lock()` and `verify_freeze()` iterate whatever digest keys their JSON files supply. They do not enforce exact key sets, top-level/nested schemas, fixed draw constants, 44 probes, raw-info consistency, or that locked inputs are regular HEAD blobs.
+
+   **Failure:** A hand-edited committed lock can omit `FAMILY.json` or `study.py`, alter the offset/deadline/chain, claim 44 probes without running them, or bind uncommitted worktree bytes. The analogous freeze can omit generated inputs.
+
+   **Minimal fix:** Canonically regenerate both manifests; require exact schemas and path sets; compare every regular-file blob and mode against the committed tree; validate all fixed constants, probe execution, lock inclusion, ancestry, and chronology.
+
+5. **Blocker — the registered wrapper changes the prompt bytes.**
+
+   **At fault:** [authoring_call.sh:33](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/transcription/authoring_call.sh:33), [transcript_check.py:63](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/transcript_check.py:63).
+
+   `PROMPT="$(cat PROMPT.txt)"` strips trailing newlines. `PROMPT.txt` is 2400 bytes ending in LF; the argument is 2399 bytes, while the checker requires all 2400.
+
+   **Failure:** The honest registered invocation is inconsistent with its own admissibility check.
+
+   **Minimal fix:** Use a byte-preserving supported input mechanism and test the actual transcript user bytes against `PROMPT.txt`.
+
+6. **Blocker — tool-assisted or defect-informed transcripts can pass.**
+
+   **At fault:** [transcript_check.py:23](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/transcript_check.py:23).
+
+   Passing counterexamples include:
+
+   - payload type `tool_search_output`;
+   - a `message` with role `tool`;
+   - exact prompt text plus an ignored `input_image` or audio item containing pack information;
+   - earlier unvalidated user/developer context;
+   - a pack-aware user→assistant exchange followed by an unanswered exact registered user message;
+   - assistant `input_text`, which is incorrectly treated as `output_text`.
+
+   JSON `false` also passes the exit-status check because `False == 0`.
+
+   **Failure:** The checker does not establish that the compiled completion was the response to the registered, policy-only prompt without tools.
+
+   **Minimal fix:** Parse a strict versioned schema while preserving event order and turn identity. Require one terminal registered request/response pair, role-specific content, approved prior context only, no attachments/tool roles/call outputs/unknown types, and `type(exitStatus) is int`.
+
+7. **Blocker — the wrapper does not establish the claimed external OpenAI invocation.**
+
+   **At fault:** [authoring_call.sh:19](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/transcription/authoring_call.sh:19).
+
+   The outside-repository check excludes only `$STUDY`, not the Git root, and does not resolve relative paths or symlinks. The process inherits the full environment although `CALL.json` records only `PATH`/`HOME`; `PATH` chooses an unpinned executable; model/provider/config are unpinned. The script retains the lexicographically first new session without requiring exactly one or correlating it with the process.
+
+   The registered transport retry is also impossible: any second invocation refuses because the fixed output directory exists.
+
+   **Failure:** Repository context, pack-aware base instructions, another provider/model, a fake `codex`, or an unrelated concurrent session can satisfy validation.
+
+   **Minimal fix:** Use an exclusively created canonical directory outside the Git root, isolated locked configuration/environment/session storage, a digest-pinned executable and provider/model, exact CALL/session metadata validation, and numbered immutable retry attempts—or amend the protocol to zero retries.
+
+8. **Blocker — E1 and the attempt ledger are still not total.**
+
+   **At fault:** [study.py:908](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:908), [study.py:995](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:995), [study.py:1060](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:1060).
+
+   Full validation happens before `STARTED`, and `FREEZE-DIGEST` is written before entering `try`. Thus prerequisite failure can leave no primary attempt. Many score-time malformed/missing-data paths raise instead of writing E1 `pipeline-invalid`.
+
+   `verify_seal()` checks only manifested files, not the exact actual set; an added `DONE` is invisible to the seal.
+
+   **Failure:** The supposedly exhaustive partition can produce no E1 at all or skip the first failed validation. A late crashed attempt can be promoted by adding `DONE`.
+
+   **Minimal fix:** Atomically create a STARTED record containing the freeze digest before fallible prerequisite work; wrap every later exit; seal and verify the exact file set including terminal state; make score total over all malformed/missing prerequisites.
+
+9. **Material — the compiler is not the registered strict transformation.**
+
+   **At fault:** [records_compile.py:37](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/records_compile.py:37), [records_compile.py:59](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/records_compile.py:59), [records_compile.py:168](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/records_compile.py:168), [records_compile.py:181](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/records_compile.py:181).
+
+   - Text-mode reads normalize CRLF, so the widest span can differ from the transcript-bound completion.
+   - Python’s decoder accepts `NaN`, `Infinity`, and `-Infinity`; a wider non-JSON array can win extraction.
+   - `$` accepts a terminal newline, so `"40\n"`, `"SY\n"`, and `"ok\n"` pass the registered forms.
+   - Verification ignores extra non-JSON directory entries and file types.
+   - `decidedAt` accepts any string despite the requested ISO-UTC form.
+
+   **Minimal fix:** Read bytes then UTF-8 decode without newline conversion; reject JSON constants; use `fullmatch`/`\Z`; require the exact regular-file set; either add a timestamp check/drop code or disclaim timestamp validation.
+
+10. **Material — validation does not bind DEFECT.json exactly to the sampled family member.**
+
+   **At fault:** [study.py:612](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:612), [study.py:685](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:685).
+
+   Although `mutation` must equal the sampled FAMILY entry, D is regenerated from the separate top-level `manifest["patch"]`; equality with `mutation["patch"]` is never required. `sets.K` need not be the two exact control IDs, and extra nonexistent IDs in F are not rejected.
+
+   **Failure:** An arbitrary alternate D that agrees with the finite record set can pass E2 while not being the selected mutation. K/authored membership can be swapped, and ghost F members corrupt E3.
+
+   **Minimal fix:** Recompute the complete canonical DEFECT body from FAMILY and published records and byte-compare it. Remove duplicate patch authority; require exact K and exact derived H/Q/F.
+
+11. **Material — drand proof retention and deadline enforcement are partial.**
+
+   **At fault:** [study.py:207](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:207), [study.py:487](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:487), [study.py:529](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:529), [study.py:638](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:638).
+
+   HTTP responses are parsed rather than retained as raw bytes. `previous_signature` may be absent; validation does not check it, saved-chain equality, exactly two configured relays, or relay provenance. Two duplicated local objects pass. The deadline is checked before retrieval, not after it finishes.
+
+   **Failure:** The frozen material can lack the inputs promised for external BLS verification, and a retrieval completing after the 3600-second deadline is accepted.
+
+   **Minimal fix:** Retain raw response bytes and retrieval timestamps; require exactly the two configured relays, strict/equal signature and previous-signature values, lock-chain equality, and completion before the deadline.
+
+12. **Material — the arbiter and compiler disagree on the country domain.**
+
+   **At fault:** [POLICY.md:22](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/policy/POLICY.md:22), [PROMPT.txt:11](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/transcription/PROMPT.txt:11), [PREREGISTRATION.md:60](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/PREREGISTRATION.md:60), [records_compile.py:38](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/records_compile.py:38).
+
+   POLICY and the author-facing prompt say ISO 3166-1 codes; the governing §2 and compiler accept every `[A-Z]{2}` string and treat unassigned values as non-embargoed.
+
+   **Failure:** An unassigned value can enter H/F and support `caught` even though it is outside the policy supplied to the author.
+
+   **Minimal fix:** State everywhere that the domain is exactly two uppercase ASCII letters with no registry requirement, or pin and enforce an actual registry set.
+
+13. **Minor — pack C’s unknown semantics are not the policy’s blanket semantics.**
+
+   **At fault:** [POLICY.md:24](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/policy/POLICY.md:24), [vendor-screening-correct.pack.json:45](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/packs/vendor-screening-correct.pack.json:45).
+
+   Strong conjunction/short-circuiting masks unknowns. For example, sanctions=true with other fields missing rejects; false+SY with fields missing rejects; false+DE+risk 20 with personal-data missing clears.
+
+   **Failure:** The global assertion that any unknown input escalates is false, and all 44 probes are complete so they cannot detect it. Admitted study rows are complete, so this does not currently corrupt E1/E2.
+
+   **Minimal fix:** Narrow the claim to complete admitted inputs, or add a whole-input completeness guard and missing/malformed-input probes.
+
+14. **Minor — locked documentation still describes superseded behavior.**
+
+   **At fault:** [study.py:16](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/study.py:16), [records_compile.py:2](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/harness/records_compile.py:2), [authoring_call.sh:8](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/transcription/authoring_call.sh:8), [README.md:19](/tmp/claude-1000/-home/onword/repo/judgment-pack/judgment-pack-runtime/studies/010-blinded-oracle/README.md:19).
+
+   These still say first-DONE primary, first-array/raw-stdout compilation, or omit `timestamp-lock`, `publish`, and `witness`.
+
+   **Failure:** The locked procedure gives conflicting operator instructions.
+
+   **Minimal fix:** Conform all locked descriptions to the governing revision and actual command surface.
+
+### Prior 14 dispositions
+
+| Prior finding | Status |
+|---|---|
+| 1 — operator-supplied clock | **Fail:** Rekor is used on the happy path, but its clock is not authenticated. |
+| 2 — unique publication | **Fail:** SEARCH, same-key, and cross-key uniqueness all fail. |
+| 3 — drand proof | **Partial:** signatures/constants are retained; raw bytes and mandatory verification inputs are not enforced. |
+| 4 — byte-complete algorithms | **Partial:** index/round arithmetic is exact; deadline and immutable lock constants are not. |
+| 5 — E1 totality | **Partial:** valid-path branch order is correct; failure paths can produce no label. |
+| 6 — crash/primary rule | **Partial:** `_run_body` crashes seal and first bound attempt is selected, but validation/scoring gaps remain. |
+| 7 — compiler closure | **Partial:** widest-span, duplicate-key rejection, precedence, and rendering work; strict JSON/forms/exact files do not. |
+| 8 — completion binding | **Fail/partial:** completion equality exists, but prompt bytes, tool/context exclusion, and turn binding fail. |
+| 9 — independent tables | **Partial:** table derivation itself passes; canonical lock/probe execution and exact D binding do not. |
+| 10 — Study 010 port | **Partial:** four-fact H/Q/K and dynamic mismatches exist; lifecycle and exact validation remain incomplete. |
+| 11 — K path | **Pass:** separate source path, prefix reservation, acquisition/gate coverage, wrongness, and all-six D invariance are correct. |
+| 12 — exact candidate/lock | **Fail:** key-set validation and chronology are absent; the candidate also changed during review. |
+| 13 — evidentiary ceiling | **Fail:** §9 overstates lock, Rekor, transcript, compiler, and ledger enforcement and omits cross-key published-branch grinding. |
+| 14 — Q∩F in E3 | **Pass:** counts are explicit and sampled H/Q IDs appear in the coverage profile; E1 also reports them directly. |
+
+### Confirmed sound
+
+- The registered and implemented draw arithmetic agree exactly. At `T-G = kp`, the selected round is `R=k+1`, scheduled exactly at T; there is no boundary off-by-one.
+- The index preimage, newline framing, FAMILY byte digest, big-endian SHA-256 integer, and modulo six match §5.
+- All six FAMILY patch paths, titles, predicates, and `reasonsUnderD` match pack C’s actual rule structure.
+- Pack C is disjoint and total over complete admitted inputs and agrees with the mirror there.
+- `regions_check` contains exactly 44 distinct probes matching §2’s stated battery.
+- `table_entry` derives exclusively from the mirror, predicate, and `reasonsUnderD`.
+- Both K controls are wrong under C, avoid all six predicates, and remain D-invariant under all six mutations.
+- Mismatch sets are derived from tables; no hard-coded F/Q/K union remains.
+- The 17 existing unit tests pass, but do not cover the counterexamples above.
+
+**Final verdict: redesign.** The unauthenticated Rekor time, ineffective uniqueness gate, and post-beacon record substitution each independently defeat the claimed exogenous draw.
+
+## Maintainer disposition (revision 3 → revision 4)
+
+All fourteen findings accepted; none contested. How revision 4 implements
+each (file references are to the revision-4 candidate):
+
+| # | Finding | Disposition |
+|---|---------|-------------|
+| 1 | Rekor's clock unauthenticated | **Accepted.** `verify_inclusion` (study.py) authenticates every retained inclusion offline: body decodes to the hashedrekord binding the manifest digest, witness signature, and locked witness key; UUID = sha256(0x00 ‖ body); logID = sha256 of the Rekor log key pinned at lock time; and the log's `signedEntryTimestamp` verifies under that pinned key over the canonical `{body, integratedTime, logID, logIndex}` payload. Run at publication, at draw, and in every validate. The recipe was verified live against the log before locking it in. |
+| 2 | Uniqueness and the SEARCH gate unsound | **Accepted.** Two witness keys (lock / records), both public keys locked; the binding inclusion is the single entry under the records key. The freeze gate runs the online search ITSELF over both keys — a hand-authored SEARCH.json convinces nothing — refuses strangers, and requires the records entry indexed. Cross-key parallel-branch grinding is mechanically unpreventable and is now stated as such in §9, with what a reader can and cannot conclude. |
+| 3 | Post-beacon record substitution | **Accepted.** The draw re-checks the records commit after beacon retrieval, requires the worktree's published paths to byte-equal that commit's tree (exact file set, regular files only), and derives DEFECT.json from the PUBLISHED tree bytes (`published_tree` / `derive_defect`), never the worktree. `validate` recomputes the complete canonical DEFECT body from the same tree and byte-compares. |
+| 4 | Lock/freeze manifests open and non-canonical | **Accepted.** `verify_lock` and `verify_freeze` enforce exact key sets against the registered lists, require every input to be a regular file matching BOTH the worktree and its HEAD blob, and check the recorded draw constants, relay list, probe count, jpack digest, witness-key digests, and Rekor log key against the module's registered values. |
+| 5 | The wrapper strips the prompt's trailing newline | **Accepted.** `PROMPT.txt` carries no trailing newline (registered in §7), so `$(cat …)` is byte-identical to the file; the transcript check compares full file bytes. |
+| 6 | Tool-assisted transcripts can pass | **Accepted.** `transcript_check.py` is a strict whitelist: only `message` payloads with roles user/developer/assistant; role-appropriate content items only (`input_text` / `output_text`); ANY other payload type refuses. Exactly one user message must equal the prompt bytes, none may follow it, and the completion is the last assistant message after it. `exitStatus` must be an integer (booleans rejected). |
+| 7 | The wrapper does not establish the claimed invocation | **Accepted.** `authoring_call.sh`: scratch dir resolved with `pwd -P` and required outside `git rev-parse --show-toplevel`; environment scrubbed to `PATH`+`HOME` via `env -i`; the codex binary must match the digest the lock pinned (refused otherwise, and re-checked in validate); immutable `call-N` slots with the completed-slot-refuses-retry rule; exactly one new session file required, with the count recorded and enforced again by the driver's `authoring_call()` resolution. What remains self-reported is stated in §9. |
+| 8 | E1/ledger still not total | **Accepted.** `run` opens the attempt (STARTED + freeze digest) before any fallible work — freeze/validation failures crash INSIDE the attempt and seal; `verify_seal` requires the exact file set (an added DONE is drift, not promotion); `score` wraps its body so malformed retained data writes E1 = pipeline-invalid with the error retained. |
+| 9 | Compiler not the registered strict transformation | **Accepted.** Byte-read with no newline translation; `parse_constant` rejects NaN/Infinity; every form check is `fullmatch`; a `timestamp-form` drop code (`YYYY-MM-DDTHH:MM:SSZ`) joins the registered order; `verify` requires the exact directory entry set with regular files only. |
+| 10 | DEFECT.json not bound to the sampled member | **Accepted.** The separate top-level `patch` authority is gone — D regenerates from `mutation["patch"]` only; `validate` recomputes the entire canonical DEFECT body (sets and tables, exact K, no ghost ids) from the published tree and requires equality. |
+| 11 | drand retention/deadline partial | **Accepted.** Raw response bytes and retrieval timestamps retained per relay; exactly the two registered relays required in order; `previous_signature` required present and byte-equal; the chain object must equal the locked constants; the deadline binds retrieval COMPLETION and is re-checked in validate from retained timestamps. |
+| 12 | Arbiter and compiler disagree on the country domain | **Accepted.** POLICY.md now states the syntactic domain itself (two uppercase letters, no registry, membership = exact string comparison); the prompt keeps ISO phrasing as authoring guidance; §2 unchanged (already syntactic). |
+| 13 | Pack C's unknown semantics overstated | **Accepted.** POLICY.md narrows exhaustiveness to complete inputs — which is all the study's gates admit — and takes no position on incomplete inputs. |
+| 14 | Stale locked documentation | **Accepted.** study.py, records_compile.py, authoring_call.sh, and README.md all describe the revision-4 command surface, the slot discipline, the completion input, and the first-started primary rule. |
+
+The reviewer's "confirmed sound" list (draw arithmetic and §5 agreement,
+family patch paths and predicates against pack C's actual structure, pack
+C disjointness/totality on complete inputs, the 44-probe battery, mirror-
+only table derivation, K's all-six-mutation invariance, derived mismatch
+sets) carries forward into revision 4 unchanged.
