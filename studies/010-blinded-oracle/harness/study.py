@@ -206,6 +206,8 @@ def table_entry(vendor: dict, mutation: dict) -> dict:
 
 def http_json(url: str, body: dict | None = None, timeout: int = 30) -> dict:
     request = urllib.request.Request(url)
+    # Cloudflare's relay bot-filters urllib's default User-Agent with 403.
+    request.add_header("User-Agent", "study-010-harness/1")
     data = None
     if body is not None:
         data = json.dumps(body).encode()
