@@ -1,40 +1,43 @@
 # Analysis — read this before the numbers
 
 **Every registered prediction hit, and that is the weakest fact about this
-study.** The preregistration's own dependency map (§9) says why: given the
+study.** The preregistration's dependency map (§9) says why: given the
 `validate`-asserted patch binding, the complete disposition tables, and a
 faithful pipeline, E2's and E3's mismatch sets are *entailed* by the fixture
-construction. The endpoints could only have failed if the pipeline were
-unfaithful — a gate defect, an acquisition defect, a table error, an
-evaluator surprise. So what the clean run establishes is exactly and only:
+construction — once table conformance and the gate's wrapper binding hold,
+those sets contribute no independent inferential evidence. The K rows show
+the carrier reports deliberate disagreement; they are not separate evidence
+of defect detection.
 
-1. **The pipeline is faithful end to end.** Twelve records went through
-   attested acquisition (one session, recomputed argument digests, artifact
-   bytes canonically equal to the frozen records), projection-normal-form
-   derivation, complete-row admission (every emitted row byte-equal to its
-   reconstruction from the verified artifact), the pinned runtime's own
-   matrix comparison on both CLI and MCP surfaces — and nothing leaked,
-   drifted, or was reinterpreted anywhere.
-2. **The witness exists.** On identical facts, the expectation stream bound
-   to the verified record artifacts surfaced the planted encoding defect
-   (three boundary rows mismatching under D, exactly as registered) that the
-   evaluator-copied stream structurally could not (P-A: the circular arm
-   reported a complete, zero-mismatch run over the same defective pack).
+The primary result is **attempt 3** — the first attempt to reach `DONE`
+under the corrected freeze, scored by the corrected scorer (DEVIATIONS.md
+§2). Attempt 1 was the registered primary and crashed on a harness defect
+before any evaluation (§1); attempt 2 ran to completion under the earlier,
+incompletely enforced freeze and stands only as an audited post-hoc
+demonstration — the post-run adversarial review independently rescored it
+and confirmed the same numerical pattern, which is why the corrected run's
+identical numbers surprised nobody and prove nothing extra.
+
+What the clean attempt-3 run establishes, exactly and only:
+
+1. **The retained 12-row execution is internally consistent with a faithful
+   fixed-fixture integration pipeline.** Acquisition (one session, exact
+   receipt population, recomputed argument digests, artifacts canonically
+   equal to the frozen records), projection-normal-form derivation,
+   complete-row admission by canonical bytes, and the pinned runtime's
+   matrix comparison on the CLI and one MCP payload agree with each other
+   and with the registered tables everywhere.
+2. **The constructed existence witness is instantiated.** On identical
+   facts, the expectation stream bound to the verified record artifacts
+   surfaced the planted boundary defect under D (three rows, exactly as
+   registered) that the evaluator-copied stream structurally could not
+   (P-A: a complete, zero-mismatch self-replay over the same defective
+   pack).
 3. **The suite can fail.** Both calibration controls mismatched under both
-   packs, exactly as registered — a suite that cannot fail is not a suite.
+   packs, exactly as registered.
 
-What it does not establish is everything §11 lists: nothing about real
-recorded human decisions, nothing about unknown defects, no rates, one
-constructed defect chosen with full knowledge of both oracles. E2 minus its
-entailment is evidence about the *mechanism*, not about discovery — the
-discovery question is Study 010's, registered in §1.
-
-One deviation occurred (DEVIATIONS.md §1): attempt 1 crashed on a harness
-module-shadowing defect before any evaluation, the fix was re-frozen, and
-attempt 2 — the first to reach `DONE` — is the primary scored here. The
-crashed attempt is retained.
-
-The E5 leg is worth one sentence of its own: the suite ran over the MCP
-`experimental_test_packs` surface with a payload equal to the CLI's modulo
-the registered field list — the consumer loop runtime issue #74 shipped for
-this line, closed by the pipeline it was shipped for.
+It is not general pipeline validation, not discovery evidence, not record
+truth, not sensitivity, and not a rate (§11). The one-payload CLI/MCP
+equality is one integration point, not a general closure of runtime issue
+#74's surface. The discovery question — independently authored records
+surfacing unknown defects — is Study 010's, registered in §1.
