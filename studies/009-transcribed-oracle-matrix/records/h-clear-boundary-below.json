@@ -1,0 +1,13 @@
+{
+  "caseId": "h-clear-boundary-below",
+  "vendor": {
+    "legalName": "Cobalt Freight Co",
+    "sanctionsHit": false,
+    "riskScore": "69.99"
+  },
+  "decision": {
+    "outcome": "clear",
+    "decidedBy": "reviewer-1",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}

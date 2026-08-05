@@ -1,0 +1,74 @@
+[
+  {
+    "caseId": "f-boundary-1",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 0,
+    "resultDigest": "sha256:b9143bdc0024e0b771884aab276a7664dc7171a2bf010e3ad8cb019f891b3cfe"
+  },
+  {
+    "caseId": "f-boundary-2",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 1,
+    "resultDigest": "sha256:2e3cf61a80d06f61e767849060ae1b36b462c437432934700663d4173b75a899"
+  },
+  {
+    "caseId": "f-boundary-3",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 2,
+    "resultDigest": "sha256:79069f0772adb46626506a9e46ff047978f2e62bbe63c945ee07515ab2ec795c"
+  },
+  {
+    "caseId": "h-clear-boundary-below",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 3,
+    "resultDigest": "sha256:8b03140f69a07d6f506b31027ac1d97c0499075b37bc1970a45e64b91c9cf8f7"
+  },
+  {
+    "caseId": "h-clear-low",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 4,
+    "resultDigest": "sha256:39805e16ef22cef0c1862630817af0ee917570f76be8c58df170d80b078aa431"
+  },
+  {
+    "caseId": "h-clear-mid",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 5,
+    "resultDigest": "sha256:78abe0f5d6efc6f0f8ff144b04eb509078d17ec12f4785f273c63979cd89fa55"
+  },
+  {
+    "caseId": "h-reject-boundary-70",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 6,
+    "resultDigest": "sha256:2cdf5c9b9ed3c5e9a3ec00dc3c3ce87eb636268bd8a52ca721df8af694bce9cd"
+  },
+  {
+    "caseId": "h-reject-plain",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 7,
+    "resultDigest": "sha256:f6711897f882939b92548e586958e7b38fff4de648107f38a9fd4356839cca93"
+  },
+  {
+    "caseId": "h-review-boundary-above",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 8,
+    "resultDigest": "sha256:24afdf7a39adf523133e78eb721f99a73b6ec82997933afb0a299f9736277cff"
+  },
+  {
+    "caseId": "h-review-high",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 9,
+    "resultDigest": "sha256:d734c4902aaeac62ebfed1fd6a9eb029406f01222b2fbbef612e2f010a46b241"
+  },
+  {
+    "caseId": "k-wrong-clear",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 10,
+    "resultDigest": "sha256:d7f93cd7d6b86e8f979ea50b0933c761c0511ca5577b15d05e1c3d26a2f52516"
+  },
+  {
+    "caseId": "k-wrong-reject",
+    "sessionId": "2d3a78a7740d81f0",
+    "callIndex": 11,
+    "resultDigest": "sha256:4aafd4f7dea31201bfd2135827493fa0e6919571b36336082fb2dedf053a54de"
+  }
+]

@@ -1,0 +1,959 @@
+{
+  "A-circular-D": {
+    "validate": {
+      "exit": 0,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.14.0"
+        },
+        "command": "packs validate",
+        "status": "valid",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-009/studies/009-transcribed-oracle-matrix/trials/ATTEMPT-2/projects/A-circular-D/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "path": "pack.json",
+            "status": "valid",
+            "checks": [
+              {
+                "name": "path-inside-root",
+                "status": "passed"
+              },
+              {
+                "name": "document-validation",
+                "status": "passed"
+              },
+              {
+                "name": "expected-version",
+                "status": "skipped",
+                "detail": "The entry pins no expectedVersion."
+              },
+              {
+                "name": "filename",
+                "status": "skipped",
+                "detail": "The filename \"pack.json\" is outside the optional <decision-id>-<semver>.pack.json convention, which is never required."
+              },
+              {
+                "name": "hint-keys",
+                "status": "skipped",
+                "detail": "The entry declares no hints."
+              },
+              {
+                "name": "matrix",
+                "status": "passed",
+                "detail": "12 rows."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "test": {
+      "exit": 0,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.14.0"
+        },
+        "command": "packs test",
+        "status": "passed",
+        "experimental": true,
+        "evaluatorSpecVersion": "0.2.0-draft",
+        "conformanceClaimReference": "CONFORMANCE.md",
+        "label": "project matrix results: rows a project wrote about its own packs, run through the experimental evaluator; that evaluator's conformance claim is stated, in full and only, in CONFORMANCE.md",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-009/studies/009-transcribed-oracle-matrix/trials/ATTEMPT-2/projects/A-circular-D/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 12,
+          "passed": 12,
+          "mismatched": 0
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "packId": "https://example.invalid/judgment-packs/vendor-screening",
+            "packVersion": "0.1.0",
+            "path": "pack.json",
+            "matrixPath": "matrix.json",
+            "status": "passed",
+            "summary": {
+              "total": 12,
+              "passed": 12,
+              "mismatched": 0
+            },
+            "rows": [
+              {
+                "id": "f-boundary-1",
+                "origin": "circular:f-boundary-1",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}"
+              },
+              {
+                "id": "f-boundary-2",
+                "origin": "circular:f-boundary-2",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}"
+              },
+              {
+                "id": "f-boundary-3",
+                "origin": "circular:f-boundary-3",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}"
+              },
+              {
+                "id": "h-clear-boundary-below",
+                "origin": "circular:h-clear-boundary-below",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-clear-low",
+                "origin": "circular:h-clear-low",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-clear-mid",
+                "origin": "circular:h-clear-mid",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-reject-boundary-70",
+                "origin": "circular:h-reject-boundary-70",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-reject-plain",
+                "origin": "circular:h-reject-plain",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-review-boundary-above",
+                "origin": "circular:h-review-boundary-above",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-review-high",
+                "origin": "circular:h-review-high",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "k-wrong-clear",
+                "origin": "circular:k-wrong-clear",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "k-wrong-reject",
+                "origin": "circular:k-wrong-reject",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              }
+            ],
+            "coverage": [
+              {
+                "probe": "outcome:clear",
+                "status": "covered",
+                "detail": "Row \"h-clear-boundary-below\" expects it."
+              },
+              {
+                "probe": "outcome:manual-review",
+                "status": "covered",
+                "detail": "Row \"h-review-boundary-above\" expects it."
+              },
+              {
+                "probe": "outcome:reject",
+                "status": "covered",
+                "detail": "Row \"h-reject-boundary-70\" expects it."
+              },
+              {
+                "probe": "unknown",
+                "status": "missing",
+                "detail": "The pack can reach reason \"unknown\", and no row's expected reasons include it."
+              },
+              {
+                "probe": "conflict",
+                "status": "missing",
+                "detail": "Rules or forced outcomes name different outcomes, and no row's expected reasons include \"conflict\". Either construct facts that make two of them fire together, or confirm against the policy text that they exclude each other."
+              },
+              {
+                "probe": "no-match",
+                "status": "covered",
+                "detail": "Row \"f-boundary-1\" expects it."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "B-transcribed-D": {
+    "validate": {
+      "exit": 0,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.14.0"
+        },
+        "command": "packs validate",
+        "status": "valid",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-009/studies/009-transcribed-oracle-matrix/trials/ATTEMPT-2/projects/B-transcribed-D/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "path": "pack.json",
+            "status": "valid",
+            "checks": [
+              {
+                "name": "path-inside-root",
+                "status": "passed"
+              },
+              {
+                "name": "document-validation",
+                "status": "passed"
+              },
+              {
+                "name": "expected-version",
+                "status": "skipped",
+                "detail": "The entry pins no expectedVersion."
+              },
+              {
+                "name": "filename",
+                "status": "skipped",
+                "detail": "The filename \"pack.json\" is outside the optional <decision-id>-<semver>.pack.json convention, which is never required."
+              },
+              {
+                "name": "hint-keys",
+                "status": "skipped",
+                "detail": "The entry declares no hints."
+              },
+              {
+                "name": "matrix",
+                "status": "passed",
+                "detail": "12 rows."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "test": {
+      "exit": 1,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.14.0"
+        },
+        "command": "packs test",
+        "status": "mismatch",
+        "experimental": true,
+        "evaluatorSpecVersion": "0.2.0-draft",
+        "conformanceClaimReference": "CONFORMANCE.md",
+        "label": "project matrix results: rows a project wrote about its own packs, run through the experimental evaluator; that evaluator's conformance claim is stated, in full and only, in CONFORMANCE.md",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-009/studies/009-transcribed-oracle-matrix/trials/ATTEMPT-2/projects/B-transcribed-D/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 12,
+          "passed": 7,
+          "mismatched": 5
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "packId": "https://example.invalid/judgment-packs/vendor-screening",
+            "packVersion": "0.1.0",
+            "path": "pack.json",
+            "matrixPath": "matrix.json",
+            "status": "mismatch",
+            "summary": {
+              "total": 12,
+              "passed": 7,
+              "mismatched": 5
+            },
+            "rows": [
+              {
+                "id": "f-boundary-1",
+                "origin": "transcribed:f-boundary-1@sha256:b9143bdc0024e0b771884aab276a7664dc7171a2bf010e3ad8cb019f891b3cfe",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "f-boundary-2",
+                "origin": "transcribed:f-boundary-2@sha256:2e3cf61a80d06f61e767849060ae1b36b462c437432934700663d4173b75a899",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "f-boundary-3",
+                "origin": "transcribed:f-boundary-3@sha256:79069f0772adb46626506a9e46ff047978f2e62bbe63c945ee07515ab2ec795c",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "h-clear-boundary-below",
+                "origin": "transcribed:h-clear-boundary-below@sha256:8b03140f69a07d6f506b31027ac1d97c0499075b37bc1970a45e64b91c9cf8f7",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-clear-low",
+                "origin": "transcribed:h-clear-low@sha256:39805e16ef22cef0c1862630817af0ee917570f76be8c58df170d80b078aa431",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-clear-mid",
+                "origin": "transcribed:h-clear-mid@sha256:78abe0f5d6efc6f0f8ff144b04eb509078d17ec12f4785f273c63979cd89fa55",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-reject-boundary-70",
+                "origin": "transcribed:h-reject-boundary-70@sha256:2cdf5c9b9ed3c5e9a3ec00dc3c3ce87eb636268bd8a52ca721df8af694bce9cd",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-reject-plain",
+                "origin": "transcribed:h-reject-plain@sha256:f6711897f882939b92548e586958e7b38fff4de648107f38a9fd4356839cca93",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-review-boundary-above",
+                "origin": "transcribed:h-review-boundary-above@sha256:24afdf7a39adf523133e78eb721f99a73b6ec82997933afb0a299f9736277cff",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-review-high",
+                "origin": "transcribed:h-review-high@sha256:d734c4902aaeac62ebfed1fd6a9eb029406f01222b2fbbef612e2f010a46b241",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "k-wrong-clear",
+                "origin": "transcribed:k-wrong-clear@sha256:d7f93cd7d6b86e8f979ea50b0933c761c0511ca5577b15d05e1c3d26a2f52516",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "k-wrong-reject",
+                "origin": "transcribed:k-wrong-reject@sha256:4aafd4f7dea31201bfd2135827493fa0e6919571b36336082fb2dedf053a54de",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "detail": "The canonical disposition bytes differ."
+              }
+            ],
+            "coverage": [
+              {
+                "probe": "outcome:clear",
+                "status": "covered",
+                "detail": "Row \"h-clear-boundary-below\" expects it."
+              },
+              {
+                "probe": "outcome:manual-review",
+                "status": "covered",
+                "detail": "Row \"f-boundary-1\" expects it."
+              },
+              {
+                "probe": "outcome:reject",
+                "status": "covered",
+                "detail": "Row \"h-reject-boundary-70\" expects it."
+              },
+              {
+                "probe": "unknown",
+                "status": "missing",
+                "detail": "The pack can reach reason \"unknown\", and no row's expected reasons include it."
+              },
+              {
+                "probe": "conflict",
+                "status": "missing",
+                "detail": "Rules or forced outcomes name different outcomes, and no row's expected reasons include \"conflict\". Either construct facts that make two of them fire together, or confirm against the policy text that they exclude each other."
+              },
+              {
+                "probe": "no-match",
+                "status": "missing",
+                "detail": "The pack declares no fallbackOutcome, and no row's expected reasons include \"no-match\"."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "Bprime-transcribed-C": {
+    "validate": {
+      "exit": 0,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.14.0"
+        },
+        "command": "packs validate",
+        "status": "valid",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-009/studies/009-transcribed-oracle-matrix/trials/ATTEMPT-2/projects/Bprime-transcribed-C/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "path": "pack.json",
+            "status": "valid",
+            "checks": [
+              {
+                "name": "path-inside-root",
+                "status": "passed"
+              },
+              {
+                "name": "document-validation",
+                "status": "passed"
+              },
+              {
+                "name": "expected-version",
+                "status": "skipped",
+                "detail": "The entry pins no expectedVersion."
+              },
+              {
+                "name": "filename",
+                "status": "skipped",
+                "detail": "The filename \"pack.json\" is outside the optional <decision-id>-<semver>.pack.json convention, which is never required."
+              },
+              {
+                "name": "hint-keys",
+                "status": "skipped",
+                "detail": "The entry declares no hints."
+              },
+              {
+                "name": "matrix",
+                "status": "passed",
+                "detail": "12 rows."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "test": {
+      "exit": 1,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.14.0"
+        },
+        "command": "packs test",
+        "status": "mismatch",
+        "experimental": true,
+        "evaluatorSpecVersion": "0.2.0-draft",
+        "conformanceClaimReference": "CONFORMANCE.md",
+        "label": "project matrix results: rows a project wrote about its own packs, run through the experimental evaluator; that evaluator's conformance claim is stated, in full and only, in CONFORMANCE.md",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-009/studies/009-transcribed-oracle-matrix/trials/ATTEMPT-2/projects/Bprime-transcribed-C/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 12,
+          "passed": 10,
+          "mismatched": 2
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "packId": "https://example.invalid/judgment-packs/vendor-screening",
+            "packVersion": "0.1.0",
+            "path": "pack.json",
+            "matrixPath": "matrix.json",
+            "status": "mismatch",
+            "summary": {
+              "total": 12,
+              "passed": 10,
+              "mismatched": 2
+            },
+            "rows": [
+              {
+                "id": "f-boundary-1",
+                "origin": "transcribed:f-boundary-1@sha256:b9143bdc0024e0b771884aab276a7664dc7171a2bf010e3ad8cb019f891b3cfe",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "f-boundary-2",
+                "origin": "transcribed:f-boundary-2@sha256:2e3cf61a80d06f61e767849060ae1b36b462c437432934700663d4173b75a899",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "f-boundary-3",
+                "origin": "transcribed:f-boundary-3@sha256:79069f0772adb46626506a9e46ff047978f2e62bbe63c945ee07515ab2ec795c",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-clear-boundary-below",
+                "origin": "transcribed:h-clear-boundary-below@sha256:8b03140f69a07d6f506b31027ac1d97c0499075b37bc1970a45e64b91c9cf8f7",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-clear-low",
+                "origin": "transcribed:h-clear-low@sha256:39805e16ef22cef0c1862630817af0ee917570f76be8c58df170d80b078aa431",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-clear-mid",
+                "origin": "transcribed:h-clear-mid@sha256:78abe0f5d6efc6f0f8ff144b04eb509078d17ec12f4785f273c63979cd89fa55",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-reject-boundary-70",
+                "origin": "transcribed:h-reject-boundary-70@sha256:2cdf5c9b9ed3c5e9a3ec00dc3c3ce87eb636268bd8a52ca721df8af694bce9cd",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-reject-plain",
+                "origin": "transcribed:h-reject-plain@sha256:f6711897f882939b92548e586958e7b38fff4de648107f38a9fd4356839cca93",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-review-boundary-above",
+                "origin": "transcribed:h-review-boundary-above@sha256:24afdf7a39adf523133e78eb721f99a73b6ec82997933afb0a299f9736277cff",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "h-review-high",
+                "origin": "transcribed:h-review-high@sha256:d734c4902aaeac62ebfed1fd6a9eb029406f01222b2fbbef612e2f010a46b241",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "k-wrong-clear",
+                "origin": "transcribed:k-wrong-clear@sha256:d7f93cd7d6b86e8f979ea50b0933c761c0511ca5577b15d05e1c3d26a2f52516",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "k-wrong-reject",
+                "origin": "transcribed:k-wrong-reject@sha256:4aafd4f7dea31201bfd2135827493fa0e6919571b36336082fb2dedf053a54de",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "detail": "The canonical disposition bytes differ."
+              }
+            ],
+            "coverage": [
+              {
+                "probe": "outcome:clear",
+                "status": "covered",
+                "detail": "Row \"h-clear-boundary-below\" expects it."
+              },
+              {
+                "probe": "outcome:manual-review",
+                "status": "covered",
+                "detail": "Row \"f-boundary-1\" expects it."
+              },
+              {
+                "probe": "outcome:reject",
+                "status": "covered",
+                "detail": "Row \"h-reject-boundary-70\" expects it."
+              },
+              {
+                "probe": "unknown",
+                "status": "missing",
+                "detail": "The pack can reach reason \"unknown\", and no row's expected reasons include it."
+              },
+              {
+                "probe": "conflict",
+                "status": "missing",
+                "detail": "Rules or forced outcomes name different outcomes, and no row's expected reasons include \"conflict\". Either construct facts that make two of them fire together, or confirm against the policy text that they exclude each other."
+              },
+              {
+                "probe": "no-match",
+                "status": "missing",
+                "detail": "The pack declares no fallbackOutcome, and no row's expected reasons include \"no-match\"."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "Bprime-mcp": {
+    "structuredContent": {
+      "outputVersion": "2",
+      "tool": {
+        "name": "jpack",
+        "version": "0.14.0"
+      },
+      "command": "mcp experimental_test_packs",
+      "status": "mismatch",
+      "experimental": true,
+      "evaluatorSpecVersion": "0.2.0-draft",
+      "conformanceClaimReference": "CONFORMANCE.md",
+      "label": "project matrix results: rows a project wrote about its own packs, run through the experimental evaluator; that evaluator's conformance claim is stated, in full and only, in CONFORMANCE.md",
+      "kind": "non-normative-runtime-convention",
+      "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-009/studies/009-transcribed-oracle-matrix/trials/ATTEMPT-2/projects/Bprime-transcribed-C/jpack.json",
+      "configVersion": "1",
+      "summary": {
+        "total": 12,
+        "passed": 10,
+        "mismatched": 2
+      },
+      "packs": [
+        {
+          "id": "screening",
+          "packId": "https://example.invalid/judgment-packs/vendor-screening",
+          "packVersion": "0.1.0",
+          "path": "pack.json",
+          "matrixPath": "matrix.json",
+          "status": "mismatch",
+          "summary": {
+            "total": 12,
+            "passed": 10,
+            "mismatched": 2
+          },
+          "rows": [
+            {
+              "id": "f-boundary-1",
+              "origin": "transcribed:f-boundary-1@sha256:b9143bdc0024e0b771884aab276a7664dc7171a2bf010e3ad8cb019f891b3cfe",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "f-boundary-2",
+              "origin": "transcribed:f-boundary-2@sha256:2e3cf61a80d06f61e767849060ae1b36b462c437432934700663d4173b75a899",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "f-boundary-3",
+              "origin": "transcribed:f-boundary-3@sha256:79069f0772adb46626506a9e46ff047978f2e62bbe63c945ee07515ab2ec795c",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "h-clear-boundary-below",
+              "origin": "transcribed:h-clear-boundary-below@sha256:8b03140f69a07d6f506b31027ac1d97c0499075b37bc1970a45e64b91c9cf8f7",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+            },
+            {
+              "id": "h-clear-low",
+              "origin": "transcribed:h-clear-low@sha256:39805e16ef22cef0c1862630817af0ee917570f76be8c58df170d80b078aa431",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+            },
+            {
+              "id": "h-clear-mid",
+              "origin": "transcribed:h-clear-mid@sha256:78abe0f5d6efc6f0f8ff144b04eb509078d17ec12f4785f273c63979cd89fa55",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+            },
+            {
+              "id": "h-reject-boundary-70",
+              "origin": "transcribed:h-reject-boundary-70@sha256:2cdf5c9b9ed3c5e9a3ec00dc3c3ce87eb636268bd8a52ca721df8af694bce9cd",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+            },
+            {
+              "id": "h-reject-plain",
+              "origin": "transcribed:h-reject-plain@sha256:f6711897f882939b92548e586958e7b38fff4de648107f38a9fd4356839cca93",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+            },
+            {
+              "id": "h-review-boundary-above",
+              "origin": "transcribed:h-review-boundary-above@sha256:24afdf7a39adf523133e78eb721f99a73b6ec82997933afb0a299f9736277cff",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "h-review-high",
+              "origin": "transcribed:h-review-high@sha256:d734c4902aaeac62ebfed1fd6a9eb029406f01222b2fbbef612e2f010a46b241",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "k-wrong-clear",
+              "origin": "transcribed:k-wrong-clear@sha256:d7f93cd7d6b86e8f979ea50b0933c761c0511ca5577b15d05e1c3d26a2f52516",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "mismatch",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "detail": "The canonical disposition bytes differ."
+            },
+            {
+              "id": "k-wrong-reject",
+              "origin": "transcribed:k-wrong-reject@sha256:4aafd4f7dea31201bfd2135827493fa0e6919571b36336082fb2dedf053a54de",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening",
+              "packVersion": "0.1.0",
+              "status": "mismatch",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "detail": "The canonical disposition bytes differ."
+            }
+          ],
+          "coverage": [
+            {
+              "probe": "outcome:clear",
+              "status": "covered",
+              "detail": "Row \"h-clear-boundary-below\" expects it."
+            },
+            {
+              "probe": "outcome:manual-review",
+              "status": "covered",
+              "detail": "Row \"f-boundary-1\" expects it."
+            },
+            {
+              "probe": "outcome:reject",
+              "status": "covered",
+              "detail": "Row \"h-reject-boundary-70\" expects it."
+            },
+            {
+              "probe": "unknown",
+              "status": "missing",
+              "detail": "The pack can reach reason \"unknown\", and no row's expected reasons include it."
+            },
+            {
+              "probe": "conflict",
+              "status": "missing",
+              "detail": "Rules or forced outcomes name different outcomes, and no row's expected reasons include \"conflict\". Either construct facts that make two of them fire together, or confirm against the policy text that they exclude each other."
+            },
+            {
+              "probe": "no-match",
+              "status": "missing",
+              "detail": "The pack declares no fallbackOutcome, and no row's expected reasons include \"no-match\"."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

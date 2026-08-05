@@ -1,0 +1,1 @@
+AttributeError: harness/study.py resolved sibling gate.py to fabrication-gate/gate.py (module shadowing); crashed before any evaluation. See DEVIATIONS.md §1.

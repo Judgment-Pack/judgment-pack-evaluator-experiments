@@ -1,0 +1,13 @@
+{
+  "caseId": "h-reject-plain",
+  "vendor": {
+    "legalName": "Foxglove Holdings",
+    "sanctionsHit": true,
+    "riskScore": "90"
+  },
+  "decision": {
+    "outcome": "reject",
+    "decidedBy": "reviewer-1",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}

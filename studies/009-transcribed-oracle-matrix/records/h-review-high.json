@@ -1,0 +1,13 @@
+{
+  "caseId": "h-review-high",
+  "vendor": {
+    "legalName": "Eastbank Drilling",
+    "sanctionsHit": false,
+    "riskScore": "85"
+  },
+  "decision": {
+    "outcome": "manual-review",
+    "decidedBy": "reviewer-2",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}

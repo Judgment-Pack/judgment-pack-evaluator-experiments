@@ -1,0 +1,13 @@
+{
+  "caseId": "h-reject-boundary-70",
+  "vendor": {
+    "legalName": "Gorse Trading GmbH",
+    "sanctionsHit": true,
+    "riskScore": "70"
+  },
+  "decision": {
+    "outcome": "reject",
+    "decidedBy": "reviewer-3",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}

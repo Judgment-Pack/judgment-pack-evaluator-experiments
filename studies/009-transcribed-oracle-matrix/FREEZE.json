@@ -1,0 +1,79 @@
+{
+  "frozenInputs": {
+    "policy/POLICY.md": "sha256:3011e1024f51bc4fa272a30fbc1fc8cdb19fd6cf11d1539fca9ccebda92935a5",
+    "packs/vendor-screening-correct.pack.json": "sha256:3e261bd7d2bb3f0094b8c4ff6fdd85e93164c597ccd08b865f322f9fff266346",
+    "packs/vendor-screening-defective.pack.json": "sha256:48f13604d3fe86645c23a98e93ab3d424fe8c5c0f7c5409216d4cb1b3e3e79fd",
+    "DEFECT.json": "sha256:f201c5c507d8ad6088cf9b3ea74a6448c1c3031dd4b19c5155b0d9f868941012",
+    "RECORDS.md": "sha256:e9885e7fcc6c83e7e3ab536b847657c9206497781c8a113526ed3e5bcc6f8de6",
+    "source/record_source.py": "sha256:ad8af3b1d75a2653c9ea67987341d2d0ca83bbbf01e4be6288a71b842072fbc1",
+    "transcription/record.rule.json": "sha256:69b2d44974d748b488f7b6f989c9f3ef88db593d8e187c4fed49226d5affab6d",
+    "transcription/transcribe.py": "sha256:815f45a4d364b67b860969a77eb2a69a0c5f9559f03da3e277bab51ca3f39ac6",
+    "harness/study.py": "sha256:6282ddca71246b69c57e0de20704b03d73be2f01d0c8b30f21868fc307425b64",
+    "harness/pnf_check.py": "sha256:7b672ab372bde4d45bf04665692e9eb365abd55c682249044ee73c73526acb35",
+    "harness/gate.py": "sha256:7916bb208f0d360dd21eb6873aefc5bcbd6be6752d9009eb01b97b340a691d61",
+    "harness/test_study.py": "sha256:34faf3c70039a564aaafffdc968af93aa46d42def34c2f4451a04a9c3cb9d37d",
+    "../../acquisition-proxy/attest.py": "sha256:6b2dc42f5ec6307e4c1ee99bbe202e77ff603466e905dc245cf33ef48d62647f",
+    "../../derivation-rule/derive.py": "sha256:1b02e70a3e0d84169fb05c695d091ce1e2033dd8aadfdb217d36e14b2f0162cc",
+    "../../fabrication-gate/gate.py": "sha256:00c50b0f2255816d11b27e55c3210acd7ef8d877f745f84a7d3aa93f080a6047",
+    "records/f-boundary-1.json": "sha256:e26fa4c8e11825e00b91644f92766a4557e2b1d12e788ad0aea13d439ac8a83d",
+    "records/f-boundary-2.json": "sha256:4e79eba9192eaad5a22338da5bd74b43e432cd04ea40e4f2ecdd7f409f4c7e1a",
+    "records/f-boundary-3.json": "sha256:51771ffda460294c1852e8e247fe46886dd0642ac8d002537b25dde5603d092f",
+    "records/h-clear-boundary-below.json": "sha256:400b6dc659ab979230beee517d46ea7c63cbcaa4103ceaffbd2a25c8ae2dd878",
+    "records/h-clear-low.json": "sha256:c89a544d0f9e79bfea2d25946b6aea09c528af28f002295c232bacff397e9e55",
+    "records/h-clear-mid.json": "sha256:52645c5c14c3efbcb2ae9cb058aa58080fc009a19591ee3a7f955facc56c4cc0",
+    "records/h-reject-boundary-70.json": "sha256:49b762e125f4ac3381879c9b77e9e77410fb83b2840b29f64a8b1d4b748c1e1c",
+    "records/h-reject-plain.json": "sha256:59f44940c67ffece4acf3ec9ca5839c507ea854aea4fe079344ac39b99182ed6",
+    "records/h-review-boundary-above.json": "sha256:bc29225d05f0b6fc71fffe78bac4adcbd0af5a5ea997b5f50202fcb62b686673",
+    "records/h-review-high.json": "sha256:3a88bca00f438b11610585a4a6543837e636dd4289cf429cbfc92ddfb90dea27",
+    "records/k-wrong-clear.json": "sha256:1c9e18094d948e3032690dbade289bf134316ce3e51419ae9adaecffe5a84a1b",
+    "records/k-wrong-reject.json": "sha256:507bc26b29ea710eeea0241849d57a8dae7858d9df5b93988db357da8d543aa4"
+  },
+  "jpack": "sha256:a76091a30b2e595dd7259161d423066805664ad30394d313ffeb0e8d7e0ce782",
+  "python": {
+    "implementation": "CPython",
+    "version": "3.8.20"
+  },
+  "invocation": {
+    "authority": "study-009:records",
+    "tool": "get_record",
+    "arguments": {
+      "caseId": "<id>"
+    },
+    "evaluate": [
+      "<jpack>",
+      "experimental",
+      "evaluate",
+      "<pack>",
+      "--facts",
+      "<facts>",
+      "--format",
+      "json"
+    ],
+    "packsValidate": [
+      "<jpack>",
+      "packs",
+      "validate",
+      "--format",
+      "json"
+    ],
+    "packsTest": [
+      "<jpack>",
+      "packs",
+      "test",
+      "--format",
+      "json"
+    ],
+    "mcp": [
+      "<jpack>",
+      "mcp"
+    ],
+    "environment": [
+      "PATH",
+      "HOME",
+      "JPACK_CONFIG"
+    ],
+    "cwd": "<the arm's generated project directory>"
+  },
+  "preregistrationCommit": "1900defd4ea6e359c7df0590c9ccbd578bf2773d",
+  "note": "PREREGISTRATION.md governs; this file only pins bytes."
+}

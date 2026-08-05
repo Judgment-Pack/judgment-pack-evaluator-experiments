@@ -1,0 +1,255 @@
+{
+  "patch": [
+    {
+      "path": "/rules/1/when/conditions/1/operator",
+      "old": "greater-than-or-equal",
+      "new": "greater-than"
+    }
+  ],
+  "violatedClause": "P2. Absent a sanctions hit, a vendor whose risk score is 70 or above goes to manual review.",
+  "defectPredicate": "sanctionsHit == false AND riskScore == \"70\" (lexical, safe under the canonical decimal representation the record schema enforces)",
+  "sets": {
+    "F": [
+      "f-boundary-1",
+      "f-boundary-2",
+      "f-boundary-3"
+    ],
+    "K": [
+      "k-wrong-reject",
+      "k-wrong-clear"
+    ],
+    "H": [
+      "h-clear-low",
+      "h-clear-mid",
+      "h-clear-boundary-below",
+      "h-review-boundary-above",
+      "h-review-high",
+      "h-reject-plain",
+      "h-reject-boundary-70"
+    ]
+  },
+  "expectedDispositions": {
+    "provenance": "Derived while planting the defect, pre-registration, from six probe evaluations of prototype packs (PREREGISTRATION.md \u00a75's provenance note); the record outcomes in RECORDS.md come from POLICY.md alone.",
+    "perRecord": {
+      "h-clear-low": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "clear"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "clear"
+        }
+      },
+      "h-clear-mid": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "clear"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "clear"
+        }
+      },
+      "h-clear-boundary-below": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "clear"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "clear"
+        }
+      },
+      "h-review-boundary-above": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "manual-review"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "manual-review"
+        }
+      },
+      "h-review-high": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "manual-review"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "manual-review"
+        }
+      },
+      "h-reject-plain": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "reject"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "reject"
+        }
+      },
+      "h-reject-boundary-70": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "reject"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "reject"
+        }
+      },
+      "k-wrong-reject": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "clear"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "clear"
+        }
+      },
+      "k-wrong-clear": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "reject"
+        },
+        "underD": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "reject"
+        }
+      },
+      "f-boundary-1": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "manual-review"
+        },
+        "underD": {
+          "kind": "unresolved",
+          "reasons": [
+            "no-match"
+          ],
+          "handoff": {
+            "state": "none"
+          }
+        }
+      },
+      "f-boundary-2": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "manual-review"
+        },
+        "underD": {
+          "kind": "unresolved",
+          "reasons": [
+            "no-match"
+          ],
+          "handoff": {
+            "state": "none"
+          }
+        }
+      },
+      "f-boundary-3": {
+        "underC": {
+          "kind": "outcome",
+          "reasons": [],
+          "handoff": {
+            "state": "none"
+          },
+          "outcomeId": "manual-review"
+        },
+        "underD": {
+          "kind": "unresolved",
+          "reasons": [
+            "no-match"
+          ],
+          "handoff": {
+            "state": "none"
+          }
+        }
+      }
+    }
+  }
+}

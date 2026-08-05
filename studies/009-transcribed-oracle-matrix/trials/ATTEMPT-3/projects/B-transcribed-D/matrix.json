@@ -1,0 +1,233 @@
+{
+  "matrixVersion": "1",
+  "cases": [
+    {
+      "id": "f-boundary-1",
+      "origin": "transcribed:f-boundary-1@sha256:b9143bdc0024e0b771884aab276a7664dc7171a2bf010e3ad8cb019f891b3cfe",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "f-boundary-2",
+      "origin": "transcribed:f-boundary-2@sha256:2e3cf61a80d06f61e767849060ae1b36b462c437432934700663d4173b75a899",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "f-boundary-3",
+      "origin": "transcribed:f-boundary-3@sha256:79069f0772adb46626506a9e46ff047978f2e62bbe63c945ee07515ab2ec795c",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "h-clear-boundary-below",
+      "origin": "transcribed:h-clear-boundary-below@sha256:8b03140f69a07d6f506b31027ac1d97c0499075b37bc1970a45e64b91c9cf8f7",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "69.99"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "h-clear-low",
+      "origin": "transcribed:h-clear-low@sha256:39805e16ef22cef0c1862630817af0ee917570f76be8c58df170d80b078aa431",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "12.5"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "h-clear-mid",
+      "origin": "transcribed:h-clear-mid@sha256:78abe0f5d6efc6f0f8ff144b04eb509078d17ec12f4785f273c63979cd89fa55",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "40"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "h-reject-boundary-70",
+      "origin": "transcribed:h-reject-boundary-70@sha256:2cdf5c9b9ed3c5e9a3ec00dc3c3ce87eb636268bd8a52ca721df8af694bce9cd",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "h-reject-plain",
+      "origin": "transcribed:h-reject-plain@sha256:f6711897f882939b92548e586958e7b38fff4de648107f38a9fd4356839cca93",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "riskScore": "90"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "h-review-boundary-above",
+      "origin": "transcribed:h-review-boundary-above@sha256:24afdf7a39adf523133e78eb721f99a73b6ec82997933afb0a299f9736277cff",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "70.01"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "h-review-high",
+      "origin": "transcribed:h-review-high@sha256:d734c4902aaeac62ebfed1fd6a9eb029406f01222b2fbbef612e2f010a46b241",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "85"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "k-wrong-clear",
+      "origin": "transcribed:k-wrong-clear@sha256:d7f93cd7d6b86e8f979ea50b0933c761c0511ca5577b15d05e1c3d26a2f52516",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "riskScore": "95"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "k-wrong-reject",
+      "origin": "transcribed:k-wrong-reject@sha256:4aafd4f7dea31201bfd2135827493fa0e6919571b36336082fb2dedf053a54de",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "riskScore": "10"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    }
+  ]
+}

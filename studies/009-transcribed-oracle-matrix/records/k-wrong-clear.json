@@ -1,0 +1,13 @@
+{
+  "caseId": "k-wrong-clear",
+  "vendor": {
+    "legalName": "Lantern Shipping SA",
+    "sanctionsHit": true,
+    "riskScore": "95"
+  },
+  "decision": {
+    "outcome": "clear",
+    "decidedBy": "reviewer-9",
+    "decidedAt": "2026-07-18T09:00:00Z"
+  }
+}
