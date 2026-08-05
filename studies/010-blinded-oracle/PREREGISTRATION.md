@@ -1,157 +1,210 @@
-# Preregistration — Study 010: the blinded oracle
+# Preregistration — Study 010: the blinded oracle (revision 2)
 
-**Status: DRAFT — NOT FROZEN. The pre-freeze cross-vendor review returned
-"redesign" ([`PREREG-REVIEW.md`](PREREG-REVIEW.md)); this text is retained
-as the reviewed draft and will be superseded before anything freezes.**
-Registered as Study 009's next question (its §1). Nothing here has been
-built or run.
+**Status: DRAFT until the protocol lock; governing thereafter.** The first
+draft's pre-freeze review returned *redesign*
+([`PREREG-REVIEW.md`](PREREG-REVIEW.md)); this revision implements its six
+pillars and receives its own pre-freeze review before the protocol lock.
+After the lock this file is never edited; corrections go to
+`DEVIATIONS.md`, and a protocol change after authoring begins invalidates
+the authoring attempt (§8).
 
-## 1. The question, and why it can actually fail
+## 1. The question
 
-Study 009 was a constructed existence witness: one mind authored policy,
-packs, defect, and records, with full knowledge of both oracles, and its
-endpoints were entailed by construction. This study removes the author from
-the middle:
+> Does a record set authored independently of the packs — by a
+> different-vendor model given the prose policy — surface an encoding
+> defect selected by entropy nobody controls, after the records were
+> locked?
 
-> Does a record set authored **independently of the packs** — by a
-> different-vendor model given only the prose policy — surface an encoding
-> defect **neither author chose knowing the other's work**?
+Study 009 established the pipeline as a constructed existence witness; the
+one uncertain quantity here is **usable record coverage** of a defect class
+neither author picked. The blinding claims are stated at their checkable
+strength, no higher:
 
-The blinding is structural, not promised:
+- **Authorship**: *one retained completion whose transcript shows no tool
+  use* — the authoring call runs from an empty scratch directory outside
+  this repository, and its full session transcript (every tool invocation
+  or the absence of any) is retained as the evidence. This is weaker than
+  an independent executor and says so: the operator selected which single
+  completion to retain, under a no-retry rule registered below.
+- **Selection**: the applied mutation is drawn from a **pre-committed
+  ordered family** by a **drand beacon round that had not yet occurred**
+  when the records were published — entropy the operator cannot steer, with
+  all proof material retained for external verification.
 
-- **The record author never sees a pack.** The records are authored by an
-  OpenAI model (`codex exec`, the line's cross-vendor reviewer vendor) from
-  `policy/POLICY.md` alone; the authoring prompt is registered verbatim in
-  §6 and contains the policy text, the record schema, and a
-  defect-agnostic instruction — no boundary hints, no pack, no mutation
-  family. One run; its complete unedited output is retained; no run
-  discarded.
-- **The pack author never sees the records when the defect is chosen.** The
-  defect is not chosen by anyone: a **registered mutation family** of six
-  single-condition mutations of pack C is committed *before* the records
-  exist, and the applied mutation is selected by public coin —
-  `sha256(<records-locking commit hash>) mod 6` — after the records are
-  locked. Nobody can steer the coin toward or away from what the records
-  cover.
+Both outcomes of the primary endpoint are findings: a *catch* is the first
+independent-oracle detection on this line; a *coverage-miss* is a measured
+boundary-coverage gap in diligent independent authorship.
 
-Because coverage of the sampled defect class is now genuinely unknown, the
-primary endpoint **can fail**, and both outcomes are findings:
+## 2. The policy, encoded disjointly
 
-- a **catch** is the first evidence on this line that an independently
-  authored oracle surfaces an unseen encoding defect;
-- a **miss** is a measured boundary-coverage gap in diligent independent
-  record authorship — the thing a real organization's case files would also
-  have, and exactly what Study 009's §11 said constructed fixtures cannot
-  measure.
+`policy/POLICY.md`, clauses P1–P5 over four facts —
+`/vendor/sanctionsHit` (bool S), `/vendor/registeredCountry` (ISO 3166-1
+alpha-2, uppercase; embargo list **KP, IR, SY**, membership exact and
+case-sensitive; E := country ∈ list), `/vendor/handlesPersonalData`
+(bool P), `/vendor/riskScore` (canonical decimal string r, compared
+numerically):
 
-What stays out of scope: real organizational records (the private-pilot
-question), rates (one sampled mutation), and everything Study 009's §11
-already excluded.
+- **P1**: S → reject
+- **P2**: ¬S ∧ E → reject
+- **P3**: ¬S ∧ ¬E ∧ r ≥ 70 → manual-review
+- **P4**: ¬S ∧ ¬E ∧ P ∧ 40 ≤ r < 70 → manual-review
+- **P5**: ¬S ∧ ¬E ∧ r < 70 ∧ (¬P ∨ r < 40) → clear
 
-## 2. Model calls
+Pack C encodes exactly these five mutually exclusive rules, no
+`fallbackOutcome`. `harness/regions_check.py` — part of the protocol lock —
+enumerates the 24 truth regions (S × E × P × {r<40, 40≤r<70, r≥70}) and
+asserts, by evaluating pack C with the pinned runtime on one probe per
+region, that exactly the policy's outcome results in every region. (These
+probes evaluate pack C only — never D, never a record — and run before
+authoring, inside the protocol-lock gate.)
 
-One: the record-authoring call to the different-vendor model. It is part of
-the *fixture provenance*, not a treatment arm; its prompt and complete
-output are frozen artifacts. Everything downstream is deterministic and
-model-free, exactly as Study 009.
+## 3. The mutation family — exact, ordered, reviewable
 
-## 3. Mechanics — Study 009's, incorporated by reference
+`FAMILY.json`, six entries, each `{index, path, old, new, predicate,
+violatedClause}` — the patch a strict single-replace into pack C, the
+predicate evaluator-independent over record facts:
 
-The pipeline, gates, freeze discipline, ledger, and scoring are **Study
-009's third revision verbatim** (its §§7–10 as repaired through its
-DEVIATIONS §2), with these deltas only:
-
-1. **The policy is richer** (`policy/POLICY.md`, clauses P1–P5): sanctions
-   hit → reject (P1); embargoed registration country → reject (P2); no hit,
-   risk ≥ 70 → manual review (P3); no hit, personal-data handling and risk ≥
-   40 → manual review (P4); otherwise clear (P5). Facts: `/vendor/
-   sanctionsHit` (bool), `/vendor/registeredCountry` (string),
-   `/vendor/handlesPersonalData` (bool), `/vendor/riskScore` (canonical
-   decimal string). The embargo list is stated in the policy text.
-2. **The record schema** adds the two facts; the projection rule copies all
-   four `/vendor` pointers, identity-mapped; `pnf_check.py` requires exactly
-   that rule.
-3. **The mutation family** (`FAMILY.json`, committed before records exist):
-   six entries, each a strict `{path, old, new}` patch to one condition of
-   pack C — one per comparison or equality the rules make (P1's boolean,
-   P2's membership, P3's threshold op, P3's threshold value, P4's threshold
-   value, P4's boolean). Each entry carries its evaluator-independent defect
-   predicate and the policy clause it violates.
-4. **The coin**: `int(sha256(records_commit_hash_hex), 16) % 6`, computed by
-   the harness from the commit that locks `records/` (the Codex output
-   transcribed to files, one commit, nothing else in it). `DEFECT.json` is
-   then generated — patch from the family, sets computed from the records by
-   the sampled predicate, expected dispositions derived per Study 009's
-   provenance discipline — and committed with D.
-5. **Sets**: F = records satisfying the sampled defect predicate (may be
-   empty — that is the miss outcome); K = two wrong-outcome controls the
-   harness *appends* itself (synthetic, disclosed, not Codex-authored, ids
-   prefixed `k-`), because the suite must still be able to fail even on a
-   miss; H = the rest. Records failing the closed schema or the canonical
-   decimal form are dropped with the drop recorded (the model is not
-   graded on JSON hygiene; dropped ids are listed in `RECORDS.md`).
-
-## 4. Arms and endpoints
-
-Arms exactly as Study 009 (A circular over D; B transcribed over D; B′ over
-C), built and admitted by the same gates.
-
-| # | Endpoint | Prediction |
+| # | Mutation | Affected class (the predicate) |
 |---|---|---|
-| E1 | **The catch question**: Arm B over D mismatches on ≥ 1 record in F (only scoreable when F ≠ ∅) | **registered as uncertain** — this is the measurement |
-| E2 | Table conformance: every actual disposition equals its DEFECT.json entry under the arm's pack; entailed mismatch sets are exactly F ∪ K under D and K under C | **yes** |
-| E3 | Coverage report: |F|, and the boundary-coverage profile of the Codex record set against the family's six predicates (how many family members the record set *would* have caught), reported descriptively | — |
-| E5 | Pipeline fidelity, as Study 009 E5 | **yes** |
+| 0 | P3's `greater-than-or-equal` → `greater-than` | ¬S ∧ ¬E ∧ r = 70 |
+| 1 | P3's threshold `"70"` → `"71"` (in P3 only) | ¬S ∧ ¬E ∧ 70 ≤ r < 71 |
+| 2 | P4's lower bound `"40"` → `"41"` | ¬S ∧ ¬E ∧ P ∧ 40 ≤ r < 41 |
+| 3 | P4's `handlesPersonalData equals true` → `equals false` | ¬S ∧ ¬E ∧ 40 ≤ r < 70 (P-records lose P4; ¬P-records gain a P4/P5 conflict) |
+| 4 | P2's embargo list loses `"SY"` | ¬S ∧ country = SY |
+| 5 | P5's inner `"40"` (the ¬P ∨ r<40 arm) → `"39"` | ¬S ∧ ¬E ∧ P ∧ 39 ≤ r < 40 |
 
-Prerequisites P-A, P-ACQ, P-PNF, P-GATE, P-ISO: Study 009's, verbatim. The
-dependency map: E2 is entailed as in Study 009; **E1 is not entailed by
-anything** — it is the one genuinely uncertain bit, which is the point.
+The family spans stated boundaries (0, 1, 2), an unstated interior band
+nothing in the policy text names (5), a membership literal (4), and a
+boolean flip with conflict dispositions (3) — misses are plausible for 1,
+2, 4, and 5, so a coverage-miss is an available outcome, not an artifact.
+Mutations keep D carrier- and semantically valid; where a mutation
+produces `unresolved` dispositions (no-match or conflict), those are the
+registered table values, not failures.
 
-## 5. Procedure and ordering (commit-enforced)
+## 4. Records: the call, the compiler, the sets
 
-1. This preregistration + its review (docs-only commit).
-2. `policy/POLICY.md`, pack C, `FAMILY.json`, rule, harness deltas
-   (committed **before** any record exists).
-3. The Codex record-authoring run: prompt + complete output committed
-   verbatim; records transcribed to files; **one commit containing only
-   `records/` and `RECORDS.md`** — its hash is the coin input.
-4. Harness computes the coin, generates D and `DEFECT.json`, commits them.
-5. `validate` → `test_study.py` → `freeze` → commit → **first attempt is
-   primary** under Study 009's ledger rules → `score` → `ANALYSIS.md` →
-   post-run adversarial review.
+**The call.** One `codex exec` invocation (OpenAI model, the line's
+cross-vendor vendor), run from a freshly created empty directory outside
+this repository, sandboxed to that directory, with the prompt being
+exactly the registered bytes of §7 (policy text inlined). Retained
+verbatim: argv, cwd, environment allowlist, model/CLI identity, the full
+session transcript (JSONL), stdout, stderr, exit status. **No-retry
+rule**: the first completed invocation is the one; a transport failure
+(non-zero exit with no completion) may be retried at most twice, each
+attempt retained; a completed-but-disliked output may not be retried, and
+the transcript inventory in `RECORDS.md` makes an unrecorded retry
+detectable only by trusting the operator — the claim is narrowed
+accordingly (§1).
 
-Every ordering claim above is checkable from the commit graph.
+**The compiler.** `harness/records_compile.py` — protocol-locked before
+the call — turns raw stdout into record files with no operator judgment:
+extract the single JSON array (first `[` to its matching `]`; anything
+else in the stream is retained but ignored); per element, accept iff it
+matches the closed record schema exactly (Study 009's, plus
+`registeredCountry` and `handlesPersonalData`; canonical decimal grammar;
+ISO-alpha-2 uppercase country; kebab-case id; no duplicate id — second
+occurrence rejected with `duplicate-id`); no repair of any kind; stable
+drop codes (`schema`, `decimal-form`, `country-form`, `duplicate-id`,
+`outcome-value`); output = one file per accepted record plus
+`RECORDS.md` listing every source index → accepted id or drop code.
+`validate` regenerates records and drops from the retained raw stdout and
+requires byte equality.
 
-## 6. The registered record-authoring prompt
+**The sets.** Q := accepted records whose recorded outcome differs from
+the policy verdict (computed by the locked policy mirror) — retained as
+data, never dropped, excluded from H. K := two synthetic wrong-outcome
+controls the harness appends (ids `k-wrong-1`, `k-wrong-2`, facts and
+outcomes fixed in the protocol lock, disjoint from every family
+predicate). H := accepted policy-concordant records. F := accepted
+records satisfying the *sampled* predicate (computed after the draw).
 
-Verbatim, with `<POLICY>` replaced by the full text of `policy/POLICY.md`:
+## 5. The draw
 
-```
-You are the records clerk of a fictional vendor-governance office. Below is
-the office's screening policy. Author the decision records of 16 distinct
-vendor screening cases this office decided under it, as a JSON array.
+1. The records commit (records + `RECORDS.md` + the call artifacts,
+   nothing else) is pushed to the public repository: the publication.
+2. The **target round** is fixed by locked rule, not choice: the first
+   drand `default`-chain round whose scheduled time is ≥ the GitHub API's
+   `committer.date` of the pushed records commit **plus 300 seconds**
+   (chain genesis and 30s period are constants in the protocol lock, so
+   the round number is arithmetic anyone can redo). Delaying the push
+   delays the round; it never reveals future randomness, so timing buys
+   no steering.
+3. After the round occurs: `index = int(sha256(randomness_hex ||
+   records_commit_hash_hex || family_digest_hex), 16) mod 6` — domain
+   inputs concatenated as lowercase hex ASCII. 2^256 mod 6 bias is
+   negligible and accepted (recorded here rather than rejected-sampled).
+4. `DRAW.json` retains: the records commit hash, its committer date, the
+   round number and its scheduled time, the beacon `randomness` and
+   `signature`, the chain info (hash, genesis, period), the family
+   digest, the computed index — everything needed to re-verify against
+   drand's public chain.
+5. The harness generates D (family[index] applied to C), computes F by
+   the sampled predicate, derives the full C and D disposition tables for
+   every retained record and control (Study 009's provenance discipline),
+   writes `DEFECT.json`, and commits.
 
-Each record: {"caseId": "<kebab-case id you invent>", "vendor":
-{"legalName": <string>, "sanctionsHit": <bool>, "registeredCountry":
-<string>, "handlesPersonalData": <bool>, "riskScore": <decimal string, no
-trailing zeros>}, "decision": {"outcome": <"clear"|"manual-review"|
-"reject">, "decidedBy": <string>, "decidedAt": <ISO 8601 UTC>}}.
+## 6. Arms, endpoints, prerequisites
 
-Make the set what a diligent office's files would look like: exercise every
-clause of the policy, include the borderline cases a careful clerk would
-have seen, and record the outcome the policy requires for each. Do not
-include commentary — output only the JSON array.
+Arms as Study 009 (A circular over D; B transcribed over D; B′ over C),
+through Study 009's repaired gates verbatim (P-A, P-ACQ, P-PNF adjusted to
+the four-pointer projection, P-GATE, P-ISO), the same freeze/ledger/scorer
+discipline (its DEVIATIONS §2 form), the sealed-attempt ledger, and the
+same E5.
 
-<POLICY>
-```
+**The primary endpoint E1 is four-way and always scoreable:**
 
-The instruction is defect-agnostic by construction: it names no threshold,
-no comparison, and no pack.
+- **caught** — ≥ 1 record in H ∩ F passes under C and mismatches under D;
+- **coverage-miss** — H ∩ F = ∅ (no policy-concordant record intersects
+  the sampled class);
+- **authoring-label-failure** — H ∩ F = ∅ but Q ∩ F ≠ ∅ (the class was
+  reached only by records whose own outcome is wrong);
+- **pipeline-invalid** — any prerequisite or table-conformance check
+  failed; no E1 claim is made.
 
-## 7. Bounds
+**E2**: every actual disposition equals its table entry under the arm's
+pack; the mismatch sets are *derived* from the tables and recorded
+outcomes (they are `{r : table_D(r) ≠ wrapper(recorded(r))}` under D and
+likewise under C) — never hard-coded. Prediction: yes.
+**E3** (descriptive, no prediction): |F|, |H∩F|, |Q|, and the coverage
+profile — for each family index, whether H would have intersected its
+predicate. Registered now so it cannot be invented post hoc.
+**E5**: as Study 009. Prediction: yes.
 
-One sampled mutation (no rates); a different-vendor *model*, not a human
-organization (the private pilot stays out of scope); the mutation family is
-public in the repository, and the blinding claim is about what the record
-author's prompt contained, which is registered verbatim — a reader must
-judge the prompt, not trust the author; byte-lineage, not truth, unchanged.
+E1's outcome is registered as **uncertain**; everything else is machinery.
+
+## 7. The registered record-authoring prompt
+
+As the first draft's §6, with the schema extended to the four facts and
+this addition after the schema paragraph: "Vendors are registered in
+various countries; use ISO 3166-1 alpha-2 codes, uppercase." The full
+byte-exact prompt (policy inlined) is written to
+`transcription/PROMPT.txt` in the protocol lock, and the call uses those
+bytes with no additions.
+
+## 8. The two locks, and the ordering
+
+1. **Protocol lock** (one commit): this file, its review, `POLICY.md`,
+   pack C, `FAMILY.json`, `PROMPT.txt`, `records_compile.py`,
+   `regions_check.py`, the K controls, the policy mirror, the harness and
+   scorer, `PROTOCOL-LOCK.json` (digests of all of it). Authoring may not
+   begin before this commit is pushed. Any change to a locked file after
+   authoring begins invalidates the attempt: `validate` re-digests
+   against `PROTOCOL-LOCK.json`.
+2. Authoring call → records commit (push = publication) → beacon round →
+   `DRAW.json` + D + `DEFECT.json` commit.
+3. **Artifact freeze** (Study 009's `FREEZE.json` form): adds only the
+   generated artifacts, record files, tables, D, draw, and the pinned
+   jpack digest; then `validate` → `test_study.py` → first sealed attempt
+   is primary → `score` → `ANALYSIS.md` → post-run adversarial review.
+
+## 9. Bounds
+
+One sampled mutation (no rates). One model completion, operator-retained
+(§1's narrowed claim; the transcript is evidence, not proof). The family
+is public before authoring, and the model *could* be told nothing of it —
+but the policy text itself names 70 and 40 and the embargo list, so
+stated-boundary mutations are likely covered by any diligent author; the
+informative misses live at indexes 1, 2, 4, 5, and E3 reports the profile
+either way. Real records, rates, and sensitivity remain out of scope, as
+does everything Study 009's §11 excluded. Byte-lineage, not truth,
+unchanged.
