@@ -1,0 +1,33 @@
+{
+  "ruleVersion": "1",
+  "clauses": [
+    {
+      "when": {
+        "op": "always"
+      },
+      "claim": {
+        "facts": [
+          {
+            "pointer": "/vendor/sanctionsHit",
+            "from": "/vendor/sanctionsHit"
+          },
+          {
+            "pointer": "/vendor/registeredCountry",
+            "from": "/vendor/registeredCountry"
+          },
+          {
+            "pointer": "/vendor/handlesPersonalData",
+            "from": "/vendor/handlesPersonalData"
+          },
+          {
+            "pointer": "/vendor/riskScore",
+            "from": "/vendor/riskScore"
+          }
+        ],
+        "evidence": {},
+        "acquisitionStatus": "resolved"
+      },
+      "reason": "projection"
+    }
+  ]
+}

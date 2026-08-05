@@ -1,0 +1,15 @@
+{
+  "caseId": "k-wrong-2",
+  "vendor": {
+    "legalName": "Control Fixture Two GmbH",
+    "sanctionsHit": false,
+    "registeredCountry": "DE",
+    "handlesPersonalData": false,
+    "riskScore": "85"
+  },
+  "decision": {
+    "outcome": "clear",
+    "decidedBy": "study-010-control",
+    "decidedAt": "2026-08-05T00:00:00Z"
+  }
+}

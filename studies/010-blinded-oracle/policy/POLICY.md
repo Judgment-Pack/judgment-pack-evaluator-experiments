@@ -1,0 +1,26 @@
+# Vendor screening policy — the arbiter
+
+Synthetic policy for Study 010. Every other artifact in this study is checked
+against this text; a divergence between a pack and this text is a pack bug.
+This is also the exact policy text the record author receives (inlined in the
+registered prompt), so it is the whole of what the two sides share.
+
+- **P1.** A vendor with a sanctions hit is **rejected**, regardless of
+  anything else.
+- **P2.** Absent a sanctions hit, a vendor registered in an embargoed
+  country — **KP, IR, or SY** — is **rejected**.
+- **P3.** Absent a sanctions hit or an embargoed registration, a vendor
+  whose risk score is **70 or above** goes to **manual review**.
+- **P4.** Absent a sanctions hit or an embargoed registration, a vendor that
+  **handles personal data** and whose risk score is **40 or above but below
+  70** goes to **manual review**.
+- **P5.** Absent a sanctions hit or an embargoed registration, a vendor
+  whose risk score is **below 70** is **cleared**, unless P4 applies — that
+  is, a vendor that does not handle personal data clears below 70, and a
+  vendor that does handle personal data clears only below 40.
+
+Risk scores are decimal strings and compare numerically. Registered
+countries are ISO 3166-1 alpha-2 codes, uppercase; embargo-list membership
+is exact and case-sensitive. The three outcomes — clear, manual review,
+reject — are exhaustive over known inputs; an unknown input is nobody's
+outcome and escalates.

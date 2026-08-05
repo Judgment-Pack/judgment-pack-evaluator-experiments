@@ -1,0 +1,15 @@
+{
+  "caseId": "k-wrong-1",
+  "vendor": {
+    "legalName": "Control Fixture One Ltd",
+    "sanctionsHit": true,
+    "registeredCountry": "DE",
+    "handlesPersonalData": false,
+    "riskScore": "10"
+  },
+  "decision": {
+    "outcome": "clear",
+    "decidedBy": "study-010-control",
+    "decidedAt": "2026-08-05T00:00:00Z"
+  }
+}

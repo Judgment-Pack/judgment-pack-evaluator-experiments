@@ -182,3 +182,245 @@ Review corpus: [Study 010 draft](studies/010-blinded-oracle/PREREGISTRATION.md:1
 - Once an independent uniform draw and immutable index mapping exist, family ordering itself does not bias selection.
 
 **Verdict: redesign.** Do not freeze this draft. The present “coin” is an operator-grindable commit hash, the model call is neither structurally blind nor first-call verifiable, and the only uncertain quantity is not represented by an always-scoreable endpoint. Replace the coin with externally unpredictable entropy, create a true pre-data protocol lock and witnessed hermetic authoring call, freeze deterministic transcription, repair the policy and family predicates, and redefine E1 around Codex-only C-concordant coverage. Only after those changes—and a second review of the exact C/FAMILY/parser/control artifacts—would the Study 009 mechanics be safe to freeze.
+
+---
+
+# Pre-freeze adversarial review — revision 2
+
+**Verdict: redesign. Nothing froze; revision 3 implements every finding and
+is reviewed together with the complete protocol-lock candidate.**
+
+**Drafting model:** Anthropic `claude-fable-5` (Claude Code), 2026-08-05.
+**Reviewing model:** OpenAI `gpt-5.6-sol` via codex-cli 0.145.0 (`codex exec`,
+sandbox `workspace-write`, reasoning effort ultra), 2026-08-05. One run,
+reproduced unedited below; no run discarded.
+
+## Prompt (verbatim)
+
+```
+You are performing an adversarial pre-freeze review of a REVISED study preregistration. You previously reviewed the first draft and returned verdict "redesign". The maintainer accepted all findings and rewrote the design. Your job now: check the revision actually closes each hole, and hunt for new ones.
+
+Read these files:
+- studies/010-blinded-oracle/PREREGISTRATION.md — the revision under review (revision 2)
+- studies/010-blinded-oracle/PREREG-REVIEW.md — your prior review of the superseded draft, plus the maintainer's response listing six redesign pillars
+- studies/009-transcribed-oracle-matrix/PREREGISTRATION.md — the predecessor study whose machinery (gates, freeze, ledger, scorer) revision 2 inherits "verbatim"
+- studies/009-transcribed-oracle-matrix/DEVIATIONS.md — the hardening the inherited machinery received
+- studies/009-transcribed-oracle-matrix/harness/study.py, harness/gate.py — the inherited implementation
+
+Context the maintainer fixed by decision (do not relitigate the choices themselves, but DO attack their execution):
+1. Randomness beacon = drand (League of Entropy), default chain, 30s period. The draw rule and proof retention are in §5.
+2. Authoring executor = same-machine codex CLI, narrowed claim: "one retained completion whose transcript shows no tool use", full session transcript retained, no-retry rule. §1 and §4 state the narrowing explicitly.
+
+Attack surfaces to probe, at minimum:
+- §5 draw: is the target-round rule actually operator-unsteerable? Is any residual choice left (e.g., WHEN to push, WHICH commit counts, what happens if the API's committer.date disagrees with git's, leap seconds, round already elapsed at push+300s)? Is the index formula well-defined (byte-level: what exactly is hashed)? Is the proof material sufficient for third-party verification without trusting the operator?
+- §2/§3: is the P1-P5 encoding really disjoint and total (24 regions)? Do the six mutation predicates actually characterize the affected classes correctly, including mutation 3's conflict semantics and mutation 5's interaction with P4 (39<=r<40 records: P4 does not match them since r<40; what does D actually do)? Is any predicate wrong or evaluator-dependent?
+- §4 compiler: is "first [ to its matching ]" well-defined against adversarial or malformed output? Are the drop codes exhaustive? Can the no-repair rule be violated silently? Is the retained-raw-stdout byte-equality check sufficient?
+- §6 E1: is the four-way endpoint really total (every execution path lands in exactly one)? Note "authoring-label-failure" overlaps "coverage-miss" as written (both have H∩F=∅) — is the precedence stated? Are Q and K handled coherently in the tables and mismatch sets?
+- §8 ordering: can the operator peek (e.g., generate D before the draw, run records through C before publication, choose among transcripts)? Which of these does the protocol actually PREVENT vs merely record? Is the prereg honest about which is which?
+- Inheritance debt: "Study 009's repaired gates verbatim" — identify anything in 009's harness that does NOT transfer cleanly to the four-fact schema (P-PNF projection, decimal mirror for the country/bool facts, record-source adapter, gate equality) and whether the prereg registers the needed deltas or hand-waves them.
+
+For each finding: number, severity (blocker / material / minor), the exact text at fault, the failure it permits, and the minimal fix. End with a verdict: "freeze as is", "freeze with amendments" (list them), or "redesign". Be adversarial: the maintainer will freeze this document and the study's credibility rests on your review.
+```
+
+## Complete output (unedited)
+
+# Adversarial review — revision 2
+
+**Verdict: redesign.** Revision 2 repairs the policy logic and the six prose predicates, but the draw remains steerable, E1 is not four-way/always-scoreable, and Study 009’s implementation cannot be inherited as described.
+
+Reviewed: [revision 2](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:1), [prior review](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREG-REVIEW.md:1), [Study 009 preregistration](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/PREREGISTRATION.md:1), [deviations](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/DEVIATIONS.md:1), [study.py](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/harness/study.py:1), and [gate.py](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/harness/gate.py:1).
+
+1. **Blocker — the target round is still operator-steerable.**
+
+   **Text at fault:** “the GitHub API’s `committer.date` … plus 300 seconds” and “Delaying the push delays the round.”
+
+   **Failure:** `committer.date` is operator-supplied commit metadata, not GitHub’s publication time; GitHub explicitly allows callers to supply it in its [commit API](https://docs.github.com/en/enterprise-cloud%40latest/rest/git/commits). The operator can backdate a commit—or simply wait over five minutes before pushing—so the target round is already known. Holding the date fixed while varying the commit message or other metadata then grinds the commit salt until the desired index appears. This directly contradicts §1’s claim that the round had not occurred at publication.
+
+   **Minimal fix:** Derive the target from an externally witnessed, append-only inclusion timestamp for the exact records manifest, or precommit a fixed future round and publication deadline. Fail closed if the target was available at inclusion.
+
+2. **Blocker — no unique immutable records publication is defined.**
+
+   **Text at fault:** “The records commit … is pushed to the public repository: the publication”; later, `DRAW.json` simply names “the records commit hash.”
+
+   **Failure:** A Git commit object is immutable, but its ref and first-publication time are not an append-only log. No repository/ref, parent, topology, or “first qualifying commit” rule is fixed. Several commits can be pushed on different branches, allowed to acquire their beacon results, and one favorable commit later nominated in `DRAW.json`; alternatives can be force-pushed away.
+
+   **Minimal fix:** Publish one canonical manifest digest into a designated transparency-log namespace. The first valid inclusion after the protocol lock must irrevocably bind the attempt; later candidates either are ignored or invalidate it. Retain the inclusion proof, manifest bytes, commit OID, ref, and ancestry.
+
+3. **Material — the retained drand proof is insufficient.**
+
+   **Text at fault:** `DRAW.json` retains “randomness,” “signature,” and “chain info (hash, genesis, period)”—said to be “everything needed.”
+
+   **Failure:** `default` is an alias, not the cryptographic chain identity, and the default scheme is chained. Independent verification needs the pretrusted chain hash/public key, scheme, round, and `previous_signature`. Drand’s specification distinguishes the alias from the chain hash and identifies the public key, scheme, and previous signature as verification inputs. [Official drand specification](https://docs.drand.love/docs/specification/)
+
+   **Minimal fix:** Protocol-lock the exact chain hash, public key, scheme ID, genesis, and period. Retain the raw `/info` and `/public/<round>` responses, including `previous_signature`; verify the chain-info hash, BLS signature, round, and `randomness == SHA-256(signature)` with a pinned verifier.
+
+4. **Material — the index and round algorithms are not byte-complete.**
+
+   **Text at fault:** `int(sha256(randomness_hex || records_commit_hash_hex || family_digest_hex), 16) mod 6`, plus “the round number is arithmetic anyone can redo.”
+
+   **Failure:** Undefined details include:
+
+   - the algorithm and exact source bytes of `family_digest`;
+   - Git object format and OID width;
+   - prefixes, separators, and field widths;
+   - digest bytes versus hexdigest and integer byte order;
+   - array position versus the entry whose `index` equals the residue;
+   - the exact round-1/genesis formula;
+   - UTC/POSIX, fractions, leap seconds, and Git/API disagreement;
+   - missing, late, or invalid beacon behavior.
+
+   Adjacent-round disagreement selects unrelated entropy.
+
+   **Minimal fix:** Register normative pseudocode using integer POSIX seconds, fixed-width validated inputs, a version/domain tag and length prefixes, `int.from_bytes(SHA256(preimage).digest(), "big") % 6`, and selection by a unique contiguous `index` field. Define `scheduled(r)=genesis+(r-1)×period`; fetch only the fixed round, never substitute latest/next, and map a fixed retrieval-deadline failure to `pipeline-invalid`. Retain the exact preimage and digest.
+
+5. **Blocker — E1’s four labels overlap and are not demonstrably total.**
+
+   **Text at fault:** “coverage-miss — `H ∩ F = ∅`” and “authoring-label-failure — `H ∩ F = ∅` but `Q ∩ F ≠ ∅`.”
+
+   **Failure:** Every authoring-label failure is simultaneously a coverage-miss. `pipeline-invalid` can also coexist with every data condition because no precedence is stated. Further, if the registered predicate is not exactly the actual C→D disposition delta, `H∩F` can be nonempty without `caught`, while neither miss label applies.
+
+   **Minimal fix:** Define this ordered partition:
+
+   1. Any call/compiler/beacon/prerequisite/table/semantic failure → `pipeline-invalid`, suppressing all other labels.
+   2. Else `H∩F ≠ ∅` → `caught`.
+   3. Else `Q∩F ≠ ∅` → `authoring-label-failure`.
+   4. Else → `coverage-miss`.
+
+   Lock assertions that accepted records equal `H ⊔ Q`, K is excluded, every H row passes under C, and predicate membership is equivalent to a full canonical C/D disposition difference.
+
+6. **Blocker — inherited crash paths never receive an E1 value.**
+
+   **Text at fault:** “always scoreable” and “first sealed attempt is primary.”
+
+   **Failure:** Study 009’s runner writes `CRASHED.json` and rethrows without sealing when acquisition, transcription, gate, or evaluation fails. Its scorer then selects the first attempt reaching `DONE` under the current freeze, not the first started attempt. See [exception path](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/harness/study.py:368) and [primary selection](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/harness/study.py:455). Thus a failed prerequisite can be skipped and a later run made primary—the opposite of `pipeline-invalid`.
+
+   The local “seal” is also only `chmod 0444`; the owner can remove or rewrite attempt directories and reuse their numbers.
+
+   **Minimal fix:** The first `STARTED` attempt under the artifact freeze is primary. Every exit, including exceptions, must receive a structured terminal state, be sealed, and score as either the appropriate valid result or `pipeline-invalid`. Externally anchor the STARTED marker and terminal-manifest hash if the ledger is claimed to be append-only.
+
+7. **Material — the compiler is not a closed deterministic transformation.**
+
+   **Text at fault:** “first `[` to its matching `]`” and drop codes `schema`, `decimal-form`, `country-form`, `duplicate-id`, `outcome-value`.
+
+   **Failure:** “Matching” is undefined around brackets inside strings, escapes, nested arrays, an earlier Markdown link, multiple arrays, missing closure, malformed JSON, or invalid UTF-8. There is no whole-stream result. Duplicate object keys can silently last-win; multi-defect elements have no drop-code precedence; duplicate-ID treatment is unclear when the earlier occurrence was itself rejected. “ISO 3166-1” also lacks a pinned registry snapshot. Identical stdout can therefore yield different H/Q/F.
+
+   **Minimal fix:** Require stdout to decode as exactly one top-level array, or fully specify a JSON-aware extraction algorithm and ignored-span inventory. Reject duplicate keys; define stream-level results, drop-code precedence, duplicate-ID reservation, exact timestamp/ID grammars, a pinned country-code set, filenames, serialization, and empty/malformed-output handling. Validation must compare the complete generated file-name set and bytes, rejecting extras.
+
+8. **Material — raw stdout is not bound to the retained completion.**
+
+   **Text at fault:** the call retains “the full session transcript (JSONL), stdout,” while validation only regenerates from “the retained raw stdout.”
+
+   **Failure:** The operator can retain a no-tool transcript but edit or substitute the compiler-input stdout. Regeneration will faithfully reproduce the substituted records, silently violating no-repair and the claimed provenance. Nor is absence of tool use itself declared as a mechanical prerequisite.
+
+   **Minimal fix:** Define the exact CLI output channel used as compiler input. Validation must reconstruct the unique completed assistant message from the JSONL transcript, apply a specified UTF-8/newline transformation, and require byte equality with compiler input. It must also reject tool events, multiple completions, prompt-byte mismatch, or an inadmissible exit state as `pipeline-invalid`.
+
+9. **Blocker — predicate/delta equality and expected tables remain circular.**
+
+   **Text at fault:** `regions_check.py` uses “one probe per region”; after the draw the harness “derives the full C and D disposition tables … (Study 009’s provenance discipline).”
+
+   **Failure:** One outcome probe per coarse region cannot validate exact rule structure, open/closed boundaries, every country literal, or hidden same-outcome rules. For example, an unintended P4 match at `r=70` can leave C’s outcome correct while masking mutation 0.
+
+   More seriously, Study 009’s stated provenance was same-runtime probe evaluation, not an independent table generator; its validator never recomputes table semantics. Generating post-draw tables by querying the scored evaluator makes E2 evaluator self-replay and permits unexpected conflict/no-match behavior to be normalized into the table.
+
+   **Minimal fix:** Protocol-lock an independent reference semantics for C and all six D variants, including exact conflict/no-match dispositions. Structurally validate C, generate tables only from that reference, and assert for every accepted/control record that predicate membership iff `table_C != table_D`. Otherwise relabel E2 as same-runtime consistency.
+
+10. **Blocker — Study 009’s harness is incompatible with the four-fact/Q-aware design.**
+
+   **Text at fault:** “Study 009’s repaired gates verbatim … P-PNF adjusted to the four-pointer projection … same freeze/ledger/scorer discipline.”
+
+   **Failure:** The actual implementation hard-codes:
+
+   - the three-field vendor schema ([lines 67–69](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/harness/study.py:67));
+   - the old two-fact F predicate and policy mirror ([line 134](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/harness/study.py:134));
+   - a disjoint, exhaustive `F/K/H` partition ([line 114](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/harness/study.py:114));
+   - D mismatches as `F∪K` and C mismatches as `K` ([line 551](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/009-transcribed-oracle-matrix/harness/study.py:551));
+   - one freeze containing C, D, DEFECT and records, with no pre-data protocol lock.
+
+   Proper four-fact records are rejected; if only the schema is loosened, embargo/personal-data verdicts are misclassified, overlapping F is rejected, Q is absent, and mismatch sets are wrong.
+
+   **Minimal fix:** Register and review a closed Study 010 delta contract: four-fact schema/projection/mirror, accepted `H⊔Q`, overlapping sampled F, separate K, all six predicates, Q-aware dynamic mismatch derivation, four-way E1, E3, and genuine protocol-lock/artifact-freeze commands with tests.
+
+11. **Blocker — K still has no coherent acquisition/gate path.**
+
+   **Text at fault:** K is “two synthetic … controls the harness appends,” while the compiler emits one file per accepted record.
+
+   **Failure:** Study 009 enumerates and serves one `records/` directory. If K remains in a protocol-locked `controls/` directory, it bypasses P-ACQ/P-GATE; if copied into `records/`, compiler regeneration and the authored-record publication become ambiguous. The model may also emit `k-wrong-1` or `k-wrong-2`, because kebab-case IDs do not reserve that namespace.
+
+   **Minimal fix:** Keep authored records and controls in separate locked manifests; reserve the exact K IDs or a prefix with a stable compiler disposition; protocol-lock a deterministic union source adapter; and require the acquisition/reference/gate bijection across both while F/H/Q/E3 consume authored records only.
+
+12. **Blocker — the exact protocol-lock candidate has not received this review.**
+
+   **Text at fault:** §8 proposes locking this review together with future C, `FAMILY.json`, `PROMPT.txt`, compiler, region checker, mirror, controls, harness, and scorer.
+
+   **Failure:** None of those Study 010 artifacts currently exists. §7 also incorporates the superseded draft’s prompt rather than presenting the current byte-exact prompt. Implementations can therefore be added after this review and frozen under its apparent approval, despite the prior review explicitly requiring review of exact C/FAMILY/parser/control bytes.
+
+   The lock list also leaves the derivation rule, transcriber, source adapter, shared attest/derive/gate code, and pre-authoring jpack digest unclear. `PROTOCOL-LOCK.json` cannot literally digest itself, and no exact-key-set/canonical-manifest validation is specified.
+
+   **Minimal fix:** Assemble the complete protocol-lock candidate first, then adversarially review those exact bytes. The lock must define its exact closed key set, exclude itself from its digest map while binding its committed bytes, regenerate its canonical body during validation, pin the runtime before `regions_check`, and bind the eventual artifact freeze back to the protocol-lock digest and publication proof.
+
+13. **Material — §8 records chronology but does not prevent peeking.**
+
+   **Text at fault:** “The harness generates D … after the round” and the authoring → publication → round → D arrow.
+
+   **Failure:** Because C and all six patches are public, the operator can privately generate every D, evaluate records under C/all D variants, compute the complete coverage profile before publication, transiently edit and restore tools, or abandon an unfavorable attempt. None is detected by final digests. Pre-generating candidate D files does not itself steer a genuinely future beacon; the problem is that the document presents procedural order without stating its evidentiary ceiling.
+
+   **Minimal fix:** State explicitly:
+
+   - mechanically enforced: exact locked bytes and, once repaired, mutation selection after the first immutable records publication;
+   - recorded but not proved: retained call, tool absence, and no retry;
+   - not prevented: off-ledger calls, C/all-D peeks, transient edits, and selective abandonment/publication.
+
+   Externally timestamp the protocol lock before the call if its chronology is to be stronger than operator attestation.
+
+14. **Minor — E3 omits `Q∩F`.**
+
+   **Text at fault:** E3 reports `|F|`, `|H∩F|`, `|Q|`, and H-only per-family coverage.
+
+   **Failure:** `authoring-label-failure` depends on `Q∩F`, which aggregate Q does not establish.
+
+   **Minimal fix:** Report IDs and counts for F, `H∩F`, and `Q∩F`, plus per-family H/Q intersections, always excluding K.
+
+## What revision 2 genuinely fixes
+
+- P1–P5 are disjoint and total over all 24 stated regions.
+- All six prose predicates are correct under the stated local patches:
+
+  - 0, 1, and 2 produce D `unresolved/no-match` on their stated classes.
+  - 3 produces no-match for P=true and conflict for P=false throughout `40≤r<70`.
+  - 4’s P2-only removal makes every non-sanctioned SY record no-match while the unchanged P3–P5 `¬E` guards continue excluding SY.
+  - 5 produces no-match for P=true throughout `39≤r<40`; P4 does not match below 40, and the ¬P arm masks the mutation for P=false.
+
+- Q and table-derived mismatch sets are the correct design direction.
+- The narrowed “one retained completion whose transcript shows no tool use” claim is appropriately candid; the required transcript/stdout binding is an execution repair, not an objection to that chosen scope.
+- Study 009’s canonical full-row gate comparison transfers cleanly once the four-pointer PNF rule and combined authored-record/control source are properly locked. The added string and boolean facts require no weakening of gate equality.
+
+**Verdict: redesign.** Do not protocol-lock revision 2. Repair the publication clock and unique commitment, make E1 and the attempt ledger genuinely total, implement the explicit four-fact/Q/K/two-lock port, and then conduct another pre-freeze review against the complete exact protocol-lock artifact set.
+
+## Maintainer disposition (revision 2 → revision 3)
+
+All fourteen findings accepted; none contested. How revision 3 and the
+assembled protocol-lock candidate implement each:
+
+| # | Finding | Disposition |
+|---|---------|-------------|
+| 1 | `committer.date` is operator-supplied; the round is steerable | **Accepted.** The publication clock is no longer git metadata: publication is a Sigstore Rekor `hashedrekord` inclusion over the records-commit manifest, and the round derives from Rekor's `integratedTime` (§5). Backdating is out of the operator's hands; delaying only moves the round later. |
+| 2 | No unique immutable publication | **Accepted.** A fresh P-256 witness keypair is generated at lock time, the public key locked; the binding inclusion is the minimal-`logIndex` Rekor entry under that key, checked online (`witness`, retried past the log's index lag, gating the freeze) and offline from retained proof material. Any unknown entry under the key refuses the study. |
+| 3 | Retained drand proof insufficient | **Accepted.** The lock pins chain hash, chain public key, scheme, genesis, period, with the raw `/info` response retained. The draw addresses both relays by chain hash — `api.drand.sh` and `drand.cloudflare.com` — requires byte-identical signatures, retains both raw responses and `previous_signature`, and recomputes `randomness = sha256(signature)`. BLS pairing verification is delegated to the external reader with all inputs retained; §9 states this ceiling explicitly. |
+| 4 | Index/round algorithms not byte-complete | **Accepted.** §5 registers normative pseudocode: integer POSIX seconds, `scheduled(R) = G + (R-1)·p`, fixed-width validated preimage fields with a domain tag (`study-010-draw-v1`), `int.from_bytes(sha256(preimage).digest(), "big") mod 6`, selection by the contiguous `index` member, fixed-round-only fetch, and a 3600 s retrieval deadline mapping to `pipeline-invalid`. `validate` recomputes all of it from retained bytes. |
+| 5 | E1 labels overlap; not total | **Accepted.** §6 registers the ordered partition exactly as proposed: pipeline-invalid → caught → authoring-label-failure → coverage-miss, evaluated top to bottom, one label. The scorer implements the same order and can only demote to pipeline-invalid. |
+| 6 | Crashed attempts skipped; primary selection wrong | **Accepted.** The primary attempt is the first started under the current freeze, whatever its terminal state; every exit path writes a terminal state and seals (the exception path seals before re-raising); a primary without `DONE` scores E1 = `pipeline-invalid`. The seal's ceiling (tamper-evidence, not owner-proof) is stated in §6/§9 — no append-only claim is made. |
+| 7 | Compiler not a closed transformation | **Accepted.** The extraction is registered normatively (§4): widest-span parseable array, ties earliest, strict decoder rejecting duplicate object keys anywhere, span offsets retained in `RECORDS.md`; drop-code precedence is the registered check order; a dropped occurrence reserves no id; the `k-` prefix is reserved (`id-form`); the country domain is registered as syntactic `[A-Z]{2}` — no registry membership is consulted, so no snapshot exists to pin; no parseable array → `pipeline-invalid`; `validate` compares the complete file-name set and bytes. |
+| 8 | stdout not bound to the completion | **Accepted.** The compiler input is `completion.txt` = the transcript's last assistant message, extracted mechanically; `transcript_check.py` (locked) requires zero tool events, prompt-byte equality on the last user message, completion-byte equality, and exit 0 — violations are `pipeline-invalid` (§4). |
+| 9 | Predicate/delta equality and tables circular | **Accepted.** Tables derive from the locked reference semantics only (`policy_mirror.py` + the family's registered `reasonsUnderD`) — no evaluator call in derivation; the evaluator's agreement with the tables is what E2 tests, and divergence is `pipeline-invalid`, never a table amendment. `regions_check` grows the locked boundary battery (44 probes: all 24 regions plus both-sided threshold probes at 39/39.5/40/41/69.9/70/70.5/71 × P, each embargo literal, SY high-band). The residual (a defect invisible to all 44 probes and to the byte review of pack C) is stated in §2/§9. |
+| 10 | 009 harness incompatible; "verbatim" false | **Accepted.** The inheritance claim is withdrawn; §6 names the Study 010 port as its own reviewed artifact. The port exists in the candidate: four-fact schema and projection, H ⊔ Q split, overlapping F, separate K, Q-aware derived mismatch sets, four-way E1, E3 with Q∩F, and the two-lock commands, with unit tests. |
+| 11 | K has no coherent acquisition path | **Accepted.** Controls live in a separate locked manifest (`controls/`); the record source serves the union of both directories deterministically (`RECORDS_DIRS`); acquisition and gate cover H ⊔ Q ⊔ K with a receipt bijection; F/H/Q/E3 consume authored records only; the compiler's `id-form` check reserves the `k-` prefix. |
+| 12 | The exact lock candidate was not reviewed | **Accepted.** This disposition accompanies the assembled candidate — policy, pack C bytes, `FAMILY.json` with machine members, `PROMPT.txt` bytes (inlined in §7), compiler, checkers, controls, driver, tests — and revision 3 is submitted to a further pre-freeze review against those exact bytes before anything locks. `PROTOCOL-LOCK.json` does not digest itself; its bytes are bound by the lock commit and its key set is validated; the lock also pins the shared line code and the jpack digest, and is itself Rekor-timestamped before authoring (§8). |
+| 13 | Chronology recorded, peeking not prevented | **Accepted.** §9 states the three tiers explicitly — mechanically enforced, recorded but not proven, not prevented — including private C/all-D evaluation, transient tool edits, and unpublished-attempt abandonment, and why none of them steers the sampled index after publication. |
+| 14 | E3 omits Q∩F | **Accepted.** E3 reports ids and counts for F, H∩F, Q∩F and the per-family H and Q intersections, K always excluded (§6). |
+
+Additional maintainer-initiated amendments recorded here: the extraction
+rule changed from revision 2's "first `[` to its matching `]`" to the
+widest-span rule (finding 7 made the first-position rule's fragility
+concrete); the drop-code list gained `id-form`; the compiler input moved
+from raw stdout to the transcript-bound completion (finding 8). Each is a
+strictly tighter registration than revision 2's text.
