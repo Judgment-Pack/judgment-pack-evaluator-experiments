@@ -1,0 +1,108 @@
+{
+  "frozenInputs": {
+    "../../acquisition-proxy/attest.py": "sha256:6b2dc42f5ec6307e4c1ee99bbe202e77ff603466e905dc245cf33ef48d62647f",
+    "../../derivation-rule/derive.py": "sha256:1b02e70a3e0d84169fb05c695d091ce1e2033dd8aadfdb217d36e14b2f0162cc",
+    "../../fabrication-gate/gate.py": "sha256:00c50b0f2255816d11b27e55c3210acd7ef8d877f745f84a7d3aa93f080a6047",
+    "DEFECT.json": "sha256:f4b1f9369630b2e67a38ea8df41eabcf81a46f0184c61cbfa5908d61d136e2ba",
+    "DRAW.json": "sha256:39f7ff1ea671074de4f4055ecb329c4e3f2058b0403a8feaed642d4426e3c98b",
+    "FAMILY.json": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+    "PREREG-REVIEW.md": "sha256:4e5f4bc7f9d84c18d90b979164ca01f4266a53296776fe656998545c84fd7fa3",
+    "PREREGISTRATION.md": "sha256:2c655965220469f82891ce128670701f46b10915b702674fb740020003e756f7",
+    "RECORDS.md": "sha256:0dc909b4e08ab94440cba84de6f13c198abd9ef94e361fd471bbd7ec8d2fe590",
+    "controls/k-wrong-1.json": "sha256:da3d644666a3bc9fe4fa37ce279184c15a36719f846133d71886c6a1ee038962",
+    "controls/k-wrong-2.json": "sha256:1b199f9a66f4305c7e8106080fe03e644e7207246939f350d3d971f416268e0a",
+    "harness/gate.py": "sha256:14e94d0633288c588ece2a086e7085a529ff8cfd87adbcb308fc20cb30775273",
+    "harness/pnf_check.py": "sha256:0b38dc000b0451c92b1d6c5dc41b84fac1a593d0b1a9a65e892ba0dad3e82b5f",
+    "harness/policy_mirror.py": "sha256:276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba",
+    "harness/records_compile.py": "sha256:e58edce30e549953b5263db2e9c230604f9192d060cbde9387585e0679671698",
+    "harness/regions_check.py": "sha256:7948593d298e8e16b0938492aa5499a1b5aee2b91f77c5ad58d12d552cc9ca8d",
+    "harness/study.py": "sha256:d61e11aac606d4b21ed854d3a601ae6e0d9ea828f45fca3414edcfcf635090c2",
+    "harness/test_study.py": "sha256:bfc2f9b2e45b0adb0702ccf456203a8a12e3626c9afe22fc683c2461f5f23f0b",
+    "harness/transcript_check.py": "sha256:42d977c40eed333531c096b9cdba75ac2ecceed5845dd3151f1dc010129bea9d",
+    "packs/vendor-screening-correct.pack.json": "sha256:e9abfcc96f6cf558222ea85d6f33246c7f7872ac0dcb7b0e49ea73cc6394d92f",
+    "packs/vendor-screening-defective.pack.json": "sha256:6441cac0619cf5ae65f76f5e8f4fd2dc43e2bee1ed52c4739843f74bee89c2de",
+    "policy/POLICY.md": "sha256:e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f",
+    "records/alpine-benefits-platform.json": "sha256:4292d3a5e0bbac555c552fef2c7d45f21a3ac8153d166cf96b9fc229ec2d4001",
+    "records/blue-harbor-logistics.json": "sha256:ce88ff3e52633a6a000f54729199f00e45c7c8bb44ba1df66b1e1dfe1317fb42",
+    "records/cedar-analytics.json": "sha256:2f371f4d17a4bd74a79e10206587b39223349cdbb32cc1877db382f3b6c1a0d3",
+    "records/damascus-export-consortium.json": "sha256:3bc68490d2750a39c7d8358c621da274dd136c50eec4e42d1146245626c0bc75",
+    "records/hanul-trading-bureau.json": "sha256:3a90a088d0171d0c444d4fa137ecb794a27c81780b354e3bfad1046f0c3a8a21",
+    "records/iberia-payroll-support.json": "sha256:b2e5ae9fa5ab984f1d73a6ee69a915e480cae5f2b37a7576705e1bbabfbb4467",
+    "records/levant-medical-data.json": "sha256:a027895f3054797ddfb62cb5a71727aeb564d3ce29b24a91f39128a7de69c442",
+    "records/lumen-customer-systems.json": "sha256:ca64ba948a9ab5e251d3e6ab8b291f52af8c96c7a0434fb885d23ea746cb9458",
+    "records/maple-records-processing.json": "sha256:6f8566ff78bbd2c9186d271aecdbe860135d47d147d07c5dc597c08eb17318ae",
+    "records/northstar-office-supply.json": "sha256:aff4e2e81f01856521648513a2efdd1b177b9d424a8dc17160fd03a295afb9e7",
+    "records/orion-identity-services.json": "sha256:f8c0940dfa02a3bf6429db060898b57a17775f248529d086be7014c7783d8113",
+    "records/pars-cloud-solutions.json": "sha256:ee57cb277ea585f896b61d966ab0d34b428946f1b1c48ad8a809e2a5e5710394",
+    "records/quartz-network-services.json": "sha256:69a1d4fb4a14913dc46608afcfca61bc512a3cc59766af9785cb4fe457400724",
+    "records/redwood-facilities-group.json": "sha256:2f6ad44b8cb3b899e00b03307fa87a4716af84498200f800623781c1fa5791fa",
+    "records/sakura-courier-network.json": "sha256:3f98b5ba0550fbcc0a801ec5eb683ed4c616629d615bd36e1e2fc941b371bf72",
+    "records/solstice-industrial-parts.json": "sha256:316a68fd22449e7a6cda43cc7e14cf28b1d7e1c2e266aba94e46f932b44cf2b5",
+    "source/record_source.py": "sha256:58c4962c01cb35d0a8fac66ab37d250d11579c253d3fcbd412d2bdd42d3a0f93",
+    "transcription/GOLDEN-CONTEXT.json": "sha256:4ff544de5edf716aeaabb3560bf22767919537f9759133740e3ab22c259ac843",
+    "transcription/PROMPT.txt": "sha256:a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2",
+    "transcription/authoring/call-1/CALL.json": "sha256:49dba84057fa61cb36967874c28673ee74e3e5f30e6982028ba6b20151b356ef",
+    "transcription/authoring/call-1/completion.txt": "sha256:45deb69ea7a0d10aa43b2ec00ad623c11e3d77a15ece11c0ee220c7836c81677",
+    "transcription/authoring/call-1/context.json": "sha256:ac5db7e511562d97146abbeca51af14aa5ebe13ab4948534ccd0f903951de1f6",
+    "transcription/authoring/call-1/session.jsonl": "sha256:f4341c0c789f9a1cdf3dfa3ff5bd965982536d0a5b7413a18e6bf3dadc8ece88",
+    "transcription/authoring/call-1/stderr.raw": "sha256:72730b1ae511eaf9e536be9d174cee3112df786d68fc49449ea3b945a380d98b",
+    "transcription/authoring/call-1/stdout.raw": "sha256:1c84b049f6a662c08a9b26eefab2c5db101960eaf982d96439220bc49e2b7904",
+    "transcription/authoring_call.sh": "sha256:3b8909aae9b0ec2d52f8b8c780c3c6a544f4405dc7d31fd1becf485fcdae251d",
+    "transcription/record.rule.json": "sha256:4d25c428a0281614f68923dd21b620eaea6a69d172645032143893c17a798e6d",
+    "transcription/transcribe.py": "sha256:9ab11f8f41bde6f75ab71bf2b30f2561d4715d274ec3a69d9574c1420eac44b9",
+    "transcription/witness-lock-pub.pem": "sha256:a75add235c964659c757c7d7fc49d7026ac25d2e440900ee36a2530f0a20c038",
+    "transcription/witness-records-pub.pem": "sha256:1351a96cb6e59d5e438180bd39a39e034e52b91ae72de82e5eef751fd9ca9270",
+    "transcription/witness/INCLUSION.json": "sha256:d9c19cae648ed22257bd1e5930074d89e84f03ae3b904496c62f9942db483b99",
+    "transcription/witness/LOCK-INCLUSION.json": "sha256:e374bea3151ea2e405b983f03ce8eac1e38400b4ea21859911268e2dae4bc58e",
+    "transcription/witness/SEARCH.json": "sha256:cc832e43d47a89dba6960526b0ce0c89147d799957e7013ea0380b45677e675c"
+  },
+  "invocation": {
+    "arguments": {
+      "caseId": "<id>"
+    },
+    "authority": "study-010:records",
+    "cwd": "<the arm's generated project directory>",
+    "environment": [
+      "PATH",
+      "HOME",
+      "JPACK_CONFIG"
+    ],
+    "evaluate": [
+      "<jpack>",
+      "experimental",
+      "evaluate",
+      "<pack>",
+      "--facts",
+      "<facts>",
+      "--format",
+      "json"
+    ],
+    "mcp": [
+      "<jpack>",
+      "mcp"
+    ],
+    "packsTest": [
+      "<jpack>",
+      "packs",
+      "test",
+      "--format",
+      "json"
+    ],
+    "packsValidate": [
+      "<jpack>",
+      "packs",
+      "validate",
+      "--format",
+      "json"
+    ],
+    "tool": "get_record"
+  },
+  "jpack": "sha256:417ee1ae86325713930e714b659432246c7845be1cdfa4c33f211bfad1ce970d",
+  "note": "PREREGISTRATION.md governs; this file only pins bytes.",
+  "preregistrationCommit": "c92c5b3efaf91769afacbb50f011d69fc07f6dcb",
+  "protocolLock": "sha256:4966aa821325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1",
+  "python": {
+    "implementation": "CPython",
+    "version": "3.8.20"
+  }
+}
