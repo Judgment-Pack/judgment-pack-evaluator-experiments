@@ -15,12 +15,27 @@ pilot. They were run over the full 432-twin corpus on this date. Three
 deviations from the registered design, all forced, all recorded before the
 numbers were read:
 
-1. **k = 1 in the first pass.** The registered primary endpoint (H1,
-   pass^k on answerable instances) requires k > 1; at k = 1 pass^k
-   degenerates to accuracy. The first pass therefore measures only
-   secondary endpoints, and `RESULTS-FIRST-PROMPT-ARMS.md` says so at the
-   top rather than reporting accuracy as if it were the primary. A k = 5
-   run followed.
+1. **k = 1 in the first pass, superseded by k = 5.** The registered
+   primary endpoint (H1, pass^k) requires k > 1; at k = 1 pass^k
+   degenerates to accuracy. The first pass therefore measured secondary
+   endpoints only and said so. The k = 5 run followed and is what
+   `RESULTS-FIRST-PROMPT-ARMS.md` now reports.
+
+   Two things surfaced while scoring it, both recorded because either
+   could have produced a silently wrong headline:
+
+   - The first k = 5 scoring still reported `trials per instance: 1-1` and
+     a pass^k identical to accuracy. `score.py` sets k to the **minimum**
+     trial count across conditions — correct for a paired comparison — and
+     arm B still had only one trial, collapsing k to 1 for every arm. Arm
+     B was re-run at k = 5 (37 seconds; it is deterministic) and the
+     pairing then resolved correctly. Had this gone unnoticed, the k = 1
+     accuracy would have been reported as the primary endpoint.
+   - **Arm B's pass^k is 1.0 by construction**, because the evaluator is
+     deterministic. H1 is therefore not a contest arm B can lose, and the
+     +0.130 measures prompt-arm inconsistency rather than a stability win.
+     The results document says so in its own section rather than leaving
+     a reader to infer it.
 
 2. **One model family, not two.** The design pools across Claude and
    Codex. No Anthropic credential was available in this environment, so

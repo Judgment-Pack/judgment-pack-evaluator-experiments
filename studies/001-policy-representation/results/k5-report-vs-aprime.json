@@ -1,0 +1,1009 @@
+{
+  "baseline": "Aprime::codex::gpt-5.6-sol",
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 20260806,
+  "conditions": {
+    "A::codex::gpt-5.6-sol": {
+      "ci95": {
+        "accuracy": [
+          0.3560185185185185,
+          0.44954861111111105
+        ],
+        "citation_f1": [
+          0.2837554564083028,
+          0.32182048777862016
+        ],
+        "citation_micro_f1": [
+          0.2831770197350669,
+          0.3275630195188746
+        ],
+        "citation_micro_precision": [
+          0.7668364026477499,
+          0.8084611656209634
+        ],
+        "citation_micro_recall": [
+          0.1731132629973202,
+          0.2062390204493236
+        ],
+        "citation_precision": [
+          0.7542955985950781,
+          0.8060510351916599
+        ],
+        "citation_recall": [
+          0.19991391872058797,
+          0.23581810562170255
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": [
+          0.013529095370961778,
+          0.08726968480955574
+        ],
+        "escalation_precision": [
+          0.3448275862068966,
+          0.896551724137931
+        ],
+        "escalation_recall": [
+          0.006892407161803713,
+          0.04601122866229635
+        ],
+        "parse_ok_rate": [
+          1.0,
+          1.0
+        ],
+        "pass_at_k": [
+          0.3263888888888889,
+          0.41898148148148145
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            -0.03981481481481486,
+            0.0032407407407407662
+          ],
+          "point": -0.01759259259259277,
+          "prob_gt_0": 0.046
+        },
+        "citation_f1": {
+          "ci95": [
+            0.04563037467996844,
+            0.07966219816054729
+          ],
+          "point": 0.06268931454112076,
+          "prob_gt_0": 1.0
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            0.04078872509046145,
+            0.07772506744688544
+          ],
+          "point": 0.05899112578862287,
+          "prob_gt_0": 1.0
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            0.09327225450123434,
+            0.12235783243390469
+          ],
+          "point": 0.1081797627356671,
+          "prob_gt_0": 1.0
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            0.02544531689693875,
+            0.053279151772429964
+          ],
+          "point": 0.03890045814244064,
+          "prob_gt_0": 1.0
+        },
+        "citation_precision": {
+          "ci95": [
+            0.07828947844529441,
+            0.12284550877042297
+          ],
+          "point": 0.10031206126692227,
+          "prob_gt_0": 1.0
+        },
+        "citation_recall": {
+          "ci95": [
+            0.037521325795706696,
+            0.06857465117459721
+          ],
+          "point": 0.05299792614736562,
+          "prob_gt_0": 1.0
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": {
+          "ci95": [
+            -0.11689242810482393,
+            -0.022117605596006545
+          ],
+          "point": -0.06534146057382459,
+          "prob_gt_0": 0.001
+        },
+        "escalation_precision": {
+          "ci95": [
+            -0.2091091902890745,
+            0.3438670650683171
+          ],
+          "point": 0.11641391614629792,
+          "prob_gt_0": 0.7905
+        },
+        "escalation_recall": {
+          "ci95": [
+            -0.068578073089701,
+            -0.013260969270753759
+          ],
+          "point": -0.03796296296296296,
+          "prob_gt_0": 0.001
+        },
+        "parse_ok_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "pass_at_k": {
+          "ci95": [
+            -0.06944444444444448,
+            -0.02083333333333337
+          ],
+          "point": -0.04398148148148151,
+          "prob_gt_0": 0.0
+        }
+      },
+      "escalation_2x2": {
+        "neither": 1068,
+        "should_and_did": 26,
+        "should_but_did_not": 1054,
+        "should_not_but_did": 12
+      },
+      "point": {
+        "accuracy": 0.40231481481481474,
+        "citation_f1": 0.3020688507311256,
+        "citation_micro_f1": 0.30416078510452377,
+        "citation_micro_precision": 0.7877785515320335,
+        "citation_micro_recall": 0.1884631403581841,
+        "citation_precision": 0.7797489213461432,
+        "citation_recall": 0.21692739434493802,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": 0.04651162790697675,
+        "escalation_fn": 1054.0,
+        "escalation_fp": 12.0,
+        "escalation_precision": 0.6842105263157895,
+        "escalation_recall": 0.024074074074074074,
+        "escalation_tn": 1068.0,
+        "escalation_tp": 26.0,
+        "parse_ok_rate": 1.0,
+        "pass_at_k": 0.3726851851851852
+      }
+    },
+    "Aprime::codex::gpt-5.6-sol": {
+      "ci95": {
+        "accuracy": [
+          0.37267361111111114,
+          0.4675925925925926
+        ],
+        "citation_f1": [
+          0.22496249460673537,
+          0.25296219523159
+        ],
+        "citation_micro_f1": [
+          0.23100369375995464,
+          0.25973054471892354
+        ],
+        "citation_micro_precision": [
+          0.6579617004270397,
+          0.7018042741577021
+        ],
+        "citation_micro_recall": [
+          0.13956765671738508,
+          0.1601232981202261
+        ],
+        "citation_precision": [
+          0.6479280487388124,
+          0.7111096463496636
+        ],
+        "citation_recall": [
+          0.15158653861638788,
+          0.1760745671558007
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": [
+          0.061512847932891836,
+          0.17051033011452946
+        ],
+        "escalation_precision": [
+          0.36133870214752567,
+          0.767452242524917
+        ],
+        "escalation_recall": [
+          0.033329787234042556,
+          0.09706092436974789
+        ],
+        "parse_ok_rate": [
+          1.0,
+          1.0
+        ],
+        "pass_at_k": [
+          0.37037037037037035,
+          0.4652777777777778
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_f1": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_precision": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_recall": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_precision": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_recall": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "parse_ok_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "pass_at_k": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        }
+      },
+      "escalation_2x2": {
+        "neither": 1029,
+        "should_and_did": 67,
+        "should_but_did_not": 1013,
+        "should_not_but_did": 51
+      },
+      "point": {
+        "accuracy": 0.4199074074074075,
+        "citation_f1": 0.23937953619000485,
+        "citation_micro_f1": 0.2451696593159009,
+        "citation_micro_precision": 0.6795987887963664,
+        "citation_micro_recall": 0.14956268221574345,
+        "citation_precision": 0.6794368600792209,
+        "citation_recall": 0.1639294681975724,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": 0.11185308848080135,
+        "escalation_fn": 1013.0,
+        "escalation_fp": 51.0,
+        "escalation_precision": 0.5677966101694916,
+        "escalation_recall": 0.062037037037037036,
+        "escalation_tn": 1029.0,
+        "escalation_tp": 67.0,
+        "parse_ok_rate": 1.0,
+        "pass_at_k": 0.4166666666666667
+      }
+    },
+    "B::mock::judgment-pack-runtime": {
+      "ci95": {
+        "accuracy": [
+          0.45601851851851855,
+          0.5486111111111112
+        ],
+        "citation_f1": [
+          0.17350612423036282,
+          0.1990517483235635
+        ],
+        "citation_micro_f1": [
+          0.18260447894670287,
+          0.2054547327917024
+        ],
+        "citation_micro_precision": [
+          0.6369063033097551,
+          0.6866421180990103
+        ],
+        "citation_micro_recall": [
+          0.10611721660884275,
+          0.12152425450506636
+        ],
+        "citation_precision": [
+          0.5607736717372132,
+          0.6343366953262789
+        ],
+        "citation_recall": [
+          0.10848141149764495,
+          0.1263276820874424
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": [
+          0.4357485873445279,
+          0.5605817935034086
+        ],
+        "escalation_precision": [
+          0.5244670846394984,
+          0.6776370981985165
+        ],
+        "escalation_recall": [
+          0.35960591133004927,
+          0.49123369320737736
+        ],
+        "parse_ok_rate": [
+          1.0,
+          1.0
+        ],
+        "pass_at_k": [
+          0.45601851851851855,
+          0.5486111111111112
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            0.03148148148148155,
+            0.12916666666666665
+          ],
+          "point": 0.08240740740740726,
+          "prob_gt_0": 1.0
+        },
+        "citation_f1": {
+          "ci95": [
+            -0.0681243783604062,
+            -0.03908995285678649
+          ],
+          "point": -0.05317964410581247,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            -0.06668990189763925,
+            -0.03730547235531105
+          ],
+          "point": -0.051426324797593015,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            -0.029023542701518395,
+            -0.006796611734292906
+          ],
+          "point": -0.018191021806075125,
+          "prob_gt_0": 0.0015
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            -0.046752527280474764,
+            -0.02608060378282196
+          ],
+          "point": -0.03606830487296961,
+          "prob_gt_0": 0.0
+        },
+        "citation_precision": {
+          "ci95": [
+            -0.10522692800383811,
+            -0.06021165900072155
+          ],
+          "point": -0.08201071369474089,
+          "prob_gt_0": 0.0
+        },
+        "citation_recall": {
+          "ci95": [
+            -0.05996809787434794,
+            -0.03391983090854626
+          ],
+          "point": -0.04667768060129178,
+          "prob_gt_0": 0.0
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": {
+          "ci95": [
+            0.31489557247219585,
+            0.4576356556494364
+          ],
+          "point": 0.38814691151919867,
+          "prob_gt_0": 1.0
+        },
+        "escalation_precision": {
+          "ci95": [
+            -0.1473817145766973,
+            0.22106563832864534
+          ],
+          "point": 0.03746654772524527,
+          "prob_gt_0": 0.6535
+        },
+        "escalation_recall": {
+          "ci95": [
+            0.2986998295821825,
+            0.42844364351245084
+          ],
+          "point": 0.3638888888888889,
+          "prob_gt_0": 1.0
+        },
+        "parse_ok_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "pass_at_k": {
+          "ci95": [
+            0.03472222222222221,
+            0.13200231481481453
+          ],
+          "point": 0.08564814814814808,
+          "prob_gt_0": 1.0
+        }
+      },
+      "escalation_2x2": {
+        "neither": 780,
+        "should_and_did": 460,
+        "should_but_did_not": 620,
+        "should_not_but_did": 300
+      },
+      "point": {
+        "accuracy": 0.5023148148148148,
+        "citation_f1": 0.18619989208419238,
+        "citation_micro_f1": 0.19374333451830789,
+        "citation_micro_precision": 0.6614077669902912,
+        "citation_micro_recall": 0.11349437734277384,
+        "citation_precision": 0.59742614638448,
+        "citation_recall": 0.11725178759628062,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": 0.5,
+        "escalation_fn": 620.0,
+        "escalation_fp": 300.0,
+        "escalation_precision": 0.6052631578947368,
+        "escalation_recall": 0.42592592592592593,
+        "escalation_tn": 780.0,
+        "escalation_tp": 460.0,
+        "parse_ok_rate": 1.0,
+        "pass_at_k": 0.5023148148148148
+      }
+    }
+  },
+  "instance_ids": [
+    "comp_0-000__answerable",
+    "comp_0-000__redacted",
+    "comp_0-001__answerable",
+    "comp_0-001__redacted",
+    "comp_0-002__answerable",
+    "comp_0-002__redacted",
+    "comp_0-003__answerable",
+    "comp_0-003__redacted",
+    "comp_0-004__answerable",
+    "comp_0-004__redacted",
+    "comp_0-005__answerable",
+    "comp_0-005__redacted",
+    "comp_0-006__answerable",
+    "comp_0-006__redacted",
+    "comp_0-007__answerable",
+    "comp_0-007__redacted",
+    "comp_0-008__answerable",
+    "comp_0-008__redacted",
+    "comp_0-009__answerable",
+    "comp_0-009__redacted",
+    "comp_0-010__answerable",
+    "comp_0-010__redacted",
+    "comp_0-011__answerable",
+    "comp_0-011__redacted",
+    "comp_0-012__answerable",
+    "comp_0-012__redacted",
+    "comp_0-013__answerable",
+    "comp_0-013__redacted",
+    "comp_0-014__answerable",
+    "comp_0-014__redacted",
+    "comp_0-015__answerable",
+    "comp_0-015__redacted",
+    "comp_0-016__answerable",
+    "comp_0-016__redacted",
+    "comp_0-017__answerable",
+    "comp_0-017__redacted",
+    "comp_0-018__answerable",
+    "comp_0-018__redacted",
+    "comp_0-019__answerable",
+    "comp_0-019__redacted",
+    "comp_0-020__answerable",
+    "comp_0-020__redacted",
+    "comp_0-021__answerable",
+    "comp_0-021__redacted",
+    "comp_0-022__answerable",
+    "comp_0-022__redacted",
+    "comp_0-023__answerable",
+    "comp_0-023__redacted",
+    "comp_0-024__answerable",
+    "comp_0-024__redacted",
+    "comp_0-025__answerable",
+    "comp_0-025__redacted",
+    "comp_0-026__answerable",
+    "comp_0-026__redacted",
+    "comp_0-027__answerable",
+    "comp_0-027__redacted",
+    "comp_0-028__answerable",
+    "comp_0-028__redacted",
+    "comp_0-029__answerable",
+    "comp_0-029__redacted",
+    "comp_0-030__answerable",
+    "comp_0-030__redacted",
+    "comp_0-031__answerable",
+    "comp_0-031__redacted",
+    "comp_0-032__answerable",
+    "comp_0-032__redacted",
+    "comp_0-033__answerable",
+    "comp_0-033__redacted",
+    "comp_0-034__answerable",
+    "comp_0-034__redacted",
+    "comp_0-035__answerable",
+    "comp_0-035__redacted",
+    "comp_0-036__answerable",
+    "comp_0-036__redacted",
+    "comp_0-037__answerable",
+    "comp_0-037__redacted",
+    "comp_0-038__answerable",
+    "comp_0-038__redacted",
+    "comp_0-039__answerable",
+    "comp_0-039__redacted",
+    "comp_0-040__answerable",
+    "comp_0-040__redacted",
+    "comp_0-041__answerable",
+    "comp_0-041__redacted",
+    "comp_0-042__answerable",
+    "comp_0-042__redacted",
+    "comp_0-043__answerable",
+    "comp_0-043__redacted",
+    "comp_0-044__answerable",
+    "comp_0-044__redacted",
+    "comp_0-045__answerable",
+    "comp_0-045__redacted",
+    "comp_0-046__answerable",
+    "comp_0-046__redacted",
+    "comp_0-047__answerable",
+    "comp_0-047__redacted",
+    "comp_0-048__answerable",
+    "comp_0-048__redacted",
+    "comp_0-049__answerable",
+    "comp_0-049__redacted",
+    "comp_0-050__answerable",
+    "comp_0-050__redacted",
+    "comp_0-051__answerable",
+    "comp_0-051__redacted",
+    "comp_0-052__answerable",
+    "comp_0-052__redacted",
+    "comp_0-053__answerable",
+    "comp_0-053__redacted",
+    "comp_0-054__answerable",
+    "comp_0-054__redacted",
+    "comp_0-055__answerable",
+    "comp_0-055__redacted",
+    "comp_0-056__answerable",
+    "comp_0-056__redacted",
+    "comp_0-057__answerable",
+    "comp_0-057__redacted",
+    "comp_0-058__answerable",
+    "comp_0-058__redacted",
+    "comp_0-059__answerable",
+    "comp_0-059__redacted",
+    "comp_0-060__answerable",
+    "comp_0-060__redacted",
+    "comp_0-061__answerable",
+    "comp_0-061__redacted",
+    "comp_0-062__answerable",
+    "comp_0-062__redacted",
+    "comp_0-063__answerable",
+    "comp_0-063__redacted",
+    "comp_0-064__answerable",
+    "comp_0-064__redacted",
+    "comp_0-065__answerable",
+    "comp_0-065__redacted",
+    "comp_0-066__answerable",
+    "comp_0-066__redacted",
+    "comp_0-067__answerable",
+    "comp_0-067__redacted",
+    "comp_0-068__answerable",
+    "comp_0-068__redacted",
+    "comp_0-069__answerable",
+    "comp_0-069__redacted",
+    "comp_0-070__answerable",
+    "comp_0-070__redacted",
+    "comp_0-071__answerable",
+    "comp_0-071__redacted",
+    "comp_0-072__answerable",
+    "comp_0-072__redacted",
+    "comp_0-073__answerable",
+    "comp_0-073__redacted",
+    "comp_0-074__answerable",
+    "comp_0-074__redacted",
+    "comp_0-075__answerable",
+    "comp_0-075__redacted",
+    "comp_0-076__answerable",
+    "comp_0-076__redacted",
+    "comp_0-077__answerable",
+    "comp_0-077__redacted",
+    "comp_0-078__answerable",
+    "comp_0-078__redacted",
+    "comp_0-079__answerable",
+    "comp_0-079__redacted",
+    "comp_0-080__answerable",
+    "comp_0-080__redacted",
+    "comp_1-000__answerable",
+    "comp_1-000__redacted",
+    "comp_1-001__answerable",
+    "comp_1-001__redacted",
+    "comp_1-002__answerable",
+    "comp_1-002__redacted",
+    "comp_1-003__answerable",
+    "comp_1-003__redacted",
+    "comp_1-004__answerable",
+    "comp_1-004__redacted",
+    "comp_1-005__answerable",
+    "comp_1-005__redacted",
+    "comp_1-006__answerable",
+    "comp_1-006__redacted",
+    "comp_1-007__answerable",
+    "comp_1-007__redacted",
+    "comp_1-008__answerable",
+    "comp_1-008__redacted",
+    "comp_1-009__answerable",
+    "comp_1-009__redacted",
+    "comp_1-010__answerable",
+    "comp_1-010__redacted",
+    "comp_1-011__answerable",
+    "comp_1-011__redacted",
+    "comp_1-012__answerable",
+    "comp_1-012__redacted",
+    "comp_1-013__answerable",
+    "comp_1-013__redacted",
+    "comp_1-014__answerable",
+    "comp_1-014__redacted",
+    "comp_1-015__answerable",
+    "comp_1-015__redacted",
+    "comp_1-016__answerable",
+    "comp_1-016__redacted",
+    "comp_1-017__answerable",
+    "comp_1-017__redacted",
+    "comp_1-018__answerable",
+    "comp_1-018__redacted",
+    "comp_1-019__answerable",
+    "comp_1-019__redacted",
+    "comp_1-020__answerable",
+    "comp_1-020__redacted",
+    "comp_1-021__answerable",
+    "comp_1-021__redacted",
+    "comp_1-022__answerable",
+    "comp_1-022__redacted",
+    "comp_1-023__answerable",
+    "comp_1-023__redacted",
+    "comp_1-024__answerable",
+    "comp_1-024__redacted",
+    "comp_1-025__answerable",
+    "comp_1-025__redacted",
+    "comp_1-026__answerable",
+    "comp_1-026__redacted",
+    "comp_1-027__answerable",
+    "comp_1-027__redacted",
+    "comp_1-028__answerable",
+    "comp_1-028__redacted",
+    "comp_1-029__answerable",
+    "comp_1-029__redacted",
+    "comp_1-030__answerable",
+    "comp_1-030__redacted",
+    "comp_1-031__answerable",
+    "comp_1-031__redacted",
+    "comp_1-032__answerable",
+    "comp_1-032__redacted",
+    "comp_1-033__answerable",
+    "comp_1-033__redacted",
+    "comp_1-034__answerable",
+    "comp_1-034__redacted",
+    "comp_1-035__answerable",
+    "comp_1-035__redacted",
+    "comp_1-036__answerable",
+    "comp_1-036__redacted",
+    "comp_1-037__answerable",
+    "comp_1-037__redacted",
+    "comp_1-038__answerable",
+    "comp_1-038__redacted",
+    "comp_1-039__answerable",
+    "comp_1-039__redacted",
+    "comp_1-040__answerable",
+    "comp_1-040__redacted",
+    "comp_1-041__answerable",
+    "comp_1-041__redacted",
+    "comp_1-042__answerable",
+    "comp_1-042__redacted",
+    "comp_1-043__answerable",
+    "comp_1-043__redacted",
+    "comp_1-044__answerable",
+    "comp_1-044__redacted",
+    "comp_1-045__answerable",
+    "comp_1-045__redacted",
+    "comp_1-046__answerable",
+    "comp_1-046__redacted",
+    "comp_1-047__answerable",
+    "comp_1-047__redacted",
+    "comp_1-048__answerable",
+    "comp_1-048__redacted",
+    "comp_1-049__answerable",
+    "comp_1-049__redacted",
+    "comp_1-050__answerable",
+    "comp_1-050__redacted",
+    "comp_1-051__answerable",
+    "comp_1-051__redacted",
+    "comp_1-052__answerable",
+    "comp_1-052__redacted",
+    "comp_1-053__answerable",
+    "comp_1-053__redacted",
+    "comp_1-054__answerable",
+    "comp_1-054__redacted",
+    "comp_1-055__answerable",
+    "comp_1-055__redacted",
+    "comp_1-056__answerable",
+    "comp_1-056__redacted",
+    "comp_1-057__answerable",
+    "comp_1-057__redacted",
+    "comp_1-058__answerable",
+    "comp_1-058__redacted",
+    "comp_1-059__answerable",
+    "comp_1-059__redacted",
+    "comp_1-060__answerable",
+    "comp_1-060__redacted",
+    "comp_1-061__answerable",
+    "comp_1-061__redacted",
+    "comp_1-062__answerable",
+    "comp_1-062__redacted",
+    "comp_1-063__answerable",
+    "comp_1-063__redacted",
+    "comp_1-064__answerable",
+    "comp_1-064__redacted",
+    "comp_1-065__answerable",
+    "comp_1-065__redacted",
+    "comp_1-066__answerable",
+    "comp_1-066__redacted",
+    "comp_1-067__answerable",
+    "comp_1-067__redacted",
+    "comp_1-068__answerable",
+    "comp_1-068__redacted",
+    "comp_1-069__answerable",
+    "comp_1-069__redacted",
+    "comp_1-070__answerable",
+    "comp_1-070__redacted",
+    "comp_1-071__answerable",
+    "comp_1-071__redacted",
+    "comp_1-072__answerable",
+    "comp_1-072__redacted",
+    "comp_1-073__answerable",
+    "comp_1-073__redacted",
+    "comp_1-074__answerable",
+    "comp_1-074__redacted",
+    "comp_1-075__answerable",
+    "comp_1-075__redacted",
+    "comp_1-076__answerable",
+    "comp_1-076__redacted",
+    "comp_1-077__answerable",
+    "comp_1-077__redacted",
+    "comp_1-078__answerable",
+    "comp_1-078__redacted",
+    "comp_1-079__answerable",
+    "comp_1-079__redacted",
+    "comp_1-080__answerable",
+    "comp_1-080__redacted",
+    "comp_1-081__answerable",
+    "comp_1-081__redacted",
+    "comp_1-082__answerable",
+    "comp_1-082__redacted",
+    "comp_1-083__answerable",
+    "comp_1-083__redacted",
+    "comp_1-084__answerable",
+    "comp_1-084__redacted",
+    "comp_1-085__answerable",
+    "comp_1-085__redacted",
+    "comp_1-086__answerable",
+    "comp_1-086__redacted",
+    "comp_1-087__answerable",
+    "comp_1-087__redacted",
+    "comp_1-088__answerable",
+    "comp_1-088__redacted",
+    "comp_2-000__answerable",
+    "comp_2-000__redacted",
+    "comp_2-001__answerable",
+    "comp_2-001__redacted",
+    "comp_2-002__answerable",
+    "comp_2-002__redacted",
+    "comp_2-003__answerable",
+    "comp_2-003__redacted",
+    "comp_2-004__answerable",
+    "comp_2-004__redacted",
+    "comp_2-005__answerable",
+    "comp_2-005__redacted",
+    "comp_2-006__answerable",
+    "comp_2-006__redacted",
+    "comp_2-007__answerable",
+    "comp_2-007__redacted",
+    "comp_2-008__answerable",
+    "comp_2-008__redacted",
+    "comp_2-009__answerable",
+    "comp_2-009__redacted",
+    "comp_2-010__answerable",
+    "comp_2-010__redacted",
+    "comp_2-011__answerable",
+    "comp_2-011__redacted",
+    "comp_2-012__answerable",
+    "comp_2-012__redacted",
+    "comp_2-013__answerable",
+    "comp_2-013__redacted",
+    "comp_2-014__answerable",
+    "comp_2-014__redacted",
+    "comp_2-015__answerable",
+    "comp_2-015__redacted",
+    "comp_2-016__answerable",
+    "comp_2-016__redacted",
+    "comp_2-017__answerable",
+    "comp_2-017__redacted",
+    "comp_2-018__answerable",
+    "comp_2-018__redacted",
+    "comp_2-019__answerable",
+    "comp_2-019__redacted",
+    "comp_2-020__answerable",
+    "comp_2-020__redacted",
+    "comp_2-021__answerable",
+    "comp_2-021__redacted",
+    "comp_2-022__answerable",
+    "comp_2-022__redacted",
+    "comp_2-023__answerable",
+    "comp_2-023__redacted",
+    "comp_2-024__answerable",
+    "comp_2-024__redacted",
+    "comp_2-025__answerable",
+    "comp_2-025__redacted",
+    "comp_2-026__answerable",
+    "comp_2-026__redacted",
+    "comp_2-027__answerable",
+    "comp_2-027__redacted",
+    "comp_2-028__answerable",
+    "comp_2-028__redacted",
+    "comp_2-029__answerable",
+    "comp_2-029__redacted",
+    "comp_2-030__answerable",
+    "comp_2-030__redacted",
+    "comp_2-031__answerable",
+    "comp_2-031__redacted",
+    "comp_2-032__answerable",
+    "comp_2-032__redacted",
+    "comp_2-033__answerable",
+    "comp_2-033__redacted",
+    "comp_2-034__answerable",
+    "comp_2-034__redacted",
+    "comp_2-035__answerable",
+    "comp_2-035__redacted",
+    "comp_2-036__answerable",
+    "comp_2-036__redacted",
+    "comp_2-037__answerable",
+    "comp_2-037__redacted",
+    "comp_2-038__answerable",
+    "comp_2-038__redacted",
+    "comp_2-039__answerable",
+    "comp_2-039__redacted",
+    "comp_2-040__answerable",
+    "comp_2-040__redacted",
+    "comp_2-041__answerable",
+    "comp_2-041__redacted",
+    "comp_2-042__answerable",
+    "comp_2-042__redacted",
+    "comp_2-043__answerable",
+    "comp_2-043__redacted",
+    "comp_2-044__answerable",
+    "comp_2-044__redacted",
+    "comp_2-045__answerable",
+    "comp_2-045__redacted"
+  ],
+  "paired_instances": 432,
+  "redacted_instances": 216,
+  "schema": "jps-study-001-score/1",
+  "trials_per_instance": {
+    "max": 5,
+    "min": 5
+  }
+}
