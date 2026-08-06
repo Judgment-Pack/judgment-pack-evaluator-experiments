@@ -58,6 +58,24 @@ AUTHORITY = "study-010:records"
 TOOL = "get_record"
 JPACK_DIGEST = "sha256:417ee1ae86325713930e714b659432246c7845be1cdfa4c33f211bfad1ce970d"
 GITHUB_REPO = "Judgment-Pack/judgment-pack-evaluator-experiments"
+MODEL = "gpt-5.6-sol"
+# Hard pins, in reviewed bytes (PREREGISTRATION.md §5): the lock RECORDS
+# these, but verification compares against the constants below, so a
+# hand-edited lock cannot substitute an attacker chain or log key. The
+# drand mainnet default chain's identity and schedule:
+DRAND_CHAIN_HASH = "8990e7a9aaed2ffed73dbd7092123d6f289930540d7651336225dc172e51b2ce"
+DRAND_PUBLIC_KEY = ("868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a56"
+                    "9937c529eeda66c7293784a9402801af31")
+DRAND_GENESIS = 1595431050
+DRAND_PERIOD = 30
+DRAND_SCHEME = "pedersen-bls-chained"
+# The production Rekor log's public key (fetched from
+# https://rekor.sigstore.dev/api/v1/log/publicKey and pinned here).
+REKOR_LOG_KEY = """-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE2G2Y+2tabdTV5BcGiBIx0a9fAFwr
+kBbmLSGtks4L3qX6yYY0zufBnhC8Ur/iy55GhWP/9A/bY2LhC30M9+RYtw==
+-----END PUBLIC KEY-----
+"""
 DRAND_INFO = "https://api.drand.sh/v2/beacons/default/info"
 # Both relays are addressed by chain hash (the cryptographic identity, not
 # the "default" alias) and must return byte-identical signatures.
@@ -124,6 +142,17 @@ GENERATED_BASE = [
     "transcription/witness/LOCK-INCLUSION.json",
     "transcription/witness/SEARCH.json",
 ]
+
+
+LOCK_MEMBERS = {"lockedInputs", "jpack", "python", "probesChecked", "codex",
+                "drand", "rekor", "drawRule", "githubRepo", "note"}
+DRAW_RULE_MEMBERS = {"publication", "offsetSeconds", "deadlineSeconds", "round",
+                     "preimage", "index", "familyDigest", "randomness"}
+DRAND_MEMBERS = {"chainHash", "publicKey", "genesisTime", "periodSeconds",
+                 "scheme", "relays", "rawInfo"}
+REKOR_MEMBERS = {"log", "logPublicKeyPem", "lockWitnessKey", "recordsWitnessKey"}
+FREEZE_MEMBERS = {"frozenInputs", "protocolLock", "jpack", "python", "invocation",
+                  "preregistrationCommit", "note"}
 
 
 class StudyError(Exception):
@@ -467,7 +496,8 @@ def cmd_lock() -> None:
         "python": {"implementation": platform.python_implementation(),
                    "version": platform.python_version()},
         "probesChecked": checked,
-        "codex": {"binarySha256": sha256_file(codex), "version": codex_version},
+        "codex": {"binarySha256": sha256_file(codex), "version": codex_version,
+                  "model": MODEL},
         "drand": {
             "chainHash": info["chain_hash"],
             "publicKey": info["public_key"],
@@ -545,23 +575,52 @@ def verify_lock() -> dict:
         committed = "sha256:" + hashlib.sha256(head_blob(relative)).hexdigest()
         if committed != digest:
             raise StudyError("locked input's HEAD blob differs from the lock: %s" % relative)
+    # Every constant is compared against THIS FILE's reviewed bytes, not
+    # merely read from the lock: a hand-edited lock cannot shift the chain
+    # schedule (which would move the drawn round), swap the log key (which
+    # would let a forged signed timestamp pass), or loosen the draw rule.
+    if set(locked) != LOCK_MEMBERS:
+        raise StudyError("the lock's member set is not the registered schema: %s"
+                         % sorted(set(locked) ^ LOCK_MEMBERS))
     rule = locked["drawRule"]
+    if set(rule) != DRAW_RULE_MEMBERS:
+        raise StudyError("the lock's draw rule is not the registered schema")
     if rule["offsetSeconds"] != DRAW_OFFSET_SECONDS \
             or rule["deadlineSeconds"] != DRAW_DEADLINE_SECONDS:
         raise StudyError("the lock's draw constants are not the registered constants")
-    if locked["drand"]["periodSeconds"] <= 0 or locked["drand"]["genesisTime"] <= 0:
-        raise StudyError("the lock's chain constants are malformed")
-    if locked["drand"]["relays"] != list(DRAND_RELAYS):
+    chain = locked["drand"]
+    if set(chain) != DRAND_MEMBERS:
+        raise StudyError("the lock's chain object is not the registered schema")
+    if (chain["chainHash"], chain["publicKey"], chain["genesisTime"],
+            chain["periodSeconds"], chain["scheme"]) != (
+            DRAND_CHAIN_HASH, DRAND_PUBLIC_KEY, DRAND_GENESIS, DRAND_PERIOD, DRAND_SCHEME):
+        raise StudyError("the lock's chain constants are not the pinned mainnet chain")
+    raw = chain["rawInfo"]
+    if (raw.get("chain_hash"), raw.get("public_key"), raw.get("genesis_time"),
+            raw.get("period"), raw.get("scheme")) != (
+            DRAND_CHAIN_HASH, DRAND_PUBLIC_KEY, DRAND_GENESIS, DRAND_PERIOD, DRAND_SCHEME):
+        raise StudyError("the lock's retained chain info disagrees with its own constants")
+    if chain["relays"] != list(DRAND_RELAYS):
         raise StudyError("the lock's relay list is not the registered pair")
     if locked["probesChecked"] != 44:
         raise StudyError("the lock does not record the 44-probe battery")
     if locked["jpack"] != JPACK_DIGEST:
         raise StudyError("the lock does not pin the registered jpack digest")
+    if locked["python"].get("implementation") != platform.python_implementation() \
+            or locked["python"].get("version") != platform.python_version():
+        raise StudyError("the lock's interpreter is not this interpreter")
+    if locked["codex"].get("model") != MODEL:
+        raise StudyError("the lock does not pin the registered model")
+    rekor = locked["rekor"]
+    if set(rekor) != REKOR_MEMBERS:
+        raise StudyError("the lock's rekor object is not the registered schema")
     for member, pub_path in (("lockWitnessKey", LOCK_PUB), ("recordsWitnessKey", RECORDS_PUB)):
-        if locked["rekor"][member] != sha256_file(pub_path):
+        if rekor[member] != sha256_file(pub_path):
             raise StudyError("the lock does not pin %s" % member)
-    if "BEGIN PUBLIC KEY" not in locked["rekor"]["logPublicKeyPem"]:
-        raise StudyError("the lock does not pin the Rekor log key")
+    if rekor["lockWitnessKey"] == rekor["recordsWitnessKey"]:
+        raise StudyError("the two witness keys must differ")
+    if rekor["logPublicKeyPem"].strip() != REKOR_LOG_KEY.strip():
+        raise StudyError("the lock's Rekor log key is not the pinned production key")
     committed = subprocess.run(
         ["git", "show", "HEAD:./PROTOCOL-LOCK.json"], cwd=STUDY, capture_output=True)
     if committed.returncode != 0 or committed.stdout != open(LOCK, "rb").read():
@@ -594,8 +653,10 @@ def cmd_timestamp_lock() -> None:
     target = os.path.join(WITNESS_DIR, "LOCK-INCLUSION.json")
     if os.path.exists(target):
         raise StudyError("the lock is already timestamped")
-    payload = manifest_bytes("study-010-lock-commit", head_oid(STUDY))
+    lock_commit = head_oid(STUDY)
+    payload = manifest_bytes("study-010-lock-commit", lock_commit)
     entry = rekor_include(LOCK_KEY, LOCK_PUB, payload)
+    entry["lockCommit"] = lock_commit
     verify_inclusion(entry, LOCK_PUB, payload, locked["rekor"]["logPublicKeyPem"])
     with open(target, "w") as handle:
         json.dump(entry, handle, indent=2)
@@ -612,7 +673,8 @@ def cmd_publish() -> None:
         os.path.join(call_dir, "session.jsonl"),
         os.path.join(STUDY, "transcription/PROMPT.txt"),
         completion,
-        os.path.join(call_dir, "CALL.json"))
+        os.path.join(call_dir, "CALL.json"),
+        model=MODEL)
     revision = records_commit()
     os.makedirs(WITNESS_DIR, exist_ok=True)
     target = os.path.join(WITNESS_DIR, "INCLUSION.json")
@@ -630,10 +692,16 @@ def cmd_publish() -> None:
 
 
 def witness_search() -> tuple[dict, list]:
-    """One online uniqueness pass (PREREGISTRATION.md §5): every indexed
-    inclusion under either locked witness key must be one the protocol
-    made, and the records inclusion must be indexed. Returns (the retained
-    search body, the stranger list)."""
+    """One online uniqueness OBSERVATION (PREREGISTRATION.md §5).
+
+    Rekor's search index is an unauthenticated convenience API and is
+    eventually consistent: a rehearsal found an entry that was retrievable
+    by UUID and SET-verified, yet still absent from its key search a
+    quarter of an hour later. Absence therefore proves nothing and cannot
+    gate the study — the binding evidence is the AUTHENTICATED inclusion,
+    which stands on the log's signed entry timestamp alone. A stranger
+    returned under a locked key is meaningful in the other direction, and
+    refuses. Returns (the retained observation, the stranger list)."""
     import base64
     inclusion = json.load(open(os.path.join(WITNESS_DIR, "INCLUSION.json")))
     lock_path = os.path.join(WITNESS_DIR, "LOCK-INCLUSION.json")
@@ -652,13 +720,21 @@ def witness_search() -> tuple[dict, list]:
             entries.append({"uuid": uuid, "logIndex": record["logIndex"],
                             "integratedTime": record["integratedTime"]})
         hits_by_key[name] = entries
-    search = {"queried": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-              "hits": hits_by_key, "known": known,
-              "recordsUuid": inclusion["uuid"]}
     strangers = [entry for name, entries in hits_by_key.items() for entry in entries
                  if known.get(entry["uuid"]) != name]
-    search["ok"] = not strangers and any(
-        entry["uuid"] == inclusion["uuid"] for entry in hits_by_key["records"])
+    search = {
+        "queried": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "hits": hits_by_key,
+        "known": known,
+        "recordsUuid": inclusion["uuid"],
+        "recordsIndexed": any(entry["uuid"] == inclusion["uuid"]
+                              for entry in hits_by_key["records"]),
+        "strangers": strangers,
+        "note": ("An unauthenticated, eventually consistent observation. "
+                 "recordsIndexed false means the index had not caught up, "
+                 "not that the inclusion is absent: INCLUSION.json's "
+                 "authenticated entry is the binding evidence."),
+    }
     return search, strangers
 
 
@@ -679,10 +755,9 @@ def cmd_witness() -> None:
         handle.write("\n")
     if strangers:
         raise StudyError("unknown inclusions under a witness key: %r" % strangers)
-    if not search["ok"]:
-        raise StudyError("the records inclusion is not yet indexed; re-run witness until it is")
-    print("witness: ok (%d lock + %d records inclusions, all known, records entry indexed)"
-          % (len(search["hits"]["lock"]), len(search["hits"]["records"])))
+    print("witness: no strangers (%d lock + %d records hits; records entry %s)"
+          % (len(search["hits"]["lock"]), len(search["hits"]["records"]),
+             "indexed" if search["recordsIndexed"] else "not yet indexed"))
 
 
 # ---------------------------------------------------------------- draw
@@ -710,6 +785,30 @@ def tree_files(revision: str, relative_dirs: list) -> dict:
                                cwd=STUDY, capture_output=True, check=True)
         result[relative] = shown.stdout
     return result
+
+
+def locked_snapshot() -> dict:
+    """The locked derivation inputs read from HEAD's blobs, once, BEFORE
+    the beacon wait (PREREGISTRATION.md §5). Everything the sampled index
+    and the tables depend on — FAMILY.json's exact bytes, pack C, the
+    controls — is taken from this snapshot, never re-read from a mutable
+    worktree afterwards: a whitespace variant of FAMILY.json parses to the
+    same mutations but hashes differently, and re-reading it after the
+    round is known would hand the operator the index."""
+    snapshot = {}
+    for relative in ("FAMILY.json", "packs/vendor-screening-correct.pack.json",
+                     "controls/k-wrong-1.json", "controls/k-wrong-2.json"):
+        blob = head_blob(relative)
+        if blob != open(os.path.join(STUDY, relative), "rb").read():
+            raise StudyError("%s differs from its HEAD blob" % relative)
+        snapshot[relative] = blob
+    return snapshot
+
+
+def snapshot_family(snapshot: dict) -> tuple[dict, str]:
+    """(the parsed family, its digest) from snapshot bytes only."""
+    blob = snapshot["FAMILY.json"]
+    return json.loads(blob.decode("utf-8")), hashlib.sha256(blob).hexdigest()
 
 
 def published_tree(revision: str) -> dict:
@@ -786,16 +885,21 @@ def draw_index(randomness_hex: str, commit_hex: str, family_hex: str) -> tuple[b
     return preimage, int.from_bytes(hashlib.sha256(preimage).digest(), "big") % 6
 
 
-def derive_defect(published: dict, mutation: dict, index: int) -> dict:
+def canonical_json(value) -> bytes:
+    """The one serializer for every artifact this study byte-compares."""
+    return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def derive_defect(published: dict, snapshot: dict, mutation: dict, index: int) -> dict:
     """DEFECT.json's canonical body, derived from the PUBLISHED record
-    bytes and the locked reference semantics only (PREREGISTRATION.md §5).
+    bytes and the pre-beacon LOCKED SNAPSHOT only (PREREGISTRATION.md §5).
     validate recomputes this same body and byte-compares."""
     authored = {}
     for relative, blob in published.items():
         if relative.startswith("records/") and relative.endswith(".json"):
             record = json.loads(blob.decode("utf-8"))
             authored[record["caseId"]] = record
-    controls = {name: json.load(open(os.path.join(STUDY, "controls", name + ".json")))
+    controls = {name: json.loads(snapshot["controls/%s.json" % name].decode("utf-8"))
                 for name in ("k-wrong-1", "k-wrong-2")}
     sets = {"H": [], "Q": [], "F": [], "K": sorted(controls)}
     tables = {}
@@ -831,6 +935,10 @@ def cmd_draw() -> None:
     verify_inclusion(inclusion, RECORDS_PUB, expected_manifest,
                      locked["rekor"]["logPublicKeyPem"])
     published_files = published_tree(revision)
+    # Snapshot every locked derivation input BEFORE the wait: nothing the
+    # index depends on is re-read from the worktree once the round is known.
+    snapshot = locked_snapshot()
+    family_manifest, family_digest = snapshot_family(snapshot)
     published = inclusion["integratedTime"]
     genesis = locked["drand"]["genesisTime"]
     period = locked["drand"]["periodSeconds"]
@@ -858,8 +966,6 @@ def cmd_draw() -> None:
     # sha256(signature); the signature itself is the externally verifiable
     # object (BLS over previous_signature + round, against the chain key).
     randomness = hashlib.sha256(bytes.fromhex(signature)).hexdigest()
-    family_digest = hashlib.sha256(
-        open(os.path.join(STUDY, "FAMILY.json"), "rb").read()).hexdigest()
     preimage, index = draw_index(randomness, revision, family_digest)
     draw = {
         "recordsCommit": revision,
@@ -880,17 +986,18 @@ def cmd_draw() -> None:
         json.dump(draw, handle, indent=2)
         handle.write("\n")
 
-    mutation = next(m for m in family()["mutations"] if m["index"] == index)
-    correct = json.load(open(os.path.join(STUDY, "packs/vendor-screening-correct.pack.json")))
+    matches = [m for m in family_manifest["mutations"] if m["index"] == index]
+    if len(matches) != 1:
+        raise StudyError("the snapshot family has no unique member at index %d" % index)
+    mutation = matches[0]
+    correct = json.loads(snapshot["packs/vendor-screening-correct.pack.json"].decode("utf-8"))
     defective = apply_patch(correct, mutation["patch"])
-    with open(os.path.join(STUDY, "packs/vendor-screening-defective.pack.json"), "w") as handle:
-        json.dump(defective, handle, indent=2)
-        handle.write("\n")
+    with open(os.path.join(STUDY, "packs/vendor-screening-defective.pack.json"), "wb") as handle:
+        handle.write(canonical_json(defective))
 
-    manifest = derive_defect(published_files, mutation, index)
-    with open(os.path.join(STUDY, "DEFECT.json"), "w") as handle:
-        json.dump(manifest, handle, indent=2)
-        handle.write("\n")
+    manifest = derive_defect(published_files, snapshot, mutation, index)
+    with open(os.path.join(STUDY, "DEFECT.json"), "wb") as handle:
+        handle.write(canonical_json(manifest))
     sets = manifest["sets"]
     in_h = sorted(set(sets["H"]) & set(sets["F"]))
     print("draw: round %d -> index %d (%s); |F|=%d, |H∩F|=%d; commit DRAW.json, DEFECT.json, pack D"
@@ -911,19 +1018,26 @@ def cmd_validate() -> None:
         os.path.join(call_dir, "session.jsonl"),
         os.path.join(STUDY, "transcription/PROMPT.txt"),
         completion,
-        os.path.join(call_dir, "CALL.json"))
+        os.path.join(call_dir, "CALL.json"),
+        model=MODEL)
     call = json.load(open(os.path.join(call_dir, "CALL.json")))
     if call.get("binarySha256") != locked_manifest["codex"]["binarySha256"]:
         raise StudyError("the authoring call did not use the locked codex binary")
+    # Every derivation input comes from the locked snapshot (HEAD blobs),
+    # and DEFECT.json / pack D are compared as canonical BYTES, so a
+    # retyped literal (JSON false vs 0, which Python equates) or a
+    # whitespace variant cannot pass as the sampled mutation.
+    snapshot = locked_snapshot()
+    family_manifest, family_digest = snapshot_family(snapshot)
     manifest = defect()
     mutation = manifest["mutation"]
-    fam = [m for m in family()["mutations"] if m["index"] == manifest["sampledIndex"]]
-    if len(fam) != 1 or mutation != fam[0]:
-        raise StudyError("DEFECT.json's mutation is not FAMILY.json's at the sampled index")
+    fam = [m for m in family_manifest["mutations"] if m["index"] == manifest["sampledIndex"]]
+    if len(fam) != 1 or canonical_json(mutation) != canonical_json(fam[0]):
+        raise StudyError("DEFECT.json's mutation is not the snapshot family's sampled member")
+    mutation = fam[0]
     draw = json.load(open(os.path.join(STUDY, "DRAW.json")))
     if draw["index"] != manifest["sampledIndex"]:
         raise StudyError("DRAW.json and DEFECT.json disagree on the index")
-    family_digest = hashlib.sha256(open(os.path.join(STUDY, "FAMILY.json"), "rb").read()).hexdigest()
     if draw["familyDigest"] != "sha256:" + family_digest:
         raise StudyError("DRAW.json's family digest is not the locked family")
     preimage, index = draw_index(draw["randomness"], draw["recordsCommit"], family_digest)
@@ -953,6 +1067,18 @@ def cmd_validate() -> None:
     on_disk = json.load(open(os.path.join(WITNESS_DIR, "INCLUSION.json")))
     if on_disk != inclusion:
         raise StudyError("DRAW.json's publication is not the retained inclusion")
+    # The lock timestamp is authenticated too, and its commit must be an
+    # ancestor of the records commit: lock-before-authoring is checkable.
+    lock_inclusion = json.load(open(os.path.join(WITNESS_DIR, "LOCK-INCLUSION.json")))
+    lock_commit = lock_inclusion.get("lockCommit", "")
+    verify_inclusion(lock_inclusion, LOCK_PUB,
+                     manifest_bytes("study-010-lock-commit", lock_commit),
+                     locked["rekor"]["logPublicKeyPem"])
+    if subprocess.run(["git", "merge-base", "--is-ancestor", lock_commit,
+                       draw["recordsCommit"]], cwd=STUDY).returncode != 0:
+        raise StudyError("the timestamped lock commit is not an ancestor of the records commit")
+    if lock_inclusion["integratedTime"] > inclusion["integratedTime"]:
+        raise StudyError("the lock was timestamped after the records publication")
     genesis = locked["drand"]["genesisTime"]
     period = locked["drand"]["periodSeconds"]
     target_time = inclusion["integratedTime"] + locked["drawRule"]["offsetSeconds"]
@@ -970,8 +1096,9 @@ def cmd_validate() -> None:
     published_files = published_tree(draw["recordsCommit"])
     assert_worktree_is(published_files, draw["recordsCommit"],
                        ["records", "RECORDS.md", "transcription/authoring"])
-    if derive_defect(published_files, mutation, draw["index"]) != manifest:
-        raise StudyError("DEFECT.json does not recompute from the published records")
+    recomputed = derive_defect(published_files, snapshot, mutation, draw["index"])
+    if canonical_json(recomputed) != open(os.path.join(STUDY, "DEFECT.json"), "rb").read():
+        raise StudyError("DEFECT.json is not the canonical recomputation from the published records")
     everyone = record_ids()
     sets = manifest["sets"]
     if sorted(sets["H"] + sets["Q"] + sets["K"]) != everyone:
@@ -983,10 +1110,10 @@ def cmd_validate() -> None:
     for case_id in everyone:
         if load_record(case_id)["caseId"] != case_id:
             raise StudyError("record %s misnames itself" % case_id)
-    correct = json.load(open(os.path.join(STUDY, "packs/vendor-screening-correct.pack.json")))
-    defective = json.load(open(os.path.join(STUDY, "packs/vendor-screening-defective.pack.json")))
-    if apply_patch(correct, mutation["patch"]) != defective:
-        raise StudyError("C with the sampled mutation's patch applied is not D")
+    correct = json.loads(snapshot["packs/vendor-screening-correct.pack.json"].decode("utf-8"))
+    expected_d = canonical_json(apply_patch(correct, mutation["patch"]))
+    if expected_d != open(os.path.join(STUDY, "packs/vendor-screening-defective.pack.json"), "rb").read():
+        raise StudyError("pack D is not the canonical C-with-the-sampled-patch bytes")
     pnf_check.check(json.load(open(os.path.join(STUDY, "transcription/record.rule.json"))))
     print("validate: ok (%d records+controls, publication authenticated, draw bound, "
           "DEFECT recomputed, rule is the registered projection)" % len(everyone))
@@ -1034,12 +1161,15 @@ def cmd_freeze() -> None:
         handle.write("\n")
     if strangers:
         raise StudyError("unknown inclusions under a witness key: %r" % strangers)
-    if not search["ok"]:
-        raise StudyError("the records inclusion is not yet indexed; re-run freeze once it is")
+    # The first committed freeze is the freeze: re-freezing after a crash
+    # would change the digest and silently re-elect the primary attempt.
+    committed = subprocess.run(["git", "cat-file", "-e", "HEAD:./FREEZE.json"],
+                               cwd=STUDY, capture_output=True)
+    if committed.returncode == 0:
+        raise StudyError("a committed FREEZE.json already governs; it is immutable")
     cmd_validate()
-    with open(FREEZE, "w") as handle:
-        json.dump(freeze_body(), handle, indent=2)
-        handle.write("\n")
+    with open(FREEZE, "wb") as handle:
+        handle.write(canonical_json(freeze_body()))
     print("froze %d inputs; commit FREEZE.json before running" % len(frozen_inputs()))
 
 
@@ -1050,6 +1180,12 @@ def verify_freeze() -> dict:
     if not os.path.exists(FREEZE):
         raise StudyError("no FREEZE.json; run freeze and commit it first")
     frozen = json.load(open(FREEZE))
+    if set(frozen) != FREEZE_MEMBERS:
+        raise StudyError("the freeze's member set is not the registered schema")
+    if frozen["jpack"] != JPACK_DIGEST:
+        raise StudyError("the freeze does not pin the registered jpack digest")
+    if frozen["python"].get("implementation") != platform.python_implementation():
+        raise StudyError("the freeze's interpreter implementation is not this one")
     if set(frozen["frozenInputs"]) != set(frozen_inputs()):
         raise StudyError("the freeze's input set is not the enumerated set: %s"
                          % sorted(set(frozen["frozenInputs"]) ^ set(frozen_inputs())))
@@ -1232,9 +1368,9 @@ def cmd_run() -> None:
     if not os.path.exists(FREEZE):
         raise StudyError("no FREEZE.json; run freeze and commit it first")
     attempt = start_attempt()
-    with open(os.path.join(attempt, "FREEZE-DIGEST"), "w") as handle:
-        handle.write(sha256_file(FREEZE) + "\n")
     try:
+        with open(os.path.join(attempt, "FREEZE-DIGEST"), "w") as handle:
+            handle.write(sha256_file(FREEZE) + "\n")
         frozen = verify_freeze()
         cmd_validate()
         jpack = os.environ["JPACK_BIN"]
@@ -1326,10 +1462,12 @@ def primary_attempt() -> tuple[int, str, bool]:
     while os.path.exists(os.path.join(TRIALS, "ATTEMPT-%d" % number)):
         attempt = os.path.join(TRIALS, "ATTEMPT-%d" % number)
         digest_path = os.path.join(attempt, "FREEZE-DIGEST")
-        bound = os.path.exists(digest_path) and open(digest_path).read().strip() == current
+        bound = os.path.isfile(digest_path) and open(digest_path).read().strip() == current
         if bound:
             verify_seal(attempt)
-            return number, attempt, os.path.exists(os.path.join(attempt, "DONE"))
+            done_path = os.path.join(attempt, "DONE")
+            done = os.path.isfile(done_path) and not os.path.islink(done_path)
+            return number, attempt, done
         number += 1
     raise StudyError("no attempt under the current freeze")
 
@@ -1340,9 +1478,19 @@ def verify_seal(attempt: str) -> None:
     removed CRASHED.json is a drifted seal, not a promotion."""
     manifest = json.load(open(os.path.join(attempt, "MANIFEST.json")))
     actual = set()
-    for base, _, names in os.walk(attempt):
+    for base, dirs, names in os.walk(attempt):
+        for name in dirs:
+            path = os.path.join(base, name)
+            if os.path.islink(path):
+                raise StudyError("the sealed attempt holds a symlinked directory: %s" % name)
         for name in names:
-            actual.add(os.path.relpath(os.path.join(base, name), attempt))
+            path = os.path.join(base, name)
+            if os.path.islink(path) or not os.path.isfile(path):
+                raise StudyError("the sealed attempt holds a non-regular file: %s" % name)
+            actual.add(os.path.relpath(path, attempt))
+    terminal = {"DONE", "CRASHED.json"} & actual
+    if len(terminal) != 1:
+        raise StudyError("the attempt has %d terminal markers, not one" % len(terminal))
     if actual != set(manifest) | {"MANIFEST.json"}:
         raise StudyError("the sealed attempt's file set drifted: %s"
                          % sorted(actual ^ (set(manifest) | {"MANIFEST.json"})))
@@ -1392,11 +1540,12 @@ def write_results(results: dict) -> None:
 
 
 def cmd_score() -> None:
-    verify_freeze()
-    number, attempt, done = primary_attempt()
+    number = 0
     try:
+        verify_freeze()
+        number, attempt, done = primary_attempt()
         _score_body(number, attempt, done)
-    except (StudyError, KeyError, ValueError, TypeError, FileNotFoundError) as error:
+    except Exception as error:  # noqa: BLE001 - E1's partition is total
         # E1's partition is total (PREREGISTRATION.md §6): malformed or
         # missing retained data is pipeline-invalid, not a bare exception.
         write_results({

@@ -1,18 +1,27 @@
-# Preregistration — Study 010: the blinded oracle (revision 4)
+# Preregistration — Study 010: the blinded oracle (revision 5)
 
-**Status: DRAFT until the protocol lock; governing thereafter.** Three
-pre-freeze reviews rejected the three prior revisions: revision 1
-(operator entropy, no structural blinding), revision 2 (a steerable
-publication clock, an overlapping E1, an unhonorable inheritance claim),
-and revision 3 (an unauthenticated publication clock, an unsound
-uniqueness gate, post-beacon record substitution, and eleven further
-mechanization gaps — alongside confirmation that the draw arithmetic,
-family, tables, controls, and derived mismatch sets are sound). Revision 4
-repairs all of it; every review and its disposition is in
+**Status: DRAFT until the protocol lock; governing thereafter.** Four
+pre-freeze reviews rejected the four prior revisions: revision 1 (operator
+entropy, no structural blinding), revision 2 (a steerable publication
+clock, an overlapping E1, an unhonorable inheritance claim), revision 3
+(an unauthenticated publication clock, an unsound uniqueness gate,
+post-beacon record substitution), and revision 4 (an open lock schema that
+could substitute the chain schedule or log key, a post-beacon FAMILY
+whitespace-substitution path, prior-context and configuration holes in the
+authoring gate, ledger and scoring gaps — and, decisively, a transcript
+whitelist that rejected the `reasoning` items every real session carries,
+which would have made the honest authoring call permanently inadmissible).
+Every review confirmed the study's core sound: the draw arithmetic, the
+six family predicates against pack C's actual bytes, the tables, the
+controls' all-mutation invariance, and the derived mismatch sets. Revision
+5 repairs the rest; every review and its disposition is in
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md). This revision is reviewed together
 with the complete, byte-exact protocol-lock candidate — policy, pack C,
 family, prompt, compiler, checkers, harness, controls — not as prose
-alone. After the lock this file is never edited; corrections go to
+alone. Its authoring configuration was validated against the pinned CLI
+before registration: a captured no-tool session establishes what the
+transcript gate must admit, and the leak screen was exercised against
+that honest session and against a planted defect-informed turn. After the lock this file is never edited; corrections go to
 `DEVIATIONS.md`, and a change to any locked file after authoring begins
 invalidates the attempt (§8).
 
@@ -108,38 +117,70 @@ failures.
 
 ## 4. Records: the call, the binding, the compiler, the sets
 
-**The call.** One `codex exec` invocation (OpenAI model, the line's
-cross-vendor vendor), run by the registered
-`transcription/authoring_call.sh`: from a freshly created empty directory
-whose resolved path is outside the repository's git root; with an
-environment scrubbed to exactly `PATH` and `HOME`; with the `codex` binary
-required to match the sha256 the protocol lock pinned; prompt = the exact
-bytes of `transcription/PROMPT.txt` (the file carries **no trailing
-newline**, so the shell argument is byte-identical to the file); stdin
-closed. Each invocation lands in an immutable numbered slot
-`transcription/authoring/call-N` (N ≤ 3) retaining `CALL.json` (argv, cwd,
-environment allowlist, CLI identity and binary digest, integer exit
-status, new-session count), `stdout.raw`, `stderr.raw`, `session.jsonl`,
-and `completion.txt`. **Retry rule**: a slot that completed (exit 0) may
-never be followed by another slot; a transport failure (nonzero exit) may
-be retried into the next slot, at most three slots total; the admissible
-call is the single completed slot, mechanically resolved — it must also
-record exactly one new codex session and retain all five files. §9 states
-what the slot discipline proves and what it merely records.
+**The call.** One `codex exec` invocation of the locked model
+(`gpt-5.6-sol`, the line's cross-vendor vendor), run by the registered
+`transcription/authoring_call.sh`, whose every element was validated
+against the pinned CLI before registration:
 
-**The transcript binding** (`harness/transcript_check.py`, locked). The
-parse is a strict whitelist over the transcript's `response_item` payloads:
-only `message` entries with role `user`, `developer`, or `assistant` are
-admissible, user/developer content must be entirely `input_text` and
-assistant content entirely `output_text`; ANY other payload type — every
-call form and call output, tool roles, attachments, unknown types —
-refuses the attempt. The attempt is admissible only if: exactly one
-user/developer message equals `PROMPT.txt`'s bytes; no user/developer
-message follows it; at least one assistant message answers it; and
-`completion.txt`'s bytes equal the last such assistant message's
-concatenated `output_text`. `CALL.json` must record integer exit status 0
-(a JSON boolean is not an integer here). A violation is an inadmissible
-authoring attempt: the run refuses and E1 is `pipeline-invalid`.
+- an **isolated `CODEX_HOME`** containing only a copy of the credential —
+  so the operator's own config, rules, skills, and `AGENTS.md` cannot
+  reach the model, and the session file is the single new file beneath it
+  (session discovery is deterministic, not a timestamp race);
+- **`--ignore-user-config`** and an explicit **`-m <locked model>`**;
+- an environment scrubbed with `env -i` to `PATH`, `HOME`, `TMPDIR`, and
+  `CODEX_HOME`;
+- an exclusively created scratch directory whose resolved path lies
+  outside every git worktree and contains no leak token;
+- the `codex` binary required to match the sha256 the lock pinned;
+- the prompt passed as the byte-exact contents of
+  `transcription/PROMPT.txt` (no trailing newline), stdin closed.
+
+Each invocation lands in an immutable numbered slot
+`transcription/authoring/call-N` (N ≤ 3) retaining `CALL.json` (argv, cwd,
+home, environment allowlist, model, CLI identity and binary digest,
+integer exit status, session count), `stdout.raw`, `stderr.raw`,
+`session.jsonl`, and — **only when the process exited 0** —
+`completion.txt`. A call killed after its answer was persisted therefore
+leaves a transcript but no compiler input, so a retry cannot shop between
+outputs. **Retry rule**: a slot that completed may never be followed by
+another; a transport failure may be retried into the next slot, at most
+three; the admissible call is the single completed slot, mechanically
+resolved, and it must record exactly one session and retain all five
+files. §9 states what this proves and what it merely records.
+
+**The transcript binding** (`harness/transcript_check.py`, locked; built
+against a captured no-tool session, not an assumed schema). Every
+`response_item` payload must be either a `message` with role user,
+developer, or assistant (role-appropriate content items only) or an
+**inert `reasoning` item** — real sessions carry these, and one bearing
+any call-like member (name, arguments, input, output, call_id, content)
+refuses. ANY other payload type — every call form and call output, tool
+roles, attachments, unknown types — refuses. Transcript lines are parsed
+with duplicate-key rejection. The attempt is admissible only if:
+
+1. exactly one **user** message equals `PROMPT.txt`'s bytes, and no
+   user/developer message follows it — the registered prompt is terminal;
+2. **no message before the prompt carries any locked leak token** — the
+   study's pack, family, mutation, and fact vocabulary (`LEAK_TOKENS`).
+   Environment paths (the call's cwd, the sandbox workspace roots, `HOME`)
+   are excised before matching, because codex's own boilerplate quotes
+   them and a machine whose directories spell a study term leaks nothing;
+   the wrapper independently refuses a scratch path carrying a leak token,
+   so the excision cannot hide a planted one. This is what makes "the
+   completion answers the policy alone" mechanical rather than asserted:
+   codex's fixed boilerplate (permissions instructions, agent identity,
+   multi-agent note, recommended plugins) passes; a defect-informed turn
+   does not;
+3. at least one assistant message follows the prompt, and
+   `completion.txt`'s bytes equal the last one's concatenated
+   `output_text`;
+4. `turn_context`, where present, names the locked model and the call's
+   own working directory;
+5. `CALL.json` records integer exit status 0 (a JSON boolean is not an
+   integer here).
+
+A violation is an inadmissible authoring attempt: the run refuses and E1
+is `pipeline-invalid`.
 
 **The compiler.** `harness/records_compile.py` — locked before the call —
 turns `completion.txt` into record files with no operator judgment. The
@@ -202,16 +243,30 @@ canonical `{body, integratedTime, logID, logIndex}` payload — after which
 `integratedTime` and `logIndex` are the log's word, not the operator's.
 The raw upload response is retained.
 
-**Uniqueness.** The binding inclusion is the single entry under the
-records key. The online check (`witness`, and the freeze gate itself
-re-runs it rather than trusting a file): search the log's index by each
-locked public key; every returned entry must be one the protocol made
-(the one lock timestamp under the lock key, the one publication under the
-records key); any stranger refuses the study; the records entry must be
-indexed before the freeze may proceed. Rekor's search index lags inclusion
-by design, so the check retries, and the post-run review re-runs it into a
-numbered retained sibling. What this cannot prove — entries under OTHER
-keys, parallel unpublished attempts — is in §9.
+**The lock timestamp.** The lock commit's inclusion is authenticated the
+same way, binds the lock commit's OID, and must be an ancestor of the
+records commit with an earlier `integratedTime` — lock-before-authoring is
+checkable from the log and the commit graph, not asserted.
+
+**Uniqueness, and what the index can and cannot say.** The binding
+evidence that the publication happened when it says is the
+**authenticated inclusion** above; it stands on the log's signed entry
+timestamp alone and needs no search. Separately, `witness` — which the
+freeze gate re-runs itself rather than trusting a retained file — searches
+the log's index by each locked public key and retains whatever comes back.
+Any entry under a locked key that the protocol did not make **refuses the
+study**: a stranger is real evidence of a second inclusion.
+
+The converse is not true, and the protocol does not pretend otherwise.
+Rekor's key search is an unauthenticated convenience API and is eventually
+consistent: during rehearsal an entry that was retrievable by UUID and
+signed-entry-timestamp-verified was still absent from its key search a
+quarter of an hour later. So the search **cannot gate the freeze** — a
+lagging index would block a study whose evidence is already complete — and
+`SEARCH.json` records `recordsIndexed` as an observation, true or false,
+with the post-run review re-running it into a numbered sibling. What the
+search cannot prove at all — entries under OTHER keys, parallel
+unpublished branches — is in §9.
 
 **The round.** Locked constants: the drand mainnet default chain's chain
 hash, public key, scheme (`pedersen-bls-chained`), genesis time G, and
@@ -251,9 +306,21 @@ where `family_digest_hex` is the sha256 hex digest of the locked
 `index` **member** equals the residue (the lock asserts members 0–5 exist
 contiguously). The 2^256 mod 6 bias is negligible and accepted.
 
+**The pre-beacon snapshot.** Before the harness waits for the round, it
+reads every locked derivation input — `FAMILY.json`'s exact bytes, pack C,
+the controls — from **HEAD's blobs**, requires each to equal its worktree
+copy, and derives everything afterwards from that snapshot. Nothing the
+index or the tables depend on is re-read once the round is known: a
+whitespace variant of `FAMILY.json` parses to identical mutations but
+hashes differently, and re-reading it after the beacon would hand the
+operator the index. `validate` takes the same snapshot and compares
+`DEFECT.json` and pack D as **canonical bytes** produced by one shared
+serializer — Python equates `False` and `0`, so a retyped literal must not
+be able to masquerade as the sampled mutation.
+
 **After the draw** the harness re-verifies that the records commit is
 unchanged and that the worktree's published paths byte-equal that commit's
-tree, then applies the sampled patch to C to produce D and derives
+tree, then applies the sampled patch to snapshot C to produce D and derives
 `DEFECT.json` — sets and per-record C/D disposition tables — **from the
 published commit's tree bytes**, never the worktree, using the reference
 semantics only: `underC` = the mirror's verdict wrapped in the registered
@@ -389,34 +456,52 @@ no comparison, and no pack.
 ## 9. What is enforced, what is recorded, what is not prevented
 
 **Mechanically enforced** (a violation refuses or scores
-`pipeline-invalid`): the canonical lock and freeze manifests (exact key
-sets, worktree ≡ HEAD blobs, registered constants); pack C ≡ mirror on the
+`pipeline-invalid`): the canonical lock and freeze manifests (exact member
+schemas, worktree ≡ HEAD blobs, and every chain, log-key, model, draw, and
+binary constant compared against this harness's own reviewed bytes rather
+than read from the manifest); the pre-beacon snapshot and canonical-byte
+comparison of DEFECT.json and pack D; the first committed freeze's
+immutability; pack C ≡ mirror on the
 44 probes; the admissible-call resolution (single completed slot, one new
-session, pinned binary digest as recorded); the strict transcript
-whitelist and byte bindings; compiler regeneration with the exact file
-set; the publication's cryptographic authentication (body, UUID leaf
-hash, pinned log key, signed entry timestamp) and the online
-single-entry-per-key uniqueness check at freeze; the round arithmetic,
+session, pinned binary digest, completion extracted only from an exit-0
+process); the strict transcript whitelist, the leak screen over prior
+context, the model/cwd binding, and the completion byte equality; compiler regeneration with the exact file
+set; the publication's and the lock timestamp's cryptographic
+authentication (body, UUID leaf hash, pinned log key, signed entry
+timestamp) and the refusal of any stranger entry the freeze-time key
+search returns; the round arithmetic,
 dual-relay raw-byte agreement, post-retrieval deadline, and index
 recomputation; DEFECT.json's byte-recomputation from the published tree;
 the gates, receipt bijection, and arm isolation; attempt-ledger totality
 with exact-set seals and a total scorer.
 
-**Recorded but not proven**: that the retained call slots are ALL the
-invocations that occurred (an off-ledger call leaves no slot); that
-`CALL.json`'s self-reported fields (binary digest, session count,
-environment) describe the process that actually ran — the wrapper computes
-them, and the wrapper is locked, but the operator runs the wrapper;
+**Recorded but not proven**: whether the transparency log's key search
+had caught up when it was queried — `SEARCH.json` retains the answer
+either way, and a negative says nothing about the log's contents; that the
+retained call slots are ALL the invocations that occurred (an off-ledger call leaves no slot); that
+`CALL.json`'s self-reported fields describe the process that actually ran
+— the wrapper computes them and the wrapper is locked, but the operator
+runs the wrapper, and only the model and working directory are
+independently corroborated by the transcript's own `turn_context`;
 wall-clock claims beyond Rekor's authenticated `integratedTime` and
 drand's round schedule.
 
 **Not prevented**: entries in the transparency log under keys other than
-the two locked ones — an operator could run parallel unpublished attempts
-under fresh keys and publish only a favorable one; what the protocol
-proves to a reader is that THIS record set was published before THIS
-round, not that no sibling attempt existed (each abandoned sibling would
-leave its own permanent log entries under its own keys, discoverable only
-if those keys are known). Off-ledger evaluations of C or any candidate D
+the two locked ones. An operator could prepare several branches — each
+with its own lock, keys, and records commit — publish each before its own
+beacon round, observe every branch's sampled index, and retain only the
+branch whose index it liked. Because the records-commit OID salts the
+preimage, byte-identical record sets on different branches draw different
+indexes, so this biases **the retained index and E1 outcome**, not merely
+which record set reached publication. What the protocol proves to a reader
+is narrower than "the index was unsteerable": it proves that THIS record
+set was published, and THIS lock timestamped, before THIS round occurred,
+and that every artifact recomputes from those. Each abandoned sibling
+leaves its own permanent log entries under its own keys, discoverable only
+if those keys are known. Making the stronger claim would take an external
+party designating one canonical lock, key, and branch before any
+publication — out of scope for a single-operator study, and named here
+rather than papered over. Off-ledger evaluations of C or any candidate D
 against the records before publication (all six patches are public; a
 coverage profile is computable privately). Transient tool edits restored
 before commit. BLS pairing verification of the beacon signature (material
@@ -426,11 +511,13 @@ would be visible as a second lock commit and Rekor timestamp in the
 public history, but nothing mechanical forbids it — the reader checks the
 graph.
 
-None of the unprevented actions can steer the sampled index once the
-records are published, because the index depends only on
-post-publication beacon output and already-locked bytes; what they could
-do is bias *which record set* reached publication — exactly the residual
-the narrowed authorship claim of §1 concedes.
+Within a single published branch, none of the unprevented actions can
+steer the sampled index: it depends only on post-publication beacon
+output and pre-beacon snapshot bytes, and the transient-edit path that
+revision 4 left open is closed by that snapshot. Across branches, the
+residual above stands. Both are consequences of one operator running both
+sides of the study, which is what §1's narrowed claim concedes and what
+this section refuses to overstate.
 
 ## 10. Bounds
 

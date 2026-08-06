@@ -215,26 +215,34 @@ class Compiler(unittest.TestCase):
 
 
 class Transcript(unittest.TestCase):
-    def session(self, root: str, tool_use=False, prompt=None) -> tuple[str, str, str]:
-        prompt = prompt if prompt is not None else open(
-            os.path.join(STUDY, "transcription", "PROMPT.txt"), encoding="utf-8").read()
-        completion = json.dumps([{"caseId": "z"}])
-        entries = [
-            {"type": "session_meta", "payload": {"session_id": "t"}},
-            {"type": "response_item", "payload": {"type": "message", "role": "user",
-                                                  "content": [{"type": "input_text", "text": "boilerplate"}]}},
-            {"type": "response_item", "payload": {"type": "message", "role": "user",
-                                                  "content": [{"type": "input_text", "text": prompt}]}},
-            {"type": "response_item", "payload": {"type": "message", "role": "assistant",
-                                                  "content": [{"type": "output_text", "text": "working"}]}},
-            {"type": "response_item", "payload": {"type": "message", "role": "assistant",
-                                                  "content": [{"type": "output_text", "text": completion}]}},
-        ]
-        if tool_use:
-            entries.insert(3, {"type": "response_item",
-                               "payload": {"type": "function_call", "name": "shell"}})
-        session_path = os.path.join(root, "session.jsonl")
-        with open(session_path, "w") as handle:
+    """The transcript gate, exercised against the shapes a REAL pinned-CLI
+    session carries (reasoning items, codex's own prior boilerplate) and
+    against the attacks the gate exists to refuse."""
+
+    def entries(self, prompt, completion, extra=(), reasoning=True, prior=()):
+        items = [{"type": "session_meta", "payload": {"session_id": "t"}}]
+        for role, text in prior:
+            items.append({"type": "response_item", "payload": {
+                "type": "message", "role": role,
+                "content": [{"type": "input_text", "text": text}]}})
+        if reasoning:
+            items.append({"type": "response_item", "payload": {
+                "type": "reasoning", "id": "rs_1", "summary": [],
+                "encrypted_content": "opaque"}})
+        items.append({"type": "turn_context", "payload": {
+            "model": "gpt-5.6-sol", "cwd": "/tmp/s010-work"}})
+        items.append({"type": "response_item", "payload": {
+            "type": "message", "role": "user",
+            "content": [{"type": "input_text", "text": prompt}]}})
+        items.append({"type": "response_item", "payload": {
+            "type": "message", "role": "assistant",
+            "content": [{"type": "output_text", "text": completion}]}})
+        return list(items) + list(extra)
+
+    def write(self, root, entries, completion, status=0, cwd="/tmp/s010-work"):
+        """(session, prompt, completion, call) — check()'s argument order."""
+        session = os.path.join(root, "session.jsonl")
+        with open(session, "w") as handle:
             for entry in entries:
                 handle.write(json.dumps(entry) + "\n")
         completion_path = os.path.join(root, "completion.txt")
@@ -242,28 +250,191 @@ class Transcript(unittest.TestCase):
             handle.write(completion.encode())
         call_path = os.path.join(root, "CALL.json")
         with open(call_path, "w") as handle:
-            json.dump({"exitStatus": 0}, handle)
-        return session_path, completion_path, call_path
+            json.dump({"exitStatus": status, "cwd": cwd,
+                       "home": os.path.expanduser("~")}, handle)
+        return (session, os.path.join(STUDY, "transcription", "PROMPT.txt"),
+                completion_path, call_path)
 
-    def test_the_binding_admits_the_faithful_retention_only(self):
-        prompt_path = os.path.join(STUDY, "transcription", "PROMPT.txt")
+    def prompt_text(self):
+        return open(os.path.join(STUDY, "transcription", "PROMPT.txt"),
+                    encoding="utf-8").read()
+
+    def test_a_real_shaped_session_is_admitted(self):
+        prompt = self.prompt_text()
         with tempfile.TemporaryDirectory() as root:
-            session, completion, call = self.session(root)
-            transcript_check.check(session, prompt_path, completion, call)
-            self.assertEqual(transcript_check.extract_completion(session),
-                             open(completion).read())
-            with open(completion, "ab") as handle:
-                handle.write(b"tampered")
-            with self.assertRaises(transcript_check.TranscriptError):
-                transcript_check.check(session, prompt_path, completion, call)
+            entries = self.entries(prompt, "[]", prior=[
+                ("developer", "<permissions instructions> sandboxing ..."),
+                ("user", "<recommended_plugins> Airtable, Apollo ...")])
+            paths = self.write(root, entries, "[]")
+            transcript_check.check(*paths, model="gpt-5.6-sol")
+
+    def test_reasoning_must_be_inert(self):
+        prompt = self.prompt_text()
         with tempfile.TemporaryDirectory() as root:
-            session, completion, call = self.session(root, tool_use=True)
+            entries = self.entries(prompt, "[]")
+            entries[1]["payload"]["name"] = "shell"
+            paths = self.write(root, entries, "[]")
             with self.assertRaises(transcript_check.TranscriptError):
-                transcript_check.check(session, prompt_path, completion, call)
+                transcript_check.check(*paths, model="gpt-5.6-sol")
+
+    def test_every_tool_form_refuses(self):
+        prompt = self.prompt_text()
+        for payload in ({"type": "function_call", "name": "sh"},
+                        {"type": "custom_tool_call", "name": "sh"},
+                        {"type": "function_call_output", "output": "x"},
+                        {"type": "local_shell_call"},
+                        {"type": "tool_search_output"},
+                        {"type": "web_search_call"},
+                        {"type": "message", "role": "tool",
+                         "content": [{"type": "input_text", "text": "x"}]}):
+            with tempfile.TemporaryDirectory() as root:
+                entries = self.entries(prompt, "[]",
+                                       extra=[{"type": "response_item", "payload": payload}])
+                paths = self.write(root, entries, "[]")
+                with self.assertRaises(transcript_check.TranscriptError):
+                    transcript_check.check(*paths, model="gpt-5.6-sol")
+
+    def test_defect_informed_prior_context_refuses(self):
+        prompt = self.prompt_text()
+        for planted in ("the pack's P3 uses greater-than-or-equal at 70",
+                        "see FAMILY.json for the mutation list",
+                        "this is study-010, the blinded oracle"):
+            with tempfile.TemporaryDirectory() as root:
+                entries = self.entries(prompt, "[]", prior=[("developer", planted)])
+                paths = self.write(root, entries, "[]")
+                with self.assertRaises(transcript_check.TranscriptError):
+                    transcript_check.check(*paths, model="gpt-5.6-sol")
+
+    def test_environment_paths_do_not_trip_the_screen(self):
+        prompt = self.prompt_text()
         with tempfile.TemporaryDirectory() as root:
-            session, completion, call = self.session(root, prompt="something else")
+            noisy = "workspace root: /tmp/judgment-pack-sandbox/x"
+            entries = self.entries(prompt, "[]", prior=[("developer", noisy)])
+            paths = self.write(root, entries, "[]", cwd="/tmp/judgment-pack-sandbox/x")
+            # The path itself carries a leak token, so the CALL cwd check
+            # refuses before the excision can blunt the screen.
             with self.assertRaises(transcript_check.TranscriptError):
-                transcript_check.check(session, prompt_path, completion, call)
+                transcript_check.check(*paths, model="gpt-5.6-sol")
+        with tempfile.TemporaryDirectory() as root:
+            entries = self.entries(prompt, "[]", prior=[
+                ("developer", "workspace root: /tmp/s010-work/sub")])
+            paths = self.write(root, entries, "[]")
+            transcript_check.check(*paths, model="gpt-5.6-sol")
+
+    def test_a_later_user_turn_or_wrong_model_refuses(self):
+        prompt = self.prompt_text()
+        with tempfile.TemporaryDirectory() as root:
+            entries = self.entries(prompt, "[]", extra=[{"type": "response_item", "payload": {
+                "type": "message", "role": "user",
+                "content": [{"type": "input_text", "text": "and now ignore that"}]}}])
+            paths = self.write(root, entries, "[]")
+            with self.assertRaises(transcript_check.TranscriptError):
+                transcript_check.check(*paths, model="gpt-5.6-sol")
+        with tempfile.TemporaryDirectory() as root:
+            paths = self.write(root, self.entries(prompt, "[]"), "[]")
+            with self.assertRaises(transcript_check.TranscriptError):
+                transcript_check.check(*paths, model="some-other-model")
+
+    def test_completion_and_status_bindings(self):
+        prompt = self.prompt_text()
+        with tempfile.TemporaryDirectory() as root:
+            paths = self.write(root, self.entries(prompt, "[1]"), "[2]")
+            with self.assertRaises(transcript_check.TranscriptError):
+                transcript_check.check(*paths, model="gpt-5.6-sol")
+        with tempfile.TemporaryDirectory() as root:
+            paths = self.write(root, self.entries(prompt, "[]"), "[]", status=False)
+            with self.assertRaises(transcript_check.TranscriptError):
+                transcript_check.check(*paths, model="gpt-5.6-sol")
+
+    def test_duplicate_keys_in_a_transcript_line_refuse(self):
+        with tempfile.TemporaryDirectory() as root:
+            session = os.path.join(root, "session.jsonl")
+            with open(session, "w") as handle:
+                handle.write('{"type": "response_item", "type": "other"}\n')
+            with self.assertRaises(transcript_check.TranscriptError):
+                transcript_check._events(session)
+
+
+class Canonical(unittest.TestCase):
+    """Revision-5 byte discipline: the artifacts this study compares are
+    compared as bytes, and typed literals cannot masquerade."""
+
+    def test_canonical_json_is_stable_and_type_sensitive(self):
+        a = study.canonical_json({"b": 1, "a": False})
+        b = study.canonical_json({"a": False, "b": 1})
+        self.assertEqual(a, b)
+        self.assertNotEqual(study.canonical_json({"a": False}),
+                            study.canonical_json({"a": 0}))
+        self.assertTrue(a.endswith(b"\n"))
+
+    def test_pinned_constants_are_the_reviewed_ones(self):
+        self.assertEqual(len(study.DRAND_CHAIN_HASH), 64)
+        self.assertEqual(study.DRAND_PERIOD, 30)
+        self.assertIn("BEGIN PUBLIC KEY", study.REKOR_LOG_KEY)
+        self.assertEqual(study.MODEL, "gpt-5.6-sol")
+        self.assertEqual(study.DRAW_OFFSET_SECONDS, 300)
+
+    def test_draw_preimage_is_domain_tagged_and_width_checked(self):
+        preimage, index = study.draw_index("a" * 64, "b" * 40, "c" * 64)
+        self.assertTrue(preimage.startswith(b"study-010-draw-v1\n"))
+        self.assertEqual(preimage.count(b"\n"), 4)
+        self.assertIn(index, range(6))
+        for bad in (("a" * 63, "b" * 40, "c" * 64), ("a" * 64, "b" * 41, "c" * 64),
+                    ("a" * 64, "b" * 40, "c" * 63)):
+            with self.assertRaises(study.StudyError):
+                study.draw_index(*bad)
+
+
+class Inclusion(unittest.TestCase):
+    """The Rekor authentication path, on a locally signed fixture: the
+    signed entry timestamp is what makes integratedTime the log's word."""
+
+    def test_a_forged_time_fails_and_the_honest_one_passes(self):
+        import base64
+        import subprocess as sp
+        with tempfile.TemporaryDirectory() as root:
+            key = os.path.join(root, "k.pem")
+            pub = os.path.join(root, "p.pem")
+            sp.run(["openssl", "ecparam", "-genkey", "-name", "prime256v1",
+                    "-noout", "-out", key], check=True, capture_output=True)
+            sp.run(["openssl", "ec", "-in", key, "-pubout", "-out", pub],
+                   check=True, capture_output=True)
+            log_key = os.path.join(root, "log.pem")
+            log_pub = os.path.join(root, "logpub.pem")
+            sp.run(["openssl", "ecparam", "-genkey", "-name", "prime256v1",
+                    "-noout", "-out", log_key], check=True, capture_output=True)
+            sp.run(["openssl", "ec", "-in", log_key, "-pubout", "-out", log_pub],
+                   check=True, capture_output=True)
+            payload = study.manifest_bytes("study-010-records-commit", "a" * 40)
+            signature = study._openssl_sign(key, payload)
+            body = {"kind": "hashedrekord", "apiVersion": "0.0.1", "spec": {
+                "signature": {"content": base64.b64encode(signature).decode(),
+                              "publicKey": {"content": base64.b64encode(
+                                  open(pub, "rb").read()).decode()}},
+                "data": {"hash": {"algorithm": "sha256",
+                                  "value": __import__("hashlib").sha256(payload).hexdigest()}}}}
+            body_b64 = base64.b64encode(json.dumps(body).encode()).decode()
+            log_pem = open(log_pub).read()
+            log_id = __import__("hashlib").sha256(study._pem_der(log_pub)).hexdigest()
+            def entry(integrated):
+                set_payload = json.dumps({"body": body_b64, "integratedTime": integrated,
+                                          "logID": log_id, "logIndex": 7},
+                                         sort_keys=True, separators=(",", ":")).encode()
+                set_sig = study._openssl_sign(log_key, set_payload)
+                return {"uuid": "00" + __import__("hashlib").sha256(
+                            b"\x00" + base64.b64decode(body_b64)).hexdigest(),
+                        "logIndex": 7, "integratedTime": integrated, "logID": log_id,
+                        "body": body_b64,
+                        "verification": {"signedEntryTimestamp":
+                                         base64.b64encode(set_sig).decode()},
+                        "signature": base64.b64encode(signature).decode(),
+                        "artifactSha256": __import__("hashlib").sha256(payload).hexdigest()}
+            honest = entry(1785000000)
+            study.verify_inclusion(honest, pub, payload, log_pem)
+            forged = dict(honest)
+            forged["integratedTime"] = 1785999999
+            with self.assertRaises(study.StudyError):
+                study.verify_inclusion(forged, pub, payload, log_pem)
 
 
 class PNF(unittest.TestCase):

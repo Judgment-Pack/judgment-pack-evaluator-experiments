@@ -42,6 +42,20 @@ KEBAB = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 TIMESTAMP = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
 OUTCOMES = ("clear", "manual-review", "reject")
 
+def _is_utc_timestamp(value: str) -> bool:
+    """YYYY-MM-DDTHH:MM:SSZ AND a real calendar instant: the prompt asks
+    for ISO 8601 UTC, so the shape check enforces the calendar too."""
+    if not TIMESTAMP.fullmatch(value):
+        return False
+    import datetime
+    try:
+        datetime.datetime(int(value[0:4]), int(value[5:7]), int(value[8:10]),
+                          int(value[11:13]), int(value[14:16]), int(value[17:19]))
+    except ValueError:
+        return False
+    return True
+
+
 RECORD_MEMBERS = {"caseId", "vendor", "decision"}
 VENDOR_MEMBERS = {"legalName", "sanctionsHit", "registeredCountry",
                   "handlesPersonalData", "riskScore"}
@@ -59,6 +73,20 @@ def _refuse_duplicate_keys(pairs):
     return dict(pairs)
 
 
+class JsonNumber:
+    """A JSON number literal, kept unconverted. Not a str, not an int: the
+    record schema requires strings, and this type satisfies neither the
+    string checks nor any arithmetic the compiler never performs."""
+
+    __slots__ = ("literal",)
+
+    def __init__(self, literal: str):
+        self.literal = literal
+
+    def __repr__(self) -> str:
+        return "JsonNumber(%s)" % self.literal
+
+
 def _refuse_constants(value):
     # NaN/Infinity are Python-decoder extensions, not JSON; a candidate
     # containing them is not a JSON array and must not win extraction.
@@ -74,8 +102,13 @@ def extract_array(raw: str) -> tuple[list, tuple[int, int]]:
     parses as a short bracketed aside that any real record array out-spans.
     Nothing is repaired.
     """
+    # Numbers become JsonNumber tokens, never Python ints/floats: the
+    # host's integer-string digit limit cannot change WHICH array is
+    # selected, and — because JsonNumber is not a str — a JSON number
+    # still fails the schema wherever a JSON string is required.
     decoder = json.JSONDecoder(object_pairs_hook=_refuse_duplicate_keys,
-                               parse_constant=_refuse_constants)
+                               parse_constant=_refuse_constants,
+                               parse_int=JsonNumber, parse_float=JsonNumber)
     best, best_span = None, None
     start = raw.find("[")
     while start >= 0:
@@ -117,7 +150,7 @@ def classify(element, seen: set) -> tuple[str, str]:
         return "", "id-form"
     if decision["outcome"] not in OUTCOMES:
         return "", "outcome-value"
-    if not TIMESTAMP.fullmatch(decision["decidedAt"]):
+    if not _is_utc_timestamp(decision["decidedAt"]):
         return "", "timestamp-form"
     if element["caseId"] in seen:
         return "", "duplicate-id"
@@ -214,12 +247,15 @@ def cmd_verify(raw_path: str) -> None:
         path = os.path.join(RECORDS_DIR, name)
         if os.path.islink(path) or not os.path.isfile(path):
             raise CompileError("records/%s is not a regular file" % name)
+    for path, label in ((RECORDS_MD, "RECORDS.md"), (RECORDS_DIR, "records/")):
+        if os.path.islink(path):
+            raise CompileError("%s is a symlink" % label)
     print("verify: ok (%d records regenerate byte-for-byte)" % len(accepted))
 
 
 def main(argv: list) -> int:
     if len(argv) != 3 or argv[1] not in ("compile", "verify"):
-        print("usage: records_compile.py compile|verify <raw-stdout-file>", file=sys.stderr)
+        print("usage: records_compile.py compile|verify <completion-file>", file=sys.stderr)
         return 2
     try:
         (cmd_compile if argv[1] == "compile" else cmd_verify)(argv[2])

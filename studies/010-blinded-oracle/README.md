@@ -2,13 +2,15 @@
 
 Study 009's registered next question: does a record set authored
 independently of the packs surface an encoding defect neither author chose
-knowing the other's work? The first draft's blinding scheme (a commit-hash
-coin, an in-repo authoring call) was rejected in pre-freeze review;
-revision 2 rebuilt it on two locks, a drand-beacon draw over a
-pre-committed six-mutation family, and a narrowed, transcript-evidenced
-authoring claim. Both revisions' reviews and their dispositions are in
-[`PREREG-REVIEW.md`](PREREG-REVIEW.md);
-[`PREREGISTRATION.md`](PREREGISTRATION.md) governs.
+knowing the other's work? Five preregistration revisions and four
+adversarial pre-freeze reviews stand behind the current design — the
+reviews rejected an operator-controlled coin, a steerable publication
+clock, an unauthenticated one, and a transcript gate that would have
+rejected the very session it was meant to admit. Every review and its
+per-finding disposition is in [`PREREG-REVIEW.md`](PREREG-REVIEW.md);
+[`PREREGISTRATION.md`](PREREGISTRATION.md) governs, and its §9 states
+plainly what the protocol enforces, what it merely records, and what it
+cannot prevent.
 
 The ordering the commit graph must show (PREREGISTRATION.md §8): protocol
 lock → lock Rekor timestamp → authoring call (immutable
