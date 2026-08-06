@@ -993,3 +993,251 @@ evidence — **a stranger entry under a locked key refuses the study** — and
 demotes the rest to a retained observation (`recordsIndexed`, true or
 false). §5 and §9 say exactly this. Found by rehearsal, not by review;
 recorded here because it would have blocked the real run.
+
+---
+
+# Pre-freeze adversarial review — revision 5
+
+**Verdict: redesign. Nothing froze; revision 6 answers it.**
+
+Review basis: commit `ba700b2`, pinned before the review.
+
+**Drafting model:** Anthropic `claude-fable-5` (Claude Code), 2026-08-05.
+**Reviewing model:** OpenAI `gpt-5.6-sol` via codex-cli 0.145.0 (`codex exec`,
+sandbox `workspace-write`, reasoning effort ultra), 2026-08-05. One run,
+reproduced unedited below; no run discarded.
+
+## Prompt (verbatim)
+
+```
+You are performing the pre-freeze adversarial review of Study 010's revision-5 protocol-lock candidate. You reviewed revisions 1-4; all four verdicts were redesign. Your revision-4 review listed 14 findings; the maintainer accepted all 14 and implemented them. PREREG-REVIEW.md records all four reviews and all four disposition tables.
+
+Your finding 7 last round was decisive: real codex sessions carry `reasoning` response_items that the revision-4 whitelist rejected, which would have made the honest authoring call permanently inadmissible. In response the maintainer stopped building gates against assumed schemas and captured ground truth: a real no-tool session from the pinned CLI, plus a capture of the exact registered invocation. Every gate in revision 5 was validated against those captures.
+
+Review, in studies/010-blinded-oracle/:
+- PREREGISTRATION.md (revision 5, governing) and PREREG-REVIEW.md
+- policy/POLICY.md, packs/vendor-screening-correct.pack.json, FAMILY.json
+- transcription/: PROMPT.txt, record.rule.json, transcribe.py, authoring_call.sh
+- controls/, source/record_source.py
+- harness/: study.py, gate.py, pnf_check.py, policy_mirror.py, records_compile.py, regions_check.py, transcript_check.py, test_study.py
+Shared line code: acquisition-proxy/attest.py, derivation-rule/derive.py, fabrication-gate/gate.py.
+
+What revision 5 changed, and what to attack:
+
+1. HARD PINS (your finding 1): drand chain hash/pubkey/genesis/period/scheme, the production Rekor log key PEM, the model, and the jpack digest are now module constants in study.py's reviewed bytes; verify_lock compares the lock against THOSE, plus exact member schemas (LOCK_MEMBERS, DRAW_RULE_MEMBERS, DRAND_MEMBERS, REKOR_MEMBERS, FREEZE_MEMBERS) and rawInfo field agreement. Can a hand-edited lock or freeze still shift the round, the log key, the binary, or the interpreter? Are the schemas actually exhaustive for what matters?
+2. LOCK INCLUSION (finding 2): LOCK-INCLUSION.json now carries lockCommit, goes through verify_inclusion in validate, must be an ancestor of the records commit, and must have an earlier integratedTime. Sound? Any path where an absent/unrelated lock timestamp still passes?
+3. PRE-BEACON SNAPSHOT (finding 3, the important one): locked_snapshot() reads FAMILY.json, pack C, and the controls from HEAD blobs before the beacon wait; snapshot_family() computes the digest from those bytes; derive_defect takes the snapshot; validate re-snapshots. Is there ANY remaining live worktree read that the index or tables depend on? Any TOCTOU left between the snapshot and the round?
+4. CANONICAL BYTES (finding 10): canonical_json is the single serializer; DEFECT.json and pack D are byte-compared; the mutation is selected from snapshot bytes. Can a retyped literal, duplicate key, or whitespace variant still masquerade?
+5. TRANSCRIPT GATE (findings 5, 6, 7): admits inert `reasoning` (refuses any call-like member), screens prior context against LEAK_TOKENS after excising environment paths, requires the prompt to be the terminal user message, binds turn_context model/cwd, rejects duplicate keys per line. Enumerate anything that still passes but shouldn't — especially: content shapes, roles, multi-item messages, an assistant turn before the prompt, leak-token evasion (unicode, casing, spacing, encoding), or a session where turn_context is absent.
+6. WRAPPER (finding 6): isolated CODEX_HOME (only auth.json copied), --ignore-user-config, -m locked model, env -i, resolved absolute binary, scratch refused inside any git worktree or carrying a leak token, completion extracted ONLY on exit 0 (finding 8). What still isn't bound? Is the exit-0-only extraction actually sufficient to stop output shopping?
+7. LEDGER/SCORING (finding 9): first committed FREEZE immutable; FREEZE-DIGEST write inside the guard; verify_seal rejects symlinks/dirs/non-regular files and requires exactly one terminal marker; DONE must be a regular file; cmd_score wraps everything in one total Exception boundary. Walk every failure path: does each land in exactly one E1 label?
+8. COMPILER (findings 11, 13): JsonNumber tokens (not str, not int) for host-limit independence while JSON numbers still fail the string schema; calendar-valid timestamps; symlink checks on RECORDS.md and records/. Any remaining nondeterminism or over-acceptance?
+9. §9 TIERING (findings 4, 13): the ceiling now states cross-key branch grinding biases the retained INDEX (the OID salts the preimage), names external branch designation as the out-of-scope remedy, and lists what CALL.json self-reports. Is anything in the "mechanically enforced" list not actually enforced? Is anything material missing from "not prevented"?
+10. TESTS (finding 14): 28 tests now cover real-session shape, tool forms, defect-informed context, env-path excision, canonical bytes, pinned constants, draw widths, and a locally signed Rekor fixture where a forged integratedTime fails. Do they actually test what they claim? What trust boundary is still untested?
+
+Also attack anything NEW in revision 5 (locked_snapshot, canonical_json, JsonNumber, the leak screen, the isolated-home wrapper) — new code is where new holes live.
+
+Important calibration: the study's claims are tiered in §9 (mechanically enforced / recorded but not proven / not prevented). A finding that an unprevented action is possible is a finding ONLY if §9 misstates or omits it. A single operator running both sides of a study cannot prove non-grinding; the question is whether the document claims more than it delivers.
+
+For each finding: number, severity (blocker / material / minor), the exact file/text at fault, the failure it permits, the minimal fix. End with a verdict: "lock as is", "lock with amendments" (list them exactly), or "redesign". The maintainer executes the lock on your verdict, then makes one real authoring call that cannot be repeated.
+```
+
+## Complete output (unedited)
+
+# Revision-5 pre-freeze adversarial review
+
+Review basis verified: `HEAD` is `ba700b2a0da96e0e14790398b5fc0a165a244cc7`; all requested paths match that commit. Only unrelated tracked `python/jps_evaluator/__pycache__/*.pyc` files were dirty. All 28 tests pass.
+
+## Findings
+
+1. **Blocker — the authenticated lock timestamp need not cover the protocol lock.**
+
+   **At fault:** [study.py:1072](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1072); [PREREGISTRATION.md:246](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:246).
+
+   `validate` proves only that `lockCommit` is some signed 40-hex ancestor of the records commit. It never proves that commit contains the current `PROTOCOL-LOCK.json` or locked blobs. An arbitrary old ancestor can be timestamped, with the real lock formed later, and still pass. Additionally, line 1080 permits equal `integratedTime` values despite requiring the lock time to be earlier.
+
+   Even a corrected tree binding would prove “this lock was logged before records publication,” not that the authoring process ran afterward; CALL chronology has no authenticated clock.
+
+   **Minimal fix:** require the timestamped commit tree to contain byte-exact `PROTOCOL-LOCK.json` and every locked input at its registered digest; require strict `lockTime < recordsTime`; move lock-before-call chronology to “recorded but not proven” unless externally witnessed.
+
+2. **Blocker — `locked_snapshot()` remains steerable after the beacon is known.**
+
+   **At fault:** [study.py:790](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:790), called after separate checks at [study.py:925](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:925) and [study.py:1010](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1010); [PREREGISTRATION.md:309](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:309).
+
+   Each snapshot blob is fetched from mutable symbolic `HEAD` and compared only with the current worktree—not with `lockedInputs`. `head_blob()` itself resolves `HEAD` separately for `ls-tree` and `git show`.
+
+   After `verify_lock` succeeds, the operator can switch HEAD/worktree to a prepared FAMILY whitespace variant before the snapshot. `draw` may be started after the round is public, provided retrieval remains within the one-hour deadline, so the variant can be selected knowing the beacon. Repeating the switch around validation passes. Alternate C/control blobs can similarly change tables.
+
+   **Minimal fix:** capture one immutable OID, verify the lock and snapshot against that same OID, and require every snapshot digest to equal its corresponding `lockedInputs` digest.
+
+3. **Blocker — the isolated wrapper still supplies operator-controlled skills to the model.**
+
+   **At fault:** [authoring_call.sh:75](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/transcription/authoring_call.sh:75), especially `HOME="$HOME"` at line 88; [PREREGISTRATION.md:125](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:125).
+
+   Using the pinned CLI’s no-API `codex debug prompt-input` with an empty isolated `CODEX_HOME` but the registered real `HOME` produced 25 model-visible entries from `/home/onword/.agents/skills`. Repeating with a fresh empty `HOME` produced zero. `--ignore-user-config` only skips `$CODEX_HOME/config.toml`; it does not disable `$HOME/.agents`.
+
+   A transient operator-owned skill description can therefore steer coverage or reveal a defect without producing a tool call. The scratch also is not actually empty: `.codex-home`, including `auth.json`, is created inside it.
+
+   **Minimal fix:** copy auth first, then invoke with fresh, separate `HOME`, `CODEX_HOME`, and workspace directories. Bind or disable every remaining host instruction/plugin/skill source.
+
+4. **Blocker — the transcript gate does not establish policy-only context.**
+
+   **At fault:** [transcript_check.py:41](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/transcript_check.py:41), [transcript_check.py:112](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/transcript_check.py:112), and [transcript_check.py:193](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/transcript_check.py:193); [PREREGISTRATION.md:151](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:151).
+
+   Concrete admissions reproduced:
+
+   - `The third clause should say > instead of >= at 70; make sure the files include 70.`
+   - Zero-width forms such as `sanction​shit` and `risk​score`.
+   - Base64 such as `RkFNSUxZLmpzb24=`.
+   - An exact literal leak erased by setting `CALL.home` or `workspace_roots` equal to the leaked message.
+   - A session with no `turn_context`.
+   - Message attachments/unknown members and nested call-like reasoning data.
+
+   `_events()` also ignores `session_meta`; the real schema’s `payload.base_instructions.text` is model-visible context, and `model_provider` identifies the backend. Arbitrary earlier user/developer/assistant turns pass if they avoid the denylist. Multi-item text concatenation itself preserves prompt equality, but the item and message schemas are open.
+
+   Known tool payload types and later user/developer turns are correctly rejected; that does not close these paths.
+
+   **Minimal fix:** bind the complete allowed pre-prompt context to a sanitized golden capture—exact roles, order, normalized dynamic paths, base instructions, provider/source, turn context, and relevant world state. Require closed schemas and mandatory model/cwd context. Retain the denylist only as defense in depth.
+
+5. **Blocker — the Codex executable is self-authorized by the lock, not hard-pinned in reviewed bytes.**
+
+   **At fault:** [study.py:487](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:487), [study.py:612](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:612), and [study.py:1023](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1023); §9 at [PREREGISTRATION.md:458](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:458).
+
+   `cmd_lock` records whichever `codex` is on PATH. `verify_lock` checks only `codex.model`; later validation merely requires CALL to repeat the lock-supplied digest. The reviewed CLI is `codex-cli 0.145.0`, SHA-256 `a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14`, but neither is a constant.
+
+   A hand-authored lock can therefore authorize an arbitrary executable capable of fabricating the completion, session, and CALL evidence.
+
+   **Minimal fix:** hard-code the reviewed CLI version and digest, enforce the exact Codex object, validate both in CALL/session metadata, and execute a resolved immutable copy or descriptor of that binary.
+
+6. **Material — the advertised exact recursive lock/freeze schemas do not exist.**
+
+   **At fault:** schema sets at [study.py:147](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:147), ordinary `json.load` at [study.py:564](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:564) and [study.py:1182](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1182).
+
+   There are no exact schemas for Codex, Python, `rawInfo`, freeze Python, freeze invocation, or CALL. Duplicate keys are last-wins. Most draw-rule prose fields, `rekor.log`, `githubRepo`, Codex version/digest, and the complete freeze invocation are unchecked. `rawInfo` is reserialized parsed JSON and only five selected fields are checked, not a field-for-field raw response. Equal floats such as `30.0` pass integer comparisons. A modified interpreter reporting the recorded implementation/version also passes because `sys.executable` is not pinned.
+
+   The direct drand identity/schedule, Rekor PEM, model, jpack, offset, and deadline comparisons themselves are sound; the drand tuple matches the official default-chain values in the [drand API documentation](https://docs.drand.love/developer/API-v2/v-2-beacons-beacon-id-info/).
+
+   **Minimal fix:** duplicate-rejecting parsing; closed recursive schemas with exact primitive types; comparison of every normative value; canonical byte recomputation of both manifests; actual raw chain-info retention; interpreter executable pinning if interpreter identity remains claimed.
+
+7. **Blocker — the freeze and primary attempt are still resettable.**
+
+   **At fault:** [study.py:1152](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1152), [study.py:1176](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1176), and [study.py:1455](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1455); [PREREGISTRATION.md:346](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:346).
+
+   Three paths pass:
+
+   - Temporarily substitute another regular `FREEZE.json` before `run`. Attempt 1 binds that worktree digest and crashes; restore the committed freeze and attempt 2 becomes primary because attempt 1 is skipped.
+   - Commit a whitespace-only or `note`/`invocation` edit. `verify_freeze` accepts it, its digest changes, and later attempts are re-elected.
+   - Commit deletion of FREEZE and rerun `freeze`; `cmd_freeze` checks only whether current `HEAD` contains it, not whether an ancestor did.
+
+   **Minimal fix:** permanently designate the first freeze blob reachable in the branch history, require current bytes to equal it, and refuse re-freezing if the path ever existed. Bind STARTED atomically to that committed blob digest and treat the earliest malformed/mismatched attempt as primary-invalid rather than skipping it.
+
+8. **Material — exit-zero-only extraction does not prevent output shopping.**
+
+   **At fault:** [authoring_call.sh:95](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/transcription/authoring_call.sh:95), [study.py:182](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:182), and [PREREGISTRATION.md:138](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:138).
+
+   A nonzero slot can retain a complete answer in `session.jsonl` and `stdout.raw`. The operator can inspect or stream it, kill an undesirable call before normal exit, and retry. Omitting `completion.txt` prevents compiling the rejected answer; it does not prevent rejection sampling.
+
+   **Minimal fix:** zero retries. A weaker design must allow retry only when every retained channel proves that no model answer began; otherwise move output-conditioned retry to “not prevented” and remove the one-completion claim.
+
+9. **Material — the Rekor index demotion is only half sound.**
+
+   **At fault:** [study.py:694](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:694), [study.py:1152](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1152), and [PREREGISTRATION.md:251](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:251).
+
+   Demoting `recordsIndexed` is correct: absence from an eventually consistent, unauthenticated search proves nothing, and the SET-authenticated inclusion remains sufficient binding evidence.
+
+   The stranger side is not equivalent. `witness_search` trusts the index’s key-to-UUID association, discards the returned body/SET/key, and calls a positive “real evidence.” A spurious association can wrongly kill the study. Conversely, `cmd_freeze` derives known UUIDs from mutable, not-yet-validated inclusion files; transient UUID substitution can hide a hit, then the authentic inclusion can be restored before `cmd_validate`. SEARCH is never semantically revalidated.
+
+   **Minimal fix:** validate and snapshot both inclusions first; derive known UUIDs only from that snapshot; authenticate each positive’s UUID/body/SET and confirm the body contains the queried canonical key; retain full responses and validate exact SEARCH consistency. The historical assertion that the online query ran remains “recorded but not proven.”
+
+10. **Material — distinct fresh P-256 witness keys are not enforced.**
+
+   **At fault:** [study.py:457](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:457), [study.py:617](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:617), and [PREREGISTRATION.md:224](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREGISTRATION.md:224).
+
+   Distinctness compares PEM file digests. The same mathematical key with different PEM whitespace passes, and pre-existing keys bypass generation. Neither key type nor curve is checked; another OpenSSL-supported signing key can pass.
+
+   **Minimal fix:** parse and canonicalize SPKI DER, require EC `prime256v1`, compare public points, and reject equality. Describe freshness and one-time private-key use as procedural/recorded unless externally established.
+
+11. **Material — the run crash handler remains non-total.**
+
+   **At fault:** [study.py:1363](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1363).
+
+   Reproduced by making FREEZE a directory. `STARTED` is created, hashing fails while writing `FREEZE-DIGEST`, and the exception handler hashes the same bad path again. The result was empty `FREEZE-DIGEST` and `CRASHED.json`, no manifest, and no sealed terminal state. `start_attempt()` itself is also outside the guard.
+
+   The scorer’s outer `Exception` boundary and valid-data E1 ordering are otherwise sound.
+
+   **Minimal fix:** obtain the governing digest from the committed regular freeze blob, make STARTED carry it atomically, place attempt establishment inside the terminalization design, and never reread the failing worktree freeze in the crash handler.
+
+12. **Minor — `verify_inclusion` still does not enforce the exact body/UUID/raw-response claims.**
+
+   **At fault:** [study.py:396](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:396).
+
+   It does not require exact body members, `apiVersion`, or `algorithm == "sha256"`; body duplicate keys pass. UUID need only end with the leaf hash, and `rawResponse` agreement is not checked. The test fixture deliberately uses a prefixed UUID.
+
+   The SET check still prevents fabricating `integratedTime`, so this is not another clock forgery.
+
+   **Minimal fix:** duplicate-free exact hashedrekord schema, exact supported UUID form, and byte/field agreement with the retained raw response.
+
+13. **Minor — two exact-file-set claims remain broader than their checkers.**
+
+   **At fault:** [study.py:1475](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/study.py:1475) and [records_compile.py:232](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/records_compile.py:232).
+
+   `verify_seal` accepts unmanifested ordinary directories and does not verify read-only modes. The prior DONE-directory promotion is fixed because DONE must be a regular file. `records_compile` rejects a symlinked `RECORDS.md` but does not require it to be regular, so a cooperating FIFO can pass or stall that stage; later published-tree validation would catch it.
+
+   **Minimal fix:** validate the exact directory closure and modes, and require `RECORDS.md` to be a non-symlink regular file before reading it.
+
+14. **Minor — the 28 tests pass but do not test the claimed new trust boundaries.**
+
+   **At fault:** [test_study.py:217](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/test_study.py:217), [test_study.py:358](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/harness/test_study.py:358), and [PREREG-REVIEW.md:969](/tmp/claude-1000/-home/onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/PREREG-REVIEW.md:969).
+
+   The “real-shaped” session is synthetic and omits actual base instructions/world state. No sanitized captured session is retained. There are no tests for lock/freeze verification, timestamped-commit tree binding, strict time ordering, snapshot-to-lock/OID binding, host-skill discovery, absent context, path laundering, failed-slot answers, freeze history/primary reset, run terminality, witness stranger authentication, `recordsIndexed: false`, long `JsonNumber` literals, calendar-invalid timestamps, or symlink/special-file closure. The canonical test exercises the serializer, not validator rejection; the constant test checks only a few literals; the Rekor fixture tests only time tampering.
+
+   **Minimal fix:** retain a sanitized golden exact-invocation capture and add isolated Git/filesystem/Rekor fixtures for every boundary above.
+
+## Confirmed sound
+
+- Once supplied a genuinely lock-bound snapshot, the index, mutation, D, controls, H/Q/F/K, and tables derive solely from snapshot and published-tree bytes.
+- Canonical raw-byte recomputation closes whitespace, duplicate-key, and `False`/`0` masquerading for DEFECT and D.
+- `JsonNumber` removes the integer-digit-limit dependency; 5,000- and 100,000-digit integers parse deterministically and schema-drop.
+- Calendar-invalid timestamps reject, and the ordinary records/RECORDS symlink paths are closed.
+- The known tool forms, tool roles, later user/developer turns, completion equality, and integer-zero status checks work as written.
+- §9’s cross-key branch-grinding ceiling and external-designation remedy are accurate.
+- Demoting `recordsIndexed` to an observation is correct; only the claimed evidentiary force and enforcement of positive strangers need amendment.
+- The shared attestation, derivation, fabrication, PNF, family predicates, controls, canonical tables, and valid-data E1 ordering remain sound.
+
+The core authorship and selection claims are both reopenable: operator-controlled prompt context reaches the model, the snapshot can be shifted after the beacon, the lock timestamp can cover an unrelated ancestor, and the freeze can re-elect a later attempt. These require another complete pre-freeze candidate and review, not execution-time amendments.
+
+**Verdict: redesign.**
+
+## Maintainer disposition (revision 5 → revision 6)
+
+All fourteen findings accepted. Finding 3 was checked before it was
+believed, and it held: with the operator's real `HOME`, **every skill
+directory name under `~/.agents/skills` appears in the authoring
+transcript** (173 "skill" mentions, every directory name present).
+`--ignore-user-config` does not prevent it, because skills load from
+`$HOME/.agents`, not `$CODEX_HOME/config.toml`. A fresh `HOME` reduces the
+leaked skill names to zero. This was a live hole in the authorship claim
+and is the reason revision 6 exists.
+
+| # | Finding | Disposition |
+|---|---------|-------------|
+| 1 | The lock timestamp need not cover the lock | **Accepted.** `validate` now requires the timestamped commit to carry this exact `PROTOCOL-LOCK.json` and every locked input at its registered digest, and the ordering is strict (`lockTime < recordsTime`). Lock-before-*call* chronology moved to "recorded but not proven" in §9 — the log dates the lock and the publication, nothing authenticates the call's own clock. |
+| 2 | The snapshot is steerable after the beacon | **Accepted.** `locked_snapshot(oid, locked)` reads from ONE resolved commit OID via `commit_blob`, and every blob must equal the digest `lockedInputs` registered. Symbolic `HEAD` is no longer re-resolved per file. |
+| 3 | Operator skills reach the model | **Accepted, and independently reproduced.** The wrapper now creates a fresh `HOME` with `CODEX_HOME` beneath it, both outside the model-writable scratch. Verified: real home → every skill name in the transcript; fresh home → none. |
+| 4 | The gate does not establish policy-only context | **Accepted, with the reviewer's own remedy.** A denylist cannot establish this — the reviewer demonstrated paraphrase, zero-width, and base64 evasions, and each is right. `transcription/GOLDEN-CONTEXT.json` now pins the count, roles, order, and normalized digests of the entire pre-prompt context, captured from two independent real runs of the registered invocation that reproduced identically. Normalization excises environment paths, dates, timestamps, and UUIDs, applies NFKC, and strips zero-width characters. Any deviation refuses, whether or not it contains a banned word. The denylist stays as defence in depth. |
+| 5 | The CLI is self-authorized by the lock | **Accepted.** `CODEX_VERSION` and `CODEX_DIGEST` are constants in `study.py`'s reviewed bytes; `cmd_lock` refuses a different binary, and `verify_lock` requires the exact codex object. |
+| 6 | Advertised recursive schemas do not exist | **Partially accepted.** The codex object now has an exact schema, and the previously unchecked normative values (CLI version, binary) are compared against constants. Duplicate-key rejection for the manifests and full recursive schemas for `python`/`rawInfo`/`invocation` remain open; §9 no longer claims more than the code does. |
+| 7 | Freeze and primary attempt resettable | **Accepted.** `cmd_freeze` refuses if `FREEZE.json` has EVER existed in the branch history (`git log --all -- FREEZE.json`), and the governing digest is computed from the committed blob rather than the worktree file, so a substituted worktree freeze cannot re-elect a later attempt. |
+| 8 | Exit-zero extraction does not stop shopping | **Accepted in full: zero retries.** The reviewer is right that a killed call's retained transcript is readable, so retry and the one-completion claim cannot coexist. There is now one slot, creatable once. §4 and §10 say so. |
+| 9 | The index demotion is half sound | **Partially accepted.** The demotion itself the reviewer confirms correct. Authenticating positive strangers and deriving known UUIDs from validated snapshots remain open; recorded here rather than claimed. |
+| 10 | Key distinctness by PEM digest | **Accepted.** Distinctness now compares SPKI DER, and each key must be `prime256v1`. |
+| 11 | The crash handler is non-total | **Accepted.** The governing digest is taken from the committed blob before the attempt opens, and the handler never re-reads the worktree freeze. |
+| 12 | `verify_inclusion` body checks incomplete | **Open, recorded.** The reviewer confirms the SET check still prevents clock forgery; the exact-schema tightening is not yet done. |
+| 13 | Exact-file-set claims broader than checkers | **Open, recorded.** Directory closure in `verify_seal` and a regular-file check for `RECORDS.md` remain. |
+| 14 | Tests do not cover the new boundaries | **Partially accepted.** The golden capture is retained from real runs (closing the "no sanitized capture" half); fixtures for lock/freeze/git-binding boundaries remain open. |
+
+Findings 6, 9, 12, 13, and half of 14 are **open and recorded as open** —
+they are tightenings of checks whose claims §9 no longer overstates, not
+holes in the draw or the authorship binding. They are the agenda for the
+next candidate, and no lock may proceed on the assumption that they are
+closed.

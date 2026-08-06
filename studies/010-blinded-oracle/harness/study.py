@@ -59,6 +59,9 @@ TOOL = "get_record"
 JPACK_DIGEST = "sha256:417ee1ae86325713930e714b659432246c7845be1cdfa4c33f211bfad1ce970d"
 GITHUB_REPO = "Judgment-Pack/judgment-pack-evaluator-experiments"
 MODEL = "gpt-5.6-sol"
+# The reviewed CLI, pinned here rather than self-authorized by the lock.
+CODEX_VERSION = "codex-cli 0.145.0"
+CODEX_DIGEST = "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14"
 # Hard pins, in reviewed bytes (PREREGISTRATION.md §5): the lock RECORDS
 # these, but verification compares against the constants below, so a
 # hand-edited lock cannot substitute an attacker chain or log key. The
@@ -112,6 +115,7 @@ LOCKED = [
     "transcription/record.rule.json",
     "transcription/transcribe.py",
     "transcription/authoring_call.sh",
+    "transcription/GOLDEN-CONTEXT.json",
     "transcription/witness-lock-pub.pem",
     "transcription/witness-records-pub.pem",
     "controls/k-wrong-1.json",
@@ -489,6 +493,9 @@ def cmd_lock() -> None:
         raise StudyError("no codex CLI on PATH to pin")
     codex_version = subprocess.run(["codex", "--version"], capture_output=True,
                                    text=True, check=True).stdout.strip()
+    if sha256_file(codex) != CODEX_DIGEST or codex_version != CODEX_VERSION:
+        raise StudyError("the codex on PATH is not the reviewed CLI %s (%s)"
+                         % (CODEX_VERSION, CODEX_DIGEST))
     body = {
         "lockedInputs": {relative: sha256_file(os.path.join(STUDY, relative))
                          for relative in LOCKED},
@@ -534,6 +541,24 @@ def cmd_lock() -> None:
 def repo_prefix() -> str:
     return subprocess.run(["git", "rev-parse", "--show-prefix"], cwd=STUDY,
                           capture_output=True, text=True, check=True).stdout.strip()
+
+
+def commit_blob(oid: str, relative: str) -> bytes:
+    """The committed bytes of a study-relative path at ONE resolved commit,
+    required to be a regular blob there."""
+    listed = subprocess.run(
+        ["git", "ls-tree", oid, "--", relative], cwd=STUDY,
+        capture_output=True, text=True, check=True).stdout.strip()
+    if not listed:
+        raise StudyError("%s is not in %s's tree" % (relative, oid[:12]))
+    mode = listed.split()[0]
+    if mode not in ("100644", "100755"):
+        raise StudyError("%s is not a regular file at %s (mode %s)" % (relative, oid[:12], mode))
+    shown = subprocess.run(["git", "show", "%s:./%s" % (oid, relative)], cwd=STUDY,
+                           capture_output=True)
+    if shown.returncode != 0:
+        raise StudyError("cannot read %s from %s" % (relative, oid[:12]))
+    return shown.stdout
 
 
 def head_blob(relative: str) -> bytes:
@@ -609,16 +634,26 @@ def verify_lock() -> dict:
     if locked["python"].get("implementation") != platform.python_implementation() \
             or locked["python"].get("version") != platform.python_version():
         raise StudyError("the lock's interpreter is not this interpreter")
-    if locked["codex"].get("model") != MODEL:
-        raise StudyError("the lock does not pin the registered model")
+    codex = locked["codex"]
+    if set(codex) != {"binarySha256", "version", "model"}:
+        raise StudyError("the lock's codex object is not the registered schema")
+    if (codex["model"], codex["version"], codex["binarySha256"]) != (
+            MODEL, CODEX_VERSION, CODEX_DIGEST):
+        raise StudyError("the lock does not pin the reviewed model, CLI version, and binary")
     rekor = locked["rekor"]
     if set(rekor) != REKOR_MEMBERS:
         raise StudyError("the lock's rekor object is not the registered schema")
     for member, pub_path in (("lockWitnessKey", LOCK_PUB), ("recordsWitnessKey", RECORDS_PUB)):
         if rekor[member] != sha256_file(pub_path):
             raise StudyError("the lock does not pin %s" % member)
-    if rekor["lockWitnessKey"] == rekor["recordsWitnessKey"]:
-        raise StudyError("the two witness keys must differ")
+    lock_der, records_der = _pem_der(LOCK_PUB), _pem_der(RECORDS_PUB)
+    if lock_der == records_der:
+        raise StudyError("the two witness keys are the same key")
+    for name, pub_path in (("lock", LOCK_PUB), ("records", RECORDS_PUB)):
+        described = subprocess.run(["openssl", "pkey", "-pubin", "-in", pub_path,
+                                    "-noout", "-text"], capture_output=True, text=True)
+        if "prime256v1" not in described.stdout:
+            raise StudyError("the %s witness key is not a P-256 key" % name)
     if rekor["logPublicKeyPem"].strip() != REKOR_LOG_KEY.strip():
         raise StudyError("the lock's Rekor log key is not the pinned production key")
     committed = subprocess.run(
@@ -674,7 +709,8 @@ def cmd_publish() -> None:
         os.path.join(STUDY, "transcription/PROMPT.txt"),
         completion,
         os.path.join(call_dir, "CALL.json"),
-        model=MODEL)
+        model=MODEL,
+        golden_path=os.path.join(STUDY, "transcription/GOLDEN-CONTEXT.json"))
     revision = records_commit()
     os.makedirs(WITNESS_DIR, exist_ok=True)
     target = os.path.join(WITNESS_DIR, "INCLUSION.json")
@@ -787,20 +823,29 @@ def tree_files(revision: str, relative_dirs: list) -> dict:
     return result
 
 
-def locked_snapshot() -> dict:
-    """The locked derivation inputs read from HEAD's blobs, once, BEFORE
-    the beacon wait (PREREGISTRATION.md §5). Everything the sampled index
-    and the tables depend on — FAMILY.json's exact bytes, pack C, the
-    controls — is taken from this snapshot, never re-read from a mutable
-    worktree afterwards: a whitespace variant of FAMILY.json parses to the
-    same mutations but hashes differently, and re-reading it after the
-    round is known would hand the operator the index."""
+SNAPSHOT_INPUTS = ("FAMILY.json", "packs/vendor-screening-correct.pack.json",
+                   "controls/k-wrong-1.json", "controls/k-wrong-2.json")
+
+
+def locked_snapshot(oid: str, locked: dict) -> dict:
+    """The locked derivation inputs read from ONE resolved commit OID,
+    once, BEFORE the beacon wait (PREREGISTRATION.md §5), each required to
+    equal the digest the protocol lock registered.
+
+    Symbolic HEAD is not enough: it is mutable, and re-resolving it per
+    file would let an operator swap branches between reads. Everything the
+    sampled index and the tables depend on comes from this snapshot — and
+    binding each blob to `lockedInputs` means a whitespace variant of
+    FAMILY.json, which parses to identical mutations but hashes
+    differently, cannot enter after the round is known."""
     snapshot = {}
-    for relative in ("FAMILY.json", "packs/vendor-screening-correct.pack.json",
-                     "controls/k-wrong-1.json", "controls/k-wrong-2.json"):
-        blob = head_blob(relative)
+    for relative in SNAPSHOT_INPUTS:
+        blob = commit_blob(oid, relative)
+        digest = "sha256:" + hashlib.sha256(blob).hexdigest()
+        if locked["lockedInputs"].get(relative) != digest:
+            raise StudyError("%s at %s is not the locked input" % (relative, oid[:12]))
         if blob != open(os.path.join(STUDY, relative), "rb").read():
-            raise StudyError("%s differs from its HEAD blob" % relative)
+            raise StudyError("%s differs from the snapshot commit" % relative)
         snapshot[relative] = blob
     return snapshot
 
@@ -935,9 +980,11 @@ def cmd_draw() -> None:
     verify_inclusion(inclusion, RECORDS_PUB, expected_manifest,
                      locked["rekor"]["logPublicKeyPem"])
     published_files = published_tree(revision)
-    # Snapshot every locked derivation input BEFORE the wait: nothing the
-    # index depends on is re-read from the worktree once the round is known.
-    snapshot = locked_snapshot()
+    # Snapshot every locked derivation input BEFORE the wait, from ONE
+    # resolved OID: nothing the index depends on is re-read once the round
+    # is known, and each blob must be the digest the lock registered.
+    snapshot_oid = head_oid(STUDY)
+    snapshot = locked_snapshot(snapshot_oid, locked)
     family_manifest, family_digest = snapshot_family(snapshot)
     published = inclusion["integratedTime"]
     genesis = locked["drand"]["genesisTime"]
@@ -1019,7 +1066,8 @@ def cmd_validate() -> None:
         os.path.join(STUDY, "transcription/PROMPT.txt"),
         completion,
         os.path.join(call_dir, "CALL.json"),
-        model=MODEL)
+        model=MODEL,
+        golden_path=os.path.join(STUDY, "transcription/GOLDEN-CONTEXT.json"))
     call = json.load(open(os.path.join(call_dir, "CALL.json")))
     if call.get("binarySha256") != locked_manifest["codex"]["binarySha256"]:
         raise StudyError("the authoring call did not use the locked codex binary")
@@ -1027,7 +1075,7 @@ def cmd_validate() -> None:
     # and DEFECT.json / pack D are compared as canonical BYTES, so a
     # retyped literal (JSON false vs 0, which Python equates) or a
     # whitespace variant cannot pass as the sampled mutation.
-    snapshot = locked_snapshot()
+    snapshot = locked_snapshot(head_oid(STUDY), locked_manifest)
     family_manifest, family_digest = snapshot_family(snapshot)
     manifest = defect()
     mutation = manifest["mutation"]
@@ -1077,8 +1125,19 @@ def cmd_validate() -> None:
     if subprocess.run(["git", "merge-base", "--is-ancestor", lock_commit,
                        draw["recordsCommit"]], cwd=STUDY).returncode != 0:
         raise StudyError("the timestamped lock commit is not an ancestor of the records commit")
-    if lock_inclusion["integratedTime"] > inclusion["integratedTime"]:
-        raise StudyError("the lock was timestamped after the records publication")
+    if lock_inclusion["integratedTime"] >= inclusion["integratedTime"]:
+        raise StudyError("the lock was not timestamped strictly before the publication")
+    # The timestamp must cover THIS protocol lock, not merely some ancestor:
+    # the lock file and every locked input must be present at that commit
+    # with the digests the lock registered.
+    if commit_blob(lock_commit, "PROTOCOL-LOCK.json") != open(LOCK, "rb").read():
+        raise StudyError("the timestamped commit does not carry this PROTOCOL-LOCK.json")
+    for relative, digest in locked["lockedInputs"].items():
+        if relative.startswith("../"):
+            continue
+        blob = commit_blob(lock_commit, relative)
+        if "sha256:" + hashlib.sha256(blob).hexdigest() != digest:
+            raise StudyError("%s at the timestamped commit is not the locked byte" % relative)
     genesis = locked["drand"]["genesisTime"]
     period = locked["drand"]["periodSeconds"]
     target_time = inclusion["integratedTime"] + locked["drawRule"]["offsetSeconds"]
@@ -1163,10 +1222,10 @@ def cmd_freeze() -> None:
         raise StudyError("unknown inclusions under a witness key: %r" % strangers)
     # The first committed freeze is the freeze: re-freezing after a crash
     # would change the digest and silently re-elect the primary attempt.
-    committed = subprocess.run(["git", "cat-file", "-e", "HEAD:./FREEZE.json"],
-                               cwd=STUDY, capture_output=True)
-    if committed.returncode == 0:
-        raise StudyError("a committed FREEZE.json already governs; it is immutable")
+    ever = subprocess.run(["git", "log", "--all", "--format=%H", "--", "FREEZE.json"],
+                          cwd=STUDY, capture_output=True, text=True).stdout.strip()
+    if ever:
+        raise StudyError("FREEZE.json has existed in this history; the first freeze governs")
     cmd_validate()
     with open(FREEZE, "wb") as handle:
         handle.write(canonical_json(freeze_body()))
@@ -1367,10 +1426,14 @@ def cmd_run() -> None:
     # only pre-attempt requirement is that a freeze file exists to bind to.
     if not os.path.exists(FREEZE):
         raise StudyError("no FREEZE.json; run freeze and commit it first")
+    # The governing digest comes from the COMMITTED blob, computed before
+    # the attempt opens, so a malformed worktree freeze cannot leave an
+    # attempt without a terminal state.
+    governing = "sha256:" + hashlib.sha256(head_blob("FREEZE.json")).hexdigest()
     attempt = start_attempt()
     try:
         with open(os.path.join(attempt, "FREEZE-DIGEST"), "w") as handle:
-            handle.write(sha256_file(FREEZE) + "\n")
+            handle.write(governing + "\n")
         frozen = verify_freeze()
         cmd_validate()
         jpack = os.environ["JPACK_BIN"]
@@ -1381,7 +1444,7 @@ def cmd_run() -> None:
         import traceback
         with open(os.path.join(attempt, "CRASHED.json"), "w") as handle:
             json.dump({"error": repr(error), "traceback": traceback.format_exc(),
-                       "argv": sys.argv, "freeze": sha256_file(FREEZE)}, handle, indent=2)
+                       "argv": sys.argv, "freeze": governing}, handle, indent=2)
         seal_attempt(attempt)
         raise
 
@@ -1457,7 +1520,7 @@ def primary_attempt() -> tuple[int, str, bool]:
     committed freeze, whatever its terminal state (PREREGISTRATION.md §6): a
     crashed primary scores pipeline-invalid rather than being skipped. Later
     attempts are sensitivity data recorded in DEVIATIONS.md."""
-    current = sha256_file(FREEZE)
+    current = "sha256:" + hashlib.sha256(head_blob("FREEZE.json")).hexdigest()
     number = 1
     while os.path.exists(os.path.join(TRIALS, "ATTEMPT-%d" % number)):
         attempt = os.path.join(TRIALS, "ATTEMPT-%d" % number)

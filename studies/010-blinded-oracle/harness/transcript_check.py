@@ -36,7 +36,9 @@ rejection, so a shadowed member cannot mean one thing to this checker and
 another to a reader.
 """
 from __future__ import annotations
+import hashlib
 import json
+import re
 
 # Vocabulary that cannot appear before the registered prompt. Lowercase;
 # matching is case-insensitive substring. These are the study's own terms:
@@ -90,6 +92,49 @@ def _reasoning_is_inert(payload: dict, number: int) -> None:
     summary = payload.get("summary", [])
     if not isinstance(summary, list):
         raise TranscriptError("line %d: reasoning summary is not a list" % number)
+
+
+NORMALIZERS = (
+    # Dynamic values codex quotes that carry no policy information. The
+    # golden capture (transcription/GOLDEN-CONTEXT.json) pins what remains,
+    # so anything NOT normalized here must match the golden bytes exactly.
+    (re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?"), "<TIMESTAMP>"),
+    (re.compile(r"\d{4}-\d{2}-\d{2}"), "<DATE>"),
+    (re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"), "<UUID>"),
+)
+
+
+def normalize(text: str, paths: list) -> str:
+    """One text, with environment paths and dynamic stamps replaced. Also
+    NFKC-normalized and stripped of zero-width characters, so a homoglyph
+    or zero-width-joined variant cannot differ from the golden bytes while
+    reading identically to the model."""
+    import unicodedata
+    normalized = unicodedata.normalize("NFKC", text)
+    normalized = "".join(ch for ch in normalized
+                         if ch not in "\u200b\u200c\u200d\ufeff\u2060")
+    for path in paths:
+        if path and len(path) > 3:
+            normalized = normalized.replace(path, "<PATH>")
+    for pattern, replacement in NORMALIZERS:
+        normalized = pattern.sub(replacement, normalized)
+    return normalized
+
+
+def context_digests(session_path: str, call: dict) -> dict:
+    """The normalized pre-prompt context, as ordered (role, digest, length)
+    triples — what the golden capture pins and every run must reproduce."""
+    events, contexts = _events(session_path)
+    prompt_positions = [i for i, (role, _) in enumerate(events) if role == "user"]
+    position = prompt_positions[-1] if prompt_positions else len(events)
+    paths = environment_paths(contexts, call)
+    entries = []
+    for role, text in events[:position]:
+        canonical = normalize(text, paths)
+        entries.append({"role": role,
+                        "sha256": hashlib.sha256(canonical.encode("utf-8")).hexdigest(),
+                        "length": len(canonical)})
+    return {"contextVersion": "1", "entries": entries}
 
 
 def environment_paths(contexts: list, call: dict) -> list:
@@ -190,8 +235,37 @@ def screen_prior_context(events: list, position: int, paths: list = ()) -> None:
                     % (role, index, token))
 
 
+def check_golden(session_path: str, call: dict, golden_path: str) -> None:
+    """The pre-prompt context must reproduce the locked golden capture
+    exactly: same count, same roles, same order, same normalized digests.
+
+    This is an allowlist, and it is what a denylist could never be. A
+    paraphrase ("the third clause should say > instead of >= at 70"), a
+    zero-width-joined spelling, a base64 blob — none of them need to
+    contain a banned token to leak, but all of them change the context,
+    and any change refuses. The golden capture was taken from real runs of
+    the registered invocation, which reproduce byte-identically after
+    normalization."""
+    golden = json.load(open(golden_path))
+    actual = context_digests(session_path, call)
+    if golden.get("contextVersion") != actual["contextVersion"]:
+        raise TranscriptError("the golden capture is a different context version")
+    expected, seen = golden.get("entries", []), actual["entries"]
+    if len(expected) != len(seen):
+        raise TranscriptError(
+            "the session carries %d pre-prompt context items, the golden capture %d"
+            % (len(seen), len(expected)))
+    for index, (want, got) in enumerate(zip(expected, seen)):
+        if want.get("role") != got["role"] or want.get("sha256") != got["sha256"] \
+                or want.get("length") != got["length"]:
+            raise TranscriptError(
+                "pre-prompt context item %d (%s) is not the locked golden context"
+                % (index, got["role"]))
+
+
 def check(session_path: str, prompt_path: str, completion_path: str,
-          call_path: str, model: str | None = None) -> None:
+          call_path: str, model: str | None = None,
+          golden_path: str | None = None) -> None:
     events, contexts = _events(session_path)
     prompt = open(prompt_path, "rb").read().decode("utf-8")
     positions = [i for i, (role, text) in enumerate(events)
@@ -209,7 +283,11 @@ def check(session_path: str, prompt_path: str, completion_path: str,
     for token in LEAK_TOKENS:
         if token in scratch.lower():
             raise TranscriptError("the call's working directory contains the leak token %r" % token)
+    # Defence in depth: the golden allowlist is the real gate, the
+    # denylist catches an obviously planted turn with a clearer message.
     screen_prior_context(events, position, environment_paths(contexts, call))
+    if golden_path is not None:
+        check_golden(session_path, call, golden_path)
     assistants_after = [text for index, (role, text) in enumerate(events)
                         if role == "assistant" and index > position]
     if not assistants_after:

@@ -1,6 +1,6 @@
-# Preregistration — Study 010: the blinded oracle (revision 5)
+# Preregistration — Study 010: the blinded oracle (revision 6)
 
-**Status: DRAFT until the protocol lock; governing thereafter.** Four
+**Status: DRAFT until the protocol lock; governing thereafter.** Five
 pre-freeze reviews rejected the four prior revisions: revision 1 (operator
 entropy, no structural blinding), revision 2 (a steerable publication
 clock, an overlapping E1, an unhonorable inheritance claim), revision 3
@@ -13,8 +13,11 @@ whitelist that rejected the `reasoning` items every real session carries,
 which would have made the honest authoring call permanently inadmissible).
 Every review confirmed the study's core sound: the draw arithmetic, the
 six family predicates against pack C's actual bytes, the tables, the
-controls' all-mutation invariance, and the derived mismatch sets. Revision
-5 repairs the rest; every review and its disposition is in
+controls' all-mutation invariance, and the derived mismatch sets. Revision 5 repaired those, and revision 6 answers a fifth review whose
+decisive finding was empirical: with the operator's real `HOME`, every
+skill directory under `~/.agents/skills` reaches the model — reproduced
+independently, and closed by giving the call a fresh `HOME` as well as a
+fresh `CODEX_HOME`. Every review and its disposition is in
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md). This revision is reviewed together
 with the complete, byte-exact protocol-lock candidate — policy, pack C,
 family, prompt, compiler, checkers, harness, controls — not as prose
@@ -122,10 +125,12 @@ failures.
 `transcription/authoring_call.sh`, whose every element was validated
 against the pinned CLI before registration:
 
-- an **isolated `CODEX_HOME`** containing only a copy of the credential —
-  so the operator's own config, rules, skills, and `AGENTS.md` cannot
-  reach the model, and the session file is the single new file beneath it
-  (session discovery is deterministic, not a timestamp race);
+- a **fresh `HOME` and a fresh `CODEX_HOME`** beneath it, carrying only a
+  copy of the credential. `--ignore-user-config` alone is not enough:
+  skills load from `$HOME/.agents`, and with the operator's real home every
+  skill directory name appears in the transcript — with a fresh home, none
+  does. The session file is also the single new file beneath the isolated
+  home, so discovery is deterministic rather than a timestamp race;
 - **`--ignore-user-config`** and an explicit **`-m <locked model>`**;
 - an environment scrubbed with `env -i` to `PATH`, `HOME`, `TMPDIR`, and
   `CODEX_HOME`;
@@ -135,18 +140,18 @@ against the pinned CLI before registration:
 - the prompt passed as the byte-exact contents of
   `transcription/PROMPT.txt` (no trailing newline), stdin closed.
 
-Each invocation lands in an immutable numbered slot
-`transcription/authoring/call-N` (N ≤ 3) retaining `CALL.json` (argv, cwd,
-home, environment allowlist, model, CLI identity and binary digest,
-integer exit status, session count), `stdout.raw`, `stderr.raw`,
-`session.jsonl`, and — **only when the process exited 0** —
-`completion.txt`. A call killed after its answer was persisted therefore
-leaves a transcript but no compiler input, so a retry cannot shop between
-outputs. **Retry rule**: a slot that completed may never be followed by
-another; a transport failure may be retried into the next slot, at most
-three; the admissible call is the single completed slot, mechanically
-resolved, and it must record exactly one session and retain all five
-files. §9 states what this proves and what it merely records.
+The invocation lands in `transcription/authoring/call-1`, retaining
+`CALL.json` (argv, cwd, isolated home, environment allowlist, model, CLI
+identity and binary digest, integer exit status, session count),
+`stdout.raw`, `stderr.raw`, `session.jsonl`, `context.json`, and — only
+when the process exited 0 — `completion.txt`.
+
+**Zero retries.** There is one slot and it may be created once. A retained
+transcript from a killed call would let an operator read the answer and
+try again, so retries cannot be made compatible with the one-completion
+claim; the honest bound is one invocation, and a transport failure ends
+the attempt rather than licensing another. §9 states what remains merely
+recorded.
 
 **The transcript binding** (`harness/transcript_check.py`, locked; built
 against a captured no-tool session, not an assumed schema). Every
@@ -160,17 +165,17 @@ with duplicate-key rejection. The attempt is admissible only if:
 
 1. exactly one **user** message equals `PROMPT.txt`'s bytes, and no
    user/developer message follows it — the registered prompt is terminal;
-2. **no message before the prompt carries any locked leak token** — the
-   study's pack, family, mutation, and fact vocabulary (`LEAK_TOKENS`).
-   Environment paths (the call's cwd, the sandbox workspace roots, `HOME`)
-   are excised before matching, because codex's own boilerplate quotes
-   them and a machine whose directories spell a study term leaks nothing;
-   the wrapper independently refuses a scratch path carrying a leak token,
-   so the excision cannot hide a planted one. This is what makes "the
-   completion answers the policy alone" mechanical rather than asserted:
-   codex's fixed boilerplate (permissions instructions, agent identity,
-   multi-agent note, recommended plugins) passes; a defect-informed turn
-   does not;
+2. **the pre-prompt context reproduces the locked golden capture
+   exactly** — `transcription/GOLDEN-CONTEXT.json` pins the count, roles,
+   order, and normalized digests of every message before the prompt,
+   captured from two independent real runs of the registered invocation
+   that reproduced identically. Normalization replaces environment paths,
+   dates, timestamps, and session UUIDs, applies NFKC, and strips
+   zero-width characters. This is an allowlist, and it is what a denylist
+   could never be: a paraphrase, a homoglyph, or a base64 blob need not
+   contain any banned word to leak, but each changes the context, and any
+   change refuses. A locked `LEAK_TOKENS` denylist remains as defence in
+   depth and for a clearer refusal message;
 3. at least one assistant message follows the prompt, and
    `completion.txt`'s bytes equal the last one's concatenated
    `output_text`;
@@ -459,13 +464,17 @@ no comparison, and no pack.
 `pipeline-invalid`): the canonical lock and freeze manifests (exact member
 schemas, worktree ≡ HEAD blobs, and every chain, log-key, model, draw, and
 binary constant compared against this harness's own reviewed bytes rather
-than read from the manifest); the pre-beacon snapshot and canonical-byte
-comparison of DEFECT.json and pack D; the first committed freeze's
-immutability; pack C ≡ mirror on the
-44 probes; the admissible-call resolution (single completed slot, one new
-session, pinned binary digest, completion extracted only from an exit-0
-process); the strict transcript whitelist, the leak screen over prior
-context, the model/cwd binding, and the completion byte equality; compiler regeneration with the exact file
+than read from the manifest); the pre-beacon snapshot, taken from one resolved commit OID with every
+blob bound to the lock's registered digest, and canonical-byte comparison
+of DEFECT.json and pack D; the timestamped lock commit carrying this
+protocol lock and every locked input at its registered digest, strictly
+before the publication; the first freeze in the branch's history
+governing, with re-freezing refused; pack C ≡ mirror on the
+44 probes; the single-slot call rule (zero retries), one new session, the reviewed
+CLI version and binary digest pinned in this harness's own bytes, and
+completion extraction only from an exit-0 process; the strict transcript
+whitelist, the golden pre-prompt context match, the leak denylist, the
+model/cwd binding, and the completion byte equality; compiler regeneration with the exact file
 set; the publication's and the lock timestamp's cryptographic
 authentication (body, UUID leaf hash, pinned log key, signed entry
 timestamp) and the refusal of any stranger entry the freeze-time key
@@ -475,8 +484,13 @@ recomputation; DEFECT.json's byte-recomputation from the published tree;
 the gates, receipt bijection, and arm isolation; attempt-ledger totality
 with exact-set seals and a total scorer.
 
-**Recorded but not proven**: whether the transparency log's key search
-had caught up when it was queried — `SEARCH.json` retains the answer
+**Recorded but not proven**: that the authoring call ran after the lock
+was timestamped — the log dates the lock and the publication, but nothing
+authenticates the call's own clock; that `CALL.json`'s remaining
+self-reported fields describe the process that ran (the model and working
+directory are corroborated by the transcript's own `turn_context`, and the
+pre-prompt context by the golden capture); whether the transparency log's
+key search had caught up when it was queried — `SEARCH.json` retains the answer
 either way, and a negative says nothing about the log's contents; that the
 retained call slots are ALL the invocations that occurred (an off-ledger call leaves no slot); that
 `CALL.json`'s self-reported fields describe the process that actually ran

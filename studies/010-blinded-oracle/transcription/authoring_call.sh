@@ -13,9 +13,11 @@
 #   CALL.json      - argv, cwd, home, env allowlist, model, CLI identity and
 #                    binary digest, exit status, session count
 #   stdout.raw / stderr.raw
-#   session.jsonl  - the transcript from the isolated CODEX_HOME
+#   session.jsonl  - the transcript from the isolated CODEX_HOME/HOME
 #   completion.txt - the transcript's last assistant message (compiler
 #                    input), written ONLY when the process exited 0
+#   context.json   - the normalized pre-prompt context digests, which
+#                    must equal the locked golden capture
 set -euo pipefail
 
 STUDY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
@@ -57,25 +59,25 @@ if [ "$LOCKED_DIGEST" != "$ACTUAL_DIGEST" ]; then
   exit 1
 fi
 
-# The call slot: first free call-N; an earlier COMPLETED slot refuses.
+# ZERO retries (PREREGISTRATION.md §4): exactly one slot may ever exist.
+# Retaining a killed call's transcript would let an operator read the
+# answer and try again, so the only honest bound is one invocation.
 mkdir -p "$STUDY/transcription/authoring"
-N=1
-while [ -e "$STUDY/transcription/authoring/call-$N" ]; do
-  STATUS="$(python3 -c 'import json,sys; s=json.load(open(sys.argv[1])).get("exitStatus"); print(s if isinstance(s,int) and not isinstance(s,bool) else "bad")' "$STUDY/transcription/authoring/call-$N/CALL.json" 2>/dev/null || echo bad)"
-  if [ "$STATUS" = "0" ]; then
-    echo "refused: call-$N already completed; a completed call may not be retried" >&2
-    exit 1
-  fi
-  N=$((N+1))
-done
-if [ "$N" -gt 3 ]; then echo "refused: all three call slots are used" >&2; exit 1; fi
-OUT="$STUDY/transcription/authoring/call-$N"
+OUT="$STUDY/transcription/authoring/call-1"
+if [ -e "$OUT" ]; then
+  echo "refused: the one authoring call has already been made" >&2
+  exit 1
+fi
 mkdir "$OUT"
 
-# The isolated codex home: only the credential is carried across, so no
-# user config, rules, skills, or AGENTS.md can reach the model, and the
-# session file is the single new file under it.
-CODEX_HOME_DIR="$SCRATCH/.codex-home"
+# A fresh HOME as well as a fresh CODEX_HOME. --ignore-user-config only
+# skips $CODEX_HOME/config.toml; skills load from $HOME/.agents and DO
+# reach the model — verified: with the operator's real HOME every skill
+# directory name appears in the transcript, with a fresh HOME none does.
+# Both live outside the scratch the model can write to.
+ISOLATED_HOME="$PARENT/s010-home-$$"
+mkdir "$ISOLATED_HOME"
+CODEX_HOME_DIR="$ISOLATED_HOME/.codex"
 mkdir "$CODEX_HOME_DIR"
 cp "$HOME/.codex/auth.json" "$CODEX_HOME_DIR/auth.json"
 
@@ -85,7 +87,7 @@ PROMPT="$(cat "$STUDY/transcription/PROMPT.txt")"
 set +e
 ( cd "$SCRATCH" && env -i \
     PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$HOME/.local/bin" \
-    HOME="$HOME" TMPDIR=/tmp CODEX_HOME="$CODEX_HOME_DIR" \
+    HOME="$ISOLATED_HOME" TMPDIR=/tmp CODEX_HOME="$CODEX_HOME_DIR" \
     "$CODEX_BIN" exec --ignore-user-config -m "$LOCKED_MODEL" \
     --sandbox workspace-write -c 'mcp_servers={}' \
     "$PROMPT" < /dev/null > "$OUT/stdout.raw" 2> "$OUT/stderr.raw" )
@@ -113,7 +115,7 @@ with open(os.path.join(out, "completion.txt"), "wb") as handle:
 PY
 fi
 
-python3 - "$OUT" "$SCRATCH" "$EXIT" "$ACTUAL_DIGEST" "$COUNT" "$LOCKED_MODEL" "$HOME" <<'PY'
+python3 - "$OUT" "$SCRATCH" "$EXIT" "$ACTUAL_DIGEST" "$COUNT" "$LOCKED_MODEL" "$ISOLATED_HOME" <<'PY'
 import json, subprocess, sys
 out, scratch, exit_status, digest, count, model, home = sys.argv[1:8]
 version = subprocess.run(["codex", "--version"], capture_output=True, text=True).stdout.strip()
@@ -127,6 +129,7 @@ with open(out + "/CALL.json", "w") as handle:
         "environment": ["PATH", "HOME", "TMPDIR", "CODEX_HOME"],
         "environmentScrubbed": True,
         "codexHomeIsolated": True,
+        "homeIsolated": True,
         "ignoreUserConfig": True,
         "model": model,
         "cli": version,
@@ -138,6 +141,20 @@ with open(out + "/CALL.json", "w") as handle:
     }, handle, indent=2)
     handle.write("\n")
 PY
+
+if [ "$COUNT" = "1" ]; then
+  python3 - "$OUT" "$STUDY" <<'PY'
+import json, sys, os
+out, study = sys.argv[1], sys.argv[2]
+sys.path.insert(0, os.path.join(study, "harness"))
+import transcript_check
+call = json.load(open(os.path.join(out, "CALL.json")))
+context = transcript_check.context_digests(os.path.join(out, "session.jsonl"), call)
+with open(os.path.join(out, "context.json"), "w") as handle:
+    json.dump(context, handle, indent=2)
+    handle.write("\n")
+PY
+fi
 
 if [ "$COUNT" != "1" ]; then
   echo "refused: expected exactly one session in the isolated home, found $COUNT (slot retained)" >&2
