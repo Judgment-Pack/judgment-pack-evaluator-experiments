@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-10T08:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Hardware AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

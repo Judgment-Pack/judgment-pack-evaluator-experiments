@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-above-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Office Products SARL",
+    "registeredCountry": "FR",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

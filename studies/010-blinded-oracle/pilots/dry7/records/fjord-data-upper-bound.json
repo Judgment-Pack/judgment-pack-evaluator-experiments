@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Benefits AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

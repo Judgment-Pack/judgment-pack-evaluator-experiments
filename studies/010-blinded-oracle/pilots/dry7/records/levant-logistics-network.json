@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-logistics-network",
+  "decision": {
+    "decidedAt": "2026-06-03T13:05:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Logistics Network LLC",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

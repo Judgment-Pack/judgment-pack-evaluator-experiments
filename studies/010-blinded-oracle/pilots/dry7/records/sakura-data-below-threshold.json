@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T09:15:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Contact Services KK",
+    "registeredCountry": "JP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

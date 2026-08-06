@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:25:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Care KK",
+    "registeredCountry": "JP",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-precedence",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Systems PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "92.4",
+    "sanctionsHit": true
+  }
+}

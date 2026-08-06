@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-no-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T16:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

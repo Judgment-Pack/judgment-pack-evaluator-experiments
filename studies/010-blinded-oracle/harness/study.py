@@ -384,7 +384,14 @@ def rekor_include(key_path: str, pub_path: str, payload: bytes) -> dict:
                               "value": hashlib.sha256(payload).hexdigest()}},
         },
     }
-    entry = http_json_retry(REKOR + "/api/v1/log/entries", body)
+    # The upload is idempotent by construction. rekor_include signs ONCE and
+    # posts that fixed body, so a retry after a lost response re-posts the
+    # identical entry and Rekor answers 409 with the UUID it already has —
+    # which is the entry we wanted. Rehearsal hit exactly this at the
+    # publication step, and a failure there is unrecoverable for a
+    # single-attempt study, so a conflict resolves to its own entry
+    # rather than refusing.
+    entry = rekor_post_or_recover(body)
     uuid, record = next(iter(entry.items()))
     return {"uuid": uuid, "logIndex": record["logIndex"],
             "integratedTime": record["integratedTime"],
@@ -395,6 +402,28 @@ def rekor_include(key_path: str, pub_path: str, payload: bytes) -> dict:
             "manifest": payload.decode("ascii"),
             "publicKeyFile": os.path.basename(pub_path),
             "rawResponse": entry}
+
+
+def rekor_post_or_recover(body: dict) -> dict:
+    """POST one hashedrekord; on 409 fetch the entry it conflicts with."""
+    import urllib.error
+    last = None
+    for attempt in range(5):
+        try:
+            return http_json(REKOR + "/api/v1/log/entries", body, timeout=60)
+        except urllib.error.HTTPError as error:
+            if error.code == 409:
+                located = error.headers.get("Location", "")
+                uuid = located.rsplit("/", 1)[-1]
+                if not uuid:
+                    raise StudyError("Rekor reported a conflict without a location")
+                return http_json_retry(REKOR + "/api/v1/log/entries/" + uuid)
+            last = error
+            time.sleep(5 * (attempt + 1))
+        except Exception as error:  # noqa: BLE001 - refused after the loop
+            last = error
+            time.sleep(5 * (attempt + 1))
+    raise StudyError("could not upload to Rekor after 5 attempts: %r" % last)
 
 
 def verify_inclusion(inclusion: dict, pub_path: str, expected_manifest: bytes,
