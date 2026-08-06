@@ -1,145 +1,179 @@
 # Results — Study 001, first execution of the prompt arms
 
 Arms A and A′ had never been run against a real model beyond a
-two-instance pilot. Arm B's 57.9% therefore stood alone and
-uninterpretable, and the project's central claim — that representing a
+two-instance pilot, so the project's central claim — that representing a
 policy as a judgment pack changes how reliably a model applies it — rested
-on a design rather than a result. All three arms have now been run over
-the full corpus at k = 5.
+on a design rather than a result. All three arms have now run over the
+full corpus at k = 5.
 
-**Read §"What this does not license" before quoting any number.** Two
-limits are structural, not incidental: one model family, and arm B's
-determinism.
+**On the preregistered endpoint, the pack arm loses.** An earlier draft of
+this document reported the opposite; it scored the wrong population and
+was corrected by the post-run adversarial review
+([`ADVERSARIAL-REVIEW.md`](ADVERSARIAL-REVIEW.md), five blockers). The
+error and its correction are recorded in `DEVIATIONS.md` §2 rather than
+silently fixed.
 
 ## Setup
 
 | | |
 | --- | --- |
-| Instances | 432 twins (216 pairs), byte-identical facts across arms |
-| Trials | k = 5, all conditions |
-| Rows | 2,160 per prompt arm, 2,160 for arm B; 0 errors, parse-ok 1.000, 0 engine refusals |
+| Instances | 432 twins (216 answerable, 216 redacted), byte-identical facts across arms |
+| Trials | k = 5, all conditions; 2,160 rows per arm; 0 errors, parse-ok 1.000 |
 | Arms | A (CBA text in prompt), A′ (pack prose in prompt), B (pack via evaluator) |
-| Model | `gpt-5.6-sol` via the Codex CLI backend, arms A and A′ |
+| Model | `gpt-5.6-sol` via Codex, arms A and A′ |
 | Runtime | `judgment-pack 0.2.0`, arm B |
 | Bootstrap | 2000 paired resamples, seed 20260806 |
 
-## Primary endpoint — H1, pass^k, B vs A
+## The registered primary endpoint — H1 — is **not supported**
 
-The preregistration names one primary endpoint chosen in advance: H1
-measured as pass^k, comparing arm B against arm A. §6 commits it to fail
-unless B exceeds A by **at least 5 percentage points with a confidence
-interval excluding zero**.
+§2 of the preregistration registers exactly one primary endpoint: **H1
+measured as pass^k on answerable instances**, arm B against arm A, pooled
+across both model families. On that population:
 
-| Arm | pass^k | 95% CI |
+| Arm | pass^5 | 95% CI |
 | --- | ---: | --- |
-| A — policy text in the prompt | 0.373 | [0.326, 0.419] |
-| A′ — pack prose in the prompt | 0.417 | [0.370, 0.465] |
-| B — pack through the evaluator | **0.502** | [0.456, 0.549] |
+| A — policy text in the prompt | **0.727** | [0.667, 0.787] |
+| A′ — pack prose in the prompt | **0.778** | [0.718, 0.833] |
+| B — pack through the evaluator | 0.579 | [0.509, 0.644] |
 
-**Δ pass^k, B − A = +0.130, 95% CI [0.076, 0.181], P(Δ>0) = 1.000.**
+**Δ pass^5, B − A = −0.148, 95% CI [−0.213, −0.088].** Exact two-sided
+McNemar on the 56 discordant instances (12 favouring B, 44 favouring A):
+**p = 2.09 × 10⁻⁵, favouring A.**
 
-Thirteen percentage points, interval excluding zero. **H1 passes** against
-the threshold registered before any prompt arm had been run.
+The result is **opposite in sign** to the hypothesis. §6 required B to
+exceed A by at least 5 points with an interval excluding zero; B trails by
+nearly 15 points with an interval excluding zero in A's favour.
 
-**H5 — the honest control — also passes.** §6 commits the headline claim
-to fail if B does not also exceed A′ by an interval excluding zero:
-**Δ pass^k, B − A′ = +0.086, 95% CI [0.035, 0.132]**.
+**H5 is not supported either.** B − A′ = −0.199 [−0.255, −0.148]. §6 makes
+the headline claim fail when B does not exceed A′, and it does not. A′
+does exceed A on this endpoint (+0.051 [0.009, 0.093]) while their
+accuracy difference is not distinguishable from zero.
 
-But k = 5 shows something the k = 1 pass could not, and it cuts against the
-simplest reading: **A′ beats A on consistency**, Δ pass^k = +0.044,
-95% CI [0.021, 0.069]. On accuracy the two prompt arms are statistically
-tied (Δ = +0.018, CI [−0.003, 0.040]); on repeat-consistency the prose
-restatement measurably helps. So part of the reliability gain *is*
-attributable to the policy analysis, not the artifact — roughly a third of
-the B − A gap is recovered by A′ alone. The registered claim survives
-because B still exceeds A′ by an interval excluding zero, but "the pack
-does it, the analysis does nothing" would be the wrong summary.
+**And the registered endpoint was never completed.** It is defined as
+pooled across Claude and Codex. Only Codex ran, and `score.py` produces
+separate `arm::backend::model` conditions with no cross-backend pooling
+operation — so the pooled endpoint is not merely deviated but not
+estimable from this execution. Everything above is a Codex-only deviated
+analysis.
 
-## Secondary endpoints
+### What the earlier draft got wrong
 
-| Arm | Accuracy | 95% CI |
-| --- | ---: | --- |
-| A | 0.402 | [0.356, 0.450] |
-| A′ | 0.420 | [0.373, 0.468] |
-| B | **0.502** | [0.456, 0.549] |
+It reported **B − A = +0.130** and "H1 passes". That number is
+reproducible, but only by scoring **all 432 twins** — pooling the 216
+answerable instances with the 216 manufactured-redaction ones. The
+decomposition:
 
-Δ accuracy: B − A = +0.100 [0.047, 0.151]; B − A′ = +0.082 [0.031, 0.129].
-**H4 holds** — B agrees with gold more often than A, which exceeds the
-"at least as often" the hypothesis asked for.
+| Population | B − A, pass^5 |
+| --- | ---: |
+| Answerable (the registered population) | **−0.148** [−0.213, −0.088] |
+| Redacted (manufactured abstention labels) | +0.407 [0.343, 0.472] |
+| All twins (the unregistered composite) | +0.130 [0.076, 0.181] |
 
-### Escalation on redacted twins — H2
+The manufactured stratum changes the sign. `score.py` intersects all
+shared twin ids and never filters to `variant == "answerable"`; the
+scorer does not enforce the registered population, and the author did not
+either.
 
-Each redacted twin has a load-bearing fact deleted, so the correct answer
-is "cannot decide".
+## Accuracy against RuleArena's own gold — H4 **not supported**
 
-| Arm | correctly declined | falsely declined | missed | precision | recall | F1 | 95% CI |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| A | 26 | 12 | 1054 | 0.684 | 0.024 | 0.047 | [0.014, 0.087] |
-| A′ | 67 | 51 | 1013 | 0.568 | 0.062 | 0.112 | [0.062, 0.171] |
-| B | 460 | 300 | 620 | 0.605 | **0.426** | **0.500** | [0.436, 0.561] |
+§5 defines accuracy as agreement with the benchmark's gold `answer`. On
+answerable instances, against that gold:
 
-This remains the largest gap in the study, and it is about declining to
-answer. Given a case with a required fact removed, the prompt arms
-answered anyway almost every time — arm A declined 26 times out of 1,080
-opportunities. The pack declined 460.
+| Arm | Accuracy | 
+| --- | ---: |
+| A | **0.781** |
+| A′ | 0.778 |
+| B | 0.579 |
 
-H2 asked for that rise **without** a false-escalation rise that wipes out
-the gain. B does decline falsely far more often in absolute terms (300 vs
-12), and its precision (0.605) sits below A's (0.684). The F1 gain
-(+0.453, CI [0.382, 0.518]) is nowhere near wiped out. **H2 holds**, with
-the precision cost stated rather than buried.
+**B − A = −0.202 [−0.262, −0.146].** The pack arm is about twenty points
+worse on the benchmark's actual labels. The +0.100 reported earlier is
+reproducible only after adding author-constructed abstention labels for
+the redacted half.
 
-### Citation quality — H3: **fails**
+## Why: the expressiveness gap, which is the real finding
+
+**Arm B returns `cannot_decide` on 60 of 216 answerable instances**
+because the benchmark omits the minimum-salary schedule the CBA needs
+(`PIPELINE-STATUS.md` §7 G-1). Those 60 instances are *all* 300 of B's
+false-escalation trials. The pack is not deciding wrongly on them; it
+cannot decide at all, because a constant it requires does not exist
+anywhere in the benchmark.
+
+§6 of the preregistration anticipated exactly this: *"If the pack cannot
+be authored to cover a usable fraction of instances at all, that is the
+study's result and it is published as an expressiveness finding, not
+quietly rescoped."* That is the finding. On the 156 answerable instances
+the pack can decide, its accuracy is 80.1%; the endpoint loss is driven by
+the 60 it cannot reach.
+
+A second, undiagnosed error concentration (G-3): B calls **18 of 37**
+gold-legal answerable instances illegal. The cause is unknown.
+
+## Escalation — H2 **holds** on its registered criterion
+
+| Arm | TP | FP | FN | TN | precision | recall | F1 | 95% CI |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| A | 26 | 12 | 1054 | 1068 | 0.684 | 0.024 | 0.047 | [0.014, 0.087] |
+| A′ | 67 | 51 | 1013 | 1029 | 0.568 | 0.062 | 0.112 | [0.062, 0.171] |
+| B | 460 | 300 | 620 | 780 | 0.605 | 0.426 | **0.500** | [0.436, 0.561] |
+
+Δ F1, B − A = +0.453; pair-clustered over the 216 source pairs the
+interval is [0.397, 0.505]. H2 meets its registered F1 rule.
+
+The cost §6 names explicitly is the false-escalation **rate**, and it is
+large: **1.1% of answerable trials for A (12/1080) versus 27.8% for B
+(300/1080)** — plus 26.7 points, a 25× rise. Of B's 92 redacted
+abstentions, 60 were already abstentions on the answerable twin; only 32
+of 216 pairs newly switched from a decision to an abstention.
+
+So B's escalation advantage and its endpoint loss have **the same cause**:
+it abstains on the 60 instances it cannot express. That is right behaviour
+on the redacted twins and wrong behaviour on the answerable ones, and the
+manufactured-label design rewards it for the former.
+
+## Citation — H3 **fails**
 
 | Arm | precision | recall | F1 | 95% CI |
 | --- | ---: | ---: | ---: | --- |
-| A | 0.777 | 0.216 | **0.300** | [0.280, 0.321] |
-| A′ | 0.682 | 0.161 | 0.237 | [0.221, 0.253] |
+| A | 0.780 | 0.217 | **0.302** | [0.284, 0.322] |
+| A′ | 0.679 | 0.164 | 0.239 | [0.225, 0.253] |
 | B | 0.597 | 0.117 | 0.186 | [0.174, 0.199] |
 
-H3 predicted B's cited rules would match RuleArena's `relevant_rules`
-better than A's. They match **worse**: Δ citation F1, B − A = −0.116, CI
-[−0.142, −0.092]. The pack reports the rules that actually fired, and that
-set is smaller and narrower than the benchmark's notion of a relevant
-rule. A registered hypothesis failed; §6 committed to publishing that, and
-this is it.
+B − A = −0.116 [−0.142, −0.092]. The pack cites the benchmark's relevant
+rules worse than either prompt arm.
 
-## What this does not license
+## What this execution does and does not compare
 
-- **Arm B's pass^k is 1.0 by construction.** The evaluator is
-  deterministic: every repeat of the same facts against the same pack
-  returns the same disposition, so B's pass^k equals its accuracy exactly
-  and cannot fall below it. H1 is therefore **not** a contest B could
-  lose. What the +0.130 measures is how *inconsistent the prompt arms are*
-  across repeats — arm A gives a different answer on 12.9% of instances it
-  would otherwise have got right. That is the real finding, and stating it
-  as "the pack was more consistent" would dress a structural property as
-  an empirical victory.
-- **One model family.** No Anthropic credential was available, so arms A
-  and A′ ran on Codex only. The registered design pools across Claude and
-  Codex; a single-family result cannot stand in for the pooled endpoint,
-  and none is claimed.
-- **One benchmark, one policy domain, one pack.** RuleArena's NBA
-  collective bargaining agreement, encoded by one author.
-- **The 124 derived fields.** The pack needs 124 `/facts/derived/*` values
-  supplied to it because JPS has no arithmetic; 13 of those are legal
-  characterisation rather than computation (`PIPELINE-STATUS.md` §7 G-2).
-  Every arm received them identically, so the comparison is fair, but the
-  pack arm is not doing that work and the accuracy figures should not be
-  read as though it were.
-- **Gold escalation labels are ours by construction.** RuleArena has no
-  "cannot decide" condition; the redaction operator manufactures one.
+- **Arm B's within-instance decision agreement is 1.0 by construction** —
+  the evaluator is deterministic. So its pass^5 *equals* its accuracy
+  (0.579), which removes B's repeat-variation penalty and structurally
+  favours it on pass^k. It does **not** make pass^k 1.0, and it does not
+  guarantee B wins: here B loses the endpoint anyway.
+- **The design does not hold the decision mechanism fixed.** It compares a
+  prompted language model against a deterministic evaluator executing a
+  pack. Representation is not varied in isolation.
+- **The pack does not do the arithmetic.** 124 `/facts/derived/*` values
+  are supplied by a preprocessor, 13 of them legal characterisation rather
+  than computation. Every arm received the identical derived block, so the
+  comparison is even-handed, but the result is about the
+  pack-plus-preprocessor pipeline, not the pack alone.
+- **Escalation gold is ours by construction.** RuleArena has no "cannot
+  decide" condition; the redaction operator manufactures one. 213 of 216
+  pairs are classified strong and 3 weak, and only 90 redactions alter the
+  derived block the evaluator consumes — on 126 pairs the inputs B sees
+  are unchanged (G-4).
+- **One model family, one benchmark, one policy domain, one pack author.**
 
 ## Reproduction note
 
-Arm B was re-run from scratch and reproduced the recorded 2026-07-27
-result exactly — 235 `illegal`, 45 `legal`, 152 `cannot_decide`, 217/432
-correct — from twins regenerated byte-identically from the pinned
-benchmark commit.
+Arm B reproduced the recorded 2026-07-27 result exactly — 235 `illegal`,
+45 `legal`, 152 `cannot_decide`, 217/432 — from twins regenerated
+byte-identically from the pinned benchmark commit.
 
 ## Deviations
 
-Recorded in `DEVIATIONS.md`: one model family rather than two; arm B on
-`judgment-pack 0.2.0` because the current `jpack 0.15.0` refuses the
-pack's declared `specVersion 0.1.0-draft` against its 0.2.0-draft
-evaluator contract. The k = 1 first pass is superseded by this document.
+`DEVIATIONS.md` records: one model family rather than two; arm B on
+`judgment-pack 0.2.0`; the wrong-population error corrected here; the
+preregistered McNemar test absent from `score.py` and computed by hand for
+this document; and bootstrap resampling over twins rather than pair
+clusters in the shipped scorer.

@@ -53,3 +53,49 @@ numbers were read:
    reproduced its recorded result exactly. The drift itself is worth
    recording: a study artifact can fall out of its evaluator's conformance
    window while the study is still open.
+
+## 2. The primary endpoint was first reported on the wrong population
+
+**What happened.** The first k = 5 write-up reported "H1 passes,
+B − A = +0.130 [0.076, 0.181]". The preregistration §2 registers H1 as
+pass^k **on answerable instances**. The number reported was the composite
+over all 432 twins, which pools the 216 answerable instances with the 216
+manufactured-redaction ones. On the registered population the sign flips:
+**B − A = −0.148 [−0.213, −0.088]**, McNemar p = 2.09 × 10⁻⁵ favouring A.
+
+The post-run adversarial review caught it as its first blocker. Every
+number was independently recomputed before the correction was accepted.
+
+**Why it happened, stated plainly.** `score.py` intersects all shared twin
+ids and never filters to `variant == "answerable"`. The scorer does not
+enforce the registered population, and the author did not verify that the
+population matched the endpoint before writing "passes". A preregistration
+constrains what you may claim; it does not check that the claim was
+computed on what it names. That check is manual and it was skipped.
+
+**Consequences.** `RESULTS-FIRST-PROMPT-ARMS.md` was rewritten to lead
+with the negative result. H1, H4, and H5 are all reported as not
+supported. The earlier commit `a01d686` is left in history rather than
+amended, so the error and its correction are both auditable.
+
+## 3. Other departures recorded during the same review
+
+- **The registered primary endpoint is not estimable from this execution.**
+  It is defined as pooled across Claude and Codex; only Codex ran, and
+  `score.py` has no cross-backend pooling operation. Everything reported
+  is a Codex-only deviated analysis.
+- **McNemar's test, committed in §5, is not implemented** in `score.py`,
+  which provides only paired bootstrap intervals. It was computed by hand
+  for the primary endpoint and reported; the omission is recorded here
+  rather than left silent.
+- **The shipped scorer bootstraps 432 twins independently** rather than
+  resampling the 216 pair clusters. Pair-clustering the H2 interval gives
+  [0.397, 0.505]; the conclusion is unchanged. Reported figures note which
+  intervals are clustered.
+- **`arm_b.py` can score a nonzero-exit run as a success.** It rejects a
+  nonzero return code only when stdout is empty, and arm-B rows retain
+  neither return code nor stderr, so the reported "0 engine refusals"
+  cannot be audited from the retained JSONL. No retained envelope shows a
+  refusal signal. Fixing the check and re-running the deterministic arm is
+  filed as follow-up rather than performed under a result already
+  corrected once.
