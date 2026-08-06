@@ -1,0 +1,398 @@
+{
+  "expectedDispositions": {
+    "perRecord": {
+      "alpine-benefits-platform": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        }
+      },
+      "blue-harbor-logistics": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "clear",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "clear",
+          "reasons": []
+        }
+      },
+      "cedar-analytics": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "clear",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "clear",
+          "reasons": []
+        }
+      },
+      "damascus-export-consortium": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        }
+      },
+      "hanul-trading-bureau": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        }
+      },
+      "iberia-payroll-support": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        }
+      },
+      "k-wrong-1": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        }
+      },
+      "k-wrong-2": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        }
+      },
+      "levant-medical-data": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "unresolved",
+          "reasons": [
+            "no-match"
+          ]
+        }
+      },
+      "lumen-customer-systems": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        }
+      },
+      "maple-records-processing": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        }
+      },
+      "northstar-office-supply": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "clear",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "clear",
+          "reasons": []
+        }
+      },
+      "orion-identity-services": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        }
+      },
+      "pars-cloud-solutions": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        }
+      },
+      "quartz-network-services": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        }
+      },
+      "redwood-facilities-group": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "reject",
+          "reasons": []
+        }
+      },
+      "sakura-courier-network": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "clear",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "clear",
+          "reasons": []
+        }
+      },
+      "solstice-industrial-parts": {
+        "underC": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        },
+        "underD": {
+          "handoff": {
+            "state": "none"
+          },
+          "kind": "outcome",
+          "outcomeId": "manual-review",
+          "reasons": []
+        }
+      }
+    }
+  },
+  "mutation": {
+    "index": 4,
+    "patch": [
+      {
+        "new": [
+          "KP",
+          "IR"
+        ],
+        "old": [
+          "KP",
+          "IR",
+          "SY"
+        ],
+        "path": "/rules/1/when/conditions/1/value"
+      }
+    ],
+    "predicate": {
+      "handlesPersonalData": null,
+      "registeredCountry": {
+        "kind": "equals",
+        "value": "SY"
+      },
+      "riskScore": null,
+      "sanctionsHit": false
+    },
+    "predicateProse": "no sanctions hit, registered in SY (any score)",
+    "reasonsUnderD": [
+      {
+        "handlesPersonalData": null,
+        "reasons": [
+          "no-match"
+        ]
+      }
+    ],
+    "title": "P2's embargo list loses SY",
+    "underD": "unresolved (no-match): the mutated P2 no longer matches SY, and P3/P4/P5's unmutated embargo exclusions still exclude it",
+    "violatedClause": "P2"
+  },
+  "sampledIndex": 4,
+  "sets": {
+    "F": [
+      "levant-medical-data"
+    ],
+    "H": [
+      "alpine-benefits-platform",
+      "blue-harbor-logistics",
+      "cedar-analytics",
+      "damascus-export-consortium",
+      "hanul-trading-bureau",
+      "iberia-payroll-support",
+      "levant-medical-data",
+      "lumen-customer-systems",
+      "maple-records-processing",
+      "northstar-office-supply",
+      "orion-identity-services",
+      "pars-cloud-solutions",
+      "quartz-network-services",
+      "redwood-facilities-group",
+      "sakura-courier-network",
+      "solstice-industrial-parts"
+    ],
+    "K": [
+      "k-wrong-1",
+      "k-wrong-2"
+    ],
+    "Q": []
+  }
+}
