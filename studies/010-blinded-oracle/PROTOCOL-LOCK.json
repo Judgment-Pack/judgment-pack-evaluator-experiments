@@ -1,0 +1,79 @@
+{
+  "lockedInputs": {
+    "PREREGISTRATION.md": "sha256:2c655965220469f82891ce128670701f46b10915b702674fb740020003e756f7",
+    "PREREG-REVIEW.md": "sha256:4e5f4bc7f9d84c18d90b979164ca01f4266a53296776fe656998545c84fd7fa3",
+    "policy/POLICY.md": "sha256:e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f",
+    "packs/vendor-screening-correct.pack.json": "sha256:e9abfcc96f6cf558222ea85d6f33246c7f7872ac0dcb7b0e49ea73cc6394d92f",
+    "FAMILY.json": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+    "transcription/PROMPT.txt": "sha256:a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2",
+    "transcription/record.rule.json": "sha256:4d25c428a0281614f68923dd21b620eaea6a69d172645032143893c17a798e6d",
+    "transcription/transcribe.py": "sha256:9ab11f8f41bde6f75ab71bf2b30f2561d4715d274ec3a69d9574c1420eac44b9",
+    "transcription/authoring_call.sh": "sha256:3b8909aae9b0ec2d52f8b8c780c3c6a544f4405dc7d31fd1becf485fcdae251d",
+    "transcription/GOLDEN-CONTEXT.json": "sha256:4ff544de5edf716aeaabb3560bf22767919537f9759133740e3ab22c259ac843",
+    "transcription/witness-lock-pub.pem": "sha256:a75add235c964659c757c7d7fc49d7026ac25d2e440900ee36a2530f0a20c038",
+    "transcription/witness-records-pub.pem": "sha256:1351a96cb6e59d5e438180bd39a39e034e52b91ae72de82e5eef751fd9ca9270",
+    "controls/k-wrong-1.json": "sha256:da3d644666a3bc9fe4fa37ce279184c15a36719f846133d71886c6a1ee038962",
+    "controls/k-wrong-2.json": "sha256:1b199f9a66f4305c7e8106080fe03e644e7207246939f350d3d971f416268e0a",
+    "source/record_source.py": "sha256:58c4962c01cb35d0a8fac66ab37d250d11579c253d3fcbd412d2bdd42d3a0f93",
+    "harness/study.py": "sha256:d61e11aac606d4b21ed854d3a601ae6e0d9ea828f45fca3414edcfcf635090c2",
+    "harness/gate.py": "sha256:14e94d0633288c588ece2a086e7085a529ff8cfd87adbcb308fc20cb30775273",
+    "harness/pnf_check.py": "sha256:0b38dc000b0451c92b1d6c5dc41b84fac1a593d0b1a9a65e892ba0dad3e82b5f",
+    "harness/policy_mirror.py": "sha256:276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba",
+    "harness/records_compile.py": "sha256:e58edce30e549953b5263db2e9c230604f9192d060cbde9387585e0679671698",
+    "harness/regions_check.py": "sha256:7948593d298e8e16b0938492aa5499a1b5aee2b91f77c5ad58d12d552cc9ca8d",
+    "harness/transcript_check.py": "sha256:42d977c40eed333531c096b9cdba75ac2ecceed5845dd3151f1dc010129bea9d",
+    "harness/test_study.py": "sha256:bfc2f9b2e45b0adb0702ccf456203a8a12e3626c9afe22fc683c2461f5f23f0b",
+    "../../acquisition-proxy/attest.py": "sha256:6b2dc42f5ec6307e4c1ee99bbe202e77ff603466e905dc245cf33ef48d62647f",
+    "../../derivation-rule/derive.py": "sha256:1b02e70a3e0d84169fb05c695d091ce1e2033dd8aadfdb217d36e14b2f0162cc",
+    "../../fabrication-gate/gate.py": "sha256:00c50b0f2255816d11b27e55c3210acd7ef8d877f745f84a7d3aa93f080a6047"
+  },
+  "jpack": "sha256:417ee1ae86325713930e714b659432246c7845be1cdfa4c33f211bfad1ce970d",
+  "python": {
+    "implementation": "CPython",
+    "version": "3.8.20"
+  },
+  "probesChecked": 44,
+  "codex": {
+    "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+    "version": "codex-cli 0.145.0",
+    "model": "gpt-5.6-sol"
+  },
+  "drand": {
+    "chainHash": "8990e7a9aaed2ffed73dbd7092123d6f289930540d7651336225dc172e51b2ce",
+    "publicKey": "868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31",
+    "genesisTime": 1595431050,
+    "periodSeconds": 30,
+    "scheme": "pedersen-bls-chained",
+    "relays": [
+      "https://api.drand.sh",
+      "https://drand.cloudflare.com"
+    ],
+    "rawInfo": {
+      "public_key": "868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31",
+      "period": 30,
+      "genesis_time": 1595431050,
+      "genesis_seed": "176f93498eac9ca337150b46d21dd58673ea4e3581185f869672e59fa4cb390a",
+      "chain_hash": "8990e7a9aaed2ffed73dbd7092123d6f289930540d7651336225dc172e51b2ce",
+      "scheme": "pedersen-bls-chained",
+      "beacon_id": "default"
+    }
+  },
+  "rekor": {
+    "log": "https://rekor.sigstore.dev",
+    "logPublicKeyPem": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE2G2Y+2tabdTV5BcGiBIx0a9fAFwr\nkBbmLSGtks4L3qX6yYY0zufBnhC8Ur/iy55GhWP/9A/bY2LhC30M9+RYtw==\n-----END PUBLIC KEY-----\n",
+    "lockWitnessKey": "sha256:a75add235c964659c757c7d7fc49d7026ac25d2e440900ee36a2530f0a20c038",
+    "recordsWitnessKey": "sha256:1351a96cb6e59d5e438180bd39a39e034e52b91ae72de82e5eef751fd9ca9270"
+  },
+  "drawRule": {
+    "publication": "the authenticated Rekor integratedTime over the records-commit manifest",
+    "offsetSeconds": 300,
+    "deadlineSeconds": 3600,
+    "round": "the first R with genesisTime + (R-1)*period >= integratedTime + offset",
+    "preimage": "ascii('study-010-draw-v1\\n' + randomness_hex + '\\n' + commit_oid_hex + '\\n' + family_digest_hex + '\\n')",
+    "index": "int.from_bytes(sha256(preimage).digest(), 'big') mod 6, selecting the FAMILY.json entry with that index member",
+    "familyDigest": "the sha256 hex digest of the locked FAMILY.json bytes",
+    "randomness": "sha256(signature bytes), drand's chained-scheme definition"
+  },
+  "githubRepo": "Judgment-Pack/judgment-pack-evaluator-experiments",
+  "note": "PREREGISTRATION.md governs; this file pins the protocol before authoring. It does not digest itself; the lock commit binds its bytes."
+}
