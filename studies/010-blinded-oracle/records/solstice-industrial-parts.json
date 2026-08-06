@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Industrial Parts Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

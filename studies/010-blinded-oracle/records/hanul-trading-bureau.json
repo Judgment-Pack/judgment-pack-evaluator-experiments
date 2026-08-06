@@ -1,0 +1,15 @@
+{
+  "caseId": "hanul-trading-bureau",
+  "decision": {
+    "decidedAt": "2026-06-11T09:15:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Hanul Trading Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "3",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--ignore-user-config",
+    "-m",
+    "gpt-5.6-sol",
+    "--sandbox",
+    "workspace-write",
+    "-c",
+    "mcp_servers={}",
+    "<the exact bytes of transcription/PROMPT.txt>"
+  ],
+  "cwd": "/tmp/s010-real/s010-authoring-908059",
+  "home": "/tmp/s010-real/s010-home-908059",
+  "environment": [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "CODEX_HOME"
+  ],
+  "environmentScrubbed": true,
+  "codexHomeIsolated": true,
+  "homeIsolated": true,
+  "ignoreUserConfig": true,
+  "model": "gpt-5.6-sol",
+  "cli": "codex-cli 0.145.0",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "exitStatus": 0,
+  "newSessionCount": 1,
+  "stdin": "closed (/dev/null)",
+  "note": "PREREGISTRATION.md \u00a74 governs; session.jsonl is the transcript evidence."
+}

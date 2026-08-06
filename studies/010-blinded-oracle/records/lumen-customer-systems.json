@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-customer-systems",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Customer Systems S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

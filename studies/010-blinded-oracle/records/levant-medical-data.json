@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-medical-data",
+  "decision": {
+    "decidedAt": "2026-06-15T17:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Medical Data LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88.75",
+    "sanctionsHit": false
+  }
+}
