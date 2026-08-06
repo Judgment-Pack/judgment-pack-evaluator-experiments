@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-cloud-solutions",
+  "decision": {
+    "decidedAt": "2026-06-12T12:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Cloud Solutions Co.",
+    "registeredCountry": "IR",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

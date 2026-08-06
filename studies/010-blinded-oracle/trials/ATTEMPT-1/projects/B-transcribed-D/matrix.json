@@ -1,0 +1,383 @@
+{
+  "matrixVersion": "1",
+  "cases": [
+    {
+      "id": "alpine-benefits-platform",
+      "origin": "transcribed:alpine-benefits-platform@sha256:a9a09abf192c39fb1595673277eb2c321cde948322235025b1a91891d3aaf9c4",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "CH",
+          "handlesPersonalData": true,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "blue-harbor-logistics",
+      "origin": "transcribed:blue-harbor-logistics@sha256:c0384419cc2cc00c7cee8a0258329c95dbcf0675a4382c4b0c9fecfb898ef3b6",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "DE",
+          "handlesPersonalData": false,
+          "riskScore": "69.99"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "cedar-analytics",
+      "origin": "transcribed:cedar-analytics@sha256:2948a6ead6fcc2adf343334a46fe80f84f867425c0787c1f2827a0d485168071",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "US",
+          "handlesPersonalData": true,
+          "riskScore": "39.99"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "damascus-export-consortium",
+      "origin": "transcribed:damascus-export-consortium@sha256:ac8165f7ff9a4ba6b543224f1977cd8ce2e3115198e510b676793ce9d146a8ab",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "registeredCountry": "SY",
+          "handlesPersonalData": false,
+          "riskScore": "74"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "hanul-trading-bureau",
+      "origin": "transcribed:hanul-trading-bureau@sha256:151b1060205a70f46135e4393427c20204103ee47e9ce67426cfaa18d72f7ddb",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "KP",
+          "handlesPersonalData": false,
+          "riskScore": "3"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "iberia-payroll-support",
+      "origin": "transcribed:iberia-payroll-support@sha256:3a52d5403aeee5ea34da275808d08dd8ad714e1984bca09cc559ab595a1567fe",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "ES",
+          "handlesPersonalData": true,
+          "riskScore": "40.01"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "k-wrong-1",
+      "origin": "transcribed:k-wrong-1@sha256:5c986aa1b0545690148eafe0de59a49415799b9e523732ddfeecb4162327dccd",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "registeredCountry": "DE",
+          "handlesPersonalData": false,
+          "riskScore": "10"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "k-wrong-2",
+      "origin": "transcribed:k-wrong-2@sha256:51d8a089458e6703e8ea2009204665e7ece0d2752e219507f47f5ee24deb35e6",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "DE",
+          "handlesPersonalData": false,
+          "riskScore": "85"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "levant-medical-data",
+      "origin": "transcribed:levant-medical-data@sha256:3aad93a56272bb8b512c583385fa02768825d8c0b3bf09839d987e3c2f127fcd",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "SY",
+          "handlesPersonalData": true,
+          "riskScore": "88.75"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "lumen-customer-systems",
+      "origin": "transcribed:lumen-customer-systems@sha256:51d4d6a4e73f6cc487da74341e3aeee718089732e12f87171798c0eead78d365",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "FR",
+          "handlesPersonalData": true,
+          "riskScore": "40"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "maple-records-processing",
+      "origin": "transcribed:maple-records-processing@sha256:3df9708fb0addc125aa6539294577606331fcfc7816aad16a93079c18bf9054b",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "CA",
+          "handlesPersonalData": true,
+          "riskScore": "69.999"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "northstar-office-supply",
+      "origin": "transcribed:northstar-office-supply@sha256:83ca04e0aff9420239f3e2c0de05ddffccae553cf3d5956fa5d2b5bb86c465dc",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "CA",
+          "handlesPersonalData": false,
+          "riskScore": "12.5"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "orion-identity-services",
+      "origin": "transcribed:orion-identity-services@sha256:d5ae5b135033b3ad64018e81952b5bca1215300a20d0875c616e0414d59b5cd7",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "registeredCountry": "SG",
+          "handlesPersonalData": true,
+          "riskScore": "67"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "pars-cloud-solutions",
+      "origin": "transcribed:pars-cloud-solutions@sha256:432934b54203365ad3ece38f9028be211df913ff2bbeda9ca041f48531370659",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "IR",
+          "handlesPersonalData": true,
+          "riskScore": "39"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "quartz-network-services",
+      "origin": "transcribed:quartz-network-services@sha256:5efe1edf3402967bdc032b1e29c9a5a534b454dfb2db604640d10d8d184f6ece",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "NL",
+          "handlesPersonalData": false,
+          "riskScore": "91.4"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "redwood-facilities-group",
+      "origin": "transcribed:redwood-facilities-group@sha256:8e6e9007b72a2bc7479f713750342a764e42cd7539ea82e4e9c22bce5b239b34",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "registeredCountry": "GB",
+          "handlesPersonalData": false,
+          "riskScore": "8.2"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "sakura-courier-network",
+      "origin": "transcribed:sakura-courier-network@sha256:0e2d1351a8920f98745d26a3d94fe689ddc57d4ee96d365e364d1d757ba89fc9",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "JP",
+          "handlesPersonalData": false,
+          "riskScore": "0"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "solstice-industrial-parts",
+      "origin": "transcribed:solstice-industrial-parts@sha256:fa65f7aa55840f7b90813f264c2fea69b7450f5f6d96d1beba3158d8052ce02f",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "AU",
+          "handlesPersonalData": false,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    }
+  ]
+}

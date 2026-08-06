@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-low-risk-supply",
+  "decision": {
+    "decidedAt": "2026-06-11T11:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Workshop O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "18.6",
+    "sanctionsHit": false
+  }
+}

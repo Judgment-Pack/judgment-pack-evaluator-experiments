@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-nondata-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-10T10:05:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Packaging BV",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

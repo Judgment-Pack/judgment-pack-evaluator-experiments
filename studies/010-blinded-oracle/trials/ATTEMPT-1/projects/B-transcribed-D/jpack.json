@@ -1,0 +1,9 @@
+{
+  "configVersion": "1",
+  "packs": {
+    "screening": {
+      "path": "pack.json",
+      "matrix": "matrix.json"
+    }
+  }
+}

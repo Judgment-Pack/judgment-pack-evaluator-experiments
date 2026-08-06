@@ -1,0 +1,15 @@
+{
+  "caseId": "quartz-network-services",
+  "decision": {
+    "decidedAt": "2026-06-10T15:25:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Quartz Network Services B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "91.4",
+    "sanctionsHit": false
+  }
+}

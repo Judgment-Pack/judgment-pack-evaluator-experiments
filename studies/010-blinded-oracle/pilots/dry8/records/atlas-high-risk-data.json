@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Insights SAS",
+    "registeredCountry": "FR",
+    "riskScore": "87.25",
+    "sanctionsHit": false
+  }
+}

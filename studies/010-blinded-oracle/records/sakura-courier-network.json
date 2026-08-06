@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-courier-network",
+  "decision": {
+    "decidedAt": "2026-06-19T07:55:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Courier Network K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

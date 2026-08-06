@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supply",
+    "vendor": {
+      "legalName": "Northstar Office Supply Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-logistics",
+    "vendor": {
+      "legalName": "Blue Harbor Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Ward",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "lumen-customer-systems",
+    "vendor": {
+      "legalName": "Lumen Customer Systems S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "maple-records-processing",
+    "vendor": {
+      "legalName": "Maple Records Processing Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-industrial-parts",
+    "vendor": {
+      "legalName": "Solstice Industrial Parts Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Ward",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-benefits-platform",
+    "vendor": {
+      "legalName": "Alpine Benefits Platform AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-09T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "quartz-network-services",
+    "vendor": {
+      "legalName": "Quartz Network Services B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "91.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "hanul-trading-bureau",
+    "vendor": {
+      "legalName": "Hanul Trading Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "3"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Ward",
+      "decidedAt": "2026-06-11T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "pars-cloud-solutions",
+    "vendor": {
+      "legalName": "Pars Cloud Solutions Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-12T12:40:00Z"
+    }
+  },
+  {
+    "caseId": "levant-medical-data",
+    "vendor": {
+      "legalName": "Levant Medical Data LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "88.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-15T17:05:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-facilities-group",
+    "vendor": {
+      "legalName": "Redwood Facilities Group Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "8.2"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Ward",
+      "decidedAt": "2026-06-16T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "orion-identity-services",
+    "vendor": {
+      "legalName": "Orion Identity Services Pte. Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "67"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-17T14:50:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-export-consortium",
+    "vendor": {
+      "legalName": "Damascus Export Consortium",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "74"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-18T10:30:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-courier-network",
+    "vendor": {
+      "legalName": "Sakura Courier Network K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Ward",
+      "decidedAt": "2026-06-19T07:55:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-payroll-support",
+    "vendor": {
+      "legalName": "Iberia Payroll Support S.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "40.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-22T16:45:00Z"
+    }
+  }
+]

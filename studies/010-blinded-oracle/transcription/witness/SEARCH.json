@@ -1,0 +1,27 @@
+{
+  "queried": "2026-08-06T11:12:44Z",
+  "hits": {
+    "lock": [
+      {
+        "uuid": "108e9186e8c5677a73d2cb329c18ea3a7bc28ba8080590e60c195669a03a747abfd1de077a1b18c6",
+        "logIndex": 2359064909,
+        "integratedTime": 1786014352
+      }
+    ],
+    "records": [
+      {
+        "uuid": "108e9186e8c5677a02a6592a62cff7690aa49c5a744b584aa980499a0f532f78b603d44e54f5f1ff",
+        "logIndex": 2359076917,
+        "integratedTime": 1786014431
+      }
+    ]
+  },
+  "known": {
+    "108e9186e8c5677a02a6592a62cff7690aa49c5a744b584aa980499a0f532f78b603d44e54f5f1ff": "records",
+    "108e9186e8c5677a73d2cb329c18ea3a7bc28ba8080590e60c195669a03a747abfd1de077a1b18c6": "lock"
+  },
+  "recordsUuid": "108e9186e8c5677a02a6592a62cff7690aa49c5a744b584aa980499a0f532f78b603d44e54f5f1ff",
+  "recordsIndexed": true,
+  "strangers": [],
+  "note": "An unauthenticated, eventually consistent observation. recordsIndexed false means the index had not caught up, not that the inclusion is absent: INCLUSION.json's authenticated entry is the binding evidence."
+}
