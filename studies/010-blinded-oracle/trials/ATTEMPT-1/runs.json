@@ -1,0 +1,1197 @@
+{
+  "A-circular-D": {
+    "validate": {
+      "exit": 0,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.15.0"
+        },
+        "command": "packs validate",
+        "status": "valid",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/trials/ATTEMPT-1/projects/A-circular-D/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "path": "pack.json",
+            "status": "valid",
+            "checks": [
+              {
+                "name": "path-inside-root",
+                "status": "passed"
+              },
+              {
+                "name": "document-validation",
+                "status": "passed"
+              },
+              {
+                "name": "expected-version",
+                "status": "skipped",
+                "detail": "The entry pins no expectedVersion."
+              },
+              {
+                "name": "filename",
+                "status": "skipped",
+                "detail": "The filename \"pack.json\" is outside the optional <decision-id>-<semver>.pack.json convention, which is never required."
+              },
+              {
+                "name": "hint-keys",
+                "status": "skipped",
+                "detail": "The entry declares no hints."
+              },
+              {
+                "name": "matrix",
+                "status": "passed",
+                "detail": "18 rows."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "test": {
+      "exit": 0,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.15.0"
+        },
+        "command": "packs test",
+        "status": "passed",
+        "experimental": true,
+        "evaluatorSpecVersion": "0.2.0-draft",
+        "conformanceClaimReference": "CONFORMANCE.md",
+        "label": "project matrix results: rows a project wrote about its own packs, run through the experimental evaluator; that evaluator's conformance claim is stated, in full and only, in CONFORMANCE.md",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/trials/ATTEMPT-1/projects/A-circular-D/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 18,
+          "passed": 18,
+          "mismatched": 0
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+            "packVersion": "0.1.0",
+            "path": "pack.json",
+            "matrixPath": "matrix.json",
+            "status": "passed",
+            "summary": {
+              "total": 18,
+              "passed": 18,
+              "mismatched": 0
+            },
+            "rows": [
+              {
+                "id": "alpine-benefits-platform",
+                "origin": "circular:alpine-benefits-platform",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "blue-harbor-logistics",
+                "origin": "circular:blue-harbor-logistics",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "cedar-analytics",
+                "origin": "circular:cedar-analytics",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "damascus-export-consortium",
+                "origin": "circular:damascus-export-consortium",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "hanul-trading-bureau",
+                "origin": "circular:hanul-trading-bureau",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "iberia-payroll-support",
+                "origin": "circular:iberia-payroll-support",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "k-wrong-1",
+                "origin": "circular:k-wrong-1",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "k-wrong-2",
+                "origin": "circular:k-wrong-2",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "levant-medical-data",
+                "origin": "circular:levant-medical-data",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}"
+              },
+              {
+                "id": "lumen-customer-systems",
+                "origin": "circular:lumen-customer-systems",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "maple-records-processing",
+                "origin": "circular:maple-records-processing",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "northstar-office-supply",
+                "origin": "circular:northstar-office-supply",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "orion-identity-services",
+                "origin": "circular:orion-identity-services",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "pars-cloud-solutions",
+                "origin": "circular:pars-cloud-solutions",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "quartz-network-services",
+                "origin": "circular:quartz-network-services",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "redwood-facilities-group",
+                "origin": "circular:redwood-facilities-group",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "sakura-courier-network",
+                "origin": "circular:sakura-courier-network",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "solstice-industrial-parts",
+                "origin": "circular:solstice-industrial-parts",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              }
+            ],
+            "coverage": [
+              {
+                "probe": "outcome:clear",
+                "status": "covered",
+                "detail": "Row \"blue-harbor-logistics\" expects it."
+              },
+              {
+                "probe": "outcome:manual-review",
+                "status": "covered",
+                "detail": "Row \"alpine-benefits-platform\" expects it."
+              },
+              {
+                "probe": "outcome:reject",
+                "status": "covered",
+                "detail": "Row \"damascus-export-consortium\" expects it."
+              },
+              {
+                "probe": "unknown",
+                "status": "missing",
+                "detail": "The pack can reach reason \"unknown\", and no row's expected reasons include it."
+              },
+              {
+                "probe": "conflict",
+                "status": "missing",
+                "detail": "Rules or forced outcomes name different outcomes, and no row's expected reasons include \"conflict\". Either construct facts that make two of them fire together, or confirm against the policy text that they exclude each other."
+              },
+              {
+                "probe": "no-match",
+                "status": "covered",
+                "detail": "Row \"levant-medical-data\" expects it."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "B-transcribed-D": {
+    "validate": {
+      "exit": 0,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.15.0"
+        },
+        "command": "packs validate",
+        "status": "valid",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/trials/ATTEMPT-1/projects/B-transcribed-D/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "path": "pack.json",
+            "status": "valid",
+            "checks": [
+              {
+                "name": "path-inside-root",
+                "status": "passed"
+              },
+              {
+                "name": "document-validation",
+                "status": "passed"
+              },
+              {
+                "name": "expected-version",
+                "status": "skipped",
+                "detail": "The entry pins no expectedVersion."
+              },
+              {
+                "name": "filename",
+                "status": "skipped",
+                "detail": "The filename \"pack.json\" is outside the optional <decision-id>-<semver>.pack.json convention, which is never required."
+              },
+              {
+                "name": "hint-keys",
+                "status": "skipped",
+                "detail": "The entry declares no hints."
+              },
+              {
+                "name": "matrix",
+                "status": "passed",
+                "detail": "18 rows."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "test": {
+      "exit": 1,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.15.0"
+        },
+        "command": "packs test",
+        "status": "mismatch",
+        "experimental": true,
+        "evaluatorSpecVersion": "0.2.0-draft",
+        "conformanceClaimReference": "CONFORMANCE.md",
+        "label": "project matrix results: rows a project wrote about its own packs, run through the experimental evaluator; that evaluator's conformance claim is stated, in full and only, in CONFORMANCE.md",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/trials/ATTEMPT-1/projects/B-transcribed-D/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 18,
+          "passed": 15,
+          "mismatched": 3
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+            "packVersion": "0.1.0",
+            "path": "pack.json",
+            "matrixPath": "matrix.json",
+            "status": "mismatch",
+            "summary": {
+              "total": 18,
+              "passed": 15,
+              "mismatched": 3
+            },
+            "rows": [
+              {
+                "id": "alpine-benefits-platform",
+                "origin": "transcribed:alpine-benefits-platform@sha256:a9a09abf192c39fb1595673277eb2c321cde948322235025b1a91891d3aaf9c4",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "blue-harbor-logistics",
+                "origin": "transcribed:blue-harbor-logistics@sha256:c0384419cc2cc00c7cee8a0258329c95dbcf0675a4382c4b0c9fecfb898ef3b6",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "cedar-analytics",
+                "origin": "transcribed:cedar-analytics@sha256:2948a6ead6fcc2adf343334a46fe80f84f867425c0787c1f2827a0d485168071",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "damascus-export-consortium",
+                "origin": "transcribed:damascus-export-consortium@sha256:ac8165f7ff9a4ba6b543224f1977cd8ce2e3115198e510b676793ce9d146a8ab",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "hanul-trading-bureau",
+                "origin": "transcribed:hanul-trading-bureau@sha256:151b1060205a70f46135e4393427c20204103ee47e9ce67426cfaa18d72f7ddb",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "iberia-payroll-support",
+                "origin": "transcribed:iberia-payroll-support@sha256:3a52d5403aeee5ea34da275808d08dd8ad714e1984bca09cc559ab595a1567fe",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "k-wrong-1",
+                "origin": "transcribed:k-wrong-1@sha256:5c986aa1b0545690148eafe0de59a49415799b9e523732ddfeecb4162327dccd",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "k-wrong-2",
+                "origin": "transcribed:k-wrong-2@sha256:51d8a089458e6703e8ea2009204665e7ece0d2752e219507f47f5ee24deb35e6",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "levant-medical-data",
+                "origin": "transcribed:levant-medical-data@sha256:3aad93a56272bb8b512c583385fa02768825d8c0b3bf09839d987e3c2f127fcd",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"no-match\"]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "lumen-customer-systems",
+                "origin": "transcribed:lumen-customer-systems@sha256:51d4d6a4e73f6cc487da74341e3aeee718089732e12f87171798c0eead78d365",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "maple-records-processing",
+                "origin": "transcribed:maple-records-processing@sha256:3df9708fb0addc125aa6539294577606331fcfc7816aad16a93079c18bf9054b",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "northstar-office-supply",
+                "origin": "transcribed:northstar-office-supply@sha256:83ca04e0aff9420239f3e2c0de05ddffccae553cf3d5956fa5d2b5bb86c465dc",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "orion-identity-services",
+                "origin": "transcribed:orion-identity-services@sha256:d5ae5b135033b3ad64018e81952b5bca1215300a20d0875c616e0414d59b5cd7",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "pars-cloud-solutions",
+                "origin": "transcribed:pars-cloud-solutions@sha256:432934b54203365ad3ece38f9028be211df913ff2bbeda9ca041f48531370659",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "quartz-network-services",
+                "origin": "transcribed:quartz-network-services@sha256:5efe1edf3402967bdc032b1e29c9a5a534b454dfb2db604640d10d8d184f6ece",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "redwood-facilities-group",
+                "origin": "transcribed:redwood-facilities-group@sha256:8e6e9007b72a2bc7479f713750342a764e42cd7539ea82e4e9c22bce5b239b34",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "sakura-courier-network",
+                "origin": "transcribed:sakura-courier-network@sha256:0e2d1351a8920f98745d26a3d94fe689ddc57d4ee96d365e364d1d757ba89fc9",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "solstice-industrial-parts",
+                "origin": "transcribed:solstice-industrial-parts@sha256:fa65f7aa55840f7b90813f264c2fea69b7450f5f6d96d1beba3158d8052ce02f",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              }
+            ],
+            "coverage": [
+              {
+                "probe": "outcome:clear",
+                "status": "covered",
+                "detail": "Row \"blue-harbor-logistics\" expects it."
+              },
+              {
+                "probe": "outcome:manual-review",
+                "status": "covered",
+                "detail": "Row \"alpine-benefits-platform\" expects it."
+              },
+              {
+                "probe": "outcome:reject",
+                "status": "covered",
+                "detail": "Row \"damascus-export-consortium\" expects it."
+              },
+              {
+                "probe": "unknown",
+                "status": "missing",
+                "detail": "The pack can reach reason \"unknown\", and no row's expected reasons include it."
+              },
+              {
+                "probe": "conflict",
+                "status": "missing",
+                "detail": "Rules or forced outcomes name different outcomes, and no row's expected reasons include \"conflict\". Either construct facts that make two of them fire together, or confirm against the policy text that they exclude each other."
+              },
+              {
+                "probe": "no-match",
+                "status": "missing",
+                "detail": "The pack declares no fallbackOutcome, and no row's expected reasons include \"no-match\"."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "Bprime-transcribed-C": {
+    "validate": {
+      "exit": 0,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.15.0"
+        },
+        "command": "packs validate",
+        "status": "valid",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/trials/ATTEMPT-1/projects/Bprime-transcribed-C/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "path": "pack.json",
+            "status": "valid",
+            "checks": [
+              {
+                "name": "path-inside-root",
+                "status": "passed"
+              },
+              {
+                "name": "document-validation",
+                "status": "passed"
+              },
+              {
+                "name": "expected-version",
+                "status": "skipped",
+                "detail": "The entry pins no expectedVersion."
+              },
+              {
+                "name": "filename",
+                "status": "skipped",
+                "detail": "The filename \"pack.json\" is outside the optional <decision-id>-<semver>.pack.json convention, which is never required."
+              },
+              {
+                "name": "hint-keys",
+                "status": "skipped",
+                "detail": "The entry declares no hints."
+              },
+              {
+                "name": "matrix",
+                "status": "passed",
+                "detail": "18 rows."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "test": {
+      "exit": 1,
+      "payload": {
+        "outputVersion": "2",
+        "tool": {
+          "name": "jpack",
+          "version": "0.15.0"
+        },
+        "command": "packs test",
+        "status": "mismatch",
+        "experimental": true,
+        "evaluatorSpecVersion": "0.2.0-draft",
+        "conformanceClaimReference": "CONFORMANCE.md",
+        "label": "project matrix results: rows a project wrote about its own packs, run through the experimental evaluator; that evaluator's conformance claim is stated, in full and only, in CONFORMANCE.md",
+        "kind": "non-normative-runtime-convention",
+        "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/trials/ATTEMPT-1/projects/Bprime-transcribed-C/jpack.json",
+        "configVersion": "1",
+        "summary": {
+          "total": 18,
+          "passed": 16,
+          "mismatched": 2
+        },
+        "packs": [
+          {
+            "id": "screening",
+            "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+            "packVersion": "0.1.0",
+            "path": "pack.json",
+            "matrixPath": "matrix.json",
+            "status": "mismatch",
+            "summary": {
+              "total": 18,
+              "passed": 16,
+              "mismatched": 2
+            },
+            "rows": [
+              {
+                "id": "alpine-benefits-platform",
+                "origin": "transcribed:alpine-benefits-platform@sha256:a9a09abf192c39fb1595673277eb2c321cde948322235025b1a91891d3aaf9c4",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "blue-harbor-logistics",
+                "origin": "transcribed:blue-harbor-logistics@sha256:c0384419cc2cc00c7cee8a0258329c95dbcf0675a4382c4b0c9fecfb898ef3b6",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "cedar-analytics",
+                "origin": "transcribed:cedar-analytics@sha256:2948a6ead6fcc2adf343334a46fe80f84f867425c0787c1f2827a0d485168071",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "damascus-export-consortium",
+                "origin": "transcribed:damascus-export-consortium@sha256:ac8165f7ff9a4ba6b543224f1977cd8ce2e3115198e510b676793ce9d146a8ab",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "hanul-trading-bureau",
+                "origin": "transcribed:hanul-trading-bureau@sha256:151b1060205a70f46135e4393427c20204103ee47e9ce67426cfaa18d72f7ddb",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "iberia-payroll-support",
+                "origin": "transcribed:iberia-payroll-support@sha256:3a52d5403aeee5ea34da275808d08dd8ad714e1984bca09cc559ab595a1567fe",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "k-wrong-1",
+                "origin": "transcribed:k-wrong-1@sha256:5c986aa1b0545690148eafe0de59a49415799b9e523732ddfeecb4162327dccd",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "k-wrong-2",
+                "origin": "transcribed:k-wrong-2@sha256:51d8a089458e6703e8ea2009204665e7ece0d2752e219507f47f5ee24deb35e6",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "mismatch",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "detail": "The canonical disposition bytes differ."
+              },
+              {
+                "id": "levant-medical-data",
+                "origin": "transcribed:levant-medical-data@sha256:3aad93a56272bb8b512c583385fa02768825d8c0b3bf09839d987e3c2f127fcd",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "lumen-customer-systems",
+                "origin": "transcribed:lumen-customer-systems@sha256:51d4d6a4e73f6cc487da74341e3aeee718089732e12f87171798c0eead78d365",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "maple-records-processing",
+                "origin": "transcribed:maple-records-processing@sha256:3df9708fb0addc125aa6539294577606331fcfc7816aad16a93079c18bf9054b",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "northstar-office-supply",
+                "origin": "transcribed:northstar-office-supply@sha256:83ca04e0aff9420239f3e2c0de05ddffccae553cf3d5956fa5d2b5bb86c465dc",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "orion-identity-services",
+                "origin": "transcribed:orion-identity-services@sha256:d5ae5b135033b3ad64018e81952b5bca1215300a20d0875c616e0414d59b5cd7",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "pars-cloud-solutions",
+                "origin": "transcribed:pars-cloud-solutions@sha256:432934b54203365ad3ece38f9028be211df913ff2bbeda9ca041f48531370659",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "quartz-network-services",
+                "origin": "transcribed:quartz-network-services@sha256:5efe1edf3402967bdc032b1e29c9a5a534b454dfb2db604640d10d8d184f6ece",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              },
+              {
+                "id": "redwood-facilities-group",
+                "origin": "transcribed:redwood-facilities-group@sha256:8e6e9007b72a2bc7479f713750342a764e42cd7539ea82e4e9c22bce5b239b34",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+              },
+              {
+                "id": "sakura-courier-network",
+                "origin": "transcribed:sakura-courier-network@sha256:0e2d1351a8920f98745d26a3d94fe689ddc57d4ee96d365e364d1d757ba89fc9",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+              },
+              {
+                "id": "solstice-industrial-parts",
+                "origin": "transcribed:solstice-industrial-parts@sha256:fa65f7aa55840f7b90813f264c2fea69b7450f5f6d96d1beba3158d8052ce02f",
+                "specSection": "",
+                "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+                "packVersion": "0.1.0",
+                "status": "passed",
+                "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+                "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+              }
+            ],
+            "coverage": [
+              {
+                "probe": "outcome:clear",
+                "status": "covered",
+                "detail": "Row \"blue-harbor-logistics\" expects it."
+              },
+              {
+                "probe": "outcome:manual-review",
+                "status": "covered",
+                "detail": "Row \"alpine-benefits-platform\" expects it."
+              },
+              {
+                "probe": "outcome:reject",
+                "status": "covered",
+                "detail": "Row \"damascus-export-consortium\" expects it."
+              },
+              {
+                "probe": "unknown",
+                "status": "missing",
+                "detail": "The pack can reach reason \"unknown\", and no row's expected reasons include it."
+              },
+              {
+                "probe": "conflict",
+                "status": "missing",
+                "detail": "Rules or forced outcomes name different outcomes, and no row's expected reasons include \"conflict\". Either construct facts that make two of them fire together, or confirm against the policy text that they exclude each other."
+              },
+              {
+                "probe": "no-match",
+                "status": "missing",
+                "detail": "The pack declares no fallbackOutcome, and no row's expected reasons include \"no-match\"."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "Bprime-mcp": {
+    "structuredContent": {
+      "outputVersion": "2",
+      "tool": {
+        "name": "jpack",
+        "version": "0.15.0"
+      },
+      "command": "mcp experimental_test_packs",
+      "status": "mismatch",
+      "experimental": true,
+      "evaluatorSpecVersion": "0.2.0-draft",
+      "conformanceClaimReference": "CONFORMANCE.md",
+      "label": "project matrix results: rows a project wrote about its own packs, run through the experimental evaluator; that evaluator's conformance claim is stated, in full and only, in CONFORMANCE.md",
+      "kind": "non-normative-runtime-convention",
+      "configPath": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/cc9299b1-e57f-4c94-aca2-643af0094105/scratchpad/wt-exp-010/studies/010-blinded-oracle/trials/ATTEMPT-1/projects/Bprime-transcribed-C/jpack.json",
+      "configVersion": "1",
+      "summary": {
+        "total": 18,
+        "passed": 16,
+        "mismatched": 2
+      },
+      "packs": [
+        {
+          "id": "screening",
+          "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+          "packVersion": "0.1.0",
+          "path": "pack.json",
+          "matrixPath": "matrix.json",
+          "status": "mismatch",
+          "summary": {
+            "total": 18,
+            "passed": 16,
+            "mismatched": 2
+          },
+          "rows": [
+            {
+              "id": "alpine-benefits-platform",
+              "origin": "transcribed:alpine-benefits-platform@sha256:a9a09abf192c39fb1595673277eb2c321cde948322235025b1a91891d3aaf9c4",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "blue-harbor-logistics",
+              "origin": "transcribed:blue-harbor-logistics@sha256:c0384419cc2cc00c7cee8a0258329c95dbcf0675a4382c4b0c9fecfb898ef3b6",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+            },
+            {
+              "id": "cedar-analytics",
+              "origin": "transcribed:cedar-analytics@sha256:2948a6ead6fcc2adf343334a46fe80f84f867425c0787c1f2827a0d485168071",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+            },
+            {
+              "id": "damascus-export-consortium",
+              "origin": "transcribed:damascus-export-consortium@sha256:ac8165f7ff9a4ba6b543224f1977cd8ce2e3115198e510b676793ce9d146a8ab",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+            },
+            {
+              "id": "hanul-trading-bureau",
+              "origin": "transcribed:hanul-trading-bureau@sha256:151b1060205a70f46135e4393427c20204103ee47e9ce67426cfaa18d72f7ddb",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+            },
+            {
+              "id": "iberia-payroll-support",
+              "origin": "transcribed:iberia-payroll-support@sha256:3a52d5403aeee5ea34da275808d08dd8ad714e1984bca09cc559ab595a1567fe",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "k-wrong-1",
+              "origin": "transcribed:k-wrong-1@sha256:5c986aa1b0545690148eafe0de59a49415799b9e523732ddfeecb4162327dccd",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "mismatch",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "detail": "The canonical disposition bytes differ."
+            },
+            {
+              "id": "k-wrong-2",
+              "origin": "transcribed:k-wrong-2@sha256:51d8a089458e6703e8ea2009204665e7ece0d2752e219507f47f5ee24deb35e6",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "mismatch",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "detail": "The canonical disposition bytes differ."
+            },
+            {
+              "id": "levant-medical-data",
+              "origin": "transcribed:levant-medical-data@sha256:3aad93a56272bb8b512c583385fa02768825d8c0b3bf09839d987e3c2f127fcd",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+            },
+            {
+              "id": "lumen-customer-systems",
+              "origin": "transcribed:lumen-customer-systems@sha256:51d4d6a4e73f6cc487da74341e3aeee718089732e12f87171798c0eead78d365",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "maple-records-processing",
+              "origin": "transcribed:maple-records-processing@sha256:3df9708fb0addc125aa6539294577606331fcfc7816aad16a93079c18bf9054b",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "northstar-office-supply",
+              "origin": "transcribed:northstar-office-supply@sha256:83ca04e0aff9420239f3e2c0de05ddffccae553cf3d5956fa5d2b5bb86c465dc",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+            },
+            {
+              "id": "orion-identity-services",
+              "origin": "transcribed:orion-identity-services@sha256:d5ae5b135033b3ad64018e81952b5bca1215300a20d0875c616e0414d59b5cd7",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+            },
+            {
+              "id": "pars-cloud-solutions",
+              "origin": "transcribed:pars-cloud-solutions@sha256:432934b54203365ad3ece38f9028be211df913ff2bbeda9ca041f48531370659",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+            },
+            {
+              "id": "quartz-network-services",
+              "origin": "transcribed:quartz-network-services@sha256:5efe1edf3402967bdc032b1e29c9a5a534b454dfb2db604640d10d8d184f6ece",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            },
+            {
+              "id": "redwood-facilities-group",
+              "origin": "transcribed:redwood-facilities-group@sha256:8e6e9007b72a2bc7479f713750342a764e42cd7539ea82e4e9c22bce5b239b34",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"reject\",\"reasons\":[]}"
+            },
+            {
+              "id": "sakura-courier-network",
+              "origin": "transcribed:sakura-courier-network@sha256:0e2d1351a8920f98745d26a3d94fe689ddc57d4ee96d365e364d1d757ba89fc9",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"clear\",\"reasons\":[]}"
+            },
+            {
+              "id": "solstice-industrial-parts",
+              "origin": "transcribed:solstice-industrial-parts@sha256:fa65f7aa55840f7b90813f264c2fea69b7450f5f6d96d1beba3158d8052ce02f",
+              "specSection": "",
+              "packId": "https://example.invalid/judgment-packs/vendor-screening-010",
+              "packVersion": "0.1.0",
+              "status": "passed",
+              "expected": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}",
+              "actual": "{\"handoff\":{\"state\":\"none\"},\"kind\":\"outcome\",\"outcomeId\":\"manual-review\",\"reasons\":[]}"
+            }
+          ],
+          "coverage": [
+            {
+              "probe": "outcome:clear",
+              "status": "covered",
+              "detail": "Row \"blue-harbor-logistics\" expects it."
+            },
+            {
+              "probe": "outcome:manual-review",
+              "status": "covered",
+              "detail": "Row \"alpine-benefits-platform\" expects it."
+            },
+            {
+              "probe": "outcome:reject",
+              "status": "covered",
+              "detail": "Row \"damascus-export-consortium\" expects it."
+            },
+            {
+              "probe": "unknown",
+              "status": "missing",
+              "detail": "The pack can reach reason \"unknown\", and no row's expected reasons include it."
+            },
+            {
+              "probe": "conflict",
+              "status": "missing",
+              "detail": "Rules or forced outcomes name different outcomes, and no row's expected reasons include \"conflict\". Either construct facts that make two of them fire together, or confirm against the policy text that they exclude each other."
+            },
+            {
+              "probe": "no-match",
+              "status": "missing",
+              "detail": "The pack declares no fallbackOutcome, and no row's expected reasons include \"no-match\"."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

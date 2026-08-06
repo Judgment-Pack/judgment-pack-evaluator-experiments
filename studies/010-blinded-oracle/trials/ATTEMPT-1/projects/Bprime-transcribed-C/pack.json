@@ -1,0 +1,227 @@
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://example.invalid/judgment-packs/vendor-screening-010",
+  "version": "0.1.0",
+  "title": "Synthetic vendor screening (Study 010)",
+  "description": "Invented vendor-screening policy for Study 010's blinded oracle: route a vendor to clear, manual review, or reject from a sanctions flag, a registered country, a personal-data flag, and a risk score. Synthetic content for a study fixture; it authorizes nothing.",
+  "decision": {
+    "intent": "Screen a vendor into exactly one outcome from its sanctions flag, registered country, personal-data handling, and risk score.",
+    "question": "Is this vendor cleared, sent to manual review, or rejected?"
+  },
+  "sources": [
+    {
+      "id": "screening-standard",
+      "title": "Example vendor screening standard (POLICY.md)",
+      "publisher": "Study 010",
+      "publishedAt": "2026-08-05",
+      "locator": {
+        "kind": "uri",
+        "value": "https://example.invalid/study-010/POLICY.md"
+      },
+      "citation": {
+        "location": "Clauses P1-P5",
+        "excerpt": "P1: a sanctions hit is rejected. P2: an embargoed registration (KP, IR, SY) is rejected. P3: a risk score of 70 or above goes to manual review. P4: handling personal data with a score of 40 or above but below 70 goes to manual review. P5: otherwise below 70 is cleared."
+      },
+      "rights": "Invented content for a study fixture; not an operational policy."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "clear",
+      "label": "Clear",
+      "description": "No sanctions hit, no embargoed registration, and the risk score is below every applicable review threshold."
+    },
+    {
+      "id": "manual-review",
+      "label": "Manual review",
+      "description": "No sanctions hit or embargoed registration, and the risk score is at or above an applicable review threshold."
+    },
+    {
+      "id": "reject",
+      "label": "Reject",
+      "description": "A sanctions hit, or a registration in an embargoed country."
+    }
+  ],
+  "rules": [
+    {
+      "id": "reject-sanctions-hit",
+      "description": "A sanctions hit is rejected regardless of anything else.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/sanctionsHit",
+        "operator": "equals",
+        "value": true
+      },
+      "outcome": "reject",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "screening-standard"
+      ],
+      "rationale": "POLICY.md P1."
+    },
+    {
+      "id": "reject-embargoed-country",
+      "description": "Absent a sanctions hit, a registration in an embargoed country is rejected.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsHit",
+            "operator": "equals",
+            "value": false
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/registeredCountry",
+            "operator": "in",
+            "value": ["KP", "IR", "SY"]
+          }
+        ]
+      },
+      "outcome": "reject",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "screening-standard"
+      ],
+      "rationale": "POLICY.md P2."
+    },
+    {
+      "id": "review-high-risk",
+      "description": "Absent a sanctions hit or an embargoed registration, a risk score of 70 or above goes to manual review.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsHit",
+            "operator": "equals",
+            "value": false
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/vendor/registeredCountry",
+              "operator": "in",
+              "value": ["KP", "IR", "SY"]
+            }
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "70"
+          }
+        ]
+      },
+      "outcome": "manual-review",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "screening-standard"
+      ],
+      "rationale": "POLICY.md P3."
+    },
+    {
+      "id": "review-personal-data-midband",
+      "description": "Absent a sanctions hit or an embargoed registration, a vendor handling personal data with a risk score of 40 or above but below 70 goes to manual review.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsHit",
+            "operator": "equals",
+            "value": false
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/vendor/registeredCountry",
+              "operator": "in",
+              "value": ["KP", "IR", "SY"]
+            }
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/handlesPersonalData",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          }
+        ]
+      },
+      "outcome": "manual-review",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "screening-standard"
+      ],
+      "rationale": "POLICY.md P4."
+    },
+    {
+      "id": "clear-low-risk",
+      "description": "Absent a sanctions hit or an embargoed registration, a vendor below every applicable review threshold is cleared.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsHit",
+            "operator": "equals",
+            "value": false
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/vendor/registeredCountry",
+              "operator": "in",
+              "value": ["KP", "IR", "SY"]
+            }
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/vendor/handlesPersonalData",
+                "operator": "equals",
+                "value": false
+              },
+              {
+                "op": "fact",
+                "path": "/vendor/riskScore",
+                "operator": "less-than",
+                "value": "40"
+              }
+            ]
+          }
+        ]
+      },
+      "outcome": "clear",
+      "onUnknown": "escalate",
+      "sourceRefs": [
+        "screening-standard"
+      ],
+      "rationale": "POLICY.md P5."
+    }
+  ]
+}

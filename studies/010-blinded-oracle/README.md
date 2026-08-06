@@ -12,6 +12,17 @@ per-finding disposition is in [`PREREG-REVIEW.md`](PREREG-REVIEW.md);
 plainly what the protocol enforces, what it merely records, and what it
 cannot prevent.
 
+## Result
+
+**E1 = caught**, and the headline the study was run for: sixteen records
+authored independently of the pack covered **all six** pre-committed
+boundary classes — including the 39–40 band the policy never names. The
+beacon selected the embargo-literal class, and a Syrian vendor record
+caught a pack whose embargo list had silently lost SY.
+[`ANALYSIS.md`](ANALYSIS.md) leads with the coverage profile and says what
+the result does not establish; [`DEVIATIONS.md`](DEVIATIONS.md) §1 records
+that two pilot runs preceded the registered one.
+
 The ordering the commit graph must show (PREREGISTRATION.md §8): protocol
 lock → lock Rekor timestamp → authoring call (immutable
 `transcription/authoring/call-N` slots) → records commit → records Rekor

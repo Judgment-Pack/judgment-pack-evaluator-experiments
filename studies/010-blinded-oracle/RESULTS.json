@@ -1,0 +1,137 @@
+{
+  "attempt": 1,
+  "prerequisites": {
+    "P-A": {
+      "status": "passed",
+      "rowIds": true,
+      "pass": true
+    }
+  },
+  "endpoints": {
+    "E2": {
+      "underD": {
+        "tableDivergences": [],
+        "mismatchedRows": [
+          "k-wrong-1",
+          "k-wrong-2",
+          "levant-medical-data"
+        ],
+        "derivedMismatches": [
+          "k-wrong-1",
+          "k-wrong-2",
+          "levant-medical-data"
+        ],
+        "pass": true
+      },
+      "underC": {
+        "tableDivergences": [],
+        "mismatchedRows": [
+          "k-wrong-1",
+          "k-wrong-2"
+        ],
+        "derivedMismatches": [
+          "k-wrong-1",
+          "k-wrong-2"
+        ],
+        "pass": true
+      },
+      "pass": true
+    },
+    "E5": {
+      "allProjectsValidate": true,
+      "originsExact": true,
+      "wireEqualsShell": true,
+      "pass": true
+    },
+    "E1": {
+      "outcome": "caught",
+      "HandF": [
+        "levant-medical-data"
+      ],
+      "QandF": [],
+      "F": [
+        "levant-medical-data"
+      ]
+    },
+    "E3": {
+      "sizes": {
+        "records": 16,
+        "H": 16,
+        "Q": 0,
+        "F": 1,
+        "HandF": 1,
+        "QandF": 0
+      },
+      "coverageProfile": [
+        {
+          "index": 0,
+          "title": "P3's boundary becomes exclusive",
+          "sampled": false,
+          "H": [
+            "alpine-benefits-platform",
+            "solstice-industrial-parts"
+          ],
+          "Q": [],
+          "covered": true
+        },
+        {
+          "index": 1,
+          "title": "P3's threshold moves to 71 in P3 only",
+          "sampled": false,
+          "H": [
+            "alpine-benefits-platform",
+            "solstice-industrial-parts"
+          ],
+          "Q": [],
+          "covered": true
+        },
+        {
+          "index": 2,
+          "title": "P4's lower bound moves to 41",
+          "sampled": false,
+          "H": [
+            "iberia-payroll-support",
+            "lumen-customer-systems"
+          ],
+          "Q": [],
+          "covered": true
+        },
+        {
+          "index": 3,
+          "title": "P4's personal-data condition inverts",
+          "sampled": false,
+          "H": [
+            "blue-harbor-logistics",
+            "iberia-payroll-support",
+            "lumen-customer-systems",
+            "maple-records-processing"
+          ],
+          "Q": [],
+          "covered": true
+        },
+        {
+          "index": 4,
+          "title": "P2's embargo list loses SY",
+          "sampled": true,
+          "H": [
+            "levant-medical-data"
+          ],
+          "Q": [],
+          "covered": true
+        },
+        {
+          "index": 5,
+          "title": "P5's inner clearance bound moves to 39",
+          "sampled": false,
+          "H": [
+            "cedar-analytics"
+          ],
+          "Q": [],
+          "covered": true
+        }
+      ]
+    }
+  },
+  "sampledIndex": 4,
+  "pipelineValid": true
+}

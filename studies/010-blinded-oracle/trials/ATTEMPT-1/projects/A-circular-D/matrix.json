@@ -1,0 +1,384 @@
+{
+  "matrixVersion": "1",
+  "cases": [
+    {
+      "id": "alpine-benefits-platform",
+      "origin": "circular:alpine-benefits-platform",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "CH",
+          "handlesPersonalData": true,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    },
+    {
+      "id": "blue-harbor-logistics",
+      "origin": "circular:blue-harbor-logistics",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "DE",
+          "handlesPersonalData": false,
+          "riskScore": "69.99"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    },
+    {
+      "id": "cedar-analytics",
+      "origin": "circular:cedar-analytics",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "US",
+          "handlesPersonalData": true,
+          "riskScore": "39.99"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    },
+    {
+      "id": "damascus-export-consortium",
+      "origin": "circular:damascus-export-consortium",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "registeredCountry": "SY",
+          "handlesPersonalData": false,
+          "riskScore": "74"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "hanul-trading-bureau",
+      "origin": "circular:hanul-trading-bureau",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "KP",
+          "handlesPersonalData": false,
+          "riskScore": "3"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "iberia-payroll-support",
+      "origin": "circular:iberia-payroll-support",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "ES",
+          "handlesPersonalData": true,
+          "riskScore": "40.01"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    },
+    {
+      "id": "k-wrong-1",
+      "origin": "circular:k-wrong-1",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "registeredCountry": "DE",
+          "handlesPersonalData": false,
+          "riskScore": "10"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "k-wrong-2",
+      "origin": "circular:k-wrong-2",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "DE",
+          "handlesPersonalData": false,
+          "riskScore": "85"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    },
+    {
+      "id": "levant-medical-data",
+      "origin": "circular:levant-medical-data",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "SY",
+          "handlesPersonalData": true,
+          "riskScore": "88.75"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "no-match"
+        ]
+      }
+    },
+    {
+      "id": "lumen-customer-systems",
+      "origin": "circular:lumen-customer-systems",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "FR",
+          "handlesPersonalData": true,
+          "riskScore": "40"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    },
+    {
+      "id": "maple-records-processing",
+      "origin": "circular:maple-records-processing",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "CA",
+          "handlesPersonalData": true,
+          "riskScore": "69.999"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    },
+    {
+      "id": "northstar-office-supply",
+      "origin": "circular:northstar-office-supply",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "CA",
+          "handlesPersonalData": false,
+          "riskScore": "12.5"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    },
+    {
+      "id": "orion-identity-services",
+      "origin": "circular:orion-identity-services",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "registeredCountry": "SG",
+          "handlesPersonalData": true,
+          "riskScore": "67"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "pars-cloud-solutions",
+      "origin": "circular:pars-cloud-solutions",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "IR",
+          "handlesPersonalData": true,
+          "riskScore": "39"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "quartz-network-services",
+      "origin": "circular:quartz-network-services",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "NL",
+          "handlesPersonalData": false,
+          "riskScore": "91.4"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    },
+    {
+      "id": "redwood-facilities-group",
+      "origin": "circular:redwood-facilities-group",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": true,
+          "registeredCountry": "GB",
+          "handlesPersonalData": false,
+          "riskScore": "8.2"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      }
+    },
+    {
+      "id": "sakura-courier-network",
+      "origin": "circular:sakura-courier-network",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "JP",
+          "handlesPersonalData": false,
+          "riskScore": "0"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clear",
+        "reasons": []
+      }
+    },
+    {
+      "id": "solstice-industrial-parts",
+      "origin": "circular:solstice-industrial-parts",
+      "facts": {
+        "vendor": {
+          "sanctionsHit": false,
+          "registeredCountry": "AU",
+          "handlesPersonalData": false,
+          "riskScore": "70"
+        }
+      },
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "manual-review",
+        "reasons": []
+      }
+    }
+  ]
+}
