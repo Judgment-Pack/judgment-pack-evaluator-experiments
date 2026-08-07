@@ -1,0 +1,188 @@
+{
+  "artifact": {
+    "agreementId": "AGR-2043",
+    "counterpartyLegalName": "Northwind Analytics Ltd",
+    "executedGrants": {
+      "internalAnalytics": true,
+      "onwardTransfer": true
+    },
+    "observedAt": "2026-08-05T09:00:00Z",
+    "sections": {
+      "dataSchedule": {
+        "datasets": [
+          "customer-events"
+        ]
+      },
+      "executionBlock": {
+        "counterpartySignatory": "Head of Data Partnerships",
+        "signedAt": "2026-05-04T00:00:00Z"
+      },
+      "recitals": {
+        "partiesNamed": true
+      }
+    },
+    "signatoryHadDelegatedAuthority": true,
+    "status": "found"
+  },
+  "catchingClause": {
+    "coupling": "none",
+    "note": "No divergence to catch: both arms reach the disposition the requirement's description supports."
+  },
+  "derived": {
+    "convention": {
+      "acquisitionStatus": "resolved",
+      "basis": [
+        "/counterpartyLegalName",
+        "/observedAt",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "present"
+      },
+      "facts": {
+        "agreement": {
+          "agreementId": "AGR-2043",
+          "counterpartyLegalName": "Northwind Analytics Ltd",
+          "executedGrants": {
+            "internalAnalytics": true,
+            "onwardTransfer": true
+          },
+          "observedAt": "2026-08-05T09:00:00Z",
+          "sections": {
+            "dataSchedule": {
+              "datasets": [
+                "customer-events"
+              ]
+            },
+            "executionBlock": {
+              "counterpartySignatory": "Head of Data Partnerships",
+              "signedAt": "2026-05-04T00:00:00Z"
+            },
+            "recitals": {
+              "partiesNamed": true
+            }
+          },
+          "signatoryHadDelegatedAuthority": true,
+          "status": "found"
+        }
+      },
+      "reason": "resolved"
+    },
+    "convention-coupled": {
+      "acquisitionStatus": "resolved",
+      "basis": [
+        "/counterpartyLegalName",
+        "/executedGrants/onwardTransfer",
+        "/observedAt",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "present"
+      },
+      "facts": {
+        "agreement": {
+          "agreementId": "AGR-2043",
+          "counterpartyLegalName": "Northwind Analytics Ltd",
+          "executedGrants": {
+            "internalAnalytics": true,
+            "onwardTransfer": true
+          },
+          "observedAt": "2026-08-05T09:00:00Z",
+          "sections": {
+            "dataSchedule": {
+              "datasets": [
+                "customer-events"
+              ]
+            },
+            "executionBlock": {
+              "counterpartySignatory": "Head of Data Partnerships",
+              "signedAt": "2026-05-04T00:00:00Z"
+            },
+            "recitals": {
+              "partiesNamed": true
+            }
+          },
+          "signatoryHadDelegatedAuthority": true,
+          "status": "found"
+        }
+      },
+      "reason": "resolved"
+    }
+  },
+  "expected": {
+    "convention": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "conventionClauseFact": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "conventionCoupled": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "naive": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "naiveClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naiveCredulousClauseFact": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    }
+  },
+  "id": "C0",
+  "naiveAvailability": {
+    "signed-agreement": "present"
+  },
+  "name": "Control — complete",
+  "packDemand": "executed, current, right counterparty, onward transfer granted — all met",
+  "params": {
+    "asOf": "2026-08-06T12:00:00Z",
+    "maxAgeSeconds": 2592000,
+    "subject": "Northwind Analytics Ltd"
+  },
+  "requirementDemands": {
+    "current": true,
+    "executedByBothParties": true,
+    "grantsOnwardTransfer": true,
+    "onFile": true,
+    "withThisCounterparty": true
+  },
+  "requirementSatisfied": true,
+  "summary": "A complete, executed, current agreement with the right counterparty, whose executed schedule grants the onward transfer this decision needs. Both arms should release; the case exists so the set cannot be read as rigged toward divergence."
+}

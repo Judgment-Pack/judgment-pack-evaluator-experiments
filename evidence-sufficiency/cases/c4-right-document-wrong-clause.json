@@ -1,0 +1,172 @@
+{
+  "artifact": {
+    "agreementId": "AGR-2043",
+    "counterpartyLegalName": "Northwind Analytics Ltd",
+    "executedGrants": {
+      "internalAnalytics": true,
+      "onwardTransfer": false
+    },
+    "observedAt": "2026-08-05T09:00:00Z",
+    "sections": {
+      "dataSchedule": {
+        "datasets": [
+          "customer-events"
+        ]
+      },
+      "executionBlock": {
+        "counterpartySignatory": "Head of Data Partnerships",
+        "signedAt": "2026-05-04T00:00:00Z"
+      },
+      "recitals": {
+        "partiesNamed": true
+      }
+    },
+    "signatoryHadDelegatedAuthority": true,
+    "status": "found"
+  },
+  "catchingClause": {
+    "coupling": "pack-coupled",
+    "note": "Which grant matters is a function of this pack's question. A sibling pack over the same agreement — may we invoice under it, may we retain beyond termination — needs a different pointer, so this is one clause per requirement per pack. An acquisition author who has not read the pack cannot write it.",
+    "op": "isTrue",
+    "pointer": "/executedGrants/onwardTransfer"
+  },
+  "derived": {
+    "convention": {
+      "acquisitionStatus": "resolved",
+      "basis": [
+        "/counterpartyLegalName",
+        "/observedAt",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "present"
+      },
+      "facts": {
+        "agreement": {
+          "agreementId": "AGR-2043",
+          "counterpartyLegalName": "Northwind Analytics Ltd",
+          "executedGrants": {
+            "internalAnalytics": true,
+            "onwardTransfer": false
+          },
+          "observedAt": "2026-08-05T09:00:00Z",
+          "sections": {
+            "dataSchedule": {
+              "datasets": [
+                "customer-events"
+              ]
+            },
+            "executionBlock": {
+              "counterpartySignatory": "Head of Data Partnerships",
+              "signedAt": "2026-05-04T00:00:00Z"
+            },
+            "recitals": {
+              "partiesNamed": true
+            }
+          },
+          "signatoryHadDelegatedAuthority": true,
+          "status": "found"
+        }
+      },
+      "reason": "resolved"
+    },
+    "convention-coupled": {
+      "acquisitionStatus": "unknown",
+      "basis": [
+        "/counterpartyLegalName",
+        "/executedGrants/onwardTransfer",
+        "/observedAt",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "unknown"
+      },
+      "facts": {},
+      "reason": "grant"
+    }
+  },
+  "expected": {
+    "convention": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "conventionClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "no-match"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "no-match"
+      ]
+    },
+    "conventionCoupled": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naive": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "naiveClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naiveCredulousClauseFact": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    }
+  },
+  "id": "C4",
+  "naiveAvailability": {
+    "signed-agreement": "present"
+  },
+  "name": "Right document, wrong clause",
+  "packDemand": "a schedule that grants **onward transfer**",
+  "params": {
+    "asOf": "2026-08-06T12:00:00Z",
+    "maxAgeSeconds": 2592000,
+    "subject": "Northwind Analytics Ltd"
+  },
+  "requirementDemands": {
+    "current": true,
+    "executedByBothParties": true,
+    "grantsOnwardTransfer": false,
+    "onFile": true,
+    "withThisCounterparty": true
+  },
+  "requirementSatisfied": false,
+  "summary": "Complete, executed, current, right counterparty — and the executed schedule grants internal analytics only, not the onward transfer this decision turns on. Everything a pack-independent clause can check passes. The load-bearing case."
+}

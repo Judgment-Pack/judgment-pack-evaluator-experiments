@@ -1,0 +1,143 @@
+{
+  "artifact": {
+    "agreementId": "AGR-2043",
+    "counterpartyLegalName": "Northwind Analytics Ltd",
+    "executedGrants": {
+      "internalAnalytics": true,
+      "onwardTransfer": true
+    },
+    "observedAt": "2026-08-05T09:00:00Z",
+    "sections": {
+      "dataSchedule": {
+        "datasets": [
+          "customer-events"
+        ]
+      },
+      "recitals": {
+        "partiesNamed": true
+      }
+    },
+    "signatoryHadDelegatedAuthority": true,
+    "status": "found"
+  },
+  "catchingClause": {
+    "coupling": "pack-independent",
+    "note": "A required-section check over the document type. Every pack that consumes an executed agreement wants an execution block, so one clause serves all of them.",
+    "op": "exists",
+    "pointer": "/sections/executionBlock"
+  },
+  "derived": {
+    "convention": {
+      "acquisitionStatus": "unknown",
+      "basis": [
+        "/counterpartyLegalName",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "unknown"
+      },
+      "facts": {},
+      "reason": "incomplete"
+    },
+    "convention-coupled": {
+      "acquisitionStatus": "unknown",
+      "basis": [
+        "/counterpartyLegalName",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "unknown"
+      },
+      "facts": {},
+      "reason": "incomplete"
+    }
+  },
+  "expected": {
+    "convention": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "conventionClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "conventionCoupled": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naive": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "naiveClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naiveCredulousClauseFact": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    }
+  },
+  "id": "C1",
+  "naiveAvailability": {
+    "signed-agreement": "present"
+  },
+  "name": "Partial document",
+  "packDemand": "an agreement **executed by both parties**",
+  "params": {
+    "asOf": "2026-08-06T12:00:00Z",
+    "maxAgeSeconds": 2592000,
+    "subject": "Northwind Analytics Ltd"
+  },
+  "requirementDemands": {
+    "current": true,
+    "executedByBothParties": false,
+    "grantsOnwardTransfer": true,
+    "onFile": true,
+    "withThisCounterparty": true
+  },
+  "requirementSatisfied": false,
+  "summary": "The agreement came back, but the retained document has no execution block — it is a negotiated draft, not an executed contract. This is the issue's own example."
+}
