@@ -267,11 +267,18 @@ def build_slot(slot: str, answer: str, study: str, pins: dict, *,
     prompt = read_prompt(study)
     call = {
         "argv": ["codex", "exec", "--ignore-user-config", "-m", pins["codex"]["model"]],
-        "cwd": cwd, "home": home,
+        "cwd": cwd, "home": home, "codexHome": os.path.join(home, ".codex"),
         "environment": ["PATH", "HOME", "TMPDIR", "CODEX_HOME"],
+        "environmentValues": {"PATH": "/usr/bin:/bin", "HOME": home,
+                              "TMPDIR": os.path.join(cwd, "tmp"),
+                              "CODEX_HOME": os.path.join(home, ".codex")},
         "environmentScrubbed": True, "codexHomeIsolated": True,
-        "homeIsolated": True, "isolatedHomeEntriesBefore": 1,
+        "homeIsolated": True,
+        # The recursive inventory C6 registers: the .codex directory the
+        # wrapper made and the credential it copied into it, and nothing else.
+        "isolatedHomeInventory": [".codex", ".codex/auth.json"],
         "operatorHomeSkillsPresent": True, "credentialCopied": True,
+        "credentialRemoved": True, "isolation": "isolated",
         "ignoreUserConfig": True, "model": pins["codex"]["model"],
         "cli": pins["codex"]["version"],
         "binarySha256": pins["codex"]["binarySha256"],
@@ -307,7 +314,7 @@ def build_slot(slot: str, answer: str, study: str, pins: dict, *,
 
 def write_golden(path: str, slot: str) -> str:
     """This study's golden capture, taken from a built slot exactly as
-    batch.py capture-golden takes it from pilot runs."""
+    batch.py capture takes it from its two probe runs."""
     import transcript_check
 
     with open(os.path.join(slot, "CALL.json")) as handle:
@@ -340,7 +347,13 @@ FAKE_CLI = '''#!__PYTHON__
 into $CODEX_HOME, prints a planned completion, and exits with a planned status.
 It never calls a model and never reaches the network. The plan and the call
 counter live beside this file, because the wrapper scrubs the environment with
-env -i and only PATH, HOME, TMPDIR and CODEX_HOME survive."""
+env -i and only PATH, HOME, TMPDIR and CODEX_HOME survive.
+
+It reproduces ONE empirical behaviour of the pinned CLI that Study 010's fifth
+pre-freeze review found: skills under $HOME/.agents reach the model, as a
+pre-prompt message. That is what a fresh HOME excludes per run, and it is what
+makes the §6 C7 negative control able to fail the golden match instead of
+being a control whose outcome the harness decides."""
 import json
 import os
 import sys
@@ -366,10 +379,21 @@ def main(argv):
     step = plan[index] if index < len(plan) else plan[-1]
     prompt = argv[-1]
     model = argv[argv.index("-m") + 1]
+    home = os.environ["HOME"]
+    prior = fixtures.default_prior(os.getcwd(), home)
+    skills = os.path.join(home, ".agents", "skills")
+    if os.path.isdir(skills):
+        prior = prior + [("developer", "<available_skills>\\n%s\\n</available_skills>"
+                          % ", ".join(sorted(os.listdir(skills))))]
     sessions = os.path.join(os.environ["CODEX_HOME"], "sessions")
     os.makedirs(sessions, exist_ok=True)
     entries = fixtures.session_entries(prompt, step["completion"], os.getcwd(),
-                                       os.environ["HOME"], model=model)
+                                       home, model=model, prior=prior)
+    if step.get("no_assistant"):
+        # Exit 0 with a transcript carrying no assistant message: the shape
+        # that kills the wrapper mid-run (completion extraction raises under
+        # set -e), used to prove cleanup survives an abnormal death.
+        entries = entries[:-2]
     fixtures.write_session(os.path.join(sessions, "rollout-%d.jsonl" % index), entries)
     sys.stdout.write(step["completion"])
     return int(step.get("exit", 0))
@@ -378,6 +402,29 @@ def main(argv):
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
 '''
+
+# The sentinel credential the wrapper-driven tests plant in a fake operator
+# HOME. No retained artifact may contain these bytes: the wrapper copies the
+# credential into the isolated home for the call and deletes it when the slot
+# is sealed, and harness/tests/test_batch.py scans every retained byte for it.
+SENTINEL_CREDENTIAL = '{"OPENAI_API_KEY": "sk-s011-sentinel-never-retained"}\n'
+SENTINEL_TOKEN = "sk-s011-sentinel-never-retained"
+SENTINEL_SKILL = "sentinel-skill-that-must-not-reach-the-model"
+
+
+def write_operator_home(root: str, credential: bool = True,
+                        skills: bool = False) -> str:
+    """A stand-in for the operator's real HOME: a `.codex/auth.json` carrying
+    the sentinel credential, and optionally a `.agents/skills` tree of the kind
+    Study 010 found reaching the model. Nothing here touches the real one."""
+    os.makedirs(os.path.join(root, ".codex"), exist_ok=True)
+    if credential:
+        with open(os.path.join(root, ".codex", "auth.json"), "w") as handle:
+            handle.write(SENTINEL_CREDENTIAL)
+    if skills:
+        os.makedirs(os.path.join(root, ".agents", "skills", SENTINEL_SKILL),
+                    exist_ok=True)
+    return root
 
 
 def write_fake_cli(directory: str, plan: list, python: str, tests_dir: str) -> str:

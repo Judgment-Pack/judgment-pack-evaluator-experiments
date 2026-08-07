@@ -22,7 +22,10 @@ The partition that decides every denominator (§3.3):
                     zero in every class. Excluding these would quietly
                     condition every rate on the author having succeeded.
 
-Pipeline-invalid codes, in the order admission evaluates them:
+Pipeline-invalid codes, in the order admission evaluates them (the same set
+CODE_PARTITION carries, which PREREGISTRATION.md §3.3 enumerates member for
+member and harness/tests/test_admission.py diffs against both this source and
+that table):
 
   slot-shape             a required slot file is missing or not a regular file
   call-unreadable        CALL.json is not duplicate-free JSON
@@ -30,7 +33,7 @@ Pipeline-invalid codes, in the order admission evaluates them:
   binary-mismatch        CALL.json names a binary digest other than the pinned one
   cli-mismatch           CALL.json names a CLI version other than the pinned one
   isolation-unproven     CALL.json does not record the per-run isolation (C6)
-  session-count          the isolated home held other than exactly one session
+  session-count          the run produced other than exactly one new session
   call-nonzero-exit      the process did not exit with integer status 0
   no-session             session.jsonl was not retained
   no-completion          completion.txt was not retained (exit-0 only)
@@ -44,6 +47,11 @@ Pipeline-invalid codes, in the order admission evaluates them:
   scorer-error           admission raised: the run is recorded invalid with the
                          error, because a scorer that dies mid-tree scores
                          nothing (§7 totality)
+
+Before it reads a slot it verifies, and refuses on, the ported-byte digest
+table (harness/integrity.py, §6 C1), the golden capture against the digest
+harness/PINS.json registers for it (§3.2), the preregistration's own digest
+once that pin is filled (§2.6), and the batch's terminality (§2.4).
 
 Endpoints: the six primary rates c_i with exact Clopper-Pearson 95% intervals
 (§4.2, §4.3), and the secondaries S1-S8 (§4.4) — raw intersection, Q
@@ -59,10 +67,15 @@ use randomness. Per-slot wall clock is retained in each CALL.json and stays
 there: RESULTS.json carries no timestamp, so two scorings of one slot tree are
 byte-identical.
 
+RESULTS.json and RATES.md are always written to the study root: there is no
+`--out`, because a rate table written somewhere else would let the operator
+read six rates while leaving the marker the driver refuses new slots on
+(§2.4). `--emit-records DIR` still takes a directory: it writes derived
+record trees, not rates.
+
 Usage:
   score_rates.py score --slots DIR [--pins PATH] [--family PATH]
-                       [--prompt PATH] [--golden PATH] [--out DIR]
-                       [--emit-records DIR]
+                       [--prompt PATH] [--golden PATH] [--emit-records DIR]
 """
 from __future__ import annotations
 import contextlib
@@ -79,6 +92,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
+import integrity  # noqa: E402
 import policy_mirror  # noqa: E402
 import records_compile  # noqa: E402
 import transcript_check  # noqa: E402
@@ -92,8 +106,42 @@ SLOT_FILES = ("CALL.json", "stdout.raw", "stderr.raw")
 ALPHA = Fraction(1, 40)          # one tail of a two-sided 95% interval
 BISECTIONS = 200                 # fixed; no early exit, no tolerance
 TIERS = ("LIGHT", "STANDARD", "FULL")
-MISLABEL_ESCALATION = 0.20       # §5, registered before the batch
-PIPELINE_ESCALATION = 0.10
+# §5, registered before the batch. The tier is decided by the exact
+# Clopper-Pearson lower bound alone — one criterion in one unit, so the
+# boundary does not move with V the way a point-estimate conjunction did.
+LIGHT_LOWER_BOUND = 0.80
+STANDARD_LOWER_BOUND = 0.40
+MISLABEL_ESCALATION = 0.20
+# Not a tier change: a high pipeline-invalid rate is one stated caution on the
+# whole batch (§5), never a per-class escalation on top of a widened interval.
+PIPELINE_CAUTION = 0.10
+
+# §3.3's partition, member for member. Every code admit() and score_run() can
+# name is here; harness/tests/test_admission.py diffs this table against the
+# codes the two functions can actually return AND against the enumeration
+# PREREGISTRATION.md §3.3 registers, so prose and code cannot drift apart.
+CODE_PARTITION = {
+    "slot-shape": "pipeline-invalid",
+    "call-unreadable": "pipeline-invalid",
+    "model-mismatch": "pipeline-invalid",
+    "binary-mismatch": "pipeline-invalid",
+    "cli-mismatch": "pipeline-invalid",
+    "isolation-unproven": "pipeline-invalid",
+    "session-count": "pipeline-invalid",
+    "call-nonzero-exit": "pipeline-invalid",
+    "no-session": "pipeline-invalid",
+    "no-completion": "pipeline-invalid",
+    "no-context": "pipeline-invalid",
+    "transcript-refused": "pipeline-invalid",
+    "context-mismatch": "pipeline-invalid",
+    "completion-unreadable": "pipeline-invalid",
+    "compile-refused": "pipeline-invalid",
+    "regeneration-mismatch": "pipeline-invalid",
+    "refusal-conflict": "pipeline-invalid",
+    "scorer-error": "pipeline-invalid",
+}
+# The two outcomes that carry no code and stay in the denominator (§3.3).
+VALID_OUTCOMES = ("valid", "authoring-empty")
 
 
 class ScoreError(Exception):
@@ -182,11 +230,17 @@ def clopper_pearson(k: int, n: int) -> tuple:
         raise ValueError("an interval needs at least one trial")
     if not 0 <= k <= n:
         raise ValueError("k=%d is not a count out of n=%d" % (k, n))
-    lower = 0.0 if k == 0 else _bisect(
-        lambda p: _tail_ge(k, n, Fraction(p)) < ALPHA)
-    upper = 1.0 if k == n else _bisect(
-        lambda p: _tail_le(k, n, Fraction(p)) > ALPHA)
-    return lower, upper
+    return lower_bound(k, n), upper_bound(k, n)
+
+
+def lower_bound(k: int, n: int) -> float:
+    """The interval's lower bound alone — §5's whole criterion, so it is worth
+    computing without the upper root nobody asked for."""
+    return 0.0 if k == 0 else _bisect(lambda p: _tail_ge(k, n, Fraction(p)) < ALPHA)
+
+
+def upper_bound(k: int, n: int) -> float:
+    return 1.0 if k == n else _bisect(lambda p: _tail_le(k, n, Fraction(p)) > ALPHA)
 
 
 def rate_block(k: int, n: int) -> dict:
@@ -199,26 +253,72 @@ def rate_block(k: int, n: int) -> dict:
     return {"count": k, "trials": n, "rate": k / n, "ci95": [lower, upper]}
 
 
-def review_tier(coverage: dict, mislabel_share, pipeline_rate) -> dict:
-    """§5's registered mapping, applied — never fitted. Review depth per class
-    is inverse to that class's blind coverage rate, with one step of
-    escalation for a class reached mostly with wrong labels and one for an
-    authoring pipeline that fails often."""
+def review_tier(coverage: dict, mislabel_share) -> dict:
+    """§5's registered mapping, applied — never fitted.
+
+    ONE criterion in ONE unit: the exact Clopper-Pearson lower bound. LIGHT
+    iff lower >= 0.80, STANDARD iff lower >= 0.40, FULL otherwise. The earlier
+    draft conjoined a point estimate with a bound, which made the operative
+    threshold in observed-coverage units a function of V — that is, of the
+    data — while calling itself frozen. A bound already carries the sample
+    size, so this cut is fixed before the batch in the unit it is stated in.
+
+    One escalation, on distinct evidence: a class reached mostly with wrong
+    labels moves one step toward FULL. The pipeline-invalid rate does NOT
+    escalate a class — it already widens every interval by shrinking V, and
+    charging it twice would count one event twice. §5 reports it as one
+    stated caution over the whole batch instead.
+    """
     if coverage["rate"] is None:
-        return {"base": None, "escalations": [], "tier": None}
-    if coverage["rate"] >= 0.90 and coverage["ci95"][0] >= 0.80:
+        return {"base": None, "escalations": [], "tier": None, "lower": None}
+    lower = coverage["ci95"][0]
+    if lower >= LIGHT_LOWER_BOUND:
         base = "LIGHT"
-    elif coverage["rate"] >= 0.50:
+    elif lower >= STANDARD_LOWER_BOUND:
         base = "STANDARD"
     else:
         base = "FULL"
     escalations = []
     if mislabel_share is not None and mislabel_share >= MISLABEL_ESCALATION:
         escalations.append("mislabel")
-    if pipeline_rate is not None and pipeline_rate >= PIPELINE_ESCALATION:
-        escalations.append("pipeline")
     index = min(len(TIERS) - 1, TIERS.index(base) + len(escalations))
-    return {"base": base, "escalations": escalations, "tier": TIERS[index]}
+    return {"base": base, "escalations": escalations, "tier": TIERS[index],
+            "lower": lower}
+
+
+def light_threshold(n: int) -> int:
+    """The smallest k whose exact lower bound reaches §5's LIGHT cut at n
+    trials. The lower bound is increasing in k, so this is a bisection over k
+    and not a scan."""
+    low, high = 0, n
+    while low < high:
+        middle = (low + high) // 2
+        if lower_bound(middle, n) >= LIGHT_LOWER_BOUND:
+            high = middle
+        else:
+            low = middle + 1
+    return low
+
+
+def probability_at_least(k: int, n: int, p: Fraction) -> Fraction:
+    """P(X >= k) for X ~ Binomial(n, p), exactly. Same arithmetic as the
+    interval: math.comb and Fractions, no libm and no rounding."""
+    return _tail_ge(k, n, p)
+
+
+def light_operating_characteristics(n: int, probabilities) -> dict:
+    """P(this mapping assigns LIGHT | true coverage p), exactly, at n trials.
+
+    §5 registers this table rather than leaving the mapping's power implicit:
+    a cut on an exact lower bound is conservative by construction, and a
+    reader is entitled to know how often a genuinely well-covered class is
+    still called STANDARD at N = 50.
+    """
+    threshold = light_threshold(n)
+    return {"trials": n, "lightThresholdK": threshold,
+            "lightThresholdRate": threshold / n,
+            "probabilities": {str(p): float(probability_at_least(threshold, n, p))
+                              for p in probabilities}}
 
 
 # --- the classes -----------------------------------------------------------
@@ -302,24 +402,30 @@ def admit(slot: str, prompt_path: str, golden_path: str, pins: dict) -> tuple:
         return "cli-mismatch", "CALL.json names CLI %r" % call.get("cli"), False
     # C6: isolation demonstrated per run, not asserted once. The wrapper's own
     # record of what it did — a fresh home, a scrubbed environment, and an
-    # isolated home holding exactly the copied credential and nothing else.
-    # The golden context match below is the evidence that actually bites; this
-    # refuses a slot whose wrapper never claimed the isolation at all.
+    # isolated home whose RECURSIVE inventory is exactly the .codex directory
+    # and, when one was copied, the credential inside it. Both branches carry
+    # information: a stray config.toml, an AGENTS.md, or a skills tree in the
+    # isolated home refuses, and a machine with no operator credential is
+    # admissible rather than uniformly isolation-unproven (§2.3 item 6). The
+    # golden context match below is still the evidence that bites hardest.
     for flag in ("homeIsolated", "codexHomeIsolated", "environmentScrubbed",
                  "ignoreUserConfig"):
         if call.get(flag) is not True:
             return "isolation-unproven", "CALL.json does not record %s" % flag, False
     if not isinstance(call.get("home"), str) or not call["home"]:
         return "isolation-unproven", "CALL.json records no isolated home", False
-    expected_entries = 1 if call.get("credentialCopied") else 0
-    if call.get("isolatedHomeEntriesBefore") != expected_entries:
+    expected_inventory = ([".codex", ".codex/auth.json"]
+                          if call.get("credentialCopied") else [".codex"])
+    if call.get("isolatedHomeInventory") != expected_inventory:
         return ("isolation-unproven",
-                "the isolated home held %r entries before the call, not the %d the "
-                "credential accounts for"
-                % (call.get("isolatedHomeEntriesBefore"), expected_entries), False)
+                "the isolated home held %r before the call, not the %r a fresh home "
+                "with %s accounts for"
+                % (call.get("isolatedHomeInventory"), expected_inventory,
+                   "the copied credential" if call.get("credentialCopied")
+                   else "no credential to copy"), False)
     if call.get("newSessionCount") != 1:
         return ("session-count",
-                "the isolated home held %r sessions" % call.get("newSessionCount"), False)
+                "the call produced %r new sessions" % call.get("newSessionCount"), False)
     status = call.get("exitStatus")
     if not isinstance(status, int) or isinstance(status, bool) or status != 0:
         return "call-nonzero-exit", "exit status %r" % status, False
@@ -475,8 +581,16 @@ def _sequence_halves(sequence: list) -> dict:
             "secondHalf": sum(sequence[half:])}
 
 
-def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
-          golden_path: str) -> dict:
+def verify_preconditions(pins_path: str, prompt_path: str, golden_path: str,
+                         study: str = STUDY) -> dict:
+    """Everything that must hold before a single slot is read (§6 C1, §3.2,
+    §2.6). A drifted port, an unregistered golden capture, or a
+    post-freeze-edited preregistration refuses the whole scoring — none of
+    them can be discovered afterwards from a published rate."""
+    try:
+        ported = integrity.verify(study=study, pins_path=pins_path)
+    except integrity.IntegrityError as error:
+        raise ScoreError("the ported bytes are not the registered ones: %s" % error)
     pins = load_json(pins_path)
     prompt_digest = file_digest(prompt_path)
     if prompt_digest != pins["prompt"]["sha256"]:
@@ -484,18 +598,78 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
                          % (prompt_digest, pins["prompt"]["sha256"]))
     if not os.path.isfile(golden_path):
         raise ScoreError("no golden context at %s: recapture it before the batch "
-                         "(batch.py capture)" % golden_path)
+                         "(batch.py capture --scratch-parent DIR)" % golden_path)
+    # §3.2 step 3: the capture's digest replaces the null in the registry, and
+    # both are committed BEFORE the first slot runs. A golden file that is not
+    # the registered one — including one derived after the batch from the
+    # batch's own slots — scores nothing.
+    golden_pin = pins.get("golden", {}).get("sha256")
+    if not golden_pin:
+        raise ScoreError(
+            "harness/PINS.json registers no golden.sha256: the golden capture must be "
+            "captured, registered and committed before the first slot (§3.2)")
+    golden_digest = file_digest(golden_path)
+    if golden_digest != golden_pin:
+        raise ScoreError("the golden capture at %s is %s, not the registered %s"
+                         % (golden_path, golden_digest, golden_pin))
+    prereg_pin = pins.get("preregistration", {}).get("sha256")
+    prereg_digest = None
+    if prereg_pin:
+        prereg_path = os.path.join(study, pins["preregistration"]["path"])
+        if not os.path.isfile(prereg_path):
+            raise ScoreError("the preregistration is missing from %s" % study)
+        prereg_digest = file_digest(prereg_path)
+        if prereg_digest != prereg_pin:
+            raise ScoreError("PREREGISTRATION.md is %s, not the %s registered at the "
+                             "freeze: it was edited after the freeze"
+                             % (prereg_digest, prereg_pin))
+    return {"portedFiles": ported["portedFiles"],
+            "study010LockSha256": ported["study010LockSha256"],
+            "promptSha256": prompt_digest,
+            "goldenSha256": golden_digest,
+            "preregistrationSha256": prereg_digest}
+
+
+def terminality(slots: list, slots_dir: str, registered) -> dict:
+    """§2.4: exactly N slots, XOR a shortfall declaration whose recorded count
+    is the contiguous slots actually present. Both, or neither, refuses —
+    a shortfall over a full batch is not a short batch, and an over-full batch
+    is not a population this study contemplates."""
+    shortfall_path = os.path.join(slots_dir, "SHORTFALL.json")
+    shortfall = load_json(shortfall_path) if os.path.isfile(shortfall_path) else None
+    if registered is None:
+        return shortfall
+    complete = len(slots) == registered
+    if complete and shortfall is not None:
+        raise ScoreError("all %d registered slots are present and SHORTFALL.json also "
+                         "declares a short batch: the batch cannot be both" % registered)
+    if not complete and shortfall is None:
+        raise ScoreError("%d of %d registered slots are present and no SHORTFALL.json "
+                         "declares why: the batch is not terminal"
+                         % (len(slots), registered))
+    if not complete:
+        if len(slots) > registered:
+            raise ScoreError("%d slots are present but only %d were registered: a "
+                             "shortfall declaration does not admit an over-full batch"
+                             % (len(slots), registered))
+        if shortfall.get("completedSlots") != len(slots):
+            raise ScoreError("SHORTFALL.json records %r completed slots and %d are "
+                             "present: the declaration is not this batch's"
+                             % (shortfall.get("completedSlots"), len(slots)))
+    return shortfall
+
+
+def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
+          golden_path: str) -> dict:
+    preconditions = verify_preconditions(pins_path, prompt_path, golden_path)
+    pins = load_json(pins_path)
+    prompt_digest = preconditions["promptSha256"]
     classes = load_family(family_path, pins["family"]["sha256"])
     slots, unexpected = collect_slots(slots_dir)
 
-    # §2.4: no rate before the batch is terminal. Either every registered slot
-    # is present, or the shortfall was declared before anything was scored.
+    # §2.4: no rate before the batch is terminal.
     registered = pins.get("batch", {}).get("runs")
-    shortfall_path = os.path.join(slots_dir, "SHORTFALL.json")
-    shortfall = load_json(shortfall_path) if os.path.isfile(shortfall_path) else None
-    if registered is not None and len(slots) != registered and shortfall is None:
-        raise ScoreError("%d of %d registered slots are present and no SHORTFALL.json "
-                         "declares why: the batch is not terminal" % (len(slots), registered))
+    shortfall = terminality(slots, slots_dir, registered)
 
     rows = [score_run(slot, prompt_path, golden_path, pins, classes) for slot in slots]
     valid = [row for row in rows if row["valid"]]
@@ -527,8 +701,17 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
             "qOnlyIntersection": rate_block(q_only, n),
             "mislabelShare": share,
             "drift": _sequence_halves(coverage_sequence),
-            "reviewTier": review_tier(coverage, share, pipeline_rate),
+            "reviewTier": review_tier(coverage, share),
         })
+
+    # §4.2: the six denominators are identical by construction — and the
+    # scorer asserts it rather than asking the reader to trust the
+    # construction. A per-class denominator would make the six rates
+    # incomparable and no published integer would show it.
+    denominators = set(row["coverage"]["trials"] for row in class_rows)
+    if denominators != {n}:
+        raise ScoreError("the class denominators are %r, not the %d valid runs: the "
+                         "rates are not comparable" % (sorted(denominators), n))
 
     distribution = {str(k): 0 for k in range(len(classes) + 1)}
     for row in valid:
@@ -558,10 +741,14 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
             "binarySha256": pins["codex"]["binarySha256"],
             "promptSha256": prompt_digest,
             "familySha256": pins["family"]["sha256"],
-            "goldenSha256": file_digest(golden_path),
+            "goldenSha256": preconditions["goldenSha256"],
+            "preregistrationSha256": preconditions["preregistrationSha256"],
+            "portedFiles": preconditions["portedFiles"],
+            "study010LockSha256": preconditions["study010LockSha256"],
             "note": "One cell: this prompt, this model, this policy. Nothing here "
                     "is a claim about other prompts, other models, or real "
-                    "operational records.",
+                    "operational records. The digests above were verified before "
+                    "any slot was read, not copied from the registry.",
         },
         "population": {
             "slots": len(rows),
@@ -574,10 +761,16 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
             "shortfall": None if registered is None else max(0, registered - len(slots)),
             "shortfallDeclaration": shortfall,
             "unexpectedEntries": unexpected,
+            # §5: one stated caution over the whole batch, never a per-class
+            # tier change — the invalid runs already widened every interval.
+            "pipelineCaution": (pipeline_rate is not None
+                                and pipeline_rate >= PIPELINE_CAUTION),
             "note": "Rates are computed over valid runs only; admit() is the whole "
                     "population filter (§6 C5). An authoring-empty run is VALID and "
                     "covers nothing; a pipeline-invalid run leaves the denominator "
-                    "and its rate is itself an endpoint (S8).",
+                    "and its rate is itself an endpoint (S8). A pipeline-invalid "
+                    "rate of %.2f or more raises pipelineCaution over the whole "
+                    "batch and changes no class's tier." % PIPELINE_CAUTION,
         },
         "classes": class_rows,
         "coverageBreadth": {
@@ -710,21 +903,34 @@ def render_markdown(results: dict) -> str:
         "",
         "## Review depth, from the mapping registered before the batch",
         "",
-        "§5's thresholds applied, not fitted: LIGHT needs c_i ≥ 0.90 with a lower",
-        "bound ≥ 0.80; STANDARD needs c_i ≥ 0.50; below that is FULL. A class whose",
-        "mislabel share reaches 0.20 escalates one step, and a pipeline-invalid rate",
-        "of 0.10 or more escalates every class one step.",
+        "§5's thresholds applied, not fitted, and decided by ONE quantity: the exact",
+        "Clopper-Pearson lower bound. LIGHT needs lower ≥ %.2f, STANDARD needs lower ≥"
+        % LIGHT_LOWER_BOUND,
+        "%.2f, below that is FULL. A class whose mislabel share reaches %.2f escalates"
+        % (STANDARD_LOWER_BOUND, MISLABEL_ESCALATION),
+        "one step toward FULL. The pipeline-invalid rate escalates nothing: it already",
+        "widened every interval, and it is reported as one caution over the batch.",
         "",
-        "| # | c_i | mislabel share | base | escalations | tier |",
-        "|---|-----|----------------|------|-------------|------|",
+        "| # | c_i | lower bound | mislabel share | base | escalations | tier |",
+        "|---|-----|-------------|----------------|------|-------------|------|",
     ]
     for entry in results["classes"]:
         tier = entry["reviewTier"]
-        lines.append("| %d | %s | %s | %s | %s | **%s** |" % (
+        lines.append("| %d | %s | %s | %s | %s | %s | **%s** |" % (
             entry["index"],
             "—" if entry["coverage"]["rate"] is None else "%.3f" % entry["coverage"]["rate"],
+            _number(tier["lower"]),
             _number(entry["mislabelShare"], 3), tier["base"] or "—",
             ", ".join(tier["escalations"]) or "none", tier["tier"] or "—"))
+    if population.get("pipelineCaution"):
+        lines += [
+            "",
+            "**Stated caution (§5).** The pipeline-invalid rate is %.2f or more: this"
+            % PIPELINE_CAUTION,
+            "batch's authoring pipeline failed often enough that every rate above is",
+            "computed over a reduced V and every tier is read under that caution. No",
+            "class's tier was changed for it — one event, charged once.",
+        ]
     lines += [
         "",
         "## Secondary",
@@ -846,6 +1052,23 @@ def emit_records(rows: list, slots_dir: str, out_dir: str) -> None:
                 handle.write(body)
 
 
+def write_outputs(results: dict, out_dir: str, slots_dir: str = None,
+                  records_dir: str = None) -> None:
+    """RESULTS.json and RATES.md, and optionally the derived record trees.
+
+    `main()` always passes the study root — there is no CLI flag that moves
+    the rate table anywhere else (§2.4). The parameter exists so the
+    determinism test can score the same tree into two throwaway directories
+    and compare the bytes without writing into the committed study."""
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, "RESULTS.json"), "wb") as handle:
+        handle.write((json.dumps(results, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    with open(os.path.join(out_dir, "RATES.md"), "wb") as handle:
+        handle.write(render_markdown(results).encode("utf-8"))
+    if records_dir:
+        emit_records(results["runs"], slots_dir, records_dir)
+
+
 def _argument(argv: list, flag: str, default=None):
     if flag not in argv:
         return default
@@ -858,10 +1081,16 @@ def _argument(argv: list, flag: str, default=None):
 def main(argv: list) -> int:
     if len(argv) < 2 or argv[1] != "score":
         print("usage: score_rates.py score --slots DIR [--pins P] [--family F] "
-              "[--prompt P] [--golden G] [--out DIR] [--emit-records DIR]",
+              "[--prompt P] [--golden G] [--emit-records DIR]",
               file=sys.stderr)
         return 2
     try:
+        if "--out" in argv:
+            raise ScoreError(
+                "--out was removed: RESULTS.json and RATES.md go to the study root, "
+                "and nowhere else. A rate table written elsewhere would let the "
+                "operator see six rates while the driver still accepted new slots "
+                "(§2.4). --emit-records DIR still takes a directory.")
         slots_dir = _argument(argv, "--slots")
         if slots_dir is None:
             raise ScoreError("--slots is required")
@@ -869,15 +1098,7 @@ def main(argv: list) -> int:
                         _argument(argv, "--family", DEFAULT_FAMILY),
                         _argument(argv, "--prompt", DEFAULT_PROMPT),
                         _argument(argv, "--golden", DEFAULT_GOLDEN))
-        out_dir = _argument(argv, "--out", STUDY)
-        records_dir = _argument(argv, "--emit-records")
-        os.makedirs(out_dir, exist_ok=True)
-        with open(os.path.join(out_dir, "RESULTS.json"), "wb") as handle:
-            handle.write((json.dumps(results, indent=2, sort_keys=True) + "\n").encode("utf-8"))
-        with open(os.path.join(out_dir, "RATES.md"), "wb") as handle:
-            handle.write(render_markdown(results).encode("utf-8"))
-        if records_dir:
-            emit_records(results["runs"], slots_dir, records_dir)
+        write_outputs(results, STUDY, slots_dir, _argument(argv, "--emit-records"))
     except ScoreError as error:
         print("refused: %s" % error, file=sys.stderr)
         return 1

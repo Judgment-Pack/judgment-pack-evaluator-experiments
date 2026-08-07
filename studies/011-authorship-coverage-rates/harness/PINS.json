@@ -20,7 +20,7 @@
   "probePrompt": {
     "path": "transcription/PROBE-PROMPT.txt",
     "sha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7",
-    "note": "The golden recapture's prompt, byte-exact, no trailing newline: 'Reply with exactly one word: ready'. The pre-prompt context precedes the prompt and does not depend on it, so the capture uses this rather than the registered prompt — running the registered prompt before the batch would show the operator coverage profiles first, which is the cost Study 010's DEVIATIONS §1 records. It carries no leak token, and the model's answer to it is discarded."
+    "note": "The golden recapture's prompt, byte-exact, no trailing newline: 'Reply with exactly one word: ready'. Used by batch.py capture and by batch.py capture-isolation-negative. The pre-prompt context precedes the prompt and does not depend on it, so the capture uses this rather than the registered prompt — running the registered prompt before the batch would show the operator coverage profiles first, which is the cost Study 010's DEVIATIONS §1 records. It carries no leak token, and the model's answer to it is discarded."
   },
   "family": {
     "path": "FAMILY.json",
@@ -31,11 +31,16 @@
   "golden": {
     "path": "transcription/GOLDEN-CONTEXT.json",
     "sha256": null,
-    "note": "Recaptured for THIS study's environment before the batch (batch.py capture-golden), not inherited from Study 010: a golden capture pins one machine's codex boilerplate, and 010's would refuse every honest run here. The digest is null until the capture is taken and registered."
+    "note": "Recaptured for THIS study's environment before the batch (batch.py capture --scratch-parent DIR), not inherited from Study 010: a golden capture pins one machine's codex boilerplate, and 010's would refuse every honest run here. The digest is null until the capture is taken and registered, and while it is null batch.py refuses to create a slot and score_rates.py refuses to score — so the recapture cannot be skipped and a capture derived after the batch cannot be substituted."
+  },
+  "isolationNegative": {
+    "operatorAssent": "granted",
+    "date": "2026-08-06",
+    "note": "PREREGISTRATION.md §6 C7 runs ONE probe-prompt call against the operator's real HOME, and it is the only registered step that deliberately exposes that environment to the pinned CLI, so it runs only with the operator's recorded assent. Assent was granted before the freeze and is recorded here; batch.py capture-isolation-negative refuses unless this member says 'granted'. The control retains three files — the context digests, the verdict, and a CALL.json stripped of every member naming the operator's environment — and batch.py digests and deletes the transcript itself."
   },
   "batch": {
     "runs": 50,
-    "note": "N = 50 sequential independent calls, one cell. A short batch is reported as a shortfall with the completed runs; there is no data-dependent stopping and no top-up after rates are seen."
+    "note": "N = 50 sequential independent calls, one cell. A short batch is reported as a shortfall with the completed runs. What is mechanically guaranteed: N is read from here rather than chosen after the fact; the driver refuses a slot once RESULTS.json exists, and the scorer has no flag that writes a rate table anywhere else; a shortfall may not be declared over a batch that is not short, and the scorer refuses unless the declaration's count is the contiguous slots present. What is NOT guaranteed and is stated in §7 instead: that the operator did not read a completion.txt by eye mid-batch."
   },
   "replication": {
     "path": "../010-blinded-oracle/transcription/authoring/call-1/completion.txt",
@@ -51,7 +56,7 @@
   },
   "ports": {
     "path": "harness/PORTS.md",
-    "note": "Every ported file, its Study 010 source digest at commit 9063be5d0d0d42b52477f0968ace2e616ac97086, its digest here, and what changed. This registry points there rather than duplicating the table."
+    "note": "Every ported file, its Study 010 source digest at commit 9063be5d0d0d42b52477f0968ace2e616ac97086, its digest here, and what changed. This registry points there rather than duplicating the table. harness/integrity.py parses that table and verifies every row on BOTH sides — the destination file here and the source file in studies/010-blinded-oracle — plus that study's PROTOCOL-LOCK.json against pinnedFrom.fileSha256 above; batch.py runs it before it creates a slot and score_rates.py before it reads one."
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",

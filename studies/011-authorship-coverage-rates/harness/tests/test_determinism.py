@@ -46,21 +46,29 @@ class Determinism(unittest.TestCase):
         # a whole batch, not a truncated one.
         self.pins["batch"]["runs"] = 3
         self.pins_path = os.path.join(self.root, "PINS.json")
-        with open(self.pins_path, "w") as handle:
-            json.dump(self.pins, handle, indent=2)
         self.prompt = os.path.join(STUDY, "transcription", "PROMPT.txt")
         self.family = os.path.join(STUDY, "FAMILY.json")
         self.slots, self.golden = fixtures.build_tree(
             self.root, [fixtures.COMPLETION_A, fixtures.COMPLETION_B,
                         fixtures.COMPLETION_A], STUDY, self.pins)
+        # §3.2 step 3: the capture's digest is in the registry before anything
+        # is scored, and the scorer refuses while it is null.
+        self.pins["golden"]["sha256"] = score_rates.file_digest(self.golden)
+        with open(self.pins_path, "w") as handle:
+            json.dump(self.pins, handle, indent=2)
 
     def score_into(self, name: str) -> str:
+        """The scorer's own serialization, into a throwaway directory.
+
+        `score_rates.main()` has no `--out`: the rate table goes to the study
+        root and nowhere else, so that scoring always leaves the marker the
+        driver refuses new slots on (§2.4). A determinism test must not write
+        into the committed study, so it calls the same writer main() calls."""
         out = os.path.join(self.root, name)
-        code = score_rates.main(["score_rates.py", "score", "--slots", self.slots,
-                                 "--pins", self.pins_path, "--family", self.family,
-                                 "--prompt", self.prompt, "--golden", self.golden,
-                                 "--out", out, "--emit-records", os.path.join(out, "records")])
-        self.assertEqual(code, 0)
+        results = score_rates.score(self.slots, self.pins_path, self.family,
+                                    self.prompt, self.golden)
+        score_rates.write_outputs(results, out, self.slots,
+                                  os.path.join(out, "records"))
         return out
 
     def test_two_scorings_of_one_tree_are_byte_identical(self):

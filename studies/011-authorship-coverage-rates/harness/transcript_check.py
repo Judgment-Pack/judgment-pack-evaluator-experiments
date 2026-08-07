@@ -6,7 +6,7 @@ that transcript records.
 
 The one port change is the golden context's SOURCE. Study 010 bound its single
 call to one locked capture; Study 011 recaptures a golden context for its own
-environment before the batch (batch.py capture-golden) and passes the path in,
+environment before the batch (batch.py capture) and passes the path in,
 because a golden capture pins one machine's codex boilerplate and 010's would
 refuse every honest run here. `golden_path` is therefore a REQUIRED argument of
 check(): no caller can omit the allowlist by leaving a default in place. The

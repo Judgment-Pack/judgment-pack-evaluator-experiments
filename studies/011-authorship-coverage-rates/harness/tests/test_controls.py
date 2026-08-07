@@ -21,6 +21,7 @@ import json
 import os
 import unittest
 
+import integrity
 import score_rates
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -87,6 +88,65 @@ class PortedBytes(unittest.TestCase):
             self.assertEqual(handle.read(), b"Reply with exactly one word: ready")
 
 
+class PortedBytesAtRunTime(unittest.TestCase):
+    """C1 where §6 says it runs: as a precondition, not only in pytest.
+
+    The check is exercised against a throwaway copy of the study, so the
+    committed tree is never touched: one byte changed in the "byte-identical"
+    mirror must stop the batch and the scorer, because that byte moves every
+    rate and every §5 tier and nothing downstream would notice.
+    """
+
+    def copy_study(self) -> str:
+        import shutil
+        import tempfile
+        root = tempfile.mkdtemp(prefix="s011-integrity-")
+        self.addCleanup(shutil.rmtree, root, True)
+        study = os.path.join(root, "011-copy")
+        os.makedirs(os.path.join(study, "harness"))
+        os.makedirs(os.path.join(study, "transcription"))
+        for relative in sorted(integrity.REQUIRED_PORTS) + [
+                "harness/PORTS.md", "harness/PINS.json", "transcription/PROBE-PROMPT.txt"]:
+            shutil.copyfile(os.path.join(STUDY, relative), os.path.join(study, relative))
+        return study
+
+    def test_the_committed_tree_passes_the_check_it_registers(self):
+        summary = integrity.verify()
+        self.assertIn("harness/policy_mirror.py", summary["portedFiles"])
+        self.assertEqual(summary["study010LockSha256"], LOCK_DIGEST)
+
+    def test_one_changed_byte_in_a_ported_file_refuses(self):
+        study = self.copy_study()
+        target = os.path.join(study, "harness", "policy_mirror.py")
+        with open(target, "a") as handle:
+            handle.write("# one byte of drift\n")
+        with self.assertRaises(integrity.IntegrityError) as caught:
+            integrity.verify(study=study, ten=TEN)
+        self.assertIn("policy_mirror.py", str(caught.exception))
+
+    def test_a_row_deleted_from_the_table_refuses(self):
+        study = self.copy_study()
+        path = os.path.join(study, "harness", "PORTS.md")
+        with open(path) as handle:
+            kept = [line for line in handle
+                    if "| `harness/records_compile.py` |" not in line]
+        with open(path, "w") as handle:
+            handle.writelines(kept)
+        with self.assertRaises(integrity.IntegrityError) as caught:
+            integrity.verify(study=study, ten=TEN)
+        self.assertIn("records_compile.py", str(caught.exception))
+
+    def test_a_registry_whose_pins_do_not_match_the_files_refuses(self):
+        study = self.copy_study()
+        path = os.path.join(study, "harness", "PINS.json")
+        pins = json.load(open(path))
+        pins["family"]["sha256"] = "sha256:" + "0" * 64
+        with open(path, "w") as handle:
+            json.dump(pins, handle, indent=2)
+        with self.assertRaises(integrity.IntegrityError):
+            integrity.verify(study=study, ten=TEN)
+
+
 class FamilyCoherence(unittest.TestCase):
     """C2."""
 
@@ -106,6 +166,17 @@ class FamilyCoherence(unittest.TestCase):
             node = node[int(token)] if isinstance(node, list) else node[token]
         return node
 
+    def assign(self, document, pointer: str, value) -> None:
+        node = document
+        tokens = pointer.split("/")[1:]
+        for token in tokens[:-1]:
+            node = node[int(token)] if isinstance(node, list) else node[token]
+        last = tokens[-1]
+        if isinstance(node, list):
+            node[int(last)] = value
+        else:
+            node[last] = value
+
     def test_every_patch_preimage_is_present_byte_exact_in_pack_c(self):
         for mutation in self.family["mutations"]:
             for patch in mutation["patch"]:
@@ -114,6 +185,18 @@ class FamilyCoherence(unittest.TestCase):
                                  json.dumps(patch["old"], sort_keys=True),
                                  "mutation %d's preimage is not at %s"
                                  % (mutation["index"], patch["path"]))
+
+    def test_every_mutation_actually_changes_the_pack(self):
+        """010's gate ran two clauses, and this is the second: a patch whose
+        result equals pack C plants nothing, so the class it names would be a
+        class of a defect that does not exist. It needs only the pack bytes
+        and the patch — no evaluator — so there was no reason to drop it."""
+        for mutation in self.family["mutations"]:
+            patched = json.loads(json.dumps(self.pack))
+            for patch in mutation["patch"]:
+                self.assign(patched, patch["path"], patch["new"])
+            self.assertNotEqual(patched, self.pack,
+                                "mutation %d does not change the pack" % mutation["index"])
 
     def test_the_six_indexes_are_contiguous(self):
         self.assertEqual([mutation["index"] for mutation in self.family["mutations"]],

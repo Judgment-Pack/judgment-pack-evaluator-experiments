@@ -10,8 +10,10 @@ code a run is counted under is what a reader of the rates will see; a refusal
 with the wrong code is a miscount of a different kind.
 """
 from __future__ import annotations
+import ast
 import json
 import os
+import re
 import shutil
 import unittest
 
@@ -195,7 +197,9 @@ class Slots(unittest.TestCase):
 
     def test_a_slot_that_does_not_show_its_isolation_refuses(self):
         for name, member, value in (("run-312", "homeIsolated", False),
-                                    ("run-313", "isolatedHomeEntriesBefore", 4),
+                                    ("run-313", "isolatedHomeInventory",
+                                     [".codex", ".codex/auth.json", "AGENTS.md"]),
+                                    ("run-317", "isolatedHomeInventory", None),
                                     ("run-314", "home", "")):
             slot = self.slot(name)
             path = os.path.join(slot, "CALL.json")
@@ -256,6 +260,77 @@ class Slots(unittest.TestCase):
             score_rates.score(self.slots_dir, os.path.join(STUDY, "harness", "PINS.json"),
                               os.path.join(STUDY, "FAMILY.json"), self.prompt,
                               os.path.join(self.root, "absent.json"))
+
+    def test_scoring_refuses_while_the_golden_digest_is_unregistered(self):
+        # The study's own registry carries golden.sha256 = null until §3.2's
+        # capture is taken. Until then no rate may be computed from any file
+        # placed at the golden path, including one derived after the batch.
+        with self.assertRaises(score_rates.ScoreError):
+            score_rates.verify_preconditions(
+                os.path.join(STUDY, "harness", "PINS.json"), self.prompt, self.golden)
+
+    def test_a_post_freeze_edit_of_the_preregistration_refuses(self):
+        pins = json.loads(json.dumps(self.pins))
+        pins["golden"]["sha256"] = score_rates.file_digest(self.golden)
+        pins["preregistration"]["sha256"] = "sha256:" + "0" * 64
+        path = os.path.join(self.root, "PINS-frozen.json")
+        with open(path, "w") as handle:
+            json.dump(pins, handle, indent=2)
+        with self.assertRaises(score_rates.ScoreError) as caught:
+            score_rates.verify_preconditions(path, self.prompt, self.golden)
+        self.assertIn("after the freeze", str(caught.exception))
+
+
+class Partition(unittest.TestCase):
+    """§3.3's enumeration and the codes the scorer can actually return are one
+    list or they are two claims, and the second one is prose."""
+
+    def declared_codes(self) -> set:
+        """Every code `admit()` and `score_run()` can name, read off the
+        source rather than off a comment."""
+        tree = ast.parse(open(score_rates.__file__.replace(".pyc", ".py"), "rb")
+                         .read().decode("utf-8"))
+        codes = set()
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.FunctionDef)
+                    and node.name in ("admit", "score_run")):
+                continue
+            for inner in ast.walk(node):
+                value = getattr(inner, "value", None) if isinstance(
+                    inner, (ast.Return, ast.Assign)) else None
+                if isinstance(value, ast.Tuple) and value.elts:
+                    first = value.elts[0]
+                    if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                        codes.add(first.value)
+        return codes
+
+    def registered_codes(self) -> set:
+        """The codes PREREGISTRATION.md §3.3's table assigns to
+        pipeline-invalid, parsed from the frozen file itself."""
+        row = re.compile(r"^\|\s*`([a-z-]+)`\s*\|\s*pipeline-invalid\s*\|")
+        with open(os.path.join(STUDY, "PREREGISTRATION.md"), "rb") as handle:
+            body = handle.read().decode("utf-8")
+        return set(match.group(1) for match in
+                   (row.match(line.strip()) for line in body.splitlines()) if match)
+
+    def test_the_code_the_scorer_can_return_is_the_code_the_prereg_registers(self):
+        declared = self.declared_codes()
+        table = set(score_rates.CODE_PARTITION)
+        registered = self.registered_codes()
+        self.assertEqual(declared, table,
+                         "admit()/score_run() and CODE_PARTITION disagree: %r"
+                         % sorted(declared ^ table))
+        self.assertEqual(table, registered,
+                         "CODE_PARTITION and PREREGISTRATION.md §3.3 disagree: %r"
+                         % sorted(table ^ registered))
+        self.assertEqual(set(score_rates.CODE_PARTITION.values()), {"pipeline-invalid"})
+
+    def test_the_two_valid_outcomes_are_registered_as_carrying_no_code(self):
+        self.assertEqual(score_rates.VALID_OUTCOMES, ("valid", "authoring-empty"))
+        with open(os.path.join(STUDY, "PREREGISTRATION.md"), "rb") as handle:
+            body = handle.read().decode("utf-8")
+        for phrase in ("*(no code)*", "*(no code, no parseable array)*"):
+            self.assertIn(phrase, body)
 
 
 if __name__ == "__main__":

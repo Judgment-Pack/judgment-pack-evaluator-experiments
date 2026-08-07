@@ -9,8 +9,10 @@ records where each came from, at which digest, and exactly what was changed.
 Every source digest below is the file's sha256 in
 `studies/010-blinded-oracle/`, and each equals the digest
 `studies/010-blinded-oracle/PROTOCOL-LOCK.json` registered for it at lock time.
-Worktree and `HEAD` blob were compared and matched for every source file at the
-commit this port was taken from:
+Worktree and `HEAD` blob were compared by hand and matched for every source
+file at the commit this port was taken from — a recorded observation about that
+commit, not a check anything re-runs (PREREGISTRATION.md §7 says so, and no
+code in this study compares a file to a git blob):
 
 ```
 commit 9063be5d0d0d42b52477f0968ace2e616ac97086
@@ -35,8 +37,8 @@ diff studies/010-blinded-oracle/harness/records_compile.py \
 |---|---|---|---|---|
 | `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | no — byte-identical |
 | `harness/records_compile.py` | `e58edce30e549953b5263db2e9c230604f9192d060cbde9387585e0679671698` | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | output root parameterized |
-| `harness/transcript_check.py` | `42d977c40eed333531c096b9cdba75ac2ecceed5845dd3151f1dc010129bea9d` | `harness/transcript_check.py` | `632edad6b215782deac090b22db08d00ebc9b061f6f0992df2a04c45a2e41209` | golden source parameterized and required |
-| `transcription/authoring_call.sh` | `3b8909aae9b0ec2d52f8b8c780c3c6a544f4405dc7d31fd1becf485fcdae251d` | `transcription/authoring_call.sh` | `5b5cedfc6f6539e1c9509f1e72f85671c29c94b46d5935adc49221753cf6f36c` | slot, pins, prompt kind, interpreter and CLI parameterized |
+| `harness/transcript_check.py` | `42d977c40eed333531c096b9cdba75ac2ecceed5845dd3151f1dc010129bea9d` | `harness/transcript_check.py` | `b8a1e763a59f6bc4ee79c878a34d26222fdb507e0a63aa841e6f1e8cf0c23ff9` | golden source parameterized and required |
+| `transcription/authoring_call.sh` | `3b8909aae9b0ec2d52f8b8c780c3c6a544f4405dc7d31fd1becf485fcdae251d` | `transcription/authoring_call.sh` | `339e239f0ce823bba3587adbdc38a0357fd1467c199b51f4eddd5ae4bcee6259` | slot, pins, prompt kind, interpreter and CLI parameterized; PATH/TMPDIR constructed; recursive home inventory; credential deleted (seal path plus an EXIT trap, so an abnormal wrapper death cannot leave the copy); new-session diff; C7 mode |
 | `transcription/PROMPT.txt` | `a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2` | `transcription/PROMPT.txt` | `a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2` | no — byte-identical |
 | `FAMILY.json` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | `FAMILY.json` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | no — byte-identical |
 
@@ -44,6 +46,16 @@ The two byte-identical harness/data files are pinned again in
 `harness/PINS.json`, and `score_rates.py` refuses to score against a prompt or
 family whose bytes are not those digests. `policy_mirror.py`'s digest equality
 is its own check: nothing about the reference semantics was reinterpreted.
+
+**This table is machine-read.** `harness/integrity.py` parses the six rows
+above, recomputes both digests of every row — the destination here and the
+source in `studies/010-blinded-oracle/` — and requires the destination set to
+be exactly those six files, so a deleted row refuses rather than quietly
+dropping a check. It also verifies 010's `PROTOCOL-LOCK.json` against the
+digest `harness/PINS.json` records in `pinnedFrom.fileSha256`.
+`batch.py` runs it before it creates a slot, `score_rates.py` before it reads
+one, and CI runs the whole harness suite (PREREGISTRATION.md §6 C1). Editing a
+port therefore means editing this table in the same commit — that is the point.
 
 ## What changed, file by file
 
@@ -88,7 +100,8 @@ What changed:
   positional argument, and the `if golden_path is not None` guard around
   `check_golden()` is gone. A caller cannot omit the allowlist by leaving a
   default in place.
-- the module docstring records the port and the reason.
+- the module docstring records the port and the reason, and names the command
+  that takes the recapture (`batch.py capture`).
 
 **Why the golden source had to move.** A golden capture pins one machine's
 codex boilerplate — its permission text, its agent identity, its plugin list,
@@ -104,9 +117,11 @@ role, order, or normalized digest is an invalid run, code `transcript-refused`.
 
 ### `transcription/authoring_call.sh` — the slot, the pins, the interpreter, the CLI
 
-The invocation is Study 010's, element for element: `env -i` down to `PATH`,
-`HOME`, `TMPDIR` and `CODEX_HOME`; a fresh `HOME` with a fresh `CODEX_HOME`
-beneath it; `--ignore-user-config`; an explicit `-m <pinned model>`;
+The invocation is Study 010's, element for element — with the two values noted
+below (`PATH` and `TMPDIR`) constructed rather than inherited, which is a
+change to what the child gets, not to the shape of the call: `env -i` down to
+`PATH`, `HOME`, `TMPDIR` and `CODEX_HOME`; a fresh `HOME` with a fresh
+`CODEX_HOME` beneath it; `--ignore-user-config`; an explicit `-m <pinned model>`;
 `--sandbox workspace-write -c 'mcp_servers={}'`; an exclusively created scratch
 directory checked to be outside every git worktree and free of leak tokens; the
 codex binary required to match the pinned digest; the prompt passed as
@@ -139,17 +154,46 @@ What changed:
 - **interpreter**: helper steps run `$PYTHON_BIN` (default `python3`);
   `codex --version` is read from the resolved binary rather than from `PATH`.
 - **credential**: `$HOME/.codex/auth.json` is copied when it exists and
-  `credentialCopied` records whether it did. Study 010 assumed it.
+  `credentialCopied` records whether it did (Study 010 assumed it), and the
+  copy is **deleted** once the call has terminated and the slot is sealed,
+  with `credentialRemoved` recording it. Fifty runs must not leave fifty
+  copies of a live credential under one scratch parent; only a copy this
+  wrapper made is ever removed.
 - **slot identity and wall clock**: `CALL.json` gains `slot`, `slotIndex`,
   `startedAt` and `endedAt` (UTC). The scorer never reads them, so
   `RESULTS.json` stays byte-stable; they are retained per slot as descriptive
   evidence.
 - **isolation, recorded per run**: `CALL.json` gains
-  `isolatedHomeEntriesBefore` and `operatorHomeSkillsPresent`. The fresh HOME
+  `isolatedHomeInventory` — the RECURSIVE listing of the isolated home,
+  relative paths, sorted — and `operatorHomeSkillsPresent`. The fresh HOME
   is the fix Study 010 found empirically (skills under `$HOME/.agents` reach
   the model), and this study demonstrates the exclusion per run rather than
-  asserting it once — with the golden allowlist as the check that actually
-  bites.
+  asserting it once, with the golden allowlist as the check that bites
+  hardest. `score_rates.admit()` requires the inventory to be exactly
+  `['.codex', '.codex/auth.json']` with a credential and `['.codex']`
+  without one.
+- **environment, constructed not inherited**: `PATH` is six fixed system
+  directories plus one per-run directory holding a single symlink to the
+  pinned binary, and `TMPDIR` is a directory inside that run's own scratch.
+  Study 010's line was
+  `PATH="/usr/local/sbin:…:/bin:$HOME/.local/bin" … TMPDIR=/tmp`, where
+  `$HOME` is expanded by the OUTER shell — so its "scrubbed" child PATH
+  ended in the operator's real home, and every run shared one writable
+  `TMPDIR`. `CALL.json` gains `environmentValues` (the exact strings) and
+  `codexHome`, so a published slot shows what the child actually had.
+- **new-session identification**: the run's transcript is the `*.jsonl`
+  under the run's `CODEX_HOME` that was **not there before the call** (set
+  difference), rather than the only one in the tree. In the isolated case
+  the before-set is empty and this is 010's rule unchanged; it exists so the
+  §6 C7 negative control, which runs against the operator's real `.codex`,
+  can reach its registered golden comparison instead of refusing on a count
+  of pre-existing sessions.
+- **`ISOLATION=operator-home`**: the §6 C7 negative control, and nothing
+  else. It refuses any prompt but the probe, copies and removes no
+  credential, takes no inventory of the operator's home, and records
+  `isolation` and `homeIsolated: false` in `CALL.json`.
+  `harness/batch.py capture-isolation-negative` is its only caller and it
+  retains three files, deleting the transcript itself.
 
 ### `FAMILY.json`, `transcription/PROMPT.txt` — copied, not edited
 
@@ -182,9 +226,11 @@ everything that needed an evaluator:
 
 `transcription/PROBE-PROMPT.txt` (the recapture's prompt, pinned in the
 registry), `harness/PINS.json`, `harness/batch.py`, `harness/score_rates.py`,
-and `harness/tests/`. None of them existed in Study 010: it made one call and
-scored one draw, and this study makes fifty and counts rates. They are reviewed
-as their own artifacts, not as ports.
+`harness/integrity.py`, and `harness/tests/`. None of them existed in Study
+010: it made one call and scored one draw, and this study makes fifty and
+counts rates. They are reviewed as their own artifacts, not as ports.
+`integrity.py` in particular exists because a digest table that only pytest
+checks is not a precondition of anything.
 
 ## Registered differences in behaviour
 

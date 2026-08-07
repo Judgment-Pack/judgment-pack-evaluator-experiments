@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """The batch driver: N sequential runs of the one registered authoring call,
-plus the pre-batch golden recapture that admission depends on.
+the pre-batch golden recapture that admission depends on, and the §6 C7
+isolation negative control.
 
 Each run is an independent invocation of `transcription/authoring_call.sh` with
 its own scratch directory, its own fresh HOME, its own fresh CODEX_HOME, and
@@ -21,13 +22,28 @@ exists to collect. What that does NOT license is re-running a slot: the wrapper
 refuses an existing slot, and the driver refuses a batch whose target slots are
 already on disk or whose results have already been published.
 
+Preflight refuses, before a single call is spent, when: the ported bytes are
+not the registered ones (harness/integrity.py, §6 C1); the prompt is not the
+pinned prompt; a named CLI is not the pinned binary; `RESULTS.json` exists; a
+planned slot exists; or — for the registered prompt — the golden capture is
+absent or its digest is not the one `harness/PINS.json` registers (§3.2). The
+last one is why the golden recapture cannot be skipped: no slot is created
+until the capture is taken, registered and committed.
+
 Commands:
 
-  run             N sequential authoring calls into run-001…run-NNN
-  capture         the §3.2 golden recapture: two probe calls, whose pre-prompt
-                  contexts must agree, into GOLDEN-CONTEXT.json
-  capture-golden  derive a golden capture from already-retained capture slots
-  shortfall       declare a short batch before anything is scored (§2.4)
+  run                        N sequential authoring calls into run-001…run-NNN
+  capture                    the §3.2 golden recapture: two probe calls into a
+                             numbered attempt directory, whose pre-prompt
+                             contexts must agree, then the golden derivation
+  capture-golden             derive a golden capture from retained capture
+                             slots (the second half of `capture`, for the case
+                             where the calls were made and the derivation was
+                             not)
+  capture-isolation-negative §6 C7: ONE probe call with the operator's real
+                             HOME, expected to FAIL the golden match, retaining
+                             three files and no transcript
+  shortfall                  declare a short batch before anything is scored
 
 What this file deliberately does NOT do: score anything, judge a completion,
 decide admissibility (score_rates.py recomputes all of that from the retained
@@ -39,21 +55,24 @@ Wrapper exit status → refusal code:
   0   the run completed and the slot is admissible-shaped (scoring decides)
   1   preflight-refused    nothing was called
   10  call-nonzero-exit    the process exited non-zero; slot retained
-  11  session-count        the isolated home held other than one session
+  11  session-count        the call produced other than one new session
   *   wrapper-error        any other status, retained with the stderr tail
 
 Usage:
   batch.py run --scratch-parent DIR [--slots DIR] [--runs N] [--start K]
-               [--pins PATH] [--cli-override PATH] [--dry-run]
+               [--pins PATH] [--golden PATH] [--cli-override PATH] [--dry-run]
   batch.py capture --scratch-parent DIR [--captures DIR] [--out PATH]
                [--runs N] [--pins PATH] [--cli-override PATH]
   batch.py capture-golden --slots DIR --out PATH [--min-slots N]
+  batch.py capture-isolation-negative --scratch-parent DIR [--out DIR]
+               [--pins PATH] [--golden PATH] [--cli-override PATH]
   batch.py shortfall --slots DIR --reason TEXT [--pins PATH]
 """
 from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 
@@ -61,6 +80,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
+import integrity  # noqa: E402
 import score_rates  # noqa: E402  (one slot-naming rule and one JSON loader, not two)
 import transcript_check  # noqa: E402
 
@@ -68,12 +88,18 @@ SCRIPT = os.path.join(STUDY, "transcription", "authoring_call.sh")
 DEFAULT_PINS = os.path.join(HERE, "PINS.json")
 DEFAULT_SLOTS = os.path.join(STUDY, "transcription", "authoring")
 DEFAULT_CAPTURES = os.path.join(STUDY, "controls", "recapture")
+DEFAULT_NEGATIVE = os.path.join(STUDY, "controls", "isolation-negative")
 DEFAULT_GOLDEN = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
 RESULTS = os.path.join(STUDY, "RESULTS.json")
 
 WRAPPER_CODES = {0: None, 1: "preflight-refused", 10: "call-nonzero-exit",
                  11: "session-count"}
 STDERR_TAIL = 4000
+# §6 C7: what a retained negative-control CALL.json may not carry. The control
+# runs against the operator's real environment, so every member that names or
+# enumerates it is dropped before the file is written into the study.
+C7_REDACTED = ("environment", "environmentValues", "home", "codexHome", "cwd",
+               "isolatedHomeInventory", "operatorHomeSkillsPresent")
 
 
 class BatchError(Exception):
@@ -104,12 +130,25 @@ def plan(runs: int, start: int, slots_dir: str, stem: str = "run") -> list:
             for index in range(start, start + runs)]
 
 
+def verify_ported_bytes() -> dict:
+    """§6 C1 as a precondition of the batch, not only of CI. A drifted mirror
+    or compiler changes every count; the digest table is checked before a call
+    is spent, because afterwards it is too late for the batch."""
+    try:
+        return integrity.verify()
+    except integrity.IntegrityError as error:
+        raise BatchError("the ported bytes are not the registered ones: %s" % error)
+
+
 def preflight(runs: int, start: int, slots: list, scratch_parent: str,
-              pins_path: str, cli_override: str, prompt_kind: str) -> dict:
+              pins_path: str, cli_override: str, prompt_kind: str,
+              golden_path: str = None) -> dict:
     """The pins, or BatchError. Everything checkable before the first call is
-    checked before the first call: a batch that would collide with retained
-    slots, publish after results exist, or run a prompt that is not the pinned
-    one must not spend a single invocation."""
+    checked before the first call: a batch that would run drifted bytes,
+    collide with retained slots, publish after results exist, run a prompt that
+    is not the pinned one, or run without the registered golden capture must
+    not spend a single invocation."""
+    verify_ported_bytes()
     if runs < 1:
         raise BatchError("a batch needs at least one run")
     if not os.path.isfile(SCRIPT):
@@ -130,11 +169,13 @@ def preflight(runs: int, start: int, slots: list, scratch_parent: str,
         if override_digest != pins["codex"]["binarySha256"]:
             raise BatchError("the CLI at %s is %s, not the pinned %s"
                              % (cli_override, override_digest, pins["codex"]["binarySha256"]))
-    if prompt_kind == "registered" and os.path.exists(RESULTS):
-        # §2.4: no slot after a rate has been computed. Adding runs once the
-        # numbers are visible is the one thing a rate study must never do.
-        raise BatchError("%s exists: no slot may be created after a rate has been "
-                         "computed" % RESULTS)
+    if prompt_kind == "registered":
+        if os.path.exists(RESULTS):
+            # §2.4: no slot after a rate has been computed. Adding runs once the
+            # numbers are visible is the one thing a rate study must never do.
+            raise BatchError("%s exists: no slot may be created after a rate has been "
+                             "computed" % RESULTS)
+        require_golden(pins, golden_path)
     existing = [os.path.basename(slot) for slot in slots if os.path.exists(slot)]
     if existing:
         raise BatchError("these slots already exist and are never rewritten: %s"
@@ -142,8 +183,36 @@ def preflight(runs: int, start: int, slots: list, scratch_parent: str,
     return pins
 
 
+def golden_path_for(pins: dict, override: str = None) -> str:
+    return override or os.path.join(STUDY, pins.get("golden", {}).get(
+        "path", "transcription/GOLDEN-CONTEXT.json"))
+
+
+def require_golden(pins: dict, golden_path: str = None) -> str:
+    """§3.2 step 3 as a rule the driver checks: the capture is taken, its
+    digest replaces the null in the registry, and BOTH are committed before the
+    first batch slot runs. Not a comment on the operator's discipline — no slot
+    is created until the registered golden is on disk at its registered digest,
+    so a skipped recapture costs nothing instead of costing fifty calls."""
+    path = golden_path_for(pins, golden_path)
+    pinned = pins.get("golden", {}).get("sha256")
+    if not os.path.isfile(path):
+        raise BatchError(
+            "no golden context at %s: run the §3.2 recapture (batch.py capture "
+            "--scratch-parent DIR) and commit it before the first slot" % path)
+    if not pinned:
+        raise BatchError(
+            "harness/PINS.json registers no golden.sha256: the capture's digest must "
+            "replace the null and be committed before the first slot (§3.2 step 3)")
+    actual = _digest(path)
+    if actual != pinned:
+        raise BatchError("the golden capture at %s is %s, not the registered %s"
+                         % (path, actual, pinned))
+    return path
+
+
 def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
-           prompt_kind: str) -> tuple:
+           prompt_kind: str, isolation: str = "isolated") -> tuple:
     """(wrapper exit status, refusal code or None, stderr) for one call."""
     argv = ["bash", SCRIPT, scratch_parent, slot, pins_path]
     if cli_override is not None:
@@ -151,6 +220,7 @@ def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
     environment = dict(os.environ)
     environment["PYTHON_BIN"] = sys.executable
     environment["PROMPT_KIND"] = prompt_kind
+    environment["ISOLATION"] = isolation
     completed = subprocess.run(argv, env=environment, capture_output=True, text=True)
     return (completed.returncode, WRAPPER_CODES.get(completed.returncode, "wrapper-error"),
             completed.stderr)
@@ -171,59 +241,106 @@ def refuse_slot(slot: str, code: str, status: int, stderr: str) -> None:
     })
 
 
+def load_ledger(slots_dir: str) -> list:
+    """The per-slot records BATCH.json already holds. A resumed batch MERGES
+    into these rather than replacing them: §2.5 registers the wrapper's exit
+    status as retained per slot, and a slot that exited 0 carries it nowhere
+    else, so overwriting the ledger would delete the only record of runs the
+    resume did not make."""
+    path = os.path.join(slots_dir, "BATCH.json")
+    if not os.path.isfile(path):
+        return []
+    ledger = _load_json(path)
+    records = ledger.get("records")
+    if records is None:
+        raise BatchError(
+            "%s is a pre-merge ledger (batchVersion %r) and cannot be resumed into: "
+            "move it aside and record why in DEVIATIONS.md"
+            % (path, ledger.get("batchVersion")))
+    if not isinstance(records, list):
+        raise BatchError("%s's records member is not a list" % path)
+    return records
+
+
+def write_ledger(slots_dir: str, records: list, pins: dict, cli_override: str,
+                 golden_path: str) -> None:
+    _write_json(os.path.join(slots_dir, "BATCH.json"), {
+        "batchVersion": "2",
+        "registeredRuns": pins.get("batch", {}).get("runs"),
+        "model": pins["codex"]["model"],
+        "binarySha256": pins["codex"]["binarySha256"],
+        "promptSha256": pins["prompt"]["sha256"],
+        "goldenSha256": pins.get("golden", {}).get("sha256"),
+        "cliOverride": cli_override,
+        "records": sorted(records, key=lambda row: row["slot"]),
+        "note": "One append-only record per slot, written after every run and MERGED "
+                "by a resumed invocation (batch.py run --start K), which refuses if "
+                "it would overlap a slot already recorded here. No clock is recorded; "
+                "each slot's CALL.json carries its own start and end.",
+    })
+
+
 def run_batch(runs: int, start: int, slots_dir: str, scratch_parent: str,
-              pins_path: str, cli_override: str, dry_run: bool) -> int:
+              pins_path: str, cli_override: str, dry_run: bool,
+              golden_override: str = None) -> int:
     slots = plan(runs, start, slots_dir)
     pins = preflight(runs, start, slots, scratch_parent, pins_path, cli_override,
-                     "registered")
+                     "registered", golden_override)
+    golden = golden_path_for(pins, golden_override)
     if dry_run:
         print("dry run: %d slots, none created" % len(slots))
         print("  model      %s" % pins["codex"]["model"])
         print("  binary     %s" % pins["codex"]["binarySha256"])
         print("  prompt     %s" % pins["prompt"]["sha256"])
+        print("  golden     %s" % pins.get("golden", {}).get("sha256"))
         print("  wrapper    %s" % SCRIPT)
         print("  cli        %s" % (cli_override or "codex on PATH"))
         for slot in slots:
             print("  would create %s" % slot)
         return 0
     os.makedirs(slots_dir, exist_ok=True)
-    rows = []
+    rows = load_ledger(slots_dir)
+    recorded = set(row["slot"] for row in rows)
+    overlap = sorted(recorded & set(os.path.basename(slot) for slot in slots))
+    if overlap:
+        raise BatchError("BATCH.json already records %s: a resumed batch merges into "
+                         "the ledger, it never re-runs a recorded slot"
+                         % ", ".join(overlap))
     for slot in slots:
         status, code, stderr = invoke(slot, scratch_parent, pins_path, cli_override,
                                       "registered")
-        rows.append({"slot": os.path.basename(slot), "wrapperExit": status, "code": code})
+        rows.append({"slot": os.path.basename(slot), "wrapperExit": status, "code": code,
+                     "startIndex": start})
         if code is not None:
             refuse_slot(slot, code, status, stderr)
         print("%s: exit %d%s" % (os.path.basename(slot), status,
                                  "" if code is None else " (%s)" % code))
-        _write_json(os.path.join(slots_dir, "BATCH.json"), {
-            "batchVersion": "1",
-            "registeredRuns": pins.get("batch", {}).get("runs"),
-            "requestedRuns": runs,
-            "startIndex": start,
-            "model": pins["codex"]["model"],
-            "binarySha256": pins["codex"]["binarySha256"],
-            "promptSha256": pins["prompt"]["sha256"],
-            "cliOverride": cli_override,
-            "runs": rows,
-            "note": "Written after every run, so an interrupted batch still says what "
-                    "it attempted. No clock is recorded here; each slot's CALL.json "
-                    "carries its own start and end.",
-        })
-    refused = [row for row in rows if row["code"] is not None]
-    print("batch: %d runs, %d refused" % (len(rows), len(refused)))
+        write_ledger(slots_dir, rows, pins, cli_override, golden)
+    made = [row for row in rows if row["startIndex"] == start]
+    refused = [row for row in made if row["code"] is not None]
+    print("batch: %d runs this invocation (%d refused), %d slots in the ledger"
+          % (len(made), len(refused), len(rows)))
     return 0
 
 
 def capture_slots(directory: str) -> list:
     """Every retained slot beneath a directory that has a session and a call
     record, in name order. Used by the recapture: capture slots are not batch
-    slots, are not named run-NNN, and never enter any denominator."""
+    slots, are not named run-NNN, and never enter any denominator — a
+    directory named run-<digits> refuses outright, so a golden capture can
+    never be derived from the batch's own runs."""
     if not os.path.isdir(directory):
         raise BatchError("%s is not a directory" % directory)
     found = []
     for name in sorted(os.listdir(directory)):
         path = os.path.join(directory, name)
+        parts = name.split("-", 1)
+        if os.path.isdir(path) and len(parts) == 2 and parts[0] == "run" \
+                and parts[1].isdigit():
+            raise BatchError(
+                "%s holds the batch slot %s: a golden capture is derived from probe "
+                "captures taken before the batch, never from the batch's own runs"
+                % (directory, name))
         if os.path.isdir(path) and not os.path.islink(path) \
                 and os.path.isfile(os.path.join(path, "session.jsonl")) \
                 and os.path.isfile(os.path.join(path, "CALL.json")):
@@ -242,6 +359,9 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
     that varies run to run cannot be an allowlist — and none of them may carry
     a leak token before the prompt, or the capture would bless a planted turn.
     """
+    if not out_path:
+        raise BatchError("--out is required: a golden capture is written where the "
+                         "operator names it, never into the study tree by default")
     if os.path.exists(out_path):
         raise BatchError("%s already exists; a registered capture is never rewritten"
                          % out_path)
@@ -269,41 +389,168 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
         "contextVersion": first["contextVersion"],
         "entries": first["entries"],
         "capturedFrom": usable,
+        "capturedIn": os.path.basename(os.path.abspath(slots_dir)),
         "note": "The pre-prompt context of this study's registered invocation, captured "
                 "from independent probe-prompt runs that reproduced identically after "
                 "normalization. Any deviation in a batch run's context refuses that run "
-                "(score_rates.py, code transcript-refused).",
+                "(score_rates.py, code transcript-refused). Its digest goes into "
+                "harness/PINS.json golden.sha256 and both are committed before slot 1.",
     })
     print("captured: %d entries from %d agreeing captures" % (len(first["entries"]), len(usable)))
+    print("next: put %s into harness/PINS.json golden.sha256 and commit both before "
+          "the first slot" % _digest(out_path))
     return 0
+
+
+def next_attempt(captures_dir: str) -> str:
+    """`controls/recapture/attempt-N/`, the next unused N.
+
+    §3.2 step 3 registers that a disagreeing recapture may be repeated after
+    the environmental cause is fixed. A repeat needs somewhere to go: slots are
+    never rewritten, so attempt 2 is its own directory and every attempt stays
+    published (§8)."""
+    used = []
+    if os.path.isdir(captures_dir):
+        for name in os.listdir(captures_dir):
+            parts = name.split("-", 1)
+            if len(parts) == 2 and parts[0] == "attempt" and parts[1].isdigit():
+                used.append(int(parts[1]))
+    return os.path.join(captures_dir, "attempt-%d" % ((max(used) + 1) if used else 1))
 
 
 def run_capture(runs: int, captures_dir: str, out_path: str, scratch_parent: str,
                 pins_path: str, cli_override: str) -> int:
-    """The §3.2 recapture, end to end: N probe calls, then the derivation.
+    """The §3.2 recapture, end to end: N probe calls into a numbered attempt
+    directory, then the derivation.
 
     The probe prompt — not the registered one — is deliberate. The pre-prompt
     context precedes the prompt and does not depend on it, and running the
     registered prompt here would show the operator coverage profiles before the
     batch, which is exactly the cost Study 010's DEVIATIONS §1 records.
     """
-    slots = plan(runs, 1, captures_dir, stem="capture")
+    if os.path.exists(out_path):
+        raise BatchError("%s already exists; a registered capture is never rewritten"
+                         % out_path)
+    attempt = next_attempt(captures_dir)
+    slots = plan(runs, 1, attempt, stem="capture")
     preflight(runs, 1, slots, scratch_parent, pins_path, cli_override, "probe")
-    os.makedirs(captures_dir, exist_ok=True)
+    os.makedirs(attempt, exist_ok=True)
+    print("capture attempt: %s" % attempt)
     for slot in slots:
         status, code, stderr = invoke(slot, scratch_parent, pins_path, cli_override, "probe")
         if code is not None:
             refuse_slot(slot, code, status, stderr)
             raise BatchError("capture %s failed (%s); the batch does not start until two "
-                             "captures agree" % (os.path.basename(slot), code))
+                             "captures agree. Fix the cause and run capture again: the "
+                             "next attempt gets its own directory."
+                             % (os.path.basename(slot), code))
         print("%s: exit %d" % (os.path.basename(slot), status))
-    return capture_golden(captures_dir, out_path, runs)
+    return capture_golden(attempt, out_path, runs)
+
+
+def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str,
+                               cli_override: str, golden_override: str) -> int:
+    """§6 C7: the isolation gate's power, demonstrated rather than assumed.
+
+    ONE probe call with the operator's REAL home — everything else exactly as
+    registered — whose registered expectation is that it FAILS the golden
+    match. If it matches instead, the gate has no demonstrated power against
+    home leakage in this environment; that is recorded and the batch proceeds
+    unchanged. Registering both outcomes before the batch is what keeps this a
+    control rather than a decision.
+
+    Retention is done by code, not by the operator's care: the call is made
+    into a scratch slot, and the only bytes that reach the study are the
+    context digests, the comparison verdict, and a CALL.json stripped of every
+    member that names or enumerates the operator's environment. session.jsonl,
+    stdout.raw and stderr.raw are digested and deleted here — publishing the
+    transcript of a non-isolated run would publish an inventory of the
+    operator's own machine, which is the thing the control exists to detect.
+    """
+    verify_ported_bytes()
+    pins = _load_json(pins_path)
+    assent = pins.get("isolationNegative", {}).get("operatorAssent")
+    if assent != "granted":
+        raise BatchError(
+            "harness/PINS.json records operatorAssent %r: C7 is the one registered "
+            "step that exposes the operator's real environment to the pinned CLI and "
+            "it runs only with recorded assent (§6 C7)" % (assent,))
+    if not os.path.isdir(scratch_parent):
+        raise BatchError("scratch parent %s is not a directory" % scratch_parent)
+    golden = require_golden(pins, golden_override)
+    if os.path.exists(out_dir):
+        raise BatchError("%s already exists; a registered control is never rewritten"
+                         % out_dir)
+    raw = os.path.join(scratch_parent, "s011-c7-raw-%d" % os.getpid())
+    if os.path.exists(raw):
+        raise BatchError("%s already exists" % raw)
+    status, code, stderr = invoke(raw, scratch_parent, pins_path, cli_override,
+                                  "probe", isolation="operator-home")
+    try:
+        call_path = os.path.join(raw, "CALL.json")
+        if not os.path.isfile(call_path):
+            raise BatchError("the control left no CALL.json (wrapper exit %d): %s"
+                             % (status, stderr[-STDERR_TAIL:]))
+        call = _load_json(call_path)
+        session = os.path.join(raw, "session.jsonl")
+        context_path = os.path.join(raw, "context.json")
+        if os.path.isfile(session) and os.path.isfile(context_path):
+            try:
+                transcript_check.check_golden(session, call, golden)
+                outcome, message = "matched", (
+                    "the non-isolated call reproduced the golden pre-prompt context: "
+                    "the golden gate has no demonstrated power against home leakage "
+                    "in this environment (§6 C7, recorded as a limitation)")
+            except transcript_check.TranscriptError as error:
+                outcome, message = "refused", str(error)
+        else:
+            outcome, message = "no-context", (
+                "the control produced no comparable context (wrapper exit %d, code %r): "
+                "neither registered outcome occurred and the gate's power is "
+                "undemonstrated" % (status, code))
+        digests = {}
+        for name in ("session.jsonl", "stdout.raw", "stderr.raw", "completion.txt"):
+            path = os.path.join(raw, name)
+            if os.path.isfile(path):
+                digests[name] = _digest(path)
+        os.makedirs(out_dir)
+        if os.path.isfile(context_path):
+            shutil.copyfile(context_path, os.path.join(out_dir, "context.json"))
+        stripped = {key: value for key, value in call.items() if key not in C7_REDACTED}
+        stripped["redacted"] = sorted(key for key in C7_REDACTED if key in call)
+        stripped["note"] = ("§6 C7's CALL.json, stripped by batch.py of every member "
+                            "that names or enumerates the operator's real environment. "
+                            "The transcript was digested and deleted, not retained.")
+        _write_json(os.path.join(out_dir, "CALL.json"), stripped)
+        _write_json(os.path.join(out_dir, "VERDICT.json"), {
+            "control": "C7 — the isolation gate's power",
+            "registeredExpectation": "the golden match FAILS",
+            "outcome": outcome,
+            "message": message,
+            "wrapperExit": status,
+            "wrapperCode": code,
+            "goldenSha256": _digest(golden),
+            "deletedByCode": digests,
+            "operatorAssent": assent,
+            "retention": "Only context.json, this file, and a stripped CALL.json are "
+                         "retained. session.jsonl, stdout.raw, stderr.raw and any "
+                         "completion were digested above and deleted by batch.py: "
+                         "publishing the transcript of a deliberately non-isolated run "
+                         "would publish an inventory of the operator's environment.",
+        })
+    finally:
+        shutil.rmtree(raw, ignore_errors=True)
+    print("C7: %s — %s" % (outcome, message))
+    print("retained under %s: %s" % (out_dir, ", ".join(sorted(os.listdir(out_dir)))))
+    return 0
 
 
 def declare_shortfall(slots_dir: str, reason: str, pins_path: str) -> int:
     """§2.4: a batch that cannot finish declares the shortfall BEFORE anything
     is scored. The scorer refuses an incomplete batch without this file, so the
-    declaration cannot be written after the rates are seen."""
+    declaration cannot be written after the rates are seen — and it refuses a
+    declaration over a batch that is not short, so this file cannot be used to
+    unblock scoring of a full or over-full one."""
     if os.path.exists(RESULTS):
         raise BatchError("%s exists: a shortfall may not be declared after a rate has "
                          "been computed" % RESULTS)
@@ -313,13 +560,19 @@ def declare_shortfall(slots_dir: str, reason: str, pins_path: str) -> int:
     if not reason:
         raise BatchError("--reason is required: a shortfall without a reason is a gap")
     pins = _load_json(pins_path)
+    registered = pins.get("batch", {}).get("runs")
     slots, _ = score_rates.collect_slots(slots_dir)
+    if registered is not None and len(slots) >= registered:
+        raise BatchError(
+            "%d slots are present and %d were registered: a shortfall declares a SHORT "
+            "batch, and this one is not short" % (len(slots), registered))
     _write_json(out_path, {
-        "registeredRuns": pins.get("batch", {}).get("runs"),
+        "registeredRuns": registered,
         "completedSlots": len(slots),
         "reason": reason,
         "note": "Declared before scoring. The headline reports 'S of N slots completed' "
-                "and rates are computed over the valid runs among the S.",
+                "and rates are computed over the valid runs among the S. The scorer "
+                "refuses if this count is not the contiguous slots actually present.",
     })
     print("shortfall declared: %d slots completed" % len(slots))
     return 0
@@ -336,15 +589,20 @@ def _argument(argv: list, flag: str, default=None):
 
 USAGE = (
     "usage: batch.py run --scratch-parent DIR [--slots DIR] [--runs N] [--start K]\n"
-    "                    [--pins PATH] [--cli-override PATH] [--dry-run]\n"
+    "                    [--pins PATH] [--golden PATH] [--cli-override PATH] [--dry-run]\n"
     "       batch.py capture --scratch-parent DIR [--captures DIR] [--out PATH]\n"
     "                    [--runs N] [--pins PATH] [--cli-override PATH]\n"
     "       batch.py capture-golden --slots DIR --out PATH [--min-slots N]\n"
+    "       batch.py capture-isolation-negative --scratch-parent DIR [--out DIR]\n"
+    "                    [--pins PATH] [--golden PATH] [--cli-override PATH]\n"
     "       batch.py shortfall --slots DIR --reason TEXT [--pins PATH]")
+
+COMMANDS = ("run", "capture", "capture-golden", "capture-isolation-negative",
+            "shortfall")
 
 
 def main(argv: list) -> int:
-    if len(argv) < 2 or argv[1] not in ("run", "capture", "capture-golden", "shortfall"):
+    if len(argv) < 2 or argv[1] not in COMMANDS:
         print(USAGE, file=sys.stderr)
         return 2
     command = argv[1]
@@ -363,7 +621,8 @@ def main(argv: list) -> int:
                              _argument(argv, "--slots", DEFAULT_SLOTS),
                              scratch_parent, pins_path,
                              _argument(argv, "--cli-override"),
-                             "--dry-run" in argv)
+                             "--dry-run" in argv,
+                             _argument(argv, "--golden"))
         if command == "capture":
             scratch_parent = _argument(argv, "--scratch-parent")
             if scratch_parent is None:
@@ -373,11 +632,19 @@ def main(argv: list) -> int:
                                _argument(argv, "--out", DEFAULT_GOLDEN),
                                scratch_parent, pins_path,
                                _argument(argv, "--cli-override"))
+        if command == "capture-isolation-negative":
+            scratch_parent = _argument(argv, "--scratch-parent")
+            if scratch_parent is None:
+                raise BatchError("--scratch-parent is required")
+            return capture_isolation_negative(
+                _argument(argv, "--out", DEFAULT_NEGATIVE), scratch_parent,
+                pins_path, _argument(argv, "--cli-override"),
+                _argument(argv, "--golden"))
         slots_dir = _argument(argv, "--slots")
         if slots_dir is None:
             raise BatchError("--slots is required")
         if command == "capture-golden":
-            return capture_golden(slots_dir, _argument(argv, "--out", DEFAULT_GOLDEN),
+            return capture_golden(slots_dir, _argument(argv, "--out"),
                                   int(_argument(argv, "--min-slots", 2)))
         return declare_shortfall(slots_dir, _argument(argv, "--reason"), pins_path)
     except (BatchError, score_rates.ScoreError, transcript_check.TranscriptError) as error:

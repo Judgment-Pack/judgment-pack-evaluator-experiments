@@ -10,6 +10,7 @@ the tail identity each bound claims to satisfy. A test that only compared the
 code to itself would prove nothing.
 """
 from __future__ import annotations
+import inspect
 import unittest
 from fractions import Fraction
 
@@ -103,28 +104,62 @@ class ClopperPearson(unittest.TestCase):
 
 
 class ReviewTiers(unittest.TestCase):
-    """§5's mapping, applied from thresholds registered before the batch."""
+    """§5's mapping, applied from thresholds registered before the batch.
 
-    def tier(self, k, n, share=0.0, pipeline=0.0):
-        return score_rates.review_tier(score_rates.rate_block(k, n), share, pipeline)
+    One criterion in one unit: the exact lower bound. The earlier draft
+    conjoined `c_i >= 0.90` with `lower >= 0.80`, which made the operative
+    cut in observed-coverage units a function of V — 0.92 at V=50, 0.933 at
+    V=45, 0.95 at V=40 — while calling itself frozen. These cases pin the
+    boundary in the unit the rule is stated in.
+    """
+
+    def tier(self, k, n, share=0.0):
+        return score_rates.review_tier(score_rates.rate_block(k, n), share)
 
     def test_the_three_tiers_come_out_where_the_thresholds_put_them(self):
         self.assertEqual(self.tier(50, 50)["tier"], "LIGHT")
         self.assertEqual(self.tier(30, 50)["tier"], "STANDARD")
         self.assertEqual(self.tier(10, 50)["tier"], "FULL")
-        # A high rate with an interval that does not clear 0.80 is not LIGHT:
-        # the bound, not the point estimate, decides.
+        # The bound decides, and it carries the sample size: 9 of 10 is a
+        # higher point estimate than 46 of 50 and a much weaker one.
         self.assertEqual(self.tier(9, 10)["base"], "STANDARD")
 
-    def test_each_escalation_moves_exactly_one_step_and_full_is_terminal(self):
+    def test_the_registered_boundaries_at_fifty_valid_runs(self):
+        # §5's table: LIGHT begins at k = 46 of 50 and STANDARD at k = 28.
+        self.assertEqual(self.tier(46, 50)["base"], "LIGHT")
+        self.assertEqual(self.tier(45, 50)["base"], "STANDARD")
+        self.assertEqual(self.tier(28, 50)["base"], "STANDARD")
+        self.assertEqual(self.tier(27, 50)["base"], "FULL")
+
+    def test_the_operating_characteristics_are_the_ones_section_5_registers(self):
+        # §5 commits these numbers before the data, computed with this study's
+        # own machinery: at N = 50 a class whose true coverage is exactly the
+        # old 0.90 threshold is called LIGHT less than half the time.
+        characteristics = score_rates.light_operating_characteristics(
+            50, [Fraction(17, 20), Fraction(9, 10), Fraction(19, 20), Fraction(99, 100)])
+        self.assertEqual(characteristics["lightThresholdK"], 46)
+        self.assertEqual(characteristics["lightThresholdRate"], 0.92)
+        registered = {"17/20": 0.1121, "9/10": 0.4312, "19/20": 0.8964, "99/100": 0.9999}
+        for probability, expected in registered.items():
+            self.assertEqual(round(characteristics["probabilities"][probability], 4),
+                             expected, probability)
+
+    def test_the_mislabel_escalation_moves_exactly_one_step_and_full_is_terminal(self):
         self.assertEqual(self.tier(50, 50, share=0.2)["tier"], "STANDARD")
-        self.assertEqual(self.tier(50, 50, pipeline=0.1)["tier"], "STANDARD")
-        self.assertEqual(self.tier(50, 50, share=0.2, pipeline=0.1)["tier"], "FULL")
-        self.assertEqual(self.tier(10, 50, share=0.5, pipeline=0.5)["tier"], "FULL")
+        self.assertEqual(self.tier(50, 50, share=0.19)["tier"], "LIGHT")
+        self.assertEqual(self.tier(10, 50, share=0.5)["tier"], "FULL")
+
+    def test_the_pipeline_rate_does_not_enter_a_tier_at_all(self):
+        # Registered change from the draft: a high pipeline-invalid rate is one
+        # stated caution over the batch, not a per-class escalation. It already
+        # shrank V and widened every interval; charging it again would count
+        # one event twice.
+        self.assertEqual(len(inspect.signature(score_rates.review_tier).parameters), 2)
+        self.assertEqual(self.tier(50, 50)["tier"], "LIGHT")
 
     def test_no_valid_run_means_no_tier_rather_than_a_default(self):
         self.assertIsNone(score_rates.review_tier(
-            score_rates.rate_block(0, 0), None, None)["tier"])
+            score_rates.rate_block(0, 0), None)["tier"])
 
 
 if __name__ == "__main__":

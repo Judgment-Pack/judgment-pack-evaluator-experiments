@@ -4,8 +4,16 @@ study's own PINS.json read once.
 
 The tests run offline and call no CLI: the only "codex" any of them touches is
 the stand-in in fixtures.py, invoked through the real wrapper with its own
-digest pinned in a test registry. Nothing here reads the operator's HOME, the
-network, or a retained study artifact.
+digest pinned in a test registry.
+
+About the operator's HOME, precisely: the wrapper copies `$HOME/.codex/auth.json`
+into each run's isolated home, so a wrapper-driven test would copy the real
+credential if it ran with the real HOME. It does not — `test_batch.py`
+redirects `HOME` to a throwaway directory carrying a sentinel credential for
+every case that invokes the wrapper, and one of its cases scans every retained
+byte and every leftover under the scratch parent for that sentinel. The tests
+do read two retained Study 010 artifacts (its lock and its completion), by
+design: C1 and C3 are checks against them.
 """
 from __future__ import annotations
 import json

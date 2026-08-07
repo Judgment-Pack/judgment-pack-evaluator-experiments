@@ -78,8 +78,19 @@ Three files are ported **with changes**, because this study runs fifty runs
 where 010 ran one. Each records its 010 base digest and its complete change
 list in `harness/PORTS.md`, and each is pinned at its own digest before the
 batch (§2.6). A change may not touch check semantics; the pre-freeze review
-verifies that against the diff, and control C3 tests it end to end against
-010's published numbers.
+verifies that against the diff. Of the three, `records_compile.py` is the one
+control C3 replicates against 010's published numbers (§6 C3) — the compiler,
+the mirror and the class arithmetic, on 010's retained completion.
+`transcript_check.py` is exercised by the admission tests and, on real bytes,
+by §3.2's golden procedure; `authoring_call.sh` is exercised by the
+wrapper-driven harness tests. No control claims more than that.
+
+Every digest in both tables is verified **in code, before anything runs**:
+`harness/integrity.py` parses `harness/PORTS.md`, checks each destination
+file here and each source file in `studies/010-blinded-oracle/`, and checks
+010's `PROTOCOL-LOCK.json` against the digest `harness/PINS.json` pins for it.
+`harness/batch.py` runs it before it creates a slot and `harness/score_rates.py`
+before it reads one (§6 C1).
 
 | Ported with enumerated changes | 010 base sha256 | Registered scope of the change |
 | --- | --- | --- |
@@ -126,14 +137,28 @@ Exactly Study 010 §4's isolation, minus its single-slot rule. Per run:
 
 - a **fresh `HOME`** and a **fresh `CODEX_HOME` beneath it**, both created
   for that run alone, carrying only a copy of the credential
-  (`$HOME/.codex/auth.json` → `<isolated home>/.codex/auth.json`). The
-  fresh `HOME` is not decoration: 010's fifth pre-freeze review found
-  empirically that with the operator's real home every skill directory
+  (`$HOME/.codex/auth.json` → `<isolated home>/.codex/auth.json`) where one
+  exists. The fresh `HOME` is not decoration: 010's fifth pre-freeze review
+  found empirically that with the operator's real home every skill directory
   under `~/.agents/skills` reaches the model. `--ignore-user-config` alone
-  does not close that path;
+  does not close that path. The copy is **deleted when the slot is sealed**
+  and `CALL.json` records both the copy and the deletion: fifty runs must not
+  leave fifty copies of a live credential under one scratch parent;
 - **`--ignore-user-config`** and an explicit **`-m gpt-5.6-sol`**;
 - the environment scrubbed with `env -i` down to `PATH`, `HOME`, `TMPDIR`,
-  `CODEX_HOME`;
+  `CODEX_HOME`, each **constructed rather than inherited**. `PATH` is six
+  fixed system directories plus one per-run directory holding a single
+  symlink to the pinned binary: no `$HOME` expansion, nothing of the parent
+  `PATH`. (010's wrapper wrote `PATH=…:$HOME/.local/bin`, which the *outer*
+  shell expands, so its "scrubbed" child `PATH` ended in the operator's real
+  home — on this machine a directory that also holds an executable named
+  `jpack`, one of the leak tokens the same wrapper screens the scratch path
+  for.) `TMPDIR` is a directory inside that run's own scratch, never the
+  shared `/tmp`: the pinned CLI's sandbox is writable at
+  `[workdir, /tmp, $TMPDIR]`, so a shared `TMPDIR` would put every other
+  run's tree inside this run's writable set. `CALL.json` records the exact
+  values, so a published slot shows what the child actually had; what `/tmp`
+  itself still exposes is stated in §7;
 - an **exclusively created scratch directory** for that run, whose
   resolved path lies outside every git worktree and contains no token from
   the ported `transcript_check.LEAK_TOKENS` list (which is why the batch
@@ -165,14 +190,35 @@ differences are exactly these, and `harness/PORTS.md` carries the diff:
    binary to use — the binary's digest is still checked against the
    registry, so pointing it at another binary requires a registry that
    names that digest, which the batch registry never does;
-4. it names its scratch and isolated home `s011-…` instead of `s010-…`;
+4. it names its scratch, its isolated home and its per-run binary directory
+   `s011-…` instead of `s010-…`;
 5. it distinguishes its failure modes by exit status (pre-flight refusal
-   with no slot left behind; a call that exited non-zero; an isolated home
-   holding other than exactly one session) so §3.3's partition can be
-   applied per slot, and it records the slot's UTC start and end and the
-   pre-call inventory of the isolated home in `CALL.json` (§6, C6);
+   with no slot left behind; a call that exited non-zero; a call that
+   produced other than exactly one **new** session) so §3.3's partition can
+   be applied per slot, and it records the slot's UTC start and end and the
+   **recursive pre-call inventory** of the isolated home in `CALL.json`
+   (§6, C6);
 6. a missing operator credential is recorded rather than fatal, so the
-   wrapper's own tests can run without one.
+   wrapper's own tests can run without one — and, per §6 C6, so can the
+   study: the recorded inventory is `['.codex', '.codex/auth.json']` when a
+   credential was copied and `['.codex']` when there was none, and both are
+   admissible;
+7. the credential copy is **deleted** after the call terminates and the slot
+   is sealed, and `credentialRemoved` records it; an `EXIT` trap in the
+   wrapper removes the copy on every abnormal death too, so no exit path —
+   crash, signal, or a failing helper — leaves it on disk (§2.2);
+8. `PATH` and `TMPDIR` are constructed rather than inherited, and their
+   values — not only their names — are recorded in `CALL.json` (§2.2);
+9. the run's session is identified as the **new** `*.jsonl` under the run's
+   `CODEX_HOME` (the set difference across the call) rather than as the only
+   one in the tree. In the isolated case the before-set is empty and this is
+   010's rule unchanged; it exists so that §6 C7, which runs against the
+   operator's real `.codex`, can reach its registered comparison instead of
+   refusing on a session count;
+10. `ISOLATION=operator-home` runs §6 C7 and nothing else: it refuses any
+    prompt but the probe, copies and deletes no credential, and takes no
+    inventory of the operator's home. `harness/batch.py
+    capture-isolation-negative` is its only caller.
 
 It **does not** retry, judge a completion, compile records, or decide
 admissibility: it retains bytes and exits with a code. Because it is
@@ -190,40 +236,72 @@ completed within **one UTC
 calendar day**; spilling past midnight is a `DEVIATIONS.md` entry, not a
 stopping rule.
 
-At N = 50 the exact intervals of §4.3 are: k = 50 → [0.9289, 1.0000];
+At **V = 50** the exact intervals of §4.3 are: k = 50 → [0.9289, 1.0000];
 k = 40 → [0.6628, 0.8997]; k = 25 → [0.3553, 0.6447]; k = 1 → [0.0005,
 0.1065]; k = 0 → [0.0000, 0.0711]. That is the resolution this study buys,
 stated now so nobody reads more precision into a rate than 50 runs supply.
+
+**That table is denominated in V, not in N, and V = N − I is data.** Every
+rate in §4.1–§4.3 is computed over the valid runs, so the intervals above
+are the ones this study gets **only if no run is pipeline-invalid** — and
+S8 exists precisely because I may not be 0. At V = 45 a perfect class is
+bounded below at 0.9209 rather than 0.9289 and a half-covered class carries
+roughly ±0.15; at V = 40, 0.9114 and ±0.16. No table here is a promise about
+the published intervals: `RESULTS.json` carries k and V for every rate and
+the bounds recompute from them.
 
 **Shortfall rule.** If the batch cannot complete all 50 slots — quota
 exhaustion, transport collapse, loss of the environment — the driver
 writes `SHORTFALL.json` naming the reason and the completed slot count S
 *before* anything is scored, and the headline reports "S of 50 slots
 completed" with the shortfall stated. Rates are then computed over the
-valid runs among the S completed slots.
+valid runs among the S completed slots. Two things bound that rule
+mechanically: `batch.py shortfall` **refuses** when the slots present are
+not fewer than the registered N (a declaration cannot unblock a full or
+over-full batch), and the scorer requires the declaration's recorded count
+to equal the contiguous slots actually present. What it does **not** bound:
+a batch that dies mid-way still leaves a slot per index, because the driver
+retains a refusal record and advances (§7's retry rule), so the common
+shape of "the environment died" is a full batch with a high pipeline-invalid
+rate rather than a shortfall. The shortfall path is therefore mostly the
+**deliberate stop**, and §7 records that honestly rather than presenting it
+as involuntary.
+
+**Resume after a crash.** `batch.py run --start K` continues at slot K. The
+ledger `BATCH.json` holds one append-only record per slot and a resumed
+invocation **merges** into it, refusing if it would overlap a slot the
+ledger already records; a partially written slot is never re-run (exclusive
+creation) and its state is recorded in `DEVIATIONS.md`.
 
 **Prohibited, without exception:** computing any rate before the batch is
 sealed; adding slots after any rate has been computed; running a second
 batch and pooling it with this one; recomputing a published rate on a
 different population. A second batch, if ever run, is a separate study
 with its own registration, and this study's numbers are not amended by it.
-Mechanically, the driver cannot compute coverage at all — admission, the
+Mechanically: the driver cannot compute coverage at all — admission, the
 compiler, the classifier, and the rates all live behind the scorer
-(`harness/score_rates.py`), which refuses unless the batch manifest is
-terminal (50 slots present, or `SHORTFALL.json` written), and the driver
-refuses to create a slot once `RESULTS.json` exists. What remains possible
-and is not prevented: the operator reading a `completion.txt` by eye
-mid-batch. §7 says so.
+(`harness/score_rates.py`), which refuses unless the batch is terminal
+(exactly N slots, or a matching `SHORTFALL.json`, never both); the driver
+refuses to create a slot once `RESULTS.json` exists; and the scorer has
+**no flag that writes a rate table anywhere else** — `RESULTS.json` and
+`RATES.md` go to the study root or nowhere, so seeing the rates always arms
+the guard. What remains possible and is not prevented: the operator reading
+a `completion.txt` by eye mid-batch, and stopping the batch for that reason
+under a shortfall declaration. §7 says so.
 
 ### 2.5 What each slot retains
 
-The driver retains, per slot: `CALL.json` (argv, cwd, isolated home,
-environment allowlist, model, CLI identity and binary digest, integer exit
-status, session count, slot index, UTC start/end, pre-call home
-inventory), `stdout.raw`, `stderr.raw`, `session.jsonl`, `context.json`
-(the normalized pre-prompt context digests), `completion.txt` (written
-**only** when the process exited 0), and the wrapper's exit status mapped
-to a transport-level refusal code. Nothing in that set is a judgment.
+The driver retains, per slot: `CALL.json` (argv, cwd, isolated home and
+`CODEX_HOME`, the environment's names **and values**, model, CLI identity
+and binary digest, integer exit status, new-session count, slot index, UTC
+start/end, the recursive pre-call inventory of the isolated home, and
+whether the credential was copied and removed), `stdout.raw`, `stderr.raw`,
+`session.jsonl`, `context.json` (the normalized pre-prompt context digests),
+`completion.txt` (written **only** when the process exited 0), and the
+wrapper's exit status mapped to a transport-level refusal code — in the
+slot's own `REFUSAL.json` when it is not 0, and in the batch ledger
+`BATCH.json`, which holds one append-only record per slot and is merged
+rather than rewritten by a resumed run. Nothing in that set is a judgment.
 
 The scorer then derives, from those retained bytes alone: the §3 admission
 verdict and its refusal code, the compiled `records/` and `RECORDS.md`,
@@ -234,20 +312,42 @@ judgment out of the driver.
 All 50 slots are committed, invalid ones included (§8) — roughly 90 KB per
 slot.
 
+What is **not** retained and not published: the per-run scratch trees and
+isolated homes under the operator's scratch parent. They are the model's
+workspace and the session store, both already represented in the slot by
+`session.jsonl` and the recorded paths, and they stay on the operator's disk
+until removed by hand. The one thing the wrapper does clean is the credential
+copy, deleted per run (§2.2), so a full batch does not leave fifty live
+credentials behind.
+
 ### 2.6 The batch registry
 
 `harness/PINS.json` is the run-time registry: the codex binary digest,
-CLI version and model; the digests of `transcription/PROMPT.txt` and
-`FAMILY.json`; N; the interpreter; and the recaptured golden context's
+CLI version and model; the digests of `transcription/PROMPT.txt`,
+`transcription/PROBE-PROMPT.txt` and `FAMILY.json`; N; the interpreter; the
+recorded operator assent for §6 C7; and the recaptured golden context's
 digest, which is `null` until §3.2's capture is taken and registered.
 Registered here as requirements on it: it records the digest this
 preregistration has at the freeze (so a post-freeze edit is detectable),
-and it records — directly or by pointing at `harness/PORTS.md` — the
-digest of every ported file in §2.1 together with its 010 base digest.
-The driver refuses to call anything whose binary digest is not the pinned
-one; the scorer refuses to score against a prompt or family whose bytes
-are not the pinned ones. The registry and `PORTS.md` are committed before
-the batch begins.
+and it records — by pointing at `harness/PORTS.md` — the digest of every
+ported file in §2.1 together with its 010 base digest.
+
+What each of those pins does at run time, all of it in code:
+
+- the driver refuses to call anything whose binary digest is not the pinned
+  one, and refuses to create **any** slot while `golden.sha256` is `null` or
+  the file at the golden path does not hash to it (§3.2);
+- the scorer refuses to score against a prompt, family or golden capture
+  whose bytes are not the pinned ones, and — once `preregistration.sha256`
+  is filled at the freeze — refuses if this file's bytes are not the frozen
+  ones;
+- both refuse if any file in `harness/PORTS.md`'s table, on either side, or
+  010's `PROTOCOL-LOCK.json`, is not at its recorded digest (§6 C1);
+- `batch.py capture-isolation-negative` refuses unless the registry records
+  the operator's assent as granted (§6 C7).
+
+The registry and `PORTS.md` are committed before the batch begins, and the
+golden digest is committed before slot 1.
 
 ## 3. Admission per run
 
@@ -318,12 +418,24 @@ no pack disposition, and no draw exist in this study (§8).
 different `HOME` layout, and its digests are not this environment's. The
 recapture procedure is registered here, in full, before the batch:
 
-1. Run the capture step (`harness/batch.py capture-golden`) **twice**. Each
-   capture run uses the §2.2 invocation exactly — fresh `HOME`, fresh
+1. Run
+
+   ```sh
+   harness/batch.py capture --scratch-parent DIR
+   ```
+
+   which makes **two** probe calls into `controls/recapture/attempt-1/`
+   (`capture-001`, `capture-002`) and then derives the capture from them.
+   Each capture call uses the §2.2 invocation exactly — fresh `HOME`, fresh
    `CODEX_HOME`, `env -i`, exclusive scratch, stdin closed, pinned binary
    and model — with one substitution: the prompt is the registered **probe
    prompt**, `transcription/PROBE-PROMPT.txt`, whose bytes are exactly
-   `Reply with exactly one word: ready` (no trailing newline).
+   `Reply with exactly one word: ready` (no trailing newline). (The second
+   half alone, for the case where the calls were made and the derivation was
+   not, is `harness/batch.py capture-golden --slots DIR --out PATH`; `--out`
+   has no default, so a derivation never lands at the registered path by
+   accident, and it refuses a directory holding batch slots, so a golden
+   capture can never be derived from the batch's own runs.)
 2. The probe prompt, not the registered prompt, is used **deliberately**.
    The pre-prompt context precedes the prompt and does not depend on it —
    that is why it can be pinned at all — and using the registered prompt
@@ -336,20 +448,24 @@ recapture procedure is registered here, in full, before the batch:
    Identical → the capture is written to
    `transcription/GOLDEN-CONTEXT.json`, its digest replaces the `null` in
    the batch registry's `golden.sha256`, and both are committed **before
-   the first batch slot runs**. Not identical → the batch does not start;
-   the discrepancy and its diagnosis are recorded in `DEVIATIONS.md`, and
-   the recapture
-   may be repeated after the environmental cause is fixed. No
-   registered-prompt data exists at that point, so this cannot be a
-   data-dependent choice.
+   the first batch slot runs**. That ordering is not a matter of operator
+   discipline: `batch.py` refuses to create **any** slot while the golden
+   file is absent, while the registry's digest is `null`, or while the two
+   disagree, and the scorer refuses on the same three conditions. Not
+   identical → the batch does not start; the discrepancy and its diagnosis
+   are recorded in `DEVIATIONS.md`, and the recapture may be repeated after
+   the environmental cause is fixed — the repeat runs the same command and
+   lands in `controls/recapture/attempt-2/`, so no capture is ever
+   overwritten and every attempt is published (§8). No registered-prompt
+   data exists at that point, so this cannot be a data-dependent choice.
 4. The recaptured capture is compared against 010's pinned golden
    (`4ff544de…`) and the comparison — equal or not, and where it differs —
    is reported in `ANALYSIS.md`. Neither outcome gates anything; it is
    simply information about how stable this context is across
    environments.
 5. Both capture runs retain their `context.json` and `CALL.json`; they are
-   published under `controls/recapture/` and are **not** batch slots and
-   never enter any denominator.
+   published under `controls/recapture/attempt-N/` and are **not** batch
+   slots and never enter any denominator.
 
 ### 3.3 Invalid runs, and the two kinds of failure
 
@@ -362,11 +478,7 @@ The distinction that decides every denominator, registered here because
 getting it wrong would bias every rate upward:
 
 - **pipeline-invalid** (excluded from denominators). The *apparatus or the
-  transport* failed and the run says nothing about authorship: nonzero
-  exit, zero or multiple new sessions, any §3.1 whitelist/terminal/golden/
-  denylist/model/cwd/completion-binding violation, a binary-pin mismatch,
-  or a compiler failure of the regeneration kind (byte inequality,
-  file-set mismatch, I/O error).
+  transport* failed and the run says nothing about authorship.
 - **authoring-empty** (**valid**, counted, coverage zero in every class).
   The evidence is admissible and the compiler ran, but the author produced
   nothing usable: the completion contains **no parseable JSON array**, or
@@ -375,9 +487,65 @@ getting it wrong would bias every rate upward:
   quietly condition every rate on the author having succeeded, which is
   not the quantity §1 asks for.
 
-So: `records_compile`'s "no parseable array" refusal classifies the run
-**authoring-empty and valid**; every other compiler error classifies it
-**pipeline-invalid**. The driver records the raw refusal text either way.
+The partition is registered **exhaustively**, code by code: this table is
+every outcome `harness/score_rates.py` can assign to a run, and a harness
+test parses it out of this file and diffs it against both the scorer's own
+`CODE_PARTITION` table and the codes its `admit()` and `score_run()` can
+actually return. A code in one and not the others is a test failure, so
+this list cannot drift from the counting.
+
+| outcome | partition |
+| --- | --- |
+| `slot-shape` | pipeline-invalid |
+| `call-unreadable` | pipeline-invalid |
+| `model-mismatch` | pipeline-invalid |
+| `binary-mismatch` | pipeline-invalid |
+| `cli-mismatch` | pipeline-invalid |
+| `isolation-unproven` | pipeline-invalid |
+| `session-count` | pipeline-invalid |
+| `call-nonzero-exit` | pipeline-invalid |
+| `no-session` | pipeline-invalid |
+| `no-completion` | pipeline-invalid |
+| `no-context` | pipeline-invalid |
+| `transcript-refused` | pipeline-invalid |
+| `context-mismatch` | pipeline-invalid |
+| `completion-unreadable` | pipeline-invalid |
+| `compile-refused` | pipeline-invalid |
+| `regeneration-mismatch` | pipeline-invalid |
+| `refusal-conflict` | pipeline-invalid |
+| `scorer-error` | pipeline-invalid |
+| *(no code, no parseable array)* | **authoring-empty — valid, in every denominator, covering nothing** |
+| *(no code)* | **valid** |
+
+Four of those need their registration stated rather than implied, because
+they are gates §3.1's list does not name:
+
+- `context-mismatch` — the retained `context.json` must be what
+  `session.jsonl` recomputes. A slot whose two artifacts disagree is not
+  evidence about authorship;
+- `cli-mismatch` — §3.1 gate 8's binary pin, applied to the recorded CLI
+  version string as well as the digest;
+- `isolation-unproven` — §6 C6's per-run evidence, absent or contradicted;
+- `refusal-conflict` — the batch recorded a refusal for this slot and the
+  retained bytes nevertheless admit it. This is not a retreat from "the
+  scorer never trusts the batch's refusal record": the scorer still
+  recomputes admission from the bytes and never lets a `REFUSAL.json` make
+  an inadmissible run look examined. It refuses the *contradiction* — a slot
+  the wrapper says it failed to complete and whose bytes look complete is a
+  slot whose provenance is unexplained, and an unexplained slot is not a
+  sample. It is the one code that can fire on bytes that would otherwise
+  pass, and it is registered here so that it appears in S8's histogram as
+  something a reader was warned about.
+
+Also registered: `records_compile`'s "no parseable array" refusal
+classifies the run **authoring-empty and valid**; every other compiler
+error classifies it **pipeline-invalid**. The driver records the raw
+refusal text either way.
+
+`scorer-error` is §7's totality rule: an unexpected exception during one
+slot's admission becomes that slot's recorded verdict rather than the end
+of the scoring. It should never fire, and if it does the study says so in
+the histogram instead of dying.
 
 Let **N** be the slots executed (50, or S under §2.4's shortfall), **I**
 the pipeline-invalid runs, and **V = N − I** the valid runs. V is the
@@ -421,8 +589,9 @@ c_i = k_i / V
 
 reported as the exact fraction `k_i/V`, as a decimal to 3 places, and with
 the §4.3 interval. Six numbers with six intervals; that is the study's
-result. Denominators are identical across classes by construction and the
-scorer asserts it.
+result. Denominators are identical across classes by construction, and the
+scorer asserts it: it collects the six `trials` values it just wrote and
+refuses the whole scoring unless the set is exactly `{V}`.
 
 ### 4.3 Clopper–Pearson 95% intervals, normatively
 
@@ -505,8 +674,10 @@ independent (§4.4, S5).
   trend statistic, no conclusion drawn from it beyond "the sequence is
   published".
 - **S8 — the pipeline-invalid rate.** `rho = I / N`, with an interval, and
-  the histogram of refusal codes. Reported in the headline beside the
-  coverage rates, never as a footnote.
+  the histogram of refusal codes over §3.3's registered code table.
+  Reported in the headline beside the coverage rates, never as a footnote.
+  At `rho ≥ 0.10` it also raises §5's stated caution over the whole batch —
+  a caution, not a tier change.
 - **S9 — wall clock.** Per-slot UTC start/end and duration, retained;
   descriptive.
 
@@ -537,21 +708,62 @@ Review depth for an independently authored or transcribed matrix row is
 assigned by the class its facts fall in, inversely to that class's blind
 coverage rate:
 
+The tier is decided by **one quantity in one unit**: the exact
+Clopper–Pearson lower bound of §4.3, written `L_i`.
+
 | Condition on class i | Tier |
 | --- | --- |
-| `c_i ≥ 0.90` **and** interval lower bound `≥ 0.80` | **LIGHT** — spot review of rows in this class |
-| otherwise, `c_i ≥ 0.50` | **STANDARD** — sampled human review |
-| `c_i < 0.50` | **FULL** — human review of every row in this class |
+| `L_i ≥ 0.80` | **LIGHT** — spot review of rows in this class |
+| otherwise, `L_i ≥ 0.40` | **STANDARD** — sampled human review |
+| `L_i < 0.40` | **FULL** — human review of every row in this class |
 
-Two registered escalations, each moving a class exactly one step
-(LIGHT → STANDARD → FULL; FULL is terminal):
+*Why one criterion and not two.* An earlier draft conjoined a point
+estimate (`c_i ≥ 0.90`) with a bound (`≥ 0.80`). That is not a frozen
+threshold: the operative cut **in observed-coverage units** was then a
+function of V, which is data — `c ≥ 0.92` at V = 50, `c ≥ 0.933` at V = 45,
+`c ≥ 0.95` at V = 40 — so the registered 0.90 was inert and the boundary
+moved as pipeline-invalid runs accumulated. A bound already carries the
+sample size. One cut on the bound is fixed before the batch in the unit it
+is stated in, and that is the whole rule.
 
-1. **Mislabel escalation.** If `s_i ≥ 0.20` (S2), class i escalates one
-   step. Reaching a class with the wrong label is worse than not reaching
-   it: an absent expectation is a gap, a wrong one is an assertion.
-2. **Pipeline escalation.** If `rho ≥ 0.10` (S8), **every** class
-   escalates one step. An authoring pipeline that fails one run in ten
-   needs supervision regardless of what it covers when it succeeds.
+**One escalation, on distinct evidence.** If `s_i ≥ 0.20` (S2), class i
+escalates exactly one step (LIGHT → STANDARD → FULL; FULL is terminal).
+Reaching a class with the wrong label is worse than not reaching it: an
+absent expectation is a gap, a wrong one is an assertion.
+
+**The pipeline-invalid rate escalates nothing.** If `rho ≥ 0.10` (S8),
+`ANALYSIS.md` and `RATES.md` carry a **stated caution over the whole
+batch** — this authoring pipeline failed often enough that every rate is
+read under it — and no class's tier changes. The earlier draft escalated
+every class on `rho`, which charged one event twice: pipeline-invalid runs
+leave the denominator, so they have *already* shrunk V and widened every
+interval, and `L_i` has already fallen for it. The caution is the honest
+place to put the remaining information.
+
+**What this mapping can and cannot resolve at N = 50.** Registered here,
+computed exactly with this study's own interval code and asserted by a
+harness test, so the mapping's power is not left to a reader's intuition.
+At V = 50 the LIGHT cut is reached first at **k = 46** (`L = 0.8077`;
+k = 45 gives `L = 0.7819`), i.e. at an observed 0.92, and the STANDARD cut
+at **k = 28** (`L = 0.4125`; k = 27 gives `L = 0.3932`), i.e. at 0.56.
+Given a class whose *true* coverage is p, the probability this mapping
+calls it LIGHT is:
+
+| true p | P(tier = LIGHT) at V = 50 |
+| --- | --- |
+| 0.85 | 0.1121 |
+| 0.90 | 0.4312 |
+| 0.95 | 0.8964 |
+| 0.99 | 0.9999 |
+
+Plainly: **at N = 50 this mapping is coarse.** A class that genuinely
+reaches its boundary nine runs in ten is called LIGHT less than half the
+time, and a conservative exact bound is why. The operator fixed N = 50 with
+that limitation stated — the batch is quota-bound, and the shortfall rule
+covers a short one — so the study reports the tiers this cut produces and
+does not move the cut afterwards. Anyone who needs a LIGHT/STANDARD
+boundary resolved near p = 0.90 needs a larger N, and that is a different
+study.
 
 Study 010 §10's prediction, registered here as a stated prior and not as a
 hypothesis under test: the policy text names 70, 40, and the embargo list,
@@ -575,29 +787,51 @@ controls that bound what an endpoint can mean. Study 001 `DEVIATIONS.md`
 that the claim was computed on the population it names — the scorer must
 enforce the population itself.
 
-**C1 — ported bytes match 010's lock.** A check recomputes the sha256 of
-every byte-identical port and requires equality with §2.1's first table;
-recomputes the sha256 of every adapted port and requires equality with the
-digest `harness/PORTS.md` records for it, alongside the 010 base digest
-that file also records; and requires
+**C1 — ported bytes match 010's lock.** `harness/integrity.py` parses
+`harness/PORTS.md`'s table and, for every row, recomputes the sha256 of the
+destination file **here** and of the source file in
+`studies/010-blinded-oracle/`, requiring both to equal the digests that row
+records; requires the table to name exactly the six ported files, so a
+deleted row is a refusal rather than a check silently dropped; and requires
 `../010-blinded-oracle/PROTOCOL-LOCK.json` itself to hash to `4966aa82…`
 (010's lock does not digest itself, so without this pin the tables'
-authority would be a mutable file). Any mismatch refuses. It runs in CI
-and as a precondition of the batch and the scorer.
+authority would be a mutable file). It also re-checks the prompt, probe
+prompt and family against `harness/PINS.json`. Any mismatch refuses.
 
-**C2 — family/pack coherence.** Every `FAMILY.json` mutation's `patch`
-preimage must be present, byte-exact, at its JSON pointer in Study 010's
-pack C (read in place at the pinned digest, §2.1), and the six `index`
-members must be contiguous 0–5. This is the family-applies check 010 ran
-inside its lock gate, reproduced here **without an evaluator**: it needs
-only the pack bytes and the patch, and this study applies no patch and
-produces no pack D. It bounds what a class can mean — a predicate whose
-mutation no longer applies to the pack it was written against would be
-measuring nothing.
+It runs in CI (the Study 011 job in `.github/workflows/ci.yml`) **and as a
+precondition of the batch and the scorer**: `batch.preflight()` calls it
+before it creates a slot and `score_rates.score()` before it reads one.
+That is the check that closes the gap C1–C7 otherwise left wide open — an
+uncommitted one-line edit to `policy_mirror.verdict` after CI last ran would
+move every `c_i` and every §5 tier, and nothing at run time would notice.
+
+What C1 does **not** do, stated so §7 cannot claim it: it compares no file
+to a git `HEAD` blob — this study has no lock-commit machinery — and
+`harness/PORTS.md` is itself unpinned, because it is the authority the
+table is read from. Its integrity rests on review and on the fact that both
+of its digest columns are checked against real files on both sides.
+
+**C2 — family/pack coherence.** Two clauses, both of them 010's, and both
+needing only the pack bytes and the patch:
+
+1. every `FAMILY.json` mutation's `patch` preimage must be present,
+   byte-exact, at its JSON pointer in Study 010's pack C (read in place at
+   the pinned digest, §2.1), and the six `index` members must be contiguous
+   0–5;
+2. every mutation, applied to pack C, must **change** it. A patch whose
+   result equals pack C plants nothing, and a class named after a defect
+   that does not exist measures nothing. 010 ran this clause inside its lock
+   gate; an earlier draft of this study dropped it, and it is restored here.
+
+This is the family-applies check reproduced **without an evaluator**: this
+study applies no patch in anger and produces no pack D. What it bounds is
+honest and limited — it bounds what a *patch* can mean. A class in this
+study is a `predicate`, and no pack-side check constrains the predicate;
+that is C3's and C4's job.
 
 **C3 — replication control against Study 010's published profile.** The
-ported compiler, mirror, predicates, and this study's classifier are run
-over 010's retained `completion.txt` (digest pinned in §2.1) and must
+ported compiler, the ported mirror, and this study's class arithmetic are
+run over 010's retained `completion.txt` (digest pinned in §2.1) and must
 reproduce 010's published table exactly:
 
 ```
@@ -607,16 +841,36 @@ Q ∩ class counts = (0, 0, 0, 0, 0, 0)
 ```
 
 These are the values `../010-blinded-oracle/ANALYSIS.md` published. The
-test refuses on any difference. It is the end-to-end check that this
-study's counting code means the same thing its predecessor's did.
+test refuses on any difference. It is the check that this study's
+**counting** code — compiler, mirror, class arithmetic — means the same
+thing its predecessor's did, on the bytes 010 actually retained.
+
+Its scope is exactly that, and no more: C3 does **not** exercise
+`transcript_check.py` or `authoring_call.sh`. The transcript binding is
+exercised by the admission tests (tool-use payloads, a turn after the
+registered prompt, a paraphrased pre-prompt context, duplicate keys) and,
+on real bytes from this environment, by §3.2's golden procedure, which runs
+the ported checker's normalization and comparison over two real captures
+before the batch. The wrapper is exercised by the wrapper-driven harness
+tests, which run the real `bash`, the real `env -i`, and the real slot
+retention against a stand-in CLI. The registered prompt's own transcript
+shape first meets the ported gate on batch slot 1, and that is a stated
+consequence of §3.2's probe-prompt choice, not an oversight: running the
+registered prompt before the batch would show the operator a coverage
+profile first.
 
 **C4 — synthetic fixture with a known coverage profile.** In
 `harness/tests/fixtures.py`, hand-authored completions committed as
 Python constants whose expected output — accepted ids, drop codes, H/Q
-membership, per-class coverage, and the resulting rates and bounds — is
-registered in the same committed module, with the replication
-expectation additionally pinned in `harness/PINS.json`; CI runs
-compiler → classifier → scorer over them and requires equality. The fixtures are constructed to make a silent miscount
+membership, and per-class coverage — is registered in the same committed
+module (`PROFILE_A`, `PROFILE_B`, `DROP_HISTOGRAM`), with the replication
+expectation additionally pinned in `harness/PINS.json`. The §4.3 interval
+vectors are registered in `harness/tests/test_intervals.py` (`REGISTERED`)
+and the end-to-end rate, interval and tier expectations over a whole
+stand-in batch in `harness/tests/test_batch.py`; all three files are
+committed, and this sentence names where each lives rather than claiming
+they share one module. CI runs compiler → classifier → scorer over them and
+requires equality. The fixtures are constructed to make a silent miscount
 impossible to hide, and must contain at least:
 
 - one element exercising **each** drop code (`schema`, `decimal-form`,
@@ -643,33 +897,77 @@ literally: the endpoint's population is the scorer's job, not the
 author's.
 
 **C6 — isolation demonstrated per run.** Each slot retains, and the
-admission check requires: the resolved isolated `HOME` and `CODEX_HOME`
-paths; the **pre-call inventory** of the isolated home, which must be
-exactly the copied credential and nothing else; the **post-call new-file
-set**, which must contain exactly one `*.jsonl`; the scratch path,
-screened for leak tokens and required to resolve outside every git
-worktree; and `context.json`, whose digests must equal the recaptured
-golden. The golden match is the operative evidence: a leaked skill,
-config, or `AGENTS.md` changes the pre-prompt context, and any change
-refuses.
+admission check requires:
+
+- the resolved isolated `HOME` and `CODEX_HOME` paths, and the exact `PATH`
+  and `TMPDIR` the child was given;
+- the **recursive pre-call inventory** of the isolated home — every path
+  beneath it, relative and sorted — which must be exactly
+  `['.codex', '.codex/auth.json']` when a credential was copied and exactly
+  `['.codex']` when there was none to copy. Both branches carry
+  information, and a `config.toml`, an `AGENTS.md`, or a skills tree
+  anywhere in the isolated home refuses the run. (An earlier draft counted
+  only the *top-level* entries after creating `.codex`, which is the
+  constant 1 in every case: it could see neither the credential nor
+  pollution, and on a machine with no operator credential it made every
+  slot `isolation-unproven`. The recursive list is what makes this evidence
+  rather than a tautology, and the harness tests exercise both branches and
+  four polluted ones.);
+- the **new-session set**, which must contain exactly one `*.jsonl` created
+  by this call;
+- the scratch path, screened for leak tokens and required to resolve
+  outside every git worktree;
+- `context.json`, whose digests must equal the registered golden.
+
+The golden match is the operative evidence: a leaked skill, config, or
+`AGENTS.md` changes the pre-prompt context, and any change refuses.
 
 **C7 — the isolation gate's power, demonstrated not assumed.** Before the
-batch, one capture is run **deliberately without isolation** — the
-operator's real `HOME`, everything else as registered, using the probe
-prompt (never the registered prompt). The registered expectation: it
-**fails** the golden match. Retained under
-`controls/isolation-negative/`: the context digests, the refusal message,
-and `CALL.json` — **not** `session.jsonl`, which would publish an
-inventory of the operator's own environment. If it does *not* fail, then
-the golden gate has no demonstrated power against home leakage in this
-environment; that is recorded in `ANALYSIS.md` as a stated limitation and
-the batch proceeds unchanged. Registering both outcomes before the batch
-is what keeps this a control rather than a decision. Because this is the
-one registered step that deliberately exposes the operator's real
-environment to the pinned CLI, it runs only with the operator's explicit
-assent; if assent is withheld, that is recorded in `DEVIATIONS.md`, the
-control is skipped, and the gate's power is recorded in `ANALYSIS.md` as
-undemonstrated — the batch itself is unaffected either way.
+batch, one capture is run **deliberately without isolation**:
+
+```sh
+harness/batch.py capture-isolation-negative --scratch-parent DIR
+```
+
+which makes ONE call with the operator's real `HOME` and its `.codex` as
+`CODEX_HOME`, everything else as registered, using the probe prompt (never
+the registered prompt). The registered expectation: it **fails** the golden
+match. If it does *not* fail, the golden gate has no demonstrated power
+against home leakage in this environment; that is recorded in `ANALYSIS.md`
+as a stated limitation and the batch proceeds unchanged. Registering both
+outcomes before the batch is what keeps this a control rather than a
+decision.
+
+Three things make it executable as written rather than only registered:
+the wrapper takes `ISOLATION=operator-home` (§2.3 item 10), so no
+digest-pinned file has to be edited to run it; the run's session is
+identified by difference (§2.3 item 9), so the operator's real `.codex` —
+which on this machine holds hundreds of transcripts — does not refuse the
+control on a session count *before* the comparison it exists to make; and
+the comparison itself is ordered so that its verdict is the recorded
+outcome.
+
+**Retention is done by code, not by care.** `controls/isolation-negative/`
+receives exactly three files: `context.json` (the digests), `VERDICT.json`
+(the outcome, the refusal message, the golden digest, and the digests of
+everything deleted), and a `CALL.json` **stripped** of every member that
+names or enumerates the operator's environment — `home`, `codexHome`,
+`cwd`, `environment`, `environmentValues`, `isolatedHomeInventory`,
+`operatorHomeSkillsPresent` — with the stripped list recorded. The call is
+made into a scratch directory outside the study, `session.jsonl`,
+`stdout.raw` and `stderr.raw` are digested and **deleted by the driver**,
+and the scratch slot is removed. A harness test inspects every retained
+byte and fails on any path into the stand-in operator home, any skill name,
+or the credential.
+
+**Operator assent: granted**, recorded in `harness/PINS.json`
+(`isolationNegative.operatorAssent`), and `batch.py
+capture-isolation-negative` refuses unless it says so. This is the one
+registered step that deliberately exposes the operator's real environment
+to the pinned CLI, which is why assent is a recorded precondition rather
+than an understanding. Had it been withheld, that would have been recorded
+in `DEVIATIONS.md`, the control skipped, and the gate's power recorded in
+`ANALYSIS.md` as undemonstrated — the batch is unaffected either way.
 
 ## 7. What is enforced, what is recorded, what is not prevented
 
@@ -682,26 +980,56 @@ section is about isolation, ledger discipline, and exactly what a
 re-runner can and cannot check.
 
 **Mechanically enforced** (a violation refuses, or the run is scored
-pipeline-invalid): the ported-byte digest table and 010's lock digest
-(C1); the codex binary digest, CLI version string, and model name; the
-per-run fresh `HOME`/`CODEX_HOME`, `env -i` scrub, exclusive
-leak-token-free scratch outside every worktree, and closed stdin; the
-pre-call home inventory and single-new-session requirement (C6); the
-transcript whitelist, terminal-prompt rule, leak denylist, model/cwd
-binding, integer exit 0, and completion byte-binding (§3.1); the
-recaptured golden context match on every slot, with the recapture itself
-required to agree across two independent captures before the batch (§3.2);
-compiler regeneration with byte equality and the exact file set; slot
-exclusivity (a slot directory is created once and never re-run) and
-contiguous slot indices; the §3.3 valid/invalid partition and the
-population filter, both in code (C5); the scorer's totality — a malformed
-or missing slot artifact yields a recorded pipeline-invalid verdict, never
-a bare exception; the batch/score separation (the driver cannot compute
-coverage; the scorer refuses before the manifest is terminal; the driver
-refuses new slots once `RESULTS.json` exists); the batch registry (§2.6)
-pinning this file's post-freeze digest and every ported file's digest,
-with each pinned input required to equal both its worktree bytes and its
-HEAD blob.
+pipeline-invalid). Every item below names code that runs in the batch, in
+the scorer, or in both — nothing here is a description of intent:
+
+- the ported-byte digest table on both sides and 010's lock digest, checked
+  by `harness/integrity.py` before the driver creates a slot and before the
+  scorer reads one (C1);
+- the codex binary digest, CLI version string, and model name;
+- the per-run fresh `HOME`/`CODEX_HOME`; the `env -i` scrub with a `PATH`
+  and `TMPDIR` constructed rather than inherited; the exclusive
+  leak-token-free scratch outside every worktree; closed stdin;
+- C6's recursive isolated-home inventory, in both the credential and
+  no-credential branches, and the exactly-one-**new**-session requirement;
+- the transcript whitelist, terminal-prompt rule, leak denylist, model/cwd
+  binding, integer exit 0, and completion byte-binding (§3.1);
+- the golden context match on every slot; the recapture required to agree
+  across two independent captures; **and the golden capture bound to its
+  pin** — the driver refuses to create any slot while
+  `PINS.golden.sha256` is null or does not match the file at the golden
+  path, and the scorer refuses on the same conditions, so a capture derived
+  after the batch (including one derived from the batch's own slots, which
+  `capture-golden` refuses outright) cannot be substituted;
+- the preregistration's own post-freeze digest, once filled: the scorer
+  refuses if this file's bytes are not the registered ones;
+- compiler regeneration with byte equality and the exact file set;
+- slot exclusivity (a slot directory is created once and never re-run),
+  contiguous slot indices, and a ledger that a resumed run merges into and
+  refuses to overwrite;
+- the §3.3 valid/invalid partition and the population filter, both in code
+  (C5), with the registered code table diffed against the code by a test;
+- the equality of the six denominators, asserted by the scorer (§4.2);
+- the scorer's totality — a malformed or missing slot artifact yields a
+  recorded pipeline-invalid verdict, never a bare exception;
+- the batch/score separation: the driver cannot compute coverage; the
+  scorer refuses unless the batch is terminal (exactly N slots XOR a
+  matching shortfall declaration, never both, never over-full); the driver
+  refuses new slots once `RESULTS.json` exists; and the scorer can write a
+  rate table nowhere else;
+- `batch.py capture-isolation-negative` refuses without recorded operator
+  assent, and retains three files by construction (C7).
+
+**Deliberately not claimed.** This study has **no lock-commit machinery**,
+by design: nothing here compares a worktree file to its `HEAD` blob, and no
+pinned input is required to equal a committed blob. An earlier draft
+claimed that and had no implementation. What this study's integrity rests
+on instead is the digest table above (which binds every ported byte to
+Study 010's locked values, checked at run time), ledger discipline (every
+slot published, invalid ones included, with the batch ledger merged not
+overwritten), and re-runnability: anyone with the pinned binary can run the
+registered call again and check the rates. `harness/PORTS.md` is itself
+unpinned — it is the authority the table is read from.
 
 **The retry rule, registered, and why it differs from 010.** A slot is
 created exactly once and **never re-run**. A call that fails at transport —
@@ -716,7 +1044,11 @@ there is no favourable completion to shop for. What must be protected
 instead is **the denominator**, and that is done by fixing N in advance,
 creating slots exclusively and contiguously, forbidding top-ups after any
 rate is computed (§2.4), and publishing every slot. Re-running an existing
-slot index is refused by exclusive creation.
+slot index is refused by exclusive creation, and a batch resumed after a
+crash (`--start K`) merges into the append-only ledger rather than
+replacing it, refusing any slot the ledger already records — so the record
+of what was attempted survives the interruption that made a resume
+necessary.
 
 **Recorded but not proven:** that the retained slots are ALL the
 invocations that occurred — an off-ledger call leaves no slot, exactly as
@@ -728,9 +1060,14 @@ pre-prompt context are independently corroborated, by the transcript's own
 same-day execution — nothing external timestamps this study, because
 nothing needs to be shown to precede anything; the CLI's sampling
 configuration, which is recorded as a version and a binary digest and is
-not controlled (§2.1); that the operator did not read a `completion.txt`
-during the batch — the artifacts make it possible and the design forbids
-computing rates, not reading files.
+not controlled (§2.1); **that the operator did not read a `completion.txt`
+by eye during the batch** — the artifacts make it possible, the design
+forbids computing rates rather than reading files, and no mechanism here
+can close it; and, following from that, **that a declared shortfall was
+involuntary** — `batch.py shortfall` checks that the batch is genuinely
+short and that no rate has been published, and it cannot check why the
+operator stopped. §2.4 states both plainly and `PINS.json`'s batch note
+claims only the mechanical guards.
 
 **Not prevented:**
 
@@ -764,6 +1101,23 @@ computing rates, not reading files.
   *local* isolation only. S6 (distinct outputs) is the one observable that
   would hint at correlation, which is why it is reported before the rates
   when it is non-trivial.
+- **What `/tmp` still exposes.** The pinned CLI's sandbox is writable at
+  `[workdir, /tmp, $TMPDIR]`. This study gives each run its own `workdir`
+  and its own `TMPDIR` inside that workdir, so no run's `TMPDIR` is another
+  run's, but `/tmp` itself remains in the writable set on this platform and
+  the CLI offers no flag to remove it. If the operator's scratch parent is
+  under `/tmp` — the layout Study 010 used — then every other run's scratch
+  tree, and every run's isolated home, is *reachable* from inside a run's
+  sandbox. Three things bound what that can mean and none of them removes
+  it: the transcript whitelist refuses any run that used a tool at all, so
+  a run that actually reached another run's tree cannot enter a
+  denominator; the credential copy is deleted when each slot is sealed, so
+  what is reachable is a spent scratch tree rather than a live credential;
+  and the recommended scratch parent is outside `/tmp`. The residual is
+  real and is stated here rather than in a footnote — and note the cost it
+  imposes even when it does not bite: a run refused as `transcript-refused`
+  leaves the denominator, so the rates are conditional on the author having
+  happened not to use a tool.
 - **One prompt, one model, one policy, one family, one day.** Every rate
   is conditional on all of them. Nothing here estimates a rate for a
   different prompt phrasing, a different vendor's model, a real policy, or
@@ -791,8 +1145,10 @@ kind is made, here or anywhere in this repository.
   `stderr.raw`, `context.json`, `completion.txt`, the compiled `records/`
   and `RECORDS.md`, and the per-run admission verdict, refusal code, and
   class classification the scorer derives from them;
-- both recapture captures and the C7 negative control (digests and
-  refusal only, per §6);
+- every recapture attempt's captures, under `controls/recapture/attempt-N/`,
+  and the C7 negative control's three retained files (digests, verdict and
+  stripped call record only, per §6 C7 — the transcript is digested and
+  deleted by the driver and is never published);
 - `RESULTS.json` with every rate's integers and bounds, and `ANALYSIS.md`
   leading with the six rates and `rho` whatever they are — a class covered
   in 2 runs of 50 is published as 2/50 with its interval, in the headline,
@@ -810,10 +1166,13 @@ recapture — that is published too, in `DEVIATIONS.md`, with the reason.
 
 Fifty samples of one prompt against one model under one policy, on one
 machine, on one day, with one defect family of six classes. The intervals
-of §2.4 are the resolution: at N = 50 a perfect class is bounded below at
-0.93 and a half-covered class carries ±0.14, so this study can separate
-"reliably covered" from "rarely covered" and cannot resolve much finer
-than that.
+of §2.4 are the resolution, and they are denominated in V: **if no run is
+pipeline-invalid**, a perfect class is bounded below at 0.9289 and a
+half-covered class carries ±0.14; at V = 45 those become 0.9209 and about
+±0.15, at V = 40, 0.9114 and ±0.16. So this study can separate "reliably
+covered" from "rarely covered" and cannot resolve much finer than that —
+and §5 says exactly what that costs its own product decision: a class whose
+true coverage is 0.90 is called LIGHT 43% of the time.
 
 The family is public before authoring and has been since Study 010 merged;
 the policy text itself names 70, 40, and the embargo list, so
