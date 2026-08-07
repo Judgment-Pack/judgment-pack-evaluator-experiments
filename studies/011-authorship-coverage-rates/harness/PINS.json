@@ -60,7 +60,7 @@
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",
-    "sha256": null,
+    "sha256": "sha256:66fb530e07af60ef7ff88c819df14ede31c65b6d5f412507f72c0a6c7d5c91b4",
     "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; this registry is committed before the batch begins."
   },
   "python": {
