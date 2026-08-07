@@ -1,0 +1,189 @@
+{
+  "artifact": {
+    "agreementId": "AGR-2043",
+    "counterpartyLegalName": "Northwind Analytics Ltd",
+    "executedGrants": {
+      "internalAnalytics": true,
+      "onwardTransfer": true
+    },
+    "observedAt": "2026-08-05T09:00:00Z",
+    "sections": {
+      "dataSchedule": {
+        "datasets": [
+          "customer-events"
+        ]
+      },
+      "executionBlock": {
+        "counterpartySignatory": "Head of Data Partnerships",
+        "signedAt": "2026-05-04T00:00:00Z"
+      },
+      "recitals": {
+        "partiesNamed": true
+      }
+    },
+    "signatoryHadDelegatedAuthority": false,
+    "status": "found"
+  },
+  "catchingClause": {
+    "coupling": "unattested",
+    "note": "A clause CAN catch this fixture: `isTrue /signatoryHadDelegatedAuthority` would reach `unknown` on it, and that clause is pack-independent in shape. What no clause reaches is whether the field is true — the artifact simply asserts it, an availability state asserts what a caller wrote, and Core §3.5 forbids reading conformance as proof that evidence is authentic or sufficient. A caller who maps existence to `present` maps existence to whatever token is stronger, so a fourth state does not raise this ceiling. The catch is available; the truth is not. Byte-lineage, not truth (ADR-0002).",
+    "pointer": "/signatoryHadDelegatedAuthority"
+  },
+  "derived": {
+    "convention": {
+      "acquisitionStatus": "resolved",
+      "basis": [
+        "/counterpartyLegalName",
+        "/observedAt",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "present"
+      },
+      "facts": {
+        "agreement": {
+          "agreementId": "AGR-2043",
+          "counterpartyLegalName": "Northwind Analytics Ltd",
+          "executedGrants": {
+            "internalAnalytics": true,
+            "onwardTransfer": true
+          },
+          "observedAt": "2026-08-05T09:00:00Z",
+          "sections": {
+            "dataSchedule": {
+              "datasets": [
+                "customer-events"
+              ]
+            },
+            "executionBlock": {
+              "counterpartySignatory": "Head of Data Partnerships",
+              "signedAt": "2026-05-04T00:00:00Z"
+            },
+            "recitals": {
+              "partiesNamed": true
+            }
+          },
+          "signatoryHadDelegatedAuthority": false,
+          "status": "found"
+        }
+      },
+      "reason": "resolved"
+    },
+    "convention-coupled": {
+      "acquisitionStatus": "resolved",
+      "basis": [
+        "/counterpartyLegalName",
+        "/executedGrants/onwardTransfer",
+        "/observedAt",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "present"
+      },
+      "facts": {
+        "agreement": {
+          "agreementId": "AGR-2043",
+          "counterpartyLegalName": "Northwind Analytics Ltd",
+          "executedGrants": {
+            "internalAnalytics": true,
+            "onwardTransfer": true
+          },
+          "observedAt": "2026-08-05T09:00:00Z",
+          "sections": {
+            "dataSchedule": {
+              "datasets": [
+                "customer-events"
+              ]
+            },
+            "executionBlock": {
+              "counterpartySignatory": "Head of Data Partnerships",
+              "signedAt": "2026-05-04T00:00:00Z"
+            },
+            "recitals": {
+              "partiesNamed": true
+            }
+          },
+          "signatoryHadDelegatedAuthority": false,
+          "status": "found"
+        }
+      },
+      "reason": "resolved"
+    }
+  },
+  "expected": {
+    "convention": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "conventionClauseFact": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "conventionCoupled": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "naive": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "naiveClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naiveCredulousClauseFact": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    }
+  },
+  "id": "C6",
+  "naiveAvailability": {
+    "signed-agreement": "present"
+  },
+  "name": "Control — authority ceiling",
+  "packDemand": "an agreement **executed by both parties** — which an unauthorised signature does not achieve",
+  "params": {
+    "asOf": "2026-08-06T12:00:00Z",
+    "maxAgeSeconds": 2592000,
+    "subject": "Northwind Analytics Ltd"
+  },
+  "requirementDemands": {
+    "current": true,
+    "executedByBothParties": false,
+    "grantsOnwardTransfer": true,
+    "onFile": true,
+    "withThisCounterparty": true
+  },
+  "requirementSatisfied": false,
+  "summary": "Complete, executed, current, right counterparty, and the executed schedule does grant onward transfer — signed by someone who did not hold the delegated authority to bind the counterparty. The agreement is voidable and the release is not actually covered."
+}
