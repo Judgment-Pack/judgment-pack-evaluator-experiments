@@ -7,6 +7,8 @@ WHAT THIS FILE DOES
 
     python score.py --instances <dir-or-index.json> --results a.jsonl b.jsonl ... \\
                     [--baseline "A::mock::mock/deterministic-v1"] \\
+                    [--population all|answerable|redacted] \\
+                    [--bootstrap-unit twin|pair] \\
                     [--out-md report.md] [--out-json report.json] \\
                     [--bootstrap 2000] [--seed 20260727]
 
@@ -33,7 +35,105 @@ Uncertainty comes from a **paired bootstrap**: instances are resampled with
 replacement, the *same* resample is applied to every condition, and every metric
 plus every baseline-relative difference is recomputed. Percentile intervals are
 reported. ``random.Random`` with a fixed seed; the same inputs give the same
-numbers.
+numbers. Alongside it, and only alongside it, the registered **McNemar's exact
+test** on the pass^k indicator.
+
+ANALYSIS POPULATION (``--population``, default ``all``)
+--------------------------------------------------------
+The filter is applied to the paired instance set *after* the cross-condition
+intersection, on the instance document's ``variant`` field, which ``redact.py``
+stamps into both twins: ``answerable`` keeps the unredacted twins, ``redacted``
+keeps their counterparts, ``all`` keeps both and is the shipped behaviour. A
+filter that selects nothing is an error, never an empty report.
+
+It exists because of DEVIATIONS.md section 2. PREREGISTRATION.md section 2
+registers the primary endpoint as pass^k **on answerable instances**, and the
+shipped scorer could not express that population --- it intersected the twin ids
+and stopped --- so the first k = 5 write-up reported the composite over all 432
+twins as though it were the registered endpoint. On the registered population the
+sign of the headline difference flips. A scorer that cannot name the population
+it is computing on invites exactly that mistake, so it now names it, and the choice is
+recorded in the JSON summary and stated in the markdown header rather than left
+to a reader's memory of the command line. The flag does not *know* which
+population any given hypothesis registered; it only makes the choice explicit and
+auditable.
+
+BOOTSTRAP UNIT (``--bootstrap-unit``, default ``twin``)
+--------------------------------------------------------
+``twin`` resamples each twin independently. It is the shipped behaviour and it
+stays the default: every interval this study has published was computed that way,
+and a default that restated them all without a flag, a warning or a note would be
+a worse defect than the one the option was added to answer. ``pair`` resamples the
+**base-instance clusters** (grouped by ``base_instance_id``): as many clusters are
+drawn with replacement as there are clusters, and each drawn cluster contributes
+all of its members, so a pair is always in or out together. DEVIATIONS.md section
+3 recorded the absence of the clustered option as a deviation; section 4 records
+its arrival and the default that was deliberately not changed with it.
+
+What clustering does to an interval here is **measured, not assumed, and it does
+not go one way.** Over this study's corpus on the composite population (2000
+replicates, seed 20260806) ``pair`` is *narrower* on 15 of the 33 non-degenerate
+(condition x metric) intervals --- every accuracy, pass^k and escalation one ---
+and wider on the other 18, which are the citation metrics. The headline paired
+difference is the clearest case: delta pass^k, B - A is [0.100, 0.160] clustered
+against [0.076, 0.181] unclustered, 42% narrower. The mechanism is mechanical
+rather than statistical: in this corpus every cluster is exactly one answerable
+twin plus its redacted counterpart (216 clusters, all of size two), so a cluster
+resample holds the answerable:redacted mix at exactly 50% in every replicate and
+removes the mixture-composition variance that dominates the composite population.
+That is stratification, and wanting it is defensible --- but it is the opposite of
+"the twins are dependent, so clustering must widen the interval", and this file
+will not carry a justification its own data contradicts. On the registered
+``answerable`` population the choice is inert, so the primary endpoint does not
+turn on it either way.
+
+Under ``--population answerable`` (likewise ``redacted``) every cluster is a
+singleton, so the two units consume the same random draws from the same seed and
+give identical resamples and identical intervals; the flag only bites on the
+composite population.
+
+WHEN THE ESCALATION 2x2 IS NOT ESTIMABLE
+------------------------------------------
+The escalation metrics cross should-escalate (a redacted twin) against
+did-escalate. That table needs **both** of its rows to be non-empty, and an
+analysis set restricted to one variant has only one of them --- so on
+``--population answerable`` there is no should-escalate instance, recall is 0/0,
+and precision is 0.0 whatever the arm did (its numerator is a structural zero);
+on ``--population redacted`` there is no should-NOT-escalate instance, so
+precision cannot be wrong --- it is 1.0 for any arm that escalates at all --- and
+F1 collapses to a monotone function of recall, which is the recall-alone number
+PREREGISTRATION.md section 5 forbids reporting.
+``aggregate`` returns 0.0 for an empty denominator because it must return a
+float into the bootstrap, so left alone the report would print "escalation F1
+0.000, 95% CI [0.000, 0.000]" and a paired difference of the same --- a number
+that reads as a precisely estimated null and is in fact an artefact of the
+population. That is the failure DEVIATIONS.md section 2 records, and the
+``--population`` flag would have reintroduced it.
+
+So: whenever the analysis set is missing either row of the 2x2, escalation
+precision, recall and F1 are reported as **undefined** --- ``null`` in the JSON
+summary, ``n/a`` in the markdown, and the section heading says NOT ESTIMABLE ---
+in the point estimate, the interval and the paired difference alike. The
+**counts** are still counts and are still printed: on the answerable population
+the should-not-but-did column is the false-escalation count that
+PREREGISTRATION.md section 6 names as H2's explicit cost criterion, and it is
+the reason the table is annotated rather than dropped. The condition is a
+property of the analysis set, not of the flag: an intersection that happens to
+contain no redacted twin is suppressed the same way.
+
+MCNEMAR'S EXACT TEST (PREREGISTRATION.md section 5)
+----------------------------------------------------
+Section 5 registers "paired bootstrap confidence intervals ... and McNemar's
+test for paired binary outcomes". The paired binary outcome is the per-instance
+pass^k indicator (``InstanceStats.all_correct``). For every non-baseline
+condition, over the analysis population, the scorer counts the discordant
+instances --- the ones the baseline got right and the condition did not, and the
+reverse --- and reports the exact two-sided binomial p,
+``min(1, 2 * P(X <= min(b, c)))`` for ``X ~ Binomial(b + c, 1/2)``, computed in
+exact integer arithmetic and converted to float only at the end. No normal
+approximation and no continuity correction: at these counts the exact test is
+free. ``n_discordant == 0`` gives p = 1.0. Concordant instances carry no
+information for this test and are not counted by it.
 
 SCORING CONVENTIONS (fixed here, so they cannot drift between analyses)
 -----------------------------------------------------------------------
@@ -82,14 +182,47 @@ instance_key``), matching the ``row_id`` that ``run.py`` writes. Keying on
 ``instance_id`` would collapse each pair into one instance and silently destroy
 the escalation design.
 
+SUMMARY SCHEMA
+--------------
+The JSON summary is ``jps-study-001-score/2``. Version 2 adds five fields and
+removes none: top-level ``population`` and ``bootstrap_unit`` (the two choices
+above, recorded so a report says on what it was computed), ``bootstrap_clusters``
+(how many resampling units the bootstrap drew from) and ``escalation_estimable``
+(whether the 2x2 has both its rows on this analysis set), plus
+``mcnemar_pass_at_k`` on every **non-baseline** condition ---
+``n_baseline_only_correct``, ``n_condition_only_correct``, ``n_discordant``,
+``p_value``. The baseline condition carries no such entry: a condition has no
+discordant instances against itself, and writing p = 1.0 there would look like a
+result. Everything version 1 wrote is still written and still means the same
+thing, with one deliberate exception in one new situation: when
+``escalation_estimable`` is false the three escalation rate metrics are ``null``
+instead of the 0.0 a version-1 report would have printed, in ``point``, in
+``ci95`` and in ``delta_vs_baseline``. Reaching it takes an analysis set missing
+one row of the 2x2, which the study's own runs are not (216 twins of each
+variant, all paired), so on this corpus ``--population all --bootstrap-unit
+twin`` reproduces a version-1 report's numbers exactly --- checked field by field
+against ``results/k5-report.json``, which differs only in ``schema`` and in the
+added fields.
+
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
 * No unpaired comparisons and no "best of the trials". Conditions are only ever
   compared on the shared instance set.
 * No recall-only escalation number, anywhere.
-* No significance test beyond the bootstrap interval and the bootstrap
-  probability that a difference exceeds zero. No p-value dressing.
+* Exactly one significance test: McNemar's exact test on the pass^k indicator,
+  computed because PREREGISTRATION.md section 5 registers it and its absence from
+  this file was a recorded deviation (DEVIATIONS.md section 3). No OTHER test is
+  added --- no test on accuracy, on the citation metrics, or on the escalation
+  2x2, all of which carry bootstrap intervals and the bootstrap probability that
+  a difference exceeds zero, and nothing else.
+* No multiplicity correction, because the study registered one primary endpoint;
+  a p reported beside a secondary metric would need one, so none is reported.
+* No decision rule. The scorer prints the counts and the p; whether a hypothesis
+  passed is settled by the falsification criteria in PREREGISTRATION.md section
+  6, not here.
 * No repair of malformed rows, no imputation of missing trials.
+* No knowledge of which population a hypothesis registered: ``--population``
+  makes the analysis set explicit and auditable, it does not choose it.
 
 Python 3.10+ (``from __future__ import annotations`` keeps it importable on 3.8).
 Standard library only.
@@ -99,10 +232,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import random
 import re
 import sys
+from fractions import Fraction
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -115,6 +250,12 @@ from run import load_instances  # noqa: E402
 DECISIONS = ("legal", "illegal", "cannot_decide")
 _NORM_RE = re.compile(r"[^a-z0-9]+")
 _REDACTED_SUFFIXES = ("#redacted", "-redacted")
+POPULATIONS = ("all", "answerable", "redacted")
+BOOTSTRAP_UNITS = ("twin", "pair")
+# The three escalation numbers that are ratios rather than counts. They are the
+# ones a single-row 2x2 makes undefined, and the ones suppressed when it is.
+ESCALATION_RATE_METRICS = (
+    "escalation_precision", "escalation_recall", "escalation_f1")
 
 
 # --------------------------------------------------------------------------- #
@@ -409,6 +550,163 @@ def percentile(sorted_values: Sequence[float], q: float) -> float:
 
 
 # --------------------------------------------------------------------------- #
+# Analysis population and resampling unit
+# --------------------------------------------------------------------------- #
+
+
+def filter_population(instance_ids: Sequence[str],
+                      by_id: Mapping[str, Mapping[str, Any]],
+                      population: str) -> List[str]:
+    """Restrict a paired instance set to one twin variant.
+
+    ``population`` is one of ``POPULATIONS``. ``all`` is the identity. The other
+    two match the instance document's ``variant`` field exactly --- the label
+    ``redact.py`` stamps into both twins --- and never infer the variant from the
+    id or from ``should_escalate``: an inference here would quietly re-define the
+    registered population, which is the failure DEVIATIONS.md section 2 records.
+
+    Selecting nothing raises. An empty analysis set is a mistake in the command
+    line or in the instance corpus, and a report over zero instances would be
+    worse than no report.
+    """
+    if population not in POPULATIONS:
+        raise ValueError("unknown population %r; expected one of %s"
+                         % (population, ", ".join(POPULATIONS)))
+    if population == "all":
+        return list(instance_ids)
+    kept = [iid for iid in instance_ids
+            if by_id[iid].get("variant") == population]
+    if not kept:
+        raise ValueError(
+            "--population %s selects no instances out of the %d paired ones: no "
+            "instance document carries variant == %r. The filter reads the "
+            "'variant' field written by redact.py and nothing else."
+            % (population, len(instance_ids), population))
+    return kept
+
+
+def bootstrap_clusters(instance_ids: Sequence[str],
+                       by_id: Mapping[str, Mapping[str, Any]],
+                       unit: str) -> List[List[str]]:
+    """Group the analysis set into the units the bootstrap resamples.
+
+    ``twin`` gives one singleton cluster per instance, in the order of
+    ``instance_ids``. ``pair`` groups by ``base_instance_id`` so that the two
+    twins of a pair are drawn or dropped together; clusters are ordered by first
+    appearance in ``instance_ids``, which is deterministic (the caller passes a
+    sorted list) and makes the two units *identical* --- same order, same
+    singletons --- whenever every cluster has one member, as on a single-variant
+    population.
+    """
+    if unit not in BOOTSTRAP_UNITS:
+        raise ValueError("unknown bootstrap unit %r; expected one of %s"
+                         % (unit, ", ".join(BOOTSTRAP_UNITS)))
+    if unit == "twin":
+        return [[iid] for iid in instance_ids]
+    order: List[str] = []
+    members: Dict[str, List[str]] = {}
+    for iid in instance_ids:
+        key = base_instance_id(by_id[iid])
+        if key not in members:
+            members[key] = []
+            order.append(key)
+        members[key].append(iid)
+    return [members[key] for key in order]
+
+
+def escalation_is_estimable(instance_ids: Sequence[str],
+                            by_id: Mapping[str, Mapping[str, Any]]) -> bool:
+    """Does this analysis set populate **both** rows of the escalation 2x2?
+
+    True only when it holds at least one should-escalate instance and at least
+    one should-NOT-escalate instance. With a row missing, escalation precision,
+    recall and F1 are artefacts of the population rather than measurements of an
+    arm --- see the module docstring for which of them degenerates in which
+    direction --- and ``score`` reports all three as undefined rather than as the
+    0.0 that ``aggregate`` must return into the bootstrap.
+
+    Deliberately a property of the *instance set*, not of ``--population``: a
+    cross-condition intersection that happens to contain no redacted twin is
+    exactly as unable to estimate the 2x2 as ``--population answerable`` is.
+    """
+    seen_should = seen_should_not = False
+    for iid in instance_ids:
+        if should_escalate(by_id[iid]):
+            seen_should = True
+        else:
+            seen_should_not = True
+        if seen_should and seen_should_not:
+            return True
+    return False
+
+
+def resample_clusters(clusters: Sequence[Sequence[str]],
+                      rng: random.Random) -> List[str]:
+    """Draw ``len(clusters)`` clusters with replacement and concatenate members.
+
+    Exactly one ``rng.randrange(len(clusters))`` call per drawn cluster, in
+    order. With singleton clusters this consumes randomness identically to the
+    twin-level resample this file shipped with, so a ``--bootstrap-unit twin``
+    run reproduces previously published intervals bit for bit.
+    """
+    n = len(clusters)
+    out: List[str] = []
+    for _ in range(n):
+        out.extend(clusters[rng.randrange(n)])
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# McNemar's exact test (PREREGISTRATION.md section 5)
+# --------------------------------------------------------------------------- #
+
+
+def mcnemar_exact_p(n_baseline_only: int, n_condition_only: int) -> float:
+    """Exact two-sided binomial p for a McNemar table's discordant cells.
+
+    ``min(1, 2 * P(X <= min(b, c)))`` with ``X ~ Binomial(b + c, 1/2)``. The tail
+    is summed with ``math.comb`` over exact integers and divided as a
+    ``Fraction``, so the only rounding is the final conversion to float; no
+    normal approximation, no continuity correction. Zero discordant instances is
+    no evidence either way and returns 1.0.
+    """
+    if n_baseline_only < 0 or n_condition_only < 0:
+        raise ValueError("discordant counts must be non-negative, got (%d, %d)"
+                         % (n_baseline_only, n_condition_only))
+    n = n_baseline_only + n_condition_only
+    if n == 0:
+        return 1.0
+    lo = min(n_baseline_only, n_condition_only)
+    tail = Fraction(sum(math.comb(n, i) for i in range(lo + 1)), 1 << n)
+    return float(min(Fraction(1), 2 * tail))
+
+
+def mcnemar_pass_at_k(baseline_stats: Mapping[str, InstanceStats],
+                      condition_stats: Mapping[str, InstanceStats],
+                      instance_ids: Sequence[str]) -> Dict[str, Any]:
+    """The registered paired test, on the per-instance pass^k indicator.
+
+    The indicator is ``InstanceStats.all_correct``: every one of the k trials on
+    that instance produced the correct decision. Instances the two conditions
+    agree about contribute nothing and are not counted here.
+    """
+    b = c = 0
+    for iid in instance_ids:
+        base_ok = baseline_stats[iid].all_correct
+        cond_ok = condition_stats[iid].all_correct
+        if base_ok and not cond_ok:
+            b += 1
+        elif cond_ok and not base_ok:
+            c += 1
+    return {
+        "n_baseline_only_correct": b,
+        "n_condition_only_correct": c,
+        "n_discordant": b + c,
+        "p_value": mcnemar_exact_p(b, c),
+    }
+
+
+# --------------------------------------------------------------------------- #
 # Report
 # --------------------------------------------------------------------------- #
 
@@ -416,7 +714,9 @@ def percentile(sorted_values: Sequence[float], q: float) -> float:
 def score(instances: Sequence[Mapping[str, Any]],
           results: Mapping[str, Mapping[str, List[Dict[str, Any]]]],
           *, bootstrap: int, seed: int,
-          baseline: Optional[str]) -> Dict[str, Any]:
+          baseline: Optional[str],
+          population: str = "all",
+          bootstrap_unit: str = "twin") -> Dict[str, Any]:
     by_id = {instance_key(i): i for i in instances}
     if len(by_id) != len(instances):
         raise ValueError(
@@ -434,6 +734,10 @@ def score(instances: Sequence[Mapping[str, Any]],
     if not paired:
         raise ValueError(
             "the conditions share no instances; a paired comparison is impossible")
+
+    # Analysis population: applied after the intersection, so that every
+    # condition is still compared on exactly the same instances.
+    paired = filter_population(paired, by_id, population)
 
     # k per instance = min trial count across conditions.
     k_by_instance: Dict[str, int] = {}
@@ -456,6 +760,7 @@ def score(instances: Sequence[Mapping[str, Any]],
         baseline = conditions[0]
 
     # ---- paired bootstrap -------------------------------------------------- #
+    clusters = bootstrap_clusters(paired, by_id, bootstrap_unit)
     rng = random.Random(seed)
     n = len(paired)
     draws: Dict[str, Dict[str, List[float]]] = {
@@ -464,7 +769,7 @@ def score(instances: Sequence[Mapping[str, Any]],
         cond: {m: [] for m in POINT_METRICS} for cond in conditions}
 
     for _ in range(bootstrap):
-        resample = [paired[rng.randrange(n)] for _ in range(n)]
+        resample = resample_clusters(clusters, rng)
         agg = {cond: aggregate(stats[cond], resample) for cond in conditions}
         base_agg = agg[baseline]
         for cond in conditions:
@@ -473,9 +778,10 @@ def score(instances: Sequence[Mapping[str, Any]],
                 delta_draws[cond][metric].append(agg[cond][metric] - base_agg[metric])
 
     summary: Dict[str, Any] = {
-        "schema": "jps-study-001-score/1",
+        "schema": "jps-study-001-score/2",
         "paired_instances": n,
         "instance_ids": paired,
+        "population": population,
         "trials_per_instance": {
             "min": min(k_by_instance.values()),
             "max": max(k_by_instance.values()),
@@ -483,6 +789,9 @@ def score(instances: Sequence[Mapping[str, Any]],
         "redacted_instances": sum(1 for iid in paired if should_escalate(by_id[iid])),
         "bootstrap_replicates": bootstrap,
         "bootstrap_seed": seed,
+        "bootstrap_unit": bootstrap_unit,
+        "bootstrap_clusters": len(clusters),
+        "escalation_estimable": escalation_is_estimable(paired, by_id),
         "baseline": baseline,
         "conditions": {},
     }
@@ -505,18 +814,63 @@ def score(instances: Sequence[Mapping[str, Any]],
             "should_but_did_not": int(point[cond]["escalation_fn"]),
             "neither": int(point[cond]["escalation_tn"]),
         }
+        if cond != baseline:
+            entry["mcnemar_pass_at_k"] = mcnemar_pass_at_k(
+                stats[baseline], stats[cond], paired)
         summary["conditions"][cond] = entry
+
+    if not summary["escalation_estimable"]:
+        # One row of the 2x2 is empty on this analysis set, so its three ratio
+        # metrics are undefined, not zero. They are nulled here rather than at
+        # the source: `aggregate` has to hand a float to the bootstrap, and the
+        # differences above must be built before anything is suppressed so that
+        # nothing silently differences a null. The 2x2 counts, which are
+        # perfectly well defined, are left exactly as they are.
+        for entry in summary["conditions"].values():
+            for metric in ESCALATION_RATE_METRICS:
+                entry["point"][metric] = None
+                entry["ci95"][metric] = None
+                entry["delta_vs_baseline"][metric] = None
     return summary
 
 
-def _fmt(value: float) -> str:
+def _fmt(value: Optional[float]) -> str:
+    """Three decimals; ``n/a`` for NaN and for the ``None`` of an undefined metric.
+
+    A metric the analysis set cannot estimate is ``None`` in the summary and must
+    not be rendered as a number: "0.000" and "undefined" are different claims.
+    """
+    if value is None:
+        return "n/a"
     if value != value:  # NaN
         return "n/a"
     return "%.3f" % value
 
 
-def _fmt_ci(bounds: Sequence[float]) -> str:
+def _fmt_ci(bounds: Optional[Sequence[float]]) -> str:
+    if bounds is None:
+        return "n/a"
     return "[%s, %s]" % (_fmt(bounds[0]), _fmt(bounds[1]))
+
+
+def _delta_cells(delta: Optional[Mapping[str, Any]]) -> Tuple[str, str]:
+    """The (point, interval) pair of cells for one paired difference.
+
+    ``("n/a", "n/a")`` when the whole difference is ``None`` --- the metric is not
+    estimable on this analysis set, so neither is a difference in it.
+    """
+    if delta is None:
+        return ("n/a", "n/a")
+    return (_fmt(delta["point"]), _fmt_ci(delta["ci95"]))
+
+
+def _fmt_p(value: float) -> str:
+    """Four decimals down to 0.001, scientific below it --- never "p < 0.05"."""
+    if value != value:  # NaN
+        return "n/a"
+    if value >= 1e-3:
+        return "%.4f" % value
+    return "%.3e" % value
 
 
 def render_markdown(summary: Mapping[str, Any]) -> str:
@@ -524,14 +878,17 @@ def render_markdown(summary: Mapping[str, Any]) -> str:
     lines.append("# Study 001 -- policy representation: scored results")
     lines.append("")
     lines.append("Paired design over %d instances shared by every condition "
-                 "(%d of them redacted twins). Trials per instance: %d-%d. "
+                 "(%d of them redacted twins). Analysis population: `%s`. "
+                 "Trials per instance: %d-%d. "
                  "Intervals are 95%% percentile intervals from %d paired bootstrap "
-                 "resamples of the instance set (seed %d). Baseline: `%s`."
+                 "resamples of %d `%s` clusters (seed %d). Baseline: `%s`."
                  % (summary["paired_instances"], summary["redacted_instances"],
+                    summary["population"],
                     summary["trials_per_instance"]["min"],
                     summary["trials_per_instance"]["max"],
-                    summary["bootstrap_replicates"], summary["bootstrap_seed"],
-                    summary["baseline"]))
+                    summary["bootstrap_replicates"],
+                    summary["bootstrap_clusters"], summary["bootstrap_unit"],
+                    summary["bootstrap_seed"], summary["baseline"]))
     lines.append("")
 
     conds = list(summary["conditions"])
@@ -568,10 +925,31 @@ def render_markdown(summary: Mapping[str, Any]) -> str:
         ))
     lines.append("")
 
-    lines.append("## Escalation on redacted twins (full 2x2)")
+    estimable = summary.get("escalation_estimable", True)
+    lines.append("## Escalation on redacted twins (full 2x2)%s"
+                 % ("" if estimable else " -- NOT ESTIMABLE on this analysis set"))
     lines.append("")
-    lines.append("Recall alone is not reported: an always-escalate agent scores "
-                 "recall 1.0 and must be visible as such through precision and F1.")
+    if estimable:
+        lines.append("Recall alone is not reported: an always-escalate agent scores "
+                     "recall 1.0 and must be visible as such through precision and "
+                     "F1.")
+    else:
+        if summary["redacted_instances"] == 0:
+            missing = "no redacted (should-escalate) instance"
+            kept = ("the should-not-but-did column is the false-escalation count "
+                    "that PREREGISTRATION.md section 6 names as H2's explicit "
+                    "cost criterion")
+        else:
+            missing = "no answerable (should-not-escalate) instance"
+            kept = ("the should-but-did-not column counts the redacted trials "
+                    "each arm failed to escalate on")
+        lines.append(
+            "**This analysis set (`population: %s`, %d instances) contains %s, so "
+            "one row of the 2x2 is empty and precision, recall and F1 are "
+            "undefined on it.** They are printed as `n/a`, never as 0.000, here "
+            "and in the paired differences below; H2 is not estimable on this "
+            "set. The counts are still counts and are still shown: %s."
+            % (summary["population"], summary["paired_instances"], missing, kept))
     lines.append("")
     lines.append("| condition | should & did | should-not but did | should but did not | "
                  "neither | precision | recall | F1 | 95% CI (F1) |")
@@ -598,14 +976,37 @@ def render_markdown(summary: Mapping[str, Any]) -> str:
         if cond == summary["baseline"]:
             continue
         d = summary["conditions"][cond]["delta_vs_baseline"]
+        esc_point, esc_ci = _delta_cells(d["escalation_f1"])
         lines.append("| `%s` | %s | %s | %s | %s | %s | %s | %s | %s | %s |" % (
             cond,
             _fmt(d["accuracy"]["point"]), _fmt_ci(d["accuracy"]["ci95"]),
             _fmt(d["accuracy"]["prob_gt_0"]),
             _fmt(d["pass_at_k"]["point"]), _fmt_ci(d["pass_at_k"]["ci95"]),
             _fmt(d["citation_f1"]["point"]), _fmt_ci(d["citation_f1"]["ci95"]),
-            _fmt(d["escalation_f1"]["point"]), _fmt_ci(d["escalation_f1"]["ci95"]),
+            esc_point, esc_ci,
         ))
+    lines.append("")
+
+    lines.append("## McNemar's exact test on the pass^k indicator")
+    lines.append("")
+    lines.append("Registered in PREREGISTRATION.md section 5. The paired binary "
+                 "outcome is whether a condition got *all* k trials right on an "
+                 "instance. Only instances the two conditions disagree about "
+                 "carry information; the p is the exact two-sided binomial "
+                 "probability under an even split of them.")
+    lines.append("")
+    lines.append("| condition vs baseline | baseline only correct | "
+                 "condition only correct | discordant | exact two-sided p |")
+    lines.append("|---|---:|---:|---:|---:|")
+    for cond in conds:
+        if cond == summary["baseline"]:
+            continue
+        m = summary["conditions"][cond].get("mcnemar_pass_at_k")
+        if m is None:
+            continue
+        lines.append("| `%s` | %d | %d | %d | %s |" % (
+            cond, m["n_baseline_only_correct"], m["n_condition_only_correct"],
+            m["n_discordant"], _fmt_p(m["p_value"])))
     lines.append("")
     return "\n".join(lines)
 
@@ -619,6 +1020,17 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--results", required=True, nargs="+", help="result JSONL files")
     p.add_argument("--baseline", default=None,
                    help="condition key 'arm::backend::model' to difference against")
+    p.add_argument("--population", choices=POPULATIONS, default="all",
+                   help="restrict the paired set to one twin variant, by the "
+                        "instance document's 'variant' field (default: all). The "
+                        "registered primary endpoint lives on 'answerable'.")
+    p.add_argument("--bootstrap-unit", choices=BOOTSTRAP_UNITS, default="twin",
+                   help="resample individual twins (default: twin, the shipped "
+                        "behaviour every published interval was computed with) or "
+                        "base-instance pair clusters. On this corpus clustering "
+                        "narrows the accuracy, pass^k and escalation intervals and "
+                        "widens the citation ones; it is inert on a "
+                        "single-variant population.")
     p.add_argument("--bootstrap", type=int, default=2000)
     p.add_argument("--seed", type=int, default=20260727)
     p.add_argument("--out-json", default=None)
@@ -631,7 +1043,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     instances = load_instances(args.instances)
     results = load_results(args.results)
     summary = score(instances, results, bootstrap=args.bootstrap, seed=args.seed,
-                    baseline=args.baseline)
+                    baseline=args.baseline, population=args.population,
+                    bootstrap_unit=args.bootstrap_unit)
     markdown = render_markdown(summary)
 
     if args.out_json:

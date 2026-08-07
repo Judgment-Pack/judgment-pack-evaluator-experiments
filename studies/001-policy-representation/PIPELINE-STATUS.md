@@ -315,11 +315,20 @@ goes to all three arms, so the *comparison* is unbiased — but the absolute arm
 number is not a clean measure of the pack. `pipeline/DERIVED.md` §4 says this at
 length; any write-up must repeat it.
 
-**G-3. 18 false `illegal` verdicts on gold-legal instances, undiagnosed.** Arm B
-calls 18 of the 50 gold-legal answerable instances illegal. Most likely cause is
-G-2: an over-eager exception assignment (e.g. the Non-Taxpayer Mid-Level assigned
-to a team that in fact had Room) makes a limit rule fire. Someone should walk
-those 18 traces.
+**G-3. 18 false `illegal` verdicts on gold-legal instances — DIAGNOSED
+(2026-08-06).** Arm B calls 18 of the **37** gold-legal answerable instances
+illegal (this entry originally said "of the 50"; the pinned checkout has 37 —
+comp_0 24, comp_1 12, comp_2 1 — and the retained log splits them 18 illegal /
+10 legal / 9 cannot_decide). The traces have been walked:
+[`G3-DIAGNOSIS.md`](G3-DIAGNOSIS.md) diagnoses every instance to a named
+`derive.py` field or pack rule, each verified by counterfactual through the
+same binary. The guess above was half right: the over-eager exception
+assignment (M1/M2) is real and decisive on 5, but pack encoding errors are
+decisive on 8 under the note's tie-break convention. The consequential
+finding is for G-2: correcting the four derivation defects *lowers* whole-
+corpus answerable accuracy 0.579 → 0.551 — the components' errors partly
+compensate, so the arm-B score is not separable into pack and preprocessor
+contributions.
 
 **G-4. The redaction is still invisible to arm B on 126 of 216 pairs.**
 `redact.py` chooses what to delete in terms of *raw* fact roles read off
@@ -430,13 +439,21 @@ $PY harness/run.py --arm B      --backend mock --instances pipeline/out/twins \
     --out results/B-mock.jsonl
 
 # 8. score
+#    --population and --bootstrap-unit are written out even though both are the
+#    defaults: they name the analysis set and the resampling unit, which is the
+#    pair a scored report must not leave to a reader's memory (DEVIATIONS.md
+#    sections 2 and 4). The registered primary endpoint is --population
+#    answerable; --bootstrap-unit twin is what every published interval used.
 $PY harness/score.py --instances pipeline/out/twins \
     --results results/A-mock.jsonl results/Aprime-mock.jsonl results/B-mock.jsonl \
     --baseline "A::mock::mock/deterministic-v1" --bootstrap 2000 \
+    --population all --bootstrap-unit twin \
     --out-md results/report.md --out-json results/report.json
 
 # tests
-$PY -m pytest pipeline/tests harness/tests -q     # 141 passed
+$PY -m pytest pipeline/tests harness/tests -q     # 193 passed, 2 skipped
+#                                                 # (the 2 skips need the
+#                                                 #  judgment-pack CLI installed)
 
 # supporting reads
 $PY pipeline/derive.py --readings                 # numbered readings R1-R10

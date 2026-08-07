@@ -42,6 +42,31 @@ beginning with ``engine-refusal:`` or ``outcome-map-failure:``. The scorer count
 such a row as an incorrect, non-escalating answer. Suppressing them would let arm
 B quietly discard its hardest instances.
 
+A **non-zero exit is a refusal on the exit code alone**, whatever the process
+wrote to stdout. An earlier revision rejected a non-zero exit only when stdout was
+also empty, so a runtime that printed a well-formed envelope and then failed could
+be scored as a success; the adversarial review recorded that in ``DEVIATIONS.md``
+section 3, and the rule was tightened here on 2026-08-06. So that "N engine
+refusals" can be checked against the retained rows rather than taken on trust,
+*every* return path of ``evaluate_instance`` carries the child process's
+``returncode`` and its ``stderr`` verbatim --- including the paths where no
+process completed, which record ``returncode=None``.
+
+**What that does NOT do is make the study's published arm-B numbers auditable.**
+The change is to the harness, not to the data: every row in
+``results/pilot-B-runtime.jsonl`` was written before it, is
+``jps-study-001-result/1``, carries no ``engine_returncode`` and no
+``engine_stderr``, and was scored under the permissive rule. Arm B has **not**
+been re-run, so ``RESULTS-FIRST-PROMPT-ARMS.md``'s "0 errors" for arm B rests on
+the old rule and on the same unauditable retained rows as before --- the new keys
+audit runs made from now on and nothing earlier. Nor was the rule change
+registered in advance: it was made after the result was read, which is recorded
+in ``DEVIATIONS.md`` section 4 along with the direction it can move a number
+(strictly down for arm B, never up). The stricter rule does not catch a
+legitimate abstention: the current runtime's ``internal/cli/app.go`` documents
+that producing *any* disposition exits 0, so ``unresolved`` and
+``not-applicable`` come back through the normal path.
+
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
 * No arithmetic and no fact synthesis. JPS compares facts; it does not compute
@@ -266,12 +291,31 @@ def _evidence_path_for(instance_id: str, evidence_dir: Optional[str]) -> Optiona
     return candidate if os.path.exists(candidate) else None
 
 
+def _decoded(stream: Any) -> str:
+    """Decode one captured stderr stream to text; ``""`` when nothing was captured.
+
+    ``TimeoutExpired.stderr`` is ``bytes`` when the child wrote before the timeout
+    expired and ``None`` when it wrote nothing at all. Both are recorded --- as
+    text and as the empty string respectively --- rather than dropped, because the
+    partial stderr of a timed-out runtime is often the only account of it.
+    """
+    if stream is None:
+        return ""
+    if isinstance(stream, bytes):
+        return stream.decode("utf-8", "replace")
+    return str(stream)
+
+
 def evaluate_instance(instance: Mapping[str, Any], config: ArmBConfig) -> Dict[str, Any]:
     """Run the pack against one instance.
 
     Returns ``{"ok", "prediction", "error", "raw_text", "raw", "latency_ms",
-    "argv"}``. ``raw_text`` is the runtime's stdout verbatim, kept so an arm-B
-    refusal is as auditable as a model's malformed reply.
+    "argv", "returncode", "stderr"}``. ``raw_text`` is the runtime's stdout
+    verbatim, kept so an arm-B refusal is as auditable as a model's malformed
+    reply. ``returncode`` is the child's exit status, or ``None`` on the two paths
+    where no process completed (timeout, and a CLI that could not be executed);
+    ``stderr`` is the child's stderr decoded verbatim, ``""`` where none was
+    captured. Both are present on every return path, success included.
     """
     instance_id = str(instance.get("instance_id", "<unknown>"))
     payload = _facts_payload(instance, config.facts_root)
@@ -303,37 +347,47 @@ def evaluate_instance(instance: Mapping[str, Any], config: ArmBConfig) -> Dict[s
         # be recorded, never a crash that silently drops the instance.
         latency_ms = int((time.monotonic() - started) * 1000)
         _cleanup(tmpdir, facts_path)
+        # No process ran, so there is no exit status to record and none is
+        # invented: returncode is None, which is distinguishable from 0.
         return {"ok": False, "prediction": None,
                 "error": "engine-refusal:cli-not-found:%s:%s" % (config.cli, exc.__class__.__name__),
-                "raw_text": "", "raw": None, "latency_ms": latency_ms, "argv": argv}
-    except subprocess.TimeoutExpired:
+                "raw_text": "", "raw": None, "latency_ms": latency_ms, "argv": argv,
+                "returncode": None, "stderr": ""}
+    except subprocess.TimeoutExpired as exc:
         latency_ms = int((time.monotonic() - started) * 1000)
         _cleanup(tmpdir, facts_path)
         return {"ok": False, "prediction": None,
                 "error": "engine-refusal:timeout after %ss" % config.timeout_s,
-                "raw_text": "", "raw": None, "latency_ms": latency_ms, "argv": argv}
+                "raw_text": "", "raw": None, "latency_ms": latency_ms, "argv": argv,
+                "returncode": None, "stderr": _decoded(exc.stderr)}
     latency_ms = int((time.monotonic() - started) * 1000)
     _cleanup(tmpdir, facts_path)
 
     stdout = proc.stdout.decode("utf-8", "replace")
     stderr = proc.stderr.decode("utf-8", "replace")
 
-    if proc.returncode != 0 and not stdout.strip():
+    # The registered rule, implemented literally: a non-zero exit is a refusal.
+    # stdout is not consulted, because a runtime that printed an envelope and then
+    # failed has not answered the instance --- it has told us it could not.
+    if proc.returncode != 0:
         return {"ok": False, "prediction": None,
                 "error": "engine-refusal:exit=%d:%s" % (proc.returncode, stderr.strip()[:400]),
-                "raw_text": stdout, "raw": None, "latency_ms": latency_ms, "argv": argv}
+                "raw_text": stdout, "raw": None, "latency_ms": latency_ms, "argv": argv,
+                "returncode": proc.returncode, "stderr": stderr}
 
     try:
         envelope = json.loads(stdout)
     except (ValueError, TypeError) as exc:
         return {"ok": False, "prediction": None,
                 "error": "engine-refusal:unparseable-output:%s" % (str(exc)[:200],),
-                "raw_text": stdout, "raw": None, "latency_ms": latency_ms, "argv": argv}
+                "raw_text": stdout, "raw": None, "latency_ms": latency_ms, "argv": argv,
+                "returncode": proc.returncode, "stderr": stderr}
 
     if not isinstance(envelope, dict):
         return {"ok": False, "prediction": None,
                 "error": "engine-refusal:output-not-an-object",
-                "raw_text": stdout, "raw": None, "latency_ms": latency_ms, "argv": argv}
+                "raw_text": stdout, "raw": None, "latency_ms": latency_ms, "argv": argv,
+                "returncode": proc.returncode, "stderr": stderr}
 
     mapped = map_envelope(envelope, config.outcome_map)
     mapped.update({
@@ -341,6 +395,8 @@ def evaluate_instance(instance: Mapping[str, Any], config: ArmBConfig) -> Dict[s
         "raw": envelope,
         "latency_ms": latency_ms,
         "argv": argv,
+        "returncode": proc.returncode,
+        "stderr": stderr,
     })
     return mapped
 

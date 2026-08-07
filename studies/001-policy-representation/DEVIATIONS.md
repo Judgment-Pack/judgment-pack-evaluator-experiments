@@ -66,12 +66,16 @@ manufactured-redaction ones. On the registered population the sign flips:
 The post-run adversarial review caught it as its first blocker. Every
 number was independently recomputed before the correction was accepted.
 
-**Why it happened, stated plainly.** `score.py` intersects all shared twin
-ids and never filters to `variant == "answerable"`. The scorer does not
-enforce the registered population, and the author did not verify that the
-population matched the endpoint before writing "passes". A preregistration
-constrains what you may claim; it does not check that the claim was
-computed on what it names. That check is manual and it was skipped.
+**Why it happened, stated plainly.** As shipped on the day, `score.py`
+intersected all shared twin ids and never filtered to
+`variant == "answerable"`. The scorer did not enforce the registered
+population, and the author did not verify that the population matched the
+endpoint before writing "passes". A preregistration constrains what you
+may claim; it does not check that the claim was computed on what it
+names. That check is manual and it was skipped. (§4 records the
+`--population` flag added afterwards. It makes the analysis set explicit
+and auditable; it still does not know which population a hypothesis
+registered, so the manual check remains manual.)
 
 **Consequences.** `RESULTS-FIRST-PROMPT-ARMS.md` was rewritten to lead
 with the negative result. H1, H4, and H5 are all reported as not
@@ -84,18 +88,161 @@ amended, so the error and its correction are both auditable.
   It is defined as pooled across Claude and Codex; only Codex ran, and
   `score.py` has no cross-backend pooling operation. Everything reported
   is a Codex-only deviated analysis.
-- **McNemar's test, committed in §5, is not implemented** in `score.py`,
-  which provides only paired bootstrap intervals. It was computed by hand
+
+Each of the three below was true of the harness **as it stood when the
+results were read**. §4 records what was changed afterwards and what was
+not; the state of each one today is noted inline so this list cannot be
+read as describing the current code.
+
+- **McNemar's test, committed in §5, was not implemented** in `score.py`,
+  which provided only paired bootstrap intervals. It was computed by hand
   for the primary endpoint and reported; the omission is recorded here
-  rather than left silent.
-- **The shipped scorer bootstraps 432 twins independently** rather than
+  rather than left silent. *(Implemented 2026-08-06 — §4.)*
+- **The shipped scorer bootstrapped 432 twins independently** rather than
   resampling the 216 pair clusters. Pair-clustering the H2 interval gives
   [0.397, 0.505]; the conclusion is unchanged. Reported figures note which
-  intervals are clustered.
-- **`arm_b.py` can score a nonzero-exit run as a success.** It rejects a
-  nonzero return code only when stdout is empty, and arm-B rows retain
+  intervals are clustered. *(A `--bootstrap-unit pair` option exists as of
+  2026-08-06 and reproduces that interval; `twin` remains the default, so
+  the published intervals are still what the recorded commands produce —
+  §4.)*
+- **`arm_b.py` could score a nonzero-exit run as a success.** It rejected a
+  nonzero return code only when stdout was empty, and arm-B rows retain
   neither return code nor stderr, so the reported "0 engine refusals"
   cannot be audited from the retained JSONL. No retained envelope shows a
   refusal signal. Fixing the check and re-running the deterministic arm is
   filed as follow-up rather than performed under a result already
-  corrected once.
+  corrected once. *(The check was fixed 2026-08-06 — §4 — and the re-run
+  was performed later the same day — §5: byte-identical dispositions, all
+  exit codes 0 retained. The original `/1` rows remain unauditable in
+  themselves; the audited corpus stands beside them.)*
+
+## 4. Harness changes made after the results were read (2026-08-06)
+
+The harness defects §3 records were answered in code on the same day —
+*after* the k = 5 numbers had been read and written up. That ordering is
+itself worth recording: an analysis rule changed after the result is a
+rule the result could have influenced, and none of this was preregistered.
+What follows is what changed, what it does to a published number, and what
+was deliberately not done.
+
+**Nothing in `results/` was re-run or re-scored for this entry.** Every
+figure in `RESULTS-FIRST-PROMPT-ARMS.md` is still the one its recorded
+command produced, and each item below was checked against those artifacts
+rather than asserted.
+
+1. **McNemar's exact test is implemented** (`score.py`,
+   `mcnemar_exact_p` / `mcnemar_pass_at_k`), on the per-instance pass^k
+   indicator, for every non-baseline condition. It reproduces the figure
+   §2 computed by hand: on the answerable population, B against A gives 44
+   discordant instances favouring A and 12 favouring B, exact two-sided
+   p = 2.0876568218419767 × 10⁻⁵. No published number changes; the study
+   simply no longer computes its registered test by hand.
+
+2. **`--population {all,answerable,redacted}`** makes the analysis set
+   explicit, filtering on the `variant` field `redact.py` stamps into both
+   twins. `--population answerable` reproduces §2's corrected figures
+   exactly (pass^k A 0.727 [0.667, 0.787], A′ 0.778 [0.718, 0.833], B
+   0.579 [0.509, 0.644]; Δ B − A = −0.148 [−0.213, −0.088]). The flag does
+   not know which population a hypothesis registered — it makes the choice
+   visible, it does not make it.
+
+3. **`--bootstrap-unit {twin,pair}`** adds the pair-clustered resample §3
+   said was missing. **The default is deliberately still `twin`**, so
+   every recorded scoring command keeps producing the published intervals:
+   `--population all --bootstrap-unit twin` reproduces
+   `results/k5-report.json` field for field (the only differences are the
+   `schema` string and the fields version 2 adds). The effect of clustering
+   was measured rather than assumed, and it does not run the way §3's
+   phrasing implies: on the composite population it *narrows* 15 of the 33
+   non-degenerate intervals — every accuracy, pass^k and escalation one,
+   e.g. Δ pass^k B − A [0.100, 0.160] clustered against [0.076, 0.181]
+   unclustered — and widens the other 18, all citation metrics. The cause
+   is mechanical: every cluster is exactly one answerable twin plus its
+   redacted counterpart, so clustering pins the answerable:redacted mix at
+   50% in every replicate and removes the mixture variance that dominates
+   the composite. That is stratification, not a correction for dependence.
+   On a single-variant population every cluster is a singleton and the two
+   units are identical, so **the registered endpoint is unaffected by this
+   choice**. §3's clustered H2 interval [0.397, 0.505] is reproduced by
+   `--bootstrap-unit pair`.
+
+4. **Escalation metrics are suppressed where they are undefined.** When
+   the analysis set holds only one twin variant, one row of the escalation
+   2×2 is empty by construction, and precision, recall and F1 are then
+   artifacts of the population rather than measurements: on an
+   answerable-only set recall is 0/0 and precision is a structural zero.
+   The scorer reports all three as `null` / `n/a` with the section marked
+   NOT ESTIMABLE, instead of the "escalation F1 0.000 [0.000, 0.000]" a
+   naïve filter would print — which would have been §2's defect
+   reintroduced by the flag added to prevent it. The 2×2 counts are still
+   reported, because on answerable twins the should-not-but-did count is
+   the false-escalation cost §6 names for H2.
+
+5. **`arm_b.py`'s refusal rule was tightened and arm B was NOT re-run**
+   *(as of this entry; the re-run was performed later the same day — §5).*
+   A non-zero exit is now a refusal on the exit code alone, and every
+   arm-B row carries `engine_returncode` and `engine_stderr`
+   (`jps-study-001-result/2`). Both halves matter for reading the
+   published result:
+   - The rule changed after the result was read. It can only move arm B's
+     numbers **down** (it converts recorded successes into refusals and
+     never the reverse), so nothing published was flattered by the old
+     rule — but nothing published has been re-derived under the new one
+     either.
+   - The retained corpus predates it. All 2,160 rows of
+     `results/pilot-B-runtime.jsonl` are `jps-study-001-result/1`, none
+     carries `engine_returncode` or `engine_stderr`, and every `error` is
+     null — verified by reading the file. So
+     `RESULTS-FIRST-PROMPT-ARMS.md`'s "0 errors" for arm B rests on the
+     old rule, and the new keys audit future runs only. §3's follow-up is
+     half done, and the outstanding half is the half that would change
+     what can be claimed.
+
+6. **`run.py` refuses to resume an arm-B file across the two vintages.**
+   Because the refusal rule defines what an arm-B row *means*, appending
+   `/2` rows to a file holding `/1` arm-B rows would give one file two
+   definitions of "engine refusal" with nothing downstream able to tell
+   them apart (`score.py` never reads the schema string). The model arms
+   are unaffected — their rows are identical across the two versions — and
+   resume across it as before.
+
+## 5. The deterministic arm re-run, performed (2026-08-06, later the same day)
+
+§3's outstanding half — re-running arm B under the tightened rule — was
+done after §4 was written. `results/k5-B-runtime-audited.jsonl` is the full
+432 × 5 run through the fixed harness (`jps-study-001-result/2`, same
+binary `judgment-pack 0.2.0`, same pack, same seeds 20260806–20260810),
+and three facts about it were verified programmatically rather than
+asserted:
+
+1. **Every row retains `engine_returncode: 0`** and its `engine_stderr`,
+   so "0 engine refusals" is now a claim a reader can check against a
+   retained artifact produced under the strict rule — for this corpus. The
+   original `/1` rows stay as they were; their unauditability is §4 item
+   5's record and it stands for them.
+2. **The tightened rule changed nothing.** All 2,160 rows carry a
+   disposition and trace byte-identical to `results/pilot-B-runtime.jsonl`
+   (verified per row), and the decision distribution is the recorded
+   235 `illegal` / 45 `legal` / 152 `cannot_decide` per trial. Zero
+   recorded successes converted to refusals, which is what §4 item 5's
+   "can only move the numbers down" bound predicted for a corpus with no
+   nonzero exits.
+3. **The registered analysis now exists as a scorer artifact.**
+   `results/k5-report-answerable.{json,md}` scores the audited arm-B rows
+   with the retained model-arm rows on the registered population
+   (`--population answerable`, seed 20260806, 2000 resamples): pass^5
+   A 0.727, A′ 0.778, B 0.579; Δ B − A = −0.148 [−0.213, −0.088];
+   McNemar 44/12, p = 2.0876568218419767 × 10⁻⁵ — identical, field for
+   field, to scoring the original rows (verified), and identical to §2's
+   corrected figures. Escalation is reported NOT ESTIMABLE there, as §4
+   item 4 requires.
+
+The 2026-07-27 reproduction note in `RESULTS-FIRST-PROMPT-ARMS.md` is
+thereby extended: the corpus has now reproduced exactly under both the
+permissive and the strict refusal rule.
+
+G-3 is also no longer open: every one of the 18 false-`illegal` verdicts
+is diagnosed to a named field or rule in [`G3-DIAGNOSIS.md`](G3-DIAGNOSIS.md),
+each verified by counterfactual through the same binary, and the whole
+note was adversarially re-derived (all 18 instances) by an independent
+check whose four corrections are incorporated and credited inline.
