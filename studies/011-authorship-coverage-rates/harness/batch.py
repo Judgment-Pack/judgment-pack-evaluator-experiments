@@ -45,7 +45,10 @@ Commands:
                              slots (the second half of `capture`, for the case
                              where the calls were made and the derivation was
                              not). At least two agreeing captures, always:
-                             --min-slots cannot ask for fewer
+                             --min-slots cannot ask for fewer, and the captures
+                             must come from distinct sessions — a copied slot
+                             or a transcript retained twice agrees with itself
+                             and refuses
   capture-isolation-negative §6 C7: ONE probe call with the operator's real
                              HOME, expected to FAIL the golden match. Retains
                              the verdict and a stripped call record always, and
@@ -109,6 +112,20 @@ STDERR_TAIL = 4000
 # reproduces, and an allowlist built from a context that might vary is not an
 # allowlist. This is the floor, not a default: a smaller --min-slots refuses.
 MIN_CAPTURE_SLOTS = 2
+# …and the two must be two CALLS. The rule's meaning is that two independent
+# probe invocations reproduced the same context; a copied slot, or one call's
+# transcript retained twice, satisfies "two agreeing captures" and shows
+# nothing at all. Each member below is a piece of RAW retained evidence that
+# says WHICH call produced a capture, and two capture slots that share any of
+# them are one call — the normalized digests are deliberately not among them,
+# because two genuinely independent calls SHOULD agree there and that agreement
+# is the point of the derivation, not a defect in it.
+CAPTURE_IDENTITY = (
+    ("sessionSha256", "the retained transcript bytes"),
+    ("sessionId", "the session id the transcript records"),
+    ("callIdentity", "the call record's own start, end, working directory and "
+                     "isolated home"),
+)
 # §6 C7: what a retained negative-control CALL.json may not carry. The control
 # runs against the operator's real environment, so every member that names or
 # enumerates it is dropped before the file is written into the study.
@@ -400,6 +417,73 @@ def capture_slots(directory: str) -> list:
     return found
 
 
+def session_identity(session_path: str):
+    """The session id the transcript records for itself, or None.
+
+    `session_meta` is metadata the transcript checker skips — no conversation
+    content reaches the model through it — but it is exactly the right
+    evidence here: it names the session, and two capture slots naming one
+    session are one call however their directories are named.
+    """
+    with open(session_path, "rb") as handle:
+        for raw in handle:
+            raw = raw.strip()
+            if not raw:
+                continue
+            entry = json.loads(raw.decode("utf-8"),
+                               object_pairs_hook=score_rates._refuse_duplicate_keys)
+            if not isinstance(entry, dict) or entry.get("type") != "session_meta":
+                continue
+            payload = entry.get("payload")
+            if isinstance(payload, dict):
+                for key in ("id", "session_id"):
+                    if isinstance(payload.get(key), str) and payload[key]:
+                        return payload[key]
+    return None
+
+
+def capture_identity(slot: str) -> dict:
+    """The raw retained evidence of WHICH call produced this capture (§3.2).
+
+    Raw, deliberately: the session file's bytes, the session id, and the call
+    record's own wall clock, working directory and isolated home. Not the
+    normalized context digests — those are what two independent calls are
+    SUPPOSED to share.
+    """
+    call = _load_json(os.path.join(slot, "CALL.json"))
+    return {
+        "slot": os.path.basename(slot),
+        "sessionSha256": _digest(os.path.join(slot, "session.jsonl")),
+        "sessionId": session_identity(os.path.join(slot, "session.jsonl")),
+        "callIdentity": (call.get("startedAt"), call.get("endedAt"),
+                         call.get("cwd"), call.get("home")),
+    }
+
+
+def require_distinct_sessions(identities: list) -> None:
+    """Every capture slot is a different call, or BatchError naming the pair.
+
+    The hole this closes: `capture-golden` counted slots and compared
+    normalized contexts, so two slots holding one call's evidence — a copied
+    directory, or one transcript retained twice — agreed perfectly and derived
+    an allowlist from a context that had never been shown to reproduce. The
+    floor of two is a floor of two INDEPENDENT calls.
+    """
+    for index, first in enumerate(identities):
+        for second in identities[index + 1:]:
+            for member, prose in CAPTURE_IDENTITY:
+                if first[member] is None or second[member] is None:
+                    continue
+                if first[member] != second[member]:
+                    continue
+                raise BatchError(
+                    "capture %s and capture %s share %s (%r): a golden capture is "
+                    "derived from at least two INDEPENDENT calls that reproduced "
+                    "the same context, and two slots holding one call's evidence "
+                    "agree by construction rather than by reproduction (§3.2)"
+                    % (first["slot"], second["slot"], prose, first[member]))
+
+
 def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
     """Derive this study's golden pre-prompt context from retained capture
     slots (PREREGISTRATION.md §3.2).
@@ -414,7 +498,10 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
     The two-capture rule is enforced HERE, where the derivation happens, and
     not only in the command that makes the calls: `MIN_CAPTURE_SLOTS` is a
     floor, so `--min-slots 1` refuses rather than deriving an allowlist from a
-    single unreproduced context.
+    single unreproduced context — and the two must be two independent CALLS,
+    which `require_distinct_sessions()` checks on the raw retained evidence
+    rather than on the normalized digests two honest calls are supposed to
+    share.
     """
     if not out_path:
         raise BatchError("--out is required: a golden capture is written where the "
@@ -428,7 +515,7 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
             "--min-slots %d asks for fewer: one capture cannot show that a "
             "pre-prompt context reproduces, and a context that might vary is not "
             "an allowlist (§3.2)" % (MIN_CAPTURE_SLOTS, min_slots))
-    usable, contexts = [], []
+    usable, contexts, identities = [], [], []
     for slot in capture_slots(slots_dir):
         session = os.path.join(slot, "session.jsonl")
         call = _load_json(os.path.join(slot, "CALL.json"))
@@ -439,10 +526,16 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
             events, position, transcript_check.environment_paths(turn_contexts, call))
         usable.append(os.path.basename(slot))
         contexts.append(transcript_check.context_digests(session, call))
+        identities.append(capture_identity(slot))
     required = max(min_slots, MIN_CAPTURE_SLOTS)
     if len(usable) < required:
         raise BatchError("a capture needs at least %d capture slots with a session; found %d"
                          % (required, len(usable)))
+    # …and they are that many CALLS: agreement between two copies of one
+    # transcript is not reproduction (§3.2). Checked before the contexts are
+    # compared, because a duplicate agrees by construction and the comparison
+    # below would report success.
+    require_distinct_sessions(identities)
     first = contexts[0]
     for name, context in zip(usable[1:], contexts[1:]):
         if context != first:

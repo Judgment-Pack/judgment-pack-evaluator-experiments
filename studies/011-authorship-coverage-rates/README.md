@@ -122,7 +122,10 @@ sha256sum PREREGISTRATION.md
 # 7. The scorer: admission, compilation, classification, rates, intervals.
 #    Writes RESULTS.json and RATES.md to the study root — there is no
 #    --out, by design (§2.4) — and the optional per-slot record trees §8
-#    publishes.
+#    publishes. This command IS the registered scoring interface
+#    (score_rates.score_registered): it takes no registry digest, the
+#    committed harness/PINS.json's digest is computed inside, and a
+#    scoring that supplied one instead is refused by the writer (§7).
 "$PY" harness/score_rates.py score --slots transcription/authoring \
         --emit-records records
 

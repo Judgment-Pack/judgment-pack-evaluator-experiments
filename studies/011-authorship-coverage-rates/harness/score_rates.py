@@ -27,6 +27,8 @@ CODE_PARTITION carries, which PREREGISTRATION.md §3.3 enumerates member for
 member and harness/tests/test_admission.py diffs against both this source and
 that table):
 
+  slot-symlink           the slot tree holds a symlink — anywhere, under any
+                         name, dangling or not (§3.3)
   slot-shape             a required slot file is missing or not a regular file
   call-unreadable        CALL.json is not duplicate-free JSON
   model-mismatch         CALL.json names a model other than the pinned one
@@ -83,6 +85,18 @@ read six rates while leaving the marker the driver refuses new slots on
 (§2.4). `--emit-records DIR` still takes a directory: it writes derived
 record trees, not rates.
 
+**The registered scoring interface is `score_registered()`, which is what the
+`score` command calls and the only path that reaches `write_outputs()` with
+the study root** (§7). It takes no registry digest: the committed
+`harness/PINS.json`'s digest is computed here, unconditionally, and no flag,
+environment variable or argument can supply another — this module reads no
+environment at all. The `registry_sha256` override on `score()`, `score_run()`
+and `admit()` exists for library callers whose slots were made under a
+stand-in registry (the wrapper-driven harness tests), and the separation is
+enforced in code rather than by convention: `score()` records the override in
+its results and `write_outputs()` refuses to write RESULTS.json or RATES.md
+for a scoring that carried one — anywhere, not only into the study root.
+
 Usage:
   score_rates.py score --slots DIR [--pins PATH] [--family PATH]
                        [--prompt PATH] [--golden PATH] [--emit-records DIR]
@@ -118,6 +132,11 @@ SLOT_FILES = ("CALL.json", "stdout.raw", "stderr.raw")
 # harness tests can drive the real wrapper against a stand-in binary; a slot
 # stamped with any other registry's digest is pipeline-invalid.
 REGISTRY_OF_RECORD = os.path.join(HERE, "PINS.json")
+# The member every scoring carries: null when the registry digest was computed
+# from REGISTRY_OF_RECORD (the registered path), and the supplied digest when a
+# library caller overrode it. write_outputs() refuses to publish a table whose
+# cell does not carry this member, or carries it non-null (§7).
+REGISTRY_OVERRIDE = "registryOverride"
 # §2.2 / C6: the environment the wrapper constructs rather than inherits. The
 # child PATH is exactly these six system directories plus one per-run directory
 # holding a single symlink to the pinned binary.
@@ -143,6 +162,7 @@ PIPELINE_CAUTION = 0.10
 # codes the two functions can actually return AND against the enumeration
 # PREREGISTRATION.md §3.3 registers, so prose and code cannot drift apart.
 CODE_PARTITION = {
+    "slot-symlink": "pipeline-invalid",
     "slot-shape": "pipeline-invalid",
     "call-unreadable": "pipeline-invalid",
     "model-mismatch": "pipeline-invalid",
@@ -418,6 +438,34 @@ def _regular(path: str) -> bool:
     return os.path.isfile(path) and not os.path.islink(path)
 
 
+def symlinks_in(slot: str) -> list:
+    """Every symlink in a slot tree, relative to the slot, in sorted order.
+
+    Study 010's seal used the general rule and this study needed it: a slot
+    tree may hold REGULAR FILES AND DIRECTORIES ONLY. The defect that made the
+    rule necessary here was narrow — `REFUSAL.json` as a DANGLING symlink
+    passes `os.path.exists()`, so the strict refusal loader was never reached
+    and the slot proceeded as if the batch had never terminated it — but the
+    class is not: any symlink in a slot means a retained byte the slot does not
+    contain, or a file whose existence depends on a target outside the
+    published evidence. Both are refusals, and one enumerated code says so.
+
+    Dangling links are found because nothing here follows a link: `os.walk`
+    runs with `followlinks=False`, a dangling link is not a directory so it
+    arrives among the file names, and `os.path.islink` is a check on the entry
+    rather than on its target.
+    """
+    if os.path.islink(slot):
+        return ["."]
+    found = []
+    for base, directories, names in os.walk(slot, followlinks=False):
+        for name in list(directories) + list(names):
+            path = os.path.join(base, name)
+            if os.path.islink(path):
+                found.append(os.path.relpath(path, slot))
+    return sorted(found)
+
+
 def compiled_files(completion_path: str) -> dict:
     """{relative path: bytes} for one run's records, regenerated from the
     retained completion bytes every time it is asked. Study 010 compared a
@@ -509,13 +557,26 @@ def admit(slot: str, prompt_path: str, golden_path: str, pins: dict,
 
     `registry_sha256` defaults to the digest of the committed
     `harness/PINS.json` — the strict value, and the only one `main()` can
-    produce, because there is no flag for it. The parameter exists so the
-    wrapper-driven tests, whose slots are made under a stand-in registry
-    naming a stand-in binary, can say which registry their slots' stamps are
-    supposed to name.
+    produce, because the registered interface (`score_registered()`) has no
+    parameter for it. The override exists so the wrapper-driven tests, whose
+    slots are made under a stand-in registry naming a stand-in binary, can say
+    which registry their slots' stamps are supposed to name; a scoring that
+    uses it can never be published, because `write_outputs()` refuses results
+    carrying one (§7).
     """
     if registry_sha256 is None:
         registry_sha256 = file_digest(REGISTRY_OF_RECORD)
+    # §3.3, first: regular files and directories only, anywhere in the tree.
+    # This precedes every other check because a symlink decides what a later
+    # check reads — a dangling REFUSAL.json link answers `exists()` with False
+    # and made the batch's own refusal record disappear.
+    links = symlinks_in(slot)
+    if links:
+        return ("slot-symlink",
+                "the slot tree holds %d symlink(s) (%s): a slot may hold regular "
+                "files and directories only, and a link — dangling or not — is a "
+                "retained byte the slot does not contain"
+                % (len(links), ", ".join(links)), False)
     for name in SLOT_FILES:
         if not _regular(os.path.join(slot, name)):
             return "slot-shape", "%s is missing or not a regular file" % name, False
@@ -664,14 +725,18 @@ def score_run(slot: str, prompt_path: str, golden_path: str, pins: dict,
     name = os.path.basename(slot)
     batch_code = None
     try:
+        code, detail, empty = admit(slot, prompt_path, golden_path, pins,
+                                    registry_sha256)
         # §7 totality: the refusal record is read INSIDE the total path. It was
         # read outside it in an earlier draft, so a REFUSAL.json that was a
         # directory, a list, or `null` reached the caller as a bare traceback
         # and stopped the scoring of every other slot — and an empty one
-        # silently let a refused run into V.
-        batch_code = batch_refusal_code(slot)
-        code, detail, empty = admit(slot, prompt_path, golden_path, pins,
-                                    registry_sha256)
+        # silently let a refused run into V. It is read only from a slot whose
+        # tree is regular files and directories: a symlinked REFUSAL.json is
+        # not this slot's refusal evidence, and the link already refused the
+        # slot with its own code, which is the more exact verdict of the two.
+        if code != "slot-symlink":
+            batch_code = batch_refusal_code(slot)
     except Exception as error:  # noqa: BLE001 — totality is the point
         # §7: a malformed or missing slot artifact yields a recorded verdict,
         # never a bare exception that stops the scoring of every other slot.
@@ -734,14 +799,20 @@ def collect_slots(slots_dir: str) -> tuple:
     directory named run-<digits>; anything else is reported, never scored.
     The indices must be exactly the contiguous range 1…N (§6 C5): a gap is a
     slot that was created and removed, and no rate may be computed over a
-    population with a hole in it."""
+    population with a hole in it.
+
+    A run-NNN entry that is a SYMLINK is collected as a slot rather than
+    skipped: skipping it punched a hole in the indices and refused the whole
+    scoring, where §3.3 wants the link named. `admit()` scores it
+    `slot-symlink` on its first check, so it enters no denominator and the
+    other slots are still counted."""
     if not os.path.isdir(slots_dir):
         raise ScoreError("%s is not a directory" % slots_dir)
     slots, unexpected, indexes = [], [], []
     for name in sorted(os.listdir(slots_dir)):
         path = os.path.join(slots_dir, name)
         parts = name.split("-", 1)
-        if os.path.isdir(path) and not os.path.islink(path) \
+        if (os.path.isdir(path) or os.path.islink(path)) \
                 and len(parts) == 2 and parts[0] == "run" and parts[1].isdigit():
             slots.append(path)
             indexes.append(int(parts[1]))
@@ -850,6 +921,18 @@ def terminality(slots: list, slots_dir: str, registered) -> dict:
 
 def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
           golden_path: str, registry_sha256: str = None) -> dict:
+    """The counting, with the registry of record either computed or supplied.
+
+    `registry_sha256` is the LIBRARY override (§2.6, §7): it exists so the
+    wrapper-driven harness tests, whose slots are stamped with a stand-in
+    registry naming a stand-in binary, can say which registry their own slots
+    are supposed to name. Whether it was used is recorded in the results —
+    `cell.registryOverride` — and `write_outputs()` refuses to write
+    RESULTS.json or RATES.md when it is not null, so an override can produce a
+    dict in memory and never a published rate table. The registered command
+    calls `score_registered()`, which has no such parameter.
+    """
+    override = registry_sha256
     if registry_sha256 is None:
         registry_sha256 = file_digest(REGISTRY_OF_RECORD)
     preconditions = verify_preconditions(pins_path, prompt_path, golden_path)
@@ -936,6 +1019,7 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
             "goldenSha256": preconditions["goldenSha256"],
             "preregistrationSha256": preconditions["preregistrationSha256"],
             "registryOfRecordSha256": registry_sha256,
+            REGISTRY_OVERRIDE: override,
             "portedFiles": preconditions["portedFiles"],
             "study010LockSha256": preconditions["study010LockSha256"],
             "note": "One cell: this prompt, this model, this policy. Nothing here "
@@ -1005,6 +1089,19 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
         },
         "runs": rows,
     }
+
+
+def score_registered(slots_dir: str, pins_path: str, family_path: str,
+                     prompt_path: str, golden_path: str) -> dict:
+    """THE REGISTERED SCORING INTERFACE (§7): the only path that publishes.
+
+    It takes no registry digest and there is no argument, flag or environment
+    variable through which one could arrive — `score()` therefore computes the
+    committed `harness/PINS.json`'s digest itself, and a slot stamped with any
+    other registry is `registry-mismatch` (§2.6, §3.3). `main()` calls this and
+    nothing else, and `write_outputs()` publishes only what this produced.
+    """
+    return score(slots_dir, pins_path, family_path, prompt_path, golden_path)
 
 
 # --- reporting -------------------------------------------------------------
@@ -1254,7 +1351,32 @@ def write_outputs(results: dict, out_dir: str, slots_dir: str = None,
     `main()` always passes the study root — there is no CLI flag that moves
     the rate table anywhere else (§2.4). The parameter exists so the
     determinism test can score the same tree into two throwaway directories
-    and compare the bytes without writing into the committed study."""
+    and compare the bytes without writing into the committed study.
+
+    **The one thing this refuses to publish** (§7): a scoring that did not
+    compute the committed registry's digest itself. `score()`'s
+    `registry_sha256` override is for library callers, and the boundary
+    between "a library caller may compute a table" and "a table may be
+    published" is enforced here rather than left to the caller's discipline —
+    results carrying an override are refused, in any output directory, and so
+    is a results dict that never came through `score()` and therefore cannot
+    say which registry it counted under.
+    """
+    cell = results.get("cell") if isinstance(results, dict) else None
+    if not isinstance(cell, dict) or REGISTRY_OVERRIDE not in cell:
+        raise ScoreError(
+            "these results did not come from score(): they carry no cell.%s, so "
+            "there is no saying which registry of record they were counted under, "
+            "and an unattributable rate table is not published (§7)"
+            % REGISTRY_OVERRIDE)
+    if cell[REGISTRY_OVERRIDE] is not None:
+        raise ScoreError(
+            "this scoring was given the registry digest %s as an override; "
+            "RESULTS.json and RATES.md are written only for a scoring that "
+            "computed the committed harness/PINS.json's digest itself. Score "
+            "through score_registered() — the registered interface — or keep the "
+            "override and keep the result in memory (§2.6, §7)"
+            % cell[REGISTRY_OVERRIDE])
     os.makedirs(out_dir, exist_ok=True)
     with open(os.path.join(out_dir, "RESULTS.json"), "wb") as handle:
         handle.write((json.dumps(results, indent=2, sort_keys=True) + "\n").encode("utf-8"))
@@ -1289,10 +1411,14 @@ def main(argv: list) -> int:
         slots_dir = _argument(argv, "--slots")
         if slots_dir is None:
             raise ScoreError("--slots is required")
-        results = score(slots_dir, _argument(argv, "--pins", DEFAULT_PINS),
-                        _argument(argv, "--family", DEFAULT_FAMILY),
-                        _argument(argv, "--prompt", DEFAULT_PROMPT),
-                        _argument(argv, "--golden", DEFAULT_GOLDEN))
+        # §7: the registered interface. It takes no registry digest, so no
+        # argv, no default and no environment can put one here — the committed
+        # harness/PINS.json's digest is computed inside.
+        results = score_registered(slots_dir,
+                                   _argument(argv, "--pins", DEFAULT_PINS),
+                                   _argument(argv, "--family", DEFAULT_FAMILY),
+                                   _argument(argv, "--prompt", DEFAULT_PROMPT),
+                                   _argument(argv, "--golden", DEFAULT_GOLDEN))
         write_outputs(results, STUDY, slots_dir, _argument(argv, "--emit-records"))
     except ScoreError as error:
         print("refused: %s" % error, file=sys.stderr)

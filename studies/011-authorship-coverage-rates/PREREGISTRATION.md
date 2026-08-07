@@ -517,6 +517,17 @@ recapture procedure is registered here, in full, before the batch:
    slots however it is invoked (`--min-slots 1` included). One capture cannot
    show that a context reproduces, and a context that might vary run to run is
    not an allowlist.
+   Two capture slots are also required to be two **calls**. The rule's meaning
+   is that two independent probe invocations reproduced the same context, and
+   counting slots does not say that: a copied slot, or one call's transcript
+   retained under two names, agrees with itself perfectly. The derivation
+   therefore refuses when any two capture slots share any of the raw retained
+   evidence that identifies a call — the `session.jsonl` bytes, the session id
+   the transcript records for itself, or the `CALL.json`'s own start, end,
+   working directory and isolated home. Deliberately raw: the *normalized*
+   context digests are what two honest independent calls are supposed to share,
+   and checking those for distinctness would refuse exactly the outcome the
+   recapture exists to demonstrate.
    Each capture call uses the §2.2 invocation exactly — fresh `HOME`, fresh
    `CODEX_HOME`, `env -i`, exclusive scratch, stdin closed, pinned binary
    and model — with one substitution: the prompt is the registered **probe
@@ -594,6 +605,7 @@ this list cannot drift from the counting.
 
 | outcome | partition |
 | --- | --- |
+| `slot-symlink` | pipeline-invalid |
 | `slot-shape` | pipeline-invalid |
 | `call-unreadable` | pipeline-invalid |
 | `model-mismatch` | pipeline-invalid |
@@ -617,9 +629,21 @@ this list cannot drift from the counting.
 | *(no code, no parseable array)* | **authoring-empty — valid, in every denominator, covering nothing** |
 | *(no code)* | **valid** |
 
-Six of those need their registration stated rather than implied, because
+Seven of those need their registration stated rather than implied, because
 they are gates §3.1's list does not name:
 
+- `slot-symlink` — **a slot tree holds regular files and directories only.**
+  Any symlink anywhere beneath the slot — dangling or resolving, `REFUSAL.json`
+  or any other name, and the slot directory itself if it is one — scores the
+  run pipeline-invalid under this code, before any other check runs. Two
+  reasons, and the general rule is registered rather than the narrow one
+  because the narrow one is how this was found: a link is a retained byte the
+  slot does not contain, so the published evidence is not the evidence that was
+  counted; and a link makes a file's *existence* conditional on its target, so
+  a **dangling** `REFUSAL.json` answers an existence check with "no refusal"
+  and a slot the batch terminated is counted as one it never touched. Study
+  010's seal used this same rule, and it is stated here as a property of the
+  slot tree, not as a rule about one file name;
 - `context-mismatch` — the retained `context.json` must be what
   `session.jsonl` recomputes. A slot whose two artifacts disagree is not
   evidence about authorship;
@@ -668,6 +692,14 @@ continues. It is deliberately not treated as "no refusal": the file's presence
 means the batch terminated that slot, and a slot whose termination is
 unexplained is not a sample. The batch writes a code on every refusal it
 records, so an honest slot never reaches this.
+
+**A `REFUSAL.json` that is a symlink is not read at all**: the slot is already
+refused `slot-symlink` above, and the refusal record is read only from a slot
+whose tree is regular files and directories. That ordering is the point. The
+strict loader in the paragraph above runs only when the file *exists*, and a
+dangling link does not exist by that test — so before this rule the one shape
+that made a batch-terminated slot look untouched was the one shape the strict
+loader never saw. The general rule refuses it without having to anticipate it.
 
 Let **N** be the slots executed (50, or S under §2.4's shortfall), **I**
 the pipeline-invalid runs, and **V = N − I** the valid runs. V is the
@@ -1211,7 +1243,33 @@ the scorer, or in both — nothing here is a description of intent:
   they run (§2.6);
 - the registry of record: every run records the sha256 of the registry it was
   made under, and the scorer computes the committed `harness/PINS.json`'s
-  digest itself and scores any other run `registry-mismatch` (§2.6);
+  digest itself and scores any other run `registry-mismatch` (§2.6). **The
+  registered scoring interface is `score_rates.score_registered()`, which the
+  `score_rates.py score` command calls and nothing else does**: it takes no
+  registry digest, so no flag, default, argument or environment variable can
+  supply one — the scorer reads no environment at all, and a harness test
+  asserts that of its source. The `registry_sha256` override on `score()`,
+  `score_run()` and `admit()` is for library callers whose slots were made
+  under a stand-in registry (the wrapper-driven tests), and the separation
+  between "may compute a table" and "may publish one" is enforced in code:
+  `score()` records the override in `cell.registryOverride`, and
+  `write_outputs()` — the only writer of `RESULTS.json` and `RATES.md` in this
+  harness — refuses results carrying one, in any output directory, and refuses
+  a results dict that never came through `score()` at all. So the widest an
+  alternate registry reaches is a dict in memory. What that does **not** cover,
+  stated here rather than left implied: a caller who edits `score_rates.py` or
+  rebinds its module constants in process. No check inside a file defends that
+  file, this study's own harness is not digest-pinned (only the six ported
+  files are, C1), and the ceiling is the one the "deliberately not claimed"
+  paragraph below states — re-runnability, not proof;
+- a slot tree of regular files and directories only: any symlink in a slot,
+  dangling or not, under any name, scores that slot `slot-symlink`,
+  pipeline-invalid, before any other check (§3.3);
+- the recapture derived from at least two **distinct sessions**, checked on the
+  raw retained evidence — transcript bytes, session id, and the call record's
+  own clock, working directory and home — so a copied capture slot or a
+  transcript retained twice refuses the derivation instead of agreeing with
+  itself (§3.2);
 - the preregistration's freeze digest as a precondition of the **calls** as
   well as the scoring, and refused while it is null rather than skipped;
 - the per-run fresh `HOME`/`CODEX_HOME`; the `env -i` scrub with a `PATH`
@@ -1227,8 +1285,8 @@ the scorer, or in both — nothing here is a description of intent:
 - the transcript whitelist, terminal-prompt rule, leak denylist, model/cwd
   binding, integer exit 0, and completion byte-binding (§3.1);
 - the golden context match on every slot; the recapture required to agree
-  across at least two independent captures, enforced both before the calls
-  and at the derivation; **and the golden capture bound to its pin and to
+  across at least two captures from distinct sessions, enforced both before
+  the calls and at the derivation; **and the golden capture bound to its pin and to
   every run** — the driver refuses to create any slot while
   `PINS.golden.sha256` is null or does not match the file at the golden
   path, the scorer refuses on the same conditions, every slot records the

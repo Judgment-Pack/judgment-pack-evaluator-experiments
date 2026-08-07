@@ -220,14 +220,26 @@ def default_prior(cwd: str, home: str) -> list:
     ]
 
 
+SESSION_ID = "00000000-0000-4000-8000-%012d"
+
+
 def session_entries(prompt: str, answer: str, cwd: str, home: str,
                     model: str = MODEL, prior=None, reasoning: bool = True,
-                    extra=()) -> list:
+                    extra=(), session_id: str = None) -> list:
     """A transcript in the shape a real pinned-CLI session carries: codex's own
     boilerplate, an inert reasoning item, a turn context, the registered prompt
-    as the last user message, and one assistant answer."""
+    as the last user message, and one assistant answer.
+
+    `session_id` names the session, as the pinned CLI's `session_meta` does. It
+    is a fixed default here because these fixtures are compared byte for byte;
+    the stand-in CLI passes a per-call value, because a real CLI mints one per
+    session and `batch.require_distinct_sessions()` reads it as evidence that
+    two capture slots are two calls (§3.2). No normalized context digest
+    depends on it: `session_meta` carries no conversation content and the
+    transcript checker skips it.
+    """
     entries = [{"type": "session_meta",
-                "payload": {"id": "00000000-0000-4000-8000-000000000000",
+                "payload": {"id": session_id or SESSION_ID % 0,
                             "cwd": cwd, "cli_version": "0.145.0-fake"}}]
     for role, text in (default_prior(cwd, home) if prior is None else prior):
         entries.append(message(role, text))
@@ -444,7 +456,8 @@ def main(argv):
     sessions = os.path.join(os.environ["CODEX_HOME"], "sessions")
     os.makedirs(sessions, exist_ok=True)
     entries = fixtures.session_entries(prompt, step["completion"], os.getcwd(),
-                                       home, model=model, prior=prior)
+                                       home, model=model, prior=prior,
+                                       session_id=fixtures.SESSION_ID % (index + 1))
     if step.get("no_assistant"):
         # Exit 0 with a transcript carrying no assistant message: the shape
         # that kills the wrapper mid-run (completion extraction raises under

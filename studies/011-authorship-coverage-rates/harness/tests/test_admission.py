@@ -437,6 +437,77 @@ class Slots(unittest.TestCase):
         self.assertEqual(row["code"], "refusal-conflict")
         self.assertEqual(row["batchCode"], "session-count")
 
+    # --- §3.3: regular files and directories only ----------------------------
+
+    def test_every_symlink_in_a_slot_refuses_under_one_code(self):
+        """The round-2 gap and its neighbourhood. `REFUSAL.json` as a DANGLING
+        symlink passed the existence check, so the strict refusal loader never
+        ran and a slot the batch had terminated scored as one it never touched.
+        The registered rule is the general one Study 010's seal used: a slot
+        tree holds regular files and directories only."""
+        well_formed = os.path.join(self.root, "a-refusal.json")
+        with open(well_formed, "w") as handle:
+            json.dump({"run": "run-601", "code": "call-nonzero-exit"}, handle)
+        elsewhere = os.path.join(self.root, "elsewhere.txt")
+        with open(elsewhere, "wb") as handle:
+            handle.write(fixtures.COMPLETION_A.encode("utf-8"))
+        cases = {
+            # the exact defect: a link to nothing, which `exists()` calls absent
+            "run-601": ("REFUSAL.json", os.path.join(self.root, "no-such-file.json")),
+            # the same file, resolving: refusal evidence outside the slot
+            "run-602": ("REFUSAL.json", well_formed),
+            # the counted bytes themselves, held outside the published slot
+            "run-603": ("completion.txt", elsewhere),
+            # any other name, anywhere in the tree, including a directory link
+            "run-604": ("notes.txt", elsewhere),
+            "run-605": (os.path.join("sub", "session.jsonl"), elsewhere),
+            "run-606": ("linked-dir", self.root),
+        }
+        classes = score_rates.load_family(os.path.join(STUDY, "FAMILY.json"),
+                                          self.pins["family"]["sha256"])
+        for name, (relative, target) in cases.items():
+            slot = self.slot(name)
+            link = os.path.join(slot, relative)
+            os.makedirs(os.path.dirname(link), exist_ok=True)
+            if os.path.exists(link):
+                os.remove(link)
+            os.symlink(target, link)
+            code, detail = self.admit(slot)
+            self.assertEqual(code, "slot-symlink", "%s: %s" % (name, detail))
+            self.assertIn(relative, detail)
+            row = score_rates.score_run(slot, self.prompt, self.golden, self.pins,
+                                        classes)
+            self.assertFalse(row["valid"], name)
+            self.assertEqual(row["code"], "slot-symlink", name)
+            self.assertEqual(score_rates.CODE_PARTITION[row["code"]],
+                             "pipeline-invalid")
+
+    def test_a_symlinked_slot_leaves_the_denominator_and_the_rest_still_scores(self):
+        tree = os.path.join(self.root, "linked-tree")
+        os.makedirs(tree)
+        for index, answer in enumerate((fixtures.COMPLETION_A, fixtures.COMPLETION_B,
+                                        fixtures.COMPLETION_A), 1):
+            fixtures.build_slot(os.path.join(tree, "run-%03d" % index), answer,
+                                STUDY, self.pins, golden=self.golden)
+        # run-002 is terminated by the batch and its refusal record dangles;
+        # run-003 is not a directory at all but a link to another slot.
+        os.symlink(os.path.join(tree, "run-002", "gone.json"),
+                   os.path.join(tree, "run-002", "REFUSAL.json"))
+        shutil.rmtree(os.path.join(tree, "run-003"))
+        os.symlink(os.path.join(tree, "run-001"), os.path.join(tree, "run-003"))
+        results = self.score_tree(tree)
+        self.assertEqual({row["slot"]: row["code"] for row in results["runs"]},
+                         {"run-001": None, "run-002": "slot-symlink",
+                          "run-003": "slot-symlink"})
+        self.assertEqual(results["population"]["valid"], 1)
+        self.assertEqual(results["population"]["invalidCodes"], {"slot-symlink": 2})
+        # The linked slot still occupies its index, so the contiguity rule sees
+        # a whole batch rather than a hole and the honest slot is still counted.
+        self.assertEqual(results["population"]["slots"], 3)
+        self.assertEqual(results["population"]["unexpectedEntries"], [])
+        for entry in results["classes"]:
+            self.assertEqual(entry["coverage"]["trials"], 1)
+
     def score_tree(self, slots_dir: str) -> dict:
         """The whole throwaway tree, against a registry that registers exactly
         the slots it holds and carries the two digests the scorer refuses
