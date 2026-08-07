@@ -15,22 +15,50 @@ the run is **resumable**: rows already present for an ``(instance_id, trial)``
 pair are skipped, so an interrupted run is finished by re-issuing the identical
 command. A progress line goes to stderr; a summary goes to stdout.
 
-Row schema (``schema: "jps-study-001-result/1"``)::
+Row schema (``schema: "jps-study-001-result/2"``)::
 
     instance_id, arm, backend, model, params, trial, seed,
     prediction {decision, cited_rules, reason, ...} | null,
     raw_text, parse_ok, parse_error, latency_ms, error,
+    engine_returncode, engine_stderr,          # arm B only
     facts_sha256, prompt_sha256, harness_commit, harness_dirty, arm_config
 
 ``facts_sha256`` is the digest of the canonical gold-redacted facts document and
 is the mechanical proof that all three arms saw the same bytes: the value for a
 given ``instance_id`` must be identical across arms.
 
+``/2`` differs from ``/1`` **only** by the two additive arm-B keys
+``engine_returncode`` and ``engine_stderr``, which carry the runtime child
+process's exit status (``null`` where no process completed) and its stderr
+verbatim. They are absent from model-arm rows, which have no child process. No
+``/1`` key was renamed or removed, so ``/1`` files stay parseable by everything
+that parses ``/2`` --- ``score.py`` does not consult the schema string at all.
+The keys exist so that an arm-B "0 engine refusals" claim can be audited from the
+retained JSONL instead of being trusted; before them, the rows kept no refusal
+signal whatsoever (``DEVIATIONS.md`` sections 3 and 4).
+
+**Parseable is not comparable, and for arm B the two vintages are not the same
+measurement.** The same change tightened the arm-B refusal rule: a ``/1`` arm-B
+row could record a non-zero exit that printed an envelope as a *success*, and a
+``/2`` row records it as a refusal. Pooling the two would give one file two
+definitions of ``engine_refusal_rate``, and nothing downstream could tell them
+apart, so **resuming refuses**: appending arm-B rows to a file that already holds
+arm-B rows of a different ``schema`` is an error, not a warning
+(``assert_uniform_arm_b_vintage``). Arm B is deterministic and its last full-corpus
+run at k = 5 is recorded at 37 seconds (``DEVIATIONS.md`` section 1), so the
+remedy is to re-run it into a fresh ``--out`` rather than to mix. Model arms are
+unaffected: their ``/1`` and ``/2`` rows carry identical keys and identical
+meanings, and they resume across the boundary.
+
 DETERMINISM
 -----------
 Rows carry no wall-clock timestamp and the mock backend synthesises its own
-latency, so two mock runs of the same command produce byte-identical files. The
-only timestamp in the system is the one the operator puts in the output filename.
+latency, so two mock runs of the same command produce byte-identical files for
+the model arms. Arm B is the exception even under ``--backend mock``: it always
+calls the real runtime and records the measured ``latency_ms``, so two identical
+arm-B runs agree on every substantive field but differ in latency. The only
+wall-clock timestamp in the system is the one the operator puts in the output
+filename.
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
@@ -62,7 +90,7 @@ import arms  # noqa: E402
 import arm_b  # noqa: E402
 import backends  # noqa: E402
 
-SCHEMA = "jps-study-001-result/1"
+SCHEMA = "jps-study-001-result/2"
 STUDY_ROOT = os.path.dirname(HERE)
 DEFAULT_POLICY = os.path.join(
     STUDY_ROOT, "rulearena", "checkout", "nba", "reference_rules.txt")
@@ -72,6 +100,9 @@ DEFAULT_RULE_CATALOG = os.path.join(
 ROW_KEYS = (
     "schema", "row_id", "instance_id", "variant", "arm", "backend", "model", "params", "trial", "seed",
     "prediction", "raw_text", "parse_ok", "parse_error", "latency_ms", "error",
+    # Arm B only. ``write_row`` emits a key only when the row carries it, so
+    # model-arm rows are unchanged by their presence here.
+    "engine_returncode", "engine_stderr",
     "facts_sha256", "prompt_sha256", "harness_commit", "harness_dirty", "arm_config",
 )
 
@@ -167,11 +198,14 @@ def harness_git_state() -> Tuple[str, bool]:
 # --------------------------------------------------------------------------- #
 
 
-def existing_keys(out_path: str) -> set:
-    """Return the ``(instance_id, trial)`` pairs already present in the file."""
-    done = set()
+def _iter_existing_rows(out_path: str) -> Iterable[Dict[str, Any]]:
+    """Yield the rows of an existing results file; nothing when it does not exist.
+
+    A line that is not valid JSON raises rather than being skipped: the file is
+    about to be appended to, and a corrupt one must not be extended.
+    """
     if not os.path.exists(out_path):
-        return done
+        return
     with open(out_path, "r", encoding="utf-8") as fh:
         for lineno, line in enumerate(fh, 1):
             line = line.strip()
@@ -184,8 +218,52 @@ def existing_keys(out_path: str) -> set:
                     "%s line %d is not valid JSON; refusing to append to a corrupt "
                     "results file" % (out_path, lineno)
                 )
-            done.add((row.get("row_id") or row.get("instance_id"), row.get("trial")))
+            yield row
+
+
+def existing_keys(out_path: str) -> set:
+    """Return the ``(instance_id, trial)`` pairs already present in the file."""
+    done = set()
+    for row in _iter_existing_rows(out_path):
+        done.add((row.get("row_id") or row.get("instance_id"), row.get("trial")))
     return done
+
+
+def arm_b_schema_vintages(out_path: str) -> set:
+    """Return the distinct ``schema`` strings of the arm-B rows already in a file.
+
+    Arm B only, because arm B is the only arm whose row *meaning* changed with the
+    schema: a ``jps-study-001-result/1`` arm-B row was written under a refusal rule
+    that could score a non-zero exit as a success. Model-arm rows are identical
+    across the two versions and are not looked at.
+    """
+    return {str(row.get("schema"))
+            for row in _iter_existing_rows(out_path)
+            if row.get("arm") == "B"}
+
+
+def assert_uniform_arm_b_vintage(out_path: str, arm: str) -> None:
+    """Refuse to append arm-B rows beside arm-B rows of another refusal vintage.
+
+    Resuming keys on ``(row_id, trial)`` and cannot see this: the rows it would
+    skip and the rows it would write are the same measurement only if they were
+    scored by the same refusal rule. Raises ``ValueError`` when they were not; a
+    no-op for the model arms and for a file with no arm-B rows in it.
+    """
+    if arm != "B":
+        return
+    stale = arm_b_schema_vintages(out_path) - {SCHEMA}
+    if not stale:
+        return
+    raise ValueError(
+        "%s already holds arm-B rows written under schema %s, and this run writes "
+        "%s. The arm-B refusal rule differs between them --- a '/1' row could "
+        "score a non-zero exit that printed an envelope as a success, a '/2' row "
+        "records it as a refusal --- so the two vintages are not the same "
+        "measurement and one file cannot carry both: every rate computed over it "
+        "would silently mix two definitions. Arm B is deterministic; re-run the "
+        "whole arm into a fresh --out instead of resuming this file."
+        % (out_path, ", ".join(sorted(stale)), SCHEMA))
 
 
 def write_row(handle, row: Mapping[str, Any]) -> None:
@@ -357,6 +435,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     commit, dirty = harness_git_state()
 
+    # ---- resume guard ------------------------------------------------------ #
+    # Checked before the dry run as well: a plan that cannot legally be appended
+    # is not a plan an operator should be shown a row count for.
+    try:
+        assert_uniform_arm_b_vintage(args.out, args.arm)
+    except ValueError as exc:
+        print("refusing to resume: %s" % exc, file=sys.stderr)
+        return 2
+
     # ---- dry run ----------------------------------------------------------- #
     if args.dry_run:
         return _dry_run(args, instances, catalog, policy_text, pack_prose,
@@ -468,6 +555,10 @@ def _execute(*, arm: str, instance: Mapping[str, Any], trial: int, seed: int,
             "parse_error": None if result["ok"] else result["error"],
             "latency_ms": result["latency_ms"],
             "error": result["error"],
+            # Retained on every arm-B row, refusal or not: a refusal *rate* is
+            # only auditable if the non-refusals are on the record too.
+            "engine_returncode": result["returncode"],
+            "engine_stderr": result["stderr"],
             "prompt_sha256": None,
         })
         return row

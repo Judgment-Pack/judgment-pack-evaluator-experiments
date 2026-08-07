@@ -22,7 +22,20 @@ silently fixed.
 | Arms | A (CBA text in prompt), A′ (pack prose in prompt), B (pack via evaluator) |
 | Model | `gpt-5.6-sol` via Codex, arms A and A′ |
 | Runtime | `judgment-pack 0.2.0`, arm B |
-| Bootstrap | 2000 paired resamples, seed 20260806 |
+| Bootstrap | 2000 paired resamples of individual twins (`--bootstrap-unit twin`, the scorer's default), seed 20260806 |
+
+Two notes on how to read the arm-B row of that table. Arm B's "0 errors"
+was computed under the permissive refusal rule `DEVIATIONS.md` §3 records
+— a non-zero exit was a refusal only when stdout was also empty — and the
+retained rows carry no exit status, so it cannot be checked against them.
+The rule was tightened after these numbers were read (§4), and the
+deterministic arm was then re-run under the strict rule the same day
+(`DEVIATIONS.md` §5): `results/k5-B-runtime-audited.jsonl` retains an
+exit code and stderr on every row — all 2,160 exit 0 — and reproduces
+every disposition and trace byte-identically, so "0 engine refusals" is
+now auditable for that corpus. Every interval below is a twin-level
+resample; the pair-clustered alternative now exists behind
+`--bootstrap-unit pair` and is used only where this document says so.
 
 ## The registered primary endpoint — H1 — is **not supported**
 
@@ -69,10 +82,13 @@ decomposition:
 | Redacted (manufactured abstention labels) | +0.407 [0.343, 0.472] |
 | All twins (the unregistered composite) | +0.130 [0.076, 0.181] |
 
-The manufactured stratum changes the sign. `score.py` intersects all
-shared twin ids and never filters to `variant == "answerable"`; the
-scorer does not enforce the registered population, and the author did not
-either.
+The manufactured stratum changes the sign. As it stood then, `score.py`
+intersected all shared twin ids and never filtered to
+`variant == "answerable"`; the scorer did not enforce the registered
+population, and the author did not either. It now takes a `--population`
+flag and records the choice in the report — which makes the analysis set
+auditable, not automatic; the flag still cannot know which population a
+hypothesis registered (`DEVIATIONS.md` §4).
 
 ## Accuracy against RuleArena's own gold — H4 **not supported**
 
@@ -106,8 +122,22 @@ quietly rescoped."* That is the finding. On the 156 answerable instances
 the pack can decide, its accuracy is 80.1%; the endpoint loss is driven by
 the 60 it cannot reach.
 
-A second, undiagnosed error concentration (G-3): B calls **18 of 37**
-gold-legal answerable instances illegal. The cause is unknown.
+A second error concentration (G-3): B calls **18 of 37** gold-legal
+answerable instances illegal. The cause is no longer unknown — every one
+of the 18 is diagnosed to a named `derive.py` field or pack rule in
+[`G3-DIAGNOSIS.md`](G3-DIAGNOSIS.md), each verified by counterfactual
+through the same `judgment-pack 0.2.0` binary. Eleven distinct mechanisms
+are involved; by instance attribution, 6 instances trace to `derive.py`,
+8 to the pack's own encoding, 2 to disputable gold labels, and 2 are
+genuinely ambiguous (the 6/8 split is tie-break-convention-dependent and
+the note says so). Its sharpest consequence bears on G-2: applying
+diagnostic probes for four of the five derivation mechanisms — probes are
+isolations, not repairs, and one mechanism has none — *lowers* arm B's
+answerable accuracy from 0.579 to 0.551, because the same defects were
+also producing right answers for wrong reasons on twelve gold-illegal
+instances. The pipeline's errors partly compensate, so the arm-B score
+does not decompose into "pack quality" plus "preprocessor quality"; no
+claim is made about where a repaired pipeline would land.
 
 ## Escalation — H2 **holds** on its registered criterion
 
@@ -118,7 +148,14 @@ gold-legal answerable instances illegal. The cause is unknown.
 | B | 460 | 300 | 620 | 780 | 0.605 | 0.426 | **0.500** | [0.436, 0.561] |
 
 Δ F1, B − A = +0.453; pair-clustered over the 216 source pairs the
-interval is [0.397, 0.505]. H2 meets its registered F1 rule.
+interval is [0.397, 0.505] (`--bootstrap-unit pair`, which now reproduces
+that hand-computed figure). H2 meets its registered F1 rule.
+
+These escalation numbers are the composite over all 432 twins, which is
+the only population the 2×2 has both rows on: restricted to one variant,
+one row is empty and precision, recall and F1 are undefined rather than
+zero. The scorer now says so instead of printing them as 0.000
+(`DEVIATIONS.md` §4).
 
 The cost §6 names explicitly is the false-escalation **rate**, and it is
 large: **1.1% of answerable trials for A (12/1080) versus 27.8% for B
@@ -174,6 +211,20 @@ byte-identically from the pinned benchmark commit.
 
 `DEVIATIONS.md` records: one model family rather than two; arm B on
 `judgment-pack 0.2.0`; the wrong-population error corrected here; the
-preregistered McNemar test absent from `score.py` and computed by hand for
-this document; and bootstrap resampling over twins rather than pair
-clusters in the shipped scorer.
+preregistered McNemar test absent from `score.py` when this document was
+written and computed by hand for it; bootstrap resampling over twins
+rather than pair clusters in the scorer that produced these intervals; and
+an arm-B refusal check that could score a non-zero exit as a success.
+
+`DEVIATIONS.md` §4 records what was done about the last three **after**
+these numbers were read: McNemar and a `--bootstrap-unit pair` option were
+implemented and reproduce the hand-computed values above, and the arm-B
+check was tightened. **No number in this document changed as a result**:
+the scorer's default resampling unit was deliberately left at `twin` so
+these intervals remain what its recorded command produces, and the
+strict-rule re-run (`DEVIATIONS.md` §5) reproduced every disposition
+byte-identically with all 2,160 exit codes retained as 0 — so the figures
+above stand, and the "0 errors" claim is now checkable against
+`results/k5-B-runtime-audited.jsonl` instead of resting on the old rule.
+The registered-population analysis, scorer-produced end to end, is
+committed as `results/k5-report-answerable.{json,md}`.
