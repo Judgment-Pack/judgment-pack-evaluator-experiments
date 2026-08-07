@@ -1,0 +1,66 @@
+{
+  "pinsVersion": "1",
+  "note": "The run-time registry for Study 011's one cell: the codex binary, the model, and the byte digests of the two inputs a run's meaning depends on (the prompt and the mutation family). Every value was copied from studies/010-blinded-oracle/PROTOCOL-LOCK.json at commit 9063be5d0d0d42b52477f0968ace2e616ac97086, where the worktree bytes equal the HEAD blob bytes. batch.py refuses to call anything whose binary digest is not codex.binarySha256, and score_rates.py refuses to score against a prompt or family whose bytes are not these. Nothing here is a claim about the model's provider or identity beyond what the retained transcript records; it is a pin, not an attestation.",
+  "pinnedFrom": {
+    "study": "studies/010-blinded-oracle",
+    "file": "PROTOCOL-LOCK.json",
+    "fileSha256": "sha256:4966aa821325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1",
+    "commit": "9063be5d0d0d42b52477f0968ace2e616ac97086"
+  },
+  "codex": {
+    "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+    "version": "codex-cli 0.145.0",
+    "model": "gpt-5.6-sol"
+  },
+  "prompt": {
+    "path": "transcription/PROMPT.txt",
+    "sha256": "sha256:a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2",
+    "note": "Study 010's registered authoring prompt, byte-exact, no trailing newline. It inlines policy/POLICY.md; this study copies no separate policy file."
+  },
+  "probePrompt": {
+    "path": "transcription/PROBE-PROMPT.txt",
+    "sha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7",
+    "note": "The golden recapture's prompt, byte-exact, no trailing newline: 'Reply with exactly one word: ready'. The pre-prompt context precedes the prompt and does not depend on it, so the capture uses this rather than the registered prompt — running the registered prompt before the batch would show the operator coverage profiles first, which is the cost Study 010's DEVIATIONS §1 records. It carries no leak token, and the model's answer to it is discarded."
+  },
+  "family": {
+    "path": "FAMILY.json",
+    "sha256": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+    "classes": 6,
+    "note": "Study 010's locked mutation family. Study 011 applies no patch and produces no pack D: only the six predicate members are read, as the six coverage classes."
+  },
+  "golden": {
+    "path": "transcription/GOLDEN-CONTEXT.json",
+    "sha256": null,
+    "note": "Recaptured for THIS study's environment before the batch (batch.py capture-golden), not inherited from Study 010: a golden capture pins one machine's codex boilerplate, and 010's would refuse every honest run here. The digest is null until the capture is taken and registered."
+  },
+  "batch": {
+    "runs": 50,
+    "note": "N = 50 sequential independent calls, one cell. A short batch is reported as a shortfall with the completed runs; there is no data-dependent stopping and no top-up after rates are seen."
+  },
+  "replication": {
+    "path": "../010-blinded-oracle/transcription/authoring/call-1/completion.txt",
+    "sha256": "sha256:45deb69ea7a0d10aa43b2ec00ad623c11e3d77a15ece11c0ee220c7836c81677",
+    "expected": {
+      "accepted": 16,
+      "h": 16,
+      "q": 0,
+      "hClassCounts": [2, 2, 2, 4, 1, 1],
+      "qClassCounts": [0, 0, 0, 0, 0, 0]
+    },
+    "note": "The replication control: Study 010's retained completion, run through this study's ported compiler, mirror and classifier, must reproduce the profile ../010-blinded-oracle/ANALYSIS.md published. Pinned here so the expectation is a committed value rather than a number a test can be talked out of."
+  },
+  "ports": {
+    "path": "harness/PORTS.md",
+    "note": "Every ported file, its Study 010 source digest at commit 9063be5d0d0d42b52477f0968ace2e616ac97086, its digest here, and what changed. This registry points there rather than duplicating the table."
+  },
+  "preregistration": {
+    "path": "PREREGISTRATION.md",
+    "sha256": null,
+    "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; this registry is committed before the batch begins."
+  },
+  "python": {
+    "implementation": "CPython",
+    "version": "3.12.11",
+    "note": "The interpreter this study's harness runs on. Study 010 ran on CPython 3.8.20; the ported compiler and mirror use no version-dependent behaviour, and the ported files' digests are recorded in harness/PORTS.md."
+  }
+}
