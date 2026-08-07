@@ -177,17 +177,38 @@ def preflight(runs: int, start: int, slots: list, scratch_parent: str,
     """The pins, or BatchError. Everything checkable before the first call is
     checked before the first call: a batch that would run drifted bytes,
     collide with retained slots, publish after results exist, run a prompt that
-    is not the pinned one, or run without the registered golden capture must
-    not spend a single invocation."""
+    is not the pinned one, run past the registered N, or run without the
+    registered golden capture must not spend a single invocation."""
     verify_ported_bytes()
     if runs < 1:
         raise BatchError("a batch needs at least one run")
+    if start < 1:
+        raise BatchError("slot indices start at 1, not %d" % start)
     if not os.path.isfile(SCRIPT):
         raise BatchError("no authoring wrapper at %s" % SCRIPT)
     if not os.path.isdir(scratch_parent):
         raise BatchError("scratch parent %s is not a directory" % scratch_parent)
     pins = _load_json(pins_path)
     require_freeze(pins)
+    # §2.4: N is the registry's to state, and the LAST slot this invocation
+    # would create is bounded by it — unconditionally, whether or not --runs
+    # was given and whichever prompt is being run. The round-4 finding: with
+    # --runs omitted the driver used the registered N as a COUNT, so `--start
+    # 3` after two slots planned 3…52 and created an over-full batch that no
+    # scoring could ever publish (a full batch and a shortfall cannot coexist,
+    # and an over-full one is refused outright). Bounding the plan here means
+    # no invocation can spend a call on a slot index the registry does not
+    # register. When the registry names no batch size there is no N to bound
+    # against, and `main()` refuses to infer one for the registered path.
+    registered = pins.get("batch", {}).get("runs")
+    if isinstance(registered, int) and start + runs - 1 > registered:
+        raise BatchError(
+            "this invocation plans slots %d…%d and the registry registers N = %d: "
+            "the batch size is fixed before the batch (§2.4), so a run that would "
+            "create a slot past it is refused before a call is spent. To finish a "
+            "batch, give --start K and let the driver run the remaining N - K + 1 "
+            "slots, or name --runs no larger than that"
+            % (start, start + runs - 1, registered))
     member = "prompt" if prompt_kind == "registered" else "probePrompt"
     prompt = os.path.join(STUDY, pins[member]["path"])
     actual = _digest(prompt)
@@ -865,15 +886,25 @@ def main(argv: list) -> int:
     try:
         pins_path = _argument(argv, "--pins", DEFAULT_PINS)
         if command == "run":
+            start = int(_argument(argv, "--start", 1))
             runs = _argument(argv, "--runs")
             if runs is None:
-                runs = _load_json(pins_path).get("batch", {}).get("runs")
-                if runs is None:
+                # The registered N is the LAST slot index, not a count, so an
+                # omitted --runs finishes the registered batch from --start
+                # rather than running N more slots from it. The round-4
+                # finding: `--start 3` with N = 50 planned 3…52.
+                registered = _load_json(pins_path).get("batch", {}).get("runs")
+                if registered is None:
                     raise BatchError("--runs is required when the pins name no batch size")
+                runs = registered - start + 1
+                if runs < 1:
+                    raise BatchError(
+                        "--start %d is past the registered N = %d: there is no slot "
+                        "left to run (§2.4)" % (start, registered))
             scratch_parent = _argument(argv, "--scratch-parent")
             if scratch_parent is None:
                 raise BatchError("--scratch-parent is required")
-            return run_batch(int(runs), int(_argument(argv, "--start", 1)),
+            return run_batch(int(runs), start,
                              _argument(argv, "--slots", DEFAULT_SLOTS),
                              scratch_parent, pins_path,
                              _argument(argv, "--cli-override"),

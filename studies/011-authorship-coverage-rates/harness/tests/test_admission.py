@@ -358,6 +358,42 @@ class Slots(unittest.TestCase):
         self.assertEqual(code, "isolation-unproven", detail)
         self.assertIn("outside the isolated home", detail)
 
+    def test_a_child_path_that_IS_the_isolated_home_refuses(self):
+        """Round 4: the clause tested strict descent only, so a PATH whose
+        per-run binary directory was the isolated home itself passed while §6
+        C6 registers a directory OUTSIDE the home. Same shape of miss as
+        `cwd == home`, one clause over."""
+        slot = self.slot("run-433")
+        with open(os.path.join(slot, "CALL.json")) as handle:
+            call = json.load(handle)
+        values = dict(call["environmentValues"])
+        values["PATH"] = ":".join(fixtures.SYSTEM_PATH + (call["home"],))
+        self.rewrite_call(slot, environmentValues=values)
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "isolation-unproven", detail)
+        self.assertIn("outside the isolated home", detail)
+
+    def test_a_working_directory_carrying_a_leak_token_refuses(self):
+        """§6 C6's leak-token screen, re-derived from the retained record.
+
+        The wrapper screens the scratch path before the call; admission
+        re-screens the path the call recorded, because a study term in the
+        working directory blunts the transcript's own leak screen — which
+        excises environment paths before it looks for tokens, so a token
+        hiding in one is excised rather than found. Round 4: the clause was
+        registered as an admission requirement and only the wrapper enforced
+        it."""
+        for index, token in enumerate(("jpack", "judgment-pack", "preregistration")):
+            name = "run-4%02d" % (40 + index)
+            leaky = os.path.join(self.slots_dir, "scratch-%s-%s" % (token, name))
+            slot = self.slot(name, cwd=leaky)
+            code, detail = self.admit(slot)
+            self.assertEqual(code, "isolation-unproven", "%s: %s" % (token, detail))
+            self.assertIn(token, detail)
+            self.assertIn("leak token", detail)
+        # …and the honest scratch path this suite uses is not caught by it.
+        self.assertEqual(self.admit(self.slot("run-449"))[0], None)
+
     def test_a_shared_tmpdir_refuses(self):
         slot = self.slot("run-431")
         with open(os.path.join(slot, "CALL.json")) as handle:
@@ -522,32 +558,62 @@ class Slots(unittest.TestCase):
         directories only" checked only for symlinks, so a FIFO in a slot left
         it VALID — and a FIFO named `REFUSAL.json` blocked the scorer in
         `open()`, which is worse than a miscount because it stops every other
-        slot too. Types are decided by `lstat` before anything is opened."""
+        slot too. Types are decided by `lstat` before anything is opened.
+
+        Round 4: "every irregular entry" was pinned by four FIFOs, so a
+        socket-specific or unstatable-entry regression would have passed. The
+        kinds this environment can actually create are all built here — FIFOs,
+        UNIX sockets, and an entry `lstat` cannot answer for — and the kinds it
+        cannot create without root are pinned on the classifier's own table by
+        `test_the_irregular_kind_table_names_every_type_it_can_meet`.
+        """
         import multiprocessing
+        import socket as socket_module
 
         classes = score_rates.load_family(os.path.join(STUDY, "FAMILY.json"),
                                           self.pins["family"]["sha256"])
         cases = {
             # a stray FIFO under any name: the case that stayed valid
-            "run-701": "unused.fifo",
+            "run-701": ("fifo", "unused.fifo", "FIFO"),
             # the exact hang: the batch's own refusal record, as a FIFO
-            "run-702": "REFUSAL.json",
+            "run-702": ("fifo", "REFUSAL.json", "FIFO"),
             # anywhere in the tree, including a subdirectory
-            "run-703": os.path.join("sub", "pipe"),
+            "run-703": ("fifo", os.path.join("sub", "pipe"), "FIFO"),
             # and a counted artifact replaced by one
-            "run-704": "completion.txt",
+            "run-704": ("fifo", "completion.txt", "FIFO"),
+            # a UNIX socket, under the same three shapes
+            "run-705": ("socket", "stray.sock", "socket"),
+            "run-706": ("socket", "REFUSAL.json", "socket"),
+            "run-707": ("socket", "completion.txt", "socket"),
+            # and an entry that cannot be stat'ed at all: a directory whose
+            # permissions were removed. lstat on its contents raises, and a
+            # walker that let an OSError escape would stop the whole scoring
+            # rather than refuse one slot.
+            "run-708": ("unstatable", "locked", "unreadable"),
         }
-        for name, relative in cases.items():
+        for name, (kind, relative, expected) in cases.items():
             slot = self.slot(name)
             path = os.path.join(slot, relative)
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            if os.path.exists(path):
+            if os.path.exists(path) and not os.path.isdir(path):
                 os.remove(path)
-            os.mkfifo(path)
+            if kind == "fifo":
+                os.mkfifo(path)
+            elif kind == "socket":
+                listener = socket_module.socket(socket_module.AF_UNIX,
+                                                socket_module.SOCK_STREAM)
+                self.addCleanup(listener.close)
+                listener.bind(path)
+            else:
+                os.makedirs(path, exist_ok=True)
+                with open(os.path.join(path, "inside"), "w") as handle:
+                    handle.write("x")
+                os.chmod(path, 0o000)
+                self.addCleanup(os.chmod, path, 0o700)
             code, detail = self.admit(slot)
             self.assertEqual(code, "slot-irregular", "%s: %s" % (name, detail))
             self.assertIn(relative, detail)
-            self.assertIn("FIFO", detail)
+            self.assertIn(expected, detail)
             row = score_rates.score_run(slot, self.prompt, self.golden, self.pins,
                                         classes)
             self.assertFalse(row["valid"], name)
@@ -568,6 +634,31 @@ class Slots(unittest.TestCase):
                 child.terminate()
                 child.join()
             self.assertFalse(alive, "%s: scoring blocked on the FIFO" % name)
+
+    def test_the_irregular_kind_table_names_every_type_it_can_meet(self):
+        """Character devices, block devices and doors cannot be created
+        without privileges this suite does not have and does not want, so the
+        end-to-end cases above cannot cover them. What can be pinned is the
+        classifier itself: every non-regular, non-directory, non-link type is
+        named, and an unnamed one is reported rather than passed over."""
+        import stat as stat_module
+
+        kinds = {
+            stat_module.S_IFIFO: "FIFO",
+            stat_module.S_IFSOCK: "socket",
+            stat_module.S_IFCHR: "character device",
+            stat_module.S_IFBLK: "block device",
+        }
+        for mode, expected in kinds.items():
+            self.assertEqual(score_rates._kind(mode | 0o600), expected)
+        # A type the table does not name is still reported, not silently
+        # treated as a regular file: `_kind` has no None branch.
+        self.assertEqual(score_rates._kind(0o600), "unknown type")
+        # And the whole table is types, not names: nothing in it can match a
+        # regular file or a directory, which is what the walker admits.
+        for mode in (stat_module.S_IFREG | 0o600, stat_module.S_IFDIR | 0o700):
+            self.assertFalse(any(predicate(mode)
+                                 for predicate, _ in score_rates.IRREGULAR_KINDS))
 
     def test_an_irregular_slot_entry_keeps_its_index_and_the_rest_still_scores(self):
         tree = os.path.join(self.root, "fifo-tree")

@@ -104,8 +104,10 @@ publish it: `score()` records the override in `cell.registryOverride`, and
 `_write_outputs()` refuses any results carrying one AND re-derives the
 committed registry's digest, the registered N, and the prompt/family/golden/
 preregistration digests from the study tree, requiring the results to agree —
-so a results dict edited to hide its override still cannot be published under
-a registry that is not the committed one. What no check inside a file can
+and then re-derives the WHOLE result by scoring the slot tree again, requiring
+equality, so no member of a handed-in dict is trusted rather than only nine of
+them. A results dict edited to hide its override, or edited anywhere else,
+still cannot be published. What no check inside a file can
 refuse is a caller who edits this file or rebinds its module constants in
 process; §7 states that ceiling once and does not restate it.
 
@@ -587,7 +589,8 @@ def check_environment(call: dict) -> str:
 
     §6 C6 registers that the slot retains *and admission requires* the
     resolved isolated HOME and CODEX_HOME, the exact PATH and TMPDIR the child
-    was given, and closed stdin. An earlier draft required only four booleans,
+    was given, the leak-token screen on the recorded working directory, and
+    closed stdin. An earlier draft required only four booleans,
     a non-empty home and the inventory, so a slot could drop every environment
     member and stay admissible while C6 claimed otherwise. These are checks on
     the wrapper's own record — §7 says plainly that CALL.json is self-reported
@@ -614,6 +617,23 @@ def check_environment(call: dict) -> str:
         return ("the isolated home %r and the working directory %r are the same "
                 "directory or nested: the registered invocation puts the model's "
                 "workspace outside the home it was given" % (home, cwd))
+    # C6's leak-token screen on the scratch path, re-checked here from the
+    # recorded path rather than left to the wrapper alone. The wrapper refuses
+    # before the call; this refuses after it, from the retained record, which
+    # is the half of that clause a scorer can re-derive. (The other half —
+    # that the scratch resolved outside every git worktree — is a fact about a
+    # directory that no longer exists by scoring time, so it stays a wrapper
+    # gate and §6 C6 says so.) A study term in the working directory blunts
+    # the transcript screen, which excises environment paths before it looks
+    # for leak tokens.
+    leaked = sorted(token for token in transcript_check.LEAK_TOKENS
+                    if token in cwd.lower())
+    if leaked:
+        return ("the working directory %r carries the leak token(s) %r: the scratch "
+                "path is screened before the call and re-screened here, because the "
+                "transcript's own leak screen excises environment paths before it "
+                "looks for tokens — so a study term hiding in one would be excised "
+                "rather than found (§6 C6)" % (cwd, leaked))
     if call.get("environment") != ENVIRONMENT_NAMES:
         return ("CALL.json records the environment %r, not the registered %r"
                 % (call.get("environment"), ENVIRONMENT_NAMES))
@@ -630,7 +650,12 @@ def check_environment(call: dict) -> str:
     if tuple(entries[:len(SYSTEM_PATH)]) != SYSTEM_PATH or len(entries) != len(SYSTEM_PATH) + 1:
         return ("the child PATH %r is not the six registered system directories plus "
                 "one per-run binary directory" % (values["PATH"],))
-    if not entries[-1].startswith("/") or _under(entries[-1], home):
+    # `_same` as well as `_under`, for the same reason the working-directory
+    # clause needs both: `_under()` is strict descent, and a PATH entry that
+    # IS the isolated home is not outside it. The round-4 finding — the
+    # equality case passed while C6 registers "outside the home".
+    if not entries[-1].startswith("/") or _same(entries[-1], home) \
+            or _under(entries[-1], home):
         return ("the per-run binary directory %r is not an absolute path outside the "
                 "isolated home: Study 010's PATH ended in the operator's real home, "
                 "which is the defect this clause exists to catch" % (entries[-1],))
@@ -1256,14 +1281,24 @@ def score_registered(slots_dir: str, records_dir: str = None) -> dict:
     validated BEFORE anything is scored or written, so a target that would
     write into the slot tree refuses the whole command rather than refusing
     after the rates are on disk.
+
+    The slot root is RESOLVED ONCE, here, and the resolved path is what is
+    checked for disjointness, scored, published against and emitted from. The
+    round-4 finding was that the check and the emission could be talking about
+    two different directories — one lexical name and one symlink alias — so
+    scoring through an alias could still write a slot into the real tree.
+    One resolution at the entry point is what makes "the tree that was scored"
+    and "the tree that must not be written into" the same words everywhere
+    below.
     """
+    slots_root = os.path.realpath(slots_dir)
     if records_dir is not None:
-        _check_records_target(slots_dir, records_dir)
-    results = score(slots_dir, REGISTRY_OF_RECORD, REGISTERED_FAMILY,
+        _check_records_target(slots_root, records_dir)
+    results = score(slots_root, REGISTRY_OF_RECORD, REGISTERED_FAMILY,
                     REGISTERED_PROMPT, REGISTERED_GOLDEN)
-    _write_outputs(results)
+    _write_outputs(results, slots_root)
     if records_dir is not None:
-        _emit_records(results["runs"], slots_dir, records_dir)
+        _emit_records(results["runs"], slots_root, records_dir)
     return results
 
 
@@ -1512,24 +1547,31 @@ def _check_records_target(slots_dir: str, records_dir: str) -> None:
     member of one. The two directories must therefore be disjoint in both
     directions: not equal, not one inside the other.
 
-    Checked on normalized absolute paths before the target exists, so the
-    refusal happens before anything is scored and before anything is written.
-    Nothing is resolved through symlinks here — the target usually does not
-    exist yet — which is why the slot tree's own rule (regular files and
-    directories only, no links anywhere) is what keeps a link from making two
-    disjoint names for one directory.
+    Checked before the target exists, so the refusal happens before anything
+    is scored and before anything is written — and checked on BOTH sides'
+    `realpath`, because a lexical comparison decides nothing about two names
+    for one directory. The round-4 finding: `--slots /tmp/alias` (a symlink to
+    the authoring tree) with `--emit-records <real-tree>/run-051` passed a
+    lexical test, scored through the alias, and then created a real slot in the
+    population it had just published. `realpath` resolves what exists and
+    leaves the rest lexical, so a target that does not exist yet is still
+    compared against the directory it would be created in. The slot tree's own
+    rule (regular files and directories only, no links anywhere) keeps links
+    out of the tree; this keeps them out of the two names for it.
     """
-    slots = os.path.normpath(os.path.abspath(slots_dir))
-    target = os.path.normpath(os.path.abspath(records_dir))
+    slots = os.path.normpath(os.path.realpath(slots_dir))
+    target = os.path.normpath(os.path.realpath(records_dir))
     if target == slots or target.startswith(slots + os.sep) \
             or slots.startswith(target + os.sep):
         raise ScoreError(
-            "--emit-records %s is inside the slot tree %s (or contains it): the "
-            "compiled record trees are DERIVED from a scored population and may "
-            "not be written into one. Emitting a run-NNN directory there adds a "
-            "slot to the batch that was just scored, so the retained tree no "
-            "longer reproduces the published rates (§8). Name a directory outside "
-            "the slot tree." % (records_dir, slots_dir))
+            "--emit-records %s (%s) is inside the slot tree %s (%s), or contains "
+            "it: the compiled record trees are DERIVED from a scored population "
+            "and may not be written into one. Emitting a run-NNN directory there "
+            "adds a slot to the batch that was just scored, so the retained tree "
+            "no longer reproduces the published rates (§8). The two paths are "
+            "compared resolved, so a symlink alias to either one is the same "
+            "directory here. Name a directory outside the slot tree."
+            % (records_dir, target, slots_dir, slots))
 
 
 def _emit_records(rows: list, slots_dir: str, out_dir: str) -> None:
@@ -1542,7 +1584,15 @@ def _emit_records(rows: list, slots_dir: str, out_dir: str) -> None:
     emits from the population that was just scored and cannot alter it. Runs
     with no parseable array have no compiled tree and are skipped, which §8
     states rather than implies.
+
+    The slot root is RESOLVED at entry, as it is at `score_registered()`'s
+    entry: the disjointness check compares resolved paths, so reading through
+    an unresolved alias here would be reading a tree the check never looked
+    at. `realpath` is idempotent, so resolving the already-resolved root the
+    caller passes changes nothing — it means this function cannot be handed an
+    alias by any caller, which is the property the round-4 finding wanted.
     """
+    slots_dir = os.path.realpath(slots_dir)
     for row in rows:
         if not row["valid"] or row.get("noParseableArray"):
             continue
@@ -1555,22 +1605,38 @@ def _emit_records(rows: list, slots_dir: str, out_dir: str) -> None:
                 handle.write(body)
 
 
-def _write_outputs(results: dict) -> None:
+def _write_outputs(results: dict, slots_dir: str) -> None:
     """RESULTS.json and RATES.md, into the study root and nowhere else.
 
     MODULE-PRIVATE, and called by `score_registered()` alone, on the results it
-    computed in the same call. There is no public writer: the round-3 finding
-    was that a public one trusted a mutable member of an ordinary dict, so
-    editing `cell.registryOverride` to None published an alternate-registry
-    scoring anywhere the caller named. The output directory is not a parameter
-    either — a rate table written elsewhere would let the operator read six
-    rates while the driver still accepted new slots (§2.4).
+    computed in the same call, over the slot root it resolved in the same call.
+    There is no public writer: the round-3 finding was that a public one
+    trusted a mutable member of an ordinary dict, so editing
+    `cell.registryOverride` to None published an alternate-registry scoring
+    anywhere the caller named. The output directory is STILL not a parameter —
+    a rate table written elsewhere would let the operator read six rates while
+    the driver still accepted new slots (§2.4) — and the slot root that is a
+    parameter names an input to re-derive from, never an output to write to.
 
-    What it still checks, because "called by one caller" is a property of this
-    file and the checks are properties of the study tree: every digest the
-    results claim is re-derived here from the committed tree and must agree,
-    including the registered N. So even a hand-built dict must describe a
-    scoring of THIS cell under THIS registry to be written.
+    What it checks, because "called by one caller" is a property of this file
+    and the checks are properties of the study tree:
+
+    1. every pin the results claim is re-derived here from the committed tree,
+       one member at a time, and must agree — including the registered N;
+    2. the whole result is RE-DERIVED from the slot tree by scoring it again
+       through the registered derivation, and must be equal member for member.
+
+    The round-4 finding was that (1) alone left a gap: forge the nine checked
+    members to the committed values and any other member — a run row, a class
+    count, a rate, a denominator — could be anything at all. So the arithmetic
+    is not trusted from the dict either. What is published is what the retained
+    tree yields on a second, independent derivation; a dict that disagrees with
+    the tree anywhere is refused ON THE TREE, and the pin checks above survive
+    because they say which member is wrong instead of only that something is.
+
+    The cost is that the slot tree is scored twice per publication. That is
+    deliberate: the second scoring is the check, and a check that reuses the
+    first scoring's numbers would be checking a dict against itself.
 
     What no check inside a file can refuse is a caller who edits this file or
     rebinds its module constants in process. §7 states that ceiling once.
@@ -1615,6 +1681,24 @@ def _write_outputs(results: dict) -> None:
             "committed harness/PINS.json registers %r: N is the committed registry's "
             "to state, and a scoring over another one is not this study's (§2.4, §7)"
             % (population.get("registeredRuns"), registered))
+    # …and then the arithmetic itself, re-derived from the retained tree rather
+    # than read out of the dict. `score()` is deterministic over a fixed tree
+    # (harness/tests/test_determinism.py pins that), so the only dict that
+    # survives this is the one the tree yields.
+    recomputed = score(os.path.realpath(slots_dir), REGISTRY_OF_RECORD,
+                       REGISTERED_FAMILY, REGISTERED_PROMPT, REGISTERED_GOLDEN)
+    if recomputed != results:
+        differing = sorted(
+            member for member in set(recomputed) | set(results)
+            if recomputed.get(member) != results.get(member))
+        raise ScoreError(
+            "these results are not what scoring %s yields: %s. RESULTS.json is the "
+            "tree's arithmetic, re-derived here rather than taken from the dict it "
+            "was handed — a rate, a run row, a class count or a denominator that the "
+            "retained slots do not produce is not this study's (§7)"
+            % (slots_dir,
+               ("these members differ: " + ", ".join(differing)) if differing
+               else "the two derivations are not the same object"))
     os.makedirs(STUDY, exist_ok=True)
     with open(os.path.join(STUDY, "RESULTS.json"), "wb") as handle:
         handle.write((json.dumps(results, indent=2, sort_keys=True) + "\n").encode("utf-8"))

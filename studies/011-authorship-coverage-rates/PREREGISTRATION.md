@@ -300,11 +300,14 @@ rate rather than a shortfall. The shortfall path is therefore mostly the
 **deliberate stop**, and §7 records that honestly rather than presenting it
 as involuntary.
 
-**Resume after a crash.** `batch.py run --start K` continues at slot K. The
-ledger `BATCH.json` holds one append-only record per slot and a resumed
-invocation **merges** into it, refusing if it would overlap a slot the
-ledger already records; a partially written slot is never re-run (exclusive
-creation) and its state is recorded in `DEVIATIONS.md`.
+**Resume after a crash.** `batch.py run --start K` continues at slot K and
+runs the **remaining** `N - K + 1` slots: the registered N is the last slot
+index, not a count to run again from K. `--runs M` may be given instead, and
+is refused before any call when `K + M - 1 > N`. The ledger `BATCH.json` holds
+one append-only record per slot and a resumed invocation **merges** into it,
+refusing if it would overlap a slot the ledger already records; a partially
+written slot is never re-run (exclusive creation) and its state is recorded in
+`DEVIATIONS.md`.
 
 **Prohibited, without exception:** computing any rate before the batch is
 sealed; adding slots after any rate has been computed; running a second
@@ -315,16 +318,31 @@ Mechanically: the driver cannot compute coverage at all — admission, the
 compiler, the classifier, and the rates all live behind the scorer
 (`harness/score_rates.py`), which refuses unless the batch is terminal
 (exactly N slots, or a matching `SHORTFALL.json`, never both); the driver
-refuses to create a slot once `RESULTS.json` exists; and the scorer has
-**no flag that writes a rate table anywhere else and no flag that names any
-input either** — the registered command takes the slot directory and an
-optional record-emission directory, every other argument refuses, and
-`RESULTS.json` and `RATES.md` go to the study root or nowhere, so seeing the
-rates always arms the guard. The emission directory is required to be disjoint
-from the slot tree, so publishing the rates cannot also add a slot to the
-population they were computed over. What remains possible and is not prevented: the operator reading
-a `completion.txt` by eye mid-batch, and stopping the batch for that reason
-under a shortfall declaration. §7 says so.
+refuses to create a slot once `RESULTS.json` exists; **no invocation can plan
+a slot past N** — the driver refuses before a call is spent unless
+`start + runs - 1 ≤ N`, and `--start K` without `--runs` runs the remaining
+`N - K + 1` slots rather than N more (the round-4 finding: it ran N more, so
+`--start 3` planned 3…52 and built a batch no scoring could publish); and the
+scorer has **no flag that writes a rate table anywhere else and no flag that
+names any input either** — the registered command takes the slot directory and
+an optional record-emission directory, every other argument refuses, and
+`RESULTS.json` and `RATES.md` go to the study root or nowhere. The emission
+directory is required to be disjoint from the slot tree — compared *resolved*,
+so an alias to either is the same directory — so publishing the rates cannot
+also add a slot to the population they were computed over.
+
+Stated exactly, because the mechanism is narrower than "seeing the rates arms
+the guard": what arms the driver's guard is `RESULTS.json` existing, and the
+registered command is the only thing that writes it. A **library** caller can
+`import score_rates` and call `score()`, read six rates in process, publish
+nothing, and leave the marker unarmed. That route is *recorded and not
+prevented* — it is the same in-process ceiling §7 states once, and this
+sentence points at it rather than restating it. What closes the arithmetic
+against it is the N bound above: a batch cannot grow past N whether or not any
+rate was ever computed, so the population a rate is computed over is fixed by
+the registry rather than by the operator's restraint. What remains possible and
+is not prevented: the operator reading a `completion.txt` by eye mid-batch, and
+stopping the batch for that reason under a shortfall declaration. §7 says so.
 
 ### 2.5 What each slot retains
 
@@ -518,8 +536,9 @@ recapture procedure is registered here, in full, before the batch:
    "$PY" harness/batch.py capture --scratch-parent DIR
    ```
 
-   `$PY` is the registered interpreter, as in `README.md`'s runbook
-   (`PY=$(command -v python3.12)`). A bare `harness/batch.py` runs under
+   `$PY` is the registered interpreter, as in `README.md`'s runbook — set to
+   the registered build's absolute path, because the `python3.12` shim on this
+   machine does not resolve to it. A bare `harness/batch.py` runs under
    whatever the shebang resolves — on the machine this study was written on,
    CPython 3.8 — and every command here refuses under an unregistered
    interpreter, so the command as written has to name it.
@@ -1159,14 +1178,18 @@ literally: the endpoint's population is the scorer's job, not the
 author's.
 
 **C6 — isolation demonstrated per run.** Each slot retains, and the
-admission check requires — every clause below is a `isolation-unproven`
-refusal in `score_rates.admit()`, not a description of what the wrapper
-writes. (An earlier draft checked four booleans, a non-empty home and the
-inventory, and nothing else: a slot with every environment member deleted and
-`credentialRemoved` false stayed admitted while this list claimed otherwise.
-The clauses are checks on the wrapper's own record — §7 says plainly that
-`CALL.json` is self-reported — but a record that contradicts the registered
-invocation is not evidence of it, and that much is checkable):
+admission check requires, the clauses below. Every bullet in the first list is
+an `isolation-unproven` refusal in `score_rates.admit()`, not a description of
+what the wrapper writes; the three in the second list are enforced under a
+different code or in a different place, and this section says which rather
+than folding them into one claim about `admit()`. (An earlier draft checked
+four booleans, a non-empty home and the inventory, and nothing else: a slot with every
+environment member deleted and `credentialRemoved` false stayed admitted while
+this list claimed otherwise. A later one claimed every clause here was an
+`isolation-unproven` refusal, when three of them were not — the round-4
+finding. The clauses are checks on the wrapper's own record — §7 says plainly
+that `CALL.json` is self-reported — but a record that contradicts the
+registered invocation is not evidence of it, and that much is checkable):
 
 - `isolation: isolated` — the C7 control's mode never enters a denominator;
 - the resolved isolated `HOME`, and a `CODEX_HOME` that is that home's own
@@ -1185,7 +1208,15 @@ invocation is not evidence of it, and that much is checkable):
 - a child `PATH` of exactly the six registered system directories plus one
   per-run binary directory, which must be absolute and **outside the isolated
   home** — the defect §2.2 records in 010's wrapper, whose "scrubbed" child
-  `PATH` ended in the operator's real home, is a refusal here;
+  `PATH` ended in the operator's real home, is a refusal here. "Outside" means
+  neither inside the home nor equal to it: the equality case passed while this
+  clause claimed otherwise, which is the same shape of miss as `cwd == home`
+  above;
+- a working directory carrying none of the transcript checker's leak tokens,
+  re-screened here from the recorded path. The wrapper screens the scratch
+  before the call; this re-derives that half of the screen from the retained
+  record, because a study term in the path would blunt the transcript's own
+  leak screen, which excises environment paths before it looks for tokens;
 - a `TMPDIR` inside that run's own working directory and not `/tmp`;
 - `stdin` recorded closed;
 - `credentialRemoved` exactly when `credentialCopied`: a copy made and not
@@ -1202,17 +1233,33 @@ invocation is not evidence of it, and that much is checkable):
   pollution, and on a machine with no operator credential it made every
   slot `isolation-unproven`. The recursive list is what makes this evidence
   rather than a tautology, and the harness tests exercise both branches and
-  four polluted ones.);
-- the **new-session set**, which must contain exactly one `*.jsonl` created
-  by this call — recorded and required as the **integer** 1, since Python
+  four polluted ones.).
+
+Three further clauses are registered and enforced, and are named here with
+**where and under which code**, rather than folded into the list above:
+
+- the **new-session set**, which must contain exactly one `*.jsonl` created by
+  this call — recorded and required as the **integer** 1, since Python
   considers `True == 1` and a slot recording `newSessionCount: true` was
-  recording nothing counted;
-- the scratch path, screened for leak tokens and required to resolve
-  outside every git worktree;
-- `context.json`, whose digests must equal the registered golden.
+  recording nothing counted. An `admit()` refusal, under its own code
+  `session-count` (§3.3), because "this call did not create exactly one
+  session" is a more exact thing to say than "isolation unproven";
+- the scratch resolving **outside every git worktree** — a wrapper gate
+  (`transcription/authoring_call.sh`), refused before the call, and not
+  re-derived at scoring time: the scratch is deleted when the slot is sealed,
+  so no retained byte says what the directory was inside of. The leak-token
+  half of the same rule *is* re-derivable and is an `admit()` clause, above;
+- `context.json` equalling the registered golden capture, and the transcript
+  gates of §3.1. `admit()` refusals, under their own codes —
+  `context-mismatch` and `transcript-refused` (§3.3) — not under
+  `isolation-unproven`, because a context that does not reproduce the capture
+  is a statement about the transcript, and giving it the isolation code would
+  name a cause the evidence does not establish.
 
 The golden match is the operative evidence: a leaked skill, config, or
-`AGENTS.md` changes the pre-prompt context, and any change refuses.
+`AGENTS.md` changes the pre-prompt context, and any change refuses — under
+`transcript-refused` or `context-mismatch`, which is the refusal that matters
+and not the label it carries.
 
 **C7 — the isolation gate's power, demonstrated not assumed.** Before the
 batch, one capture is run **deliberately without isolation**:
@@ -1330,11 +1377,22 @@ the scorer, or in both — nothing here is a description of intent:
   trusting one mutable member of an ordinary dict is what the previous draft
   did: the writer re-derives the committed registry's digest, the registered N,
   and the prompt, family, golden, preregistration, model, CLI and binary pins
-  from the study tree, and refuses unless the results agree with every one. So
-  a results dict edited to hide its override is still refused, on what the tree
-  says rather than on what the dict says. What none of that covers, stated here
-  rather than left implied: a caller who edits `score_rates.py` or rebinds its
-  module constants in process. No check inside a file defends that file, this
+  from the study tree, and refuses unless the results agree with every one —
+  **and then re-derives the whole result** by scoring the slot tree again
+  through the registered derivation, refusing unless the two are equal member
+  for member. The nine pins alone left every other member unchecked, so a dict
+  with a forged cell could carry any run row, class count or rate it liked; now
+  what is published is what the retained tree yields on a second, independent
+  derivation, and the pin checks survive only to say *which* member is wrong.
+  So a results dict edited to hide its override, or edited anywhere else at
+  all, is refused on what the tree says rather than on what the dict says. What
+  none of that covers, stated here rather than left implied: a caller who edits
+  `score_rates.py` or rebinds its module constants in process — and, the same
+  ceiling seen from the other side, a caller who imports the module, calls the
+  library `score()`, reads the six rates in process and publishes nothing, so
+  that §2.4's `RESULTS.json` marker never arms. That is recorded, not
+  prevented; what bounds it is that the batch cannot grow past N in any case
+  (§2.4). No check inside a file defends that file, this
   study's own harness is not digest-pinned (only the six ported files are, C1),
   and the ceiling is the one the "deliberately not claimed" paragraph below
   states — re-runnability, not proof. That ceiling is stated once, here;
@@ -1346,9 +1404,13 @@ the scorer, or in both — nothing here is a description of intent:
   is read (§3.3). A FIFO is checked by type rather than opened because `open()`
   on one does not return;
 - `--emit-records DIR` disjoint from the slot tree — not equal to it, not
-  inside it, not containing it — checked before anything is scored or written,
-  so emitting the derived record trees cannot add a slot to the population that
-  was just published (§8);
+  inside it, not containing it — checked on **both sides' resolved paths**
+  before anything is scored or written, so emitting the derived record trees
+  cannot add a slot to the population that was just published (§8). The slot
+  root is resolved once, at the registered command's entry, and that one
+  resolved path is what is checked, scored, published against and emitted
+  from: a lexical check let a symlink alias name the same tree twice, and
+  scoring through the alias then wrote a real slot into the real tree;
 - the recapture derived from at least two **distinct sessions**, checked on the
   raw retained evidence — transcript bytes, session id, and the call record's
   own clock, working directory and home — so a copied capture slot or a
@@ -1366,11 +1428,15 @@ the scorer, or in both — nothing here is a description of intent:
   leak-token-free scratch outside every worktree; closed stdin;
 - C6's recursive isolated-home inventory, in both the credential and
   no-credential branches; C6's environment clauses one by one — the
-  `CODEX_HOME` under the isolated home, the un-nested working directory, the
+  `CODEX_HOME` under the isolated home, the un-nested working directory, its
+  leak-token screen re-derived from the recorded path, the
   four environment names and their values, the six-system-directory `PATH`
-  with its per-run binary directory outside the home, the per-run `TMPDIR`,
+  with its per-run binary directory outside the home (neither inside it nor
+  equal to it), the per-run `TMPDIR`,
   closed stdin, and `credentialRemoved` exactly when `credentialCopied`; and
-  the exactly-one-**new**-session requirement;
+  the exactly-one-**new**-session requirement. §6 C6 names the three clauses
+  that refuse under another code or in the wrapper rather than through
+  `isolation-unproven`, and this list does not claim them for `admit()`;
 - the transcript whitelist, terminal-prompt rule, leak denylist, model/cwd
   binding — **every** `turn_context` that names a model or a working directory
   must name this call's, not merely one of them — integer exit 0, and
@@ -1402,7 +1468,10 @@ the scorer, or in both — nothing here is a description of intent:
 - the batch/score separation: the driver cannot compute coverage; the
   scorer refuses unless the batch is terminal (exactly N slots XOR a
   matching shortfall declaration, never both, never over-full); the driver
-  refuses new slots once `RESULTS.json` exists; the registered scoring command
+  refuses new slots once `RESULTS.json` exists, and refuses **before any call**
+  any invocation whose plan would reach past the registered N, so a resume
+  cannot build an over-full batch that no scoring could then publish (§2.4);
+  the registered scoring command
   is the only publisher and can write a rate table nowhere but the study root;
   and a planned slot that already exists — including one that exists only as a
   **dangling symlink**, which an existence test calls absent and `mkdir` calls
@@ -1484,9 +1553,19 @@ claims only the mechanical guards.
   run can *retrieve* the repository during authoring. What cannot be
   excluded is that a model snapshot has seen this material in training.
   This study cannot measure that, and the limitation stands as stated.
-- **Prior-context leakage that reproduces the golden capture byte for
-  byte.** The allowlist refuses any change to the pre-prompt context; it
-  cannot refuse a leak that produces no change.
+- **Prior-context leakage that reproduces the golden capture *after
+  normalization*.** The allowlist refuses any pre-prompt context that does
+  not match the capture — but it matches *normalized* digests, not raw
+  bytes (§3.1): `transcript_check.normalize()` applies NFKC, deletes
+  zero-width characters, and replaces filesystem paths, dates, timestamps
+  and UUIDs with fixed placeholders before hashing. So the gate refuses
+  every context outside that equivalence class and cannot refuse a leak
+  that stays inside it — a differently-spelled path, a different run's
+  timestamp or UUID, a compatibility-equivalent character, or a
+  zero-width-joined spelling of the same words. The class is deliberate:
+  those are exactly the members that vary run to run and would otherwise
+  refuse every honest run. The residual is real and is a normalization
+  equivalence, not the byte identity an earlier draft claimed here.
 - **A credential copy surviving a `SIGKILL` or a power loss.** The wrapper
   removes its copy on the seal path and on `EXIT`, `INT`, `TERM` and `HUP`;
   no process can handle `SIGKILL`, and none survives a power cut. The residual
@@ -1542,27 +1621,46 @@ kind is made, here or anywhere in this repository.
 **Publication commitment.** Everything is published regardless of outcome.
 Stated as what is *retained*, not as a file list every slot is promised to
 have, because a slot cannot publish an artifact its run never produced and an
-earlier draft promised one that could not exist:
+earlier draft promised one that could not exist. A slot has exactly one of
+four shapes, registered here by name:
+
+| what the run reached | what the slot holds |
+| --- | --- |
+| the call, exit 0 | `CALL.json`, `session.jsonl`, `stdout.raw`, `stderr.raw`, `context.json`, `completion.txt` |
+| the call, nonzero exit, transcript retained | `CALL.json`, `session.jsonl`, `stdout.raw`, `stderr.raw`, `context.json`, `REFUSAL.json` |
+| the call, no transcript retained | `CALL.json`, `stdout.raw`, `stderr.raw`, `REFUSAL.json` |
+| no call — a wrapper pre-flight refusal | `REFUSAL.json` |
+
+That table is **pinned by a harness test** against the trees the driver
+actually writes, in all four shapes: a file the tree retains that this table
+omits, or a file this table names that the tree does not retain, fails it. The
+earlier draft's "every slot's `completion.txt` is published either way" was
+false for the last three rows, which have no completion to publish —
+`completion.txt` is written only on exit 0 (§2.5).
 
 - all 50 raw slot directories (or S under the shortfall rule), **including
-  every invalid one**, with every byte the run left in them and nothing
-  removed. For a run that reached the call that is `CALL.json`,
-  `session.jsonl`, `stdout.raw`, `stderr.raw`, `context.json` and — on exit 0 —
-  `completion.txt`; a wrapper pre-flight refusal reached no call and leaves
-  `REFUSAL.json` alone (§2.5), and a run that failed mid-way leaves whatever it
-  got to plus its `REFUSAL.json`. Nothing in the tree is `.gitignore`d: the
-  repository ignores `__pycache__/` and `.pytest_cache/` and nothing else;
+  every invalid one**, in one of those four shapes, with every byte the run
+  left in them and nothing removed. Beside them the slot tree holds the
+  driver's ledger `BATCH.json`, and `SHORTFALL.json` if one is declared.
+  Nothing in the tree is `.gitignore`d: the repository ignores `__pycache__/`
+  and `.pytest_cache/` and nothing else, which the same test reads off that
+  file;
 - the per-run admission verdict, refusal code, counts and class classification
   the scorer derives from those bytes, for **every** slot, in `RESULTS.json`'s
   `runs` array — that part is promised for all of them, because it is derived
   and not retained;
-- the compiled `records/` and `RECORDS.md` for the valid runs whose completion
-  held a parseable JSON array, emitted by `score_rates.py score
-  --emit-records DIR` into a directory outside the slot tree. A run with no
-  parseable array has no compiled tree — that is what `authoring-empty` means
-  (§3.3) — and an invalid run's completion is not compiled at all. Every slot's
-  `completion.txt` is published either way, so any reader can run the compiler
-  over it themselves;
+- the compiled record trees for the valid runs whose completion held a
+  parseable JSON array, emitted by `score_rates.py score --emit-records DIR`
+  into a directory outside the slot tree: `RECORDS.md` for every such run, and
+  a `records/` directory beside it holding one JSON file per **accepted**
+  record. A run whose array was empty, or every element of which was dropped,
+  therefore has a `RECORDS.md` — whose ledger says drop by drop what happened —
+  and **no** `records/` directory, since the compiler writes one file per
+  accepted record and there were none. A run with no parseable array has no
+  compiled tree at all — that is what `authoring-empty` means (§3.3) — and an
+  invalid run's completion is not compiled. The completions themselves are
+  published in the slots that have one, so any reader can run the compiler over
+  them;
 - every recapture attempt's captures, under `controls/recapture/attempt-N/`,
   and the C7 negative control's retained files (verdict and stripped call
   record always, context digests when the call produced them, per §6 C7 — the

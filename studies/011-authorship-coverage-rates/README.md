@@ -61,7 +61,9 @@ CPython 3.12, and the harness reads that member: `harness/integrity.py`,
 implementation or version series, and the wrapper refuses before it calls
 anything if `PYTHON_BIN` is not the registered one. A bare `python3` is
 whatever the shell resolves — on the machine this study was written on, 3.8 —
-so every command below names the interpreter explicitly through `$PY`.
+so every command below names the interpreter explicitly through `$PY`, and
+`$PY` is set to the registered build's **absolute path** rather than to a
+shim name that may not resolve.
 
 The steps, in registered order, with the argv each one actually takes.
 `DIR` is a scratch parent that resolves **outside every git worktree** and
@@ -71,9 +73,12 @@ refused); `harness/PINS.json` is the registry every step reads.
 ```sh
 cd studies/011-authorship-coverage-rates
 
-# 0. The registered interpreter. Every command below runs under it, and the
-#    harness refuses if it is not CPython 3.12.
-PY=$(command -v python3.12) && "$PY" -V
+# 0. The registered interpreter, BY ABSOLUTE PATH. Every command below runs
+#    under it, and the harness refuses if it is not CPython 3.12. It is the
+#    absolute path and not `command -v python3.12` because on this machine
+#    that resolves to a pyenv shim that then reports "python3.12: command not
+#    found" — a runbook whose step 0 does not execute is not a runbook.
+PY=/home/onword/.pyenv/versions/3.12.11/bin/python3 && "$PY" -V
 
 # 1. Ported bytes (§6 C1), Study 010's lock, and the interpreter.
 #    Deterministic, offline, and also a precondition of steps 3-6:
@@ -113,8 +118,11 @@ sha256sum PREREGISTRATION.md
 #    refuse because the slots already exist.
 "$PY" harness/batch.py run --scratch-parent DIR --dry-run
 "$PY" harness/batch.py run --scratch-parent DIR
-#    After a crash, resume at slot K (the ledger is merged, not replaced):
-"$PY" harness/batch.py run --scratch-parent DIR --start K --runs M
+#    After a crash, resume at slot K (the ledger is merged, not replaced).
+#    Omit --runs: the registered N is the LAST slot index, so this runs the
+#    remaining 51-K slots. --runs M is accepted and refused before any call
+#    when K+M-1 > 50.
+"$PY" harness/batch.py run --scratch-parent DIR --start K
 #    A batch that cannot finish, declared BEFORE anything is scored:
 "$PY" harness/batch.py shortfall --slots transcription/authoring \
         --reason "why it could not finish"
