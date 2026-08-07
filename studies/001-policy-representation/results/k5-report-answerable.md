@@ -37,7 +37,7 @@ Paired design over 216 instances shared by every condition (0 of them redacted t
 
 ## McNemar's exact test on the pass^k indicator
 
-Registered in PREREGISTRATION.md section 5. The paired binary outcome is whether a condition got *all* k trials right on an instance. Only instances the two conditions disagree about carry information; the p is the exact two-sided binomial probability under an even split of them.
+PREREGISTRATION.md section 5 registers "McNemar's test for paired binary outcomes"; the exact two-sided form and the pass^k indicator as the binary are implementation choices recorded in DEVIATIONS.md section 4. The registered primary contrast is B vs A on the answerable population; every other row below is exploratory and unadjusted. The paired binary outcome is whether a condition got *all* k trials right on an instance; only instances the two conditions disagree about carry information, and the p is the exact two-sided binomial probability under an even split of them.
 
 | condition vs baseline | baseline only correct | condition only correct | discordant | exact two-sided p |
 |---|---:|---:|---:|---:|
