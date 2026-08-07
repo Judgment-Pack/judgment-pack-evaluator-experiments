@@ -25,6 +25,16 @@ item** — the registered expectation, demonstrating the gate has power
 against home leakage in this environment. The batch then ran 50 sequential
 calls, every one exit 0, and the registered scorer admitted 49.
 
+Two reports §3.2 and S9 register for this document:
+
+- **The recaptured golden against Study 010's.** They differ first at the
+  first developer entry — this environment's is length 4024 (normalized
+  hash `029b…`) against 010's 4010 (`a17b…`) — and agree on entries 1–3.
+  That is the expected shape: the golden pins one environment's codex
+  boilerplate, and this study recaptured its own for exactly that reason.
+- **S9, the wall clock.** All 50 calls carry clocks (N − M = 0): durations
+  39–73 seconds, mean 42.08 seconds, batch span 36 minutes 19 seconds.
+
 One repository-process error occurred between the freeze and the batch and
 is recorded where it happened rather than here: the pre-batch PR merged
 while the study's CI job was red (a test that used "the study's golden does
@@ -51,8 +61,11 @@ then observed 6/6 coverage in its single draw-protected call. This study's
 result says that observation was not luck: for this prompt × this model ×
 this policy, blind coverage of every class — including the band the policy
 text never states — is the typical outcome, not the fortunate one. At
-N = 50 the study cannot distinguish "always" from "at least 92.75% of the
-time," and does not try to.
+V = 49 valid runs the study cannot distinguish "always" from "at least
+92.75% of the time" (a full 50/50 would have put the bound at 0.9289), and
+does not try to. The six predicates are marginal and non-disjoint by
+design — class 0 nests inside class 1, class 2 inside class 3 — so the six
+rows are six views of the record set, not a partition of it.
 
 ## The one invalid run
 
@@ -73,12 +86,18 @@ denylist.
   mean, and max. Study 010's authoring-label-failure mode (a class reached
   only by mislabelled records) occurred zero times in any class.
 - **Breadth:** every valid run covered all six classes; the all-six rate is
-  49/49 with the same [0.9275, 1.0000] bound. Every run produced exactly 16
-  accepted records with no drops.
-- **Independence of samples:** all 49 completions are pairwise distinct
-  (largest identical group: 1) and every capture and slot carries a
-  distinct session identity — the rates are not one output counted many
-  times.
+  49/49 with the same [0.9275, 1.0000] bound. Every **valid** run produced
+  exactly 16 accepted records with no drops (run-026's records were never
+  compiled — an inadmissible slot has no acceptance to count).
+- **Output distinctness — which is not independence:** all 49 completions
+  are pairwise distinct (largest identical group: 1) and every slot carries
+  a distinct session identity, so the rates are not one output counted many
+  times. That is all distinctness can show. Whether the 49 runs are
+  statistically independent draws — the premise the binomial reading of
+  every Clopper–Pearson interval rests on — is exactly what §7 records as
+  unclosed: provider-side cross-session state is not observable from the
+  retained bytes, and the drift table can hint at correlation, never rule
+  it out.
 - **Drift:** class coverage is 1 in every valid run in both batch halves
   (24/24 and 25/25); no order effect is visible, and none is tested for —
   the drift table is descriptive, as registered.
@@ -96,11 +115,21 @@ Stated with the bounds this study registered and no further:
 
 - One prompt, one model, one small synthetic policy whose text names two of
   the three thresholds and whose prompt asks for borderline cases. Ceiling
-  coverage here may be a property of the policy's smallness and its
-  boundary-forward prose; class 5 — the band the policy never states — being
-  covered every time is the one number that resists that deflation.
+  coverage here may well be a property of the policy's smallness and its
+  boundary-forward prose — and the class-5 bytes say so rather than
+  otherwise: every one of the 49 valid runs reached the 39 ≤ r < 40 band
+  with exactly one record, and its score is `39.99` in 28 runs and
+  `39.999` in 21. Those are deliberately authored just-below-40 borderline
+  cases, answering the prompt's own instruction about the *stated* 40
+  threshold; nothing in the retained bytes shows the author probing the
+  family's unstated lower edge at 39. Class-5 coverage is real and counted,
+  and it is the prompt-deflation case, not a counterexample to it.
 - The mirror is the reference semantics, not ground truth; "correctly
-  labelled" means agreement with it. Coverage means a record fell in a
+  labelled" means agreement with it — and the agreement is more internal
+  than the phrase suggests: the mirror implements the same small policy
+  whose full text the authoring prompt supplies, so 784/784 measures how
+  reliably the model applies a policy it was just handed, not any
+  independent validation of the labels. Coverage means a record fell in a
   class — no pack was evaluated, and nothing here measures defect
   *detection*; Study 010 did that once, by draw.
 - The intervals are marginal per class; no simultaneous claim is made. The
@@ -111,6 +140,14 @@ Stated with the bounds this study registered and no further:
   built on them holds for this policy shape and this authoring
   configuration, and the next study on this line, if wanted, varies the
   policy or the model — not this one's conclusions.
+
+And the ceiling §7 promised this document would repeat: nothing in the
+retained artifacts proves these 50 slots are ALL the invocations that
+occurred. An operator could run a batch, dislike it, discard it, and
+restart — the ledger and the clocks record what this batch did, not that
+no other batch existed. The study's integrity rests on ledger discipline
+and re-runnability, which is the registered ceiling, stated rather than
+implied.
 
 Byte-lineage, not truth: these are frequencies of reaching registered
 classes with mirror-concordant labels, counted from retained bytes anyone

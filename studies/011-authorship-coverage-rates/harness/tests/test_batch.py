@@ -71,9 +71,10 @@ class Batch(unittest.TestCase):
         # The no-new-slots marker is the STUDY's own RESULTS.json (§2.4), and
         # the study has now published one — which, unpatched, refuses every
         # stand-in batch this file runs. The registered rule is untouched:
-        # the marker is pointed at THIS test's root, and the marker tests
-        # create their file there, exercising the same refusal lines against
-        # the same constant.
+        # the marker is pointed at THIS test's root, and
+        # test_the_published_marker_refuses_new_slots_and_shortfalls creates
+        # its file there, exercising the same refusal lines against the same
+        # constant.
         self.results_marker = mock.patch.object(
             batch, "RESULTS", os.path.join(self.root, "RESULTS.json"))
         self.results_marker.start()
@@ -171,6 +172,32 @@ class Batch(unittest.TestCase):
         return os.path.join(self.captures, "attempt-%d" % index)
 
     # --- the golden gate ------------------------------------------------------
+
+    def test_the_published_marker_refuses_new_slots_and_shortfalls(self):
+        # The §2.4 guard, regression-pinned at the patched constant: the
+        # post-run review demonstrated that disabling BOTH production
+        # RESULTS.json guards left this whole file green, so nothing pinned
+        # them. Now something does — and the counterfactual is proven in the
+        # same test: the identical shortfall declaration succeeds the moment
+        # the marker is gone.
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        short = os.path.join(self.root, "authoring-short")
+        self.assertEqual(self.run_batch(short, ["--runs", "1"]), 0)
+        with open(batch.RESULTS, "w") as handle:
+            handle.write("{}\n")
+        blocked = os.path.join(self.root, "authoring-blocked")
+        self.assertEqual(self.run_batch(blocked, ["--runs", "1"]), 1)
+        self.assertFalse(os.path.exists(blocked))
+        self.assertEqual(batch.main(["batch.py", "shortfall", "--slots", short,
+                                     "--pins", self.pins_path,
+                                     "--reason", "marker test"]), 1)
+        self.assertFalse(os.path.exists(os.path.join(short, "SHORTFALL.json")))
+        os.unlink(batch.RESULTS)
+        self.assertEqual(batch.main(["batch.py", "shortfall", "--slots", short,
+                                     "--pins", self.pins_path,
+                                     "--reason", "marker test"]), 0)
+        self.assertTrue(os.path.exists(os.path.join(short, "SHORTFALL.json")))
 
     def test_no_slot_is_created_before_the_golden_capture_is_registered(self):
         # The failure this closes cost fifty real calls: the batch used to run
