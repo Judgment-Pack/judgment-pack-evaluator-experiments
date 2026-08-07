@@ -1631,5 +1631,62 @@ class Batch(unittest.TestCase):
         self.assertEqual(report.count("| 0 | no sanctions hit"), 1)
 
 
+class EmissionMountIdentity(unittest.TestCase):
+    """The round-5 review demonstrated, before it was cut off, that `realpath`
+    is mount-blind: a bind mount or host re-exposure gives one directory two
+    resolved names, and the lexical disjointness check printed PASSED for an
+    emission target inside the slot tree's other name. The check now also
+    compares filesystem identity (device and inode) against each side's
+    existing-ancestor chain. Mounts cannot be created without privileges, so
+    the live case runs only where the machine already exposes one (the
+    reviewer's own repro: /tmp re-exposed at /mnt/wslg/distro/tmp) and the
+    mechanism is additionally pinned by an unconditional unit test."""
+
+    ALIAS_ROOT = "/mnt/wslg/distro/tmp"
+
+    def test_a_second_mount_name_for_the_slot_tree_refuses_emission(self):
+        import tempfile
+        if not (os.path.isdir(self.ALIAS_ROOT)
+                and os.path.samefile("/tmp", self.ALIAS_ROOT)):
+            self.skipTest("no second mount name for /tmp on this machine; the "
+                          "mechanism is pinned by the unit test below")
+        slots = tempfile.mkdtemp(prefix="s011-mount-", dir="/tmp")
+        self.addCleanup(__import__("shutil").rmtree, slots, True)
+        alias_slots = os.path.join(self.ALIAS_ROOT, os.path.basename(slots))
+        self.assertTrue(os.path.samefile(slots, alias_slots))
+        # Both directions, both spellings: the alias as the slot tree with a
+        # real-name target inside it, and the real name with an alias target.
+        for slots_arg, target_arg in (
+                (alias_slots, os.path.join(slots, "run-051")),
+                (slots, os.path.join(alias_slots, "run-051"))):
+            with self.assertRaises(score_rates.ScoreError):
+                score_rates._check_records_target(slots_arg, target_arg)
+        # A genuinely disjoint target still passes through either name.
+        outside = tempfile.mkdtemp(prefix="s011-mount-out-", dir="/tmp")
+        self.addCleanup(__import__("shutil").rmtree, outside, True)
+        score_rates._check_records_target(alias_slots, os.path.join(outside, "r"))
+
+    def test_identity_overlap_sees_shared_objects_regardless_of_names(self):
+        import tempfile
+        root = tempfile.mkdtemp(prefix="s011-ident-")
+        self.addCleanup(__import__("shutil").rmtree, root, True)
+        slots = os.path.join(root, "authoring")
+        os.makedirs(slots)
+        # The same object under a lexically different, unresolvable spelling.
+        self.assertTrue(score_rates._identity_overlap(
+            slots, os.path.join(root, "authoring")))
+        # A target that does not exist yet, planned inside the tree: its
+        # existing-ancestor chain carries the tree's identity.
+        self.assertTrue(score_rates._identity_overlap(
+            slots, os.path.join(slots, "not-yet", "run-051")))
+        # Containment the other way: the tree planned inside the target.
+        self.assertTrue(score_rates._identity_overlap(slots, root))
+        # Disjoint directories share no object.
+        outside = os.path.join(root, "records")
+        os.makedirs(outside)
+        self.assertFalse(score_rates._identity_overlap(
+            slots, os.path.join(outside, "run-001")))
+
+
 if __name__ == "__main__":
     unittest.main()

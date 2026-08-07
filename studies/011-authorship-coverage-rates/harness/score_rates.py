@@ -1558,20 +1558,74 @@ def _check_records_target(slots_dir: str, records_dir: str) -> None:
     compared against the directory it would be created in. The slot tree's own
     rule (regular files and directories only, no links anywhere) keeps links
     out of the tree; this keeps them out of the two names for it.
+
+    `realpath` alone is still mount-blind — the round-5 review demonstrated it
+    live before being cut off: a bind mount or host re-exposure gives one
+    directory two names that BOTH survive resolution (this machine shows /tmp
+    again at /mnt/wslg/distro/tmp; `os.path.samefile` says True while the
+    resolved strings differ). So the comparison is also made on filesystem
+    identity: the (device, inode) of each side against the other side's
+    existing-ancestor chain (`_identity_overlap`), which is the mount-blind
+    twin of the `startswith` test and needs no privileges to check.
     """
     slots = os.path.normpath(os.path.realpath(slots_dir))
     target = os.path.normpath(os.path.realpath(records_dir))
     if target == slots or target.startswith(slots + os.sep) \
-            or slots.startswith(target + os.sep):
+            or slots.startswith(target + os.sep) \
+            or _identity_overlap(slots, target):
         raise ScoreError(
             "--emit-records %s (%s) is inside the slot tree %s (%s), or contains "
             "it: the compiled record trees are DERIVED from a scored population "
             "and may not be written into one. Emitting a run-NNN directory there "
             "adds a slot to the batch that was just scored, so the retained tree "
             "no longer reproduces the published rates (§8). The two paths are "
-            "compared resolved, so a symlink alias to either one is the same "
-            "directory here. Name a directory outside the slot tree."
+            "compared resolved AND by filesystem identity (device and inode, up "
+            "each ancestor chain), so a symlink alias OR a second mount name for "
+            "either one is the same directory here. Name a directory outside the "
+            "slot tree."
             % (records_dir, target, slots_dir, slots))
+
+
+def _object_id(path: str):
+    """(st_dev, st_ino) of an existing path, else None. Two names are one
+    directory exactly when these agree — which is what `realpath` cannot see
+    across mounts: a bind mount or a host re-exposure (this machine shows /tmp
+    again at /mnt/wslg/distro/tmp) gives one directory two resolved names."""
+    try:
+        stat = os.stat(path)
+    except OSError:
+        return None
+    return (stat.st_dev, stat.st_ino)
+
+
+def _identity_chain(path: str) -> set:
+    """The (st_dev, st_ino) of `path` and every EXISTING ancestor, to the root.
+
+    A not-yet-created emission target contributes its existing ancestors, so a
+    target planned inside the slot tree through a second mount name is caught
+    before anything is written — the chain walk is the mount-blind twin of the
+    lexical `startswith` above."""
+    identities = set()
+    while True:
+        identity = _object_id(path)
+        if identity is not None:
+            identities.add(identity)
+        parent = os.path.dirname(path)
+        if parent == path:
+            return identities
+        path = parent
+
+
+def _identity_overlap(slots: str, target: str) -> bool:
+    """True when the two trees share a directory OBJECT even though their
+    resolved names differ: the slot tree appears among the target's existing
+    ancestors (target equals or sits inside the tree, under any mount name),
+    or the target appears among the slot tree's ancestors (contains it)."""
+    slots_id = _object_id(slots)
+    target_id = _object_id(target)
+    if slots_id is not None and slots_id in _identity_chain(target):
+        return True
+    return target_id is not None and target_id in _identity_chain(slots)
 
 
 def _emit_records(rows: list, slots_dir: str, out_dir: str) -> None:

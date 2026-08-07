@@ -327,9 +327,11 @@ scorer has **no flag that writes a rate table anywhere else and no flag that
 names any input either** — the registered command takes the slot directory and
 an optional record-emission directory, every other argument refuses, and
 `RESULTS.json` and `RATES.md` go to the study root or nowhere. The emission
-directory is required to be disjoint from the slot tree — compared *resolved*,
-so an alias to either is the same directory — so publishing the rates cannot
-also add a slot to the population they were computed over.
+directory is required to be disjoint from the slot tree — compared *resolved*
+and by filesystem identity (device and inode, up each side's existing-ancestor
+chain), so a symlink alias *or a second mount name* for either is the same
+directory — so publishing the rates cannot also add a slot to the population
+they were computed over.
 
 Stated exactly, because the mechanism is narrower than "seeing the rates arms
 the guard": what arms the driver's guard is `RESULTS.json` existing, and the
@@ -1404,13 +1406,16 @@ the scorer, or in both — nothing here is a description of intent:
   is read (§3.3). A FIFO is checked by type rather than opened because `open()`
   on one does not return;
 - `--emit-records DIR` disjoint from the slot tree — not equal to it, not
-  inside it, not containing it — checked on **both sides' resolved paths**
-  before anything is scored or written, so emitting the derived record trees
-  cannot add a slot to the population that was just published (§8). The slot
-  root is resolved once, at the registered command's entry, and that one
-  resolved path is what is checked, scored, published against and emitted
-  from: a lexical check let a symlink alias name the same tree twice, and
-  scoring through the alias then wrote a real slot into the real tree;
+  inside it, not containing it — checked on **both sides' resolved paths and
+  their filesystem identity** (device and inode against the other side's
+  existing-ancestor chain) before anything is scored or written, so emitting
+  the derived record trees cannot add a slot to the population that was just
+  published (§8). The slot root is resolved once, at the registered command's
+  entry, and that one resolved path is what is checked, scored, published
+  against and emitted from: a lexical check let a symlink alias name the same
+  tree twice, and resolution alone is mount-blind — a bind mount or host
+  re-exposure gives one directory two resolved names, which the identity
+  comparison sees and a `realpath` comparison cannot;
 - the recapture derived from at least two **distinct sessions**, checked on the
   raw retained evidence — transcript bytes, session id, and the call record's
   own clock, working directory and home — so a copied capture slot or a
