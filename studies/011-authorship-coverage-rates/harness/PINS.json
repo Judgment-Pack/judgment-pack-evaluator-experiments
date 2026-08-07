@@ -30,7 +30,7 @@
   },
   "golden": {
     "path": "transcription/GOLDEN-CONTEXT.json",
-    "sha256": null,
+    "sha256": "sha256:a8a2a735ddc910ee2e36c48d34ebf206b716a0d43cd77ba51a8af6a4a2cd3cf8",
     "note": "Recaptured for THIS study's environment before the batch (batch.py capture --scratch-parent DIR), not inherited from Study 010: a golden capture pins one machine's codex boilerplate, and 010's would refuse every honest run here. The digest is null until the capture is taken and registered, and while it is null batch.py refuses to create a slot and score_rates.py refuses to score, so the recapture cannot be skipped. The derivation needs at least TWO capture slots whose normalized contexts agree byte-for-byte (batch.py refuses one). That a capture derived AFTER the batch cannot be substituted is checkable per slot rather than asserted: the batch stamps the digest it verified at preflight into every slot's CALL.json (goldenSha256), and score_rates.py scores any slot whose stamped digest is not the pin it is scoring under pipeline-invalid, code golden-mismatch."
   },
   "isolationNegative": {
@@ -60,7 +60,7 @@
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",
-    "sha256": null,
+    "sha256": "sha256:66fb530e07af60ef7ff88c819df14ede31c65b6d5f412507f72c0a6c7d5c91b4",
     "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; this registry is committed before the batch begins."
   },
   "python": {
