@@ -1,0 +1,149 @@
+{
+  "artifact": {
+    "agreementId": "AGR-2043",
+    "counterpartyLegalName": "Northwind Analytics Ltd",
+    "executedGrants": {
+      "internalAnalytics": true,
+      "onwardTransfer": true
+    },
+    "observedAt": "2026-03-01T09:00:00Z",
+    "sections": {
+      "dataSchedule": {
+        "datasets": [
+          "customer-events"
+        ]
+      },
+      "executionBlock": {
+        "counterpartySignatory": "Head of Data Partnerships",
+        "signedAt": "2026-01-15T00:00:00Z"
+      },
+      "recitals": {
+        "partiesNamed": true
+      }
+    },
+    "signatoryHadDelegatedAuthority": true,
+    "status": "found"
+  },
+  "catchingClause": {
+    "coupling": "pack-independent",
+    "note": "A freshness window, parameterised by the acquisition rather than by the pack. The shipped screening rule carries the same clause.",
+    "op": "freshWithin",
+    "pointer": "/observedAt"
+  },
+  "derived": {
+    "convention": {
+      "acquisitionStatus": "unknown",
+      "basis": [
+        "/counterpartyLegalName",
+        "/observedAt",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "unknown"
+      },
+      "facts": {},
+      "reason": "freshness"
+    },
+    "convention-coupled": {
+      "acquisitionStatus": "unknown",
+      "basis": [
+        "/counterpartyLegalName",
+        "/observedAt",
+        "/sections/executionBlock",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "unknown"
+      },
+      "facts": {},
+      "reason": "freshness"
+    }
+  },
+  "expected": {
+    "convention": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "conventionClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "conventionCoupled": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naive": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "naiveClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naiveCredulousClauseFact": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    }
+  },
+  "id": "C3",
+  "naiveAvailability": {
+    "signed-agreement": "present"
+  },
+  "name": "Stale document",
+  "packDemand": "an agreement that is **current**",
+  "params": {
+    "asOf": "2026-08-06T12:00:00Z",
+    "maxAgeSeconds": 2592000,
+    "subject": "Northwind Analytics Ltd"
+  },
+  "requirementDemands": {
+    "current": false,
+    "executedByBothParties": true,
+    "grantsOnwardTransfer": true,
+    "onFile": true,
+    "withThisCounterparty": true
+  },
+  "requirementSatisfied": false,
+  "summary": "A complete, executed agreement with the right counterparty, signed in January and observed five months ago — outside the acquisition's freshness window, so the acquisition cannot say the retained bytes are still the agreement in force."
+}

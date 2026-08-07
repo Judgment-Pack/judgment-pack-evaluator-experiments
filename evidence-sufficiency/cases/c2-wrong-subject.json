@@ -1,0 +1,145 @@
+{
+  "artifact": {
+    "agreementId": "AGR-2043",
+    "counterpartyLegalName": "Contoso Data Services GmbH",
+    "executedGrants": {
+      "internalAnalytics": true,
+      "onwardTransfer": true
+    },
+    "observedAt": "2026-08-05T09:00:00Z",
+    "sections": {
+      "dataSchedule": {
+        "datasets": [
+          "customer-events"
+        ]
+      },
+      "executionBlock": {
+        "counterpartySignatory": "Head of Data Partnerships",
+        "signedAt": "2026-05-04T00:00:00Z"
+      },
+      "recitals": {
+        "partiesNamed": true
+      }
+    },
+    "signatoryHadDelegatedAuthority": true,
+    "status": "found"
+  },
+  "catchingClause": {
+    "coupling": "pack-independent",
+    "note": "The subject clause of the shipped screening rule, verbatim in shape. The subject is a parameter of the acquisition, not of the pack's question.",
+    "op": "equalsParam",
+    "pointer": "/counterpartyLegalName"
+  },
+  "derived": {
+    "convention": {
+      "acquisitionStatus": "unknown",
+      "basis": [
+        "/counterpartyLegalName",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "unknown"
+      },
+      "facts": {},
+      "reason": "subject"
+    },
+    "convention-coupled": {
+      "acquisitionStatus": "unknown",
+      "basis": [
+        "/counterpartyLegalName",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "unknown"
+      },
+      "facts": {},
+      "reason": "subject"
+    }
+  },
+  "expected": {
+    "convention": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "conventionClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "conventionCoupled": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naive": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    },
+    "naiveClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "unknown"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "unknown"
+      ]
+    },
+    "naiveCredulousClauseFact": {
+      "handoff": {
+        "state": "none"
+      },
+      "kind": "outcome",
+      "outcomeId": "release",
+      "reasons": []
+    }
+  },
+  "id": "C2",
+  "naiveAvailability": {
+    "signed-agreement": "present"
+  },
+  "name": "Wrong subject",
+  "packDemand": "an agreement **with this counterparty**",
+  "params": {
+    "asOf": "2026-08-06T12:00:00Z",
+    "maxAgeSeconds": 2592000,
+    "subject": "Northwind Analytics Ltd"
+  },
+  "requirementDemands": {
+    "current": true,
+    "executedByBothParties": true,
+    "grantsOnwardTransfer": true,
+    "onFile": true,
+    "withThisCounterparty": false
+  },
+  "requirementSatisfied": false,
+  "summary": "A complete, executed, current agreement — with a different counterparty. The source resolved a neighbouring record."
+}

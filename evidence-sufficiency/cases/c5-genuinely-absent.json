@@ -1,0 +1,133 @@
+{
+  "artifact": {
+    "checkedSuccessfully": true,
+    "counterpartyLegalName": "Northwind Analytics Ltd",
+    "status": "not_found"
+  },
+  "catchingClause": {
+    "coupling": "none",
+    "note": "Nothing to catch: `absent` already reaches §8 step 2's missing-required-evidence, identically in both arms."
+  },
+  "derived": {
+    "convention": {
+      "acquisitionStatus": "absent",
+      "basis": [
+        "/checkedSuccessfully",
+        "/counterpartyLegalName",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "absent"
+      },
+      "facts": {},
+      "reason": "absent"
+    },
+    "convention-coupled": {
+      "acquisitionStatus": "absent",
+      "basis": [
+        "/checkedSuccessfully",
+        "/counterpartyLegalName",
+        "/status"
+      ],
+      "evidenceAvailability": {
+        "signed-agreement": "absent"
+      },
+      "facts": {},
+      "reason": "absent"
+    }
+  },
+  "expected": {
+    "convention": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "missing-required-evidence"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "missing-required-evidence"
+      ]
+    },
+    "conventionClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "missing-required-evidence"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "missing-required-evidence"
+      ]
+    },
+    "conventionCoupled": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "missing-required-evidence"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "missing-required-evidence"
+      ]
+    },
+    "naive": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "missing-required-evidence"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "missing-required-evidence"
+      ]
+    },
+    "naiveClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "missing-required-evidence"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "missing-required-evidence"
+      ]
+    },
+    "naiveCredulousClauseFact": {
+      "handoff": {
+        "state": "requested",
+        "triggeredBy": [
+          "missing-required-evidence"
+        ]
+      },
+      "kind": "unresolved",
+      "reasons": [
+        "missing-required-evidence"
+      ]
+    }
+  },
+  "id": "C5",
+  "naiveAvailability": {
+    "signed-agreement": "absent"
+  },
+  "name": "Control — genuinely absent",
+  "packDemand": "an agreement to exist at all",
+  "params": {
+    "asOf": "2026-08-06T12:00:00Z",
+    "maxAgeSeconds": 2592000,
+    "subject": "Northwind Analytics Ltd"
+  },
+  "requirementDemands": {
+    "current": false,
+    "executedByBothParties": false,
+    "grantsOnwardTransfer": false,
+    "onFile": false,
+    "withThisCounterparty": true
+  },
+  "requirementSatisfied": false,
+  "summary": "The source checked and reports no agreement on file for this counterparty. Both arms should reach the same place; the control confines every divergence to the `present` branch."
+}

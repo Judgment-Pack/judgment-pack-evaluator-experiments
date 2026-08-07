@@ -1,0 +1,56 @@
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://example.test/packs/counterparty-dataset-release-clause-fact",
+  "version": "1.0.0",
+  "title": "Counterparty dataset release (clause stated as a fact condition)",
+  "description": "The same decision as release-evidence-only.json, with the grant the question turns on stated as a Core fact condition instead of being left inside the requirement's prose. The probe for whether the pack-side lever already exists.",
+  "decision": {
+    "intent": "Decide whether a requested dataset may be released to a counterparty under an executed data-sharing agreement.",
+    "question": "May the requested dataset be released to this counterparty?"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "signed-agreement",
+      "kind": "document",
+      "description": "The data-sharing agreement with this counterparty, executed by both parties and current, whose executed schedule grants onward transfer of the requested dataset to this counterparty.",
+      "required": true
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "release",
+      "label": "Release the dataset",
+      "description": "The executed agreement covers this release."
+    },
+    {
+      "id": "withhold",
+      "label": "Withhold the dataset",
+      "description": "Declared so the decision names its alternative. No rule reaches it: this pack deliberately routes every non-release to review rather than to an automatic withhold, so a non-release is always a human's call."
+    }
+  ],
+  "rules": [
+    {
+      "id": "release-under-agreement",
+      "description": "Release when the required agreement is available and its executed schedule grants onward transfer.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {"op": "evidence-present", "evidenceRequirement": "signed-agreement"},
+          {
+            "op": "fact",
+            "path": "/agreement/executedGrants/onwardTransfer",
+            "operator": "equals",
+            "value": true
+          }
+        ]
+      },
+      "outcome": "release",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": ["signed-agreement"]
+    }
+  ],
+  "escalation": {
+    "triggers": ["missing-required-evidence", "unknown", "no-match"],
+    "target": {"kind": "queue", "name": "Counterparty agreement review"}
+  }
+}

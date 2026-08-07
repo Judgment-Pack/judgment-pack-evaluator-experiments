@@ -1,0 +1,91 @@
+{
+  "ruleVersion": "1",
+  "parameters": {
+    "subject": "string",
+    "asOf": "timestamp",
+    "maxAgeSeconds": "integer"
+  },
+  "clauses": [
+    {
+      "when": {"op": "all", "of": [
+        {"op": "equals", "field": "/status", "to": "found"},
+        {"op": "not", "of": {"op": "equalsParam", "field": "/counterpartyLegalName", "param": "subject"}}
+      ]},
+      "claim": {
+        "facts": [],
+        "evidence": {"signed-agreement": "unknown"},
+        "acquisitionStatus": "unknown"
+      },
+      "reason": "subject"
+    },
+    {
+      "when": {"op": "all", "of": [
+        {"op": "equals", "field": "/status", "to": "found"},
+        {"op": "not", "of": {"op": "exists", "field": "/sections/executionBlock"}}
+      ]},
+      "claim": {
+        "facts": [],
+        "evidence": {"signed-agreement": "unknown"},
+        "acquisitionStatus": "unknown"
+      },
+      "reason": "incomplete"
+    },
+    {
+      "when": {"op": "all", "of": [
+        {"op": "equals", "field": "/status", "to": "found"},
+        {"op": "not", "of": {"op": "freshWithin", "field": "/observedAt", "asOf": "asOf", "maxAge": "maxAgeSeconds"}}
+      ]},
+      "claim": {
+        "facts": [],
+        "evidence": {"signed-agreement": "unknown"},
+        "acquisitionStatus": "unknown"
+      },
+      "reason": "freshness"
+    },
+    {
+      "when": {"op": "all", "of": [
+        {"op": "equals", "field": "/status", "to": "found"},
+        {"op": "not", "of": {"op": "isTrue", "field": "/executedGrants/onwardTransfer"}}
+      ]},
+      "claim": {
+        "facts": [],
+        "evidence": {"signed-agreement": "unknown"},
+        "acquisitionStatus": "unknown"
+      },
+      "reason": "grant"
+    },
+    {
+      "when": {"op": "equals", "field": "/status", "to": "found"},
+      "claim": {
+        "facts": [
+          {"pointer": "/agreement", "from": ""}
+        ],
+        "evidence": {"signed-agreement": "present"},
+        "acquisitionStatus": "resolved"
+      },
+      "reason": "resolved"
+    },
+    {
+      "when": {"op": "all", "of": [
+        {"op": "equals", "field": "/status", "to": "not_found"},
+        {"op": "isTrue", "field": "/checkedSuccessfully"},
+        {"op": "equalsParam", "field": "/counterpartyLegalName", "param": "subject"}
+      ]},
+      "claim": {
+        "facts": [],
+        "evidence": {"signed-agreement": "absent"},
+        "acquisitionStatus": "absent"
+      },
+      "reason": "absent"
+    },
+    {
+      "when": {"op": "always"},
+      "claim": {
+        "facts": [],
+        "evidence": {"signed-agreement": "unknown"},
+        "acquisitionStatus": "unknown"
+      },
+      "reason": "unknown"
+    }
+  ]
+}
