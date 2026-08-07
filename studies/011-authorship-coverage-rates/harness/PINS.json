@@ -1,0 +1,76 @@
+{
+  "pinsVersion": "1",
+  "note": "The run-time registry for Study 011's one cell: the codex binary, the model, and the byte digests of the two inputs a run's meaning depends on (the prompt and the mutation family). Every value was copied from studies/010-blinded-oracle/PROTOCOL-LOCK.json at commit 9063be5d0d0d42b52477f0968ace2e616ac97086, where the worktree bytes equal the HEAD blob bytes. batch.py refuses to call anything whose binary digest is not codex.binarySha256, and score_rates.py refuses to score against a prompt or family whose bytes are not these. Nothing here is a claim about the model's provider or identity beyond what the retained transcript records; it is a pin, not an attestation.",
+  "pinnedFrom": {
+    "study": "studies/010-blinded-oracle",
+    "file": "PROTOCOL-LOCK.json",
+    "fileSha256": "sha256:4966aa821325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1",
+    "commit": "9063be5d0d0d42b52477f0968ace2e616ac97086"
+  },
+  "codex": {
+    "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+    "version": "codex-cli 0.145.0",
+    "model": "gpt-5.6-sol"
+  },
+  "prompt": {
+    "path": "transcription/PROMPT.txt",
+    "sha256": "sha256:a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2",
+    "note": "Study 010's registered authoring prompt, byte-exact, no trailing newline. It inlines policy/POLICY.md; this study copies no separate policy file."
+  },
+  "probePrompt": {
+    "path": "transcription/PROBE-PROMPT.txt",
+    "sha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7",
+    "note": "The golden recapture's prompt, byte-exact, no trailing newline: 'Reply with exactly one word: ready'. Used by batch.py capture and by batch.py capture-isolation-negative. The pre-prompt context precedes the prompt and does not depend on it, so the capture uses this rather than the registered prompt — running the registered prompt before the batch would show the operator coverage profiles first, which is the cost Study 010's DEVIATIONS §1 records. It carries no leak token, and the model's answer to it is discarded."
+  },
+  "family": {
+    "path": "FAMILY.json",
+    "sha256": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+    "classes": 6,
+    "note": "Study 010's locked mutation family. Study 011 applies no patch and produces no pack D: only the six predicate members are read, as the six coverage classes."
+  },
+  "golden": {
+    "path": "transcription/GOLDEN-CONTEXT.json",
+    "sha256": null,
+    "note": "Recaptured for THIS study's environment before the batch (batch.py capture --scratch-parent DIR), not inherited from Study 010: a golden capture pins one machine's codex boilerplate, and 010's would refuse every honest run here. The digest is null until the capture is taken and registered, and while it is null batch.py refuses to create a slot and score_rates.py refuses to score, so the recapture cannot be skipped. The derivation needs at least TWO capture slots whose normalized contexts agree byte-for-byte (batch.py refuses one). That a capture derived AFTER the batch cannot be substituted is checkable per slot rather than asserted: the batch stamps the digest it verified at preflight into every slot's CALL.json (goldenSha256), and score_rates.py scores any slot whose stamped digest is not the pin it is scoring under pipeline-invalid, code golden-mismatch."
+  },
+  "isolationNegative": {
+    "operatorAssent": "granted",
+    "date": "2026-08-06",
+    "note": "PREREGISTRATION.md §6 C7 runs ONE probe-prompt call against the operator's real HOME, and it is the only registered step that deliberately exposes that environment to the pinned CLI, so it runs only with the operator's recorded assent. Assent was granted before the freeze and is recorded here; batch.py capture-isolation-negative refuses unless this member says 'granted'. The control always retains the verdict and a CALL.json stripped of every member naming the operator's environment, plus the context digests whenever the call produced a comparable context: three files under the 'refused' and 'matched' outcomes, two under 'no-context', and VERDICT.json's outcome member says which. batch.py digests and deletes the transcript itself."
+  },
+  "batch": {
+    "runs": 50,
+    "note": "N = 50 sequential independent calls, one cell. A short batch is reported as a shortfall with the completed runs. What is mechanically guaranteed: N is read from here rather than chosen after the fact; the driver refuses a slot once RESULTS.json exists; the registered scoring command takes only --slots and --emit-records, so it has no flag that writes a rate table anywhere else and none that supplies a registry, so N cannot be redefined by the command that publishes; a shortfall may not be declared over a batch that is not short, and the scorer refuses unless the declaration's count is the contiguous slots present. What is NOT guaranteed and is stated in §7 instead: that the operator did not read a completion.txt by eye mid-batch."
+  },
+  "replication": {
+    "path": "../010-blinded-oracle/transcription/authoring/call-1/completion.txt",
+    "sha256": "sha256:45deb69ea7a0d10aa43b2ec00ad623c11e3d77a15ece11c0ee220c7836c81677",
+    "expected": {
+      "accepted": 16,
+      "h": 16,
+      "q": 0,
+      "hClassCounts": [2, 2, 2, 4, 1, 1],
+      "qClassCounts": [0, 0, 0, 0, 0, 0]
+    },
+    "note": "The replication control: Study 010's retained completion, run through this study's ported compiler, mirror and classifier, must reproduce the profile ../010-blinded-oracle/ANALYSIS.md published. Pinned here so the expectation is a committed value rather than a number a test can be talked out of."
+  },
+  "ports": {
+    "path": "harness/PORTS.md",
+    "note": "Every ported file, its Study 010 source digest at commit 9063be5d0d0d42b52477f0968ace2e616ac97086, its digest here, and what changed. This registry points there rather than duplicating the table. harness/integrity.py parses that table and verifies every row on BOTH sides — the destination file here and the source file in studies/010-blinded-oracle — plus that study's PROTOCOL-LOCK.json against pinnedFrom.fileSha256 above; batch.py runs it before it creates a slot and score_rates.py before it reads one."
+  },
+  "preregistration": {
+    "path": "PREREGISTRATION.md",
+    "sha256": null,
+    "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; this registry is committed before the batch begins."
+  },
+  "python": {
+    "implementation": "CPython",
+    "series": "3.12",
+    "version": "3.12.11",
+    "note": "The interpreter this study's harness runs on, and this member is READ BY CODE: harness/integrity.verify_interpreter() refuses unless the running implementation and version series are exactly these, so batch.py, score_rates.py, harness/integrity.py and transcription/authoring_call.sh (which checks $PYTHON_BIN before it calls anything) all refuse under an unregistered interpreter. The patch level is recorded, not enforced — CI pins the 3.12 series and resolves whatever patch release is current, and this study's arithmetic is exact rationals and integer combinatorics. Study 010 ran on CPython 3.8.20; the ported compiler and mirror use no version-dependent behaviour, and the ported files' digests are recorded in harness/PORTS.md."
+  },
+  "registryOfRecord": {
+    "path": "harness/PINS.json",
+    "note": "This file is its own subject: transcription/authoring_call.sh records the sha256 of the registry it ran under in CALL.json (pinsSha256), and score_rates.py computes the digest of the COMMITTED harness/PINS.json and scores any slot whose stamped digest differs pipeline-invalid, code registry-mismatch (§3.3). batch.py --pins therefore lets the harness tests drive the real wrapper under a stand-in registry naming a stand-in binary. The SCORER has no --pins at all: the registered command derives this file's path from the harness's own location and refuses every argument but --slots and --emit-records, because a supplied registry identical to this one except for batch.runs would have redefined N and every denominator while each slot's stamp still matched (§7). A slot made under a foreign registry cannot enter a denominator, and a foreign registry cannot reach the counting."
+  }
+}
