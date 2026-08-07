@@ -181,6 +181,11 @@ reading a `completion.txt` by eye mid-batch (§7).
 5. [`DIVERSITY.md`](DIVERSITY.md) — the post-hoc diversity census a reader's
    question prompted: how much variety sits behind 49/49. Every table
    regenerates from `analysis/diversity.py`.
+6. [`MIRROR-AGREEMENT.md`](MIRROR-AGREEMENT.md) — the clean-room second
+   mirror: built from `POLICY.md` alone, agreeing 784/784 on the corpus and
+   120/120 on an exhaustive grid, with the shared-text ceiling stated.
+   `analysis/agreement.py` reproduces both counts and exits nonzero on any
+   disagreement; it closes with the follow-up ledger, dispositioned.
 
 Byte-lineage, not truth: this study measures whether independently
 authored records *reach* registered boundary classes with correct labels.
