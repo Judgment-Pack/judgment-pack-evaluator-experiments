@@ -178,11 +178,20 @@ class Batch(unittest.TestCase):
     def test_capture_golden_writes_only_where_it_is_told(self):
         self.assertEqual(self.capture(), 0)
         # No --out: the derivation refuses rather than landing in the study.
+        # The property is that the refused call writes NOTHING — asserted as
+        # "the study's own golden is byte-unchanged", not as "absent", because
+        # once the study registers its real capture the file exists there
+        # legitimately (which is exactly what broke the absence form of this
+        # assertion on the frozen tree).
+        registered = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
+        before = (open(registered, "rb").read()
+                  if os.path.exists(registered) else None)
         self.assertEqual(batch.main(["batch.py", "capture-golden",
                                      "--pins", self.pins_path, "--slots",
                                      self.attempt()]), 1)
-        self.assertFalse(os.path.exists(os.path.join(
-            STUDY, "transcription", "GOLDEN-CONTEXT.json")))
+        after = (open(registered, "rb").read()
+                 if os.path.exists(registered) else None)
+        self.assertEqual(before, after)
 
     # --- the ported bytes -----------------------------------------------------
 
