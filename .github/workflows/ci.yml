@@ -45,9 +45,11 @@ jobs:
       - name: Run the harness, control and fixture suite
         # The batch itself is API-dependent and never runs here; this suite is
         # deterministic and offline, and drives the real wrapper against a
-        # stand-in CLI and a stand-in HOME.
+        # stand-in CLI and a stand-in HOME. `analysis` carries the post-hoc
+        # diversity census: it recomputes DIVERSITY.md's tables from the
+        # retained bytes and fails if the tree or the document has drifted.
         working-directory: studies/011-authorship-coverage-rates
-        run: python -m pytest harness/tests -q
+        run: python -m pytest harness/tests analysis -q
 
   python:
     name: ${{ matrix.os }} · Python ${{ matrix.python }}
