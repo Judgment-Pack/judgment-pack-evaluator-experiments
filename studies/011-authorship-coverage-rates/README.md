@@ -51,8 +51,17 @@ The batch is API-dependent and non-deterministic, so it runs **manually,
 never in CI**. The deterministic controls and fixtures do run in CI: the
 `study-011-harness` job in `.github/workflows/ci.yml` runs the whole
 `harness/tests` suite on Python 3.12, and that suite includes the
-ported-bytes check, the replication control, the fixtures, the interval
-vectors, and the wrapper-driven batch tests against a stand-in CLI.
+ported-bytes check against Study 010's lock, the replication control, the
+fixtures, the interval vectors, the registered-illustration check on this
+study's own prose, and the wrapper-driven batch tests against a stand-in CLI.
+
+**The interpreter is a pin, not a detail.** `harness/PINS.json` registers
+CPython 3.12, and the harness reads that member: `harness/integrity.py`,
+`harness/batch.py` and `harness/score_rates.py` refuse under another
+implementation or version series, and the wrapper refuses before it calls
+anything if `PYTHON_BIN` is not the registered one. A bare `python3` is
+whatever the shell resolves — on the machine this study was written on, 3.8 —
+so every command below names the interpreter explicitly through `$PY`.
 
 The steps, in registered order, with the argv each one actually takes.
 `DIR` is a scratch parent that resolves **outside every git worktree** and
@@ -62,57 +71,77 @@ refused); `harness/PINS.json` is the registry every step reads.
 ```sh
 cd studies/011-authorship-coverage-rates
 
-# 1. Ported bytes (§6 C1). Deterministic, offline, also a precondition of
-#    steps 3-6: batch.py and score_rates.py run this check themselves.
-python3 harness/integrity.py
+# 0. The registered interpreter. Every command below runs under it, and the
+#    harness refuses if it is not CPython 3.12.
+PY=$(command -v python3.12) && "$PY" -V
+
+# 1. Ported bytes (§6 C1), Study 010's lock, and the interpreter.
+#    Deterministic, offline, and also a precondition of steps 3-6:
+#    batch.py and score_rates.py run this same check themselves.
+"$PY" harness/integrity.py
 
 # 2. The harness suite: fixtures, replication control, interval vectors,
 #    admission codes, and the batch driver against a stand-in CLI.
-python3 -m pytest harness/tests -q
+"$PY" -m pytest harness/tests -q
 
-# 3. The golden-context recapture (§3.2). ONE command, which makes TWO
+# 3. Freeze the preregistration: put its sha256 into harness/PINS.json
+#    preregistration.sha256 and COMMIT. Nothing below will make a call or
+#    compute a rate while that member is null (§2.6).
+sha256sum PREREGISTRATION.md
+
+# 4. The golden-context recapture (§3.2). ONE command, which makes TWO
 #    probe calls into controls/recapture/attempt-1/ and derives the
-#    capture only if they agree.
-python3 harness/batch.py capture --scratch-parent DIR
+#    capture only if they agree; one call cannot derive one.
+"$PY" harness/batch.py capture --scratch-parent DIR
 #    Then put the printed digest into harness/PINS.json golden.sha256 and
-#    COMMIT both. Until that is done, step 5 refuses to create any slot and
-#    step 6 refuses to score. If the two captures disagree, fix the cause
+#    COMMIT both. Until that is done, step 6 refuses to create any slot and
+#    step 7 refuses to score. If the two captures disagree, fix the cause
 #    and run the same command again: it lands in attempt-2.
+#    From here on, harness/PINS.json is not edited again: the batch stamps
+#    its digest into every slot, and a later edit refuses the scoring (§2.6).
 
-# 4. The isolation negative control (§6 C7), operator assent recorded in
+# 5. The isolation negative control (§6 C7), operator assent recorded in
 #    harness/PINS.json. One probe call with the real HOME, expected to FAIL
-#    the golden match; it retains three files and deletes the transcript.
-python3 harness/batch.py capture-isolation-negative --scratch-parent DIR
+#    the golden match; it retains its verdict and a stripped call record
+#    (plus the context digests when there are any) and deletes the
+#    transcript. It exits non-zero if it reached neither comparison.
+"$PY" harness/batch.py capture-isolation-negative --scratch-parent DIR
 
-# 5. The batch: 50 sequential slots into transcription/authoring/run-NNN/.
-#    It retains bytes; it computes no coverage.
-python3 harness/batch.py run --scratch-parent DIR
-#    A dry run first, which creates nothing:
-python3 harness/batch.py run --scratch-parent DIR --dry-run
+# 6. The batch: 50 sequential slots into transcription/authoring/run-NNN/.
+#    It retains bytes; it computes no coverage. THE DRY RUN COMES FIRST —
+#    it creates nothing, and running it after the real batch would only
+#    refuse because the slots already exist.
+"$PY" harness/batch.py run --scratch-parent DIR --dry-run
+"$PY" harness/batch.py run --scratch-parent DIR
 #    After a crash, resume at slot K (the ledger is merged, not replaced):
-python3 harness/batch.py run --scratch-parent DIR --start K --runs M
+"$PY" harness/batch.py run --scratch-parent DIR --start K --runs M
 #    A batch that cannot finish, declared BEFORE anything is scored:
-python3 harness/batch.py shortfall --slots transcription/authoring \
+"$PY" harness/batch.py shortfall --slots transcription/authoring \
         --reason "why it could not finish"
 
-# 6. The scorer: admission, compilation, classification, rates, intervals.
+# 7. The scorer: admission, compilation, classification, rates, intervals.
 #    Writes RESULTS.json and RATES.md to the study root — there is no
 #    --out, by design (§2.4) — and the optional per-slot record trees §8
 #    publishes.
-python3 harness/score_rates.py score --slots transcription/authoring \
+"$PY" harness/score_rates.py score --slots transcription/authoring \
         --emit-records records
 
-# 7. ANALYSIS.md, then post-run cross-vendor adversarial review.
+# 8. ANALYSIS.md, then post-run cross-vendor adversarial review.
 ```
 
-Ordering rules, per `PREREGISTRATION.md` §2.4 and §3.2, all of them checked
-in code: N is fixed at 50 in the registry before the batch; no slot is
+Ordering rules, per `PREREGISTRATION.md` §2.4, §2.6 and §3.2, all of them
+checked in code: N is fixed at 50 in the registry before the batch; no call
+is made while the preregistration's freeze digest is unregistered; no slot is
 created before the golden capture is registered and committed, or after
 `RESULTS.json` exists; a shortfall may not be declared over a batch that is
 not short; and the scorer refuses unless the batch is terminal — exactly N
 slots, or a shortfall declaration whose count is the slots present, never
-both. What is **not** prevented, and is stated rather than papered over:
-the operator reading a `completion.txt` by eye mid-batch (§7).
+both. Two of those are checked **per slot** rather than by ordering alone:
+every run records the registry and the golden capture it was made under, so
+a registry substituted through `--pins` or a capture derived after the batch
+makes those runs pipeline-invalid instead of redefining what they meant. What
+is **not** prevented, and is stated rather than papered over: the operator
+reading a `completion.txt` by eye mid-batch (§7).
 
 ## Reading order
 
@@ -122,7 +151,9 @@ the operator reading a `completion.txt` by eye mid-batch (§7).
    mapping, §6 the controls, §7 what is enforced, recorded, and not
    prevented, §9 bounds.
 2. [`harness/PORTS.md`](harness/PORTS.md) — what each ported file changed,
-   at which digest; the table `harness/integrity.py` reads.
+   at which digest; the table `harness/integrity.py` reads. Its **source**
+   column is checked against Study 010's own `PROTOCOL-LOCK.json`, not
+   against itself, so editing a port and its row together still refuses.
 3. [`DEVIATIONS.md`](DEVIATIONS.md) — empty until something departs.
 4. `RESULTS.json`, `RATES.md` and `ANALYSIS.md` — do not exist yet.
 

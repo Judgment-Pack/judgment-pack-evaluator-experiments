@@ -23,12 +23,17 @@ refuses an existing slot, and the driver refuses a batch whose target slots are
 already on disk or whose results have already been published.
 
 Preflight refuses, before a single call is spent, when: the ported bytes are
-not the registered ones (harness/integrity.py, §6 C1); the prompt is not the
-pinned prompt; a named CLI is not the pinned binary; `RESULTS.json` exists; a
-planned slot exists; or — for the registered prompt — the golden capture is
-absent or its digest is not the one `harness/PINS.json` registers (§3.2). The
-last one is why the golden recapture cannot be skipped: no slot is created
-until the capture is taken, registered and committed.
+not the registered ones and the interpreter is not the registered one
+(harness/integrity.py, §6 C1, §2.6); the preregistration's freeze digest is
+unregistered or does not match this file (§2.6); the prompt is not the pinned
+prompt; a named CLI is not the pinned binary; `RESULTS.json` exists; a planned
+slot exists; or — for the registered prompt — the golden capture is absent or
+its digest is not the one `harness/PINS.json` registers (§3.2). The last one is
+why the golden recapture cannot be skipped: no slot is created until the
+capture is taken, registered and committed. That digest is then stamped into
+every slot's `CALL.json`, so a capture substituted after the batch does not
+change which runs were admissible — the scorer scores those slots
+`golden-mismatch` instead (§3.3).
 
 Commands:
 
@@ -39,10 +44,14 @@ Commands:
   capture-golden             derive a golden capture from retained capture
                              slots (the second half of `capture`, for the case
                              where the calls were made and the derivation was
-                             not)
+                             not). At least two agreeing captures, always:
+                             --min-slots cannot ask for fewer
   capture-isolation-negative §6 C7: ONE probe call with the operator's real
-                             HOME, expected to FAIL the golden match, retaining
-                             three files and no transcript
+                             HOME, expected to FAIL the golden match. Retains
+                             the verdict and a stripped call record always, and
+                             the context digests when the call produced them;
+                             never the transcript, whose deletion it verifies.
+                             Exits non-zero if it reached neither comparison.
   shortfall                  declare a short batch before anything is scored
 
 What this file deliberately does NOT do: score anything, judge a completion,
@@ -95,6 +104,11 @@ RESULTS = os.path.join(STUDY, "RESULTS.json")
 WRAPPER_CODES = {0: None, 1: "preflight-refused", 10: "call-nonzero-exit",
                  11: "session-count"}
 STDERR_TAIL = 4000
+# §3.2: a golden capture is derived from at least TWO independent captures whose
+# normalized pre-prompt contexts agree. One capture cannot show that a context
+# reproduces, and an allowlist built from a context that might vary is not an
+# allowlist. This is the floor, not a default: a smaller --min-slots refuses.
+MIN_CAPTURE_SLOTS = 2
 # §6 C7: what a retained negative-control CALL.json may not carry. The control
 # runs against the operator's real environment, so every member that names or
 # enumerates it is dropped before the file is written into the study.
@@ -156,6 +170,7 @@ def preflight(runs: int, start: int, slots: list, scratch_parent: str,
     if not os.path.isdir(scratch_parent):
         raise BatchError("scratch parent %s is not a directory" % scratch_parent)
     pins = _load_json(pins_path)
+    require_freeze(pins)
     member = "prompt" if prompt_kind == "registered" else "probePrompt"
     prompt = os.path.join(STUDY, pins[member]["path"])
     actual = _digest(prompt)
@@ -181,6 +196,30 @@ def preflight(runs: int, start: int, slots: list, scratch_parent: str,
         raise BatchError("these slots already exist and are never rewritten: %s"
                          % ", ".join(existing))
     return pins
+
+
+def require_freeze(pins: dict) -> str:
+    """§2.6: the preregistration's freeze digest, before anything is called.
+
+    The freeze precedes the recapture, which precedes the batch, so the pin is
+    already fillable at every point this runs. Registering it as a precondition
+    of the CALLS as well as of the scoring is what makes it more than an
+    intention: a registry merged with its null intact spends no quota."""
+    entry = pins.get("preregistration") or {}
+    pinned = entry.get("sha256")
+    if not pinned:
+        raise BatchError(
+            "harness/PINS.json registers no preregistration.sha256: the frozen "
+            "PREREGISTRATION.md's digest replaces the null at the freeze, before any "
+            "call is made, so that a post-freeze edit is detectable (§2.6)")
+    path = os.path.join(STUDY, entry.get("path", "PREREGISTRATION.md"))
+    if not os.path.isfile(path):
+        raise BatchError("the preregistration is missing from %s" % STUDY)
+    actual = _digest(path)
+    if actual != pinned:
+        raise BatchError("PREREGISTRATION.md is %s, not the %s registered at the "
+                         "freeze: it was edited after the freeze" % (actual, pinned))
+    return actual
 
 
 def golden_path_for(pins: dict, override: str = None) -> str:
@@ -212,8 +251,16 @@ def require_golden(pins: dict, golden_path: str = None) -> str:
 
 
 def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
-           prompt_kind: str, isolation: str = "isolated") -> tuple:
-    """(wrapper exit status, refusal code or None, stderr) for one call."""
+           prompt_kind: str, isolation: str = "isolated",
+           golden_sha256: str = None) -> tuple:
+    """(wrapper exit status, refusal code or None, stderr) for one call.
+
+    `golden_sha256` is the digest `require_golden()` verified at preflight; the
+    wrapper stamps it into the slot's CALL.json, so the scorer can check the
+    golden-before-slots ordering per slot instead of taking it on trust (§3.2).
+    The probe calls — the recapture and §6 C7 — precede the golden and pass
+    none.
+    """
     argv = ["bash", SCRIPT, scratch_parent, slot, pins_path]
     if cli_override is not None:
         argv.append(cli_override)
@@ -221,6 +268,7 @@ def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
     environment["PYTHON_BIN"] = sys.executable
     environment["PROMPT_KIND"] = prompt_kind
     environment["ISOLATION"] = isolation
+    environment["GOLDEN_SHA256"] = golden_sha256 or ""
     completed = subprocess.run(argv, env=environment, capture_output=True, text=True)
     return (completed.returncode, WRAPPER_CODES.get(completed.returncode, "wrapper-error"),
             completed.stderr)
@@ -306,9 +354,13 @@ def run_batch(runs: int, start: int, slots_dir: str, scratch_parent: str,
         raise BatchError("BATCH.json already records %s: a resumed batch merges into "
                          "the ledger, it never re-runs a recorded slot"
                          % ", ".join(overlap))
+    # The digest preflight verified, stamped into every slot this invocation
+    # makes: a golden swapped after the batch changes the pin, and every slot
+    # then names a digest that is not the pin it is being scored under.
+    golden_pin = pins.get("golden", {}).get("sha256")
     for slot in slots:
         status, code, stderr = invoke(slot, scratch_parent, pins_path, cli_override,
-                                      "registered")
+                                      "registered", golden_sha256=golden_pin)
         rows.append({"slot": os.path.basename(slot), "wrapperExit": status, "code": code,
                      "startIndex": start})
         if code is not None:
@@ -358,6 +410,11 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
     would refuse every honest run here. The captures must AGREE — a context
     that varies run to run cannot be an allowlist — and none of them may carry
     a leak token before the prompt, or the capture would bless a planted turn.
+
+    The two-capture rule is enforced HERE, where the derivation happens, and
+    not only in the command that makes the calls: `MIN_CAPTURE_SLOTS` is a
+    floor, so `--min-slots 1` refuses rather than deriving an allowlist from a
+    single unreproduced context.
     """
     if not out_path:
         raise BatchError("--out is required: a golden capture is written where the "
@@ -365,6 +422,12 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
     if os.path.exists(out_path):
         raise BatchError("%s already exists; a registered capture is never rewritten"
                          % out_path)
+    if min_slots < MIN_CAPTURE_SLOTS:
+        raise BatchError(
+            "a golden capture is derived from at least %d agreeing captures and "
+            "--min-slots %d asks for fewer: one capture cannot show that a "
+            "pre-prompt context reproduces, and a context that might vary is not "
+            "an allowlist (§3.2)" % (MIN_CAPTURE_SLOTS, min_slots))
     usable, contexts = [], []
     for slot in capture_slots(slots_dir):
         session = os.path.join(slot, "session.jsonl")
@@ -376,9 +439,10 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
             events, position, transcript_check.environment_paths(turn_contexts, call))
         usable.append(os.path.basename(slot))
         contexts.append(transcript_check.context_digests(session, call))
-    if len(usable) < min_slots:
+    required = max(min_slots, MIN_CAPTURE_SLOTS)
+    if len(usable) < required:
         raise BatchError("a capture needs at least %d capture slots with a session; found %d"
-                         % (min_slots, len(usable)))
+                         % (required, len(usable)))
     first = contexts[0]
     for name, context in zip(usable[1:], contexts[1:]):
         if context != first:
@@ -431,6 +495,13 @@ def run_capture(runs: int, captures_dir: str, out_path: str, scratch_parent: str
     if os.path.exists(out_path):
         raise BatchError("%s already exists; a registered capture is never rewritten"
                          % out_path)
+    if runs < MIN_CAPTURE_SLOTS:
+        # Before a single call is spent: a recapture that could only produce one
+        # context could never derive a capture from it.
+        raise BatchError(
+            "the recapture makes at least %d probe calls and --runs %d asks for "
+            "fewer: the capture is derived only from contexts that agree, so one "
+            "call could never produce one (§3.2)" % (MIN_CAPTURE_SLOTS, runs))
     attempt = next_attempt(captures_dir)
     slots = plan(runs, 1, attempt, stem="capture")
     preflight(runs, 1, slots, scratch_parent, pins_path, cli_override, "probe")
@@ -459,16 +530,29 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
     unchanged. Registering both outcomes before the batch is what keeps this a
     control rather than a decision.
 
+    THREE outcomes are registered, not two (§6 C7): `refused` (the expectation),
+    `matched` (the limitation), and `no-context` — the call produced nothing
+    comparable, so neither comparison happened. `no-context` returns NON-ZERO:
+    it is a control that did not run, and returning 0 for it would report a
+    step as done that reached neither registered comparison. Its verdict is
+    still retained, so the failure is on disk rather than only in a shell's
+    exit status.
+
     Retention is done by code, not by the operator's care: the call is made
     into a scratch slot, and the only bytes that reach the study are the
-    context digests, the comparison verdict, and a CALL.json stripped of every
-    member that names or enumerates the operator's environment. session.jsonl,
-    stdout.raw and stderr.raw are digested and deleted here — publishing the
-    transcript of a non-isolated run would publish an inventory of the
-    operator's own machine, which is the thing the control exists to detect.
+    comparison verdict, a CALL.json stripped of every member that names or
+    enumerates the operator's environment, and — when the call produced one —
+    the context digests. session.jsonl, stdout.raw and stderr.raw are digested
+    and deleted here — publishing the transcript of a non-isolated run would
+    publish an inventory of the operator's own machine, which is the thing the
+    control exists to detect. The deletion is VERIFIED, not attempted: if the
+    scratch slot survives the removal this refuses and names it, because
+    "deleted by the driver" is a claim about the disk and `ignore_errors` would
+    make it a claim about the call that was made.
     """
     verify_ported_bytes()
     pins = _load_json(pins_path)
+    require_freeze(pins)
     assent = pins.get("isolationNegative", {}).get("operatorAssent")
     if assent != "granted":
         raise BatchError(
@@ -525,6 +609,7 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
         _write_json(os.path.join(out_dir, "VERDICT.json"), {
             "control": "C7 — the isolation gate's power",
             "registeredExpectation": "the golden match FAILS",
+            "registeredOutcomes": ["refused", "matched", "no-context"],
             "outcome": outcome,
             "message": message,
             "wrapperExit": status,
@@ -532,16 +617,36 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
             "goldenSha256": _digest(golden),
             "deletedByCode": digests,
             "operatorAssent": assent,
-            "retention": "Only context.json, this file, and a stripped CALL.json are "
-                         "retained. session.jsonl, stdout.raw, stderr.raw and any "
-                         "completion were digested above and deleted by batch.py: "
-                         "publishing the transcript of a deliberately non-isolated run "
-                         "would publish an inventory of the operator's environment.",
+            "retention": "This file and a stripped CALL.json are always retained, and "
+                         "context.json whenever the call produced a comparable "
+                         "context (outcome 'no-context' is the case where it did "
+                         "not). session.jsonl, stdout.raw, stderr.raw and any "
+                         "completion were digested above and deleted by batch.py, and "
+                         "the deletion is verified: publishing the transcript of a "
+                         "deliberately non-isolated run would publish an inventory of "
+                         "the operator's environment.",
         })
     finally:
+        # Every exit from the block above passes here, including the ones that
+        # are already carrying an exception — so the warning is printed on all
+        # of them and the refusal is raised on the one that would otherwise
+        # have reported success.
         shutil.rmtree(raw, ignore_errors=True)
+        if os.path.exists(raw):
+            print("WARNING: the control's scratch slot %s survived removal" % raw,
+                  file=sys.stderr)
+    if os.path.exists(raw):
+        raise BatchError(
+            "the control's scratch slot %s survived removal: its transcript is an "
+            "inventory of the operator's environment and is still on disk. Remove it "
+            "by hand and record the cause in DEVIATIONS.md before publishing anything "
+            "from %s" % (raw, out_dir))
     print("C7: %s — %s" % (outcome, message))
     print("retained under %s: %s" % (out_dir, ", ".join(sorted(os.listdir(out_dir)))))
+    if outcome == "no-context":
+        print("refused: the control reached neither registered comparison; its verdict "
+              "is retained and the gate's power is undemonstrated", file=sys.stderr)
+        return 1
     return 0
 
 

@@ -75,6 +75,10 @@ class Batch(unittest.TestCase):
         pins["codex"]["binarySha256"] = batch._digest(self.cli)
         pins["codex"]["version"] = "codex-cli 0.145.0-fake"
         pins["batch"]["runs"] = BATCH_RUNS
+        # §2.6: no call is made under a registry whose freeze digest is null,
+        # so the stand-in registry carries the digest this file actually has.
+        pins["preregistration"]["sha256"] = batch._digest(
+            os.path.join(STUDY, "PREREGISTRATION.md"))
         self.pins_path = os.path.join(self.root, "PINS.json")
         self.write_pins(pins)
         self.captures = os.path.join(self.root, "recapture")
@@ -95,6 +99,10 @@ class Batch(unittest.TestCase):
         return pins["golden"]["sha256"]
 
     def run_batch(self, slots: str, extra=()):
+        # The registry these slots will be stamped with, remembered as the
+        # batch runs: a registry edited afterwards is a different registry, and
+        # the scorer is entitled to say so.
+        self.registry = batch._digest(self.pins_path)
         return batch.main(["batch.py", "run", "--scratch-parent", self.scratch,
                            "--slots", slots, "--pins", self.pins_path,
                            "--golden", self.golden,
@@ -106,11 +114,25 @@ class Batch(unittest.TestCase):
                            "--pins", self.pins_path, "--cli-override", self.cli]
                           + list(extra))
 
-    def score(self):
-        return score_rates.score(self.slots, self.pins_path,
+    def score(self, slots: str = None):
+        """§2.6: the scorer's registry of record is the COMMITTED PINS.json and
+        it computes that digest itself; `main()` has no flag for it. These
+        slots were made under the stand-in registry — a stand-in binary needs
+        a registry that names its digest — so the test says which registry its
+        own slots are supposed to name, and the batch's slots are still held to
+        naming exactly one."""
+        return score_rates.score(slots or self.slots, self.pins_path,
                                  os.path.join(STUDY, "FAMILY.json"),
                                  os.path.join(STUDY, "transcription", "PROMPT.txt"),
-                                 self.golden)
+                                 self.golden,
+                                 registry_sha256=getattr(self, "registry", None)
+                                 or batch._digest(self.pins_path))
+
+    def admit(self, slot: str):
+        """admit() against the stand-in registry these slots were made under."""
+        return score_rates.admit(
+            slot, os.path.join(STUDY, "transcription", "PROMPT.txt"), self.golden,
+            self.pins, registry_sha256=batch._digest(self.pins_path))
 
     def recapture_then_batch(self):
         """The registered order: capture, agree, register the digest, then the
@@ -214,6 +236,102 @@ class Batch(unittest.TestCase):
         self.assertIn("not the pinned", completed.stderr)
         self.assertFalse(os.path.exists(os.path.join(self.slots, "run-001")))
 
+    def wrapper(self, slot: str, pins_path: str = None, cli: str = None,
+                environment: dict = None):
+        """One call of the real wrapper, by hand, as an operator would."""
+        env = dict(os.environ)
+        env["PYTHON_BIN"] = sys.executable
+        env.update(environment or {})
+        return subprocess.run(
+            ["bash", os.path.join(STUDY, "transcription", "authoring_call.sh"),
+             self.scratch, slot, pins_path or self.pins_path, cli or self.cli],
+            capture_output=True, text=True, env=env)
+
+    def test_the_cli_version_is_a_pre_call_gate_not_a_later_verdict(self):
+        # The reviewed draft read --version only AFTER the authoring call, so a
+        # drifted CLI was scored invalid once the call had been spent. §2.1
+        # says the study does not run with a substitute; a gate that fires
+        # afterwards is not that.
+        pins = json.loads(json.dumps(self.pins))
+        pins["codex"]["version"] = "codex-cli 0.145.0"   # the stand-in says -fake
+        path = os.path.join(self.root, "PINS-version.json")
+        with open(path, "w") as handle:
+            json.dump(pins, handle, indent=2)
+        slot = os.path.join(self.slots, "run-001")
+        completed = self.wrapper(slot, pins_path=path)
+        self.assertEqual(completed.returncode, 1)
+        self.assertIn("not the pinned", completed.stderr)
+        self.assertFalse(os.path.exists(slot))
+        # And no call was made: the stand-in counts every non-version call, and
+        # it never got one.
+        self.assertFalse(os.path.exists(os.path.join(os.path.dirname(self.cli),
+                                                     "counter")))
+
+    def test_an_unregistered_interpreter_never_reaches_a_call(self):
+        # §2.6 registers the interpreter and the reviewed draft's harness read
+        # that member nowhere, while every README command ran a bare `python3`.
+        stub = os.path.join(self.root, "python-stub")
+        with open(stub, "w") as handle:
+            handle.write('#!/bin/bash\n'
+                         'if [[ "$*" == *python_implementation* ]]; then\n'
+                         '  echo "PyPy 3.12"\n'
+                         '  exit 0\n'
+                         'fi\n'
+                         'exec %s "$@"\n' % sys.executable)
+        os.chmod(stub, 0o755)
+        slot = os.path.join(self.slots, "run-001")
+        completed = self.wrapper(slot, environment={"PYTHON_BIN": stub})
+        self.assertEqual(completed.returncode, 1)
+        self.assertIn("not the registered", completed.stderr)
+        self.assertFalse(os.path.exists(slot))
+        self.assertFalse(os.path.exists(os.path.join(os.path.dirname(self.cli),
+                                                     "counter")))
+
+    def test_a_signal_during_the_call_still_removes_the_credential(self):
+        # The residual the review found by SIGKILL: an EXIT trap alone does not
+        # cover a signal. INT, TERM and HUP now clean up too — SIGKILL cannot
+        # be covered by any process, and §2.5 says so rather than claiming
+        # "however it dies".
+        import signal
+        import time
+
+        cli = fixtures.write_fake_cli(
+            os.path.join(self.root, "cli-slow"),
+            [{"completion": fixtures.COMPLETION_A, "sleep": 30}],
+            sys.executable, HERE)
+        pins = json.loads(json.dumps(self.pins))
+        pins["codex"]["binarySha256"] = batch._digest(cli)
+        path = os.path.join(self.root, "PINS-slow.json")
+        with open(path, "w") as handle:
+            json.dump(pins, handle, indent=2)
+        slot = os.path.join(self.root, "authoring-signalled", "run-001")
+        env = dict(os.environ)
+        env["PYTHON_BIN"] = sys.executable
+        process = subprocess.Popen(
+            ["bash", os.path.join(STUDY, "transcription", "authoring_call.sh"),
+             self.scratch, slot, path, cli],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env,
+            start_new_session=True)
+        self.addCleanup(process.wait)
+        try:
+            copies = []
+            deadline = time.time() + 30
+            while time.time() < deadline and not copies:
+                copies = [os.path.join(base, name)
+                          for base, _, names in os.walk(self.scratch)
+                          for name in names if name == "auth.json"]
+                if not copies:
+                    time.sleep(0.05)
+            self.assertTrue(copies, "the wrapper never copied the credential")
+            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+        finally:
+            process.wait(timeout=60)
+        self.assertNotEqual(process.returncode, 0)
+        leftovers = [os.path.join(base, name)
+                     for base, _, names in os.walk(self.scratch)
+                     for name in names if name == "auth.json"]
+        self.assertEqual(leftovers, [], "SIGTERM left the credential copy on disk")
+
     def test_the_recapture_uses_the_probe_prompt_and_agrees_with_itself(self):
         self.assertEqual(self.capture(), 0)
         golden = json.load(open(self.golden))
@@ -238,6 +356,135 @@ class Batch(unittest.TestCase):
         self.assertEqual(self.capture(out=second), 0)
         self.assertEqual(sorted(os.listdir(self.captures)), ["attempt-1", "attempt-2"])
         self.assertEqual(json.load(open(second))["capturedIn"], "attempt-2")
+
+    def test_one_capture_cannot_derive_a_golden(self):
+        # The freeze-blocking hole: `capture --runs 1` passed 1 as the
+        # derivation's minimum, so a single unreproduced context became an
+        # allowlist and the batch accepted it. Two clauses now refuse it —
+        # one before any call is spent, one where the derivation happens.
+        self.assertEqual(self.capture(extra=["--runs", "1"]), 1)
+        self.assertFalse(os.path.exists(self.captures))
+        self.assertFalse(os.path.exists(self.golden))
+
+    def test_the_derivation_itself_refuses_a_single_capture_slot(self):
+        self.assertEqual(self.capture(), 0)
+        lonely = os.path.join(self.root, "one-capture")
+        os.makedirs(lonely)
+        import shutil
+        shutil.copytree(os.path.join(self.attempt(), "capture-001"),
+                        os.path.join(lonely, "capture-001"))
+        out = os.path.join(self.root, "ONE.json")
+        # Even asked for one explicitly: MIN_CAPTURE_SLOTS is a floor.
+        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots", lonely,
+                                     "--out", out, "--min-slots", "1"]), 1)
+        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots", lonely,
+                                     "--out", out]), 1)
+        self.assertFalse(os.path.exists(out))
+
+    def test_a_capture_that_does_not_reproduce_refuses_the_derivation(self):
+        self.assertEqual(self.capture(), 0)
+        varying = os.path.join(self.root, "varying")
+        os.makedirs(varying)
+        import shutil
+        for index, name in enumerate(("capture-001", "capture-002"), 1):
+            shutil.copytree(os.path.join(self.attempt(), name),
+                            os.path.join(varying, name))
+        session = os.path.join(varying, "capture-002", "session.jsonl")
+        with open(session) as handle:
+            lines = handle.readlines()
+        entry = json.loads(lines[1])
+        entry["payload"]["content"][0]["text"] += " and one more sentence"
+        lines[1] = json.dumps(entry) + "\n"
+        with open(session, "w") as handle:
+            handle.writelines(lines)
+        out = os.path.join(self.root, "VARYING.json")
+        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots", varying,
+                                     "--out", out]), 1)
+        self.assertFalse(os.path.exists(out))
+
+    def test_a_golden_derived_after_the_batch_cannot_re_admit_its_runs(self):
+        # The freeze-blocking hole: BATCH.json recorded the pre-batch golden
+        # and the scorer never read it, so a capture derived afterwards and
+        # re-pinned turned invalid runs valid. Every slot now names the
+        # capture it was made against.
+        self.recapture_then_batch()
+        before = self.score()
+        self.assertEqual(before["population"]["valid"], 4)
+        # The attack, as the review ran it: copy retained capture slots into a
+        # directory of another name and derive a golden from them after the
+        # fact. It derives cleanly — the captures do agree — and it is a
+        # different file, which is the whole point.
+        import shutil
+        post_hoc = os.path.join(self.root, "post-hoc-captures")
+        shutil.copytree(self.attempt(), post_hoc)
+        second = os.path.join(self.root, "GOLDEN-2.json")
+        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots", post_hoc,
+                                     "--out", second]), 0)
+        self.assertNotEqual(batch._digest(second), batch._digest(self.golden))
+        pins = json.loads(json.dumps(self.pins))
+        pins["golden"]["sha256"] = batch._digest(second)
+        self.write_pins(pins)
+        self.golden = second
+        after = self.score()
+        self.assertEqual(after["population"]["valid"], 0)
+        self.assertEqual(after["population"]["invalidCodes"], {"golden-mismatch": 5})
+
+    def test_a_registry_edited_after_the_batch_invalidates_every_slot(self):
+        # The other half of the same guarantee: --pins cannot redefine the
+        # cell, because the cell is the registry the runs were MADE under.
+        self.recapture_then_batch()
+        self.assertEqual(self.score()["population"]["valid"], 4)
+        for name, member, value, code in (
+                # A registry that renames the cell contradicts what every run
+                # recorded, and each run says so with its own code…
+                ("PINS-alien.json", "model", "alien-model", "model-mismatch"),
+                ("PINS-binary.json", "binarySha256", "sha256:" + "1" * 64,
+                 "binary-mismatch")):
+            alien = json.loads(json.dumps(self.pins))
+            alien["codex"][member] = value
+            path = os.path.join(self.root, name)
+            with open(path, "w") as handle:
+                json.dump(alien, handle, indent=2)
+            results = self.score_with(path)
+            self.assertEqual(results["population"]["valid"], 0, name)
+            self.assertEqual(results["population"]["invalidCodes"], {code: 5}, name)
+        # …and a registry whose cell values agree but whose BYTES are not the
+        # registry of record is refused on that alone, so "same model, quietly
+        # different registry" is not a way in either.
+        other = json.loads(json.dumps(self.pins))
+        other["note"] = "a registry that differs from the one the runs were made under"
+        path = os.path.join(self.root, "PINS-other.json")
+        with open(path, "w") as handle:
+            json.dump(other, handle, indent=2)
+        results = score_rates.score(
+            self.slots, path, os.path.join(STUDY, "FAMILY.json"),
+            os.path.join(STUDY, "transcription", "PROMPT.txt"), self.golden,
+            registry_sha256=batch._digest(path))
+        self.assertEqual(results["population"]["valid"], 0)
+        self.assertEqual(results["population"]["invalidCodes"], {"registry-mismatch": 5})
+        for entry in results["classes"]:
+            self.assertIsNone(entry["coverage"]["rate"])
+            self.assertIsNone(entry["reviewTier"]["tier"])
+
+    def test_a_registry_that_shrinks_n_never_reaches_a_slot(self):
+        # A registry naming registeredRuns 1 does not get to publish a rate
+        # over one hand-picked slot: terminality refuses the whole scoring
+        # before any slot is read (§2.4).
+        self.recapture_then_batch()
+        alien = json.loads(json.dumps(self.pins))
+        alien["batch"]["runs"] = 1
+        path = os.path.join(self.root, "PINS-one-run.json")
+        with open(path, "w") as handle:
+            json.dump(alien, handle, indent=2)
+        with self.assertRaises(score_rates.ScoreError) as caught:
+            self.score_with(path)
+        self.assertIn("not terminal", str(caught.exception))
+
+    def score_with(self, pins_path: str) -> dict:
+        return score_rates.score(
+            self.slots, pins_path, os.path.join(STUDY, "FAMILY.json"),
+            os.path.join(STUDY, "transcription", "PROMPT.txt"), self.golden,
+            registry_sha256=self.registry)
 
     def test_a_registered_capture_is_never_rewritten(self):
         self.assertEqual(self.capture(), 0)
@@ -289,16 +536,13 @@ class Batch(unittest.TestCase):
         self.assertFalse(call["credentialCopied"])
         self.assertFalse(call["credentialRemoved"])
         self.assertEqual(call["isolatedHomeInventory"], [".codex"])
-        code, detail, _ = score_rates.admit(
-            os.path.join(self.slots, "run-001"),
-            os.path.join(STUDY, "transcription", "PROMPT.txt"), self.golden, self.pins)
+        code, detail, _ = self.admit(os.path.join(self.slots, "run-001"))
         self.assertIsNone(code, detail)
 
     def test_a_polluted_isolated_home_refuses_in_either_branch(self):
         self.recapture_then_batch()
         slot = os.path.join(self.slots, "run-001")
         path = os.path.join(slot, "CALL.json")
-        prompt = os.path.join(STUDY, "transcription", "PROMPT.txt")
         for inventory, copied in (
                 ([".codex", ".codex/auth.json", ".codex/config.toml"], True),
                 ([".codex", ".codex/auth.json", "AGENTS.md"], True),
@@ -308,9 +552,10 @@ class Batch(unittest.TestCase):
             call = json.load(open(path))
             call["isolatedHomeInventory"] = inventory
             call["credentialCopied"] = copied
+            call["credentialRemoved"] = copied
             with open(path, "w") as handle:
                 json.dump(call, handle, indent=2)
-            code, detail, _ = score_rates.admit(slot, prompt, self.golden, self.pins)
+            code, detail, _ = self.admit(slot)
             self.assertEqual(code, "isolation-unproven", "%r/%s" % (inventory, copied))
             self.assertIn("isolated home held", detail)
 
@@ -422,6 +667,49 @@ class Batch(unittest.TestCase):
         # The raw slot the call was made into is gone, transcript included.
         self.assertEqual([name for name in os.listdir(self.scratch)
                           if name.startswith("s011-c7-raw")], [])
+
+    def test_a_control_that_reaches_neither_comparison_says_so_and_fails(self):
+        # The reviewed draft returned 0 with outcome `no-context` — neither
+        # registered comparison — and retained two files while §6 C7 promised
+        # three. `no-context` is now a registered outcome, its retention rule
+        # is exact, and it exits non-zero because a control that did not run
+        # is not a step that was done.
+        cli = fixtures.write_fake_cli(
+            os.path.join(self.root, "cli-silent"),
+            [{"completion": "ready"}, {"completion": "ready"},
+             {"completion": "ready", "no_session": True}],
+            sys.executable, HERE)
+        pins = dict(self.pins)
+        pins["codex"] = dict(pins["codex"], binarySha256=batch._digest(cli))
+        self.write_pins(pins)
+        self.cli = cli
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        out = os.path.join(self.root, "isolation-negative-silent")
+        self.assertEqual(self.negative_control(out), 1)
+        self.assertEqual(sorted(os.listdir(out)), ["CALL.json", "VERDICT.json"])
+        verdict = json.load(open(os.path.join(out, "VERDICT.json")))
+        self.assertEqual(verdict["outcome"], "no-context")
+        self.assertIn("no-context", verdict["registeredOutcomes"])
+        self.assertIn("undemonstrated", verdict["message"])
+        self.assertEqual([name for name in os.listdir(self.scratch)
+                          if name.startswith("s011-c7-raw")], [])
+
+    def test_a_control_whose_transcript_survives_removal_refuses(self):
+        # "Digested and deleted by the driver" is a claim about the disk.
+        # rmtree(ignore_errors=True) made it a claim about the call that was
+        # made, so the driver could report success with the operator's
+        # transcript still on it.
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        out = os.path.join(self.root, "isolation-negative-stuck")
+        with mock.patch.object(batch.shutil, "rmtree"):
+            self.assertEqual(self.negative_control(out), 1)
+        leftover = [name for name in os.listdir(self.scratch)
+                    if name.startswith("s011-c7-raw")]
+        self.assertEqual(len(leftover), 1)
+        import shutil
+        shutil.rmtree(os.path.join(self.scratch, leftover[0]))
 
     def test_the_negative_control_refuses_without_recorded_assent(self):
         self.assertEqual(self.capture(), 0)

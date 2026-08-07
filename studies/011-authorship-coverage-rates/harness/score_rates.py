@@ -32,6 +32,10 @@ that table):
   model-mismatch         CALL.json names a model other than the pinned one
   binary-mismatch        CALL.json names a binary digest other than the pinned one
   cli-mismatch           CALL.json names a CLI version other than the pinned one
+  registry-mismatch      the run was made under a registry that is not the
+                         committed harness/PINS.json (§2.6)
+  golden-mismatch        the run was made against a golden capture that is not
+                         the one this scoring is using (§3.2)
   isolation-unproven     CALL.json does not record the per-run isolation (C6)
   session-count          the run produced other than exactly one new session
   call-nonzero-exit      the process did not exit with integer status 0
@@ -48,10 +52,16 @@ that table):
                          error, because a scorer that dies mid-tree scores
                          nothing (§7 totality)
 
-Before it reads a slot it verifies, and refuses on, the ported-byte digest
-table (harness/integrity.py, §6 C1), the golden capture against the digest
-harness/PINS.json registers for it (§3.2), the preregistration's own digest
-once that pin is filled (§2.6), and the batch's terminality (§2.4).
+Before it reads a slot it verifies, and refuses on: the ported-byte digest
+table with every source bound to Study 010's own lock and the running
+interpreter bound to the registry (harness/integrity.py, §6 C1, §2.6); the
+golden capture against the digest harness/PINS.json registers for it (§3.2);
+the preregistration's own digest, which must be registered and must match —
+a null there is a refusal, not a skip (§2.6); and the batch's terminality
+(§2.4). Then, per slot, it requires the run to name the registry and the
+golden capture it was made under (`registry-mismatch`, `golden-mismatch`), so
+neither an alternate `--pins` registry nor a capture derived after the batch
+can redefine what a counted run meant.
 
 Endpoints: the six primary rates c_i with exact Clopper-Pearson 95% intervals
 (§4.2, §4.3), and the secondaries S1-S8 (§4.4) — raw intersection, Q
@@ -103,6 +113,18 @@ DEFAULT_PROMPT = os.path.join(STUDY, "transcription", "PROMPT.txt")
 DEFAULT_GOLDEN = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
 
 SLOT_FILES = ("CALL.json", "stdout.raw", "stderr.raw")
+# §2.6: the registry of record is the COMMITTED harness/PINS.json, and the
+# scorer computes its digest rather than accepting one. `--pins` exists so the
+# harness tests can drive the real wrapper against a stand-in binary; a slot
+# stamped with any other registry's digest is pipeline-invalid.
+REGISTRY_OF_RECORD = os.path.join(HERE, "PINS.json")
+# §2.2 / C6: the environment the wrapper constructs rather than inherits. The
+# child PATH is exactly these six system directories plus one per-run directory
+# holding a single symlink to the pinned binary.
+SYSTEM_PATH = ("/usr/local/sbin", "/usr/local/bin", "/usr/sbin", "/usr/bin",
+               "/sbin", "/bin")
+ENVIRONMENT_NAMES = ["PATH", "HOME", "TMPDIR", "CODEX_HOME"]
+CLOSED_STDIN = "closed (/dev/null)"
 ALPHA = Fraction(1, 40)          # one tail of a two-sided 95% interval
 BISECTIONS = 200                 # fixed; no early exit, no tolerance
 TIERS = ("LIGHT", "STANDARD", "FULL")
@@ -126,6 +148,8 @@ CODE_PARTITION = {
     "model-mismatch": "pipeline-invalid",
     "binary-mismatch": "pipeline-invalid",
     "cli-mismatch": "pipeline-invalid",
+    "registry-mismatch": "pipeline-invalid",
+    "golden-mismatch": "pipeline-invalid",
     "isolation-unproven": "pipeline-invalid",
     "session-count": "pipeline-invalid",
     "call-nonzero-exit": "pipeline-invalid",
@@ -286,6 +310,34 @@ def review_tier(coverage: dict, mislabel_share) -> dict:
             "lower": lower}
 
 
+def row_review_tier(tiers) -> str:
+    """§5's row-level composition rule: the review depth for ONE matrix row,
+    given the tiers of every class its facts fall in.
+
+    The classes are not disjoint — 010's ANALYSIS.md says so, and a
+    non-embargoed row at risk exactly 70 matches classes 0 and 1 — so "the
+    class its facts fall in" was not a function. Two clauses make it one:
+
+      * a row matching several classes takes the STRICTEST of their tiers.
+        Review depth is a floor on effort, and the class with the worst blind
+        coverage is the one that says how much of this row nobody looked at;
+      * a row matching NO registered class takes FULL. This study measured six
+        predicates and says nothing about a row outside all of them, and the
+        conservative reading of "nothing is known" is full review.
+
+    Registered here and exercised by a harness test rather than left as prose,
+    because a mapping with an undefined case is not a registered mapping. This
+    study computes per-class tiers only — no row is scored here — so this
+    function is the registration, not a step in the batch.
+    """
+    for tier in tiers:
+        if tier not in TIERS:
+            raise ScoreError("%r is not one of this study's review tiers %r"
+                             % (tier, list(TIERS)))
+    ranks = [TIERS.index(tier) for tier in tiers]
+    return TIERS[max(ranks)] if ranks else TIERS[-1]
+
+
 def light_threshold(n: int) -> int:
     """The smallest k whose exact lower bound reaches §5's LIGHT cut at n
     trials. The lower bound is increasing in k, so this is a bisection over k
@@ -377,14 +429,93 @@ def compiled_files(completion_path: str) -> dict:
     return records_compile.render(accepted, ledger, span)
 
 
-def admit(slot: str, prompt_path: str, golden_path: str, pins: dict) -> tuple:
+def _under(path: str, root: str) -> bool:
+    """True when `path` is inside `root`. String containment on normalized
+    paths: these are recorded strings from a run that has already ended, not
+    live paths to resolve, and a symlink question cannot be asked of them."""
+    if not isinstance(path, str) or not isinstance(root, str) or not root:
+        return False
+    return os.path.normpath(path).startswith(os.path.normpath(root) + os.sep)
+
+
+def check_environment(call: dict) -> str:
+    """C6's environment clauses, or a sentence saying which one failed.
+
+    §6 C6 registers that the slot retains *and admission requires* the
+    resolved isolated HOME and CODEX_HOME, the exact PATH and TMPDIR the child
+    was given, and closed stdin. An earlier draft required only four booleans,
+    a non-empty home and the inventory, so a slot could drop every environment
+    member and stay admissible while C6 claimed otherwise. These are checks on
+    the wrapper's own record — §7 says plainly that CALL.json is self-reported
+    — but a record that contradicts the registered invocation is not evidence
+    of it, and that much is checkable.
+    """
+    home, codex_home, cwd = call.get("home"), call.get("codexHome"), call.get("cwd")
+    if call.get("isolation") != "isolated":
+        return "CALL.json records isolation %r, not the registered isolated run" % (
+            call.get("isolation"),)
+    if not isinstance(codex_home, str) or codex_home != os.path.join(home, ".codex"):
+        return ("CALL.json records CODEX_HOME %r, which is not the .codex directory "
+                "of its own isolated home %r" % (codex_home, home))
+    if not isinstance(cwd, str) or not cwd:
+        return "CALL.json records no working directory"
+    if _under(cwd, home) or _under(home, cwd):
+        return ("the isolated home %r and the working directory %r are nested: the "
+                "registered invocation puts the model's workspace outside the home "
+                "it was given" % (home, cwd))
+    if call.get("environment") != ENVIRONMENT_NAMES:
+        return ("CALL.json records the environment %r, not the registered %r"
+                % (call.get("environment"), ENVIRONMENT_NAMES))
+    values = call.get("environmentValues")
+    if not isinstance(values, dict) or sorted(values) != sorted(ENVIRONMENT_NAMES) \
+            or not all(isinstance(value, str) and value for value in values.values()):
+        return ("CALL.json records environmentValues %r, not one string per registered "
+                "variable" % (values,))
+    if values["HOME"] != home or values["CODEX_HOME"] != codex_home:
+        return ("the recorded HOME/CODEX_HOME values %r do not agree with the isolated "
+                "home this run reports" % ({"HOME": values["HOME"],
+                                            "CODEX_HOME": values["CODEX_HOME"]},))
+    entries = values["PATH"].split(":")
+    if tuple(entries[:len(SYSTEM_PATH)]) != SYSTEM_PATH or len(entries) != len(SYSTEM_PATH) + 1:
+        return ("the child PATH %r is not the six registered system directories plus "
+                "one per-run binary directory" % (values["PATH"],))
+    if not entries[-1].startswith("/") or _under(entries[-1], home):
+        return ("the per-run binary directory %r is not an absolute path outside the "
+                "isolated home: Study 010's PATH ended in the operator's real home, "
+                "which is the defect this clause exists to catch" % (entries[-1],))
+    if values["TMPDIR"] == "/tmp" or not _under(values["TMPDIR"], cwd):
+        return ("TMPDIR %r is not inside this run's own scratch: the pinned CLI's "
+                "sandbox is writable at [workdir, /tmp, $TMPDIR], so a shared TMPDIR "
+                "puts every other run's tree in this run's writable set"
+                % (values["TMPDIR"],))
+    if call.get("stdin") != CLOSED_STDIN:
+        return "CALL.json records stdin %r, not %r" % (call.get("stdin"), CLOSED_STDIN)
+    if call.get("credentialRemoved") is not bool(call.get("credentialCopied")):
+        return ("the run copied a credential %r and records credentialRemoved %r: a "
+                "copy that was made and not removed is a live credential left on disk, "
+                "and a removal recorded without a copy is a record of nothing"
+                % (call.get("credentialCopied"), call.get("credentialRemoved")))
+    return None
+
+
+def admit(slot: str, prompt_path: str, golden_path: str, pins: dict,
+          registry_sha256: str = None) -> tuple:
     """(code, detail, authoring-empty): code is None when the run is valid.
 
     The checks run in the documented order and the FIRST failure names the
     run. Nothing here consults the batch's own refusal record; reconciling
     with it is score_run()'s job, so that a batch refusal can never make an
     inadmissible run look examined or an admissible one look refused.
+
+    `registry_sha256` defaults to the digest of the committed
+    `harness/PINS.json` — the strict value, and the only one `main()` can
+    produce, because there is no flag for it. The parameter exists so the
+    wrapper-driven tests, whose slots are made under a stand-in registry
+    naming a stand-in binary, can say which registry their slots' stamps are
+    supposed to name.
     """
+    if registry_sha256 is None:
+        registry_sha256 = file_digest(REGISTRY_OF_RECORD)
     for name in SLOT_FILES:
         if not _regular(os.path.join(slot, name)):
             return "slot-shape", "%s is missing or not a regular file" % name, False
@@ -400,6 +531,26 @@ def admit(slot: str, prompt_path: str, golden_path: str, pins: dict) -> tuple:
         return "binary-mismatch", "CALL.json names binary %r" % call.get("binarySha256"), False
     if call.get("cli") != pins["codex"]["version"]:
         return "cli-mismatch", "CALL.json names CLI %r" % call.get("cli"), False
+    # §2.6: the cell is defined by the committed registry, and a run made under
+    # another one is not a run in this cell. Without this a `--pins` registry
+    # naming a different model, binary or N would define its own study and
+    # publish under this one's name.
+    if call.get("pinsSha256") != registry_sha256:
+        return ("registry-mismatch",
+                "the run was made under registry %r and this study's registry of "
+                "record is %s: a slot made under another registry is not a slot in "
+                "this cell" % (call.get("pinsSha256"), registry_sha256), False)
+    # §3.2: the golden capture the batch verified at preflight, stamped per
+    # slot. The scorer's own precondition binds the golden FILE to the pin;
+    # this binds each RUN to that file, so a capture derived after the batch
+    # and re-pinned cannot change which runs were admissible.
+    golden_digest = file_digest(golden_path)
+    if call.get("goldenSha256") != golden_digest:
+        return ("golden-mismatch",
+                "the run was made against golden capture %r and this scoring uses %s: "
+                "a golden capture is registered before the first slot and a run cannot "
+                "be re-admitted against a later one"
+                % (call.get("goldenSha256"), golden_digest), False)
     # C6: isolation demonstrated per run, not asserted once. The wrapper's own
     # record of what it did — a fresh home, a scrubbed environment, and an
     # isolated home whose RECURSIVE inventory is exactly the .codex directory
@@ -423,6 +574,9 @@ def admit(slot: str, prompt_path: str, golden_path: str, pins: dict) -> tuple:
                 % (call.get("isolatedHomeInventory"), expected_inventory,
                    "the copied credential" if call.get("credentialCopied")
                    else "no credential to copy"), False)
+    environment_failure = check_environment(call)
+    if environment_failure is not None:
+        return "isolation-unproven", environment_failure, False
     if call.get("newSessionCount") != 1:
         return ("session-count",
                 "the call produced %r new sessions" % call.get("newSessionCount"), False)
@@ -478,19 +632,46 @@ def admit(slot: str, prompt_path: str, golden_path: str, pins: dict) -> tuple:
 
 # --- scoring ---------------------------------------------------------------
 
+def batch_refusal_code(slot: str):
+    """The code the batch recorded for this slot, or None when it recorded no
+    refusal at all.
+
+    Every read of REFUSAL.json goes through this, and through the
+    duplicate-key-rejecting loader: a shadowed `code` member cannot mean one
+    thing here and another to a reader. A file that exists and is not a JSON
+    object, or carries no code, or carries a code that is not a string, is
+    MALFORMED refusal evidence and raises — score_run() turns that into the
+    slot's own pipeline-invalid verdict. The batch writes a code on every
+    refusal it records, so an honest slot never reaches these raises; a slot
+    whose refusal record says nothing is a slot whose provenance is
+    unexplained, and §3.3 does not let an unexplained slot into a denominator.
+    """
+    path = os.path.join(slot, "REFUSAL.json")
+    if not os.path.exists(path):
+        return None
+    record = load_json(path)
+    if not isinstance(record, dict):
+        raise ValueError("REFUSAL.json is not a JSON object")
+    code = record.get("code")
+    if not isinstance(code, str) or not code:
+        raise ValueError("REFUSAL.json records code %r, not a refusal code" % (code,))
+    return code
+
+
 def score_run(slot: str, prompt_path: str, golden_path: str, pins: dict,
-              classes: list) -> dict:
+              classes: list, registry_sha256: str = None) -> dict:
     """One slot's row: valid or not, and — when valid — its coverage."""
     name = os.path.basename(slot)
-    refusal_path = os.path.join(slot, "REFUSAL.json")
     batch_code = None
-    if os.path.exists(refusal_path):
-        try:
-            batch_code = load_json(refusal_path).get("code")
-        except ValueError:
-            batch_code = "unreadable-refusal-record"
     try:
-        code, detail, empty = admit(slot, prompt_path, golden_path, pins)
+        # §7 totality: the refusal record is read INSIDE the total path. It was
+        # read outside it in an earlier draft, so a REFUSAL.json that was a
+        # directory, a list, or `null` reached the caller as a bare traceback
+        # and stopped the scoring of every other slot — and an empty one
+        # silently let a refused run into V.
+        batch_code = batch_refusal_code(slot)
+        code, detail, empty = admit(slot, prompt_path, golden_path, pins,
+                                    registry_sha256)
     except Exception as error:  # noqa: BLE001 — totality is the point
         # §7: a malformed or missing slot artifact yields a recorded verdict,
         # never a bare exception that stops the scoring of every other slot.
@@ -584,9 +765,10 @@ def _sequence_halves(sequence: list) -> dict:
 def verify_preconditions(pins_path: str, prompt_path: str, golden_path: str,
                          study: str = STUDY) -> dict:
     """Everything that must hold before a single slot is read (§6 C1, §3.2,
-    §2.6). A drifted port, an unregistered golden capture, or a
-    post-freeze-edited preregistration refuses the whole scoring — none of
-    them can be discovered afterwards from a published rate."""
+    §2.6). A drifted port, an unregistered interpreter, an unregistered golden
+    capture, or an unregistered or post-freeze-edited preregistration refuses
+    the whole scoring — none of them can be discovered afterwards from a
+    published rate."""
     try:
         ported = integrity.verify(study=study, pins_path=pins_path)
     except integrity.IntegrityError as error:
@@ -612,17 +794,24 @@ def verify_preconditions(pins_path: str, prompt_path: str, golden_path: str,
     if golden_digest != golden_pin:
         raise ScoreError("the golden capture at %s is %s, not the registered %s"
                          % (golden_path, golden_digest, golden_pin))
+    # §2.6: the freeze digest is not optional at scoring time. An earlier draft
+    # skipped this check while the pin was null, which meant the registry could
+    # be merged with its null intact and no rate would ever notice — the very
+    # shape of unenforced claim §7's discipline exists to refuse.
     prereg_pin = pins.get("preregistration", {}).get("sha256")
-    prereg_digest = None
-    if prereg_pin:
-        prereg_path = os.path.join(study, pins["preregistration"]["path"])
-        if not os.path.isfile(prereg_path):
-            raise ScoreError("the preregistration is missing from %s" % study)
-        prereg_digest = file_digest(prereg_path)
-        if prereg_digest != prereg_pin:
-            raise ScoreError("PREREGISTRATION.md is %s, not the %s registered at the "
-                             "freeze: it was edited after the freeze"
-                             % (prereg_digest, prereg_pin))
+    if not prereg_pin:
+        raise ScoreError(
+            "harness/PINS.json registers no preregistration.sha256: this file's "
+            "digest at the freeze must replace the null before any rate is computed, "
+            "or a post-freeze edit would be undetectable (§2.6)")
+    prereg_path = os.path.join(study, pins["preregistration"]["path"])
+    if not os.path.isfile(prereg_path):
+        raise ScoreError("the preregistration is missing from %s" % study)
+    prereg_digest = file_digest(prereg_path)
+    if prereg_digest != prereg_pin:
+        raise ScoreError("PREREGISTRATION.md is %s, not the %s registered at the "
+                         "freeze: it was edited after the freeze"
+                         % (prereg_digest, prereg_pin))
     return {"portedFiles": ported["portedFiles"],
             "study010LockSha256": ported["study010LockSha256"],
             "promptSha256": prompt_digest,
@@ -660,7 +849,9 @@ def terminality(slots: list, slots_dir: str, registered) -> dict:
 
 
 def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
-          golden_path: str) -> dict:
+          golden_path: str, registry_sha256: str = None) -> dict:
+    if registry_sha256 is None:
+        registry_sha256 = file_digest(REGISTRY_OF_RECORD)
     preconditions = verify_preconditions(pins_path, prompt_path, golden_path)
     pins = load_json(pins_path)
     prompt_digest = preconditions["promptSha256"]
@@ -671,7 +862,8 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
     registered = pins.get("batch", {}).get("runs")
     shortfall = terminality(slots, slots_dir, registered)
 
-    rows = [score_run(slot, prompt_path, golden_path, pins, classes) for slot in slots]
+    rows = [score_run(slot, prompt_path, golden_path, pins, classes, registry_sha256)
+            for slot in slots]
     valid = [row for row in rows if row["valid"]]
     invalid = [row for row in rows if not row["valid"]]
     n = len(valid)
@@ -743,12 +935,15 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
             "familySha256": pins["family"]["sha256"],
             "goldenSha256": preconditions["goldenSha256"],
             "preregistrationSha256": preconditions["preregistrationSha256"],
+            "registryOfRecordSha256": registry_sha256,
             "portedFiles": preconditions["portedFiles"],
             "study010LockSha256": preconditions["study010LockSha256"],
             "note": "One cell: this prompt, this model, this policy. Nothing here "
                     "is a claim about other prompts, other models, or real "
                     "operational records. The digests above were verified before "
-                    "any slot was read, not copied from the registry.",
+                    "any slot was read, not copied from the registry, and every "
+                    "counted run names the registry and the golden capture it was "
+                    "made under (§2.6, §3.2).",
         },
         "population": {
             "slots": len(rows),

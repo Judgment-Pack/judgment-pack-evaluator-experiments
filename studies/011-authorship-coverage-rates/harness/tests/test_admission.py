@@ -48,11 +48,14 @@ class Slots(unittest.TestCase):
                                           fixtures.COMPLETION_A, STUDY, self.pins)
         self.golden = fixtures.write_golden(os.path.join(self.root, "GOLDEN-CONTEXT.json"),
                                             self.honest)
+        # §3.2: a run records the capture it was made against, and the golden
+        # here is derived from the first slot, so it is stamped once it exists.
+        fixtures.stamp_golden(self.golden, self.honest)
 
     def slot(self, name: str, answer: str = None, **kwargs) -> str:
         return fixtures.build_slot(os.path.join(self.slots_dir, name),
                                    fixtures.COMPLETION_A if answer is None else answer,
-                                   STUDY, self.pins, **kwargs)
+                                   STUDY, self.pins, golden=self.golden, **kwargs)
 
     def admit(self, slot: str):
         """(code, detail) — the third member, §3.3's authoring-empty flag, is
@@ -254,6 +257,202 @@ class Slots(unittest.TestCase):
         row = score_rates.score_run(slot, self.prompt, self.golden, self.pins, classes)
         self.assertEqual(row["code"], "call-nonzero-exit")
         self.assertEqual(row["batchCode"], "call-nonzero-exit")
+
+    # --- the cell a run was made in ------------------------------------------
+
+    def rewrite_call(self, slot: str, **members) -> None:
+        path = os.path.join(slot, "CALL.json")
+        with open(path) as handle:
+            call = json.load(handle)
+        call.update(members)
+        with open(path, "w") as handle:
+            json.dump(call, handle, indent=2)
+
+    def test_a_run_made_under_another_registry_is_not_a_run_in_this_cell(self):
+        # The freeze-blocking hole: both production CLIs take --pins, and
+        # nothing anchored the model, binary, CLI, N or golden of a supplied
+        # registry to the reviewed one. A registry naming `alien-model` could
+        # publish under this study's name. Now every run names the registry it
+        # was made under, and the scorer computes the committed one itself.
+        slot = self.slot("run-401")
+        self.rewrite_call(slot, pinsSha256="sha256:" + "a" * 64)
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "registry-mismatch", detail)
+        self.assertIn("registry of record", detail)
+
+    def test_a_run_that_names_no_registry_at_all_refuses(self):
+        slot = self.slot("run-402")
+        self.rewrite_call(slot, pinsSha256=None)
+        self.assertEqual(self.admit(slot)[0], "registry-mismatch")
+
+    def test_the_default_registry_of_record_is_the_committed_one(self):
+        # There is no flag for it: main() cannot produce any other value.
+        slot = self.slot("run-403")
+        code, detail, _ = score_rates.admit(slot, self.prompt, self.golden, self.pins)
+        self.assertIsNone(code, detail)
+        self.assertEqual(score_rates.REGISTRY_OF_RECORD,
+                         os.path.join(STUDY, "harness", "PINS.json"))
+
+    def test_a_run_made_against_another_golden_capture_refuses(self):
+        # §3.2: a capture derived AFTER the batch cannot re-admit runs. The
+        # scorer's precondition binds the golden file to the pin; this binds
+        # each run to the file, so re-pinning a new capture invalidates the
+        # runs rather than re-scoring them.
+        slot = self.slot("run-404")
+        self.rewrite_call(slot, goldenSha256="sha256:" + "b" * 64)
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "golden-mismatch", detail)
+        self.assertIn("before the first slot", detail)
+
+    def test_a_run_that_names_no_golden_capture_refuses(self):
+        slot = self.slot("run-405")
+        self.rewrite_call(slot, goldenSha256=None)
+        self.assertEqual(self.admit(slot)[0], "golden-mismatch")
+
+    # --- C6's environment, which admission now actually checks ---------------
+
+    def test_every_registered_environment_clause_is_admission_evidence(self):
+        # The reviewed draft checked four booleans, a non-empty home and the
+        # inventory: an otherwise valid slot stayed admitted after deleting
+        # every environment member and setting credentialRemoved false, while
+        # §6 C6 claimed those were required.
+        home = os.path.join(self.slots_dir, "home-run-406")
+        cwd = os.path.join(self.slots_dir, "scratch-run-406")
+        cases = {
+            "isolation": "operator-home",
+            "codexHome": os.path.join(home, "codex"),
+            "cwd": "",
+            "environment": ["PATH", "HOME"],
+            "environmentValues": {"PATH": "/bin"},
+            "stdin": "inherited",
+            "credentialRemoved": False,
+        }
+        self.assertTrue(os.path.dirname(home))
+        for index, (member, value) in enumerate(sorted(cases.items())):
+            slot = self.slot("run-4%02d" % (10 + index))
+            self.rewrite_call(slot, **{member: value})
+            code, detail = self.admit(slot)
+            self.assertEqual(code, "isolation-unproven", "%s: %s" % (member, detail))
+
+    def test_a_child_path_ending_in_the_operators_home_refuses(self):
+        # The defect this clause exists to catch: Study 010's wrapper wrote
+        # PATH=…:$HOME/.local/bin, expanded by the OUTER shell, so its
+        # "scrubbed" child PATH ended in the operator's real home.
+        slot = self.slot("run-430")
+        with open(os.path.join(slot, "CALL.json")) as handle:
+            call = json.load(handle)
+        values = dict(call["environmentValues"])
+        values["PATH"] = ":".join(fixtures.SYSTEM_PATH
+                                  + (os.path.join(call["home"], ".local", "bin"),))
+        self.rewrite_call(slot, environmentValues=values)
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "isolation-unproven", detail)
+        self.assertIn("outside the isolated home", detail)
+
+    def test_a_shared_tmpdir_refuses(self):
+        slot = self.slot("run-431")
+        with open(os.path.join(slot, "CALL.json")) as handle:
+            call = json.load(handle)
+        values = dict(call["environmentValues"], TMPDIR="/tmp")
+        self.rewrite_call(slot, environmentValues=values)
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "isolation-unproven", detail)
+        self.assertIn("TMPDIR", detail)
+
+    def test_a_credential_copied_and_not_removed_refuses(self):
+        slot = self.slot("run-432")
+        self.rewrite_call(slot, credentialCopied=True, credentialRemoved=False)
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "isolation-unproven", detail)
+        self.assertIn("live credential", detail)
+
+    # --- §7 totality over the batch's own refusal evidence -------------------
+
+    def malformed_refusal(self, name: str, body) -> str:
+        """One slot whose REFUSAL.json is not usable refusal evidence."""
+        slot = self.slot(name)
+        path = os.path.join(slot, "REFUSAL.json")
+        if body is fixtures:                       # sentinel: a directory
+            os.makedirs(path)
+        else:
+            with open(path, "wb") as handle:
+                handle.write(body)
+        return slot
+
+    def test_malformed_refusal_evidence_scores_the_slot_not_the_scoring(self):
+        # The freeze-blocking hole: REFUSAL.json was read OUTSIDE the total
+        # path, so a directory raised IsADirectoryError and `[]` and `null`
+        # raised AttributeError — bare tracebacks that stop the scoring of
+        # every other slot — while `{}` and `{"code": null}` let a run the
+        # batch refused into V as valid.
+        classes = score_rates.load_family(os.path.join(STUDY, "FAMILY.json"),
+                                          self.pins["family"]["sha256"])
+        cases = {
+            "run-501": b'{"code": "call-nonzero-exit"',      # truncated
+            "run-502": b"not json at all",                    # malformed
+            "run-503": b'{"code": "a", "code": "b"}',         # duplicate keys
+            "run-504": b"[]",                                 # wrong type
+            "run-505": b"null",                               # wrong type
+            "run-506": b"{}",                                 # no code
+            "run-507": b'{"code": null}',                     # no code
+            "run-508": b'{"code": 7}',                        # code not a string
+            "run-509": fixtures,                              # a directory
+        }
+        for name, body in cases.items():
+            slot = self.malformed_refusal(name, body)
+            row = score_rates.score_run(slot, self.prompt, self.golden, self.pins,
+                                        classes)
+            self.assertFalse(row["valid"], name)
+            self.assertEqual(row["code"], "scorer-error", "%s: %r" % (name, row))
+            self.assertTrue(row["detail"], name)
+            self.assertIn(score_rates.CODE_PARTITION[row["code"]],
+                          ("pipeline-invalid",))
+
+    def test_one_malformed_refusal_does_not_stop_the_other_slots(self):
+        # Totality is not "the code exists": it is that the OTHER slots are
+        # still counted. A scorer that dies mid-tree scores nothing.
+        tree = os.path.join(self.root, "tree")
+        os.makedirs(tree)
+        slots = [fixtures.build_slot(os.path.join(tree, "run-%03d" % index), answer,
+                                     STUDY, self.pins, golden=self.golden)
+                 for index, answer in enumerate(
+                     (fixtures.COMPLETION_A, fixtures.COMPLETION_B,
+                      fixtures.COMPLETION_A), 1)]
+        with open(os.path.join(slots[1], "REFUSAL.json"), "wb") as handle:
+            handle.write(b"null")
+        results = self.score_tree(tree)
+        codes = {row["slot"]: row["code"] for row in results["runs"]}
+        self.assertEqual(codes, {"run-001": None, "run-002": "scorer-error",
+                                 "run-003": None})
+        self.assertEqual(results["population"]["valid"], 2)
+        self.assertEqual(results["population"]["invalidCodes"], {"scorer-error": 1})
+
+    def test_a_well_formed_refusal_record_still_reconciles(self):
+        slot = self.slot("run-512")
+        with open(os.path.join(slot, "REFUSAL.json"), "w") as handle:
+            json.dump({"run": "run-512", "code": "session-count"}, handle)
+        classes = score_rates.load_family(os.path.join(STUDY, "FAMILY.json"),
+                                          self.pins["family"]["sha256"])
+        row = score_rates.score_run(slot, self.prompt, self.golden, self.pins, classes)
+        self.assertEqual(row["code"], "refusal-conflict")
+        self.assertEqual(row["batchCode"], "session-count")
+
+    def score_tree(self, slots_dir: str) -> dict:
+        """The whole throwaway tree, against a registry that registers exactly
+        the slots it holds and carries the two digests the scorer refuses
+        without (§3.2, §2.6)."""
+        pins = json.loads(json.dumps(self.pins))
+        pins["golden"]["sha256"] = score_rates.file_digest(self.golden)
+        pins["preregistration"]["sha256"] = score_rates.file_digest(
+            os.path.join(STUDY, "PREREGISTRATION.md"))
+        pins["batch"]["runs"] = len([name for name in os.listdir(slots_dir)
+                                     if name.startswith("run-")])
+        path = os.path.join(self.root, "PINS-tree.json")
+        with open(path, "w") as handle:
+            json.dump(pins, handle, indent=2)
+        return score_rates.score(slots_dir, path,
+                                 os.path.join(STUDY, "FAMILY.json"), self.prompt,
+                                 self.golden)
 
     def test_scoring_refuses_outright_without_a_golden_capture(self):
         with self.assertRaises(score_rates.ScoreError):

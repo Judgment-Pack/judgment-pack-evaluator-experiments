@@ -25,7 +25,14 @@
 # records, or decide admissibility. It retains bytes and exits with a code.
 #
 # Usage: authoring_call.sh <scratch-parent> <slot-dir> <pins-json> [codex-binary]
-# Env:   PYTHON_BIN  - interpreter for the helper steps (default python3)
+# Env:   PYTHON_BIN  - interpreter for the helper steps (default python3). It
+#                     must be the implementation and version series the
+#                     registry's `python` member pins, checked before anything
+#                     is called.
+#        GOLDEN_SHA256 - the golden capture digest the driver verified at
+#                     preflight, stamped into CALL.json so the
+#                     golden-before-slots ordering is checkable per slot.
+#                     Empty for the probe calls, which precede the golden.
 #        PROMPT_KIND - "registered" (default, transcription/PROMPT.txt) or
 #                      "probe" (transcription/PROBE-PROMPT.txt). The probe is
 #                      the golden recapture's prompt: the pre-prompt context
@@ -40,14 +47,16 @@
 #                      shown to have power. No credential is copied or removed,
 #                      and no inventory of the operator's home is taken or
 #                      published; batch.py capture-isolation-negative is the
-#                      only caller and it retains three files, never the
-#                      transcript.)
+#                      only caller; it retains a verdict, a stripped call
+#                      record and — when there is one — the context digests,
+#                      never the transcript, whose deletion it verifies.)
 #
 # Retains into <slot-dir>/:
 #   CALL.json      - argv, cwd, isolated home, environment names AND values,
 #                    the isolated home's recursive pre-call inventory, model,
 #                    CLI identity and binary digest, exit status, new-session
-#                    count, credential copied/removed
+#                    count, credential copied/removed, and the digests of the
+#                    registry and the golden capture this run was made under
 #   stdout.raw / stderr.raw
 #   session.jsonl  - the NEW transcript from the run's CODEX_HOME
 #   completion.txt - the transcript's last assistant message (compiler
@@ -80,6 +89,30 @@ for key in sys.argv[2:]:
 print(d)' "$PINS" "$@"; }
 PINNED_DIGEST="$(pin codex binarySha256)"
 PINNED_MODEL="$(pin codex model)"
+PINNED_CLI="$(pin codex version)"
+
+# The registry this run was made under, stamped into CALL.json below. The
+# scorer computes the committed harness/PINS.json digest itself and scores any
+# slot whose stamp differs pipeline-invalid (registry-mismatch), so --pins can
+# serve the harness tests without letting an alternate registry redefine the
+# study's cell.
+PINS_DIGEST="sha256:$(sha256sum "$PINS" | cut -d' ' -f1)"
+# The golden capture the driver verified at preflight, stamped per slot so the
+# golden-before-slots ordering is checkable per run rather than asserted. Empty
+# for the probe calls (the recapture and §6 C7), which have no golden yet.
+GOLDEN_SHA256="${GOLDEN_SHA256:-}"
+
+# The interpreter is a pin (§2.6), so it is a pre-call gate here too: every
+# helper step below runs under $PYTHON, and a run made under an unregistered
+# interpreter is not the registered harness.
+PINNED_PY_IMPL="$(pin python implementation)"
+PINNED_PY_SERIES="$(pin python series)"
+ACTUAL_PY="$("$PYTHON" -c 'import platform, sys
+print("%s %d.%d" % (platform.python_implementation(), sys.version_info[0], sys.version_info[1]))')"
+if [ "$ACTUAL_PY" != "$PINNED_PY_IMPL $PINNED_PY_SERIES" ]; then
+  echo "refused: PYTHON_BIN is $ACTUAL_PY, not the registered $PINNED_PY_IMPL $PINNED_PY_SERIES" >&2
+  exit 1
+fi
 
 PROMPT_KIND="${PROMPT_KIND:-registered}"
 case "$PROMPT_KIND" in
@@ -153,6 +186,15 @@ if [ "$PINNED_DIGEST" != "$ACTUAL_DIGEST" ]; then
   echo "refused: codex binary $ACTUAL_DIGEST is not the pinned $PINNED_DIGEST" >&2
   exit 1
 fi
+# The CLI version is a PRE-call gate, not only a recorded field: §2.1 says the
+# study does not run with a substitute, and a version read after the call would
+# only let the scorer mark the spent run invalid. Read from the resolved binary
+# rather than from PATH.
+VERSION="$("$CODEX_BIN" --version 2>/dev/null || echo unknown)"
+if [ "$VERSION" != "$PINNED_CLI" ]; then
+  echo "refused: codex reports '$VERSION', not the pinned '$PINNED_CLI'" >&2
+  exit 1
+fi
 
 # One slot per run, created exclusively: this study repeats the call, but it
 # never overwrites a retained one. Study 010's zero-retry rule protected a
@@ -198,11 +240,19 @@ if [ "$ISOLATION" = "isolated" ]; then
   if [ -f "$HOME/.codex/auth.json" ]; then
     cp "$HOME/.codex/auth.json" "$CODEX_HOME_DIR/auth.json"
     CREDENTIAL=true
-    # The copy must not survive this process, however it dies: the normal
-    # seal path below removes it and records credentialRemoved, and this
-    # trap covers every abnormal exit in between (set -e, a signal, a
-    # helper raising). Idempotent with the seal-path rm.
-    trap 'rm -f "$CODEX_HOME_DIR/auth.json"' EXIT
+    # The copy must not survive this process on any exit path this process can
+    # observe: the normal seal path below removes it and records
+    # credentialRemoved, and these traps cover the abnormal ones — a normal or
+    # set -e death (EXIT), and SIGINT, SIGTERM and SIGHUP, each of which
+    # cleans up and then exits with the conventional 128+signal status. All of
+    # them are idempotent with the seal-path rm. SIGKILL and power loss run no
+    # handler and are not preventable by any process; §2.5 says so, and says
+    # what the residual is.
+    remove_credential_copy() { rm -f "$CODEX_HOME_DIR/auth.json"; }
+    trap remove_credential_copy EXIT
+    trap 'remove_credential_copy; exit 130' INT
+    trap 'remove_credential_copy; exit 143' TERM
+    trap 'remove_credential_copy; exit 129' HUP
   fi
   INVENTORY="$("$PYTHON" - "$ISOLATED_HOME" <<'PY'
 import json, os, sys
@@ -284,17 +334,18 @@ if [ "$CREDENTIAL" = "true" ] && [ -f "$CODEX_HOME_DIR/auth.json" ]; then
 fi
 rm -rf "$RUN_BIN"
 
-VERSION="$("$CODEX_BIN" --version 2>/dev/null || echo unknown)"
 "$PYTHON" - "$OUT" "$SCRATCH" "$EXIT" "$ACTUAL_DIGEST" "$COUNT" "$PINNED_MODEL" \
     "$ISOLATED_HOME" "$VERSION" "$CREDENTIAL" "$INVENTORY" "$SKILLS_PRESENT" \
     "$PROMPT_KIND" "$PROMPT_NAME" "$PROMPT_DIGEST" "$SLOT_NAME" \
     "$STARTED_AT" "$ENDED_AT" "$CHILD_PATH" "$RUN_TMP" "$CODEX_HOME_DIR" \
-    "$HOME_ISOLATED" "$CREDENTIAL_REMOVED" "$ISOLATION" <<'PY'
+    "$HOME_ISOLATED" "$CREDENTIAL_REMOVED" "$ISOLATION" "$PINS_DIGEST" \
+    "$GOLDEN_SHA256" <<'PY'
 import json, sys
 (out, scratch, exit_status, digest, count, model, home, version,
  credential, inventory, skills, prompt_kind, prompt_name, prompt_digest,
  slot_name, started_at, ended_at, child_path, tmpdir, codex_home,
- home_isolated, credential_removed, isolation) = sys.argv[1:24]
+ home_isolated, credential_removed, isolation, pins_digest,
+ golden_digest) = sys.argv[1:26]
 digits = "".join(ch for ch in slot_name if ch.isdigit())
 with open(out + "/CALL.json", "w") as handle:
     json.dump({
@@ -305,6 +356,8 @@ with open(out + "/CALL.json", "w") as handle:
         "slotIndex": int(digits) if digits else None,
         "promptKind": prompt_kind,
         "promptSha256": prompt_digest,
+        "pinsSha256": pins_digest,
+        "goldenSha256": golden_digest or None,
         "isolation": isolation,
         "startedAt": started_at,
         "endedAt": ended_at,

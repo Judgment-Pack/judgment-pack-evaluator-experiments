@@ -31,7 +31,7 @@
   "golden": {
     "path": "transcription/GOLDEN-CONTEXT.json",
     "sha256": null,
-    "note": "Recaptured for THIS study's environment before the batch (batch.py capture --scratch-parent DIR), not inherited from Study 010: a golden capture pins one machine's codex boilerplate, and 010's would refuse every honest run here. The digest is null until the capture is taken and registered, and while it is null batch.py refuses to create a slot and score_rates.py refuses to score — so the recapture cannot be skipped and a capture derived after the batch cannot be substituted."
+    "note": "Recaptured for THIS study's environment before the batch (batch.py capture --scratch-parent DIR), not inherited from Study 010: a golden capture pins one machine's codex boilerplate, and 010's would refuse every honest run here. The digest is null until the capture is taken and registered, and while it is null batch.py refuses to create a slot and score_rates.py refuses to score, so the recapture cannot be skipped. The derivation needs at least TWO capture slots whose normalized contexts agree byte-for-byte (batch.py refuses one). That a capture derived AFTER the batch cannot be substituted is checkable per slot rather than asserted: the batch stamps the digest it verified at preflight into every slot's CALL.json (goldenSha256), and score_rates.py scores any slot whose stamped digest is not the pin it is scoring under pipeline-invalid, code golden-mismatch."
   },
   "isolationNegative": {
     "operatorAssent": "granted",
@@ -65,7 +65,12 @@
   },
   "python": {
     "implementation": "CPython",
+    "series": "3.12",
     "version": "3.12.11",
-    "note": "The interpreter this study's harness runs on. Study 010 ran on CPython 3.8.20; the ported compiler and mirror use no version-dependent behaviour, and the ported files' digests are recorded in harness/PORTS.md."
+    "note": "The interpreter this study's harness runs on, and this member is READ BY CODE: harness/integrity.verify_interpreter() refuses unless the running implementation and version series are exactly these, so batch.py, score_rates.py, harness/integrity.py and transcription/authoring_call.sh (which checks $PYTHON_BIN before it calls anything) all refuse under an unregistered interpreter. The patch level is recorded, not enforced — CI pins the 3.12 series and resolves whatever patch release is current, and this study's arithmetic is exact rationals and integer combinatorics. Study 010 ran on CPython 3.8.20; the ported compiler and mirror use no version-dependent behaviour, and the ported files' digests are recorded in harness/PORTS.md."
+  },
+  "registryOfRecord": {
+    "path": "harness/PINS.json",
+    "note": "This file is its own subject: transcription/authoring_call.sh records the sha256 of the registry it ran under in CALL.json (pinsSha256), and score_rates.py computes the digest of the COMMITTED harness/PINS.json and scores any slot whose stamped digest differs pipeline-invalid, code registry-mismatch (§3.3). --pins therefore lets the harness tests run under a stand-in registry naming a stand-in binary, and does not let an alternate registry redefine this study's cell: a slot made under a foreign registry cannot enter a denominator."
   }
 }

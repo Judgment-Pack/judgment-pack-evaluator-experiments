@@ -18,11 +18,17 @@ where only the tests directory is on sys.path, and it must not drag the scorer
 in with it.
 """
 from __future__ import annotations
+import hashlib
 import json
 import os
 import stat
 
 MODEL = "gpt-5.6-sol"
+# The six system directories the wrapper puts on the child PATH, which
+# score_rates.check_environment() requires; kept here as a literal so the
+# fixtures cannot pass the check by importing the thing under test.
+SYSTEM_PATH = ("/usr/local/sbin", "/usr/local/bin", "/usr/sbin", "/usr/bin",
+               "/sbin", "/bin")
 
 # --- the records -----------------------------------------------------------
 
@@ -252,10 +258,42 @@ def read_prompt(study: str) -> str:
         return handle.read().decode("utf-8")
 
 
+def registry_digest(study: str) -> str:
+    """The digest of the study's committed registry — the value the wrapper
+    stamps into every slot and the scorer requires (§2.6)."""
+    with open(os.path.join(study, "harness", "PINS.json"), "rb") as handle:
+        return "sha256:" + hashlib.sha256(handle.read()).hexdigest()
+
+
+def file_digest(path: str) -> str:
+    with open(path, "rb") as handle:
+        return "sha256:" + hashlib.sha256(handle.read()).hexdigest()
+
+
+def stamp_golden(golden: str, *slots: str) -> str:
+    """Record, in each slot's CALL.json, the golden capture it was made
+    against — what the real wrapper does from GOLDEN_SHA256 (§3.2).
+
+    The fixtures derive their golden FROM a built slot, so the stamp cannot be
+    written when that slot is built; every test that scores a fixture slot
+    stamps it once the capture exists, exactly as the batch stamps the digest
+    its preflight verified."""
+    digest = file_digest(golden)
+    for slot in slots:
+        path = os.path.join(slot, "CALL.json")
+        with open(path) as handle:
+            call = json.load(handle)
+        call["goldenSha256"] = digest
+        with open(path, "w") as handle:
+            json.dump(call, handle, indent=2)
+            handle.write("\n")
+    return digest
+
+
 def build_slot(slot: str, answer: str, study: str, pins: dict, *,
                exit_status: int = 0, session: bool = True,
                completion_file: bool = True, entries=None,
-               cwd: str = None, home: str = None) -> str:
+               cwd: str = None, home: str = None, golden: str = None) -> str:
     """One slot in the shape transcription/authoring_call.sh retains, built in
     process so a scorer test needs neither bash nor a CLI."""
     import transcript_check
@@ -269,9 +307,17 @@ def build_slot(slot: str, answer: str, study: str, pins: dict, *,
         "argv": ["codex", "exec", "--ignore-user-config", "-m", pins["codex"]["model"]],
         "cwd": cwd, "home": home, "codexHome": os.path.join(home, ".codex"),
         "environment": ["PATH", "HOME", "TMPDIR", "CODEX_HOME"],
-        "environmentValues": {"PATH": "/usr/bin:/bin", "HOME": home,
-                              "TMPDIR": os.path.join(cwd, "tmp"),
-                              "CODEX_HOME": os.path.join(home, ".codex")},
+        # C6's constructed environment, in the shape the wrapper writes it:
+        # six fixed system directories plus one per-run binary directory, and
+        # a TMPDIR inside this run's own scratch.
+        "environmentValues": {
+            "PATH": ":".join(SYSTEM_PATH + (os.path.join(os.path.dirname(slot),
+                                                         "bin-" + name),)),
+            "HOME": home,
+            "TMPDIR": os.path.join(cwd, "tmp"),
+            "CODEX_HOME": os.path.join(home, ".codex")},
+        "pinsSha256": registry_digest(study),
+        "goldenSha256": None if golden is None else file_digest(golden),
         "environmentScrubbed": True, "codexHomeIsolated": True,
         "homeIsolated": True,
         # The recursive inventory C6 registers: the .codex directory the
@@ -330,13 +376,18 @@ def write_golden(path: str, slot: str) -> str:
 
 
 def build_tree(root: str, answers: list, study: str, pins: dict) -> tuple:
-    """(slots dir, golden path) for a list of completions, one slot each."""
+    """(slots dir, golden path) for a list of completions, one slot each.
+
+    The golden is derived from the first slot and then stamped back into every
+    slot, because a run records the capture it was made against (§3.2)."""
     slots_dir = os.path.join(root, "authoring")
     os.makedirs(slots_dir, exist_ok=True)
+    slots = []
     for index, answer in enumerate(answers, 1):
-        build_slot(os.path.join(slots_dir, "run-%03d" % index), answer, study, pins)
-    golden = write_golden(os.path.join(root, "GOLDEN-CONTEXT.json"),
-                          os.path.join(slots_dir, "run-001"))
+        slots.append(build_slot(os.path.join(slots_dir, "run-%03d" % index),
+                                answer, study, pins))
+    golden = write_golden(os.path.join(root, "GOLDEN-CONTEXT.json"), slots[0])
+    stamp_golden(golden, *slots)
     return slots_dir, golden
 
 
@@ -357,6 +408,7 @@ being a control whose outcome the harness decides."""
 import json
 import os
 import sys
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, "__TESTS__")
@@ -377,6 +429,10 @@ def main(argv):
     with open(counter, "w") as handle:
         handle.write(str(index + 1))
     step = plan[index] if index < len(plan) else plan[-1]
+    if step.get("sleep"):
+        # A call still in flight: the credential copy exists, the slot is not
+        # sealed, and a signal arriving now is the case the traps cover.
+        time.sleep(step["sleep"])
     prompt = argv[-1]
     model = argv[argv.index("-m") + 1]
     home = os.environ["HOME"]
@@ -394,6 +450,11 @@ def main(argv):
         # that kills the wrapper mid-run (completion extraction raises under
         # set -e), used to prove cleanup survives an abnormal death.
         entries = entries[:-2]
+    if step.get("no_session"):
+        # No transcript at all: the wrapper finds no new session, retains no
+        # context, and exits 11. §6 C7's third registered outcome runs on it.
+        sys.stdout.write(step["completion"])
+        return int(step.get("exit", 0))
     fixtures.write_session(os.path.join(sessions, "rollout-%d.jsonl" % index), entries)
     sys.stdout.write(step["completion"])
     return int(step.get("exit", 0))

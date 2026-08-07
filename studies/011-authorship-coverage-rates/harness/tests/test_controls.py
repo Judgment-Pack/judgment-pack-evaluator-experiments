@@ -97,6 +97,14 @@ class PortedBytesAtRunTime(unittest.TestCase):
     rate and every §5 tier and nothing downstream would notice.
     """
 
+    def setUp(self):
+        self.lock = json.load(open(os.path.join(TEN, "PROTOCOL-LOCK.json")))
+
+    def locked(self, source: str) -> str:
+        """The bare digest Study 010's lock records for one of its own files —
+        the authority every source cell below is checked against."""
+        return self.lock["lockedInputs"][source].split(":")[-1]
+
     def copy_study(self) -> str:
         import shutil
         import tempfile
@@ -145,6 +153,151 @@ class PortedBytesAtRunTime(unittest.TestCase):
             json.dump(pins, handle, indent=2)
         with self.assertRaises(integrity.IntegrityError):
             integrity.verify(study=study, ten=TEN)
+
+    def edit_ports_row(self, study: str, relative: str, old: str, new: str,
+                       which: str = "all") -> str:
+        """Rewrite one cell of one PORTS.md row. `which` picks the source cell
+        ('first'), the destination cell ('last'), or both ('all') — the three
+        shapes an editor of this file could take."""
+        path = os.path.join(study, "harness", "PORTS.md")
+        with open(path) as handle:
+            lines = handle.read().splitlines(True)
+        edited = None
+        for index, line in enumerate(lines):
+            if not line.startswith("| `%s` |" % relative):
+                continue
+            if which == "all":
+                line = line.replace(old, new)
+            elif which == "first":
+                line = line.replace(old, new, 1)
+            else:
+                head, _, tail = line.rpartition(old)
+                line = head + new + tail
+            lines[index] = edited = line
+        self.assertIsNotNone(edited, "no PORTS.md row for %s" % relative)
+        with open(path, "w") as handle:
+            handle.writelines(lines)
+        return edited
+
+    def test_a_port_edited_together_with_its_own_ports_row_still_refuses(self):
+        """The freeze-blocking hole: `harness/PORTS.md` is an editable file in
+        THIS study, so a table checked only against itself authenticates
+        whatever the editor wrote. An attacker changes a byte of the mirror —
+        which moves every rate and every §5 tier — and changes that row's two
+        digest cells to match. Study 010's lock is untouched, and it is the
+        only thing that can notice."""
+        study = self.copy_study()
+        target = os.path.join(study, "harness", "policy_mirror.py")
+        with open(target, "a") as handle:
+            handle.write("# one byte of drift\n")
+        drifted = digest(target).split(":")[-1]
+        locked = self.locked("harness/policy_mirror.py")
+        self.edit_ports_row(study, "harness/policy_mirror.py", locked, drifted)
+        with self.assertRaises(integrity.IntegrityError) as caught:
+            integrity.verify(study=study, ten=TEN)
+        self.assertIn("PROTOCOL-LOCK.json", str(caught.exception))
+
+    def test_a_byte_identical_port_answers_to_the_lock_not_to_the_table(self):
+        """The same attack with only the DESTINATION cell moved, so the source
+        column still agrees with 010's lock. A port §2.1 calls byte-identical
+        must equal 010's LOCKED bytes; a prose column saying 'no — byte
+        identical' is not a check."""
+        study = self.copy_study()
+        target = os.path.join(study, "FAMILY.json")
+        with open(target, "a") as handle:
+            handle.write("\n")
+        drifted = digest(target).split(":")[-1]
+        locked = self.locked("FAMILY.json")
+        # Only the DESTINATION cell moves, so the source column still agrees
+        # with the lock and every source-side check passes.
+        row = self.edit_ports_row(study, "FAMILY.json", locked, drifted, which="last")
+        self.assertEqual(row.count(locked), 1, "the source cell must survive: %r" % row)
+        self.assertIn(drifted, row)
+        with self.assertRaises(integrity.IntegrityError) as caught:
+            integrity.verify(study=study, ten=TEN)
+        self.assertIn("BYTE-IDENTICALLY", str(caught.exception))
+
+    def test_a_ports_row_naming_a_source_the_lock_does_not_lock_refuses(self):
+        study = self.copy_study()
+        # The source cell alone: the destination set still names the six files,
+        # so the row survives to the lock lookup that has nothing to look up.
+        self.edit_ports_row(study, "harness/policy_mirror.py",
+                            "`harness/policy_mirror.py` |", "`harness/mirror.py` |",
+                            which="first")
+        with self.assertRaises(integrity.IntegrityError) as caught:
+            integrity.verify(study=study, ten=TEN)
+        self.assertIn("no such input", str(caught.exception))
+
+    def test_a_lock_that_is_not_the_pinned_one_refuses_before_it_is_read(self):
+        import shutil
+        import tempfile
+
+        study = self.copy_study()
+        ten = tempfile.mkdtemp(prefix="s011-fake-ten-")
+        self.addCleanup(shutil.rmtree, ten, True)
+        lock = json.load(open(os.path.join(TEN, "PROTOCOL-LOCK.json")))
+        # A lock that would bless a drifted mirror, if it were ever read.
+        lock["lockedInputs"]["harness/policy_mirror.py"] = "sha256:" + "0" * 64
+        with open(os.path.join(ten, "PROTOCOL-LOCK.json"), "w") as handle:
+            json.dump(lock, handle, indent=2)
+        with self.assertRaises(integrity.IntegrityError) as caught:
+            integrity.verify(study=study, ten=ten)
+        self.assertIn("not the pinned", str(caught.exception))
+
+
+class RegisteredInterpreter(unittest.TestCase):
+    """§2.6: the registry's `python` member is read by code, not only recorded.
+
+    The reviewed draft registered CPython 3.12.11 and no harness code read it,
+    while every README command ran a bare `python3` that resolves to 3.8.20 on
+    this machine — so the registered runbook ran the batch under an
+    unregistered interpreter.
+    """
+
+    def test_the_running_interpreter_is_the_registered_one(self):
+        pins = json.load(open(os.path.join(STUDY, "harness", "PINS.json")))
+        self.assertEqual(integrity.verify_interpreter(pins).split()[0],
+                         pins["python"]["implementation"])
+
+    def test_another_implementation_or_series_refuses(self):
+        pins = json.load(open(os.path.join(STUDY, "harness", "PINS.json")))
+        for member, value in (("implementation", "PyPy"), ("series", "3.8")):
+            wrong = json.loads(json.dumps(pins))
+            wrong["python"][member] = value
+            with self.assertRaises(integrity.IntegrityError) as caught:
+                integrity.verify_interpreter(wrong)
+            self.assertIn("registers", str(caught.exception))
+
+    def test_a_registry_pinning_no_interpreter_refuses(self):
+        with self.assertRaises(integrity.IntegrityError):
+            integrity.verify_interpreter({})
+
+    def test_the_patch_level_is_recorded_and_not_required(self):
+        # Registered honestly: CI pins the series and resolves whatever patch
+        # release is current, so the check is implementation + series.
+        pins = json.load(open(os.path.join(STUDY, "harness", "PINS.json")))
+        loosened = json.loads(json.dumps(pins))
+        loosened["python"]["version"] = "3.12.999"
+        self.assertTrue(integrity.verify_interpreter(loosened))
+
+
+class InlinedPolicy(unittest.TestCase):
+    """§2.1's inlining claim, stated exactly rather than as 'verbatim'.
+
+    `policy/POLICY.md` ends in LF and the prompt carries no trailing newline,
+    so the prompt holds the policy's bytes with that final LF removed. The
+    relation is exact and checkable; 'verbatim' was not.
+    """
+
+    def test_the_prompt_carries_the_policy_bytes_less_the_final_newline(self):
+        with open(os.path.join(TEN, "policy", "POLICY.md"), "rb") as handle:
+            policy = handle.read()
+        with open(os.path.join(STUDY, "transcription", "PROMPT.txt"), "rb") as handle:
+            prompt = handle.read()
+        self.assertTrue(policy.endswith(b"\n"))
+        self.assertNotIn(policy, prompt)
+        self.assertIn(policy[:-1], prompt)
+        self.assertFalse(prompt.endswith(b"\n"))
 
 
 class FamilyCoherence(unittest.TestCase):

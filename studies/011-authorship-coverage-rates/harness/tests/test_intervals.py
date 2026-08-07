@@ -162,5 +162,70 @@ class ReviewTiers(unittest.TestCase):
             score_rates.rate_block(0, 0), None)["tier"])
 
 
+class RowComposition(unittest.TestCase):
+    """§5's row-level rule, which was not a total function.
+
+    The classes are not disjoint, so "the class its facts fall in" left a row
+    matching two classes of different depths undefined, and a row matching no
+    class undefined as well. Two clauses close it, and they are code rather
+    than prose so the gap cannot reopen.
+    """
+
+    def test_a_row_in_one_class_takes_that_class_tier(self):
+        for tier in score_rates.TIERS:
+            self.assertEqual(score_rates.row_review_tier([tier]), tier)
+
+    def test_a_row_in_several_classes_takes_the_strictest(self):
+        # The worked example from the review: a non-embargoed score-70 row
+        # matches classes 0 and 1, and their tiers can differ.
+        self.assertEqual(score_rates.row_review_tier(["STANDARD", "LIGHT"]), "STANDARD")
+        self.assertEqual(score_rates.row_review_tier(["LIGHT", "FULL", "STANDARD"]),
+                         "FULL")
+        self.assertEqual(score_rates.row_review_tier(["LIGHT", "LIGHT"]), "LIGHT")
+
+    def test_a_row_in_no_registered_class_takes_full(self):
+        # This study measured six predicates; it says nothing about a row
+        # outside all of them, and "nothing is known" reads as full review.
+        self.assertEqual(score_rates.row_review_tier([]), "FULL")
+
+    def test_a_tier_this_study_does_not_register_refuses(self):
+        with self.assertRaises(score_rates.ScoreError):
+            score_rates.row_review_tier(["NONE"])
+
+
+class RegisteredIllustrations(unittest.TestCase):
+    """The numbers §2.4 and §9 use to say what N = 50 buys.
+
+    The reviewed draft printed 0.9209 at V = 45 and 0.9114 at V = 40 for a
+    perfect class; solving p^V = 0.025 independently gives 0.9213 and 0.9119.
+    The scorer was right and the prose was wrong, which is the direction that
+    matters least and is still a registered claim the code does not support.
+    """
+
+    def prose(self) -> str:
+        import os
+
+        study = os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))))
+        with open(os.path.join(study, "PREREGISTRATION.md"), "rb") as handle:
+            return handle.read().decode("utf-8")
+
+    def test_the_perfect_class_bounds_are_the_ones_the_code_computes(self):
+        body = self.prose()
+        for trials in (50, 45, 40):
+            computed = "%.4f" % score_rates.lower_bound(trials, trials)
+            self.assertIn(computed, body,
+                          "§2.4/§9 do not carry the V=%d bound %s" % (trials, computed))
+        for wrong in ("0.9209", "0.9114"):
+            self.assertNotIn(wrong, body, "a superseded bound survives in the prose")
+
+    def test_the_registered_v50_table_is_the_one_the_code_computes(self):
+        body = self.prose()
+        for k, (lower, upper) in REGISTERED.items():
+            self.assertEqual(round(score_rates.lower_bound(k, 50), 4), lower)
+            self.assertEqual(round(score_rates.upper_bound(k, 50), 4), upper)
+        self.assertIn("k = 50 → [0.9289, 1.0000]", body)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -38,7 +38,7 @@ diff studies/010-blinded-oracle/harness/records_compile.py \
 | `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | no — byte-identical |
 | `harness/records_compile.py` | `e58edce30e549953b5263db2e9c230604f9192d060cbde9387585e0679671698` | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | output root parameterized |
 | `harness/transcript_check.py` | `42d977c40eed333531c096b9cdba75ac2ecceed5845dd3151f1dc010129bea9d` | `harness/transcript_check.py` | `b8a1e763a59f6bc4ee79c878a34d26222fdb507e0a63aa841e6f1e8cf0c23ff9` | golden source parameterized and required |
-| `transcription/authoring_call.sh` | `3b8909aae9b0ec2d52f8b8c780c3c6a544f4405dc7d31fd1becf485fcdae251d` | `transcription/authoring_call.sh` | `339e239f0ce823bba3587adbdc38a0357fd1467c199b51f4eddd5ae4bcee6259` | slot, pins, prompt kind, interpreter and CLI parameterized; PATH/TMPDIR constructed; recursive home inventory; credential deleted (seal path plus an EXIT trap, so an abnormal wrapper death cannot leave the copy); new-session diff; C7 mode |
+| `transcription/authoring_call.sh` | `3b8909aae9b0ec2d52f8b8c780c3c6a544f4405dc7d31fd1becf485fcdae251d` | `transcription/authoring_call.sh` | `d555a093909b590797c6bf803c320426c191534c0e3675e9f816e9cbd77e6141` | slot, pins, prompt kind, interpreter and CLI parameterized; interpreter and CLI version checked BEFORE the call; PATH/TMPDIR constructed; recursive home inventory; registry and golden digests stamped per run; credential deleted (seal path plus EXIT/INT/TERM/HUP traps); new-session diff; C7 mode |
 | `transcription/PROMPT.txt` | `a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2` | `transcription/PROMPT.txt` | `a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2` | no — byte-identical |
 | `FAMILY.json` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | `FAMILY.json` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | no — byte-identical |
 
@@ -47,15 +47,28 @@ The two byte-identical harness/data files are pinned again in
 family whose bytes are not those digests. `policy_mirror.py`'s digest equality
 is its own check: nothing about the reference semantics was reinterpreted.
 
-**This table is machine-read.** `harness/integrity.py` parses the six rows
-above, recomputes both digests of every row — the destination here and the
-source in `studies/010-blinded-oracle/` — and requires the destination set to
-be exactly those six files, so a deleted row refuses rather than quietly
-dropping a check. It also verifies 010's `PROTOCOL-LOCK.json` against the
-digest `harness/PINS.json` records in `pinnedFrom.fileSha256`.
-`batch.py` runs it before it creates a slot, `score_rates.py` before it reads
-one, and CI runs the whole harness suite (PREREGISTRATION.md §6 C1). Editing a
-port therefore means editing this table in the same commit — that is the point.
+**This table is machine-read, and its two columns answer to two different
+authorities.** This file is editable in *this* study, so it cannot be the
+authority for what Study 010's bytes were: an editor who changes a port here
+need only change that row's digit cells to keep the table self-consistent.
+`harness/integrity.py` therefore, in order: verifies
+`studies/010-blinded-oracle/PROTOCOL-LOCK.json` against the digest
+`harness/PINS.json` records in `pinnedFrom.fileSha256` **first**; reads that
+lock's `lockedInputs` map; requires every **source** above to be locked there
+and both 010's file and this table's source cell to equal **the lock's**
+digest; requires every **destination** to equal the digest this table records;
+requires the three byte-identical ports to equal 010's *locked* digest on the
+destination side too, so "no — byte-identical" is a checked relation and not a
+prose cell; and requires the destination set to be exactly those six files, so
+a deleted row refuses rather than quietly dropping a check. It also checks the
+running interpreter against the registry's `python` member.
+
+`batch.py` runs all of it before it creates a slot, `score_rates.py` before it
+reads one, and CI runs the whole harness suite (PREREGISTRATION.md §6 C1).
+Editing a port therefore means editing this table in the same commit — and for
+the three adapted ports, that table entry is the only record, which is why
+§2.3's change list is enumerated and why C3 re-runs the adapted compiler and
+mirror against Study 010's published profile.
 
 ## What changed, file by file
 
@@ -107,7 +120,8 @@ What changed:
 codex boilerplate — its permission text, its agent identity, its plugin list,
 normalized. Study 010's capture is that study's environment; here it would
 refuse every honest run. Study 011 therefore recaptures its own before the
-batch, with `batch.py capture`, which runs two probe-prompt calls and requires
+batch, with `batch.py capture`, which runs at least two probe-prompt calls
+(fewer refuses, both before the calls and at the derivation) and requires
 their pre-prompt contexts to reproduce identically after normalization,
 refusing any capture carrying a leak token before the prompt. That is Study 010's
 own capture procedure (§4: "captured from two independent real runs that
@@ -151,13 +165,26 @@ What changed:
   before the batch would show coverage profiles first — the cost Study 010's
   `DEVIATIONS.md` §1 records. `CALL.json` records which kind ran and that
   prompt's digest.
-- **interpreter**: helper steps run `$PYTHON_BIN` (default `python3`);
-  `codex --version` is read from the resolved binary rather than from `PATH`.
+- **interpreter and CLI version, both as PRE-call gates**: helper steps run
+  `$PYTHON_BIN` (default `python3`), which must be the implementation and
+  version series `harness/PINS.json` pins, checked before anything is called;
+  `codex --version` is read from the resolved binary rather than from `PATH`,
+  **before** the authoring call, and a version that is not the pinned string
+  refuses instead of being recorded for the scorer to reject afterwards.
+- **registry and golden digests, stamped per run**: `CALL.json` records
+  `pinsSha256` (the registry this run was made under) and `goldenSha256` (the
+  golden capture the driver verified at preflight, empty for the probe calls).
+  The scorer computes the committed registry's digest itself and refuses any
+  other, and refuses any slot naming a capture that is not the one it is
+  scoring under — codes `registry-mismatch` and `golden-mismatch`.
 - **credential**: `$HOME/.codex/auth.json` is copied when it exists and
   `credentialCopied` records whether it did (Study 010 assumed it), and the
   copy is **deleted** once the call has terminated and the slot is sealed,
-  with `credentialRemoved` recording it. Fifty runs must not leave fifty
-  copies of a live credential under one scratch parent; only a copy this
+  with `credentialRemoved` recording it. Traps on `EXIT`, `INT`, `TERM` and
+  `HUP` remove it on the abnormal paths; `SIGKILL` and power loss run no
+  handler and PREREGISTRATION.md §2.5 states that residual rather than
+  claiming the copy dies however the wrapper dies. Fifty runs must not leave
+  fifty copies of a live credential under one scratch parent; only a copy this
   wrapper made is ever removed.
 - **slot identity and wall clock**: `CALL.json` gains `slot`, `slotIndex`,
   `startedAt` and `endedAt` (UTC). The scorer never reads them, so
@@ -192,8 +219,10 @@ What changed:
   else. It refuses any prompt but the probe, copies and removes no
   credential, takes no inventory of the operator's home, and records
   `isolation` and `homeIsolated: false` in `CALL.json`.
-  `harness/batch.py capture-isolation-negative` is its only caller and it
-  retains three files, deleting the transcript itself.
+  `harness/batch.py capture-isolation-negative` is its only caller; it
+  retains the verdict and a stripped call record always and the context
+  digests when the call produced them, deletes the transcript itself, and
+  verifies the deletion.
 
 ### `FAMILY.json`, `transcription/PROMPT.txt` — copied, not edited
 

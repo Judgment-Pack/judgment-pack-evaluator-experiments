@@ -51,9 +51,12 @@ class Determinism(unittest.TestCase):
         self.slots, self.golden = fixtures.build_tree(
             self.root, [fixtures.COMPLETION_A, fixtures.COMPLETION_B,
                         fixtures.COMPLETION_A], STUDY, self.pins)
-        # §3.2 step 3: the capture's digest is in the registry before anything
-        # is scored, and the scorer refuses while it is null.
+        # §3.2 step 3 and §2.6: the capture's digest and the preregistration's
+        # freeze digest are both in the registry before anything is scored, and
+        # the scorer refuses while either is null.
         self.pins["golden"]["sha256"] = score_rates.file_digest(self.golden)
+        self.pins["preregistration"]["sha256"] = score_rates.file_digest(
+            os.path.join(STUDY, "PREREGISTRATION.md"))
         with open(self.pins_path, "w") as handle:
             json.dump(self.pins, handle, indent=2)
 
@@ -113,6 +116,46 @@ class Determinism(unittest.TestCase):
         # Class 0 was reached only by the run that just left the population.
         by_index = {entry["index"]: entry["coverage"]["count"] for entry in results["classes"]}
         self.assertEqual(by_index, {0: 0, 1: 2, 2: 0, 3: 2, 4: 2, 5: 0})
+
+    def test_the_published_intervals_are_exactly_the_registered_scope(self):
+        """§4.3's frozen scope, asserted rather than left to two readings.
+
+        The reviewed draft named the six primary rates, the all-six rate and
+        S8, while the scorer also computed intervals for the raw, Q and Q-only
+        intersections. Both are defensible; only one can be the registered
+        scope, and it is now the wider one — those three ARE rates over the
+        same V, and publishing a rate without its interval invites reading a
+        point estimate as precise."""
+        results = score_rates.score(self.slots, self.pins_path, self.family,
+                                    self.prompt, self.golden)
+        expected = set()
+        for entry in results["classes"]:
+            for member in ("coverage", "rawIntersection", "qIntersection",
+                           "qOnlyIntersection"):
+                expected.add(("classes", entry["index"], member))
+                self.assertIsNotNone(entry[member]["ci95"], member)
+        expected.add(("coverageBreadth", "allSix"))
+        expected.add(("population", "pipelineInvalidRate"))
+        self.assertIsNotNone(results["coverageBreadth"]["allSix"]["ci95"])
+        self.assertIsNotNone(results["population"]["pipelineInvalidRate"]["ci95"])
+        # Record-level pooled quantities carry none: records inside one
+        # completion are not independent trials (§4.4 S5).
+        self.assertNotIn("ci95", results["labelAccuracy"])
+        found = set()
+
+        def walk(node, path=()):
+            if isinstance(node, dict):
+                if "ci95" in node:
+                    found.add(path)
+                for key, value in node.items():
+                    walk(value, path + (key,))
+            elif isinstance(node, list):
+                for index, item in enumerate(node):
+                    walk(item, path + (index,))
+
+        walk(results)
+        self.assertEqual(len(found), len(expected),
+                         "intervals are published at %r" % sorted(found))
 
     def test_emitted_records_are_the_compiled_bytes(self):
         out = self.score_into("out-4")
