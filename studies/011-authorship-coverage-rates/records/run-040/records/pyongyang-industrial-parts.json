@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Parts Co.",
+    "registeredCountry": "KP",
+    "riskScore": "8.25",
+    "sanctionsHit": false
+  }
+}

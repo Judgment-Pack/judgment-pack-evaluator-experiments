@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-no-data-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T08:30:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Office Fixtures Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

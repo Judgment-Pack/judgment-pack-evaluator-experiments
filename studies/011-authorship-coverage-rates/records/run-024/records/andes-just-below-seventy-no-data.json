@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-just-below-seventy-no-data",
+  "decision": {
+    "decidedAt": "2026-06-10T14:45:00Z",
+    "decidedBy": "Nadia Rahman",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

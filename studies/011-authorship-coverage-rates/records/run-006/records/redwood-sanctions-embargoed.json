@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-sanctions-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Export Services",
+    "registeredCountry": "IR",
+    "riskScore": "92",
+    "sanctionsHit": true
+  }
+}

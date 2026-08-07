@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-above-seventy",
+  "decision": {
+    "decidedAt": "2026-06-10T16:30:00Z",
+    "decidedBy": "Luis Ortega",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Crane Identity Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "92.4",
+    "sanctionsHit": false
+  }
+}

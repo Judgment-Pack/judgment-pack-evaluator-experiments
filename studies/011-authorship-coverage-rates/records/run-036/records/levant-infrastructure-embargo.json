@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-infrastructure-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Infrastructure Works",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

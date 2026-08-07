@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-no-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T14:00:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Office Supply B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "18.375",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Sofia Nguyen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberian Cloud Services S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

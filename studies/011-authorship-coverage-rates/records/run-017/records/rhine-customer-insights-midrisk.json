@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-customer-insights-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-08T12:40:00Z",
+    "decidedBy": "Amara Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Customer Insights GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

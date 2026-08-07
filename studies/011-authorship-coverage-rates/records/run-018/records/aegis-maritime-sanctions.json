@@ -1,0 +1,15 @@
+{
+  "caseId": "aegis-maritime-sanctions",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Aegis Maritime Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

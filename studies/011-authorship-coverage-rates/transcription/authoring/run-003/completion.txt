@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "redwood-sanctions-override",
+    "vendor": {
+      "legalName": "Redwood Maritime Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-embargo",
+    "vendor": {
+      "legalName": "Caspian Systems Company",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargo-registration",
+    "vendor": {
+      "legalName": "Paektu Industrial Export Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-embargo-high-risk",
+    "vendor": {
+      "legalName": "Damascus Data Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "92.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T09:20:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-embargo-threshold",
+    "vendor": {
+      "legalName": "Tehran Precision Goods PLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-02T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "northstar-risk-seventy",
+    "vendor": {
+      "legalName": "Northstar Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-03T13:00:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-high-risk-data",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "84.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-03T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-risk-seventy-decimal",
+    "vendor": {
+      "legalName": "Atlas Components SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-04T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-data-risk-forty",
+    "vendor": {
+      "legalName": "Harbor Payroll Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-04T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-below-seventy",
+    "vendor": {
+      "legalName": "Maple Customer Insights Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-04T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-mid-risk",
+    "vendor": {
+      "legalName": "Sakura Benefits K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-05T07:55:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-no-data-below-seventy",
+    "vendor": {
+      "legalName": "Alpine Machine Works AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-05T10:20:00Z"
+    }
+  },
+  {
+    "caseId": "coral-no-data-risk-forty",
+    "vendor": {
+      "legalName": "Coral Office Supply Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-05T12:05:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-data-below-forty",
+    "vendor": {
+      "legalName": "Fjord Hosting AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-08T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "lotus-data-zero-risk",
+    "vendor": {
+      "legalName": "Lotus Document Services Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "andes-no-data-mid-risk",
+    "vendor": {
+      "legalName": "Andes Facilities SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "58.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-08T15:10:00Z"
+    }
+  }
+]

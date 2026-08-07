@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-just-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-08T12:35:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefits Administration Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

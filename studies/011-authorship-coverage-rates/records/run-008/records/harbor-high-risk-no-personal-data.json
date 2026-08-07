@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-high-risk-no-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harborline Components Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}

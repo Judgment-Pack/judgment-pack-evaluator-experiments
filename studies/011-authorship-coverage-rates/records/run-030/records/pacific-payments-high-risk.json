@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-payments-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Payments Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

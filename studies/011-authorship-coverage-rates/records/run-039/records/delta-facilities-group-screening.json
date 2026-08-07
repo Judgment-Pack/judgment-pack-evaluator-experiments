@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-facilities-group-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T16:45:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Facilities Group B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

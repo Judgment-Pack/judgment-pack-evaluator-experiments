@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-sanctions-overrides-embargo",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Export Bureau",
+    "registeredCountry": "IR",
+    "riskScore": "88",
+    "sanctionsHit": true
+  }
+}

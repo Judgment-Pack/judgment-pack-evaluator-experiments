@@ -1,0 +1,15 @@
+{
+  "caseId": "cobalt-no-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-11T08:55:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cobalt Machine Works Sp. z o.o.",
+    "registeredCountry": "PL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

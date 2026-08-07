@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-sanctions-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Harbor Services GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

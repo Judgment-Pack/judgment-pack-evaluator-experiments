@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Customer Insights GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

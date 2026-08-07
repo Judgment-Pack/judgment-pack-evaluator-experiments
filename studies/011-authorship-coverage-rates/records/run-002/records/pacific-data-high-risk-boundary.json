@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-data-high-risk-boundary",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Marcus Green",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Health Records Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

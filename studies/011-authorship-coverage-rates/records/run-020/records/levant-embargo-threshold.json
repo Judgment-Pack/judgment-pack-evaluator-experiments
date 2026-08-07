@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-threshold",
+  "decision": {
+    "decidedAt": "2026-06-03T13:20:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Engineering House",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "zagros-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Priya Nadeem",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Zagros Research Instruments LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-metrics-risk-seventy",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Metrics AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

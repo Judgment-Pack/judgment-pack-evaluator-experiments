@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-office-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T09:05:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Office Products Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

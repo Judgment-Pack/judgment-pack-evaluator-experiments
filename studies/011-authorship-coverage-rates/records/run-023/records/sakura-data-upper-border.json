@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-04T10:25:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Insights K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

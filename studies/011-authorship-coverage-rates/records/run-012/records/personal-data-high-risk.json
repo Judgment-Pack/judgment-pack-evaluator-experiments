@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T13:10:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Identity KK",
+    "registeredCountry": "JP",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}

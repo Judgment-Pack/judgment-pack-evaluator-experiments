@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-08T12:40:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Customer Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

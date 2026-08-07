@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-no-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Machine Works B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

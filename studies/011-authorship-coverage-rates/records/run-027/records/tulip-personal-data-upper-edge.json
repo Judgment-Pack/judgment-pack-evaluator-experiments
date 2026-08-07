@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-personal-data-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-09T16:50:00Z",
+    "decidedBy": "Priya Nadeem",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Payroll Solutions BV",
+    "registeredCountry": "NL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

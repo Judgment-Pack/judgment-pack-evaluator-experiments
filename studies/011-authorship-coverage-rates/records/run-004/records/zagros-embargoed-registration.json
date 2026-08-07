@@ -1,0 +1,15 @@
+{
+  "caseId": "zagros-embargoed-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T09:20:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Zagros Data Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

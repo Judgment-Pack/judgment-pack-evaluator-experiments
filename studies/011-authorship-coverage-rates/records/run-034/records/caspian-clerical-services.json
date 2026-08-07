@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-clerical-services",
+  "decision": {
+    "decidedAt": "2026-06-02T09:15:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Clerical Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

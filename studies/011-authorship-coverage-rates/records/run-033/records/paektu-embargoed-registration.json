@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-embargoed-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Export Co.",
+    "registeredCountry": "KP",
+    "riskScore": "12",
+    "sanctionsHit": false
+  }
+}

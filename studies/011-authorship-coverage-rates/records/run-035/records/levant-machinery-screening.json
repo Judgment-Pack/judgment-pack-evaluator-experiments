@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-machinery-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Machinery Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

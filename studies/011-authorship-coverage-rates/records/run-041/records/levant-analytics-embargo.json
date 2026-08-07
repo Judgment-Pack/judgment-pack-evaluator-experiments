@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-analytics-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Analytics SARL",
+    "registeredCountry": "SY",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

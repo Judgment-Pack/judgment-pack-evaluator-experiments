@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-freight-above-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Freight O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

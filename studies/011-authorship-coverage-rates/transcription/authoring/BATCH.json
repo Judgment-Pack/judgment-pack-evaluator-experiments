@@ -1,0 +1,312 @@
+{
+  "batchVersion": "2",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "cliOverride": null,
+  "goldenSha256": "sha256:a8a2a735ddc910ee2e36c48d34ebf206b716a0d43cd77ba51a8af6a4a2cd3cf8",
+  "model": "gpt-5.6-sol",
+  "note": "One append-only record per slot, written after every run and MERGED by a resumed invocation (batch.py run --start K), which refuses if it would overlap a slot already recorded here. No clock is recorded; each slot's CALL.json carries its own start and end.",
+  "promptSha256": "sha256:a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2",
+  "records": [
+    {
+      "code": null,
+      "slot": "run-001",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-002",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-003",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-004",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-005",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-006",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-007",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-008",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-009",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-010",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-011",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-012",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-013",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-014",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-015",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-016",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-017",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-018",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-019",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-020",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-021",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-022",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-023",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-024",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-025",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-026",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-027",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-028",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-029",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-030",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-031",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-032",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-033",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-034",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-035",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-036",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-037",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-038",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-039",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-040",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-041",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-042",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-043",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-044",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-045",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-046",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-047",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-048",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-049",
+      "startIndex": 1,
+      "wrapperExit": 0
+    },
+    {
+      "code": null,
+      "slot": "run-050",
+      "startIndex": 1,
+      "wrapperExit": 0
+    }
+  ],
+  "registeredRuns": 50
+}

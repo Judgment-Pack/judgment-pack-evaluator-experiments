@@ -1,0 +1,15 @@
+{
+  "caseId": "baobab-office-supplies",
+  "decision": {
+    "decidedAt": "2026-06-12T16:30:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baobab Office Supplies (Pty) Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

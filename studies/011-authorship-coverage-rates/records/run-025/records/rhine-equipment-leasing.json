@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-equipment-leasing",
+  "decision": {
+    "decidedAt": "2026-06-11T11:55:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Equipment Leasing GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-infrastructure-group",
+  "decision": {
+    "decidedAt": "2026-06-10T16:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Infrastructure Group",
+    "registeredCountry": "IR",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

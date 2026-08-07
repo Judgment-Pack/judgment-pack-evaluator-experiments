@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-facilities-near-high",
+  "decision": {
+    "decidedAt": "2026-06-12T16:20:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Emerald Facilities Limited",
+    "registeredCountry": "IE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

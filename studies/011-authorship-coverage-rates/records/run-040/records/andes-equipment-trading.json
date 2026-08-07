@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-equipment-trading",
+  "decision": {
+    "decidedAt": "2026-06-09T16:05:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment Trading SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

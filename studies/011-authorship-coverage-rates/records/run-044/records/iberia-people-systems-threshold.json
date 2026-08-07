@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-people-systems-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Nadia Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia People Systems S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

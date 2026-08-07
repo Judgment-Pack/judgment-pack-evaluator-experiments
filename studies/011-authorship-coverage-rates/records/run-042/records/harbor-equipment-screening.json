@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-equipment-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Equipment Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "99.75",
+    "sanctionsHit": false
+  }
+}

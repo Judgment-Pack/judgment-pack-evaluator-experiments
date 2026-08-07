@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-04T09:15:00Z",
+    "decidedBy": "Elena Markovic",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Harbor Benefits Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

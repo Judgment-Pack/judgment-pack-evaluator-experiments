@@ -1,0 +1,15 @@
+{
+  "caseId": "jade-compliance-data",
+  "decision": {
+    "decidedAt": "2026-06-09T12:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Jade Compliance Data Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "88.8",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Cloud Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

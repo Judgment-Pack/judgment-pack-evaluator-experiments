@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-logistics-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Logistics Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

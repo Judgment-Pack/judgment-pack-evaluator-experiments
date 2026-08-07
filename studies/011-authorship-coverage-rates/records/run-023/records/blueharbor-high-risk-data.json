@@ -1,0 +1,15 @@
+{
+  "caseId": "blueharbor-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-03T14:15:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "BlueHarbor Cloud Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "96.2",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-components-near-threshold-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberian Components S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

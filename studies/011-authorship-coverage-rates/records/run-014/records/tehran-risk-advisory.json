@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-risk-advisory",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Risk Advisory LLC",
+    "registeredCountry": "IR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

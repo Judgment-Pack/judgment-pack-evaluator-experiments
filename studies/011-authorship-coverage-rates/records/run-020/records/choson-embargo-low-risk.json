@@ -1,0 +1,15 @@
+{
+  "caseId": "choson-embargo-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T08:15:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Choson Industrial Supply",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

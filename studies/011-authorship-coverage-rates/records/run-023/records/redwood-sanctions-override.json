@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Identity Systems Inc.",
+    "registeredCountry": "US",
+    "riskScore": "88.4",
+    "sanctionsHit": true
+  }
+}

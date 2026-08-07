@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T10:40:00Z",
+    "decidedBy": "Elena Markovic",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Cloud Identity Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "54.625",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-industrial-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Supply Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "3",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "indigo-archive-services",
+  "decision": {
+    "decidedAt": "2026-06-08T10:25:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Indigo Archive Services Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

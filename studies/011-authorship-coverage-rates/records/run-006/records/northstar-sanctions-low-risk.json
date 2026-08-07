@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-sanctions-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Northstar Components Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "8.5",
+    "sanctionsHit": true
+  }
+}

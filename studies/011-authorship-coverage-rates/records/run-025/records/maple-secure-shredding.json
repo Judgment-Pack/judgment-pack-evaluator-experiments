@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-secure-shredding",
+  "decision": {
+    "decidedAt": "2026-06-09T14:30:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Secure Shredding Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

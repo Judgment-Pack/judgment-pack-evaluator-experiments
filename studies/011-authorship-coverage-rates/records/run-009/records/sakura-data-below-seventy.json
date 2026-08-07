@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-07T15:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Identity K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

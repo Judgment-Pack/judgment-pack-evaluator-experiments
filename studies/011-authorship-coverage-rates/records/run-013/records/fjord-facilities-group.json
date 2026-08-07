@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-facilities-group",
+  "decision": {
+    "decidedAt": "2026-06-09T09:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Facilities Group AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

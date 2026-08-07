@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-customer-insights-screening",
+  "decision": {
+    "decidedAt": "2026-06-06T12:10:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Customer Insights Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

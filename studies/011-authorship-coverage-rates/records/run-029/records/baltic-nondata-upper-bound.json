@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-nondata-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-10T09:55:00Z",
+    "decidedBy": "Priya Sen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machine Components O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

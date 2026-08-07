@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-midrange-data-review",
+  "decision": {
+    "decidedAt": "2026-06-08T12:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberian Customer Metrics S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "54.375",
+    "sanctionsHit": false
+  }
+}

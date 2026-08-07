@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Ledger Solutions Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

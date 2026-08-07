@@ -1,0 +1,15 @@
+{
+  "caseId": "helix-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T09:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Helix Identity Analytics SAS",
+    "registeredCountry": "FR",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}

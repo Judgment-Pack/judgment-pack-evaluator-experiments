@@ -1,0 +1,15 @@
+{
+  "caseId": "lowveld-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lowveld Research Proprietary Limited",
+    "registeredCountry": "ZA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

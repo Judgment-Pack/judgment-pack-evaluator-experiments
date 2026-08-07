@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-nondata-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T11:30:00Z",
+    "decidedBy": "Mateo Singh",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Office Fixtures GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

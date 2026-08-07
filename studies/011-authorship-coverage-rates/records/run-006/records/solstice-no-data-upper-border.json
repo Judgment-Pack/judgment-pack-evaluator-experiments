@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-no-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-11T16:05:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Packaging S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

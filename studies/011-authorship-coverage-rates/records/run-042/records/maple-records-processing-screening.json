@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-records-processing-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T16:50:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Records Processing Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

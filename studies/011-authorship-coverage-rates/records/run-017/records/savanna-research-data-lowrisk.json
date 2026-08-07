@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-research-data-lowrisk",
+  "decision": {
+    "decidedAt": "2026-06-12T08:55:00Z",
+    "decidedBy": "Priya Nanduri",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Savanna Research Limited",
+    "registeredCountry": "KE",
+    "riskScore": "12.75",
+    "sanctionsHit": false
+  }
+}

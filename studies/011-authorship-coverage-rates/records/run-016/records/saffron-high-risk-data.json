@@ -1,0 +1,15 @@
+{
+  "caseId": "saffron-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Saffron Identity Services Pvt. Ltd.",
+    "registeredCountry": "IN",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-personal-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T08:35:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Benefits Administration Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

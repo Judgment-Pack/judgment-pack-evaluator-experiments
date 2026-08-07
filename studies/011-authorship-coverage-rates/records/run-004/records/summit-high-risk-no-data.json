@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-04T08:15:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Machine Supply GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "84.7",
+    "sanctionsHit": false
+  }
+}

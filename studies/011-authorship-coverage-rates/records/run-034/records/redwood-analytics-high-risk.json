@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-analytics-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T10:25:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

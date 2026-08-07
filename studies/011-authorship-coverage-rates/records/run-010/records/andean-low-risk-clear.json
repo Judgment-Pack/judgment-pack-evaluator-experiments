@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-low-risk-clear",
+  "decision": {
+    "decidedAt": "2026-06-06T14:10:00Z",
+    "decidedBy": "Priya Nand",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Office Furnishings SpA",
+    "registeredCountry": "CL",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

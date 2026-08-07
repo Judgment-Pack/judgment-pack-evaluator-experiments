@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-maintenance-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T14:55:00Z",
+    "decidedBy": "Jonas Becker",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Kiwi Maintenance Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

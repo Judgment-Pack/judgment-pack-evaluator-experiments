@@ -1,0 +1,15 @@
+{
+  "caseId": "persis-embargo-override",
+  "decision": {
+    "decidedAt": "2026-06-02T09:20:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persis Data Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

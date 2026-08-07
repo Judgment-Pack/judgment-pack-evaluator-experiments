@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "sanctions-hit-low-risk",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "sanctions-hit-embargoed",
+    "vendor": {
+      "legalName": "Damascus Industrial Export Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "iran-registration-zero-risk",
+    "vendor": {
+      "legalName": "Pars Document Systems LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Bell",
+      "decidedAt": "2026-06-02T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "north-korea-registration",
+    "vendor": {
+      "legalName": "Koryo Technical Components Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Bell",
+      "decidedAt": "2026-06-02T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "syria-registration-high-risk",
+    "vendor": {
+      "legalName": "Levant Freight Services SA",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "exact-high-risk-threshold",
+    "vendor": {
+      "legalName": "Alpine Network Analytics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "fraction-above-high-risk-threshold",
+    "vendor": {
+      "legalName": "Baltic Machinery OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luis Ortega",
+      "decidedAt": "2026-06-04T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-exact-threshold",
+    "vendor": {
+      "legalName": "Maple Patient Outreach Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luis Ortega",
+      "decidedAt": "2026-06-04T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-mid-band",
+    "vendor": {
+      "legalName": "Sakura Customer Insights KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.7"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-05T10:45:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-just-below-seventy",
+    "vendor": {
+      "legalName": "Andes Payroll Solutions SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Bell",
+      "decidedAt": "2026-06-05T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-just-below-forty",
+    "vendor": {
+      "legalName": "Tamarind Benefits Processing Pvt. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IN",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-zero-risk",
+    "vendor": {
+      "legalName": "Kiwi Survey Services Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Luis Ortega",
+      "decidedAt": "2026-06-08T12:50:00Z"
+    }
+  },
+  {
+    "caseId": "no-personal-data-exact-forty",
+    "vendor": {
+      "legalName": "Rhine Packaging GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-09T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "no-personal-data-mid-band",
+    "vendor": {
+      "legalName": "Savanna Equipment Traders Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KE",
+      "handlesPersonalData": false,
+      "riskScore": "58.25"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Bell",
+      "decidedAt": "2026-06-09T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "no-personal-data-just-below-seventy",
+    "vendor": {
+      "legalName": "Nordfjord Steel AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-above-seventy",
+    "vendor": {
+      "legalName": "Blue Crane Identity Services Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "92.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luis Ortega",
+      "decidedAt": "2026-06-10T16:30:00Z"
+    }
+  }
+]

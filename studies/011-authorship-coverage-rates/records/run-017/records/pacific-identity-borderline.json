@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-identity-borderline",
+  "decision": {
+    "decidedAt": "2026-06-09T10:25:00Z",
+    "decidedBy": "Sofia Lindholm",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Identity Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

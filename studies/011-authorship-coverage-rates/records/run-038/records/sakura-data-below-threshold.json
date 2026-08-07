@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T11:30:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Support K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

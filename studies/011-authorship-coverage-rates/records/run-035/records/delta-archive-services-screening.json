@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-archive-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T08:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Delta Archive Services LLC",
+    "registeredCountry": "US",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

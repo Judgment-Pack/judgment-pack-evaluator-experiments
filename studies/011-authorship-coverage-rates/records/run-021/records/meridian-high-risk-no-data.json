@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-04T14:05:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Machine Works Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "99.99",
+    "sanctionsHit": false
+  }
+}

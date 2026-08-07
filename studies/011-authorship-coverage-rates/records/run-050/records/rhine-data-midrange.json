@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T08:25:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Customer Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

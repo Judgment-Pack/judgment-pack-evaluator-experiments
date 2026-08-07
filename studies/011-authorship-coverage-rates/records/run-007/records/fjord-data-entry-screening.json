@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-entry-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T13:20:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Data Entry AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

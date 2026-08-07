@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-data-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T13:10:00Z",
+    "decidedBy": "Imani Cole",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Data Services",
+    "registeredCountry": "SY",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

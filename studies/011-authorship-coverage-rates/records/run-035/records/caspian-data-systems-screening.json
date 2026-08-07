@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-data-systems-screening",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "88",
+    "sanctionsHit": true
+  }
+}

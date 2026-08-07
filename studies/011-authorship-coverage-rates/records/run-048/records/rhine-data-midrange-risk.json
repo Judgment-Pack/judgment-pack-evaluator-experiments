@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-data-midrange-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T12:40:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Customer Insights GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

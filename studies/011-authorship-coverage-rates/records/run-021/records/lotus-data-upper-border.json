@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-05T10:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Payroll Solutions Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

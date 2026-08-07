@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-logistics-screening",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Northstar Logistics Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "18.5",
+    "sanctionsHit": true
+  }
+}

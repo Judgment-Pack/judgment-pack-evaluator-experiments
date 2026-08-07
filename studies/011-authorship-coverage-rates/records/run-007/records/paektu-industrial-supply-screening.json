@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-industrial-supply-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "12.4",
+    "sanctionsHit": false
+  }
+}

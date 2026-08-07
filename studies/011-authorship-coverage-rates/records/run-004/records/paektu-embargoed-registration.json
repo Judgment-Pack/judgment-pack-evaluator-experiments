@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-embargoed-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Equipment Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

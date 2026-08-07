@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-above-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Marine Equipment AS",
+    "registeredCountry": "NO",
+    "riskScore": "70.001",
+    "sanctionsHit": false
+  }
+}

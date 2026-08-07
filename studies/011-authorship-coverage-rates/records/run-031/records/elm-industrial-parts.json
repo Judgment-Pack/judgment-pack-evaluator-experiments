@@ -1,0 +1,15 @@
+{
+  "caseId": "elm-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-03T11:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Elm Industrial Parts AB",
+    "registeredCountry": "SE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

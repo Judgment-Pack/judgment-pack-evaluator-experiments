@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-freight-elevated-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T15:15:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Freight SpA",
+    "registeredCountry": "CL",
+    "riskScore": "96.75",
+    "sanctionsHit": false
+  }
+}

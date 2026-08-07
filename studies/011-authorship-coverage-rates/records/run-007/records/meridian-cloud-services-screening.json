@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-cloud-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T14:40:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Cloud Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

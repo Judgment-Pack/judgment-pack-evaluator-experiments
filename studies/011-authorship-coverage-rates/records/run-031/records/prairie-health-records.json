@@ -1,0 +1,15 @@
+{
+  "caseId": "prairie-health-records",
+  "decision": {
+    "decidedAt": "2026-06-15T10:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Prairie Health Records Inc.",
+    "registeredCountry": "NZ",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

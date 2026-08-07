@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-sanctions-hit",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Northstar Export Services Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

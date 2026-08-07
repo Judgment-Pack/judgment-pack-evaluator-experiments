@@ -1,0 +1,15 @@
+{
+  "caseId": "cobalt-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-05T10:15:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cobalt Machine Works KK",
+    "registeredCountry": "JP",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

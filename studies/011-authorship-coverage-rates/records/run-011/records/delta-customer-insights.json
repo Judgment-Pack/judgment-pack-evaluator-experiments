@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-08T10:35:00Z",
+    "decidedBy": "Amina Clarke",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Delta Customer Insights B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

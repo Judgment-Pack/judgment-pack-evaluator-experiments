@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-09T10:50:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Savanna Records Processing Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

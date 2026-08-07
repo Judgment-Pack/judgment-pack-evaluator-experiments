@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-embargo",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Systems Cooperative",
+    "registeredCountry": "IR",
+    "riskScore": "88",
+    "sanctionsHit": true
+  }
+}

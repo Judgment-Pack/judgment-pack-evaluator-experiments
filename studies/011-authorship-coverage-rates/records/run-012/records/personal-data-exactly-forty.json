@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-exactly-forty",
+  "decision": {
+    "decidedAt": "2026-06-04T08:20:00Z",
+    "decidedBy": "Jonah Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Benefits AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

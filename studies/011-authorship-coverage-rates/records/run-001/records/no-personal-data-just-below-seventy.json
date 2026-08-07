@@ -1,0 +1,15 @@
+{
+  "caseId": "no-personal-data-just-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-10T10:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordfjord Steel AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

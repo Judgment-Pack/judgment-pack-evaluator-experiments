@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-people-operations-screening",
+  "decision": {
+    "decidedAt": "2026-06-06T08:30:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor People Operations Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T09:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Document Services Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

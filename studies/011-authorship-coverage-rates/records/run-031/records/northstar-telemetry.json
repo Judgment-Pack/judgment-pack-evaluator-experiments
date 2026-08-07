@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-telemetry",
+  "decision": {
+    "decidedAt": "2026-06-12T09:00:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Northstar Telemetry Corporation",
+    "registeredCountry": "IR",
+    "riskScore": "70",
+    "sanctionsHit": true
+  }
+}

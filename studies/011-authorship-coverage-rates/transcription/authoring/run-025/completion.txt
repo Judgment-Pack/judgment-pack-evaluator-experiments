@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-identity-systems",
+    "vendor": {
+      "legalName": "Redwood Identity Systems, Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-industrial-export",
+    "vendor": {
+      "legalName": "Pyongyang Industrial Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "3"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "persia-cloud-services",
+    "vendor": {
+      "legalName": "Persia Cloud Services Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-data-logistics",
+    "vendor": {
+      "legalName": "Levant Data Logistics LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-risk-analytics",
+    "vendor": {
+      "legalName": "Alpine Risk Analytics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-payments-platform",
+    "vendor": {
+      "legalName": "Baltic Payments Platform OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-04T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-freight-network",
+    "vendor": {
+      "legalName": "Atlas Freight Network SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "MA",
+      "handlesPersonalData": false,
+      "riskScore": "96.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-05T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-benefits-administration",
+    "vendor": {
+      "legalName": "Cedar Benefits Administration Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-05T15:10:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-customer-insights",
+    "vendor": {
+      "legalName": "Sakura Customer Insights K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "40.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-08T08:35:00Z"
+    }
+  },
+  {
+    "caseId": "andes-health-records",
+    "vendor": {
+      "legalName": "Andes Health Records SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-08T12:50:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-machine-parts",
+    "vendor": {
+      "legalName": "Harbor Machine Parts Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-09T09:45:00Z"
+    }
+  },
+  {
+    "caseId": "maple-secure-shredding",
+    "vendor": {
+      "legalName": "Maple Secure Shredding Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-09T14:30:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-employee-surveys",
+    "vendor": {
+      "legalName": "Fjord Employee Surveys AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-10T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "lotus-catering-group",
+    "vendor": {
+      "legalName": "Lotus Catering Group Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "12.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T16:20:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-equipment-leasing",
+    "vendor": {
+      "legalName": "Rhine Equipment Leasing GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-11T11:55:00Z"
+    }
+  }
+]

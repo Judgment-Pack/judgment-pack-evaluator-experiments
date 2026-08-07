@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T09:45:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Benefits AG",
+    "registeredCountry": "CH",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

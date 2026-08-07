@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-industrial-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Supply Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "5.25",
+    "sanctionsHit": false
+  }
+}

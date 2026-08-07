@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-06T10:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefits Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

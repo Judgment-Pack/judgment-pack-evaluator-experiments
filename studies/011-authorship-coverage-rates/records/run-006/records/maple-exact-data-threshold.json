@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-exact-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T08:30:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Customer Services Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-office-furnishings-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T11:45:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Office Furnishings B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

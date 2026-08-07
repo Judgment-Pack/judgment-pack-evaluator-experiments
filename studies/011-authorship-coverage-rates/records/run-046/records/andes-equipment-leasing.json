@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-equipment-leasing",
+  "decision": {
+    "decidedAt": "2026-06-11T16:05:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment Leasing SpA",
+    "registeredCountry": "CL",
+    "riskScore": "0.125",
+    "sanctionsHit": false
+  }
+}

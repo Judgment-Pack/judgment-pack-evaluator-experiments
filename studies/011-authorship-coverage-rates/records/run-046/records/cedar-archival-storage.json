@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-archival-storage",
+  "decision": {
+    "decidedAt": "2026-06-09T09:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Archival Storage LLC",
+    "registeredCountry": "US",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

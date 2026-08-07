@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Data Processing Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

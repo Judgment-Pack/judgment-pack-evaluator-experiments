@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T11:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Savanna Payroll Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

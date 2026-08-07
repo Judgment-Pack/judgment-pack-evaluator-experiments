@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Procurement AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

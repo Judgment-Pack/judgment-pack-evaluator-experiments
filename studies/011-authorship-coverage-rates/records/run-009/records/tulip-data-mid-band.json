@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-06T12:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Records B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

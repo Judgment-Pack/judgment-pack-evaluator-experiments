@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-data-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems",
+    "registeredCountry": "IR",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

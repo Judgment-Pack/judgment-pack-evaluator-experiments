@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-profile-midrange",
+  "decision": {
+    "decidedAt": "2026-06-07T15:20:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Profile O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "54.25",
+    "sanctionsHit": false
+  }
+}

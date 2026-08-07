@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-office-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Office Furnishings LLC",
+    "registeredCountry": "IR",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-clean-record",
+  "decision": {
+    "decidedAt": "2026-06-10T16:30:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Clean Record SpA",
+    "registeredCountry": "CL",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-03T13:35:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Components S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

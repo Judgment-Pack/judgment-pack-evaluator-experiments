@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-identity-services",
+    "vendor": {
+      "legalName": "Redwood Identity Services Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-industrial-components",
+    "vendor": {
+      "legalName": "Tehran Industrial Components Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "18"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "koryo-data-systems",
+    "vendor": {
+      "legalName": "Koryo Data Systems Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "39.9"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-logistics-group",
+    "vendor": {
+      "legalName": "Levant Logistics Group",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "92"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-03T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-network-consulting",
+    "vendor": {
+      "legalName": "Alpine Network Consulting AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-analytics",
+    "vendor": {
+      "legalName": "Baltic Analytics OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-04T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "andes-freight-solutions",
+    "vendor": {
+      "legalName": "Andes Freight Solutions SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "96.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-05T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-customer-platform",
+    "vendor": {
+      "legalName": "Sakura Customer Platform K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-08T08:35:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-payroll-services",
+    "vendor": {
+      "legalName": "Rhine Payroll Services GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T12:10:00Z"
+    }
+  },
+  {
+    "caseId": "savanna-research-partners",
+    "vendor": {
+      "legalName": "Savanna Research Partners Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KE",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-09T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "maple-facilities-management",
+    "vendor": {
+      "legalName": "Maple Facilities Management Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-10T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "coral-equipment-leasing",
+    "vendor": {
+      "legalName": "Coral Equipment Leasing Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-10T14:30:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-document-services",
+    "vendor": {
+      "legalName": "Tulip Document Services B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-11T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-catering-cooperative",
+    "vendor": {
+      "legalName": "Fjord Catering Cooperative",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-12T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "emerald-translation-bureau",
+    "vendor": {
+      "legalName": "Emerald Translation Bureau Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IE",
+      "handlesPersonalData": false,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-12T16:00:00Z"
+    }
+  }
+]

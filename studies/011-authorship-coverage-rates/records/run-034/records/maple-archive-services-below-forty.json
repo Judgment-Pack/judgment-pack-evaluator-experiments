@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-archive-services-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T10:50:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Archive Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-orchid-analytics",
+    "vendor": {
+      "legalName": "Blue Orchid Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-data-services",
+    "vendor": {
+      "legalName": "Cedar Data Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-customer-care",
+    "vendor": {
+      "legalName": "Meridian Customer Care S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "granite-industrial-parts",
+    "vendor": {
+      "legalName": "Granite Industrial Parts Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-03T13:10:00Z"
+    }
+  },
+  {
+    "caseId": "silverline-logistics",
+    "vendor": {
+      "legalName": "Silverline Logistics B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-03T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-health-platforms",
+    "vendor": {
+      "legalName": "Harbor Health Platforms Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-engineering-consulting",
+    "vendor": {
+      "legalName": "Atlas Engineering Consulting SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "94.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-04T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-trade-systems",
+    "vendor": {
+      "legalName": "Pyongyang Trade Systems Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "3"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-document-solutions",
+    "vendor": {
+      "legalName": "Tehran Document Solutions LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-05T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "levant-cloud-operations",
+    "vendor": {
+      "legalName": "Levant Cloud Operations Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-05T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-procurement-group",
+    "vendor": {
+      "legalName": "Redwood Procurement Group Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-network-services",
+    "vendor": {
+      "legalName": "Caspian Network Services PJSC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "82.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T11:35:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-facilities-management",
+    "vendor": {
+      "legalName": "Sakura Facilities Management K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-09T07:55:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-payroll-support",
+    "vendor": {
+      "legalName": "Alpine Payroll Support AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "40.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-09T12:40:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-equipment-rental",
+    "vendor": {
+      "legalName": "Baltic Equipment Rental OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T14:10:00Z"
+    }
+  }
+]

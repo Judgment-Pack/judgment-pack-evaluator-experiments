@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Export Services Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-override",
+    "vendor": {
+      "legalName": "Caspian Data Exchange PLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargo-registration",
+    "vendor": {
+      "legalName": "Paektu Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Price",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-embargo-low-risk",
+    "vendor": {
+      "legalName": "Tehran Meridian Consulting LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Price",
+      "decidedAt": "2026-06-02T09:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Archive Systems Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Price",
+      "decidedAt": "2026-06-02T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "granite-risk-seventy",
+    "vendor": {
+      "legalName": "Granite Ridge Logistics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Aisha Okafor",
+      "decidedAt": "2026-06-03T13:00:00Z"
+    }
+  },
+  {
+    "caseId": "silverline-high-risk-data",
+    "vendor": {
+      "legalName": "Silverline Patient Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Aisha Okafor",
+      "decidedAt": "2026-06-03T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-high-risk-no-data",
+    "vendor": {
+      "legalName": "Atlas Machine Components SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "99.9"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Aisha Okafor",
+      "decidedAt": "2026-06-03T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-risk-forty",
+    "vendor": {
+      "legalName": "Maple Harbor Benefits Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Markovic",
+      "decidedAt": "2026-06-04T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-data-mid-risk",
+    "vendor": {
+      "legalName": "Cedar Cloud Identity Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "54.625"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Markovic",
+      "decidedAt": "2026-06-04T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-data-below-seventy",
+    "vendor": {
+      "legalName": "Harborview Payroll Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Markovic",
+      "decidedAt": "2026-06-04T12:05:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-below-forty",
+    "vendor": {
+      "legalName": "Sakura Customer Research KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Tobias Reed",
+      "decidedAt": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-data-zero-risk",
+    "vendor": {
+      "legalName": "Fjord Talent Services AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Tobias Reed",
+      "decidedAt": "2026-06-05T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-no-data-forty",
+    "vendor": {
+      "legalName": "Alpine Fastener Works AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Tobias Reed",
+      "decidedAt": "2026-06-05T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-no-data-below-seventy",
+    "vendor": {
+      "legalName": "Tulip Packaging BV",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nand",
+      "decidedAt": "2026-06-06T11:50:00Z"
+    }
+  },
+  {
+    "caseId": "andean-low-risk-clear",
+    "vendor": {
+      "legalName": "Andean Office Furnishings SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "18.25"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nand",
+      "decidedAt": "2026-06-06T14:10:00Z"
+    }
+  }
+]

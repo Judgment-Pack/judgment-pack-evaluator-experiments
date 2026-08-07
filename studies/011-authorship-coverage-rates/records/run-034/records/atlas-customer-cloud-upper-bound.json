@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-customer-cloud-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Customer Cloud SAS",
+    "registeredCountry": "FR",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-components-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Components O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "99.7",
+    "sanctionsHit": false
+  }
+}

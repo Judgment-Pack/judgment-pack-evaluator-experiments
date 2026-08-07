@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-circuit-sy-registration",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Circuit Works",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

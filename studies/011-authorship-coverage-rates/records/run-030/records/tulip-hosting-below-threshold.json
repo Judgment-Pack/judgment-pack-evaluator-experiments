@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-hosting-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-10T14:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Hosting B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

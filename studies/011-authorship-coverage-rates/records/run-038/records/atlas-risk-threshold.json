@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Machine Works SAS",
+    "registeredCountry": "FR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

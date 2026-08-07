@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-embargo-overlap",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Meridian Trading Co.",
+    "registeredCountry": "IR",
+    "riskScore": "88",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70.001",
+    "sanctionsHit": false
+  }
+}

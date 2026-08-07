@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-benefits-platform",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Sofia Nguyen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Benefits Platform Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

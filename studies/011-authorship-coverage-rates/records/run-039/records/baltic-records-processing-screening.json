@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-records-processing-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T12:35:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Records Processing O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

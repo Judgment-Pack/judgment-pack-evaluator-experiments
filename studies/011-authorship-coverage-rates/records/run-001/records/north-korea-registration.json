@@ -1,0 +1,15 @@
+{
+  "caseId": "north-korea-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T14:40:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Koryo Technical Components Corp.",
+    "registeredCountry": "KP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

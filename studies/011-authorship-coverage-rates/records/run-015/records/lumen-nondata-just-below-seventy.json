@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-nondata-just-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-10T14:55:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Lumen Electrical SpA",
+    "registeredCountry": "IT",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

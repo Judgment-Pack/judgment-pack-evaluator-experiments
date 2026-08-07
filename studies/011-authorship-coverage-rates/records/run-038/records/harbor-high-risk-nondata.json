@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-high-risk-nondata",
+  "decision": {
+    "decidedAt": "2026-06-05T08:15:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Steel Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "96.4",
+    "sanctionsHit": false
+  }
+}

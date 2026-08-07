@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-cloud-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Cloud Systems",
+    "registeredCountry": "IR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

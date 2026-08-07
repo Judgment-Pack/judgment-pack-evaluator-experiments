@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-no-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T14:50:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Facility Services SpA",
+    "registeredCountry": "CL",
+    "riskScore": "18.6",
+    "sanctionsHit": false
+  }
+}

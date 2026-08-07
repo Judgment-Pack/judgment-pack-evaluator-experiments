@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-hosting-threshold-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Hosting AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

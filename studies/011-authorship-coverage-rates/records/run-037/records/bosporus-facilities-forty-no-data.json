@@ -1,0 +1,15 @@
+{
+  "caseId": "bosporus-facilities-forty-no-data",
+  "decision": {
+    "decidedAt": "2026-06-17T11:45:00Z",
+    "decidedBy": "Priya Raman",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Bosporus Facilities A.\u015e.",
+    "registeredCountry": "TR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

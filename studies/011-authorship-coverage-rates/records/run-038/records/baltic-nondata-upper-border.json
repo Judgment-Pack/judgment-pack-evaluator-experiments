@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-nondata-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-09T08:55:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Packaging O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

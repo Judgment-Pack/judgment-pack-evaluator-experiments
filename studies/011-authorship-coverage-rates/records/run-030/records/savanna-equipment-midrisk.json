@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-equipment-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-11T11:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment (Pty) Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-just-below-forty-data",
+  "decision": {
+    "decidedAt": "2026-06-09T09:55:00Z",
+    "decidedBy": "Nadia Rahman",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Personnel Systems AS",
+    "registeredCountry": "NO",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

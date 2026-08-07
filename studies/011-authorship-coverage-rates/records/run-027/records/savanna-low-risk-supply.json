@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-low-risk-supply",
+  "decision": {
+    "decidedAt": "2026-06-12T15:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Office Supply Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "18.7",
+    "sanctionsHit": false
+  }
+}

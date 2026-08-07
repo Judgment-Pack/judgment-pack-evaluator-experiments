@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-supply-moderate-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T16:25:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Supply SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

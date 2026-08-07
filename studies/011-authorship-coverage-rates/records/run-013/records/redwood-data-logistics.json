@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-data-logistics",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Data Logistics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

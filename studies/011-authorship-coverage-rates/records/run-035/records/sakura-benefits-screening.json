@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-benefits-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T10:30:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Benefits K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

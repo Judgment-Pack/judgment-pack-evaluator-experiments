@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Customer Insights LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

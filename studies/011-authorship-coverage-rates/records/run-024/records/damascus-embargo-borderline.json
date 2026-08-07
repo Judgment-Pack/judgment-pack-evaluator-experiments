@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-embargo-borderline",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Archive Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

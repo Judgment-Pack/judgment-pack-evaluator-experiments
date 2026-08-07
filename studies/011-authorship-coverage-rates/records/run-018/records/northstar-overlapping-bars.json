@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-overlapping-bars",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Northstar Export Company",
+    "registeredCountry": "IR",
+    "riskScore": "91.5",
+    "sanctionsHit": true
+  }
+}

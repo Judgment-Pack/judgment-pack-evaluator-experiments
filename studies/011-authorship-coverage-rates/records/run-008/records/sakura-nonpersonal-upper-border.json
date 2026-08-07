@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-nonpersonal-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Robotics K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

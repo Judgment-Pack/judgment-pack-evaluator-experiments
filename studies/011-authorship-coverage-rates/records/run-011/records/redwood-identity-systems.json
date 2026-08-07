@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-identity-systems",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Identity Systems, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "88.5",
+    "sanctionsHit": true
+  }
+}

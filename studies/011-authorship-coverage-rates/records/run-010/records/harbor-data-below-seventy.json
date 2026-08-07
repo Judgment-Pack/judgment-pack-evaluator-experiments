@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-04T12:05:00Z",
+    "decidedBy": "Elena Markovic",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harborview Payroll Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

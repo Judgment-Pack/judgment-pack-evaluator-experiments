@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-cloud-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T12:15:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Cloud KK",
+    "registeredCountry": "JP",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

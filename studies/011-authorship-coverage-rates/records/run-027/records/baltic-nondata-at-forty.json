@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-nondata-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-10T11:55:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Components O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

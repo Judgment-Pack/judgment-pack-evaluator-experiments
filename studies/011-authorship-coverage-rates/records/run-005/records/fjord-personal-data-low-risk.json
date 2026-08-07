@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-personal-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T15:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Wellness AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

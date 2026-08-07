@@ -1,0 +1,4722 @@
+{
+  "cell": {
+    "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+    "cli": "codex-cli 0.145.0",
+    "familySha256": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+    "goldenSha256": "sha256:a8a2a735ddc910ee2e36c48d34ebf206b716a0d43cd77ba51a8af6a4a2cd3cf8",
+    "model": "gpt-5.6-sol",
+    "note": "One cell: this prompt, this model, this policy. Nothing here is a claim about other prompts, other models, or real operational records. The digests above were verified before any slot was read, not copied from the registry, and every counted run names the registry and the golden capture it was made under (\u00a72.6, \u00a73.2).",
+    "portedFiles": [
+      "FAMILY.json",
+      "harness/policy_mirror.py",
+      "harness/records_compile.py",
+      "harness/transcript_check.py",
+      "transcription/PROBE-PROMPT.txt",
+      "transcription/PROMPT.txt",
+      "transcription/authoring_call.sh"
+    ],
+    "preregistrationSha256": "sha256:66fb530e07af60ef7ff88c819df14ede31c65b6d5f412507f72c0a6c7d5c91b4",
+    "promptSha256": "sha256:a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2",
+    "registryOfRecordSha256": "sha256:e00076972377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79",
+    "registryOverride": null,
+    "study010LockSha256": "sha256:4966aa821325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1"
+  },
+  "classes": [
+    {
+      "coverage": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "drift": {
+        "firstHalf": 24,
+        "secondHalf": 25,
+        "sequence": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "index": 0,
+      "mislabelShare": 0.0,
+      "predicateProse": "no sanctions hit, non-embargoed registration, risk score exactly 70",
+      "qIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "qOnlyIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "rawIntersection": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "reviewTier": {
+        "base": "LIGHT",
+        "escalations": [],
+        "lower": 0.9274807363357226,
+        "tier": "LIGHT"
+      },
+      "title": "P3's boundary becomes exclusive"
+    },
+    {
+      "coverage": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "drift": {
+        "firstHalf": 24,
+        "secondHalf": 25,
+        "sequence": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "index": 1,
+      "mislabelShare": 0.0,
+      "predicateProse": "no sanctions hit, non-embargoed registration, risk score at least 70 and below 71",
+      "qIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "qOnlyIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "rawIntersection": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "reviewTier": {
+        "base": "LIGHT",
+        "escalations": [],
+        "lower": 0.9274807363357226,
+        "tier": "LIGHT"
+      },
+      "title": "P3's threshold moves to 71 in P3 only"
+    },
+    {
+      "coverage": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "drift": {
+        "firstHalf": 24,
+        "secondHalf": 25,
+        "sequence": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "index": 2,
+      "mislabelShare": 0.0,
+      "predicateProse": "no sanctions hit, non-embargoed registration, handles personal data, risk score at least 40 and below 41",
+      "qIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "qOnlyIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "rawIntersection": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "reviewTier": {
+        "base": "LIGHT",
+        "escalations": [],
+        "lower": 0.9274807363357226,
+        "tier": "LIGHT"
+      },
+      "title": "P4's lower bound moves to 41"
+    },
+    {
+      "coverage": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "drift": {
+        "firstHalf": 24,
+        "secondHalf": 25,
+        "sequence": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "index": 3,
+      "mislabelShare": 0.0,
+      "predicateProse": "no sanctions hit, non-embargoed registration, risk score at least 40 and below 70 (either personal-data value)",
+      "qIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "qOnlyIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "rawIntersection": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "reviewTier": {
+        "base": "LIGHT",
+        "escalations": [],
+        "lower": 0.9274807363357226,
+        "tier": "LIGHT"
+      },
+      "title": "P4's personal-data condition inverts"
+    },
+    {
+      "coverage": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "drift": {
+        "firstHalf": 24,
+        "secondHalf": 25,
+        "sequence": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "index": 4,
+      "mislabelShare": 0.0,
+      "predicateProse": "no sanctions hit, registered in SY (any score)",
+      "qIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "qOnlyIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "rawIntersection": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "reviewTier": {
+        "base": "LIGHT",
+        "escalations": [],
+        "lower": 0.9274807363357226,
+        "tier": "LIGHT"
+      },
+      "title": "P2's embargo list loses SY"
+    },
+    {
+      "coverage": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "drift": {
+        "firstHalf": 24,
+        "secondHalf": 25,
+        "sequence": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "index": 5,
+      "mislabelShare": 0.0,
+      "predicateProse": "no sanctions hit, non-embargoed registration, handles personal data, risk score at least 39 and below 40",
+      "qIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "qOnlyIntersection": {
+        "ci95": [
+          0.0,
+          0.0725192636642774
+        ],
+        "count": 0,
+        "rate": 0.0,
+        "trials": 49
+      },
+      "rawIntersection": {
+        "ci95": [
+          0.9274807363357226,
+          1.0
+        ],
+        "count": 49,
+        "rate": 1.0,
+        "trials": 49
+      },
+      "reviewTier": {
+        "base": "LIGHT",
+        "escalations": [],
+        "lower": 0.9274807363357226,
+        "tier": "LIGHT"
+      },
+      "title": "P5's inner clearance bound moves to 39"
+    }
+  ],
+  "coverageBreadth": {
+    "allSix": {
+      "ci95": [
+        0.9274807363357226,
+        1.0
+      ],
+      "count": 49,
+      "rate": 1.0,
+      "trials": 49
+    },
+    "distribution": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 49
+    },
+    "mean": 6.0
+  },
+  "distinctOutputs": {
+    "bySlot": {
+      "sha256:0624389d7097cb4732088d4426c320ff7a3dd6407e38c202c6f825d716d32ba3": [
+        "run-011"
+      ],
+      "sha256:06635c889f72b102c2b0ad0eadd1e7847b3d788b9ed924faa2a200ed429a3862": [
+        "run-025"
+      ],
+      "sha256:11c24817257fbf87747cb16990a6b9e160a21ac03b46a74a13a611f94342a73c": [
+        "run-004"
+      ],
+      "sha256:16cb46ceb4e003e00ed27f116318fdac3e3bf213c7da6bcd0d75ef3b3bb390a0": [
+        "run-013"
+      ],
+      "sha256:18d2fcc191217b68188d85f82d8a61f190b7c33103be2e710bac3c4306b9befe": [
+        "run-016"
+      ],
+      "sha256:1c792865f6a9c0424ef304818282aa200fbb827cba4f9e7b31f0ff579d1ed524": [
+        "run-030"
+      ],
+      "sha256:23b170b2afe6231f2e67f5784e7c3bedc6350320a0a1f605f1da0b7be0eacd48": [
+        "run-039"
+      ],
+      "sha256:2f8e31e9aa1527c438a318dea182b5cd5e18a98197631b46e4b30627a2fda5c3": [
+        "run-028"
+      ],
+      "sha256:3061b70e8c884a1d3b7caa532e79a9ae5048eaf8aabec3e877c7f949b9626aa3": [
+        "run-047"
+      ],
+      "sha256:4809418d09abb18218d969ffc95946157388e38955700dd7f19c3790d71508ab": [
+        "run-036"
+      ],
+      "sha256:493d12133c9284a1db5ae00d650111c7a60d51e7a009cee532402b85cb6de035": [
+        "run-005"
+      ],
+      "sha256:4c32a6c177a2a80fff785e56c386363dd2690ad8c699f591a4da484b7875e1a9": [
+        "run-034"
+      ],
+      "sha256:4d3148995c07e0e8ca61784f678ff9584d38a3be763c915b37b44ddd2e48da4a": [
+        "run-049"
+      ],
+      "sha256:4f225f94933ba9dd5b5228cb0f6c5f9e45ea0dcc498111ac425e935140191c88": [
+        "run-033"
+      ],
+      "sha256:4f814159b3900eaf3f5b6e7aef2c1ae985b71cd392284f216749a7775b7aa701": [
+        "run-003"
+      ],
+      "sha256:500005c0161272b5d3146863f071266b9b80b50528708f8085ed65c38018696a": [
+        "run-045"
+      ],
+      "sha256:5a38cebeea090d45bafea8f827a9eaef25c5f7296ef8c33127caa8d188f979e1": [
+        "run-008"
+      ],
+      "sha256:5e352211e1ca1c195c7e31867c52848716864163a570be58fd57f2847c533204": [
+        "run-001"
+      ],
+      "sha256:68c055e8a6a0f73d962b24aa67ad5ef27d417af5658c16f5b920f6da6a961023": [
+        "run-037"
+      ],
+      "sha256:6c3f77b99f595205380ec2ee970ba25b7d749c91d21a3378ce2504447dad9e9f": [
+        "run-006"
+      ],
+      "sha256:6fa823e39495566a533013f9b107f4c1b1568ec57030c504a38cc242e5616863": [
+        "run-031"
+      ],
+      "sha256:7c2b885113f348f8aa8eb0e19d5abb0e30af48f4ef95fae23057b7724a3d6c2e": [
+        "run-023"
+      ],
+      "sha256:7df8d267c0fb899618976a80e9b56632152043fdf9be7e42fddc55e94b8036ed": [
+        "run-017"
+      ],
+      "sha256:7f43e32e6d818024302afad275f4d87509bcb04dd5462641560fd231aa875a46": [
+        "run-024"
+      ],
+      "sha256:812c1ad71b244549f19782f628edd13dc7fd1f58b5136460c4c3becc63993e73": [
+        "run-044"
+      ],
+      "sha256:89b87fda72802af4aa1d0dc0eadfa4359cf722164673a1b7e9bafa2b9ff20bfd": [
+        "run-010"
+      ],
+      "sha256:8a25244fc618753de3e03ed4acb26712a2c7f4bfc87ef9638e2f0f72cb0c8f1d": [
+        "run-050"
+      ],
+      "sha256:8ac154d086e3ca8378b4bb37ee27bc94ccabd24f0a0dd382ec57ce1847201d0e": [
+        "run-027"
+      ],
+      "sha256:8ac52a4c3510d1b09c4e49c47b5ba4236e3220a4f094338afe6db87aa65bb71c": [
+        "run-043"
+      ],
+      "sha256:a1dcd2d25289efa47ca04ee047a2406903f7897e6d7f05cbded439f983e05d4d": [
+        "run-041"
+      ],
+      "sha256:b8e6e8a3c473ec97bfd01bd1542f2d01efb47df0730139f441093dc2e5bf13f3": [
+        "run-002"
+      ],
+      "sha256:b96fe9d91065c5a25f579397a4cf0e26dd6a0b498b0fbc751efd55e933d5b951": [
+        "run-018"
+      ],
+      "sha256:b9cc508bb86cac4a57dbd2bca60ea0ffee1d0160fb8122caa94c65853d4d9765": [
+        "run-021"
+      ],
+      "sha256:cde10dfcad89a04e4db6ebb2168eefd8d8e99df062356f9be01a2c7577ae1c07": [
+        "run-042"
+      ],
+      "sha256:ce7fe29ec2799f84e717db25ca484f5490a1d871a8bc959c9d0ac862adf39acb": [
+        "run-009"
+      ],
+      "sha256:d27bb98134d7036f141131776c33c6f41d9ff0123d723e7a5c30316363e56aa0": [
+        "run-020"
+      ],
+      "sha256:d3327a5f6dd23e03bd64a2d658f0755c8258f9be2316db44804cb62534175361": [
+        "run-019"
+      ],
+      "sha256:d463c46e821763fe48b44aaf10cb43d7eb1437f615cf9e9640a7d025a76c37f4": [
+        "run-035"
+      ],
+      "sha256:d5debf9da2fcf3ed944a91f6ee62580b96c51ed669144c471de5be9705b147cf": [
+        "run-015"
+      ],
+      "sha256:d8e014d7e52024c543e458af875a5d1ec3d32f338674340057aff8742a3e8644": [
+        "run-022"
+      ],
+      "sha256:da8ebf8971976d9a9e8bd74b10562805170209e840bceb6a81d6718edb2d4c1e": [
+        "run-007"
+      ],
+      "sha256:db8d4ab077ea1b42fc95b4330ac1f54347dee7320db6fc09b27767ca0b3fe9f8": [
+        "run-032"
+      ],
+      "sha256:e16c546bcbfc61127ce4149617fae07ff0015a6fd62e20ec6316bab8ad77c0a2": [
+        "run-038"
+      ],
+      "sha256:e24d1a3128744fd969b0c61b1f3fcf3943ed3e93de42a7e063618d28bdf3c17a": [
+        "run-014"
+      ],
+      "sha256:e575cec16e32bdda4472734b5d8d831b83348bf653eb7663859f52d923e8a35a": [
+        "run-040"
+      ],
+      "sha256:e681c90bfaca568a56189b3ce4d44cbe8869264f6f12ece0539eab673a589a22": [
+        "run-012"
+      ],
+      "sha256:f732e870cd29a900f83c175fa8822499c729d8ac699cb3794a75af94e16d1e77": [
+        "run-048"
+      ],
+      "sha256:fa8545907f13ee79d718a875c8f39e82799df888c9ce40746c3a8ab025370333": [
+        "run-029"
+      ],
+      "sha256:fda09285af72046dde7c2de3e0e52a3b246d64e9ab90166f658361b2879fa0a7": [
+        "run-046"
+      ]
+    },
+    "distinctCompletions": 49,
+    "largestIdenticalGroup": 1,
+    "note": "Identical completions across runs are data about the model, not a defect in the batch \u2014 but they weaken the independence premise the rates rest on, so they are read beside every rate.",
+    "validRuns": 49
+  },
+  "labelAccuracy": {
+    "h": 784,
+    "note": "Pooled over the valid runs' accepted records. No interval: records within one completion are not independent trials, and a binomial interval here would overstate its precision. The per-run mean and range are over the perRunTrials valid runs with at least one accepted record (|H|+|Q| > 0); the perRunExcluded runs have no accuracy to average and are counted rather than scored 0.",
+    "perRunExcluded": 0,
+    "perRunMax": 1.0,
+    "perRunMean": 1.0,
+    "perRunMin": 1.0,
+    "perRunTrials": 49,
+    "q": 0,
+    "rate": 1.0
+  },
+  "population": {
+    "authoringEmpty": 0,
+    "invalid": 1,
+    "invalidCodes": {
+      "transcript-refused": 1
+    },
+    "note": "Rates are computed over valid runs only; admit() is the whole population filter (\u00a76 C5). An authoring-empty run is VALID and covers nothing; a pipeline-invalid run leaves the denominator and its rate is itself an endpoint (S8). A pipeline-invalid rate of 0.10 or more raises pipelineCaution over the whole batch and changes no class's tier.",
+    "pipelineCaution": false,
+    "pipelineInvalidRate": {
+      "ci95": [
+        0.000506227983040829,
+        0.10646954571149991
+      ],
+      "count": 1,
+      "rate": 0.02,
+      "trials": 50
+    },
+    "registeredRuns": 50,
+    "shortfall": 0,
+    "shortfallDeclaration": null,
+    "slots": 50,
+    "unexpectedEntries": [],
+    "valid": 49
+  },
+  "records": {
+    "acceptedPerRun": {
+      "max": 16,
+      "mean": 16.0,
+      "min": 16
+    },
+    "acceptedTotal": 784,
+    "dropCodes": {},
+    "droppedPerRun": {
+      "max": 0,
+      "mean": 0.0,
+      "min": 0
+    },
+    "droppedTotal": 0,
+    "hPerRun": {
+      "max": 16,
+      "mean": 16.0,
+      "min": 16
+    },
+    "qPerRun": {
+      "max": 0,
+      "mean": 0.0,
+      "min": 0
+    }
+  },
+  "resultsVersion": "1",
+  "runs": [
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "exact-high-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "exact-high-risk-threshold",
+            "fraction-above-high-risk-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "personal-data-exact-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "no-personal-data-exact-forty",
+            "no-personal-data-just-below-seventy",
+            "no-personal-data-mid-band",
+            "personal-data-exact-threshold",
+            "personal-data-just-below-seventy",
+            "personal-data-mid-band"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "syria-registration-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "personal-data-just-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:be287666efc219dd947c6cdd81d3504e5bd555abac6668bbf142e876695374fb",
+      "completionSha256": "sha256:5e352211e1ca1c195c7e31867c52848716864163a570be58fd57f2847c533204",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-001",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "pacific-data-high-risk-boundary",
+            "summit-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "pacific-data-high-risk-boundary",
+            "summit-risk-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "cedar-data-threshold",
+            "granite-no-data-mid-risk",
+            "lighthouse-data-upper-bound",
+            "silverline-no-data-upper-bound"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "meadow-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:0605f26768a3df3d4e06d9574f5d0018c874c47220922a3a83eea1614ea78748",
+      "completionSha256": "sha256:b8e6e8a3c473ec97bfd01bd1542f2d01efb47df0730139f441093dc2e5bf13f3",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-002",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "northstar-risk-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-risk-seventy-decimal",
+            "northstar-risk-seventy"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "harbor-data-risk-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-no-data-below-seventy",
+            "andes-no-data-mid-risk",
+            "coral-no-data-risk-forty",
+            "harbor-data-risk-forty",
+            "maple-data-below-seventy",
+            "sakura-data-mid-risk"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "damascus-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "fjord-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:d43f9f4fea67acb511c0b2eea656c8c1f2f7a8ee0d169566c7777d25111e255a",
+      "completionSha256": "sha256:4f814159b3900eaf3f5b6e7aef2c1ae985b71cd392284f216749a7775b7aa701",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-003",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-risk-threshold",
+            "cedar-high-risk-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "harbor-data-risk-floor"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-no-data-risk-forty",
+            "fjord-data-below-seventy",
+            "harbor-data-risk-floor",
+            "tulip-no-data-near-threshold",
+            "willow-data-mid-risk"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargoed-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:7392e6b13f0a1313e98916b11673ee1d863162a29d210d194bb94bc1de829034",
+      "completionSha256": "sha256:11c24817257fbf87747cb16990a6b9e160a21ac03b46a74a13a611f94342a73c",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-004",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-exact-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-exact-seventy",
+            "ironwood-high-risk-no-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "bluebell-personal-data-at-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-no-data-moderate-risk",
+            "bluebell-personal-data-at-forty",
+            "maple-personal-data-midrange",
+            "outback-no-data-at-forty",
+            "sunrise-personal-data-below-seventy",
+            "tulip-no-data-below-seventy"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "cedar-personal-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:9c7824a1b4d65b844257e516e8566614d9afb0bb28ec8b6ac567dd143b3bedd8",
+      "completionSha256": "sha256:493d12133c9284a1db5ae00d650111c7a60d51e7a009cee532402b85cb6de035",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-005",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-exact-high-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-exact-high-risk-threshold",
+            "harbor-high-risk-no-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-exact-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-data-midrange-risk",
+            "cobalt-no-data-midrange",
+            "lotus-data-upper-border",
+            "maple-exact-data-threshold",
+            "solstice-no-data-upper-border"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-analytics-registration"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "seabrook-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:a4515fc9654620e1bd9ec33b57b655e3ab96cce6c32fec3e9c00cc1a6c8bc34a",
+      "completionSha256": "sha256:6c3f77b99f595205380ec2ee970ba25b7d749c91d21a3378ce2504447dad9e9f",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-006",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "summit-cybernetics-screening"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "meridian-cloud-services-screening",
+            "summit-cybernetics-screening"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "harbor-people-operations-screening"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "atlas-equipment-rental-screening",
+            "cedar-customer-insights-screening",
+            "harbor-people-operations-screening",
+            "sakura-payroll-services-screening",
+            "tulip-office-furnishings-screening"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-analytics-screening"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-records-processing-screening"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:35ad71c51cf18a9696ebfd5e7a19cb70bbf2f76ced341f10dbbeab4d7fd954d0",
+      "completionSha256": "sha256:da8ebf8971976d9a9e8bd74b10562805170209e840bceb6a81d6718edb2d4c1e",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-007",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-risk-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "lumen-personal-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-nonpersonal-mid-risk",
+            "birch-personal-data-mid-risk",
+            "lumen-personal-data-threshold",
+            "sakura-nonpersonal-upper-border",
+            "southern-cross-upper-border"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-syria-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "tulip-personal-data-lower-border"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:e6cf6dafb5e029d21a567437cf9cf6faac54fbf5b61a83d38dbeb97401d1ed4a",
+      "completionSha256": "sha256:5a38cebeea090d45bafea8f827a9eaef25c5f7296ef8c33127caa8d188f979e1",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-008",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "summit-exactly-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "harbor-above-seventy",
+            "summit-exactly-seventy"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-exactly-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-no-data-mid-band",
+            "baltic-no-data-below-seventy",
+            "maple-data-exactly-forty",
+            "sakura-data-below-seventy",
+            "savanna-no-data-exactly-forty",
+            "tulip-data-mid-band"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "fjord-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:5ad92f189e2bb928da21bf169bf8f2f9bec4f8ba3bf901de70ee26a179fa8c55",
+      "completionSha256": "sha256:ce7fe29ec2799f84e717db25ca484f5490a1d871a8bc959c9d0ac862adf39acb",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-009",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "granite-risk-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "granite-risk-seventy",
+            "silverline-high-risk-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-risk-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-no-data-forty",
+            "cedar-data-mid-risk",
+            "harbor-data-below-seventy",
+            "maple-data-risk-forty",
+            "tulip-no-data-below-seventy"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "sakura-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:2ba6d726212eb949da6a03840f5faaba58e4ab750b764edfd75d86e416b55c3f",
+      "completionSha256": "sha256:89b87fda72802af4aa1d0dc0eadfa4359cf722164673a1b7e9bafa2b9ff20bfd",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-010",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-facilities-group"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-facilities-group",
+            "seabright-analytics"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-people-platform"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "cedar-people-platform",
+            "delta-customer-insights",
+            "harbor-benefits-administration",
+            "rheinland-equipment-leasing",
+            "solstice-printing-house"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-logistics-network"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-data-entry"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:6e8d1cce6fbe89846d4835792abd1355683fd507109aaee261077f943d7c9039",
+      "completionSha256": "sha256:0624389d7097cb4732088d4426c320ff7a3dd6407e38c202c6f825d716d32ba3",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-011",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "risk-exactly-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "risk-above-seventy",
+            "risk-exactly-seventy"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "personal-data-exactly-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "no-personal-data-just-below-seventy",
+            "no-personal-data-mid-band",
+            "personal-data-exactly-forty",
+            "personal-data-just-below-seventy",
+            "personal-data-mid-band"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "syria-registration-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "personal-data-just-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:8fea506da84a1cd07b9a9776664077359574d13b1e262bb7727948f84f235118",
+      "completionSha256": "sha256:e681c90bfaca568a56189b3ce4d44cbe8869264f6f12ece0539eab673a589a22",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-012",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-network-audit"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-network-audit",
+            "baltic-courier-systems"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-client-support"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "emerald-document-shredding",
+            "fjord-facilities-group",
+            "iberia-benefits-administration",
+            "maple-client-support",
+            "sakura-payroll-advisory"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-cloud-services"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "tulip-customer-research"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:ace91fb84cc878a2b8a767e6c953346f5f2ad531c954e2cce0b706348684da05",
+      "completionSha256": "sha256:16cb46ceb4e003e00ed27f116318fdac3e3bf213c7da6bcd0d75ef3b3bb390a0",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-013",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-threshold-security"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-threshold-security",
+            "iberian-high-risk-logistics"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "harbor-personal-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "delta-nonpersonal-threshold",
+            "fjord-equipment-clearing",
+            "harbor-personal-data-threshold",
+            "maple-identity-labs",
+            "rhine-data-processors"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-archive-services"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "cedar-data-borderline"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:48b8ab6eff2e675bdfb508e8de8949f852c72d733629595bc2ebe7f78e8cab57",
+      "completionSha256": "sha256:e24d1a3128744fd969b0c61b1f3fcf3943ed3e93de42a7e063618d28bdf3c17a",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-014",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "summit-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "fjord-above-threshold",
+            "summit-risk-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "olive-personal-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "delta-nondata-forty",
+            "harbor-data-mid-risk",
+            "lumen-nondata-just-below-seventy",
+            "maple-data-just-below-seventy",
+            "olive-personal-data-threshold"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-logistics-embargoed"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "alpine-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:bf5ac0ecbaf716c799d11245bd14981d789b8409e0a5d2a62dd9fd8725839ca0",
+      "completionSha256": "sha256:d5debf9da2fcf3ed944a91f6ee62580b96c51ed669144c471de5be9705b147cf",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-015",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-exact-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-exact-seventy",
+            "cobalt-high-risk-no-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "harbor-data-exact-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "cedar-data-below-seventy",
+            "granite-no-data-forty",
+            "harbor-data-exact-forty",
+            "meridian-data-midrange",
+            "solstice-no-data-near-threshold"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "lumen-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:fc36bb6da641603d1a818123120312769fdc080d143e036fec80e6218ded5e53",
+      "completionSha256": "sha256:18d2fcc191217b68188d85f82d8a61f190b7c33103be2e710bac3c4306b9befe",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-016",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-security-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-security-threshold",
+            "andes-machinery-high-risk"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "sakura-health-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "fjord-freight-midrisk",
+            "nile-components-borderline",
+            "pacific-identity-borderline",
+            "rhine-customer-insights-midrisk",
+            "sakura-health-data-threshold"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-cloud-embargo"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "emerald-support-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:13444cd4e0296f8af2c0b4febba9ffa7c7202fdda85af0b6298bc0431f31ac30",
+      "completionSha256": "sha256:7df8d267c0fb899618976a80e9b56632152043fdf9be7e42fddc55e94b8036ed",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-017",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "cedar-analytics-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "cedar-analytics-threshold",
+            "rijn-cloud-elevated-risk"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-identity-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-supply-moderate-risk",
+            "baltic-profile-midrange",
+            "fjord-equipment-upper-border",
+            "maple-identity-data-threshold",
+            "sakura-payroll-upper-border"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-logistics-registration"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "southern-cross-data-border"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:ccb8a6dc2b06584957e77140d387a3ded50bfec47229eb177e71fc9c470b03c5",
+      "completionSha256": "sha256:b96fe9d91065c5a25f579397a4cf0e26dd6a0b498b0fbc751efd55e933d5b951",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-018",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-metrics-risk-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-metrics-risk-seventy",
+            "maple-forge-above-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-health-risk-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-machinery-risk-forty",
+            "cedar-health-risk-forty",
+            "fjord-identity-midrange-risk",
+            "lotus-payments-below-seventy",
+            "oakline-logistics-below-seventy"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-circuit-sy-registration"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "sakura-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:6687f2df7aad1dccb519418c47319ee5132253258bec8e9b58fc2cc04374d1b2",
+      "completionSha256": "sha256:d3327a5f6dd23e03bd64a2d658f0755c8258f9be2316db44804cb62534175361",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-019",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-risk-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-risk-seventy"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "sakura-data-risk-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "atlas-nondata-upper-border",
+            "iberia-data-upper-border",
+            "rhine-nondata-risk-forty",
+            "sakura-data-risk-forty",
+            "savanna-data-midrange"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-threshold"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:a0dc8fb5425d3192353472efd7596b8044d41ac74b627e28f4301db3c7c7c651",
+      "completionSha256": "sha256:d27bb98134d7036f141131776c33c6f41d9ff0123d723e7a5c30316363e56aa0",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-020",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-risk-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-no-data-upper-border",
+            "baltic-no-data-forty",
+            "cedar-data-threshold",
+            "fjord-data-mid-band",
+            "lotus-data-upper-border"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "damascus-embargo-mid-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:a6c6105dd03bd194edddefe7003b6e3de8f4624d6a1defe1a4caf000cdd624bb",
+      "completionSha256": "sha256:b9cc508bb86cac4a57dbd2bca60ea0ffee1d0160fb8122caa94c65853d4d9765",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-021",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "harbor-health-platforms",
+            "silverline-logistics"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "harbor-health-platforms",
+            "silverline-logistics"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "alpine-payroll-support",
+            "cedar-data-services"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-payroll-support",
+            "baltic-equipment-rental",
+            "cedar-data-services",
+            "granite-industrial-parts",
+            "meridian-customer-care"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-cloud-operations"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "blue-orchid-analytics"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:c06eb96064f4f2ce71e759e6a915299bde288d20d14e345acc88cce62f024eae",
+      "completionSha256": "sha256:d8e014d7e52024c543e458af875a5d1ec3d32f338674340057aff8742a3e8644",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-022",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-risk-threshold",
+            "cedar-high-risk-no-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "copperleaf-no-data-midrisk",
+            "fjord-data-midrisk",
+            "maple-data-threshold",
+            "sakura-data-upper-border",
+            "solstice-no-data-upper-border"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "lowveld-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:17a8200874d1d063fa7ec329c4e19326e9d8290dabcde410f138cb9a78b7c634",
+      "completionSha256": "sha256:7c2b885113f348f8aa8eb0e19d5abb0e30af48f4ef95fae23057b7724a3d6c2e",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-023",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-exact-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-exact-seventy",
+            "harbor-above-seventy"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "ibex-exact-forty-data"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-just-below-seventy-no-data",
+            "ibex-exact-forty-data",
+            "lagos-midrange-no-data",
+            "linden-just-below-seventy-data",
+            "maple-midrange-data",
+            "tulip-exact-forty-no-data"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "damascus-embargo-borderline"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "fjord-just-below-forty-data"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:b403af3ec74103b6eefbf45f17628c9578b3031fa55da76aec2e03a11596ac3f",
+      "completionSha256": "sha256:7f43e32e6d818024302afad275f4d87509bcb04dd5462641560fd231aa875a46",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-024",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-risk-analytics"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-risk-analytics",
+            "baltic-payments-platform"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-benefits-administration",
+            "sakura-customer-insights"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-health-records",
+            "cedar-benefits-administration",
+            "harbor-machine-parts",
+            "rhine-equipment-leasing",
+            "sakura-customer-insights"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-data-logistics"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "fjord-employee-surveys"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:00e62361dc788ad0e2da29b35b97610040c84521b2a35f3927d884eaa22210dd",
+      "completionSha256": "sha256:06635c889f72b102c2b0ad0eadd1e7847b3d788b9ed924faa2a200ed429a3862",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-025",
+      "valid": true
+    },
+    {
+      "batchCode": null,
+      "code": "transcript-refused",
+      "detail": "pre-prompt context item 0 (developer) is not the locked golden context",
+      "slot": "run-026",
+      "valid": false
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-risk-threshold",
+            "blueharbor-high-risk-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-personal-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-nondata-upper-edge",
+            "baltic-nondata-at-forty",
+            "cedar-personal-data-threshold",
+            "sakura-personal-data-midrisk",
+            "tulip-personal-data-upper-edge"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:74c8cd9314a77d4e265ddf3dec490bc90141335de3627ec03c12e0e6a56d0878",
+      "completionSha256": "sha256:8ac154d086e3ca8378b4bb37ee27bc94ccabd24f0a0dd382ec57ce1847201d0e",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-027",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-hosting-threshold-screening"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-hosting-threshold-screening",
+            "baltic-payments-high-risk-screening"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-hr-boundary-screening",
+            "sakura-research-screening"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "cedar-hr-boundary-screening",
+            "fjord-benefits-near-threshold-screening",
+            "harbor-freight-mid-risk-screening",
+            "iberian-components-near-threshold-screening",
+            "sakura-research-screening"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-analytics-screening"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "lotus-customer-care-below-boundary-screening"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:209c5b659e53dea2379cbf92c581ae499002450931f17b6645fadc59df568955",
+      "completionSha256": "sha256:2f8e31e9aa1527c438a318dea182b5cd5e18a98197631b46e4b30627a2fda5c3",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-028",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-risk-threshold",
+            "harbor-high-risk-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "acacia-data-midrange",
+            "atlas-nondata-threshold-forty",
+            "baltic-nondata-upper-bound",
+            "cedar-data-threshold",
+            "tulip-data-upper-bound"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:91f942ac75247f6a752cd5759465796a524779ed887719fa368a30c0150e03a6",
+      "completionSha256": "sha256:fa8545907f13ee79d718a875c8f39e82799df888c9ce40746c3a8ab025370333",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-029",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-audit-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-audit-threshold",
+            "pacific-payments-high-risk"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-health-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "baltic-crm-upper-bound",
+            "cedar-office-supplies",
+            "emerald-facilities-near-high",
+            "maple-health-data-threshold",
+            "sakura-analytics-midrange",
+            "savanna-equipment-midrisk"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-network-services"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "tulip-hosting-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:a01e6582aae566962542d97008ef0209b64a9fb49fb52c372053a9b11bbe8ecc",
+      "completionSha256": "sha256:1c792865f6a9c0424ef304818282aa200fbb827cba4f9e7b31f0ff579d1ed524",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-030",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "fjord-network-systems",
+            "granite-payroll-solutions"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "fjord-network-systems",
+            "granite-payroll-solutions"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-identity-services"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "cedar-identity-services",
+            "delta-customer-platform",
+            "elm-industrial-parts",
+            "opal-machine-works"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "meridian-digital-trade"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "blue-harbor-analytics"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:6aee1a9f5398a455c08851cb58bd6d0b7f14039d77e59a5043a9ee21c1b08a0b",
+      "completionSha256": "sha256:6fa823e39495566a533013f9b107f4c1b1568ec57030c504a38cc242e5616863",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-031",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "summit-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "cedar-high-risk-data",
+            "summit-risk-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "harbor-data-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "amber-no-data-forty",
+            "delta-no-data-upper-bound",
+            "harbor-data-forty",
+            "maple-identity-midrange",
+            "solstice-data-upper-bound"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-logistics-sy"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "willow-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:51027046c99b39514c62550033ebeb4634e42bc15ea9d17ef316d0147e9bc2df",
+      "completionSha256": "sha256:db8d4ab077ea1b42fc95b4330ac1f54347dee7320db6fc09b27767ca0b3fe9f8",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-032",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "summit-exactly-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "blue-harbor-high-risk-data",
+            "summit-exactly-seventy"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "silverline-data-exactly-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "acacia-no-data-moderate-risk",
+            "copperfield-no-data-exactly-forty",
+            "maplebridge-data-midrange",
+            "sakura-data-below-seventy",
+            "silverline-data-exactly-forty",
+            "solstice-no-data-below-seventy"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-systems-embargoed-high-risk"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "fjord-data-just-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:2605c6e1d416fd5c4ee6250bc79fb4253c2d94595fd3092ada1562c09af6bae7",
+      "completionSha256": "sha256:4f225f94933ba9dd5b5228cb0f6c5f9e45ea0dcc498111ac425e935140191c88",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-033",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "summit-logistics-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "redwood-analytics-high-risk",
+            "summit-logistics-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-health-data-lower-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-components-nonpersonal-upper-bound",
+            "atlas-customer-cloud-upper-bound",
+            "cedar-health-data-lower-threshold",
+            "lotus-payroll-midrange",
+            "sakura-facilities-standard-clearance"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-network-solutions"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-archive-services-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:7435598fcaea600d4c801da727b49c721c6fb448781717cec30ab4f7707f6027",
+      "completionSha256": "sha256:4c32a6c177a2a80fff785e56c386363dd2690ad8c699f591a4da484b7875e1a9",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-034",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-cybernetics-screening"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-cybernetics-screening",
+            "pacific-records-screening"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-hr-platform-screening"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-office-supply-screening",
+            "iberian-customer-care-screening",
+            "maple-hr-platform-screening",
+            "sakura-benefits-screening",
+            "savanna-equipment-screening"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-machinery-screening"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "fjord-payroll-screening"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:9fe9070cae30f3bd462962ea29658cfdebf885bfadf2fa90f34519d150d51cb4",
+      "completionSha256": "sha256:d463c46e821763fe48b44aaf10cb43d7eb1437f615cf9e9640a7d025a76c37f4",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-035",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-security-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-security-threshold",
+            "andes-machinery-high-risk"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-health-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "cedar-health-data-threshold",
+            "rhein-components-mid-risk",
+            "sakura-cloud-mid-risk",
+            "southern-cross-near-threshold",
+            "tulip-crm-upper-border"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-infrastructure-embargo"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "fjord-benefits-data-border"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:c0202e56ae03dc9d639cc08e4ab62a7b121b60d5f7da5f8eebe3dd95a67fff2a",
+      "completionSha256": "sha256:4809418d09abb18218d969ffc95946157388e38955700dd7f19c3790d71508ab",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-036",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "meridian-security-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "meridian-security-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-hr-personal-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-benefits-upper-border",
+            "baltic-components-upper-clearance",
+            "bosporus-facilities-forty-no-data",
+            "cedar-hr-personal-data-threshold",
+            "sakura-insights-mid-risk"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-cloud-embargo-override"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "lotus-customer-care-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:52afa98e1a35da3f21b0fd1695f9bd9bf716324e445b16f09560dccb7a5004bf",
+      "completionSha256": "sha256:68c055e8a6a0f73d962b24aa67ad5ef27d417af5658c16f5b920f6da6a961023",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-037",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-risk-threshold",
+            "cedar-high-risk-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-data-midrange",
+            "andes-nondata-forty",
+            "baltic-nondata-upper-border",
+            "maple-data-threshold",
+            "tulip-data-upper-border"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-data-embargo"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "sakura-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:028e7ac6ce95cb8b028abebf5e52fac412b3552eb832595ced94e5eed4658c63",
+      "completionSha256": "sha256:e16c546bcbfc61127ce4149617fae07ff0015a6fd62e20ec6316bab8ad77c0a2",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-038",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "granite-cloud-services-screening"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "granite-cloud-services-screening",
+            "seventy-point-fraction-labs-screening"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "harbor-identity-services-screening"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "baltic-records-processing-screening",
+            "fjord-office-supplies-screening",
+            "harbor-identity-services-screening",
+            "maple-customer-insights-screening",
+            "sakura-equipment-leasing-screening"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-infrastructure-screening"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "cedar-privacy-tools-screening"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:5a0e78ca712cc0336c80207404e815b1e40038e7521420ffbd866920b2c5965a",
+      "completionSha256": "sha256:23b170b2afe6231f2e67f5784e7c3bedc6350320a0a1f605f1da0b7be0eacd48",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-039",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-infrastructure",
+            "iberian-cloud-services"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-infrastructure",
+            "iberian-cloud-services"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "danube-payroll-services"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-equipment-trading",
+            "baltic-freight-solutions",
+            "danube-payroll-services",
+            "maple-customer-insights",
+            "nordic-facilities-partners",
+            "sakura-records-processing"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-logistics-network"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "kiwi-benefits-platform"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:5250d3260cd4dc1d00430e0eed629cb08851118345695337ffbd8400c6f293f3",
+      "completionSha256": "sha256:e575cec16e32bdda4472734b5d8d831b83348bf653eb7663859f52d923e8a35a",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-040",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-security-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-security-threshold",
+            "atlas-cloud-high-risk"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-payments-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-components-midrange",
+            "cedar-payments-data-threshold",
+            "delta-health-near-upper-bound",
+            "harbor-surveys-midrange-data",
+            "oakline-freight-near-upper-bound"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-analytics-embargo"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "maple-research-below-data-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:f8f3b2d810153a7e298edc4a5e09db1aaabee81207570774d12217000e99cec0",
+      "completionSha256": "sha256:a1dcd2d25289efa47ca04ee047a2406903f7897e6d7f05cbded439f983e05d4d",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-041",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-facilities-screening"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-facilities-screening",
+            "silverline-analytics-screening"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "cedar-payroll-screening"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "alpine-maintenance-screening",
+            "blue-orchid-crm-screening",
+            "cedar-payroll-screening",
+            "fjord-office-supplies-screening",
+            "maple-records-processing-screening"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-cloud-services-screening"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "lumen-identity-services-screening"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:8d16b7a72947188fc1906a6122b39db42e1a9e2ccdcdfab555d4a4f5c9b3adc1",
+      "completionSha256": "sha256:cde10dfcad89a04e4db6ebb2168eefd8d8e99df062356f9be01a2c7577ae1c07",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-042",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "atlas-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "atlas-risk-threshold",
+            "fjord-high-risk-no-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-no-data-upper-border",
+            "baltic-no-data-threshold",
+            "harbor-data-upper-border",
+            "lotus-data-mid-risk",
+            "maple-data-threshold"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "damascus-embargo-registration"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "alpine-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:5b77305adfdc9de55eb9121e036d69aa6451f753578cb8bfa3ca97e7563b1d43",
+      "completionSha256": "sha256:8ac52a4c3510d1b09c4e49c47b5ba4236e3220a4f094338afe6db87aa65bb71c",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-043",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-components-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-components-risk-threshold",
+            "baltic-freight-above-threshold"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "iberia-people-systems-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "fjord-maintenance-midrisk",
+            "iberia-people-systems-threshold",
+            "maple-identity-midrisk",
+            "sakura-customer-insights",
+            "tulip-hardware-below-seventy"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-office-machines"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "kiwi-records-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:9afbfb8992bfd9b6de58fb7828328cf55bb9e5ee0a53f18d30885b7212cd53f5",
+      "completionSha256": "sha256:812c1ad71b244549f19782f628edd13dc7fd1f58b5136460c4c3becc63993e73",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-044",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-threshold-review"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-threshold-review",
+            "pacific-high-risk-review"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-threshold-review"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andean-nondata-upper-bound",
+            "iberian-midrange-data-review",
+            "maple-data-threshold-review",
+            "sakura-upper-bound-review",
+            "savanna-nondata-midrange"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-risk-advisory"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "tulip-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:e7e30174e11fb1c3b00419b9dc71cc9c59eade0a746c3e6e55bf75765efa08b1",
+      "completionSha256": "sha256:500005c0161272b5d3146863f071266b9b80b50528708f8085ed65c38018696a",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-045",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-network-audits"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-network-audits",
+            "harbor-cloud-analytics"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-benefits-platform"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "cedar-archival-storage",
+            "fjord-courier-services",
+            "maple-benefits-platform",
+            "rhine-customer-insights",
+            "savanna-payroll-services"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-logistics-group"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "sakura-talent-tools"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:72f30addb48a916376512cb66f4534c50096439189e41b5823e09f85d955ac26",
+      "completionSha256": "sha256:fda09285af72046dde7c2de3e0e52a3b246d64e9ab90166f658361b2879fa0a7",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-046",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-infrastructure-screening"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-infrastructure-screening",
+            "harbor-health-platforms-screening"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-customer-insights-screening"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "baltic-payroll-solutions-screening",
+            "fjord-office-furnishings-screening",
+            "iberian-printworks-screening",
+            "maple-customer-insights-screening",
+            "pacific-identity-services-screening"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "damascus-engineering-screening"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "lotus-cloud-support-screening"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:a46e608b61642b9bc891252d7409d365cc9c61a6ab3470b5957f189d07b707f9",
+      "completionSha256": "sha256:3061b70e8c884a1d3b7caa532e79a9ae5048eaf8aabec3e877c7f949b9626aa3",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-047",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-risk-seventy"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-risk-seventy",
+            "baltic-risk-above-seventy"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-risk-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "fjord-no-data-near-seventy",
+            "maple-data-risk-forty",
+            "pacific-data-below-seventy",
+            "rhine-data-midrange-risk",
+            "tulip-no-data-risk-forty"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "damascus-high-risk-embargo"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "cedar-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:5996fd704fa7c51e070e0b6767544ce26c0d102f52ea4291ac7b35736d909245",
+      "completionSha256": "sha256:f732e870cd29a900f83c175fa8822499c729d8ac699cb3794a75af94e16d1e77",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-048",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-risk-threshold",
+            "baltic-high-risk-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-threshold"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "cedar-nondata-forty",
+            "harbor-nondata-upper-border",
+            "maple-data-threshold",
+            "rhine-data-upper-border",
+            "sakura-data-midrange"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-embargo-data-services"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "tulip-data-below-threshold"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:3079ef3cb53bd1e9ddf09c38bb3745b6d8b345f4c68d2afcccf68fc3559aff42",
+      "completionSha256": "sha256:4d3148995c07e0e8ca61784f678ff9584d38a3be763c915b37b44ddd2e48da4a",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-049",
+      "valid": true
+    },
+    {
+      "accepted": 16,
+      "authoringEmpty": false,
+      "batchCode": null,
+      "classMembers": {
+        "0": {
+          "h": [
+            "alpine-risk-threshold"
+          ],
+          "q": []
+        },
+        "1": {
+          "h": [
+            "alpine-risk-threshold",
+            "iberian-high-risk-data"
+          ],
+          "q": []
+        },
+        "2": {
+          "h": [
+            "maple-data-forty"
+          ],
+          "q": []
+        },
+        "3": {
+          "h": [
+            "andes-nondata-forty",
+            "baltic-nondata-upper-bound",
+            "maple-data-forty",
+            "rhine-data-midrange",
+            "sakura-data-upper-bound"
+          ],
+          "q": []
+        },
+        "4": {
+          "h": [
+            "levant-data-registration"
+          ],
+          "q": []
+        },
+        "5": {
+          "h": [
+            "cedar-data-below-forty"
+          ],
+          "q": []
+        }
+      },
+      "classesCovered": 6,
+      "code": null,
+      "compiledSha256": "sha256:cd8e3ce3a20bc52496f240c96d5c988ba10ca2219ea23ea74a8ab40b62d85ca3",
+      "completionSha256": "sha256:8a25244fc618753de3e03ed4acb26712a2c7f4bfc87ef9638e2f0f72cb0c8f1d",
+      "coveredClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "detail": null,
+      "dropCodes": {},
+      "dropped": 0,
+      "h": 16,
+      "noParseableArray": false,
+      "q": 0,
+      "qClasses": [],
+      "qOnlyClasses": [],
+      "rawClasses": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "slot": "run-050",
+      "valid": true
+    }
+  ],
+  "study": "011-authorship-coverage-rates"
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-security-consulting",
+  "decision": {
+    "decidedAt": "2026-06-10T14:45:00Z",
+    "decidedBy": "Sofia Nguyen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Security Consulting Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

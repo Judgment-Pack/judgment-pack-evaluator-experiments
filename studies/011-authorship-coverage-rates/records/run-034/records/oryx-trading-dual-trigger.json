@@ -1,0 +1,15 @@
+{
+  "caseId": "oryx-trading-dual-trigger",
+  "decision": {
+    "decidedAt": "2026-06-01T11:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Oryx Trading Company",
+    "registeredCountry": "IR",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

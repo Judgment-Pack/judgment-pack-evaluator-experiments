@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-just-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-05T14:05:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Payroll Solutions SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

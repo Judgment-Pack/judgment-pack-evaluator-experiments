@@ -1,0 +1,15 @@
+{
+  "caseId": "nile-components-borderline",
+  "decision": {
+    "decidedAt": "2026-06-10T16:30:00Z",
+    "decidedBy": "Elena Marquez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nile Components S.A.E.",
+    "registeredCountry": "EG",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

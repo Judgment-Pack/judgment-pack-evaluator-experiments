@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-market-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Market Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

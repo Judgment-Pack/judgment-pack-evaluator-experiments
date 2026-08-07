@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-payroll-midrange",
+  "decision": {
+    "decidedAt": "2026-06-04T11:05:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Payroll Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

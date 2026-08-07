@@ -1,0 +1,15 @@
+{
+  "caseId": "lagos-midrange-no-data",
+  "decision": {
+    "decidedAt": "2026-06-11T11:10:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Lagos Office Works Limited",
+    "registeredCountry": "NG",
+    "riskScore": "52.25",
+    "sanctionsHit": false
+  }
+}

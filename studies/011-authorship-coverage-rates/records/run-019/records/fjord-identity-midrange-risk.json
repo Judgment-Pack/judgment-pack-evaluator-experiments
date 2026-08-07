@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-identity-midrange-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T12:40:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Identity AS",
+    "registeredCountry": "NO",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

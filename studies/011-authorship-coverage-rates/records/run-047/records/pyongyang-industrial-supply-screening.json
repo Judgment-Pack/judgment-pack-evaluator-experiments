@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-industrial-supply-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "12",
+    "sanctionsHit": false
+  }
+}

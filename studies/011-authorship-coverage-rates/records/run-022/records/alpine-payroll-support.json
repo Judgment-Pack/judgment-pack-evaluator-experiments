@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-payroll-support",
+  "decision": {
+    "decidedAt": "2026-06-09T12:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Payroll Support AG",
+    "registeredCountry": "CH",
+    "riskScore": "40.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-logistics-registration",
+  "decision": {
+    "decidedAt": "2026-06-03T13:05:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Logistics Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "88",
+    "sanctionsHit": false
+  }
+}

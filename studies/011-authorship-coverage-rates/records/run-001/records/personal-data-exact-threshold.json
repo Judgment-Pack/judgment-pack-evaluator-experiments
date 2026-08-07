@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-exact-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T15:25:00Z",
+    "decidedBy": "Luis Ortega",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Patient Outreach Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

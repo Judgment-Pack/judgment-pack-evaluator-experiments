@@ -1,0 +1,15 @@
+{
+  "caseId": "iran-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T09:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Ledger Systems LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

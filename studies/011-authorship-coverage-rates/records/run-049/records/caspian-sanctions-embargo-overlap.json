@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-embargo-overlap",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Industrial Systems",
+    "registeredCountry": "IR",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-infrastructure",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Sofia Nguyen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Infrastructure AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-engineering-consulting",
+  "decision": {
+    "decidedAt": "2026-06-04T14:25:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Engineering Consulting SARL",
+    "registeredCountry": "FR",
+    "riskScore": "94.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-data-midrange-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T10:50:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Payroll AG",
+    "registeredCountry": "CH",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

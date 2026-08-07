@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-no-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-12T08:20:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Packaging S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

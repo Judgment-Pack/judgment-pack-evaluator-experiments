@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-sanctions-precedence",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Data Systems Inc.",
+    "registeredCountry": "IR",
+    "riskScore": "91",
+    "sanctionsHit": true
+  }
+}

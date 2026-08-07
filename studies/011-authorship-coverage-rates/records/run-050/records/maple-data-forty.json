@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T15:40:00Z",
+    "decidedBy": "Nadia Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

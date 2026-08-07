@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T11:10:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Archive Systems Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

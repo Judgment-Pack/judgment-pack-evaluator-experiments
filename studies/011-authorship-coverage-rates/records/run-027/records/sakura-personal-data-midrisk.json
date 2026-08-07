@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-personal-data-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-08T12:10:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Insights KK",
+    "registeredCountry": "JP",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

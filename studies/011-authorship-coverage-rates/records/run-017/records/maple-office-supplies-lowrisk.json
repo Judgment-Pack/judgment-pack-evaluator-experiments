@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-office-supplies-lowrisk",
+  "decision": {
+    "decidedAt": "2026-06-10T09:05:00Z",
+    "decidedBy": "Sofia Lindholm",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Office Supplies Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

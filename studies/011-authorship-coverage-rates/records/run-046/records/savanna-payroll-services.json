@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-08T08:25:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Savanna Payroll Services Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

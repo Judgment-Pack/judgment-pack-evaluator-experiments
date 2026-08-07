@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-risk-above-seventy",
+  "decision": {
+    "decidedAt": "2026-06-04T14:35:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Freight Metrics O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

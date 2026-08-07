@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-embargo-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T09:20:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Meridian Consulting LLC",
+    "registeredCountry": "IR",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

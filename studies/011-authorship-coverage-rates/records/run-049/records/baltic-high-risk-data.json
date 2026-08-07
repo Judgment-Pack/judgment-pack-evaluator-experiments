@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Insight O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "70.001",
+    "sanctionsHit": false
+  }
+}

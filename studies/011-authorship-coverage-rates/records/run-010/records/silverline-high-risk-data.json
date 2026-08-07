@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-03T13:35:00Z",
+    "decidedBy": "Aisha Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Patient Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

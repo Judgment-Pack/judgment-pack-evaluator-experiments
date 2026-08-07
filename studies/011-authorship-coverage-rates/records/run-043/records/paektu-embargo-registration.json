@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "3",
+    "sanctionsHit": false
+  }
+}

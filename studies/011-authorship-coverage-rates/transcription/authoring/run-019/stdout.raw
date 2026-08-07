@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-sanctions-overrides-embargo",
+    "vendor": {
+      "legalName": "Redwood Export Bureau",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-kp-registration",
+    "vendor": {
+      "legalName": "Blue Harbor Industrial Cooperative",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-orchid-ir-registration",
+    "vendor": {
+      "legalName": "Caspian Orchid Systems",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-circuit-sy-registration",
+    "vendor": {
+      "legalName": "Levant Circuit Works",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-metrics-risk-seventy",
+    "vendor": {
+      "legalName": "Alpine Metrics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "sunbird-analytics-high-risk",
+    "vendor": {
+      "legalName": "Sunbird Analytics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "91.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "maple-forge-above-threshold",
+    "vendor": {
+      "legalName": "Maple Forge Supply Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-05T15:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-health-risk-forty",
+    "vendor": {
+      "legalName": "Cedar Health Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-08T08:25:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-identity-midrange-risk",
+    "vendor": {
+      "legalName": "Fjord Identity AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-08T12:40:00Z"
+    }
+  },
+  {
+    "caseId": "lotus-payments-below-seventy",
+    "vendor": {
+      "legalName": "Lotus Payments Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-09T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "oakline-logistics-below-seventy",
+    "vendor": {
+      "legalName": "Oakline Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-10T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-below-forty",
+    "vendor": {
+      "legalName": "Sakura Data Solutions KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-10T14:55:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-archive-low-risk",
+    "vendor": {
+      "legalName": "Tulip Archive B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-11T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "andes-machinery-risk-forty",
+    "vendor": {
+      "legalName": "Andes Machinery SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-12T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "baobab-office-supplies",
+    "vendor": {
+      "legalName": "Baobab Office Supplies (Pty) Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "ZA",
+      "handlesPersonalData": false,
+      "riskScore": "18.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-12T16:30:00Z"
+    }
+  }
+]

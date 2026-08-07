@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-high-risk-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Meridian Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "94.7",
+    "sanctionsHit": false
+  }
+}

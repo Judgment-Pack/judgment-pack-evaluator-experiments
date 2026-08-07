@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-no-data-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T15:10:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Facilities SpA",
+    "registeredCountry": "CL",
+    "riskScore": "58.75",
+    "sanctionsHit": false
+  }
+}

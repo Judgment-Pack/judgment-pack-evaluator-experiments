@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-packaging-standard-clearance",
+  "decision": {
+    "decidedAt": "2026-06-11T11:30:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Packaging (Pty) Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

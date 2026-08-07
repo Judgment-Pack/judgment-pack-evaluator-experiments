@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-records-processing-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T09:50:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Records Processing Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

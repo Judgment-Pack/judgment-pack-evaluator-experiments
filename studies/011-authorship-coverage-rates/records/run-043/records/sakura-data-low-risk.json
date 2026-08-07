@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T14:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Office Technologies K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

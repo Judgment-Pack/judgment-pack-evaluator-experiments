@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nondata-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-11T14:30:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

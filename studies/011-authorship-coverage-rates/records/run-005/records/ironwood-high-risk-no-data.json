@@ -1,0 +1,15 @@
+{
+  "caseId": "ironwood-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-05T08:15:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Ironwood Freight GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-above-seventy",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harborline Components Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

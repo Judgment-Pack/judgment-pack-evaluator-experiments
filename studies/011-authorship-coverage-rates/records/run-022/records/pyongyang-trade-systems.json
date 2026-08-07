@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-trade-systems",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Trade Systems Co.",
+    "registeredCountry": "KP",
+    "riskScore": "3",
+    "sanctionsHit": false
+  }
+}

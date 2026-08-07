@@ -1,0 +1,15 @@
+{
+  "caseId": "danube-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-08T09:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Danube Payroll Services GmbH",
+    "registeredCountry": "AT",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

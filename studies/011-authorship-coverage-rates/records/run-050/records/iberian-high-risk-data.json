@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T14:35:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberian Insight Services S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

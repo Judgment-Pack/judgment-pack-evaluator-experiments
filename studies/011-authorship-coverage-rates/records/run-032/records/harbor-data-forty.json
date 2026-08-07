@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T15:40:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Data Cooperative",
+    "registeredCountry": "NZ",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

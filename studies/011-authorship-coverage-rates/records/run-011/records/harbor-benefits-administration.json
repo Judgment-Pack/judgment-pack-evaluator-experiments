@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-benefits-administration",
+  "decision": {
+    "decidedAt": "2026-06-08T16:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Benefits Administration Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

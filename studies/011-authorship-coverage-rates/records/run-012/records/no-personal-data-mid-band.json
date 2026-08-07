@@ -1,0 +1,15 @@
+{
+  "caseId": "no-personal-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-05T13:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Machine Works Pty Ltd.",
+    "registeredCountry": "ZA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

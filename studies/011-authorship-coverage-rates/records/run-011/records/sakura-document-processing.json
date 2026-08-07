@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-document-processing",
+  "decision": {
+    "decidedAt": "2026-06-09T12:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Document Processing K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

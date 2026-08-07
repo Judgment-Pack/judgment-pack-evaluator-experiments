@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-data-services",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Data Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

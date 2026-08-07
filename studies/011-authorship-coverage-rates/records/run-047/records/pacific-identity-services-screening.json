@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-identity-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T16:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Identity Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

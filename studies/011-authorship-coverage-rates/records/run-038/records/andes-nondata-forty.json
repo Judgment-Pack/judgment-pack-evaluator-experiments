@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nondata-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T13:05:00Z",
+    "decidedBy": "Imani Cole",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Logistics SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

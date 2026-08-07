@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-equipment-rental",
+  "decision": {
+    "decidedAt": "2026-06-10T14:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Equipment Rental O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

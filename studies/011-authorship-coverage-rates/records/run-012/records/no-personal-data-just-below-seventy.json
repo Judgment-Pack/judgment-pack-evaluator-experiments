@@ -1,0 +1,15 @@
+{
+  "caseId": "no-personal-data-just-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-05T15:55:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Danube Packaging GmbH",
+    "registeredCountry": "AT",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

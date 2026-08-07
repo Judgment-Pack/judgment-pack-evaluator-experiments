@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T13:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Records AG",
+    "registeredCountry": "CH",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

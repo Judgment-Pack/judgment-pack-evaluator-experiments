@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-embargo-precedence",
+  "decision": {
+    "decidedAt": "2026-06-02T09:20:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Records Processing LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

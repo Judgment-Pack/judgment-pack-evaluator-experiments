@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T10:35:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Solutions Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70.001",
+    "sanctionsHit": false
+  }
+}

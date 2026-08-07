@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-talent-tools",
+  "decision": {
+    "decidedAt": "2026-06-10T08:40:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Talent Tools K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

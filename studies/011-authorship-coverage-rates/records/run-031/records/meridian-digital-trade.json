@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-digital-trade",
+  "decision": {
+    "decidedAt": "2026-06-11T11:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Digital Trade LLC",
+    "registeredCountry": "SY",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}

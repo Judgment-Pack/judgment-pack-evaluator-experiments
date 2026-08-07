@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-hr-boundary-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T08:35:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar HR Solutions Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

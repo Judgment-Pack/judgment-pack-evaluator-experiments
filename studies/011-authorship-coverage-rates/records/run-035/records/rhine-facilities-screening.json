@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-facilities-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T16:20:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Facilities GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "0.25",
+    "sanctionsHit": false
+  }
+}

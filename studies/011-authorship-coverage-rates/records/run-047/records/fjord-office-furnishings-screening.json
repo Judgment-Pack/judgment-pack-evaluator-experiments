@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-office-furnishings-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T09:40:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Office Furnishings AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

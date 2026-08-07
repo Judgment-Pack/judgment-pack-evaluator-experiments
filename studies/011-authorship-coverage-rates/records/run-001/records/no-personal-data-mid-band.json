@@ -1,0 +1,15 @@
+{
+  "caseId": "no-personal-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-09T13:40:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Traders Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "58.25",
+    "sanctionsHit": false
+  }
+}

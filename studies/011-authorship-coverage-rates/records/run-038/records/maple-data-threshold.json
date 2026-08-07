@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T12:25:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Payroll Systems Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

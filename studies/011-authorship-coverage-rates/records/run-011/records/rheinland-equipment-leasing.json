@@ -1,0 +1,15 @@
+{
+  "caseId": "rheinland-equipment-leasing",
+  "decision": {
+    "decidedAt": "2026-06-10T08:15:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rheinland Equipment Leasing GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

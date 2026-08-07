@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-privacy-tools-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T08:20:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Privacy Tools S.A.",
+    "registeredCountry": "BR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

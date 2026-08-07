@@ -1,0 +1,15 @@
+{
+  "caseId": "exact-high-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Network Analytics AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

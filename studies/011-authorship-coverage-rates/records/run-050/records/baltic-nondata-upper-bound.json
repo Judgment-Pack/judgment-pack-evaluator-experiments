@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-nondata-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-09T09:55:00Z",
+    "decidedBy": "Nadia Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machine Works O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-equipment-rental-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T08:15:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Equipment Rental S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "saffron-routine-clearance",
+  "decision": {
+    "decidedAt": "2026-06-11T11:55:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Saffron Packaging Private Limited",
+    "registeredCountry": "IN",
+    "riskScore": "23.75",
+    "sanctionsHit": false
+  }
+}

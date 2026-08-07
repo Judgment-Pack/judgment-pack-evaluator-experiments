@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-customer-insights-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Customer Insights LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

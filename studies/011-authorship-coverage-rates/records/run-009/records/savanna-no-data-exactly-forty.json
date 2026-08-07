@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-no-data-exactly-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T10:00:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-05T10:15:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Office Supply SARL",
+    "registeredCountry": "FR",
+    "riskScore": "84.6",
+    "sanctionsHit": false
+  }
+}

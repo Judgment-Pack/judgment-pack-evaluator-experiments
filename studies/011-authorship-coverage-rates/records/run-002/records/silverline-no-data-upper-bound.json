@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-no-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T11:55:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Silverline Packaging Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

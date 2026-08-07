@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-maintenance-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-09T14:30:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Maintenance AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

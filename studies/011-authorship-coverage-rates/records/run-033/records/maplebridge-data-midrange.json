@@ -1,0 +1,15 @@
+{
+  "caseId": "maplebridge-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:10:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maplebridge Insights Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "55.4",
+    "sanctionsHit": false
+  }
+}

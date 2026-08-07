@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T14:35:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Insight O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "84.3",
+    "sanctionsHit": false
+  }
+}

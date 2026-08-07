@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Industrial Services",
+    "registeredCountry": "IR",
+    "riskScore": "88.4",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T13:05:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Analytics S.A.",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

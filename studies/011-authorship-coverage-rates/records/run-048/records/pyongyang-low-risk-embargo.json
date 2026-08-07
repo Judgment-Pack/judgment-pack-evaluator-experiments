@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-low-risk-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Supply Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "3.25",
+    "sanctionsHit": false
+  }
+}

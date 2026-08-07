@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-override",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-embargo",
+    "vendor": {
+      "legalName": "Caspian Relay Company",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "91.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "oryx-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Oryx Office Supply GmbH",
+      "sanctionsHit": true,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-freight-embargo",
+    "vendor": {
+      "legalName": "Pyongyang Freight Cooperative",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "8.2"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-data-embargo",
+    "vendor": {
+      "legalName": "Levant Data Services",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Imani Cole",
+      "decidedAt": "2026-06-03T13:10:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-industrial-embargo",
+    "vendor": {
+      "legalName": "Tehran Industrial Systems",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Imani Cole",
+      "decidedAt": "2026-06-03T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-risk-threshold",
+    "vendor": {
+      "legalName": "Atlas Machine Works SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-high-risk-data",
+    "vendor": {
+      "legalName": "Cedar Identity Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "70.001"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-04T10:35:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-high-risk-nondata",
+    "vendor": {
+      "legalName": "Harbor Steel Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "96.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-05T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-threshold",
+    "vendor": {
+      "legalName": "Maple Payroll Systems Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-05T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-data-upper-border",
+    "vendor": {
+      "legalName": "Tulip Customer Analytics B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Imani Cole",
+      "decidedAt": "2026-06-06T14:50:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-data-midrange",
+    "vendor": {
+      "legalName": "Alpine Benefits AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-08T09:45:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-below-threshold",
+    "vendor": {
+      "legalName": "Sakura Support K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-08T11:30:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-nondata-upper-border",
+    "vendor": {
+      "legalName": "Baltic Packaging OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-09T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "andes-nondata-forty",
+    "vendor": {
+      "legalName": "Andes Logistics SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Imani Cole",
+      "decidedAt": "2026-06-09T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-data-zero-risk",
+    "vendor": {
+      "legalName": "Fjord Translation AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-10T16:20:00Z"
+    }
+  }
+]

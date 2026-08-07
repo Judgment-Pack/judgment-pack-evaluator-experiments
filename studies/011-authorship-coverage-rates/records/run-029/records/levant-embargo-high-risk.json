@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T14:35:00Z",
+    "decidedBy": "Priya Sen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Equipment Works",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

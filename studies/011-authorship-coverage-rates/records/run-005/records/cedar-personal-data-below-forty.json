@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-personal-data-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T09:40:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Payroll Technologies Inc.",
+    "registeredCountry": "US",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

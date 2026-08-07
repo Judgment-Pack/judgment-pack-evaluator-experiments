@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-nondata-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-15T08:20:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Facility Partners AB",
+    "registeredCountry": "SE",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

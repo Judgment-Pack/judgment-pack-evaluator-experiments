@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-08T08:35:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Insights K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "40.01",
+    "sanctionsHit": false
+  }
+}

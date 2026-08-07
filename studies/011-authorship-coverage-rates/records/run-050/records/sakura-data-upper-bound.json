@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Records Processing K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-03T13:35:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Analytics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}

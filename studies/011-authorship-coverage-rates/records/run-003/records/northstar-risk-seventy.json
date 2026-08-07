@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-risk-seventy",
+  "decision": {
+    "decidedAt": "2026-06-03T13:00:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Northstar Logistics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

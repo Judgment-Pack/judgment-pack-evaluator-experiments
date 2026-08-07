@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-freight-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Freight Cooperative",
+    "registeredCountry": "KP",
+    "riskScore": "8.2",
+    "sanctionsHit": false
+  }
+}

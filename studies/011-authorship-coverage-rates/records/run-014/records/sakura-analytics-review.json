@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-analytics-review",
+  "decision": {
+    "decidedAt": "2026-06-05T07:55:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Analytics K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

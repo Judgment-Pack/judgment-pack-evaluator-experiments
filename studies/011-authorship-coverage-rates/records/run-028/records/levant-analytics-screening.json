@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Analytics S.A.",
+    "registeredCountry": "SY",
+    "riskScore": "74.5",
+    "sanctionsHit": false
+  }
+}

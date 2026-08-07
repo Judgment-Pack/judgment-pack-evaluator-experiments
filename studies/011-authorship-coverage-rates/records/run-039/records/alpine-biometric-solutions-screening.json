@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-biometric-solutions-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T14:25:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Biometric Solutions AG",
+    "registeredCountry": "CH",
+    "riskScore": "84.2",
+    "sanctionsHit": false
+  }
+}

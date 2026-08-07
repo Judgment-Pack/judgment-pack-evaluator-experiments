@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-cloud-operations",
+  "decision": {
+    "decidedAt": "2026-06-05T16:05:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Cloud Operations Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "88",
+    "sanctionsHit": false
+  }
+}

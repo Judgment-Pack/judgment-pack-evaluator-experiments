@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-data-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-04T09:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Payroll Solutions Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

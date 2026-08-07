@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-low-risk-supplier",
+  "decision": {
+    "decidedAt": "2026-06-11T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Office Supply SpA",
+    "registeredCountry": "CL",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

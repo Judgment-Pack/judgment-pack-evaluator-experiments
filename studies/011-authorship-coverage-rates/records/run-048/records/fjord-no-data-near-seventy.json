@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-no-data-near-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T16:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Facilities AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}
