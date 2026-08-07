@@ -37,8 +37,8 @@ diff studies/010-blinded-oracle/harness/records_compile.py \
 |---|---|---|---|---|
 | `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | no — byte-identical |
 | `harness/records_compile.py` | `e58edce30e549953b5263db2e9c230604f9192d060cbde9387585e0679671698` | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | output root parameterized |
-| `harness/transcript_check.py` | `42d977c40eed333531c096b9cdba75ac2ecceed5845dd3151f1dc010129bea9d` | `harness/transcript_check.py` | `b8a1e763a59f6bc4ee79c878a34d26222fdb507e0a63aa841e6f1e8cf0c23ff9` | golden source parameterized and required |
-| `transcription/authoring_call.sh` | `3b8909aae9b0ec2d52f8b8c780c3c6a544f4405dc7d31fd1becf485fcdae251d` | `transcription/authoring_call.sh` | `d555a093909b590797c6bf803c320426c191534c0e3675e9f816e9cbd77e6141` | slot, pins, prompt kind, interpreter and CLI parameterized; interpreter and CLI version checked BEFORE the call; PATH/TMPDIR constructed; recursive home inventory; registry and golden digests stamped per run; credential deleted (seal path plus EXIT/INT/TERM/HUP traps); new-session diff; C7 mode |
+| `harness/transcript_check.py` | `42d977c40eed333531c096b9cdba75ac2ecceed5845dd3151f1dc010129bea9d` | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | golden source parameterized and required; the cwd binding holds every turn context, not one of them |
+| `transcription/authoring_call.sh` | `3b8909aae9b0ec2d52f8b8c780c3c6a544f4405dc7d31fd1becf485fcdae251d` | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | slot, pins, prompt kind, interpreter and CLI parameterized; interpreter and CLI version checked BEFORE the call; PATH/TMPDIR constructed; recursive home inventory; registry and golden digests stamped per run; credential deleted (seal path plus EXIT/INT/TERM/HUP traps); new-session diff; C7 mode |
 | `transcription/PROMPT.txt` | `a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2` | `transcription/PROMPT.txt` | `a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2` | no — byte-identical |
 | `FAMILY.json` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | `FAMILY.json` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | no — byte-identical |
 
@@ -113,6 +113,13 @@ What changed:
   positional argument, and the `if golden_path is not None` guard around
   `check_golden()` is gone. A caller cannot omit the allowlist by leaving a
   default in place.
+- the `turn_context` **cwd** binding requires EVERY named working directory to
+  be the call's own, where 010 required the call's cwd to appear among them.
+  Membership admitted a transcript carrying a second `turn_context` for a
+  foreign workspace, so PREREGISTRATION.md §3.1 gate 5 ("`turn_context`, where
+  present, names … the call's own working directory") was true of the set and
+  not of its members. The model clause was already written this way; the two now
+  read alike.
 - the module docstring records the port and the reason, and names the command
   that takes the recapture (`batch.py capture`).
 
@@ -148,7 +155,10 @@ What changed:
   [codex-binary]`. Study 010 hard-coded `call-1` and read
   `PROTOCOL-LOCK.json`; this study runs N calls and registers its pins in
   `harness/PINS.json`. The slot is still created exclusively — an existing
-  slot refuses — so no slot is ever written twice.
+  slot refuses — so no slot is ever written twice. The existence test is
+  `-e` OR `-L`: a dangling symlink at the slot path is absent to `-e` and
+  present to `mkdir`, and 010's test would have let the wrapper die in `mkdir`
+  under `set -e` instead of refusing.
 - **exit codes** are distinct so the driver can record why a run failed:
   `0` complete, `1` pre-flight refusal, `10` the call exited non-zero (slot
   retained), `11` other than one session in the isolated home (slot retained).

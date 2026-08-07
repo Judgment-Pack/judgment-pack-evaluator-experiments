@@ -208,7 +208,13 @@ def preflight(runs: int, start: int, slots: list, scratch_parent: str,
             raise BatchError("%s exists: no slot may be created after a rate has been "
                              "computed" % RESULTS)
         require_golden(pins, golden_path)
-    existing = [os.path.basename(slot) for slot in slots if os.path.exists(slot)]
+    # `lexists`, not `exists`: a DANGLING symlink at a planned slot path is
+    # absent to `exists()` and present to `mkdir`, so the batch used to pass
+    # preflight and then die of an uncaught FileExistsError in refuse_slot() —
+    # no call spent, no refusal recorded, and BATCH.json left behind. A link
+    # at a planned slot path is a slot that already exists, whatever it points
+    # at, and it refuses here through the registered path.
+    existing = [os.path.basename(slot) for slot in slots if os.path.lexists(slot)]
     if existing:
         raise BatchError("these slots already exist and are never rewritten: %s"
                          % ", ".join(existing))
@@ -245,11 +251,17 @@ def golden_path_for(pins: dict, override: str = None) -> str:
 
 
 def require_golden(pins: dict, golden_path: str = None) -> str:
-    """§3.2 step 3 as a rule the driver checks: the capture is taken, its
-    digest replaces the null in the registry, and BOTH are committed before the
-    first batch slot runs. Not a comment on the operator's discipline — no slot
-    is created until the registered golden is on disk at its registered digest,
-    so a skipped recapture costs nothing instead of costing fifty calls."""
+    """§3.2 step 3, as much of it as a driver can check: the capture is on disk
+    and the registry's `golden.sha256` is non-null and equal to its digest,
+    before any slot is created. A skipped recapture therefore costs nothing
+    instead of costing fifty calls, and the digest verified here is stamped
+    into every slot's CALL.json so the binding is per run and not per batch.
+
+    What this does NOT check, stated here so no caller can read more into it:
+    that either file was COMMITTED. Nothing in this study compares a worktree
+    file to a HEAD blob (§7, "deliberately not claimed"); committing the
+    capture and the registry before slot 1 is ledger discipline the study
+    records, not an ordering the driver enforces."""
     path = golden_path_for(pins, golden_path)
     pinned = pins.get("golden", {}).get("sha256")
     if not os.path.isfile(path):
@@ -294,7 +306,18 @@ def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
 def refuse_slot(slot: str, code: str, status: int, stderr: str) -> None:
     """Terminate one slot with its refusal record. A pre-flight refusal may
     leave no slot at all; the record still gets one, so every attempted run is
-    on disk and the population has no invisible members."""
+    on disk and the population has no invisible members.
+
+    `exist_ok=True` covers the ordinary case of a slot the wrapper created. It
+    does not cover a path that exists and is not a directory — a link, a file,
+    a FIFO — where `makedirs` raises `FileExistsError` and the batch would end
+    in a bare traceback. Preflight already refuses those, so reaching this is a
+    bug; it refuses as a BatchError rather than as a traceback so that the
+    driver's failure is one of its own registered refusals either way."""
+    if os.path.lexists(slot) and not os.path.isdir(slot):
+        raise BatchError(
+            "%s exists and is not a directory, so no refusal record can be written "
+            "into it: remove it by hand and record the cause in DEVIATIONS.md" % slot)
     os.makedirs(slot, exist_ok=True)
     _write_json(os.path.join(slot, "REFUSAL.json"), {
         "run": os.path.basename(slot),
@@ -484,7 +507,8 @@ def require_distinct_sessions(identities: list) -> None:
                     % (first["slot"], second["slot"], prose, first[member]))
 
 
-def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
+def capture_golden(slots_dir: str, out_path: str, min_slots: int,
+                   pins_path: str = DEFAULT_PINS) -> int:
     """Derive this study's golden pre-prompt context from retained capture
     slots (PREREGISTRATION.md §3.2).
 
@@ -502,6 +526,17 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
     which `require_distinct_sessions()` checks on the raw retained evidence
     rather than on the normalized digests two honest calls are supposed to
     share.
+
+    It runs the same preflight the command that makes the calls runs — the
+    ported bytes, the registered interpreter, and the preregistration's freeze
+    digest — because this half derives the artifact every later admission is
+    checked against. Without it a golden capture could be derived under an
+    unregistered interpreter from an unfrozen study, which is exactly what the
+    round-3 review demonstrated on CPython 3.8. And it requires every capture
+    slot to be a PROBE call at the pinned probe-prompt digest: `capture_slots()`
+    refuses batch-shaped names, but a name is not evidence of which prompt was
+    answered, and a golden derived from registered-prompt runs would pin a
+    context the operator had already seen coverage profiles from (§3.2 step 2).
     """
     if not out_path:
         raise BatchError("--out is required: a golden capture is written where the "
@@ -515,10 +550,26 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int) -> int:
             "--min-slots %d asks for fewer: one capture cannot show that a "
             "pre-prompt context reproduces, and a context that might vary is not "
             "an allowlist (§3.2)" % (MIN_CAPTURE_SLOTS, min_slots))
+    verify_ported_bytes()
+    pins = _load_json(pins_path)
+    require_freeze(pins)
+    probe_pin = pins.get("probePrompt", {}).get("sha256")
+    if not probe_pin:
+        raise BatchError("%s pins no probePrompt.sha256: a capture is derived only "
+                         "from runs of the registered probe prompt (§3.2)" % pins_path)
     usable, contexts, identities = [], [], []
     for slot in capture_slots(slots_dir):
         session = os.path.join(slot, "session.jsonl")
         call = _load_json(os.path.join(slot, "CALL.json"))
+        if call.get("promptKind") != "probe" or call.get("promptSha256") != probe_pin:
+            raise BatchError(
+                "capture %s records promptKind %r and prompt %r: a golden capture is "
+                "derived only from calls that answered the registered PROBE prompt "
+                "(%s). Running the registered prompt before the batch would show the "
+                "operator coverage profiles first, which is the cost Study 010's "
+                "DEVIATIONS §1 records (§3.2 step 2)"
+                % (os.path.basename(slot), call.get("promptKind"),
+                   call.get("promptSha256"), probe_pin))
         events, turn_contexts = transcript_check._events(session)
         positions = [index for index, (role, _) in enumerate(events) if role == "user"]
         position = positions[-1] if positions else len(events)
@@ -609,7 +660,7 @@ def run_capture(runs: int, captures_dir: str, out_path: str, scratch_parent: str
                              "next attempt gets its own directory."
                              % (os.path.basename(slot), code))
         print("%s: exit %d" % (os.path.basename(slot), status))
-    return capture_golden(attempt, out_path, runs)
+    return capture_golden(attempt, out_path, runs, pins_path)
 
 
 def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str,
@@ -748,7 +799,13 @@ def declare_shortfall(slots_dir: str, reason: str, pins_path: str) -> int:
     is scored. The scorer refuses an incomplete batch without this file, so the
     declaration cannot be written after the rates are seen — and it refuses a
     declaration over a batch that is not short, so this file cannot be used to
-    unblock scoring of a full or over-full one."""
+    unblock scoring of a full or over-full one.
+
+    It runs the same ported-bytes, interpreter and freeze preflight the calls
+    and the scoring run: this file enters the published population arithmetic
+    (§2.4), so it is not a step that may be taken under an unregistered
+    interpreter or against an unfrozen preregistration."""
+    verify_ported_bytes()
     if os.path.exists(RESULTS):
         raise BatchError("%s exists: a shortfall may not be declared after a rate has "
                          "been computed" % RESULTS)
@@ -758,6 +815,7 @@ def declare_shortfall(slots_dir: str, reason: str, pins_path: str) -> int:
     if not reason:
         raise BatchError("--reason is required: a shortfall without a reason is a gap")
     pins = _load_json(pins_path)
+    require_freeze(pins)
     registered = pins.get("batch", {}).get("runs")
     slots, _ = score_rates.collect_slots(slots_dir)
     if registered is not None and len(slots) >= registered:
@@ -843,7 +901,7 @@ def main(argv: list) -> int:
             raise BatchError("--slots is required")
         if command == "capture-golden":
             return capture_golden(slots_dir, _argument(argv, "--out"),
-                                  int(_argument(argv, "--min-slots", 2)))
+                                  int(_argument(argv, "--min-slots", 2)), pins_path)
         return declare_shortfall(slots_dir, _argument(argv, "--reason"), pins_path)
     except (BatchError, score_rates.ScoreError, transcript_check.TranscriptError) as error:
         print("refused: %s" % error, file=sys.stderr)

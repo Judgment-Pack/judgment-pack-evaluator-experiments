@@ -316,9 +316,13 @@ compiler, the classifier, and the rates all live behind the scorer
 (`harness/score_rates.py`), which refuses unless the batch is terminal
 (exactly N slots, or a matching `SHORTFALL.json`, never both); the driver
 refuses to create a slot once `RESULTS.json` exists; and the scorer has
-**no flag that writes a rate table anywhere else** — `RESULTS.json` and
-`RATES.md` go to the study root or nowhere, so seeing the rates always arms
-the guard. What remains possible and is not prevented: the operator reading
+**no flag that writes a rate table anywhere else and no flag that names any
+input either** — the registered command takes the slot directory and an
+optional record-emission directory, every other argument refuses, and
+`RESULTS.json` and `RATES.md` go to the study root or nowhere, so seeing the
+rates always arms the guard. The emission directory is required to be disjoint
+from the slot tree, so publishing the rates cannot also add a slot to the
+population they were computed over. What remains possible and is not prevented: the operator reading
 a `completion.txt` by eye mid-batch, and stopping the batch for that reason
 under a shortfall declaration. §7 says so.
 
@@ -387,18 +391,23 @@ and it records — by pointing at `harness/PORTS.md` — the digest of every
 ported file in §2.1 together with its 010 base digest.
 
 **The committed `harness/PINS.json` is the registry of record, and that is
-enforced per run.** Both command-line tools take `--pins`, because the
-harness tests drive the real wrapper against a stand-in binary and a stand-in
-binary needs a registry naming its digest. Nothing about that may let an
-alternate registry redefine this study's cell. So: the wrapper records the
-sha256 of the registry it ran under in `CALL.json` (`pinsSha256`), and the
-scorer **computes the committed `harness/PINS.json`'s digest itself** — there
-is no flag for it — and scores any slot whose stamp differs
-`registry-mismatch`, pipeline-invalid (§3.3). A registry that renames the
-model or the binary is refused per slot on those members too, and one that
-changes N is refused by terminality before a slot is read (§2.4). A slot made
-under a foreign registry cannot enter a denominator, so the worst an
-alternate registry can produce is a refusal.
+enforced per run.** The **driver** takes `--pins`, because the harness tests
+drive the real wrapper against a stand-in binary and a stand-in binary needs a
+registry naming its digest. The **scorer does not**: the registered scoring
+command takes no registry, family, prompt or golden path at all, and derives
+each of them from the harness's own location (§7). Both halves of that are
+needed, and the second was added after review found the first insufficient on
+its own. Per run: the wrapper records the sha256 of the registry it ran under
+in `CALL.json` (`pinsSha256`), the scorer **computes the committed
+`harness/PINS.json`'s digest itself**, and any slot whose stamp differs is
+`registry-mismatch`, pipeline-invalid (§3.3). Per population: N, the class
+definitions, the model, the binary and the prompt all come from the committed
+registry and the committed files, because there is no argument through which
+another one could arrive — a supplied registry identical to the committed one
+except for `batch.runs` would otherwise have defined the denominator of
+everything published, while every per-slot stamp still matched. A registry that
+renames the model or the binary is refused per slot on those members too, and
+one that changes N is refused by terminality before a slot is read (§2.4).
 
 One ordering consequence, registered rather than discovered: **`PINS.json` is
 not edited between the batch and the scoring.** The freeze digest is filled at
@@ -422,8 +431,8 @@ What each of those pins does at run time, all of it in code:
   unenforced claim §7 exists to refuse;
 - both refuse unless the running interpreter is the implementation and version
   **series** the registry pins, and the wrapper refuses before it calls
-  anything if `PYTHON_BIN` is not (§9's runbook names the interpreter for that
-  reason). The patch level is recorded and not required: CI pins the series
+  anything if `PYTHON_BIN` is not (`README.md`'s runbook names the interpreter
+  explicitly through `$PY` for that reason, and so does §3.2 and §6 C7). The patch level is recorded and not required: CI pins the series
   and resolves whatever patch release is current, and this study's arithmetic
   is exact rationals and integer combinatorics;
 - both refuse if any file in `harness/PORTS.md`'s table, on either side, or
@@ -506,8 +515,14 @@ recapture procedure is registered here, in full, before the batch:
 1. Run
 
    ```sh
-   harness/batch.py capture --scratch-parent DIR
+   "$PY" harness/batch.py capture --scratch-parent DIR
    ```
+
+   `$PY` is the registered interpreter, as in `README.md`'s runbook
+   (`PY=$(command -v python3.12)`). A bare `harness/batch.py` runs under
+   whatever the shebang resolves — on the machine this study was written on,
+   CPython 3.8 — and every command here refuses under an unregistered
+   interpreter, so the command as written has to name it.
 
    which makes **two** probe calls into `controls/recapture/attempt-1/`
    (`capture-001`, `capture-002`) and then derives the capture from them.
@@ -534,10 +549,16 @@ recapture procedure is registered here, in full, before the batch:
    prompt**, `transcription/PROBE-PROMPT.txt`, whose bytes are exactly
    `Reply with exactly one word: ready` (no trailing newline). (The second
    half alone, for the case where the calls were made and the derivation was
-   not, is `harness/batch.py capture-golden --slots DIR --out PATH`; `--out`
-   has no default, so a derivation never lands at the registered path by
-   accident, and it refuses a directory holding batch slots, so a golden
-   capture can never be derived from the batch's own runs.)
+   not, is `"$PY" harness/batch.py capture-golden --slots DIR --out PATH`, and
+   it takes `--pins PATH` like every other `batch.py` command (the scorer takes
+   none at all, §7). `--out` has no default, so a derivation never lands at the registered path by
+   accident; it refuses a directory holding batch slots, so a golden capture
+   can never be derived from the batch's own runs; it refuses any capture slot
+   whose `CALL.json` does not record a **probe** call at the pinned probe-prompt
+   digest, because a directory name is not evidence of which prompt was
+   answered; and it runs the same ported-bytes, interpreter and freeze
+   preflight the command that makes the calls runs, because this half derives
+   the artifact every later admission is checked against.)
 2. The probe prompt, not the registered prompt, is used **deliberately**.
    The pre-prompt context precedes the prompt and does not depend on it —
    that is why it can be pinned at all — and using the registered prompt
@@ -550,15 +571,23 @@ recapture procedure is registered here, in full, before the batch:
    Identical → the capture is written to
    `transcription/GOLDEN-CONTEXT.json`, its digest replaces the `null` in
    the batch registry's `golden.sha256`, and both are committed **before
-   the first batch slot runs**. That ordering is not a matter of operator
-   discipline: `batch.py` refuses to create **any** slot while the golden
-   file is absent, while the registry's digest is `null`, or while the two
-   disagree, and the scorer refuses on the same three conditions. Those three
-   bind the golden *file* to the pin; what binds each *run* to that file is
-   the digest the driver stamps into every slot's `CALL.json` (§2.3 item 11).
-   A capture derived after the batch and re-pinned therefore cannot re-admit
-   the runs it was derived to fit — the file matches the new pin, and every
-   slot now names a capture that is not it, which is `golden-mismatch` (§3.3).
+   the first batch slot runs**.
+
+   Exactly how much of that ordering is checked, because the halves differ.
+   **Checked:** `batch.py` refuses to create **any** slot while the golden file
+   is absent, while the registry's digest is `null`, or while the two disagree,
+   and the scorer refuses on the same three conditions; those three bind the
+   golden *file* to the pin. What binds each *run* to that file is the digest
+   the driver stamps into every slot's `CALL.json` (§2.3 item 11), so a capture
+   derived after the batch and re-pinned cannot re-admit the runs it was derived
+   to fit — the file matches the new pin, and every slot now names a capture
+   that is not it, which is `golden-mismatch` (§3.3). And a capture cannot be
+   registered after a rate exists without the attempt being visible: the driver
+   refuses to create a slot once `RESULTS.json` exists, so a golden that entered
+   the registry afterwards has no slots stamped with it. **Not checked:** that
+   either file was *committed*. This study has no lock-commit machinery and
+   compares nothing to a `HEAD` blob (§7); committing both before slot 1 is
+   ledger discipline this file records, not an ordering the driver enforces.
    That is the difference between an ordering this file asserts and one a
    reader checks per slot. Not
    identical → the batch does not start; the discrepancy and its diagnosis
@@ -606,6 +635,7 @@ this list cannot drift from the counting.
 | outcome | partition |
 | --- | --- |
 | `slot-symlink` | pipeline-invalid |
+| `slot-irregular` | pipeline-invalid |
 | `slot-shape` | pipeline-invalid |
 | `call-unreadable` | pipeline-invalid |
 | `model-mismatch` | pipeline-invalid |
@@ -629,21 +659,34 @@ this list cannot drift from the counting.
 | *(no code, no parseable array)* | **authoring-empty — valid, in every denominator, covering nothing** |
 | *(no code)* | **valid** |
 
-Seven of those need their registration stated rather than implied, because
+Eight of those need their registration stated rather than implied, because
 they are gates §3.1's list does not name:
 
-- `slot-symlink` — **a slot tree holds regular files and directories only.**
-  Any symlink anywhere beneath the slot — dangling or resolving, `REFUSAL.json`
-  or any other name, and the slot directory itself if it is one — scores the
-  run pipeline-invalid under this code, before any other check runs. Two
-  reasons, and the general rule is registered rather than the narrow one
-  because the narrow one is how this was found: a link is a retained byte the
-  slot does not contain, so the published evidence is not the evidence that was
-  counted; and a link makes a file's *existence* conditional on its target, so
-  a **dangling** `REFUSAL.json` answers an existence check with "no refusal"
-  and a slot the batch terminated is counted as one it never touched. Study
-  010's seal used this same rule, and it is stated here as a property of the
-  slot tree, not as a rule about one file name;
+- `slot-symlink` and `slot-irregular` — **a slot tree holds regular files and
+  directories only.** Every entry beneath the slot, and the slot itself, is
+  classified by `lstat` **before anything in the tree is opened**, and anything
+  that is not a regular file or a directory scores the run pipeline-invalid
+  before any other check runs: a symlink under `slot-symlink`, and every other
+  type — FIFO, socket, character or block device, door, or an entry that cannot
+  be stat'd — under `slot-irregular`. Two codes because they say different
+  things; one rule because the rule is about the slot tree and not about any
+  file name. The general rule is registered rather than the narrow one because
+  the narrow one is how this was found. A link is a retained byte the slot does
+  not contain, so the published evidence is not the evidence that was counted,
+  and a link makes a file's *existence* conditional on its target — a
+  **dangling** `REFUSAL.json` answers an existence check with "no refusal", and
+  a slot the batch terminated is counted as one it never touched. A FIFO,
+  socket or device is not retained evidence at all, and it does something
+  worse: `open()` on a FIFO **blocks**, so a scorer that read one would hang
+  over the whole batch instead of refusing one slot. That is why the type is
+  decided by `lstat` and why this check is first. Study 010's seal used the
+  same rule, and it is stated here as a property of the slot tree;
+- an entry named `run-NNN` claims a slot index **whatever its type**, and is
+  scored rather than skipped: a directory, a link, a FIFO or a plain file all
+  enter the tree as slots and are refused under the code their type earns.
+  Skipping them punched a hole in the contiguous indices and refused the whole
+  scoring, where the name is what claimed the index and the name is what has to
+  answer for it;
 - `context-mismatch` — the retained `context.json` must be what
   `session.jsonl` recomputes. A slot whose two artifacts disagree is not
   evidence about authorship;
@@ -693,13 +736,15 @@ means the batch terminated that slot, and a slot whose termination is
 unexplained is not a sample. The batch writes a code on every refusal it
 records, so an honest slot never reaches this.
 
-**A `REFUSAL.json` that is a symlink is not read at all**: the slot is already
-refused `slot-symlink` above, and the refusal record is read only from a slot
-whose tree is regular files and directories. That ordering is the point. The
-strict loader in the paragraph above runs only when the file *exists*, and a
-dangling link does not exist by that test — so before this rule the one shape
-that made a batch-terminated slot look untouched was the one shape the strict
-loader never saw. The general rule refuses it without having to anticipate it.
+**A `REFUSAL.json` that is a symlink or a FIFO is not read at all**: the slot
+is already refused `slot-symlink` or `slot-irregular` above, and the refusal
+record is read only from a slot whose tree is regular files and directories.
+That ordering is the point. The strict loader in the paragraph above runs only
+when the file *exists*, and a dangling link does not exist by that test — so
+before this rule the one shape that made a batch-terminated slot look untouched
+was the one shape the strict loader never saw; and a FIFO by that test exists,
+after which `open()` would never return. The general rule refuses both without
+having to anticipate either.
 
 Let **N** be the slots executed (50, or S under §2.4's shortfall), **I**
 the pipeline-invalid runs, and **V = N − I** the valid runs. V is the
@@ -816,12 +861,21 @@ scope is checked rather than described.
   number of classes a run covers (H-based), with counts, mean, and the
   all-six rate `c_all = |{r : all six covered}| / V` with an interval.
 - **S4 — record volumes.** Per valid run: `|A|`, `|H|`, `|Q|`, the dropped
-  count, and the drop-code histogram; plus totals and per-run ranges over
-  the batch.
+  count, and the drop-code histogram; plus totals and, for each of those four
+  counts, the per-run minimum, mean and maximum over the valid runs
+  (`records.acceptedPerRun`, `hPerRun`, `qPerRun`, `droppedPerRun` in
+  `RESULTS.json`, and a row each in `RATES.md`). All four ranges are emitted:
+  an earlier draft registered them and the scorer emitted one.
 - **S5 — label accuracy.** Pooled `|H| / (|H| + |Q|)` over all valid runs,
-  and the per-run mean and range. Pooled figure is descriptive only:
-  records within a run share an author turn and are not independent, so no
-  interval is attached to it.
+  and the per-run mean and range **over the valid runs with at least one
+  accepted record** (`|H| + |Q| > 0`). That denominator is registered rather
+  than left to be discovered: a run whose author produced no policy-concordant
+  record has no label accuracy at all, and averaging it in as 0 would be
+  inventing one. `RESULTS.json` publishes both counts —
+  `labelAccuracy.perRunTrials` and `perRunExcluded` — so the exclusion is
+  visible beside the mean rather than implied by it. The pooled figure is
+  descriptive only: records within a run share an author turn and are not
+  independent, so no interval is attached to it.
 - **S6 — distinct outputs.** The number of distinct `sha256(completion.txt)`
   across valid runs and the size of the largest identical group.
   Identical completions across runs are **data, not defects** — but if
@@ -1116,9 +1170,15 @@ invocation is not evidence of it, and that much is checkable):
 
 - `isolation: isolated` — the C7 control's mode never enters a denominator;
 - the resolved isolated `HOME`, and a `CODEX_HOME` that is that home's own
-  `.codex`;
-- a working directory that is neither inside the isolated home nor a parent
-  of it: the model's workspace is not the home it was given;
+  `.codex`. "Resolved" is checked as far as a recorded string can be: absolute
+  and already in normal form, so a relative path, a `..`, or a doubled
+  separator refuses rather than giving one directory two names the clauses
+  below would fail to relate;
+- a working directory, likewise resolved, that is neither the isolated home
+  itself nor inside it nor a parent of it: the model's workspace is not the
+  home it was given. (`cwd == home` is stated because it was the case the
+  nesting test missed — it tested strict descent in both directions and a
+  directory is not a strict descendant of itself.);
 - the environment's names being exactly `PATH`, `HOME`, `TMPDIR`,
   `CODEX_HOME`, and its **values** being one non-empty string each, with
   `HOME` and `CODEX_HOME` agreeing with the paths the same record reports;
@@ -1144,7 +1204,9 @@ invocation is not evidence of it, and that much is checkable):
   rather than a tautology, and the harness tests exercise both branches and
   four polluted ones.);
 - the **new-session set**, which must contain exactly one `*.jsonl` created
-  by this call;
+  by this call — recorded and required as the **integer** 1, since Python
+  considers `True == 1` and a slot recording `newSessionCount: true` was
+  recording nothing counted;
 - the scratch path, screened for leak tokens and required to resolve
   outside every git worktree;
 - `context.json`, whose digests must equal the registered golden.
@@ -1156,7 +1218,7 @@ The golden match is the operative evidence: a leaked skill, config, or
 batch, one capture is run **deliberately without isolation**:
 
 ```sh
-harness/batch.py capture-isolation-negative --scratch-parent DIR
+"$PY" harness/batch.py capture-isolation-negative --scratch-parent DIR
 ```
 
 which makes ONE call with the operator's real `HOME` and its `.codex` as
@@ -1241,35 +1303,62 @@ the scorer, or in both — nothing here is a description of intent:
 - the registered interpreter (implementation and version series), refused by
   the wrapper before it calls anything and by the batch and the scorer before
   they run (§2.6);
-- the registry of record: every run records the sha256 of the registry it was
-  made under, and the scorer computes the committed `harness/PINS.json`'s
-  digest itself and scores any other run `registry-mismatch` (§2.6). **The
-  registered scoring interface is `score_rates.score_registered()`, which the
-  `score_rates.py score` command calls and nothing else does**: it takes no
-  registry digest, so no flag, default, argument or environment variable can
-  supply one — the scorer reads no environment at all, and a harness test
-  asserts that of its source. The `registry_sha256` override on `score()`,
-  `score_run()` and `admit()` is for library callers whose slots were made
-  under a stand-in registry (the wrapper-driven tests), and the separation
-  between "may compute a table" and "may publish one" is enforced in code:
-  `score()` records the override in `cell.registryOverride`, and
-  `write_outputs()` — the only writer of `RESULTS.json` and `RATES.md` in this
-  harness — refuses results carrying one, in any output directory, and refuses
-  a results dict that never came through `score()` at all. So the widest an
-  alternate registry reaches is a dict in memory. What that does **not** cover,
-  stated here rather than left implied: a caller who edits `score_rates.py` or
-  rebinds its module constants in process. No check inside a file defends that
-  file, this study's own harness is not digest-pinned (only the six ported
-  files are, C1), and the ceiling is the one the "deliberately not claimed"
-  paragraph below states — re-runnability, not proof;
-- a slot tree of regular files and directories only: any symlink in a slot,
-  dangling or not, under any name, scores that slot `slot-symlink`,
-  pipeline-invalid, before any other check (§3.3);
+- the registry of record, per run AND per population. Per run: every run
+  records the sha256 of the registry it was made under, the scorer computes the
+  committed `harness/PINS.json`'s digest itself, and any other run is
+  `registry-mismatch` (§2.6). Per population: **the registered scoring
+  interface is `score_rates.score_registered()`, which the `score_rates.py
+  score` command calls and nothing else does, and it takes the slot directory
+  and an optional record-emission directory and nothing else.** The registry,
+  the family, the prompt, the golden capture and the study root the tables are
+  written to are all derived from the harness's own location; the command's
+  argument parser accepts `--slots` and `--emit-records` and **refuses every
+  other argument** rather than ignoring it, since a silently dropped flag is
+  how a stale command line lies about what it ran; and the scorer reads no
+  environment at all, with a harness test asserting that of its source. That
+  second half is what closes a registry identical to the committed one except
+  for `batch.runs`, which redefined N — and therefore every denominator — while
+  each slot's stamp still matched.
+- the publication boundary itself: `_write_outputs()` is **module-private, has
+  no output-directory parameter, and is called only by `score_registered()`, on
+  the results it computed in the same call**, so no results dict crosses a
+  public boundary into publication — there is no public writer to hand one to.
+  The `registry_sha256` override on `score()`, `score_run()` and `admit()` is
+  for library callers whose slots were made under a stand-in registry (the
+  wrapper-driven tests); `score()` records it in `cell.registryOverride`, and
+  the writer refuses results carrying one. It does not stop there, because
+  trusting one mutable member of an ordinary dict is what the previous draft
+  did: the writer re-derives the committed registry's digest, the registered N,
+  and the prompt, family, golden, preregistration, model, CLI and binary pins
+  from the study tree, and refuses unless the results agree with every one. So
+  a results dict edited to hide its override is still refused, on what the tree
+  says rather than on what the dict says. What none of that covers, stated here
+  rather than left implied: a caller who edits `score_rates.py` or rebinds its
+  module constants in process. No check inside a file defends that file, this
+  study's own harness is not digest-pinned (only the six ported files are, C1),
+  and the ceiling is the one the "deliberately not claimed" paragraph below
+  states — re-runnability, not proof. That ceiling is stated once, here;
+- a slot tree of regular files and directories only, decided by `lstat` before
+  anything in the tree is opened: any symlink in a slot, dangling or not, under
+  any name, scores that slot `slot-symlink`, and any FIFO, socket, device or
+  other non-regular entry scores it `slot-irregular` — both pipeline-invalid,
+  both before any other check, and both before the batch's own `REFUSAL.json`
+  is read (§3.3). A FIFO is checked by type rather than opened because `open()`
+  on one does not return;
+- `--emit-records DIR` disjoint from the slot tree — not equal to it, not
+  inside it, not containing it — checked before anything is scored or written,
+  so emitting the derived record trees cannot add a slot to the population that
+  was just published (§8);
 - the recapture derived from at least two **distinct sessions**, checked on the
   raw retained evidence — transcript bytes, session id, and the call record's
   own clock, working directory and home — so a copied capture slot or a
   transcript retained twice refuses the derivation instead of agreeing with
-  itself (§3.2);
+  itself; from **probe** calls at the pinned probe-prompt digest, checked per
+  capture slot rather than inferred from the directory's name; and under the
+  same ported-bytes, interpreter and freeze preflight the calls run, in
+  `capture-golden` and `shortfall` as well as in `capture` and `run`, so no
+  step that feeds the published arithmetic can be taken under an unregistered
+  interpreter or against an unfrozen preregistration (§3.2, §2.4);
 - the preregistration's freeze digest as a precondition of the **calls** as
   well as the scoring, and refused while it is null rather than skipped;
 - the per-run fresh `HOME`/`CODEX_HOME`; the `env -i` scrub with a `PATH`
@@ -1283,7 +1372,9 @@ the scorer, or in both — nothing here is a description of intent:
   closed stdin, and `credentialRemoved` exactly when `credentialCopied`; and
   the exactly-one-**new**-session requirement;
 - the transcript whitelist, terminal-prompt rule, leak denylist, model/cwd
-  binding, integer exit 0, and completion byte-binding (§3.1);
+  binding — **every** `turn_context` that names a model or a working directory
+  must name this call's, not merely one of them — integer exit 0, and
+  completion byte-binding (§3.1);
 - the golden context match on every slot; the recapture required to agree
   across at least two captures from distinct sessions, enforced both before
   the calls and at the derivation; **and the golden capture bound to its pin and to
@@ -1303,14 +1394,20 @@ the scorer, or in both — nothing here is a description of intent:
 - the equality of the six denominators, asserted by the scorer (§4.2);
 - the scorer's totality — every per-slot artifact it reads, `REFUSAL.json`
   included, is read inside the total path and through the duplicate-key
-  loader, so a malformed, missing, truncated, wrong-typed or codeless one
-  yields that slot's own pipeline-invalid verdict and never a bare exception
-  that would stop the scoring of every other slot (§3.3);
+  loader, so a malformed, truncated, wrong-typed or codeless one yields that
+  slot's own pipeline-invalid verdict and never a bare exception that would
+  stop the scoring of every other slot. (A **missing** `REFUSAL.json` is not in
+  that list and is not a refusal: absence means the batch did not refuse the
+  slot, exactly as §3.3 says.) (§3.3);
 - the batch/score separation: the driver cannot compute coverage; the
   scorer refuses unless the batch is terminal (exactly N slots XOR a
   matching shortfall declaration, never both, never over-full); the driver
-  refuses new slots once `RESULTS.json` exists; and the scorer can write a
-  rate table nowhere else;
+  refuses new slots once `RESULTS.json` exists; the registered scoring command
+  is the only publisher and can write a rate table nowhere but the study root;
+  and a planned slot that already exists — including one that exists only as a
+  **dangling symlink**, which an existence test calls absent and `mkdir` calls
+  present — refuses the batch through that registered path instead of ending it
+  in an uncaught exception;
 - `batch.py capture-isolation-negative` refuses without recorded operator
   assent; its retention set is built by code rather than by care, and it
   verifies that the scratch slot it deleted is gone rather than ignoring the
@@ -1442,19 +1539,37 @@ log, or one-shot machinery; validation of §5's mapping; and everything
 Study 010 §10 and Study 009 §11 excluded. No conformance claim of any
 kind is made, here or anywhere in this repository.
 
-**Publication commitment.** Everything is published regardless of outcome:
+**Publication commitment.** Everything is published regardless of outcome.
+Stated as what is *retained*, not as a file list every slot is promised to
+have, because a slot cannot publish an artifact its run never produced and an
+earlier draft promised one that could not exist:
 
-- all 50 raw slots (or S under the shortfall rule), **including every
-  invalid one**, with `CALL.json`, `session.jsonl`, `stdout.raw`,
-  `stderr.raw`, `context.json`, `completion.txt`, the compiled `records/`
-  and `RECORDS.md`, and the per-run admission verdict, refusal code, and
-  class classification the scorer derives from them;
+- all 50 raw slot directories (or S under the shortfall rule), **including
+  every invalid one**, with every byte the run left in them and nothing
+  removed. For a run that reached the call that is `CALL.json`,
+  `session.jsonl`, `stdout.raw`, `stderr.raw`, `context.json` and — on exit 0 —
+  `completion.txt`; a wrapper pre-flight refusal reached no call and leaves
+  `REFUSAL.json` alone (§2.5), and a run that failed mid-way leaves whatever it
+  got to plus its `REFUSAL.json`. Nothing in the tree is `.gitignore`d: the
+  repository ignores `__pycache__/` and `.pytest_cache/` and nothing else;
+- the per-run admission verdict, refusal code, counts and class classification
+  the scorer derives from those bytes, for **every** slot, in `RESULTS.json`'s
+  `runs` array — that part is promised for all of them, because it is derived
+  and not retained;
+- the compiled `records/` and `RECORDS.md` for the valid runs whose completion
+  held a parseable JSON array, emitted by `score_rates.py score
+  --emit-records DIR` into a directory outside the slot tree. A run with no
+  parseable array has no compiled tree — that is what `authoring-empty` means
+  (§3.3) — and an invalid run's completion is not compiled at all. Every slot's
+  `completion.txt` is published either way, so any reader can run the compiler
+  over it themselves;
 - every recapture attempt's captures, under `controls/recapture/attempt-N/`,
   and the C7 negative control's retained files (verdict and stripped call
   record always, context digests when the call produced them, per §6 C7 — the
   transcript is digested, deleted by the driver, and never published);
-- `RESULTS.json` with every rate's integers and bounds, and `ANALYSIS.md`
-  leading with the six rates and `rho` whatever they are — a class covered
+- `RESULTS.json` and `RATES.md`, both written by the registered scoring
+  command into the study root, with every rate's integers and bounds, and
+  `ANALYSIS.md` leading with the six rates and `rho` whatever they are — a class covered
   in 2 runs of 50 is published as 2/50 with its interval, in the headline,
   not in an appendix;
 - `DEVIATIONS.md` for every departure from this file, written as it

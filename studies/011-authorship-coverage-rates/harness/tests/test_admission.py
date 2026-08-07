@@ -32,6 +32,15 @@ TOOL_PAYLOADS = (
 )
 
 
+def _score_once(slot, prompt, golden, pins, classes):
+    """`score_run()` in a child process, so a blocking `open()` shows up as a
+    hung child rather than as a hung test run. `score_run()` and not `admit()`,
+    because the hang the reviewer found was in the batch-refusal read: a FIFO
+    named REFUSAL.json answers `os.path.exists()` yes and then never returns
+    from `open()`."""
+    score_rates.score_run(slot, prompt, golden, pins, classes)
+
+
 class Slots(unittest.TestCase):
     """Every case builds its own slot tree under a throwaway root."""
 
@@ -507,6 +516,153 @@ class Slots(unittest.TestCase):
         self.assertEqual(results["population"]["unexpectedEntries"], [])
         for entry in results["classes"]:
             self.assertEqual(entry["coverage"]["trials"], 1)
+
+    def test_every_irregular_entry_in_a_slot_refuses_under_one_code(self):
+        """The round-3 neighbour of the symlink rule: "regular files and
+        directories only" checked only for symlinks, so a FIFO in a slot left
+        it VALID — and a FIFO named `REFUSAL.json` blocked the scorer in
+        `open()`, which is worse than a miscount because it stops every other
+        slot too. Types are decided by `lstat` before anything is opened."""
+        import multiprocessing
+
+        classes = score_rates.load_family(os.path.join(STUDY, "FAMILY.json"),
+                                          self.pins["family"]["sha256"])
+        cases = {
+            # a stray FIFO under any name: the case that stayed valid
+            "run-701": "unused.fifo",
+            # the exact hang: the batch's own refusal record, as a FIFO
+            "run-702": "REFUSAL.json",
+            # anywhere in the tree, including a subdirectory
+            "run-703": os.path.join("sub", "pipe"),
+            # and a counted artifact replaced by one
+            "run-704": "completion.txt",
+        }
+        for name, relative in cases.items():
+            slot = self.slot(name)
+            path = os.path.join(slot, relative)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            if os.path.exists(path):
+                os.remove(path)
+            os.mkfifo(path)
+            code, detail = self.admit(slot)
+            self.assertEqual(code, "slot-irregular", "%s: %s" % (name, detail))
+            self.assertIn(relative, detail)
+            self.assertIn("FIFO", detail)
+            row = score_rates.score_run(slot, self.prompt, self.golden, self.pins,
+                                        classes)
+            self.assertFalse(row["valid"], name)
+            self.assertEqual(row["code"], "slot-irregular", name)
+            self.assertEqual(score_rates.CODE_PARTITION[row["code"]],
+                             "pipeline-invalid")
+            # …and it RETURNED. A scorer that blocks on a FIFO scores nothing,
+            # so the refusal is only worth having if it happens without an
+            # open(): this case is run again in a child process with a hard
+            # timeout, which the pre-fix code did not survive.
+            child = multiprocessing.Process(target=_score_once,
+                                            args=(slot, self.prompt, self.golden,
+                                                  self.pins, classes))
+            child.start()
+            child.join(20)
+            alive = child.is_alive()
+            if alive:
+                child.terminate()
+                child.join()
+            self.assertFalse(alive, "%s: scoring blocked on the FIFO" % name)
+
+    def test_an_irregular_slot_entry_keeps_its_index_and_the_rest_still_scores(self):
+        tree = os.path.join(self.root, "fifo-tree")
+        os.makedirs(tree)
+        for index, answer in enumerate((fixtures.COMPLETION_A, fixtures.COMPLETION_B,
+                                        fixtures.COMPLETION_A), 1):
+            fixtures.build_slot(os.path.join(tree, "run-%03d" % index), answer,
+                                STUDY, self.pins, golden=self.golden)
+        # run-002 holds a FIFO; run-003 IS one. The name claims the index
+        # whatever the type, so neither punches a hole in the contiguity rule.
+        os.mkfifo(os.path.join(tree, "run-002", "notes.fifo"))
+        shutil.rmtree(os.path.join(tree, "run-003"))
+        os.mkfifo(os.path.join(tree, "run-003"))
+        results = self.score_tree(tree)
+        self.assertEqual({row["slot"]: row["code"] for row in results["runs"]},
+                         {"run-001": None, "run-002": "slot-irregular",
+                          "run-003": "slot-irregular"})
+        self.assertEqual(results["population"]["slots"], 3)
+        self.assertEqual(results["population"]["valid"], 1)
+        self.assertEqual(results["population"]["unexpectedEntries"], [])
+
+    def test_a_slot_that_is_a_plain_file_is_scored_rather_than_skipped(self):
+        tree = os.path.join(self.root, "file-tree")
+        os.makedirs(tree)
+        for index, answer in enumerate((fixtures.COMPLETION_A, fixtures.COMPLETION_B), 1):
+            fixtures.build_slot(os.path.join(tree, "run-%03d" % index), answer,
+                                STUDY, self.pins, golden=self.golden)
+        shutil.rmtree(os.path.join(tree, "run-002"))
+        with open(os.path.join(tree, "run-002"), "w") as handle:
+            handle.write("not a slot")
+        results = self.score_tree(tree)
+        self.assertEqual({row["slot"]: row["code"] for row in results["runs"]},
+                         {"run-001": None, "run-002": "slot-shape"})
+        self.assertEqual(results["population"]["slots"], 2)
+        self.assertEqual(results["population"]["unexpectedEntries"], [])
+
+    # --- C6 clauses that accepted contradictory evidence ----------------------
+
+    def test_a_workspace_that_is_the_isolated_home_refuses(self):
+        # `_under()` tests strict descent in both directions, and a directory
+        # is not a strict descendant of itself, so cwd == home passed the
+        # un-nested-workspace clause §6 C6 registers.
+        slot = self.slot("run-710")
+        with open(os.path.join(slot, "CALL.json")) as handle:
+            call = json.load(handle)
+        home = call["home"]
+        values = dict(call["environmentValues"], TMPDIR=os.path.join(home, "tmp"))
+        self.rewrite_call(slot, cwd=home, environmentValues=values)
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "isolation-unproven", detail)
+        self.assertIn("same", detail)
+
+    def test_an_unresolved_home_or_working_directory_refuses(self):
+        # C6 registers the RESOLVED paths. A relative or unnormalized one is
+        # not resolved, and it also gives one directory two names the nesting
+        # clause above cannot relate.
+        for name, member in (("run-711", "home"), ("run-712", "cwd")):
+            slot = self.slot(name)
+            with open(os.path.join(slot, "CALL.json")) as handle:
+                call = json.load(handle)
+            relative = os.path.join(call[member], "..",
+                                    os.path.basename(call[member]))
+            members = {member: relative}
+            if member == "home":
+                members["codexHome"] = os.path.join(relative, ".codex")
+            self.rewrite_call(slot, **members)
+            code, detail = self.admit(slot)
+            self.assertEqual(code, "isolation-unproven", "%s: %s" % (member, detail))
+            self.assertIn("resolved", detail)
+
+    def test_a_boolean_new_session_count_is_not_one_session(self):
+        # Python calls True == 1, so `newSessionCount: true` — a record of
+        # nothing counted — satisfied the exactly-one-new-session clause.
+        slot = self.slot("run-713")
+        self.rewrite_call(slot, newSessionCount=True)
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "session-count", detail)
+        self.assertIn("integer 1", detail)
+
+    def test_a_second_turn_context_naming_a_foreign_workspace_refuses(self):
+        # §3.1 gate 5 binds `turn_context`, where present, to the call's own
+        # working directory. Membership made that true of the SET and not of
+        # its members, so a second context naming /wrong/foreign/cwd was
+        # admitted as long as one context named the right one.
+        prompt = fixtures.read_prompt(STUDY)
+        entries = fixtures.session_entries(
+            prompt, fixtures.COMPLETION_A, "/tmp/scratch", "/tmp/home",
+            extra=[{"type": "turn_context",
+                    "payload": {"cwd": "/wrong/foreign/cwd",
+                                "model": self.pins["codex"]["model"]}}])
+        slot = self.slot("run-714", entries=entries, cwd="/tmp/scratch",
+                         home="/tmp/home")
+        code, detail = self.admit(slot)
+        self.assertEqual(code, "transcript-refused", detail)
+        self.assertIn("working director", detail)
 
     def score_tree(self, slots_dir: str) -> dict:
         """The whole throwaway tree, against a registry that registers exactly

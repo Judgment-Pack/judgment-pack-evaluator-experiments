@@ -120,30 +120,40 @@ sha256sum PREREGISTRATION.md
         --reason "why it could not finish"
 
 # 7. The scorer: admission, compilation, classification, rates, intervals.
-#    Writes RESULTS.json and RATES.md to the study root — there is no
-#    --out, by design (§2.4) — and the optional per-slot record trees §8
-#    publishes. This command IS the registered scoring interface
-#    (score_rates.score_registered): it takes no registry digest, the
-#    committed harness/PINS.json's digest is computed inside, and a
-#    scoring that supplied one instead is refused by the writer (§7).
+#    This command IS the registered scoring interface
+#    (score_rates.score_registered), and it is the only thing that publishes.
+#    --slots and --emit-records are its WHOLE argument surface: the registry,
+#    the family, the prompt, the golden capture and the study root are derived
+#    from the harness's own location, and any other argument REFUSES rather
+#    than being ignored (§7). --emit-records must name a directory outside the
+#    slot tree. It writes RESULTS.json and RATES.md to the study root.
 "$PY" harness/score_rates.py score --slots transcription/authoring \
         --emit-records records
 
 # 8. ANALYSIS.md, then post-run cross-vendor adversarial review.
 ```
 
-Ordering rules, per `PREREGISTRATION.md` §2.4, §2.6 and §3.2, all of them
-checked in code: N is fixed at 50 in the registry before the batch; no call
-is made while the preregistration's freeze digest is unregistered; no slot is
-created before the golden capture is registered and committed, or after
-`RESULTS.json` exists; a shortfall may not be declared over a batch that is
-not short; and the scorer refuses unless the batch is terminal — exactly N
-slots, or a shortfall declaration whose count is the slots present, never
-both. Two of those are checked **per slot** rather than by ordering alone:
-every run records the registry and the golden capture it was made under, so
-a registry substituted through `--pins` or a capture derived after the batch
-makes those runs pipeline-invalid instead of redefining what they meant. What
-is **not** prevented, and is stated rather than papered over: the operator
+Ordering rules, per `PREREGISTRATION.md` §2.4, §2.6 and §3.2.
+
+**Checked in code**, and a violation refuses: N is fixed at 50 in the registry
+before the batch; no call is made while the preregistration's freeze digest is
+unregistered or does not match; no slot is created while `golden.sha256` is
+null or the file at the golden path does not hash to it, or after
+`RESULTS.json` exists; a shortfall may not be declared over a batch that is not
+short; and the scorer refuses unless the batch is terminal — exactly N slots,
+or a shortfall declaration whose count is the slots present, never both. Two of
+those are checked **per slot** rather than by ordering alone: every run records
+the registry and the golden capture it was made under, so a capture derived
+after the batch makes those runs pipeline-invalid instead of redefining what
+they meant. And the registered scoring command takes no path but the slot tree,
+so a registry cannot be substituted into the counting at all.
+
+**Ledger discipline, recorded and not checked**: that the golden capture and
+the registry were *committed* before slot 1. This study has no lock-commit
+machinery and compares nothing to a `HEAD` blob — §7 says so under
+"deliberately not claimed" — so the file-to-pin binding and the per-slot stamp
+are what a reader can check, and the commit is what the study records. The
+other thing **not** prevented, stated rather than papered over: the operator
 reading a `completion.txt` by eye mid-batch (§7).
 
 ## Reading order

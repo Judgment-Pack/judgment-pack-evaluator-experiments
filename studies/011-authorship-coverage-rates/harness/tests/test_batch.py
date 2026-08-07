@@ -169,14 +169,16 @@ class Batch(unittest.TestCase):
     def test_a_golden_capture_is_never_derived_from_batch_slots(self):
         self.recapture_then_batch()
         post_hoc = os.path.join(self.root, "POST-HOC.json")
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots",
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots",
                                      self.slots, "--out", post_hoc]), 1)
         self.assertFalse(os.path.exists(post_hoc))
 
     def test_capture_golden_writes_only_where_it_is_told(self):
         self.assertEqual(self.capture(), 0)
         # No --out: the derivation refuses rather than landing in the study.
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots",
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots",
                                      self.attempt()]), 1)
         self.assertFalse(os.path.exists(os.path.join(
             STUDY, "transcription", "GOLDEN-CONTEXT.json")))
@@ -375,9 +377,11 @@ class Batch(unittest.TestCase):
                         os.path.join(lonely, "capture-001"))
         out = os.path.join(self.root, "ONE.json")
         # Even asked for one explicitly: MIN_CAPTURE_SLOTS is a floor.
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots", lonely,
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots", lonely,
                                      "--out", out, "--min-slots", "1"]), 1)
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots", lonely,
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots", lonely,
                                      "--out", out]), 1)
         self.assertFalse(os.path.exists(out))
 
@@ -409,7 +413,8 @@ class Batch(unittest.TestCase):
         self.assertEqual(golden["capturedFrom"], ["capture-001", "capture-002"])
         # …and the duplicate refuses, however it was made.
         out = os.path.join(self.root, "DUPLICATED.json")
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots",
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots",
                                      self.duplicate_captures("duplicated"),
                                      "--out", out]), 1)
         self.assertFalse(os.path.exists(out))
@@ -436,7 +441,8 @@ class Batch(unittest.TestCase):
         with open(second, "w") as handle:
             handle.writelines(lines)
         out = os.path.join(self.root, "ONE-SESSION.json")
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots",
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots",
                                      directory, "--out", out]), 1)
         self.assertFalse(os.path.exists(out))
 
@@ -457,7 +463,8 @@ class Batch(unittest.TestCase):
         with open(session, "w") as handle:
             handle.writelines(lines)
         out = os.path.join(self.root, "VARYING.json")
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots", varying,
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots", varying,
                                      "--out", out]), 1)
         self.assertFalse(os.path.exists(out))
 
@@ -477,7 +484,8 @@ class Batch(unittest.TestCase):
         post_hoc = os.path.join(self.root, "post-hoc-captures")
         shutil.copytree(self.attempt(), post_hoc)
         second = os.path.join(self.root, "GOLDEN-2.json")
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots", post_hoc,
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots", post_hoc,
                                      "--out", second]), 0)
         self.assertNotEqual(batch._digest(second), batch._digest(self.golden))
         pins = json.loads(json.dumps(self.pins))
@@ -547,7 +555,8 @@ class Batch(unittest.TestCase):
 
     def test_a_registered_capture_is_never_rewritten(self):
         self.assertEqual(self.capture(), 0)
-        self.assertEqual(batch.main(["batch.py", "capture-golden", "--slots",
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path, "--slots",
                                      self.attempt(), "--out", self.golden]), 1)
 
     def test_the_slots_are_the_shape_the_scorer_reads(self):
@@ -822,6 +831,92 @@ class Batch(unittest.TestCase):
         self.recapture_then_batch()
         self.assertEqual(self.run_batch(self.slots), 1)
 
+    def test_a_dangling_planned_slot_refuses_the_resume_through_the_registered_path(self):
+        """Round 3: `os.path.exists()` calls a dangling link absent and `mkdir`
+        calls it present, so a resume over one passed preflight, spent no call,
+        and ended in an uncaught `FileExistsError` from `refuse_slot()` — no
+        registered refusal, and `BATCH.json` left at the earlier runs. A link
+        at a planned slot path is a slot that already exists."""
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        self.assertEqual(self.run_batch(self.slots, ["--runs", "2"]), 0)
+        before = json.load(open(os.path.join(self.slots, "BATCH.json")))
+        os.symlink(os.path.join(self.slots, "no-such-slot"),
+                   os.path.join(self.slots, "run-003"))
+        # A registered refusal (exit 1), not a traceback…
+        self.assertEqual(self.run_batch(self.slots, ["--runs", "3", "--start", "3"]), 1)
+        # …no slot created over the link, and the ledger untouched.
+        self.assertTrue(os.path.islink(os.path.join(self.slots, "run-003")))
+        self.assertFalse(os.path.isdir(os.path.join(self.slots, "run-003")))
+        self.assertEqual(json.load(open(os.path.join(self.slots, "BATCH.json"))), before)
+        self.assertFalse(os.path.exists(os.path.join(self.slots, "run-004")))
+        # The wrapper says the same thing on its own, for a call made by hand.
+        environment = dict(os.environ)
+        environment["PYTHON_BIN"] = sys.executable
+        completed = subprocess.run(
+            ["bash", os.path.join(STUDY, "transcription", "authoring_call.sh"),
+             self.scratch, os.path.join(self.slots, "run-003"), self.pins_path,
+             self.cli],
+            capture_output=True, text=True, env=environment)
+        self.assertEqual(completed.returncode, 1)
+        self.assertIn("already exists", completed.stderr)
+
+    def test_a_derivation_from_registered_prompt_captures_refuses(self):
+        """§3.2 step 2: the capture is derived from PROBE calls. `capture_slots`
+        refused batch-shaped NAMES, and a name is not evidence of which prompt
+        was answered — two registered-prompt slots renamed `capture-001/002`
+        derived a golden cleanly."""
+        self.recapture_then_batch()
+        import shutil
+        renamed = os.path.join(self.root, "renamed-captures")
+        os.makedirs(renamed)
+        for index, name in enumerate(("run-001", "run-002"), 1):
+            shutil.copytree(os.path.join(self.slots, name),
+                            os.path.join(renamed, "capture-%03d" % index))
+        out = os.path.join(self.root, "RENAMED.json")
+        self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                     "--pins", self.pins_path,
+                                     "--slots", renamed, "--out", out]), 1)
+        self.assertFalse(os.path.exists(out))
+
+    def test_the_derivation_and_the_shortfall_run_the_same_preflight_as_the_calls(self):
+        """Round 3: `capture-golden` and `shortfall` skipped the ported-bytes,
+        interpreter and freeze checks, so a golden capture could be derived —
+        and a shortfall declared — under an unregistered interpreter against an
+        unfrozen study. Both feed the published arithmetic."""
+        import integrity
+
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        self.assertEqual(self.run_batch(self.slots, ["--runs", "2"]), 0)
+
+        def refuse(*arguments, **keywords):
+            raise integrity.IntegrityError("harness/policy_mirror.py is sha256:dead…")
+
+        out = os.path.join(self.root, "DRIFTED.json")
+        with mock.patch.object(integrity, "verify", refuse):
+            self.assertEqual(batch.main(["batch.py", "capture-golden",
+                                         "--pins", self.pins_path,
+                                         "--slots", self.attempt(), "--out", out]), 1)
+            self.assertEqual(batch.main(["batch.py", "shortfall", "--slots", self.slots,
+                                         "--pins", self.pins_path,
+                                         "--reason", "drifted bytes"]), 1)
+        self.assertFalse(os.path.exists(out))
+        self.assertFalse(os.path.exists(os.path.join(self.slots, "SHORTFALL.json")))
+
+        # …and the freeze digest, which the registry must carry before either.
+        unfrozen = json.loads(json.dumps(self.pins))
+        unfrozen["preregistration"]["sha256"] = None
+        path = os.path.join(self.root, "PINS-unfrozen.json")
+        with open(path, "w") as handle:
+            json.dump(unfrozen, handle, indent=2)
+        self.assertEqual(batch.main(["batch.py", "capture-golden", "--pins", path,
+                                     "--slots", self.attempt(), "--out", out]), 1)
+        self.assertEqual(batch.main(["batch.py", "shortfall", "--slots", self.slots,
+                                     "--pins", path, "--reason", "unfrozen"]), 1)
+        self.assertFalse(os.path.exists(out))
+        self.assertFalse(os.path.exists(os.path.join(self.slots, "SHORTFALL.json")))
+
     # --- terminality ---------------------------------------------------------
 
     def test_an_incomplete_batch_is_not_scorable_until_the_shortfall_is_declared(self):
@@ -858,8 +953,8 @@ class Batch(unittest.TestCase):
     def test_the_scorer_has_no_flag_that_writes_a_rate_table_elsewhere(self):
         self.recapture_then_batch()
         self.assertEqual(score_rates.main(
-            ["score_rates.py", "score", "--slots", self.slots, "--pins", self.pins_path,
-             "--golden", self.golden, "--out", os.path.join(self.root, "peek")]), 1)
+            ["score_rates.py", "score", "--slots", self.slots,
+             "--out", os.path.join(self.root, "peek")]), 1)
         self.assertFalse(os.path.exists(os.path.join(self.root, "peek")))
         self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
 
@@ -869,69 +964,229 @@ class Batch(unittest.TestCase):
         with open(os.path.join(out, "RESULTS.json")) as handle:
             return json.load(handle)
 
-    def test_no_public_surface_publishes_a_scoring_of_alternate_registry_slots(self):
-        """The round-2 gap: `--pins` cannot redefine the cell, but `score()`'s
-        library override could — score alternate-registry slots with the
-        matching override, hand the result to `write_outputs()`, and the
-        study-root RESULTS.json published a selected population as this
-        study's. Every surface that could reach RESULTS.json is tried here.
+    def test_every_withdrawn_and_unknown_argument_refuses_rather_than_being_ignored(self):
+        """Round 3: `_argument()` ignored what it did not recognize, so a stale
+        or mistaken command line ran a DIFFERENT scoring than it reads as
+        having run. Every input-path flag is gone from the registered command,
+        and an argument the command does not know refuses."""
+        self.recapture_then_batch()
+        for argument in (["--pins", self.pins_path], ["--family", "/dev/null"],
+                         ["--prompt", "/dev/null"], ["--golden", self.golden],
+                         ["--registry-sha256", self.registry],
+                         ["--out", os.path.join(self.root, "peek")],
+                         ["--registry", self.registry], ["--slots"], ["nonsense"],
+                         ["--slots", self.slots, "--slots", self.slots]):
+            self.assertEqual(score_rates.main(
+                ["score_rates.py", "score", "--slots", self.slots] + argument), 1,
+                "%r was accepted" % (argument,))
+        self.assertFalse(os.path.exists(os.path.join(self.root, "peek")))
+        self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
+        self.assertFalse(os.path.exists(os.path.join(STUDY, "RATES.md")))
+
+    def test_no_surface_publishes_a_scoring_of_alternate_registry_slots(self):
+        """Rounds 2 and 3, together. Round 2: `--pins` could not redefine the
+        cell but `score()`'s library override could, and the public
+        `write_outputs()` took the resulting dict. Round 3: the registered
+        command still ACCEPTED `--pins`, so a registry identical to the
+        committed one except for `batch.runs` redefined N and published a
+        one-slot population as this study's; and `write_outputs()` trusted a
+        mutable member, so editing `cell.registryOverride` to None published
+        an override scoring anywhere.
+
+        The alternate registry used here is exactly the round-3 one: every
+        digest and cell value equal to the stand-in registry these slots were
+        made under, `batch.runs` changed to 1. Every surface is tried.
 
         These slots ARE alternate-registry slots: the whole file drives the
         real wrapper under a stand-in registry naming a stand-in binary.
         """
-        self.recapture_then_batch()
+        # One slot, so the shrunk registry's N = 1 is TERMINAL against it and
+        # the attack gets as far as a computed dict — the reviewer's exact
+        # setup, which is what makes the refusals below load-bearing.
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        self.assertEqual(self.run_batch(self.slots, ["--runs", "1"]), 0)
         committed = batch._digest(os.path.join(STUDY, "harness", "PINS.json"))
         self.assertNotEqual(self.registry, committed)
-        out = os.path.join(self.root, "published")
+        shrunk = json.loads(json.dumps(self.pins))
+        shrunk["batch"]["runs"] = 1
+        shrunk_path = os.path.join(self.root, "PINS-one-run.json")
+        with open(shrunk_path, "w") as handle:
+            json.dump(shrunk, handle, indent=2)
 
-        # 1. The registered command, with every flag it takes plus one it does
-        #    not: the committed digest is computed inside, so the slots are
-        #    registry-mismatch and no rate counts one of them. The study root is
-        #    redirected so the committed tree is never written to.
-        with mock.patch.object(score_rates, "STUDY", out):
-            self.assertEqual(score_rates.main(
-                ["score_rates.py", "score", "--slots", self.slots,
-                 "--pins", self.pins_path, "--golden", self.golden,
-                 "--registry-sha256", self.registry,
-                 "--registry", self.registry]), 0)
-        results = self.published(out)
-        self.assertEqual(results["cell"]["registryOfRecordSha256"], committed)
-        self.assertIsNone(results["cell"][score_rates.REGISTRY_OVERRIDE])
-        self.assertEqual(results["population"]["valid"], 0)
-        self.assertEqual(results["population"]["invalidCodes"],
-                         {"registry-mismatch": BATCH_RUNS})
+        # 1. The registered command cannot be handed that registry at all: the
+        #    flag is gone, and an unknown flag refuses instead of being dropped.
+        self.assertEqual(score_rates.main(
+            ["score_rates.py", "score", "--slots", self.slots,
+             "--pins", shrunk_path]), 1)
 
-        # 2. The library override, into the study root and anywhere else: the
-        #    scoring computes, and the writer refuses to publish it.
-        counted = self.score()
-        self.assertEqual(counted["population"]["valid"], 4)
+        # 2. Nor can it be reached by scoring the committed registry: the
+        #    registered command derives every path from its own location, and
+        #    this study's committed registry has no golden pin yet, so it
+        #    refuses before a slot is read rather than publishing anything.
+        self.assertEqual(score_rates.main(
+            ["score_rates.py", "score", "--slots", self.slots]), 1)
+
+        # 3. The library path computes a dict and there is NO public writer to
+        #    hand it to. `write_outputs` is gone; `emit_records` is gone.
+        for name in ("write_outputs", "emit_records"):
+            self.assertFalse(hasattr(score_rates, name),
+                             "score_rates.%s is public again" % name)
+
+        # 4. The private writer, called directly with the round-3 attack: score
+        #    the alternate-registry slots under the shrunk registry with the
+        #    matching override, then edit the ordinary returned dict's
+        #    `registryOverride` member to None, exactly as the reviewer did.
+        #    It is refused on what the study tree says, not on that member.
+        counted = score_rates.score(
+            self.slots, shrunk_path, os.path.join(STUDY, "FAMILY.json"),
+            os.path.join(STUDY, "transcription", "PROMPT.txt"), self.golden,
+            registry_sha256=self.registry)
+        self.assertEqual(counted["population"]["registeredRuns"], 1)
+        self.assertEqual(counted["population"]["valid"], 1)
         self.assertEqual(counted["cell"][score_rates.REGISTRY_OVERRIDE], self.registry)
-        for target in (STUDY, os.path.join(self.root, "elsewhere")):
-            with self.assertRaises(score_rates.ScoreError) as caught:
-                score_rates.write_outputs(counted, target, self.slots)
-            self.assertIn("override", str(caught.exception))
-            self.assertFalse(os.path.exists(os.path.join(target, "RESULTS.json")))
+        with self.assertRaises(score_rates.ScoreError) as caught:
+            score_rates._write_outputs(counted)
+        self.assertIn("override", str(caught.exception))
+        counted["cell"][score_rates.REGISTRY_OVERRIDE] = None
+        with self.assertRaises(score_rates.ScoreError) as caught:
+            score_rates._write_outputs(counted)
+        self.assertIn("committed harness/PINS.json", str(caught.exception))
+        # …and with EVERY cell digest forged to the committed study's, so the
+        # dict no longer says anywhere that it counted under another registry,
+        # N is still the committed registry's to state and this scoring
+        # counted one slot against a registry that asked for one.
+        with open(os.path.join(STUDY, "harness", "PINS.json")) as handle:
+            real = json.load(handle)
+        counted["cell"].update({
+            "registryOfRecordSha256": committed,
+            "promptSha256": real["prompt"]["sha256"],
+            "familySha256": real["family"]["sha256"],
+            "goldenSha256": real["golden"]["sha256"],
+            "preregistrationSha256": real["preregistration"]["sha256"],
+            "model": real["codex"]["model"],
+            "cli": real["codex"]["version"],
+            "binarySha256": real["codex"]["binarySha256"],
+        })
+        with self.assertRaises(score_rates.ScoreError) as caught:
+            score_rates._write_outputs(counted)
+        self.assertIn("registered batch size", str(caught.exception))
 
-        # 3. A results dict that never came through score() cannot be published
+        # 5. A results dict that never came through score() cannot be published
         #    either: it cannot say which registry it counted under.
         forged = json.loads(json.dumps(counted))
         forged["cell"].pop(score_rates.REGISTRY_OVERRIDE)
-        with self.assertRaises(score_rates.ScoreError):
-            score_rates.write_outputs(forged, os.path.join(self.root, "forged"))
-        with self.assertRaises(score_rates.ScoreError):
-            score_rates.write_outputs({"runs": []}, os.path.join(self.root, "forged"))
-        self.assertFalse(os.path.exists(os.path.join(self.root, "forged")))
+        for candidate in (forged, {"runs": []}, [], None):
+            with self.assertRaises(score_rates.ScoreError):
+                score_rates._write_outputs(candidate)
+
+        # Nothing reached a published file by any of those routes.
         self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
         self.assertFalse(os.path.exists(os.path.join(STUDY, "RATES.md")))
 
-    def test_the_registered_interface_takes_no_registry_digest_and_reads_no_environment(self):
+    def test_emitting_records_into_the_slot_tree_refuses_before_anything_is_written(self):
+        """Round 3: `--emit-records <slots>/run-002` wrote a phantom slot into
+        the population it had just published, so the retained tree could not
+        reproduce the published rates and the next scoring refused. The two
+        directories must be disjoint, and the refusal must precede the writing
+        rather than follow it."""
+        self.recapture_then_batch()
+        before = sorted(os.listdir(self.slots))
+        for target in (self.slots, os.path.join(self.slots, "run-006"),
+                       os.path.join(self.slots, "run-001", "records"),
+                       os.path.dirname(self.slots)):
+            with self.assertRaises(score_rates.ScoreError) as caught:
+                score_rates._check_records_target(self.slots, target)
+            self.assertIn("emit-records", str(caught.exception))
+            self.assertEqual(score_rates.main(
+                ["score_rates.py", "score", "--slots", self.slots,
+                 "--emit-records", target]), 1)
+        # No phantom slot, and no rate table: the refusal came first.
+        self.assertEqual(sorted(os.listdir(self.slots)), before)
+        self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
+        # A directory outside the slot tree is what the command accepts.
+        score_rates._check_records_target(self.slots,
+                                          os.path.join(self.root, "records"))
+
+    def stand_in_study(self, out: str):
+        """The registered command pointed at a stand-in study, as a context.
+
+        This REBINDS `score_rates`'s module constants, which is precisely the
+        escape PREREGISTRATION.md §7 says no check inside a file can refuse. It
+        is used here for the only thing it is good for: standing up a whole
+        stand-in study — its own registry, its own golden capture, its own
+        study root — so the registered command's success path can be exercised
+        without writing into the committed tree, whose golden pin is still
+        null. Nothing in it is evidence that the command can be redirected by
+        an argument, a flag, a default or the environment; the other cases in
+        this section are that evidence.
+        """
+        return mock.patch.multiple(
+            score_rates, STUDY=out, REGISTRY_OF_RECORD=self.pins_path,
+            REGISTERED_FAMILY=os.path.join(STUDY, "FAMILY.json"),
+            REGISTERED_PROMPT=os.path.join(STUDY, "transcription", "PROMPT.txt"),
+            REGISTERED_GOLDEN=self.golden)
+
+    def test_the_registered_command_publishes_the_tables_and_the_records_it_promises(self):
+        self.recapture_then_batch()
+        out = os.path.join(self.root, "published")
+        records = os.path.join(self.root, "records")
+        with self.stand_in_study(out):
+            self.assertEqual(score_rates.main(
+                ["score_rates.py", "score", "--slots", self.slots,
+                 "--emit-records", records]), 0)
+        # §2.4: the tables land in the study root, which is not a parameter.
+        self.assertEqual(sorted(os.listdir(out)), ["RATES.md", "RESULTS.json"])
+        results = self.published(out)
+        self.assertIsNone(results["cell"][score_rates.REGISTRY_OVERRIDE])
+        self.assertEqual(results["cell"]["registryOfRecordSha256"], self.registry)
+        self.assertEqual(results["population"]["valid"], 4)
+        # §8: the emitted record trees are outside the slot tree, and they are
+        # the valid runs that produced a parseable array — run-004 held none
+        # and has no compiled tree, which §8 states rather than implies.
+        self.assertEqual(sorted(os.listdir(records)),
+                         ["run-001", "run-002", "run-003"])
+        self.assertTrue(os.path.isfile(os.path.join(records, "run-001", "RECORDS.md")))
+        self.assertEqual(sorted(os.listdir(self.slots)),
+                         ["BATCH.json"] + ["run-00%d" % index
+                                           for index in range(1, BATCH_RUNS + 1)])
+
+    def test_the_writer_is_private_and_score_registered_is_its_only_caller(self):
+        """§7 claims the publication boundary is one function called from one
+        place. Read that off the source rather than off a comment: a second
+        caller would be a second way for a dict computed elsewhere to become
+        RESULTS.json, which is exactly what the round-3 finding was."""
+        import ast
+
+        with open(score_rates.__file__.replace(".pyc", ".py"), "rb") as handle:
+            tree = ast.parse(handle.read().decode("utf-8"))
+        callers = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef):
+                continue
+            for inner in ast.walk(node):
+                if isinstance(inner, ast.Call) and isinstance(inner.func, ast.Name) \
+                        and inner.func.id == "_write_outputs":
+                    callers.append(node.name)
+        self.assertEqual(callers, ["score_registered"])
+        # …and its whole signature is the results it is handed: no output
+        # directory, so there is no "publish this dict over there" at all.
+        import inspect
+        self.assertEqual(
+            sorted(inspect.signature(score_rates._write_outputs).parameters),
+            ["results"])
+
+    def test_the_registered_interface_takes_no_input_path_and_reads_no_environment(self):
         import inspect
 
         parameters = inspect.signature(score_rates.score_registered).parameters
-        self.assertNotIn("registry_sha256", parameters)
-        self.assertEqual(sorted(parameters),
-                         ["family_path", "golden_path", "pins_path", "prompt_path",
-                          "slots_dir"])
+        # The slot tree, and an output directory for the derived record trees.
+        # No registry, no family, no prompt, no golden, no output root: all
+        # five are derived from the module's own location, so no caller and no
+        # command line can supply one.
+        self.assertEqual(sorted(parameters), ["records_dir", "slots_dir"])
+        self.assertEqual(sorted(score_rates.SCORE_FLAGS),
+                         ["--emit-records", "--slots"])
         # And no environment variable is a way in: the module reads none.
         with open(score_rates.__file__.replace(".pyc", ".py"), "rb") as handle:
             source = handle.read().decode("utf-8")

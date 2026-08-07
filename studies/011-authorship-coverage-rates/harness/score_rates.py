@@ -29,6 +29,10 @@ that table):
 
   slot-symlink           the slot tree holds a symlink — anywhere, under any
                          name, dangling or not (§3.3)
+  slot-irregular         the slot tree holds an entry that is neither a regular
+                         file nor a directory nor a symlink — a FIFO, a socket,
+                         a device, a door (§3.3). Decided by lstat BEFORE
+                         anything is opened, because opening a FIFO blocks
   slot-shape             a required slot file is missing or not a regular file
   call-unreadable        CALL.json is not duplicate-free JSON
   model-mismatch         CALL.json names a model other than the pinned one
@@ -79,27 +83,37 @@ use randomness. Per-slot wall clock is retained in each CALL.json and stays
 there: RESULTS.json carries no timestamp, so two scorings of one slot tree are
 byte-identical.
 
-RESULTS.json and RATES.md are always written to the study root: there is no
-`--out`, because a rate table written somewhere else would let the operator
-read six rates while leaving the marker the driver refuses new slots on
-(§2.4). `--emit-records DIR` still takes a directory: it writes derived
-record trees, not rates.
+**The registered scoring interface is `score_registered()`, and it is the only
+thing in this harness that publishes** (§7). It takes the slot directory and
+an optional record-emission directory and NOTHING ELSE: the registry, the
+family, the prompt and the golden capture are all derived from this module's
+own location, so there is no flag, default, argument or environment variable
+through which an alternate registry could redefine N, the class definitions,
+or which model a run had to be made by — this module reads no environment at
+all. It computes the results and hands them straight to the module-private
+`_write_outputs()`, which writes RESULTS.json and RATES.md to the study root
+and nowhere else; no results dict crosses a public boundary into publication,
+because there is no public writer to hand one to. A rate table written
+somewhere else would let the operator read six rates while leaving the marker
+the driver refuses new slots on (§2.4).
 
-**The registered scoring interface is `score_registered()`, which is what the
-`score` command calls and the only path that reaches `write_outputs()` with
-the study root** (§7). It takes no registry digest: the committed
-`harness/PINS.json`'s digest is computed here, unconditionally, and no flag,
-environment variable or argument can supply another — this module reads no
-environment at all. The `registry_sha256` override on `score()`, `score_run()`
-and `admit()` exists for library callers whose slots were made under a
-stand-in registry (the wrapper-driven harness tests), and the separation is
-enforced in code rather than by convention: `score()` records the override in
-its results and `write_outputs()` refuses to write RESULTS.json or RATES.md
-for a scoring that carried one — anywhere, not only into the study root.
+The `registry_sha256` override on `score()`, `score_run()` and `admit()`
+exists for library callers whose slots were made under a stand-in registry
+(the wrapper-driven harness tests). Those callers get a dict and no way to
+publish it: `score()` records the override in `cell.registryOverride`, and
+`_write_outputs()` refuses any results carrying one AND re-derives the
+committed registry's digest, the registered N, and the prompt/family/golden/
+preregistration digests from the study tree, requiring the results to agree —
+so a results dict edited to hide its override still cannot be published under
+a registry that is not the committed one. What no check inside a file can
+refuse is a caller who edits this file or rebinds its module constants in
+process; §7 states that ceiling once and does not restate it.
 
 Usage:
-  score_rates.py score --slots DIR [--pins PATH] [--family PATH]
-                       [--prompt PATH] [--golden PATH] [--emit-records DIR]
+  score_rates.py score --slots DIR [--emit-records DIR]
+
+Any other argument refuses. An ignored flag is how a stale command line lies
+silently, so an unknown one is a refusal rather than a no-op.
 """
 from __future__ import annotations
 import contextlib
@@ -108,6 +122,7 @@ import io
 import json
 import math
 import os
+import stat
 import sys
 import tempfile
 from fractions import Fraction
@@ -121,21 +136,23 @@ import policy_mirror  # noqa: E402
 import records_compile  # noqa: E402
 import transcript_check  # noqa: E402
 
-DEFAULT_PINS = os.path.join(HERE, "PINS.json")
-DEFAULT_FAMILY = os.path.join(STUDY, "FAMILY.json")
-DEFAULT_PROMPT = os.path.join(STUDY, "transcription", "PROMPT.txt")
-DEFAULT_GOLDEN = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
-
 SLOT_FILES = ("CALL.json", "stdout.raw", "stderr.raw")
 # §2.6: the registry of record is the COMMITTED harness/PINS.json, and the
-# scorer computes its digest rather than accepting one. `--pins` exists so the
-# harness tests can drive the real wrapper against a stand-in binary; a slot
-# stamped with any other registry's digest is pipeline-invalid.
+# scorer computes its digest rather than accepting one. The registered command
+# has no flag that supplies any of the four paths below — they are derived from
+# this module's own location, so a stand-in registry cannot be handed to the
+# thing that publishes. `batch.py --pins` still exists, because the harness
+# tests drive the real wrapper against a stand-in binary; a slot stamped with
+# any other registry's digest is pipeline-invalid.
 REGISTRY_OF_RECORD = os.path.join(HERE, "PINS.json")
+REGISTERED_FAMILY = os.path.join(STUDY, "FAMILY.json")
+REGISTERED_PROMPT = os.path.join(STUDY, "transcription", "PROMPT.txt")
+REGISTERED_GOLDEN = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
 # The member every scoring carries: null when the registry digest was computed
 # from REGISTRY_OF_RECORD (the registered path), and the supplied digest when a
-# library caller overrode it. write_outputs() refuses to publish a table whose
-# cell does not carry this member, or carries it non-null (§7).
+# library caller overrode it. The module-private _write_outputs() refuses to
+# publish a table whose cell does not carry this member, or carries it non-null,
+# and re-derives every other cell digest from the study tree (§7).
 REGISTRY_OVERRIDE = "registryOverride"
 # §2.2 / C6: the environment the wrapper constructs rather than inherits. The
 # child PATH is exactly these six system directories plus one per-run directory
@@ -163,6 +180,7 @@ PIPELINE_CAUTION = 0.10
 # PREREGISTRATION.md §3.3 registers, so prose and code cannot drift apart.
 CODE_PARTITION = {
     "slot-symlink": "pipeline-invalid",
+    "slot-irregular": "pipeline-invalid",
     "slot-shape": "pipeline-invalid",
     "call-unreadable": "pipeline-invalid",
     "model-mismatch": "pipeline-invalid",
@@ -435,35 +453,93 @@ def class_members(accepted: dict, ids: list, predicate: dict) -> list:
 # --- admission -------------------------------------------------------------
 
 def _regular(path: str) -> bool:
-    return os.path.isfile(path) and not os.path.islink(path)
+    """A regular file, decided by lstat: a symlink to one is not one, and
+    nothing here is opened to find out."""
+    try:
+        return stat.S_ISREG(os.lstat(path).st_mode)
+    except OSError:
+        return False
 
 
-def symlinks_in(slot: str) -> list:
-    """Every symlink in a slot tree, relative to the slot, in sorted order.
+# The file types a slot tree may not hold, named so a refusal says which one
+# was found rather than "not a regular file". Anything not in this table and
+# not a regular file, directory or symlink is reported as `unknown type`.
+IRREGULAR_KINDS = (
+    (stat.S_ISFIFO, "FIFO"),
+    (stat.S_ISSOCK, "socket"),
+    (stat.S_ISCHR, "character device"),
+    (stat.S_ISBLK, "block device"),
+    (stat.S_ISDOOR if hasattr(stat, "S_ISDOOR") else (lambda mode: False), "door"),
+)
+
+
+def _kind(mode: int) -> str:
+    for predicate, name in IRREGULAR_KINDS:
+        if predicate(mode):
+            return name
+    return "unknown type"
+
+
+def slot_irregularities(slot: str) -> tuple:
+    """(symlinks, irregular entries) in a slot tree, relative to the slot and
+    sorted — everything in it that is not a regular file or a directory.
 
     Study 010's seal used the general rule and this study needed it: a slot
     tree may hold REGULAR FILES AND DIRECTORIES ONLY. The defect that made the
     rule necessary here was narrow — `REFUSAL.json` as a DANGLING symlink
     passes `os.path.exists()`, so the strict refusal loader was never reached
     and the slot proceeded as if the batch had never terminated it — but the
-    class is not: any symlink in a slot means a retained byte the slot does not
-    contain, or a file whose existence depends on a target outside the
-    published evidence. Both are refusals, and one enumerated code says so.
+    class is not, and it is not only symlinks. A link is a retained byte the
+    slot does not contain, or a file whose existence depends on a target
+    outside the published evidence. A FIFO, a socket or a device is worse: it
+    is not retained evidence at all, and a FIFO named `REFUSAL.json` does not
+    merely mislead a reader — `open()` on it BLOCKS, so a scorer that reached
+    it would hang over the whole batch rather than refuse one slot. That is
+    why every entry's type is decided by `os.lstat` BEFORE anything in the
+    tree is opened, and why this runs before every other check in `admit()`.
 
-    Dangling links are found because nothing here follows a link: `os.walk`
-    runs with `followlinks=False`, a dangling link is not a directory so it
-    arrives among the file names, and `os.path.islink` is a check on the entry
-    rather than on its target.
+    Two codes, because the two say different things and §3.3 registers both:
+    `slot-symlink` for links (dangling or resolving), `slot-irregular` for
+    every other non-regular, non-directory type.
+
+    Nothing here follows a link: the walk is iterative over `os.scandir`,
+    descends only into entries `lstat` calls directories, and a dangling link
+    is found because `S_ISLNK` is a question about the entry and not about its
+    target.
     """
-    if os.path.islink(slot):
-        return ["."]
-    found = []
-    for base, directories, names in os.walk(slot, followlinks=False):
-        for name in list(directories) + list(names):
-            path = os.path.join(base, name)
-            if os.path.islink(path):
-                found.append(os.path.relpath(path, slot))
-    return sorted(found)
+    symlinks, irregular = [], []
+
+    def classify(path: str, relative: str) -> bool:
+        """True when this entry is a directory to descend into."""
+        try:
+            mode = os.lstat(path).st_mode
+        except OSError as error:
+            irregular.append("%s (unreadable: %s)" % (relative, error.strerror))
+            return False
+        if stat.S_ISLNK(mode):
+            symlinks.append(relative)
+            return False
+        if stat.S_ISDIR(mode):
+            return True
+        if stat.S_ISREG(mode):
+            return False
+        irregular.append("%s (%s)" % (relative, _kind(mode)))
+        return False
+
+    if classify(slot, "."):
+        pending = [(slot, "")]
+        while pending:
+            base, prefix = pending.pop()
+            try:
+                names = sorted(os.listdir(base))
+            except OSError as error:
+                irregular.append("%s (unreadable: %s)" % (prefix or ".", error.strerror))
+                continue
+            for name in names:
+                relative = os.path.join(prefix, name) if prefix else name
+                if classify(os.path.join(base, name), relative):
+                    pending.append((os.path.join(base, name), relative))
+    return sorted(symlinks), sorted(irregular)
 
 
 def compiled_files(completion_path: str) -> dict:
@@ -478,12 +554,32 @@ def compiled_files(completion_path: str) -> dict:
 
 
 def _under(path: str, root: str) -> bool:
-    """True when `path` is inside `root`. String containment on normalized
-    paths: these are recorded strings from a run that has already ended, not
-    live paths to resolve, and a symlink question cannot be asked of them."""
+    """True when `path` is strictly inside `root`. String containment on
+    normalized paths: these are recorded strings from a run that has already
+    ended, not live paths to resolve, and a symlink question cannot be asked
+    of them."""
     if not isinstance(path, str) or not isinstance(root, str) or not root:
         return False
     return os.path.normpath(path).startswith(os.path.normpath(root) + os.sep)
+
+
+def _same(first: str, second: str) -> bool:
+    """The case `_under()` does not cover, and the one C6 needs covered: two
+    recorded paths that are the SAME directory. `_under()` tests strict
+    descent, so `cwd == home` passed the un-nested-workspace clause while §6 C6
+    registers a workspace that is not the home it was given."""
+    if not isinstance(first, str) or not isinstance(second, str) or not first:
+        return False
+    return os.path.normpath(first) == os.path.normpath(second)
+
+
+def _resolved(path) -> bool:
+    """C6 registers the RESOLVED isolated home and working directory, and this
+    is as much of "resolved" as a recorded string can be held to: absolute,
+    and already in normal form, so no `..`, no `.`, and no doubled separator
+    can make two names for one directory read as two directories."""
+    return isinstance(path, str) and bool(path) and os.path.isabs(path) \
+        and os.path.normpath(path) == path
 
 
 def check_environment(call: dict) -> str:
@@ -502,15 +598,22 @@ def check_environment(call: dict) -> str:
     if call.get("isolation") != "isolated":
         return "CALL.json records isolation %r, not the registered isolated run" % (
             call.get("isolation"),)
+    # C6 registers the RESOLVED isolated home and working directory. A relative
+    # or unnormalized one is not resolved, and — worse for the clauses below —
+    # `../home` and `home` are two names the nesting test would not relate.
+    if not _resolved(home):
+        return ("CALL.json records the isolated home %r, which is not a resolved "
+                "absolute path" % (home,))
     if not isinstance(codex_home, str) or codex_home != os.path.join(home, ".codex"):
         return ("CALL.json records CODEX_HOME %r, which is not the .codex directory "
                 "of its own isolated home %r" % (codex_home, home))
-    if not isinstance(cwd, str) or not cwd:
-        return "CALL.json records no working directory"
-    if _under(cwd, home) or _under(home, cwd):
-        return ("the isolated home %r and the working directory %r are nested: the "
-                "registered invocation puts the model's workspace outside the home "
-                "it was given" % (home, cwd))
+    if not _resolved(cwd):
+        return ("CALL.json records the working directory %r, which is not a resolved "
+                "absolute path" % (cwd,))
+    if _same(cwd, home) or _under(cwd, home) or _under(home, cwd):
+        return ("the isolated home %r and the working directory %r are the same "
+                "directory or nested: the registered invocation puts the model's "
+                "workspace outside the home it was given" % (home, cwd))
     if call.get("environment") != ENVIRONMENT_NAMES:
         return ("CALL.json records the environment %r, not the registered %r"
                 % (call.get("environment"), ENVIRONMENT_NAMES))
@@ -561,22 +664,31 @@ def admit(slot: str, prompt_path: str, golden_path: str, pins: dict,
     parameter for it. The override exists so the wrapper-driven tests, whose
     slots are made under a stand-in registry naming a stand-in binary, can say
     which registry their slots' stamps are supposed to name; a scoring that
-    uses it can never be published, because `write_outputs()` refuses results
-    carrying one (§7).
+    uses it can never be published: there is no public writer at all, and the
+    private one refuses results carrying an override (§7).
     """
     if registry_sha256 is None:
         registry_sha256 = file_digest(REGISTRY_OF_RECORD)
-    # §3.3, first: regular files and directories only, anywhere in the tree.
-    # This precedes every other check because a symlink decides what a later
-    # check reads — a dangling REFUSAL.json link answers `exists()` with False
-    # and made the batch's own refusal record disappear.
-    links = symlinks_in(slot)
+    # §3.3, first: regular files and directories only, anywhere in the tree,
+    # decided by lstat before anything is opened. This precedes every other
+    # check for two reasons — a symlink decides what a later check reads (a
+    # dangling REFUSAL.json link answers `exists()` with False and made the
+    # batch's own refusal record disappear), and a FIFO decides whether a later
+    # check RETURNS at all (open() on one blocks forever).
+    links, irregular = slot_irregularities(slot)
     if links:
         return ("slot-symlink",
                 "the slot tree holds %d symlink(s) (%s): a slot may hold regular "
                 "files and directories only, and a link — dangling or not — is a "
                 "retained byte the slot does not contain"
                 % (len(links), ", ".join(links)), False)
+    if irregular:
+        return ("slot-irregular",
+                "the slot tree holds %d entry/entries that are neither regular files "
+                "nor directories (%s): a slot may hold regular files and directories "
+                "only. These are not retained evidence at all, and one of them — a "
+                "FIFO — would block the scorer in open() rather than refuse a slot"
+                % (len(irregular), ", ".join(irregular)), False)
     for name in SLOT_FILES:
         if not _regular(os.path.join(slot, name)):
             return "slot-shape", "%s is missing or not a regular file" % name, False
@@ -638,9 +750,13 @@ def admit(slot: str, prompt_path: str, golden_path: str, pins: dict,
     environment_failure = check_environment(call)
     if environment_failure is not None:
         return "isolation-unproven", environment_failure, False
-    if call.get("newSessionCount") != 1:
+    # An integer 1, and not `True`: Python calls those equal, so a slot
+    # recording `newSessionCount: true` — a record of nothing counted — passed
+    # this clause while §6 C6 registers exactly one new session file.
+    sessions = call.get("newSessionCount")
+    if not isinstance(sessions, int) or isinstance(sessions, bool) or sessions != 1:
         return ("session-count",
-                "the call produced %r new sessions" % call.get("newSessionCount"), False)
+                "the call records %r new sessions, not the integer 1" % (sessions,), False)
     status = call.get("exitStatus")
     if not isinstance(status, int) or isinstance(status, bool) or status != 0:
         return "call-nonzero-exit", "exit status %r" % status, False
@@ -735,7 +851,10 @@ def score_run(slot: str, prompt_path: str, golden_path: str, pins: dict,
         # tree is regular files and directories: a symlinked REFUSAL.json is
         # not this slot's refusal evidence, and the link already refused the
         # slot with its own code, which is the more exact verdict of the two.
-        if code != "slot-symlink":
+        # The same holds, and matters more, for `slot-irregular`: a FIFO named
+        # REFUSAL.json is not this slot's refusal evidence either, and reading
+        # it would block the whole scoring instead of refusing one slot.
+        if code not in ("slot-symlink", "slot-irregular"):
             batch_code = batch_refusal_code(slot)
     except Exception as error:  # noqa: BLE001 — totality is the point
         # §7: a malformed or missing slot artifact yields a recorded verdict,
@@ -801,19 +920,20 @@ def collect_slots(slots_dir: str) -> tuple:
     slot that was created and removed, and no rate may be computed over a
     population with a hole in it.
 
-    A run-NNN entry that is a SYMLINK is collected as a slot rather than
-    skipped: skipping it punched a hole in the indices and refused the whole
-    scoring, where §3.3 wants the link named. `admit()` scores it
-    `slot-symlink` on its first check, so it enters no denominator and the
-    other slots are still counted."""
+    An entry named run-NNN is collected as a slot WHATEVER ITS TYPE — a
+    directory, a symlink, a FIFO, a regular file. Skipping the ones that are
+    not directories punched a hole in the indices and refused the whole
+    scoring, where §3.3 wants the entry named: `admit()` scores it
+    `slot-symlink`, `slot-irregular` or `slot-shape` on its first checks, so it
+    enters no denominator and the other slots are still counted. The name is
+    what claims the index, so the name is what has to answer for it."""
     if not os.path.isdir(slots_dir):
         raise ScoreError("%s is not a directory" % slots_dir)
     slots, unexpected, indexes = [], [], []
     for name in sorted(os.listdir(slots_dir)):
         path = os.path.join(slots_dir, name)
         parts = name.split("-", 1)
-        if (os.path.isdir(path) or os.path.islink(path)) \
-                and len(parts) == 2 and parts[0] == "run" and parts[1].isdigit():
+        if len(parts) == 2 and parts[0] == "run" and parts[1].isdigit():
             slots.append(path)
             indexes.append(int(parts[1]))
         elif name not in ("BATCH.json", "SHORTFALL.json"):
@@ -822,6 +942,16 @@ def collect_slots(slots_dir: str) -> tuple:
         raise ScoreError("the slot indices are not the contiguous range 1..%d: %r"
                          % (len(indexes), indexes))
     return slots, unexpected
+
+
+def _range_block(valid: list, member: str) -> dict:
+    """S4's per-run range for one count: min, max and mean over the valid runs,
+    all None when there are none. Integers in, one mean out — no interval, and
+    no rate: these are volumes, not proportions."""
+    values = [row[member] for row in valid]
+    return {"min": min(values) if values else None,
+            "max": max(values) if values else None,
+            "mean": sum(values) / len(values) if values else None}
 
 
 def _sequence_halves(sequence: list) -> dict:
@@ -927,10 +1057,12 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
     wrapper-driven harness tests, whose slots are stamped with a stand-in
     registry naming a stand-in binary, can say which registry their own slots
     are supposed to name. Whether it was used is recorded in the results —
-    `cell.registryOverride` — and `write_outputs()` refuses to write
-    RESULTS.json or RATES.md when it is not null, so an override can produce a
-    dict in memory and never a published rate table. The registered command
-    calls `score_registered()`, which has no such parameter.
+    `cell.registryOverride` — and this function has no way to publish anything:
+    the writer is module-private and is called by `score_registered()` alone, on
+    results it computed itself. So an override can produce a dict in memory and
+    never a published rate table. The registered command calls
+    `score_registered()`, which has no such parameter — and no path parameter
+    either.
     """
     override = registry_sha256
     if registry_sha256 is None:
@@ -1063,19 +1195,32 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
             "perRunMean": sum(accuracies) / len(accuracies) if accuracies else None,
             "perRunMin": min(accuracies) if accuracies else None,
             "perRunMax": max(accuracies) if accuracies else None,
+            # §4.4 S5 registers this denominator rather than leaving it to be
+            # discovered: a run with no policy-concordant record at all has no
+            # label accuracy, and averaging it in as 0 would be inventing one.
+            "perRunTrials": len(accuracies),
+            "perRunExcluded": n - len(accuracies),
             "note": "Pooled over the valid runs' accepted records. No interval: "
                     "records within one completion are not independent trials, "
-                    "and a binomial interval here would overstate its precision.",
+                    "and a binomial interval here would overstate its precision. "
+                    "The per-run mean and range are over the perRunTrials valid "
+                    "runs with at least one accepted record (|H|+|Q| > 0); the "
+                    "perRunExcluded runs have no accuracy to average and are "
+                    "counted rather than scored 0.",
         },
+        # S4 names four per-run quantities and their ranges over the batch:
+        # |A|, |H|, |Q| and the dropped count. All four are published as ranges
+        # here as well as per run in `runs` — an earlier draft registered the
+        # ranges and emitted only the accepted one, which is a claim the file
+        # did not support.
         "records": {
             "acceptedTotal": accepted_total,
             "droppedTotal": dropped_total,
             "dropCodes": dict(sorted(drop_codes.items())),
-            "acceptedPerRun": {
-                "min": min((row["accepted"] for row in valid), default=None),
-                "max": max((row["accepted"] for row in valid), default=None),
-                "mean": accepted_total / n if n else None,
-            },
+            "acceptedPerRun": _range_block(valid, "accepted"),
+            "hPerRun": _range_block(valid, "h"),
+            "qPerRun": _range_block(valid, "q"),
+            "droppedPerRun": _range_block(valid, "dropped"),
         },
         "distinctOutputs": {
             "validRuns": n,
@@ -1091,17 +1236,35 @@ def score(slots_dir: str, pins_path: str, family_path: str, prompt_path: str,
     }
 
 
-def score_registered(slots_dir: str, pins_path: str, family_path: str,
-                     prompt_path: str, golden_path: str) -> dict:
-    """THE REGISTERED SCORING INTERFACE (§7): the only path that publishes.
+def score_registered(slots_dir: str, records_dir: str = None) -> dict:
+    """THE REGISTERED SCORING INTERFACE (§7): the only thing that publishes.
 
-    It takes no registry digest and there is no argument, flag or environment
-    variable through which one could arrive — `score()` therefore computes the
-    committed `harness/PINS.json`'s digest itself, and a slot stamped with any
-    other registry is `registry-mismatch` (§2.6, §3.3). `main()` calls this and
-    nothing else, and `write_outputs()` publishes only what this produced.
+    Every input except the slot directory is DERIVED from this module's own
+    location — the registry, the family, the prompt, the golden capture, and
+    the study root the tables are written to. There is no parameter, flag,
+    default or environment variable through which any of them could be
+    supplied, so an alternate registry cannot redefine N, the class
+    definitions, the model a run had to be made by, or where a rate table
+    lands. The round-2 finding closed `--pins` for the registry *stamp*; the
+    round-3 finding was that a same-digest-discipline registry supplied on the
+    command line still defined the population arithmetic. It cannot be
+    supplied now.
+
+    It computes and publishes in ONE call: the results it hands to
+    `_write_outputs()` are the results it just computed, so no dict crosses a
+    public boundary on its way to RESULTS.json. The emission directory is
+    validated BEFORE anything is scored or written, so a target that would
+    write into the slot tree refuses the whole command rather than refusing
+    after the rates are on disk.
     """
-    return score(slots_dir, pins_path, family_path, prompt_path, golden_path)
+    if records_dir is not None:
+        _check_records_target(slots_dir, records_dir)
+    results = score(slots_dir, REGISTRY_OF_RECORD, REGISTERED_FAMILY,
+                    REGISTERED_PROMPT, REGISTERED_GOLDEN)
+    _write_outputs(results)
+    if records_dir is not None:
+        _emit_records(results["runs"], slots_dir, records_dir)
+    return results
 
 
 # --- reporting -------------------------------------------------------------
@@ -1127,6 +1290,13 @@ def _rate_inline(block: dict) -> str:
 
 def _number(value, places: int = 4) -> str:
     return "—" if value is None else ("%." + str(places) + "f") % value
+
+
+def _range_cell(block: dict) -> str:
+    """One S4 per-run range: integers at the ends, a mean in the middle."""
+    if block["min"] is None:
+        return "— / — / —"
+    return "%d / %s / %d" % (block["min"], _number(block["mean"], 3), block["max"])
 
 
 def render_markdown(results: dict) -> str:
@@ -1267,14 +1437,17 @@ def render_markdown(results: dict) -> str:
         "| dropped elements | %d |" % records["droppedTotal"],
         "| drop codes | %s |" % (", ".join("`%s`×%d" % (code, count) for code, count
                                            in records["dropCodes"].items()) or "none"),
-        "| accepted per run (min/mean/max) | %s / %s / %s |" % (
-            records["acceptedPerRun"]["min"], _number(records["acceptedPerRun"]["mean"], 3),
-            records["acceptedPerRun"]["max"]),
+        "| accepted per run (min/mean/max) | %s |" % _range_cell(records["acceptedPerRun"]),
+        "| H per run (min/mean/max) | %s |" % _range_cell(records["hPerRun"]),
+        "| Q per run (min/mean/max) | %s |" % _range_cell(records["qPerRun"]),
+        "| dropped per run (min/mean/max) | %s |" % _range_cell(records["droppedPerRun"]),
         "| H / Q | %d / %d |" % (accuracy["h"], accuracy["q"]),
         "| label accuracy \\|H\\|/(\\|H\\|+\\|Q\\|) | %s |" % _number(accuracy["rate"]),
-        "| per-run label accuracy (min/mean/max) | %s / %s / %s |" % (
+        "| per-run label accuracy (min/mean/max) | %s / %s / %s, over %d of %d "
+        "valid runs |" % (
             _number(accuracy["perRunMin"]), _number(accuracy["perRunMean"]),
-            _number(accuracy["perRunMax"])),
+            _number(accuracy["perRunMax"]), accuracy["perRunTrials"],
+            accuracy["perRunTrials"] + accuracy["perRunExcluded"]),
         "| distinct completions | %d of %d valid runs (largest identical group %d) |" % (
             results["distinctOutputs"]["distinctCompletions"],
             results["distinctOutputs"]["validRuns"],
@@ -1328,10 +1501,48 @@ def render_markdown(results: dict) -> str:
     return "\n".join(lines)
 
 
-def emit_records(rows: list, slots_dir: str, out_dir: str) -> None:
-    """Optional: write each valid run's compiled record tree, so a reader can
-    diff the records themselves. Deterministic and derived — nothing here
-    enters a rate."""
+def _check_records_target(slots_dir: str, records_dir: str) -> None:
+    """`--emit-records DIR` may not write anywhere inside the slot tree (§8).
+
+    The round-3 finding: `--emit-records <slots>/run-002` emitted a phantom
+    slot into the population that had just been scored, so the retained tree no
+    longer reproduced the output published from it — and the next scoring
+    refused, because a full batch and a shortfall declaration now coexisted.
+    Emission is a DERIVED artifact of a scored population; it may not be a
+    member of one. The two directories must therefore be disjoint in both
+    directions: not equal, not one inside the other.
+
+    Checked on normalized absolute paths before the target exists, so the
+    refusal happens before anything is scored and before anything is written.
+    Nothing is resolved through symlinks here — the target usually does not
+    exist yet — which is why the slot tree's own rule (regular files and
+    directories only, no links anywhere) is what keeps a link from making two
+    disjoint names for one directory.
+    """
+    slots = os.path.normpath(os.path.abspath(slots_dir))
+    target = os.path.normpath(os.path.abspath(records_dir))
+    if target == slots or target.startswith(slots + os.sep) \
+            or slots.startswith(target + os.sep):
+        raise ScoreError(
+            "--emit-records %s is inside the slot tree %s (or contains it): the "
+            "compiled record trees are DERIVED from a scored population and may "
+            "not be written into one. Emitting a run-NNN directory there adds a "
+            "slot to the batch that was just scored, so the retained tree no "
+            "longer reproduces the published rates (§8). Name a directory outside "
+            "the slot tree." % (records_dir, slots_dir))
+
+
+def _emit_records(rows: list, slots_dir: str, out_dir: str) -> None:
+    """Write each valid run's compiled record tree, so a reader can diff the
+    records themselves. Deterministic and derived — nothing here enters a rate.
+
+    It READS only each slot's `completion.txt` and WRITES only under `out_dir`,
+    which `_check_records_target()` has already required to be outside the slot
+    tree. That is what makes it safe to run after `RESULTS.json` exists: it
+    emits from the population that was just scored and cannot alter it. Runs
+    with no parseable array have no compiled tree and are skipped, which §8
+    states rather than implies.
+    """
     for row in rows:
         if not row["valid"] or row.get("noParseableArray"):
             continue
@@ -1344,26 +1555,30 @@ def emit_records(rows: list, slots_dir: str, out_dir: str) -> None:
                 handle.write(body)
 
 
-def write_outputs(results: dict, out_dir: str, slots_dir: str = None,
-                  records_dir: str = None) -> None:
-    """RESULTS.json and RATES.md, and optionally the derived record trees.
+def _write_outputs(results: dict) -> None:
+    """RESULTS.json and RATES.md, into the study root and nowhere else.
 
-    `main()` always passes the study root — there is no CLI flag that moves
-    the rate table anywhere else (§2.4). The parameter exists so the
-    determinism test can score the same tree into two throwaway directories
-    and compare the bytes without writing into the committed study.
+    MODULE-PRIVATE, and called by `score_registered()` alone, on the results it
+    computed in the same call. There is no public writer: the round-3 finding
+    was that a public one trusted a mutable member of an ordinary dict, so
+    editing `cell.registryOverride` to None published an alternate-registry
+    scoring anywhere the caller named. The output directory is not a parameter
+    either — a rate table written elsewhere would let the operator read six
+    rates while the driver still accepted new slots (§2.4).
 
-    **The one thing this refuses to publish** (§7): a scoring that did not
-    compute the committed registry's digest itself. `score()`'s
-    `registry_sha256` override is for library callers, and the boundary
-    between "a library caller may compute a table" and "a table may be
-    published" is enforced here rather than left to the caller's discipline —
-    results carrying an override are refused, in any output directory, and so
-    is a results dict that never came through `score()` and therefore cannot
-    say which registry it counted under.
+    What it still checks, because "called by one caller" is a property of this
+    file and the checks are properties of the study tree: every digest the
+    results claim is re-derived here from the committed tree and must agree,
+    including the registered N. So even a hand-built dict must describe a
+    scoring of THIS cell under THIS registry to be written.
+
+    What no check inside a file can refuse is a caller who edits this file or
+    rebinds its module constants in process. §7 states that ceiling once.
     """
     cell = results.get("cell") if isinstance(results, dict) else None
-    if not isinstance(cell, dict) or REGISTRY_OVERRIDE not in cell:
+    population = results.get("population") if isinstance(results, dict) else None
+    if not isinstance(cell, dict) or REGISTRY_OVERRIDE not in cell \
+            or not isinstance(population, dict):
         raise ScoreError(
             "these results did not come from score(): they carry no cell.%s, so "
             "there is no saying which registry of record they were counted under, "
@@ -1373,53 +1588,108 @@ def write_outputs(results: dict, out_dir: str, slots_dir: str = None,
         raise ScoreError(
             "this scoring was given the registry digest %s as an override; "
             "RESULTS.json and RATES.md are written only for a scoring that "
-            "computed the committed harness/PINS.json's digest itself. Score "
-            "through score_registered() — the registered interface — or keep the "
-            "override and keep the result in memory (§2.6, §7)"
+            "computed the committed harness/PINS.json's digest itself (§2.6, §7)"
             % cell[REGISTRY_OVERRIDE])
-    os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, "RESULTS.json"), "wb") as handle:
+    pins = load_json(REGISTRY_OF_RECORD)
+    expected = {
+        "registryOfRecordSha256": file_digest(REGISTRY_OF_RECORD),
+        "promptSha256": file_digest(REGISTERED_PROMPT),
+        "familySha256": pins["family"]["sha256"],
+        "goldenSha256": pins.get("golden", {}).get("sha256"),
+        "preregistrationSha256": pins.get("preregistration", {}).get("sha256"),
+        "model": pins["codex"]["model"],
+        "cli": pins["codex"]["version"],
+        "binarySha256": pins["codex"]["binarySha256"],
+    }
+    for member, value in sorted(expected.items()):
+        if cell.get(member) != value:
+            raise ScoreError(
+                "these results record cell.%s = %r and the committed harness/PINS.json "
+                "and study tree give %r: a rate table is published only for a scoring "
+                "of this cell under the committed registry (§2.6, §7)"
+                % (member, cell.get(member), value))
+    registered = pins.get("batch", {}).get("runs")
+    if population.get("registeredRuns") != registered:
+        raise ScoreError(
+            "these results were counted against a registered batch size of %r and the "
+            "committed harness/PINS.json registers %r: N is the committed registry's "
+            "to state, and a scoring over another one is not this study's (§2.4, §7)"
+            % (population.get("registeredRuns"), registered))
+    os.makedirs(STUDY, exist_ok=True)
+    with open(os.path.join(STUDY, "RESULTS.json"), "wb") as handle:
         handle.write((json.dumps(results, indent=2, sort_keys=True) + "\n").encode("utf-8"))
-    with open(os.path.join(out_dir, "RATES.md"), "wb") as handle:
+    with open(os.path.join(STUDY, "RATES.md"), "wb") as handle:
         handle.write(render_markdown(results).encode("utf-8"))
-    if records_dir:
-        emit_records(results["runs"], slots_dir, records_dir)
 
 
-def _argument(argv: list, flag: str, default=None):
-    if flag not in argv:
-        return default
-    index = argv.index(flag)
-    if index + 1 >= len(argv):
-        raise ScoreError("%s needs a value" % flag)
-    return argv[index + 1]
+# The registered command's whole argument surface. `--slots` names the slot
+# tree; `--emit-records` names a derived-output directory outside it. Nothing
+# else is accepted, and an unknown argument REFUSES rather than being ignored:
+# a flag that is silently dropped is how a stale command line lies about what
+# it ran (§7).
+SCORE_FLAGS = ("--slots", "--emit-records")
+WITHDRAWN_FLAGS = {
+    "--out": "--out was removed: RESULTS.json and RATES.md go to the study root, and "
+             "nowhere else. A rate table written elsewhere would let the operator see "
+             "six rates while the driver still accepted new slots (§2.4).",
+    "--pins": "--pins was removed from the scorer: the registry of record is the "
+              "COMMITTED harness/PINS.json and the registered command derives it from "
+              "its own location. A supplied registry — even one whose cell values match "
+              "— would define N and the class definitions of the population it "
+              "published (§2.6, §7). batch.py still takes --pins, for the stand-in "
+              "binary the harness tests drive.",
+    "--family": "--family was removed: the six coverage classes are FAMILY.json at the "
+                "committed pin, derived from the harness's own location (§2.6, §7).",
+    "--prompt": "--prompt was removed: the registered prompt is derived from the "
+                "harness's own location and checked against the committed pin (§2.6).",
+    "--golden": "--golden was removed: the golden capture is derived from the harness's "
+                "own location and checked against the committed pin (§3.2).",
+    "--registry-sha256": "there is no flag for the registry digest and never was: the "
+                         "registered interface computes the committed harness/PINS.json's "
+                         "digest itself (§2.6, §7).",
+}
+USAGE = "usage: score_rates.py score --slots DIR [--emit-records DIR]"
+
+
+def _parse_score(argv: list) -> dict:
+    """{flag: value} for the `score` command, or ScoreError. Strict: every
+    token must be a registered flag with a value, no flag twice."""
+    options: dict = {}
+    index = 0
+    while index < len(argv):
+        token = argv[index]
+        if token in WITHDRAWN_FLAGS:
+            raise ScoreError(WITHDRAWN_FLAGS[token])
+        if token not in SCORE_FLAGS:
+            raise ScoreError(
+                "unknown argument %r. The registered scoring command takes %s and "
+                "nothing else, and an argument it does not know is a refusal rather "
+                "than a no-op: a silently ignored flag is how a stale command line "
+                "lies about what it ran (§7). %s"
+                % (token, " and ".join(SCORE_FLAGS), USAGE))
+        if index + 1 >= len(argv):
+            raise ScoreError("%s needs a value" % token)
+        if token in options:
+            raise ScoreError("%s was given twice" % token)
+        options[token] = argv[index + 1]
+        index += 2
+    return options
 
 
 def main(argv: list) -> int:
     if len(argv) < 2 or argv[1] != "score":
-        print("usage: score_rates.py score --slots DIR [--pins P] [--family F] "
-              "[--prompt P] [--golden G] [--emit-records DIR]",
-              file=sys.stderr)
+        print(USAGE, file=sys.stderr)
         return 2
     try:
-        if "--out" in argv:
-            raise ScoreError(
-                "--out was removed: RESULTS.json and RATES.md go to the study root, "
-                "and nowhere else. A rate table written elsewhere would let the "
-                "operator see six rates while the driver still accepted new slots "
-                "(§2.4). --emit-records DIR still takes a directory.")
-        slots_dir = _argument(argv, "--slots")
+        options = _parse_score(argv[2:])
+        slots_dir = options.get("--slots")
         if slots_dir is None:
-            raise ScoreError("--slots is required")
-        # §7: the registered interface. It takes no registry digest, so no
-        # argv, no default and no environment can put one here — the committed
-        # harness/PINS.json's digest is computed inside.
-        results = score_registered(slots_dir,
-                                   _argument(argv, "--pins", DEFAULT_PINS),
-                                   _argument(argv, "--family", DEFAULT_FAMILY),
-                                   _argument(argv, "--prompt", DEFAULT_PROMPT),
-                                   _argument(argv, "--golden", DEFAULT_GOLDEN))
-        write_outputs(results, STUDY, slots_dir, _argument(argv, "--emit-records"))
+            raise ScoreError("--slots is required. " + USAGE)
+        # §7: the registered interface. It scores and publishes in one call and
+        # derives every other input from its own location, so no argv, no
+        # default and no environment can reach the registry, the family, the
+        # prompt, the golden capture, or where the tables land.
+        results = score_registered(slots_dir, options.get("--emit-records"))
     except ScoreError as error:
         print("refused: %s" % error, file=sys.stderr)
         return 1

@@ -201,7 +201,11 @@ fi
 # single unrepeatable draw; here the protection that matters is that every
 # invocation leaves its own slot and no slot is ever written twice.
 mkdir -p "$(dirname "$SLOT")"
-if [ -e "$SLOT" ]; then
+# -e OR -L: a DANGLING symlink at the slot path is absent to `-e` and present
+# to `mkdir`, so the wrapper used to pass this check and then die in `mkdir`
+# under `set -e` with no refusal message. A link at a slot path is a slot that
+# already exists, whatever it points at.
+if [ -e "$SLOT" ] || [ -L "$SLOT" ]; then
   echo "refused: slot $SLOT already exists" >&2
   exit 1
 fi

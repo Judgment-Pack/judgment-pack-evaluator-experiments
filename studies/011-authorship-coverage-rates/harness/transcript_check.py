@@ -321,6 +321,16 @@ def check(session_path: str, prompt_path: str, completion_path: str,
         if named and named != {model}:
             raise TranscriptError("the transcript's turn context names %r, not the locked model %r"
                                   % (sorted(named), model))
+        # EVERY named cwd, not merely one of them — symmetrical with the model
+        # clause above, and what §3.1 gate 5 registers: `turn_context`, where
+        # present, names the call's own working directory. Membership admitted a
+        # second turn_context naming a foreign workspace as long as one context
+        # named the right one, so "where present" was true of the set and not of
+        # its members.
         cwds = {context.get("cwd") for context in contexts if "cwd" in context}
-        if cwds and call.get("cwd") not in cwds:
-            raise TranscriptError("the transcript's working directory is not the call's cwd")
+        if cwds and cwds != {call.get("cwd")}:
+            raise TranscriptError(
+                "the transcript's turn context names the working directories %r, not "
+                "the call's own %r alone"
+                % (sorted(value for value in cwds if isinstance(value, str)),
+                   call.get("cwd")))

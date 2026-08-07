@@ -16,6 +16,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest import mock
 
 import fixtures
 import score_rates
@@ -59,19 +60,33 @@ class Determinism(unittest.TestCase):
             os.path.join(STUDY, "PREREGISTRATION.md"))
         with open(self.pins_path, "w") as handle:
             json.dump(self.pins, handle, indent=2)
+        # §2.6: these slots are scored through the registered interface against
+        # a stand-in study, so they name that study's registry — the wrapper
+        # stamps the registry the run was actually made under, and a slot
+        # stamped with any other one is `registry-mismatch`.
+        self.registry = fixtures.stamp_registry(self.pins_path, *[
+            os.path.join(self.slots, name) for name in sorted(os.listdir(self.slots))])
 
     def score_into(self, name: str) -> str:
-        """The scorer's own serialization, into a throwaway directory.
+        """The registered command, run against a stand-in study.
 
-        `score_rates.main()` has no `--out`: the rate table goes to the study
+        There is no `--out` and no writer parameter: the tables go to the study
         root and nowhere else, so that scoring always leaves the marker the
         driver refuses new slots on (§2.4). A determinism test must not write
-        into the committed study, so it calls the same writer main() calls."""
+        into the committed study — whose golden pin is still null — so it
+        REBINDS the module constants that name the stand-in study's registry,
+        golden capture and root, and then runs the real command. That rebinding
+        is the escape §7 says no check inside a file can refuse; it is used
+        here to stand up a stand-in study, and `test_batch.py` is where the
+        claim that no argument or flag can redirect the command is tested."""
         out = os.path.join(self.root, name)
-        results = score_rates.score(self.slots, self.pins_path, self.family,
-                                    self.prompt, self.golden)
-        score_rates.write_outputs(results, out, self.slots,
-                                  os.path.join(out, "records"))
+        with mock.patch.multiple(
+                score_rates, STUDY=out, REGISTRY_OF_RECORD=self.pins_path,
+                REGISTERED_FAMILY=self.family, REGISTERED_PROMPT=self.prompt,
+                REGISTERED_GOLDEN=self.golden):
+            self.assertEqual(score_rates.main(
+                ["score_rates.py", "score", "--slots", self.slots,
+                 "--emit-records", os.path.join(out, "records")]), 0)
         return out
 
     def test_two_scorings_of_one_tree_are_byte_identical(self):
@@ -101,14 +116,16 @@ class Determinism(unittest.TestCase):
 
     def test_the_denominator_is_the_valid_runs_and_nothing_else(self):
         results = score_rates.score(self.slots, self.pins_path, self.family,
-                                    self.prompt, self.golden)
+                                    self.prompt, self.golden,
+                                    registry_sha256=self.registry)
         self.assertEqual(results["population"]["valid"], 3)
         for entry in results["classes"]:
             self.assertEqual(entry["coverage"]["trials"], 3)
         # Break one slot: it leaves the denominator and takes its code with it.
         os.remove(os.path.join(self.slots, "run-002", "completion.txt"))
         results = score_rates.score(self.slots, self.pins_path, self.family,
-                                    self.prompt, self.golden)
+                                    self.prompt, self.golden,
+                                    registry_sha256=self.registry)
         self.assertEqual(results["population"]["valid"], 2)
         self.assertEqual(results["population"]["invalidCodes"], {"no-completion": 1})
         for entry in results["classes"]:
@@ -127,7 +144,8 @@ class Determinism(unittest.TestCase):
         same V, and publishing a rate without its interval invites reading a
         point estimate as precise."""
         results = score_rates.score(self.slots, self.pins_path, self.family,
-                                    self.prompt, self.golden)
+                                    self.prompt, self.golden,
+                                    registry_sha256=self.registry)
         expected = set()
         for entry in results["classes"]:
             for member in ("coverage", "rawIntersection", "qIntersection",

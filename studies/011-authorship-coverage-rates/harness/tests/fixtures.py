@@ -302,6 +302,25 @@ def stamp_golden(golden: str, *slots: str) -> str:
     return digest
 
 
+def stamp_registry(pins_path: str, *slots: str) -> str:
+    """Record, in each slot's CALL.json, the registry it was made under (§2.6).
+
+    `build_slot()` stamps the COMMITTED registry, which is what most tests
+    want. A test that scores through the registered interface against a
+    stand-in study has to stamp that study's registry instead, exactly as the
+    wrapper stamps the registry it actually ran under."""
+    digest = file_digest(pins_path)
+    for slot in slots:
+        path = os.path.join(slot, "CALL.json")
+        with open(path) as handle:
+            call = json.load(handle)
+        call["pinsSha256"] = digest
+        with open(path, "w") as handle:
+            json.dump(call, handle, indent=2)
+            handle.write("\n")
+    return digest
+
+
 def build_slot(slot: str, answer: str, study: str, pins: dict, *,
                exit_status: int = 0, session: bool = True,
                completion_file: bool = True, entries=None,
