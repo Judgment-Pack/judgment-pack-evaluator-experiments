@@ -1,0 +1,31 @@
+{
+  "capturedFrom": [
+    "capture-001",
+    "capture-002"
+  ],
+  "capturedIn": "attempt-1",
+  "contextVersion": "1",
+  "entries": [
+    {
+      "length": 4024,
+      "role": "developer",
+      "sha256": "029b4168c24d6525378718fd5bc0dd86f748a8e69c493ca4110dea126e7cee5b"
+    },
+    {
+      "length": 2183,
+      "role": "developer",
+      "sha256": "61f6bc799a82990ebede5d07532d630a01c40dcdfc55d89e74fdf079e9322636"
+    },
+    {
+      "length": 271,
+      "role": "developer",
+      "sha256": "6ded806e3cdbb35599ecaf8742574bc5274908472b1729090010c404c2151e8e"
+    },
+    {
+      "length": 2585,
+      "role": "user",
+      "sha256": "b0db26a8d48a8acf45ac469a3b98a19bae734a82e404d506a2f938511fb60a2d"
+    }
+  ],
+  "note": "The pre-prompt context of this study's registered invocation, captured from independent probe-prompt runs that reproduced identically after normalization. Any deviation in a batch run's context refuses that run (score_rates.py, code transcript-refused). Its digest goes into harness/PINS.json golden.sha256 and both are committed before slot 1."
+}

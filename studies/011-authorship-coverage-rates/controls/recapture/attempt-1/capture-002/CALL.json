@@ -1,0 +1,56 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--ignore-user-config",
+    "-m",
+    "gpt-5.6-sol",
+    "--sandbox",
+    "workspace-write",
+    "-c",
+    "mcp_servers={}",
+    "<the exact bytes of transcription/PROBE-PROMPT.txt>"
+  ],
+  "slot": "capture-002",
+  "slotIndex": 2,
+  "promptKind": "probe",
+  "promptSha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7",
+  "pinsSha256": "sha256:5f7fb6184537f86c25130793e851a923175c23ac1ecb46fd58ee51c571d045d1",
+  "goldenSha256": null,
+  "isolation": "isolated",
+  "startedAt": "2026-08-07T12:40:39Z",
+  "endedAt": "2026-08-07T12:40:46Z",
+  "cwd": "/tmp/s011-live-IuCrny/s011-authoring-capture-002-3622903",
+  "home": "/tmp/s011-live-IuCrny/s011-home-capture-002-3622903",
+  "codexHome": "/tmp/s011-live-IuCrny/s011-home-capture-002-3622903/.codex",
+  "environment": [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "CODEX_HOME"
+  ],
+  "environmentValues": {
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/s011-live-IuCrny/s011-bin-capture-002-3622903",
+    "HOME": "/tmp/s011-live-IuCrny/s011-home-capture-002-3622903",
+    "TMPDIR": "/tmp/s011-live-IuCrny/s011-authoring-capture-002-3622903/tmp",
+    "CODEX_HOME": "/tmp/s011-live-IuCrny/s011-home-capture-002-3622903/.codex"
+  },
+  "environmentScrubbed": true,
+  "codexHomeIsolated": true,
+  "homeIsolated": true,
+  "isolatedHomeInventory": [
+    ".codex",
+    ".codex/auth.json"
+  ],
+  "operatorHomeSkillsPresent": true,
+  "credentialCopied": true,
+  "credentialRemoved": true,
+  "ignoreUserConfig": true,
+  "model": "gpt-5.6-sol",
+  "cli": "codex-cli 0.145.0",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "exitStatus": 0,
+  "newSessionCount": 1,
+  "stdin": "closed (/dev/null)",
+  "note": "One run of Study 011's single cell; session.jsonl is the transcript evidence."
+}
