@@ -176,7 +176,11 @@ reading a `completion.txt` by eye mid-batch (§7).
    column is checked against Study 010's own `PROTOCOL-LOCK.json`, not
    against itself, so editing a port and its row together still refuses.
 3. [`DEVIATIONS.md`](DEVIATIONS.md) — empty until something departs.
-4. `RESULTS.json`, `RATES.md` and `ANALYSIS.md` — do not exist yet.
+4. `RESULTS.json`, `RATES.md` and `ANALYSIS.md` — the run's outputs (the
+   study ran 2026-08-07; 49 of 50 slots valid, every class covered).
+5. [`DIVERSITY.md`](DIVERSITY.md) — the post-hoc diversity census a reader's
+   question prompted: how much variety sits behind 49/49. Every table
+   regenerates from `analysis/diversity.py`.
 
 Byte-lineage, not truth: this study measures whether independently
 authored records *reach* registered boundary classes with correct labels.
