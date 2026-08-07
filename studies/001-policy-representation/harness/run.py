@@ -53,8 +53,12 @@ meanings, and they resume across the boundary.
 DETERMINISM
 -----------
 Rows carry no wall-clock timestamp and the mock backend synthesises its own
-latency, so two mock runs of the same command produce byte-identical files. The
-only timestamp in the system is the one the operator puts in the output filename.
+latency, so two mock runs of the same command produce byte-identical files for
+the model arms. Arm B is the exception even under ``--backend mock``: it always
+calls the real runtime and records the measured ``latency_ms``, so two identical
+arm-B runs agree on every substantive field but differ in latency. The only
+wall-clock timestamp in the system is the one the operator puts in the output
+filename.
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------

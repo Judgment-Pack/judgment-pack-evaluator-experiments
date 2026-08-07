@@ -126,15 +126,18 @@ A second error concentration (G-3): B calls **18 of 37** gold-legal
 answerable instances illegal. The cause is no longer unknown — every one
 of the 18 is diagnosed to a named `derive.py` field or pack rule in
 [`G3-DIAGNOSIS.md`](G3-DIAGNOSIS.md), each verified by counterfactual
-through the same `judgment-pack 0.2.0` binary (6 derivation defects, 8
-pack encoding errors, 2 disputable gold labels, 2 genuinely ambiguous;
-the 6/8 split is tie-break-convention-dependent and the note says so).
-Its sharpest consequence bears on G-2: correcting all four derivation
-defects *lowers* arm B's answerable accuracy from 0.579 to 0.551, because
-the same defects were also producing right answers for wrong reasons on
-twelve gold-illegal instances. The pipeline's errors partly compensate,
-so the arm-B score does not decompose into "pack quality" plus
-"preprocessor quality".
+through the same `judgment-pack 0.2.0` binary. Eleven distinct mechanisms
+are involved; by instance attribution, 6 instances trace to `derive.py`,
+8 to the pack's own encoding, 2 to disputable gold labels, and 2 are
+genuinely ambiguous (the 6/8 split is tie-break-convention-dependent and
+the note says so). Its sharpest consequence bears on G-2: applying
+diagnostic probes for four of the five derivation mechanisms — probes are
+isolations, not repairs, and one mechanism has none — *lowers* arm B's
+answerable accuracy from 0.579 to 0.551, because the same defects were
+also producing right answers for wrong reasons on twelve gold-illegal
+instances. The pipeline's errors partly compensate, so the arm-B score
+does not decompose into "pack quality" plus "preprocessor quality"; no
+claim is made about where a repaired pipeline would land.
 
 ## Escalation — H2 **holds** on its registered criterion
 

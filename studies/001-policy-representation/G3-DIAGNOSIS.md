@@ -17,11 +17,13 @@ where the pack's `illegal` is defensible against the CBA excerpt and
 RuleArena's gold is not. Two turn on a defined term the pinned excerpt never
 defines. No instance traces to a parser fault.
 
-**The other short answer, which matters more.** Correcting every `derive.py`
-defect found here *lowers* arm B's accuracy on the answerable population, from
-0.579 to 0.551, because the same defects were also producing correct `illegal`
-verdicts on 12 gold-illegal instances. G-2's caveat — "the score partly
-measures `derive.py`" — is not an additive correction term. See §6.
+**The other short answer, which matters more.** Applying diagnostic probes
+for four of the five `derive.py` mechanisms found here (M2b has no probe, and
+a probe is an isolation, not a repair — §6) *lowers* arm B's accuracy on the
+answerable population, from 0.579 to 0.551, because the same defects were also
+producing correct `illegal` verdicts on 12 gold-illegal instances. G-2's
+caveat — "the score partly measures `derive.py`" — is not an additive
+correction term. See §6.
 
 ---
 
@@ -533,8 +535,10 @@ needs one sentence changed — "The cause is unknown" is no longer true — and
 
 **G-2's caveat needs strengthening, and the quantity runs the wrong way.**
 §7 G-2 says arm B's score "partly measures `derive.py` rather than the pack".
-The four `derive.py` defects found here were patched as diagnostic probes, all
-216 answerable twins re-derived, and `judgment-pack 0.2.0` re-run on each:
+Four of the five `derive.py` mechanisms found here were patched as diagnostic
+probes (M2b, the second Room reading, has none — it is contributing on rows
+M3 dominates), all 216 answerable twins re-derived, and `judgment-pack 0.2.0`
+re-run on each:
 
 | pipeline | answerable accuracy | correct | gold-legal correct (of 37) | gold-illegal correct (of 179) |
 | --- | ---: | ---: | ---: | ---: |
@@ -565,14 +569,18 @@ So the accurate statement is not "arm B's score is the pack's score plus a
 components' errors partly cancel, and neither is recoverable from the other by
 subtraction.** Any decomposition of that number is unsupported.
 
-The comparison between arms is undisturbed, and for two different reasons. The
-preprocessor defects M1, M2, M2b, M9 and M10 sit in the derived block that all
-three arms receive byte-identically. The pack's encoding defects M3, M4 and M8
-do not reach arm A, which reads the CBA excerpt — but they do reach arm A′,
-whose prose is a mechanical projection of this same pack, so they are a shared
-A′/B property rather than a B-only handicap. What the diagnosis disturbs is not
-the B − A contrast but any reading of arm B's absolute number as a measurement
-of the pack.
+The *observed* comparison between arms stands on even-handed inputs, for two
+different reasons. The preprocessor defects M1, M2, M2b, M9 and M10 sit in the
+derived block that all three arms received byte-identically. The pack's
+encoding defects M3, M4 and M8 do not reach arm A, which reads the CBA
+excerpt — but they do reach arm A′, whose prose is a mechanical projection of
+this same pack, so they are a shared A′/B property rather than a B-only
+handicap. Two things this does **not** establish: that identical wrong inputs
+affected a prompted model and an executable pack identically (they need not),
+and where a corrected-pipeline B − A or B − A′ contrast would land — only arm
+B was re-run under the probes; the model arms were not, so that contrast is
+unestimated. What the diagnosis disturbs outright is any reading of arm B's
+absolute number as a measurement of the pack.
 
 The probes above are minimal isolations, not repairs. A real repair — one that
 computes Room per assignment, models a matched Offer Sheet including the Salary

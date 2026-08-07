@@ -52,20 +52,26 @@ refusals" can be checked against the retained rows rather than taken on trust,
 ``returncode`` and its ``stderr`` verbatim --- including the paths where no
 process completed, which record ``returncode=None``.
 
-**What that does NOT do is make the study's published arm-B numbers auditable.**
-The change is to the harness, not to the data: every row in
-``results/pilot-B-runtime.jsonl`` was written before it, is
-``jps-study-001-result/1``, carries no ``engine_returncode`` and no
-``engine_stderr``, and was scored under the permissive rule. Arm B has **not**
-been re-run, so ``RESULTS-FIRST-PROMPT-ARMS.md``'s "0 errors" for arm B rests on
-the old rule and on the same unauditable retained rows as before --- the new keys
-audit runs made from now on and nothing earlier. Nor was the rule change
-registered in advance: it was made after the result was read, which is recorded
-in ``DEVIATIONS.md`` section 4 along with the direction it can move a number
-(strictly down for arm B, never up). The stricter rule does not catch a
-legitimate abstention: the current runtime's ``internal/cli/app.go`` documents
-that producing *any* disposition exits 0, so ``unresolved`` and
-``not-applicable`` come back through the normal path.
+**What this makes auditable, exactly.** The original retained rows in
+``results/pilot-B-runtime.jsonl`` predate the change: they are
+``jps-study-001-result/1``, carry no ``engine_returncode`` and no
+``engine_stderr``, and were scored under the permissive rule --- they remain
+intrinsically unauditable for exit status. What exists alongside them is the
+strict-rule re-run ``results/k5-B-runtime-audited.jsonl``
+(``DEVIATIONS.md`` section 5): the same 432 x 5 corpus through this fixed
+harness, every row carrying ``engine_returncode: 0`` with its stderr, and
+every disposition and trace byte-identical to the original rows. So the "0
+engine refusals" claim is checkable against the audited corpus, while the
+``/1`` rows stand as the log the published scores were computed from. The
+rule change was not registered in advance: it was made after the result was
+read, which is recorded in ``DEVIATIONS.md`` section 4. Its direction is
+bounded for accuracy and pass^k only --- conversions to refusals can only
+lower those --- but a refusal is non-escalating with empty citations, so
+escalation and citation metrics could move either way; the re-run converting
+zero rows is what settles it empirically. The stricter rule does not catch a
+legitimate abstention: the runtime documents that producing *any* disposition
+exits 0, so ``unresolved`` and ``not-applicable`` come back through the
+normal path.
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
@@ -292,12 +298,13 @@ def _evidence_path_for(instance_id: str, evidence_dir: Optional[str]) -> Optiona
 
 
 def _decoded(stream: Any) -> str:
-    """Decode one captured stderr stream to text; ``""`` when nothing was captured.
+    """Decode one captured output stream to text; ``""`` when nothing was captured.
 
-    ``TimeoutExpired.stderr`` is ``bytes`` when the child wrote before the timeout
-    expired and ``None`` when it wrote nothing at all. Both are recorded --- as
-    text and as the empty string respectively --- rather than dropped, because the
-    partial stderr of a timed-out runtime is often the only account of it.
+    ``TimeoutExpired.stdout`` / ``.stderr`` are ``bytes`` when the child wrote
+    before the timeout expired and ``None`` when it wrote nothing at all. Both
+    are recorded --- as text and as the empty string respectively --- rather than
+    dropped, because the partial output of a timed-out runtime is often the only
+    account of it.
     """
     if stream is None:
         return ""
@@ -358,7 +365,8 @@ def evaluate_instance(instance: Mapping[str, Any], config: ArmBConfig) -> Dict[s
         _cleanup(tmpdir, facts_path)
         return {"ok": False, "prediction": None,
                 "error": "engine-refusal:timeout after %ss" % config.timeout_s,
-                "raw_text": "", "raw": None, "latency_ms": latency_ms, "argv": argv,
+                "raw_text": _decoded(exc.stdout), "raw": None,
+                "latency_ms": latency_ms, "argv": argv,
                 "returncode": None, "stderr": _decoded(exc.stderr)}
     latency_ms = int((time.monotonic() - started) * 1000)
     _cleanup(tmpdir, facts_path)

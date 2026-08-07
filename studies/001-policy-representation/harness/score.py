@@ -35,8 +35,14 @@ Uncertainty comes from a **paired bootstrap**: instances are resampled with
 replacement, the *same* resample is applied to every condition, and every metric
 plus every baseline-relative difference is recomputed. Percentile intervals are
 reported. ``random.Random`` with a fixed seed; the same inputs give the same
-numbers. Alongside it, and only alongside it, the registered **McNemar's exact
-test** on the pass^k indicator.
+numbers. Alongside it, and only alongside it, **McNemar's test** on the pass^k
+indicator. PREREGISTRATION.md section 5 registers "McNemar's test for paired
+binary outcomes" and no more: the exact (rather than asymptotic) form, the
+two-sided reading, and the choice of the pass^k indicator as the binary are
+implementation decisions recorded in DEVIATIONS.md section 4, and the test is
+computed for *every* non-baseline condition, of which only the B-vs-A contrast
+on the answerable population is the registered primary --- any other cell it
+prints is exploratory.
 
 ANALYSIS POPULATION (``--population``, default ``all``)
 --------------------------------------------------------
@@ -115,9 +121,11 @@ precision, recall and F1 are reported as **undefined** --- ``null`` in the JSON
 summary, ``n/a`` in the markdown, and the section heading says NOT ESTIMABLE ---
 in the point estimate, the interval and the paired difference alike. The
 **counts** are still counts and are still printed: on the answerable population
-the should-not-but-did column is the false-escalation count that
-PREREGISTRATION.md section 6 names as H2's explicit cost criterion, and it is
-the reason the table is annotated rather than dropped. The condition is a
+the should-not-but-did column is the numerator of the false-escalation **rate**
+that PREREGISTRATION.md section 6 names as H2's explicit cost criterion (the
+registered quantity is the rate; the count over the population's trials is how
+it is computed), and it is the reason the table is annotated rather than
+dropped. The condition is a
 property of the analysis set, not of the flag: an intersection that happens to
 contain no redacted twin is suppressed the same way.
 
@@ -989,10 +997,15 @@ def render_markdown(summary: Mapping[str, Any]) -> str:
 
     lines.append("## McNemar's exact test on the pass^k indicator")
     lines.append("")
-    lines.append("Registered in PREREGISTRATION.md section 5. The paired binary "
+    lines.append("PREREGISTRATION.md section 5 registers \"McNemar's test for "
+                 "paired binary outcomes\"; the exact two-sided form and the "
+                 "pass^k indicator as the binary are implementation choices "
+                 "recorded in DEVIATIONS.md section 4. The registered primary "
+                 "contrast is B vs A on the answerable population; every other "
+                 "row below is exploratory and unadjusted. The paired binary "
                  "outcome is whether a condition got *all* k trials right on an "
-                 "instance. Only instances the two conditions disagree about "
-                 "carry information; the p is the exact two-sided binomial "
+                 "instance; only instances the two conditions disagree about "
+                 "carry information, and the p is the exact two-sided binomial "
                  "probability under an even split of them.")
     lines.append("")
     lines.append("| condition vs baseline | baseline only correct | "

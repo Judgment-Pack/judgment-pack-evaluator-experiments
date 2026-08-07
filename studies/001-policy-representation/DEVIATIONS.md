@@ -66,16 +66,12 @@ manufactured-redaction ones. On the registered population the sign flips:
 The post-run adversarial review caught it as its first blocker. Every
 number was independently recomputed before the correction was accepted.
 
-**Why it happened, stated plainly.** As shipped on the day, `score.py`
-intersected all shared twin ids and never filtered to
-`variant == "answerable"`. The scorer did not enforce the registered
-population, and the author did not verify that the population matched the
-endpoint before writing "passes". A preregistration constrains what you
-may claim; it does not check that the claim was computed on what it
-names. That check is manual and it was skipped. (§4 records the
-`--population` flag added afterwards. It makes the analysis set explicit
-and auditable; it still does not know which population a hypothesis
-registered, so the manual check remains manual.)
+**Why it happened, stated plainly.** `score.py` intersects all shared twin
+ids and never filters to `variant == "answerable"`. The scorer does not
+enforce the registered population, and the author did not verify that the
+population matched the endpoint before writing "passes". A preregistration
+constrains what you may claim; it does not check that the claim was
+computed on what it names. That check is manual and it was skipped.
 
 **Consequences.** `RESULTS-FIRST-PROMPT-ARMS.md` was rewritten to lead
 with the negative result. H1, H4, and H5 are all reported as not
@@ -88,33 +84,21 @@ amended, so the error and its correction are both auditable.
   It is defined as pooled across Claude and Codex; only Codex ran, and
   `score.py` has no cross-backend pooling operation. Everything reported
   is a Codex-only deviated analysis.
-
-Each of the three below was true of the harness **as it stood when the
-results were read**. §4 records what was changed afterwards and what was
-not; the state of each one today is noted inline so this list cannot be
-read as describing the current code.
-
-- **McNemar's test, committed in §5, was not implemented** in `score.py`,
-  which provided only paired bootstrap intervals. It was computed by hand
+- **McNemar's test, committed in §5, is not implemented** in `score.py`,
+  which provides only paired bootstrap intervals. It was computed by hand
   for the primary endpoint and reported; the omission is recorded here
-  rather than left silent. *(Implemented 2026-08-06 — §4.)*
-- **The shipped scorer bootstrapped 432 twins independently** rather than
+  rather than left silent.
+- **The shipped scorer bootstraps 432 twins independently** rather than
   resampling the 216 pair clusters. Pair-clustering the H2 interval gives
   [0.397, 0.505]; the conclusion is unchanged. Reported figures note which
-  intervals are clustered. *(A `--bootstrap-unit pair` option exists as of
-  2026-08-06 and reproduces that interval; `twin` remains the default, so
-  the published intervals are still what the recorded commands produce —
-  §4.)*
-- **`arm_b.py` could score a nonzero-exit run as a success.** It rejected a
-  nonzero return code only when stdout was empty, and arm-B rows retain
+  intervals are clustered.
+- **`arm_b.py` can score a nonzero-exit run as a success.** It rejects a
+  nonzero return code only when stdout is empty, and arm-B rows retain
   neither return code nor stderr, so the reported "0 engine refusals"
   cannot be audited from the retained JSONL. No retained envelope shows a
   refusal signal. Fixing the check and re-running the deterministic arm is
   filed as follow-up rather than performed under a result already
-  corrected once. *(The check was fixed 2026-08-06 — §4 — and the re-run
-  was performed later the same day — §5: byte-identical dispositions, all
-  exit codes 0 retained. The original `/1` rows remain unauditable in
-  themselves; the audited corpus stands beside them.)*
+  corrected once.
 
 ## 4. Harness changes made after the results were read (2026-08-06)
 
@@ -123,7 +107,10 @@ The harness defects §3 records were answered in code on the same day —
 itself worth recording: an analysis rule changed after the result is a
 rule the result could have influenced, and none of this was preregistered.
 What follows is what changed, what it does to a published number, and what
-was deliberately not done.
+was deliberately not done. (§3's three harness items resolve as follows:
+the McNemar omission by item 1 below, the twin-only resample by item 3,
+and the refusal check by item 5 — whose outstanding re-run half was then
+performed the same day, §5.)
 
 **Nothing in `results/` was re-run or re-scored for this entry.** Every
 figure in `RESULTS-FIRST-PROMPT-ARMS.md` is still the one its recorded
@@ -176,7 +163,9 @@ rather than asserted.
    naïve filter would print — which would have been §2's defect
    reintroduced by the flag added to prevent it. The 2×2 counts are still
    reported, because on answerable twins the should-not-but-did count is
-   the false-escalation cost §6 names for H2.
+   the numerator of the false-escalation **rate** §6 names as H2's cost
+   criterion (the count over the population's trials; §6 registers the
+   rate, not the count).
 
 5. **`arm_b.py`'s refusal rule was tightened and arm B was NOT re-run**
    *(as of this entry; the re-run was performed later the same day — §5).*
@@ -184,11 +173,14 @@ rather than asserted.
    arm-B row carries `engine_returncode` and `engine_stderr`
    (`jps-study-001-result/2`). Both halves matter for reading the
    published result:
-   - The rule changed after the result was read. It can only move arm B's
-     numbers **down** (it converts recorded successes into refusals and
-     never the reverse), so nothing published was flattered by the old
-     rule — but nothing published has been re-derived under the new one
-     either.
+   - The rule changed after the result was read. It converts recorded
+     successes into refusals and never the reverse, so **accuracy and
+     pass^k** can only fall or stay equal — but that bound does not extend
+     to every published metric: under the scorer a refusal is
+     non-escalating with empty citations, so converting a false
+     escalation into a refusal would *raise* escalation precision and can
+     raise citation scores. No ex-ante direction covers all metrics; what
+     settles it is the re-run (§5), which converted zero rows.
    - The retained corpus predates it. All 2,160 rows of
      `results/pilot-B-runtime.jsonl` are `jps-study-001-result/1`, none
      carries `engine_returncode` or `engine_stderr`, and every `error` is
@@ -224,9 +216,9 @@ asserted:
    disposition and trace byte-identical to `results/pilot-B-runtime.jsonl`
    (verified per row), and the decision distribution is the recorded
    235 `illegal` / 45 `legal` / 152 `cannot_decide` per trial. Zero
-   recorded successes converted to refusals, which is what §4 item 5's
-   "can only move the numbers down" bound predicted for a corpus with no
-   nonzero exits.
+   recorded successes converted to refusals — the empirical fact that
+   settles what no ex-ante directional bound could (§4 item 5): with no
+   nonzero exits in the corpus, no metric moved in either direction.
 3. **The registered analysis now exists as a scorer artifact.**
    `results/k5-report-answerable.{json,md}` scores the audited arm-B rows
    with the retained model-arm rows on the registered population
@@ -246,3 +238,34 @@ is diagnosed to a named field or rule in [`G3-DIAGNOSIS.md`](G3-DIAGNOSIS.md),
 each verified by counterfactual through the same binary, and the whole
 note was adversarially re-derived (all 18 instances) by an independent
 check whose four corrections are incorporated and credited inline.
+
+4. **Provenance of the committed artifact.** The first regeneration was
+   produced from a working tree whose harness edits were not yet
+   committed, so its rows carried `harness_dirty: true` — a provenance
+   gap the cross-vendor review flagged. The committed
+   `results/k5-B-runtime-audited.jsonl` was regenerated from the
+   committed harness revision on a clean tree; every row's
+   `harness_commit` / `harness_dirty: false` fields are the check, and
+   the substantive fields and raw envelopes are identical across both
+   regenerations (only measured latencies differ).
+
+## 6. Corrections to this ledger's own earlier entries (2026-08-06)
+
+Appended rather than edited in place: the entries above are the record as
+merged, errors included.
+
+1. **§1's "Arm B's pass^k is 1.0 by construction" is wrong.** What
+   determinism buys is within-instance repeat agreement of 1.0, which
+   makes pass^5 *equal accuracy* — 0.579 on the answerable population,
+   not 1.0. H1 remained a contest arm B could lose, and it lost it.
+   `RESULTS-FIRST-PROMPT-ARMS.md` states this correctly; the
+   cross-vendor review of the follow-up work flagged that this ledger
+   still carried the uncorrected claim.
+
+2. **An earlier commit on the follow-up branch retensed §§2–3 of this
+   ledger in place** (annotating the entries with their later status).
+   The same review caught it as a violation of the ledger's append-only
+   discipline; the merged wording above is restored byte-for-byte, the
+   status those annotations carried lives in §§4–5, and the in-place
+   edit remains visible in the branch history rather than being
+   squashed away.
