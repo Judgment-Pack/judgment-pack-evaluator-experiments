@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-facilities-partners",
+  "decision": {
+    "decidedAt": "2026-06-10T08:55:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Facilities Partners AB",
+    "registeredCountry": "SE",
+    "riskScore": "69",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-surveys-midrange-data",
+  "decision": {
+    "decidedAt": "2026-06-09T10:40:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Surveys Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

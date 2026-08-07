@@ -1,0 +1,15 @@
+{
+  "caseId": "boreal-machine-works",
+  "decision": {
+    "decidedAt": "2026-06-05T08:25:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Boreal Machine Works AB",
+    "registeredCountry": "SE",
+    "riskScore": "99.9",
+    "sanctionsHit": false
+  }
+}

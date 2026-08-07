@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T13:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Records Cloud KK",
+    "registeredCountry": "JP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

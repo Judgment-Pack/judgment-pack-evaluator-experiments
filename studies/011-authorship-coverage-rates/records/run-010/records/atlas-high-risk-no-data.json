@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-03T14:20:00Z",
+    "decidedBy": "Aisha Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Machine Components SAS",
+    "registeredCountry": "FR",
+    "riskScore": "99.9",
+    "sanctionsHit": false
+  }
+}

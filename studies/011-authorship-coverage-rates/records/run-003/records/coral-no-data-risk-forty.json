@@ -1,0 +1,15 @@
+{
+  "caseId": "coral-no-data-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T12:05:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Coral Office Supply Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

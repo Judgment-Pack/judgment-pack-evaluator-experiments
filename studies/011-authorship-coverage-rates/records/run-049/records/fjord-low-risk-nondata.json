@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-low-risk-nondata",
+  "decision": {
+    "decidedAt": "2026-06-12T13:45:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Packaging AS",
+    "registeredCountry": "NO",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

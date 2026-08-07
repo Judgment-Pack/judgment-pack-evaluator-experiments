@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-borderline",
+  "decision": {
+    "decidedAt": "2026-06-09T14:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Data Cooperative",
+    "registeredCountry": "NZ",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

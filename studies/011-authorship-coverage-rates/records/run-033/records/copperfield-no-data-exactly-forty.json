@@ -1,0 +1,15 @@
+{
+  "caseId": "copperfield-no-data-exactly-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Copperfield Logistics Sp. z o.o.",
+    "registeredCountry": "PL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--ignore-user-config",
+    "-m",
+    "gpt-5.6-sol",
+    "--sandbox",
+    "workspace-write",
+    "-c",
+    "mcp_servers={}",
+    "<the exact bytes of transcription/PROMPT.txt>"
+  ],
+  "slot": "run-045",
+  "slotIndex": 45,
+  "promptKind": "registered",
+  "promptSha256": "sha256:a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2",
+  "pinsSha256": "sha256:e00076972377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79",
+  "goldenSha256": "sha256:a8a2a735ddc910ee2e36c48d34ebf206b716a0d43cd77ba51a8af6a4a2cd3cf8",
+  "isolation": "isolated",
+  "startedAt": "2026-08-07T13:22:55Z",
+  "endedAt": "2026-08-07T13:23:37Z",
+  "cwd": "/tmp/s011-live-IuCrny/s011-authoring-run-045-3688366",
+  "home": "/tmp/s011-live-IuCrny/s011-home-run-045-3688366",
+  "codexHome": "/tmp/s011-live-IuCrny/s011-home-run-045-3688366/.codex",
+  "environment": [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "CODEX_HOME"
+  ],
+  "environmentValues": {
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/s011-live-IuCrny/s011-bin-run-045-3688366",
+    "HOME": "/tmp/s011-live-IuCrny/s011-home-run-045-3688366",
+    "TMPDIR": "/tmp/s011-live-IuCrny/s011-authoring-run-045-3688366/tmp",
+    "CODEX_HOME": "/tmp/s011-live-IuCrny/s011-home-run-045-3688366/.codex"
+  },
+  "environmentScrubbed": true,
+  "codexHomeIsolated": true,
+  "homeIsolated": true,
+  "isolatedHomeInventory": [
+    ".codex",
+    ".codex/auth.json"
+  ],
+  "operatorHomeSkillsPresent": true,
+  "credentialCopied": true,
+  "credentialRemoved": true,
+  "ignoreUserConfig": true,
+  "model": "gpt-5.6-sol",
+  "cli": "codex-cli 0.145.0",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "exitStatus": 0,
+  "newSessionCount": 1,
+  "stdin": "closed (/dev/null)",
+  "note": "One run of Study 011's single cell; session.jsonl is the transcript evidence."
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-risk-boundary",
+  "decision": {
+    "decidedAt": "2026-06-01T11:20:00Z",
+    "decidedBy": "Jonah Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Fen Analytics PLC",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": true
+  }
+}

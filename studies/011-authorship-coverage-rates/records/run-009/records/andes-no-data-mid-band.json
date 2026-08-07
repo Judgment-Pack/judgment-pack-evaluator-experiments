@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-no-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-09T14:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Logistics SpA",
+    "registeredCountry": "CL",
+    "riskScore": "58.4",
+    "sanctionsHit": false
+  }
+}

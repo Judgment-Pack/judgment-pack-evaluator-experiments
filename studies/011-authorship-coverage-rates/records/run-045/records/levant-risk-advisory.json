@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-risk-advisory",
+  "decision": {
+    "decidedAt": "2026-06-03T14:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Risk Advisory LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "kestrel-export-bureau",
+  "decision": {
+    "decidedAt": "2026-06-10T08:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Kestrel Export Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "1.25",
+    "sanctionsHit": false
+  }
+}

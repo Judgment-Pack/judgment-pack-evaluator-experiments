@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "8",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-nondata-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-09T16:05:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Fasteners Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

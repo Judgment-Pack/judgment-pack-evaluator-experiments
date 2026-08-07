@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-cloud-embargo-override",
+  "decision": {
+    "decidedAt": "2026-06-03T14:20:00Z",
+    "decidedBy": "Elliot Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Cloud Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "91.7",
+    "sanctionsHit": false
+  }
+}

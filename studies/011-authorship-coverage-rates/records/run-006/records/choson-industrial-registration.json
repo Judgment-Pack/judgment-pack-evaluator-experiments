@@ -1,0 +1,15 @@
+{
+  "caseId": "choson-industrial-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Choson Industrial Supply",
+    "registeredCountry": "KP",
+    "riskScore": "12",
+    "sanctionsHit": false
+  }
+}

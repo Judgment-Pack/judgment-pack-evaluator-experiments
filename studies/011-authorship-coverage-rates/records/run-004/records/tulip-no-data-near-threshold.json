@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-no-data-near-threshold",
+  "decision": {
+    "decidedAt": "2026-06-06T10:10:00Z",
+    "decidedBy": "Sofia Laurent",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Packaging B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-high-risk-nondata",
+  "decision": {
+    "decidedAt": "2026-06-05T15:50:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mineral Supply SpA",
+    "registeredCountry": "CL",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

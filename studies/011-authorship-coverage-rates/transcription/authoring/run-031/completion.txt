@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "aurora-office-supplies",
+    "vendor": {
+      "legalName": "Aurora Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-analytics",
+    "vendor": {
+      "legalName": "Blue Harbor Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-identity-services",
+    "vendor": {
+      "legalName": "Cedar Identity Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "delta-customer-platform",
+    "vendor": {
+      "legalName": "Delta Customer Platform S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "elm-industrial-parts",
+    "vendor": {
+      "legalName": "Elm Industrial Parts AB",
+      "sanctionsHit": false,
+      "registeredCountry": "SE",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T11:15:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-network-systems",
+    "vendor": {
+      "legalName": "Fjord Network Systems AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T13:00:00Z"
+    }
+  },
+  {
+    "caseId": "granite-payroll-solutions",
+    "vendor": {
+      "legalName": "Granite Payroll Solutions Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-05T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "helios-logistics",
+    "vendor": {
+      "legalName": "Helios Logistics B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "93.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-05T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "indigo-archive-services",
+    "vendor": {
+      "legalName": "Indigo Archive Services Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "jade-compliance-data",
+    "vendor": {
+      "legalName": "Jade Compliance Data Co., Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "88.8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-09T12:35:00Z"
+    }
+  },
+  {
+    "caseId": "kestrel-export-bureau",
+    "vendor": {
+      "legalName": "Kestrel Export Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "1.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-10T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "lotus-infrastructure-group",
+    "vendor": {
+      "legalName": "Lotus Infrastructure Group",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-digital-trade",
+    "vendor": {
+      "legalName": "Meridian Digital Trade LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "84.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-11T11:50:00Z"
+    }
+  },
+  {
+    "caseId": "northstar-telemetry",
+    "vendor": {
+      "legalName": "Northstar Telemetry Corporation",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-12T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "opal-machine-works",
+    "vendor": {
+      "legalName": "Opal Machine Works Sp. z o.o.",
+      "sanctionsHit": false,
+      "registeredCountry": "PL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-12T14:30:00Z"
+    }
+  },
+  {
+    "caseId": "prairie-health-records",
+    "vendor": {
+      "legalName": "Prairie Health Records Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-15T10:40:00Z"
+    }
+  }
+]

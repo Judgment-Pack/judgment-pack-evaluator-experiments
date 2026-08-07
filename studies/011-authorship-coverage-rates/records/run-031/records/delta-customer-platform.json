@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-customer-platform",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Delta Customer Platform S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

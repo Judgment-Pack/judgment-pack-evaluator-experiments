@@ -1,0 +1,15 @@
+{
+  "caseId": "orion-data-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Elliot Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orion Data Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "82.4",
+    "sanctionsHit": true
+  }
+}

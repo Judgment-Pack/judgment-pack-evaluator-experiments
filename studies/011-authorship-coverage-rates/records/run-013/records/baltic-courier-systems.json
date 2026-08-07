@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-courier-systems",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Courier Systems O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

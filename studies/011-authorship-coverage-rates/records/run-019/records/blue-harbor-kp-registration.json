@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-kp-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Blue Harbor Industrial Cooperative",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

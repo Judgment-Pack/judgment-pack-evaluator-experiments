@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-borderline-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T13:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Ledger Technologies PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

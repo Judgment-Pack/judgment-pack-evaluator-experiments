@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nondata-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T14:05:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "aster-data-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Aster Data Services GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

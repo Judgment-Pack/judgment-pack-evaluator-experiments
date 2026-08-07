@@ -1,0 +1,15 @@
+{
+  "caseId": "outback-no-data-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T11:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Outback Equipment Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "meadow-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:40:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meadow Payroll Solutions B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

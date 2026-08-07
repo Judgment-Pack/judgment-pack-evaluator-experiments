@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargoed-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T11:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Infrastructure Works",
+    "registeredCountry": "SY",
+    "riskScore": "92",
+    "sanctionsHit": false
+  }
+}

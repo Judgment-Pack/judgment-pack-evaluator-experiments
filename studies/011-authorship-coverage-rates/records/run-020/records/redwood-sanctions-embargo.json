@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-sanctions-embargo",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mateo Singh",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Trade Systems",
+    "registeredCountry": "IR",
+    "riskScore": "88",
+    "sanctionsHit": true
+  }
+}

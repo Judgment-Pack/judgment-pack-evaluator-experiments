@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-catering-cooperative",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Catering Cooperative Ltda.",
+    "registeredCountry": "CL",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-equipment-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T11:45:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

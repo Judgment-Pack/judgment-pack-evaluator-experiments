@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-nondata-midrange",
+  "decision": {
+    "decidedAt": "2026-06-11T08:20:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Facilities Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-logistics-registration",
+  "decision": {
+    "decidedAt": "2026-06-03T13:10:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Horizon Logistics PLC",
+    "registeredCountry": "IR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

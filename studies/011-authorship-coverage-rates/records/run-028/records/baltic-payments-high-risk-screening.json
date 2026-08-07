@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-payments-high-risk-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Payments O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-no-data-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T10:00:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Office Components B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T08:00:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Procurement AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

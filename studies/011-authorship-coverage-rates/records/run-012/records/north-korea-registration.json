@@ -1,0 +1,15 @@
+{
+  "caseId": "north-korea-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonah Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Chollima Industrial Components Co.",
+    "registeredCountry": "KP",
+    "riskScore": "5.5",
+    "sanctionsHit": false
+  }
+}

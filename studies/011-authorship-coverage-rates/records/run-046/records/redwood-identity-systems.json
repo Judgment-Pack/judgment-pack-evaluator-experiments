@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-identity-systems",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Identity Systems, Inc.",
+    "registeredCountry": "IR",
+    "riskScore": "92",
+    "sanctionsHit": true
+  }
+}

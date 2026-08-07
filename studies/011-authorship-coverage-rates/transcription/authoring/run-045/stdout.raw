@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-match",
+    "vendor": {
+      "legalName": "Northstar Export Holdings Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "18.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-and-embargo",
+    "vendor": {
+      "legalName": "Caspian Meridian Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "92.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Blue Harbor Services GmbH",
+      "sanctionsHit": true,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-industrial-registration",
+    "vendor": {
+      "legalName": "Pyongyang Industrial Supply Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-data-systems",
+    "vendor": {
+      "legalName": "Tehran Data Systems PJSC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T13:10:00Z"
+    }
+  },
+  {
+    "caseId": "levant-risk-advisory",
+    "vendor": {
+      "legalName": "Levant Risk Advisory LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-threshold-review",
+    "vendor": {
+      "legalName": "Alpine Procurement AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Varga",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-high-risk-review",
+    "vendor": {
+      "legalName": "Pacific Ledger Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Varga",
+      "decidedAt": "2026-06-04T10:35:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-extreme-risk-review",
+    "vendor": {
+      "legalName": "Baltic Freight Analytics OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-05T15:15:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-threshold-review",
+    "vendor": {
+      "legalName": "Maple Data Processing Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "iberian-midrange-data-review",
+    "vendor": {
+      "legalName": "Iberian Customer Metrics S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "54.375"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-08T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-upper-bound-review",
+    "vendor": {
+      "legalName": "Sakura Identity Solutions KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-09T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-data-below-threshold",
+    "vendor": {
+      "legalName": "Tulip Records B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-09T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "andean-nondata-upper-bound",
+    "vendor": {
+      "legalName": "Andean Equipment SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T11:45:00Z"
+    }
+  },
+  {
+    "caseId": "savanna-nondata-midrange",
+    "vendor": {
+      "legalName": "Savanna Facilities Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Varga",
+      "decidedAt": "2026-06-11T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-zero-risk-clearance",
+    "vendor": {
+      "legalName": "Fjord Office Goods AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Varga",
+      "decidedAt": "2026-06-11T16:00:00Z"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T11:30:00Z",
+    "decidedBy": "Jonah Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Nordic Archive AB",
+    "registeredCountry": "SE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-embargo-threshold",
+  "decision": {
+    "decidedAt": "2026-06-02T11:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Precision Goods PLC",
+    "registeredCountry": "IR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

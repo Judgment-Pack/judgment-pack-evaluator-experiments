@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-network-systems",
+  "decision": {
+    "decidedAt": "2026-06-04T13:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Network Systems AS",
+    "registeredCountry": "NO",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

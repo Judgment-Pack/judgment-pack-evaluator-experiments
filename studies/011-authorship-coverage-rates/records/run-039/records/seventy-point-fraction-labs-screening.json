@@ -1,0 +1,15 @@
+{
+  "caseId": "seventy-point-fraction-labs-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Seventy Point Fraction Labs Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

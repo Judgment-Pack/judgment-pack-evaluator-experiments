@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-customer-care",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Customer Care S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

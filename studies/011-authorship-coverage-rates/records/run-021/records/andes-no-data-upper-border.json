@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-no-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-09T08:55:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Office Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-data-processors",
+  "decision": {
+    "decidedAt": "2026-06-08T08:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Data Processors GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

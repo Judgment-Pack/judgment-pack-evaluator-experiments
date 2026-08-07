@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-facilities-low-risk-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T09:15:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Facilities Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

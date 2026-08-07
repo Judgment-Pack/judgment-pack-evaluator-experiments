@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-infrastructure-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T15:40:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Infrastructure SARL",
+    "registeredCountry": "SY",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

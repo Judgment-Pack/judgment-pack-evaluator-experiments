@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-high-risk-data-processor",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Data Processing Inc.",
+    "registeredCountry": "US",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

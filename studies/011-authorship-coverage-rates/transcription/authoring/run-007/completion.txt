@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-screening",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "18"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-data-systems-screening",
+    "vendor": {
+      "legalName": "Caspian Data Systems LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "82.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-industrial-supply-screening",
+    "vendor": {
+      "legalName": "Paektu Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "12.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Ruiz",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-office-solutions-screening",
+    "vendor": {
+      "legalName": "Tehran Office Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-analytics-screening",
+    "vendor": {
+      "legalName": "Levant Analytics S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-03T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "summit-cybernetics-screening",
+    "vendor": {
+      "legalName": "Summit Cybernetics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ruiz",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-cloud-services-screening",
+    "vendor": {
+      "legalName": "Meridian Cloud Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-04T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-facilities-screening",
+    "vendor": {
+      "legalName": "Alpine Facilities AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "99.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-05T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-people-operations-screening",
+    "vendor": {
+      "legalName": "Harbor People Operations Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ruiz",
+      "decidedAt": "2026-06-06T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-customer-insights-screening",
+    "vendor": {
+      "legalName": "Cedar Customer Insights Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-06T12:10:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-payroll-services-screening",
+    "vendor": {
+      "legalName": "Sakura Payroll Services K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-07T15:35:00Z"
+    }
+  },
+  {
+    "caseId": "maple-records-processing-screening",
+    "vendor": {
+      "legalName": "Maple Records Processing Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Ruiz",
+      "decidedAt": "2026-06-08T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-data-entry-screening",
+    "vendor": {
+      "legalName": "Fjord Data Entry AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-08T13:20:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-equipment-rental-screening",
+    "vendor": {
+      "legalName": "Atlas Equipment Rental S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-09T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-office-furnishings-screening",
+    "vendor": {
+      "legalName": "Tulip Office Furnishings B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Ruiz",
+      "decidedAt": "2026-06-09T11:45:00Z"
+    }
+  },
+  {
+    "caseId": "andean-courier-cooperative-screening",
+    "vendor": {
+      "legalName": "Andean Courier Cooperative",
+      "sanctionsHit": false,
+      "registeredCountry": "PE",
+      "handlesPersonalData": false,
+      "riskScore": "12.875"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-10T16:00:00Z"
+    }
+  }
+]

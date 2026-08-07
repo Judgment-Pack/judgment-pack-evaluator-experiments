@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T09:05:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Customer Systems B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

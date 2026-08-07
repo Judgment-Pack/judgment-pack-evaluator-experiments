@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-screening",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "18.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-data-systems-screening",
+    "vendor": {
+      "legalName": "Caspian Data Systems PLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "92.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-analytics-screening",
+    "vendor": {
+      "legalName": "Redwood Analytics, Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-02T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-industrial-supply-screening",
+    "vendor": {
+      "legalName": "Pyongyang Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-market-services-screening",
+    "vendor": {
+      "legalName": "Tehran Market Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-engineering-screening",
+    "vendor": {
+      "legalName": "Damascus Engineering Group",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "87.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-infrastructure-screening",
+    "vendor": {
+      "legalName": "Alpine Infrastructure AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-05T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-health-platforms-screening",
+    "vendor": {
+      "legalName": "Harbor Health Platforms Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-05T15:35:00Z"
+    }
+  },
+  {
+    "caseId": "sahara-mineral-trading-screening",
+    "vendor": {
+      "legalName": "Sahara Mineral Trading SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "MA",
+      "handlesPersonalData": false,
+      "riskScore": "98.7"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T10:10:00Z"
+    }
+  },
+  {
+    "caseId": "maple-customer-insights-screening",
+    "vendor": {
+      "legalName": "Maple Customer Insights Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-09T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-payroll-solutions-screening",
+    "vendor": {
+      "legalName": "Baltic Payroll Solutions OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-10T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-identity-services-screening",
+    "vendor": {
+      "legalName": "Pacific Identity Services Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-office-furnishings-screening",
+    "vendor": {
+      "legalName": "Fjord Office Furnishings AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-11T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "lotus-cloud-support-screening",
+    "vendor": {
+      "legalName": "Lotus Cloud Support Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-12T11:50:00Z"
+    }
+  },
+  {
+    "caseId": "iberian-printworks-screening",
+    "vendor": {
+      "legalName": "Iberian Printworks S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-15T14:15:00Z"
+    }
+  },
+  {
+    "caseId": "kyoto-translation-studio-screening",
+    "vendor": {
+      "legalName": "Kyoto Translation Studio K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-16T10:30:00Z"
+    }
+  }
+]

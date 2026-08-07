@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-cybernetics-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Cybernetics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

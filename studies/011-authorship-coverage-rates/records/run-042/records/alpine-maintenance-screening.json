@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-maintenance-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T11:45:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Maintenance AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

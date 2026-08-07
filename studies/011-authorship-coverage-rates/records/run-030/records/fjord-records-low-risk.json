@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-records-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T08:15:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Records AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

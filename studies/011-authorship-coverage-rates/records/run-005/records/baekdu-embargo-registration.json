@@ -1,0 +1,15 @@
+{
+  "caseId": "baekdu-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baekdu Export Cooperative",
+    "registeredCountry": "KP",
+    "riskScore": "8.2",
+    "sanctionsHit": false
+  }
+}

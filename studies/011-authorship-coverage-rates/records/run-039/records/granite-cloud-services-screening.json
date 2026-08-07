@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-cloud-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Cloud Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

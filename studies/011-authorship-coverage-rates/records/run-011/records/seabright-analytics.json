@@ -1,0 +1,15 @@
+{
+  "caseId": "seabright-analytics",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Seabright Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

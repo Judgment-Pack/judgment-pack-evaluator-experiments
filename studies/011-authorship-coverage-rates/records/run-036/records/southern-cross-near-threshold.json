@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-near-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T11:55:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Southern Cross Equipment Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

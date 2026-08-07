@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T10:25:00Z",
+    "decidedBy": "Tobias Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Fastener Works AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

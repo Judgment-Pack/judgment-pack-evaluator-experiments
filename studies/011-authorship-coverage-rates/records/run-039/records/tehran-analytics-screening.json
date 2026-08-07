@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T13:05:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Analytics Company",
+    "registeredCountry": "IR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-office-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T11:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Kiwi Office Services Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sahara-mineral-trading-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T10:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sahara Mineral Trading SARL",
+    "registeredCountry": "MA",
+    "riskScore": "98.7",
+    "sanctionsHit": false
+  }
+}

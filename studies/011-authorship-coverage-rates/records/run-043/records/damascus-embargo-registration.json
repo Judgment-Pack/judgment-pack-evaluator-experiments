@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Ledger Services",
+    "registeredCountry": "SY",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

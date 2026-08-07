@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-payroll-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T08:30:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Payroll Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

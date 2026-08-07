@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-payroll-solutions",
+  "decision": {
+    "decidedAt": "2026-06-05T09:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Granite Payroll Solutions Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

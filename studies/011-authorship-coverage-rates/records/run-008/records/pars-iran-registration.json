@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-iran-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Archive Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "22.75",
+    "sanctionsHit": false
+  }
+}

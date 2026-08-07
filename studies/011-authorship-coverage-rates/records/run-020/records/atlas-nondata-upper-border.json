@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-nondata-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-12T13:55:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Packaging SARL",
+    "registeredCountry": "MA",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

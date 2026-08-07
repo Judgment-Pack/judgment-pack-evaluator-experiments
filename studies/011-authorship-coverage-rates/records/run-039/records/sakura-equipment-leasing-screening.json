@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-equipment-leasing-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T13:15:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Equipment Leasing K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

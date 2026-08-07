@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-printworks-screening",
+  "decision": {
+    "decidedAt": "2026-06-15T14:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberian Printworks S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

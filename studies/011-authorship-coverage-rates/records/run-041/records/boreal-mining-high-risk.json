@@ -1,0 +1,15 @@
+{
+  "caseId": "boreal-mining-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Jonas Becker",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Boreal Mining Equipment AB",
+    "registeredCountry": "SE",
+    "riskScore": "96.4",
+    "sanctionsHit": false
+  }
+}

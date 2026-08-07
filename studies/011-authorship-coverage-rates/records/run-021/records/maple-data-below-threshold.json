@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T09:05:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Survey Research Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

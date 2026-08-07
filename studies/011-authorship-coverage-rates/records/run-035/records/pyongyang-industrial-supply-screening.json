@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-industrial-supply-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Supply Company",
+    "registeredCountry": "KP",
+    "riskScore": "3",
+    "sanctionsHit": false
+  }
+}

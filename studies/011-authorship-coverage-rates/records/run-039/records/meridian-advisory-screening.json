@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-advisory-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Advisory GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "39.9",
+    "sanctionsHit": true
+  }
+}

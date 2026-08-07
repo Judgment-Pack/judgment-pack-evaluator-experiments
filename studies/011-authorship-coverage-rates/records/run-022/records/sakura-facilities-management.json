@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-facilities-management",
+  "decision": {
+    "decidedAt": "2026-06-09T07:55:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Facilities Management K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

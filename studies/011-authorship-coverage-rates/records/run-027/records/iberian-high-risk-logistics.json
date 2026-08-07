@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-high-risk-logistics",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberian Logistics Partners SL",
+    "registeredCountry": "ES",
+    "riskScore": "86.3",
+    "sanctionsHit": false
+  }
+}

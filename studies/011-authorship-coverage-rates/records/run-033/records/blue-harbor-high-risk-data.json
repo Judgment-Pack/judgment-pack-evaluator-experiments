@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Harbor Data SAS",
+    "registeredCountry": "FR",
+    "riskScore": "70.001",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-data-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Nadia Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Data Systems LLC",
+    "registeredCountry": "SY",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

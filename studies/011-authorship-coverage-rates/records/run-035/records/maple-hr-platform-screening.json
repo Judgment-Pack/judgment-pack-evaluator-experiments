@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-hr-platform-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T08:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple HR Platform Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

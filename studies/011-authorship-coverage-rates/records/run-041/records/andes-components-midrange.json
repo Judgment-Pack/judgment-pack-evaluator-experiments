@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-components-midrange",
+  "decision": {
+    "decidedAt": "2026-06-12T08:20:00Z",
+    "decidedBy": "Jonas Becker",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Components SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

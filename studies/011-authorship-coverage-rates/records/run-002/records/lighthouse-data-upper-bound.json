@@ -1,0 +1,15 @@
+{
+  "caseId": "lighthouse-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-05T09:05:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lighthouse Customer Analytics Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

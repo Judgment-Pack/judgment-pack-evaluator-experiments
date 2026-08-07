@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-embargo-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T09:10:00Z",
+    "decidedBy": "Priya Sen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Ledger Systems",
+    "registeredCountry": "IR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-printing-house",
+  "decision": {
+    "decidedAt": "2026-06-10T14:45:00Z",
+    "decidedBy": "Amina Clarke",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Printing House S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

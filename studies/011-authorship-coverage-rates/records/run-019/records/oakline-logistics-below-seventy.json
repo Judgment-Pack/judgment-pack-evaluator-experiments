@@ -1,0 +1,15 @@
+{
+  "caseId": "oakline-logistics-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-10T09:40:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Oakline Logistics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

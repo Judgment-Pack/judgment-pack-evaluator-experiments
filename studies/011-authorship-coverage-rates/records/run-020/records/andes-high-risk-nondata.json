@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-high-risk-nondata",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mineral Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "99.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Maritime Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-sanctions-override",
+    "vendor": {
+      "legalName": "Redwood Identity Systems Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "taedong-embargo-registration",
+    "vendor": {
+      "legalName": "Taedong Industrial Export Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "persis-embargo-override",
+    "vendor": {
+      "legalName": "Persis Data Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-02T09:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Machinery Establishment",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "91.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-02T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-risk-threshold",
+    "vendor": {
+      "legalName": "Atlas Freight Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-03T13:00:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-high-risk-no-data",
+    "vendor": {
+      "legalName": "Cedar Components S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-03T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "blueharbor-high-risk-data",
+    "vendor": {
+      "legalName": "BlueHarbor Cloud Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "96.2"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-03T14:15:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-threshold",
+    "vendor": {
+      "legalName": "Maple Ledger Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-data-midrisk",
+    "vendor": {
+      "legalName": "Fjord Personnel AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "55.6"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-04T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-upper-border",
+    "vendor": {
+      "legalName": "Sakura Customer Insights K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-04T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "lowveld-data-below-threshold",
+    "vendor": {
+      "legalName": "Lowveld Research Proprietary Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "ZA",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-data-minimal-risk",
+    "vendor": {
+      "legalName": "Alpine Benefits AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-05T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "copperleaf-no-data-midrisk",
+    "vendor": {
+      "legalName": "Copperleaf Packaging Sp. z o.o.",
+      "sanctionsHit": false,
+      "registeredCountry": "PL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-05T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-no-data-upper-border",
+    "vendor": {
+      "legalName": "Solstice Energy Services S.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-05T12:15:00Z"
+    }
+  },
+  {
+    "caseId": "delta-no-data-low-risk",
+    "vendor": {
+      "legalName": "Delta Office Supply B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "18.375"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-05T14:00:00Z"
+    }
+  }
+]

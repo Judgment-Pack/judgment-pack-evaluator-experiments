@@ -1,0 +1,15 @@
+{
+  "caseId": "helios-logistics",
+  "decision": {
+    "decidedAt": "2026-06-05T15:40:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Helios Logistics B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "93.4",
+    "sanctionsHit": false
+  }
+}

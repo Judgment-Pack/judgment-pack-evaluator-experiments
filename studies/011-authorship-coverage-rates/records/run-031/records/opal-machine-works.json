@@ -1,0 +1,15 @@
+{
+  "caseId": "opal-machine-works",
+  "decision": {
+    "decidedAt": "2026-06-12T14:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Opal Machine Works Sp. z o.o.",
+    "registeredCountry": "PL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

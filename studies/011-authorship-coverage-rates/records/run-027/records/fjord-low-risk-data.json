@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-low-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-12T10:05:00Z",
+    "decidedBy": "Priya Nadeem",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Workplace Software AS",
+    "registeredCountry": "NO",
+    "riskScore": "0.25",
+    "sanctionsHit": false
+  }
+}

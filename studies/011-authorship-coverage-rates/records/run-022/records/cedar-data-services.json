@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-services",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Data Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

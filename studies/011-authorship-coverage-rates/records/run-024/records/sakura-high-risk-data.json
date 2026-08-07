@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-05T10:25:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Data Operations KK",
+    "registeredCountry": "JP",
+    "riskScore": "94.7",
+    "sanctionsHit": false
+  }
+}

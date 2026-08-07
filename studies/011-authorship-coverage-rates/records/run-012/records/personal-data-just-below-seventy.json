@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-just-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-04T14:25:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lusitania Payroll SA",
+    "registeredCountry": "PT",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

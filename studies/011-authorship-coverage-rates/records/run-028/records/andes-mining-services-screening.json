@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-mining-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T15:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mining Services SpA",
+    "registeredCountry": "CL",
+    "riskScore": "96.75",
+    "sanctionsHit": false
+  }
+}

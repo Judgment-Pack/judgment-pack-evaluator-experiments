@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T08:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Hosting AS",
+    "registeredCountry": "NO",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-engineering-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T14:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Damascus Engineering Group",
+    "registeredCountry": "SY",
+    "riskScore": "87.25",
+    "sanctionsHit": false
+  }
+}

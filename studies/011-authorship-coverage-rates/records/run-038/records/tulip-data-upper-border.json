@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-06T14:50:00Z",
+    "decidedBy": "Imani Cole",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Customer Analytics B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

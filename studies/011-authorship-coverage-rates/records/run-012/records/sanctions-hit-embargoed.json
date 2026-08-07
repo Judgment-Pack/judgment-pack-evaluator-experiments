@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Meridian Export Co.",
+    "registeredCountry": "IR",
+    "riskScore": "88.4",
+    "sanctionsHit": true
+  }
+}

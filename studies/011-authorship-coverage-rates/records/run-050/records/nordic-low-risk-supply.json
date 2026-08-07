@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-low-risk-supply",
+  "decision": {
+    "decidedAt": "2026-06-11T11:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Office Supply AB",
+    "registeredCountry": "SE",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

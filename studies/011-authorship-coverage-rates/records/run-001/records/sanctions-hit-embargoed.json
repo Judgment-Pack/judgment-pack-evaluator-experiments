@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Industrial Export Co.",
+    "registeredCountry": "SY",
+    "riskScore": "88.5",
+    "sanctionsHit": true
+  }
+}

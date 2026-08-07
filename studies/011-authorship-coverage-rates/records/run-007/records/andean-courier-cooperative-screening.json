@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-courier-cooperative-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T16:00:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Courier Cooperative",
+    "registeredCountry": "PE",
+    "riskScore": "12.875",
+    "sanctionsHit": false
+  }
+}

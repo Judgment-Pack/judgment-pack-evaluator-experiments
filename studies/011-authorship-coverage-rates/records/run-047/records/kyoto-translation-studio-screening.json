@@ -1,0 +1,15 @@
+{
+  "caseId": "kyoto-translation-studio-screening",
+  "decision": {
+    "decidedAt": "2026-06-16T10:30:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kyoto Translation Studio K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

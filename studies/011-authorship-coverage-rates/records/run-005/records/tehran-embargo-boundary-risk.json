@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-embargo-boundary-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T13:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Precision Supply Co.",
+    "registeredCountry": "IR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

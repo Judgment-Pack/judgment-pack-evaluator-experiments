@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-customer-care-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-15T09:55:00Z",
+    "decidedBy": "Elliot Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Customer Care Private Limited",
+    "registeredCountry": "IN",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

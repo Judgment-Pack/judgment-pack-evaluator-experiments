@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T08:45:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Client Solutions KK",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

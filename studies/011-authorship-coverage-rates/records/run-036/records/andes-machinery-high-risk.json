@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-machinery-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Machinery SpA",
+    "registeredCountry": "CL",
+    "riskScore": "70.001",
+    "sanctionsHit": false
+  }
+}

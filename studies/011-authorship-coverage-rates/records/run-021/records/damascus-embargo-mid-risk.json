@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-embargo-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T09:20:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Archive Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

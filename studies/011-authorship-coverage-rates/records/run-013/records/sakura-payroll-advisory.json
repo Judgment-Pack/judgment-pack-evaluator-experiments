@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-payroll-advisory",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Payroll Advisory K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

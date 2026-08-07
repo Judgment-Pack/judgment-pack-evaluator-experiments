@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-orchid-kp-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Blue Orchid Industrial Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "8",
+    "sanctionsHit": false
+  }
+}

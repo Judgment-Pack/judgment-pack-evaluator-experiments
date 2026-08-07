@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-payroll-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-07T15:35:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Payroll Services K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

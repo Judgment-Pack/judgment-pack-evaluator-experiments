@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-office-machines",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Office Machines S.A.",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

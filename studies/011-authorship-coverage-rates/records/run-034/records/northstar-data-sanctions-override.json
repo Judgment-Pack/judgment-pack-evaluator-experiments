@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-data-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Northstar Data Systems Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "92",
+    "sanctionsHit": true
+  }
+}

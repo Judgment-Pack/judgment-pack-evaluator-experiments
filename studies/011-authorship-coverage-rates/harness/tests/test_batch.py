@@ -68,6 +68,19 @@ class Batch(unittest.TestCase):
         self.environment = mock.patch.dict(os.environ, {"HOME": self.home})
         self.environment.start()
         self.addCleanup(self.environment.stop)
+        # The no-new-slots marker is the STUDY's own RESULTS.json (§2.4), and
+        # the study has now published one — which, unpatched, refuses every
+        # stand-in batch this file runs. The registered rule is untouched:
+        # the marker is pointed at THIS test's root, and the marker tests
+        # create their file there, exercising the same refusal lines against
+        # the same constant.
+        self.results_marker = mock.patch.object(
+            batch, "RESULTS", os.path.join(self.root, "RESULTS.json"))
+        self.results_marker.start()
+        self.addCleanup(self.results_marker.stop)
+        # The committed tree's published outputs, snapshotted before any test
+        # activity: every publication-refusal assertion compares against this.
+        self.baseline_outputs = self.study_outputs()
         self.cli = fixtures.write_fake_cli(os.path.join(self.root, "cli"), PLAN,
                                            sys.executable, HERE)
         with open(os.path.join(STUDY, "harness", "PINS.json")) as handle:
@@ -141,6 +154,18 @@ class Batch(unittest.TestCase):
         self.assertEqual(self.capture(), 0)
         self.register_golden()
         self.assertEqual(self.run_batch(self.slots), 0)
+        self.baseline_outputs = self.study_outputs()
+
+    def study_outputs(self):
+        """The study-root RESULTS.json/RATES.md bytes, or None where absent.
+        Refusal tests assert these UNCHANGED across the refused call — the
+        publication property itself — rather than asserting absence, which
+        stopped being true the day the study legitimately published."""
+        out = {}
+        for name in ("RESULTS.json", "RATES.md"):
+            p = os.path.join(STUDY, name)
+            out[name] = open(p, "rb").read() if os.path.exists(p) else None
+        return out
 
     def attempt(self, index: int = 1) -> str:
         return os.path.join(self.captures, "attempt-%d" % index)
@@ -1070,7 +1095,7 @@ class Batch(unittest.TestCase):
             ["score_rates.py", "score", "--slots", self.slots,
              "--out", os.path.join(self.root, "peek")]), 1)
         self.assertFalse(os.path.exists(os.path.join(self.root, "peek")))
-        self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
+        self.assertEqual(self.study_outputs(), self.baseline_outputs)
 
     # --- the registered scoring interface (§7) --------------------------------
 
@@ -1094,8 +1119,7 @@ class Batch(unittest.TestCase):
                 ["score_rates.py", "score", "--slots", self.slots] + argument), 1,
                 "%r was accepted" % (argument,))
         self.assertFalse(os.path.exists(os.path.join(self.root, "peek")))
-        self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
-        self.assertFalse(os.path.exists(os.path.join(STUDY, "RATES.md")))
+        self.assertEqual(self.study_outputs(), self.baseline_outputs)
 
     def test_no_surface_publishes_a_scoring_of_alternate_registry_slots(self):
         """Rounds 2 and 3, together. Round 2: `--pins` could not redefine the
@@ -1195,8 +1219,7 @@ class Batch(unittest.TestCase):
                 score_rates._write_outputs(candidate, self.slots)
 
         # Nothing reached a published file by any of those routes.
-        self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
-        self.assertFalse(os.path.exists(os.path.join(STUDY, "RATES.md")))
+        self.assertEqual(self.study_outputs(), self.baseline_outputs)
 
     def test_a_forged_results_dict_is_refused_on_the_tree_it_claims_to_have_scored(self):
         """Round 4: the writer re-derived nine pins from the study tree and
@@ -1299,8 +1322,7 @@ class Batch(unittest.TestCase):
         # stand-in study root are still the honest ones.
         with open(os.path.join(out, "RESULTS.json"), "rb") as handle:
             self.assertEqual(handle.read(), published)
-        self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
-        self.assertFalse(os.path.exists(os.path.join(STUDY, "RATES.md")))
+        self.assertEqual(self.study_outputs(), self.baseline_outputs)
 
     def test_emitting_records_into_the_slot_tree_refuses_before_anything_is_written(self):
         """Round 3: `--emit-records <slots>/run-002` wrote a phantom slot into
@@ -1321,7 +1343,7 @@ class Batch(unittest.TestCase):
                  "--emit-records", target]), 1)
         # No phantom slot, and no rate table: the refusal came first.
         self.assertEqual(sorted(os.listdir(self.slots)), before)
-        self.assertFalse(os.path.exists(os.path.join(STUDY, "RESULTS.json")))
+        self.assertEqual(self.study_outputs(), self.baseline_outputs)
         # A directory outside the slot tree is what the command accepts.
         score_rates._check_records_target(self.slots,
                                           os.path.join(self.root, "records"))

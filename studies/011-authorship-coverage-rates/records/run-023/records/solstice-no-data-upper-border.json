@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-no-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-05T12:15:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Energy Services S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "15",
+    "sanctionsHit": false
+  }
+}

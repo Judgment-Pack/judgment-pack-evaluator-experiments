@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-industrial-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T15:40:00Z",
+    "decidedBy": "Imani Cole",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Industrial Systems",
+    "registeredCountry": "IR",
+    "riskScore": "88",
+    "sanctionsHit": false
+  }
+}

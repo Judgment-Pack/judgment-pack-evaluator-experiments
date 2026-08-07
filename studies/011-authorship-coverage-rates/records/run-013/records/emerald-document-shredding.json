@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-document-shredding",
+  "decision": {
+    "decidedAt": "2026-06-09T14:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Emerald Document Shredding Limited",
+    "registeredCountry": "IE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

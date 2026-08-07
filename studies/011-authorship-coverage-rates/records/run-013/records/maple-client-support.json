@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-client-support",
+  "decision": {
+    "decidedAt": "2026-06-05T15:40:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Client Support Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

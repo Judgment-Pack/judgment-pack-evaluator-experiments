@@ -1,0 +1,15 @@
+{
+  "caseId": "ibex-exact-forty-data",
+  "decision": {
+    "decidedAt": "2026-06-08T08:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Ibex Identity Services SL",
+    "registeredCountry": "ES",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

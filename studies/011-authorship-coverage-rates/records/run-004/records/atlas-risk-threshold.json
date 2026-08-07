@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-03T13:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Freight Systems S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

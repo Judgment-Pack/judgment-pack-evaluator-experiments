@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T08:30:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Archive Solutions Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

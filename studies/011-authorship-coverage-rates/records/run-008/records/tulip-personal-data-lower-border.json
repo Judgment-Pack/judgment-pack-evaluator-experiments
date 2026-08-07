@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-personal-data-lower-border",
+  "decision": {
+    "decidedAt": "2026-06-09T16:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Contact Services B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

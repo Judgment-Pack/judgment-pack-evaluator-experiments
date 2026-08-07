@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-data-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T08:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Customer Platforms Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

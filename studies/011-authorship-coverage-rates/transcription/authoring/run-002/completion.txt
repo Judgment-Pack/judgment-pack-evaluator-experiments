@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-sanctions-precedence",
+    "vendor": {
+      "legalName": "Redwood Data Systems Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "91"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargo-registration",
+    "vendor": {
+      "legalName": "Paektu Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-embargo-precedence",
+    "vendor": {
+      "legalName": "Caspian Records Processing LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-02T09:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Freight Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-02T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "summit-risk-threshold",
+    "vendor": {
+      "legalName": "Summit Infrastructure GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-03T13:00:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-high-risk-data",
+    "vendor": {
+      "legalName": "Atlas Identity Services SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "84.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Green",
+      "decidedAt": "2026-06-03T14:35:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-high-risk-no-data",
+    "vendor": {
+      "legalName": "Harbor Machine Works Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "99.9"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Green",
+      "decidedAt": "2026-06-04T07:50:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-data-threshold",
+    "vendor": {
+      "legalName": "Cedar Benefits Administration Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-04T15:15:00Z"
+    }
+  },
+  {
+    "caseId": "lighthouse-data-upper-bound",
+    "vendor": {
+      "legalName": "Lighthouse Customer Analytics Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-05T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "meadow-data-below-threshold",
+    "vendor": {
+      "legalName": "Meadow Payroll Solutions B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-05T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "birch-data-zero-risk",
+    "vendor": {
+      "legalName": "Birch Survey Research AB",
+      "sanctionsHit": false,
+      "registeredCountry": "SE",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Green",
+      "decidedAt": "2026-06-05T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "granite-no-data-mid-risk",
+    "vendor": {
+      "legalName": "Granite Office Fixtures Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-08T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "silverline-no-data-upper-bound",
+    "vendor": {
+      "legalName": "Silverline Packaging Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-08T11:55:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-low-risk-logistics",
+    "vendor": {
+      "legalName": "Tulip Logistics B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "BE",
+      "handlesPersonalData": false,
+      "riskScore": "18.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-09T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-data-high-risk-boundary",
+    "vendor": {
+      "legalName": "Pacific Health Records Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Green",
+      "decidedAt": "2026-06-10T16:20:00Z"
+    }
+  }
+]

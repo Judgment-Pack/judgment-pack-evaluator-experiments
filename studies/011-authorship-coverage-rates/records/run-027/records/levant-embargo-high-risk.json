@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Freight Coordination SARL",
+    "registeredCountry": "SY",
+    "riskScore": "94.75",
+    "sanctionsHit": false
+  }
+}

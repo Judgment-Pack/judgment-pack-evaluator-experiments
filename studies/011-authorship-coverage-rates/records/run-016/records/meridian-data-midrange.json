@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T08:55:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Customer Insights Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

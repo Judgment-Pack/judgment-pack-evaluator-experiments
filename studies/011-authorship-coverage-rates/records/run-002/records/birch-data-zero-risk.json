@@ -1,0 +1,15 @@
+{
+  "caseId": "birch-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T12:25:00Z",
+    "decidedBy": "Marcus Green",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Birch Survey Research AB",
+    "registeredCountry": "SE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-low-risk-clearance",
+  "decision": {
+    "decidedAt": "2026-06-11T11:15:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Packaging AG",
+    "registeredCountry": "CH",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

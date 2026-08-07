@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "aegis-maritime-sanctions",
+    "vendor": {
+      "legalName": "Aegis Maritime Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "northstar-overlapping-bars",
+    "vendor": {
+      "legalName": "Northstar Export Company",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "91.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-industrial-registration",
+    "vendor": {
+      "legalName": "Paektu Industrial Works",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "8.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-data-registration",
+    "vendor": {
+      "legalName": "Caspian Data Systems",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-logistics-registration",
+    "vendor": {
+      "legalName": "Levant Logistics Establishment",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-03T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics-threshold",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "rijn-cloud-elevated-risk",
+    "vendor": {
+      "legalName": "Rijn Cloud B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-04T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-parts-high-risk",
+    "vendor": {
+      "legalName": "Alpine Parts AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "99.9"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-05T10:10:00Z"
+    }
+  },
+  {
+    "caseId": "maple-identity-data-threshold",
+    "vendor": {
+      "legalName": "Maple Identity Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-06T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-payroll-upper-border",
+    "vendor": {
+      "legalName": "Sakura Payroll K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-06T12:55:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-profile-midrange",
+    "vendor": {
+      "legalName": "Baltic Profile OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "54.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-07T15:20:00Z"
+    }
+  },
+  {
+    "caseId": "southern-cross-data-border",
+    "vendor": {
+      "legalName": "Southern Cross Data Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-08T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-research-low-risk",
+    "vendor": {
+      "legalName": "Iberia Research S.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "18.5"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T13:45:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-equipment-upper-border",
+    "vendor": {
+      "legalName": "Fjord Equipment AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-09T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "andes-supply-moderate-risk",
+    "vendor": {
+      "legalName": "Andes Supply SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-09T16:25:00Z"
+    }
+  },
+  {
+    "caseId": "kiwi-office-zero-risk",
+    "vendor": {
+      "legalName": "Kiwi Office Services Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-10T11:50:00Z"
+    }
+  }
+]

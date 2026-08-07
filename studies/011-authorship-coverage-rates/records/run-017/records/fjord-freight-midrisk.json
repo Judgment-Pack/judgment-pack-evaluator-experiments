@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-freight-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-12T14:20:00Z",
+    "decidedBy": "Jonas Becker",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Freight AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

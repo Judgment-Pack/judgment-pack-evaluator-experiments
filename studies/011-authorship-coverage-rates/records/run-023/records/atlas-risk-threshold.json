@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-03T13:00:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Freight Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

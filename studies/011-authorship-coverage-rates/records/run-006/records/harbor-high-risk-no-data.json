@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Steel Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

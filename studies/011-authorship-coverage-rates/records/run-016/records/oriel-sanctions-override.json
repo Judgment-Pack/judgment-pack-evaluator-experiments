@@ -1,0 +1,15 @@
+{
+  "caseId": "oriel-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Oriel Data Systems PLC",
+    "registeredCountry": "GB",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

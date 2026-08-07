@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-audit-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Audit GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

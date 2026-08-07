@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-no-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Facilities O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

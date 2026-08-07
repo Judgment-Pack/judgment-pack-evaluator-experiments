@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-embargo-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Export Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "3",
+    "sanctionsHit": false
+  }
+}

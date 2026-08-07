@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-low-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-10T11:45:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Packaging SARL",
+    "registeredCountry": "MA",
+    "riskScore": "18.6",
+    "sanctionsHit": false
+  }
+}

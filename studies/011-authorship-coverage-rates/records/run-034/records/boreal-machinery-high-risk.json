@@ -1,0 +1,15 @@
+{
+  "caseId": "boreal-machinery-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Boreal Machinery AB",
+    "registeredCountry": "SE",
+    "riskScore": "96.75",
+    "sanctionsHit": false
+  }
+}

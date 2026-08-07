@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T09:05:00Z",
+    "decidedBy": "Tobias Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Talent Services AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

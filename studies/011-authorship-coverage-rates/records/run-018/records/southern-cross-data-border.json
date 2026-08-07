@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-data-border",
+  "decision": {
+    "decidedAt": "2026-06-08T09:35:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Southern Cross Data Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

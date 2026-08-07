@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-cloud-support-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T11:50:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Cloud Support Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

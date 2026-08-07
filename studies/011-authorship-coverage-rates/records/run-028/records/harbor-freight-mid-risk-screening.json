@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-freight-mid-risk-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T14:30:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Freight Partners Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

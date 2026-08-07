@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-analytics-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Analytics LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-courier-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T15:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Emerald Courier Services Ltd.",
+    "registeredCountry": "IE",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

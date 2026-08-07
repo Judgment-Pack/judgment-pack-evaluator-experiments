@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-risk-seventy",
+  "decision": {
+    "decidedAt": "2026-06-03T13:00:00Z",
+    "decidedBy": "Aisha Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Ridge Logistics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

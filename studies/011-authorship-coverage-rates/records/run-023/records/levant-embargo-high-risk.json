@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T11:10:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Machinery Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "91.75",
+    "sanctionsHit": false
+  }
+}

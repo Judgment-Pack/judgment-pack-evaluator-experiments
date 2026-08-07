@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-just-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T09:05:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Patient Scheduling Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

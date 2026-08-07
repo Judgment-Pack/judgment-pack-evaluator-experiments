@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-analytics-registration",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Analytics Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T10:40:00Z",
+    "decidedBy": "Priya Sen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Freight S.A.",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

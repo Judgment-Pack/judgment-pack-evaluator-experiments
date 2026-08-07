@@ -1,0 +1,15 @@
+{
+  "caseId": "risk-exactly-seventy",
+  "decision": {
+    "decidedAt": "2026-06-03T09:00:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Forge O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

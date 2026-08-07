@@ -1,0 +1,15 @@
+{
+  "caseId": "sunbird-analytics-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sunbird Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "91.25",
+    "sanctionsHit": false
+  }
+}

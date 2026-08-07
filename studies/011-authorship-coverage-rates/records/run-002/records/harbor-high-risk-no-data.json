@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-04T07:50:00Z",
+    "decidedBy": "Marcus Green",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Machine Works Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "99.9",
+    "sanctionsHit": false
+  }
+}

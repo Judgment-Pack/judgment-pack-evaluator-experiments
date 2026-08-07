@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-data-exactly-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T08:35:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Customer Services B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

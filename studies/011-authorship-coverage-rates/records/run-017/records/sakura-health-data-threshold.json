@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-health-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T08:15:00Z",
+    "decidedBy": "Amara Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Health Data K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

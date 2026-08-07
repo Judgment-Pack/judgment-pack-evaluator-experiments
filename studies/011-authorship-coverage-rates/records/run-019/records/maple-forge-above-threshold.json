@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-forge-above-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T15:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Forge Supply Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

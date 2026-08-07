@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-insights-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T12:05:00Z",
+    "decidedBy": "Elliot Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Insights Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

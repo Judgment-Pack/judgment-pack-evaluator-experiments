@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-no-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-06T11:50:00Z",
+    "decidedBy": "Priya Nand",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Packaging BV",
+    "registeredCountry": "NL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

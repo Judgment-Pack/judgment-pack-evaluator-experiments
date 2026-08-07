@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-risk-seventy-decimal",
+  "decision": {
+    "decidedAt": "2026-06-04T08:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Components SARL",
+    "registeredCountry": "FR",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

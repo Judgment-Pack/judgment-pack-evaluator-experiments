@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-research-personal-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-16T14:10:00Z",
+    "decidedBy": "Noah Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Research SpA",
+    "registeredCountry": "CL",
+    "riskScore": "12.75",
+    "sanctionsHit": false
+  }
+}

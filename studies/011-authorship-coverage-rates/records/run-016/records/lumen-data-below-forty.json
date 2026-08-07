@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-data-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T09:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Survey Research BV",
+    "registeredCountry": "NL",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

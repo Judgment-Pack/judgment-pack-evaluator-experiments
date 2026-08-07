@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T10:50:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Profile Solutions K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

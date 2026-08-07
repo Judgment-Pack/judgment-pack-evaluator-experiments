@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Customer Insights Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

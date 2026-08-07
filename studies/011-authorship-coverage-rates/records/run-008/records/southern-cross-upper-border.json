@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-09T10:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Southern Cross Identity Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

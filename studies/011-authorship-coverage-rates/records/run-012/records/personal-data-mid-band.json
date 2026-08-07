@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-04T10:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Koru Customer Research Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "olive-personal-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Olive Customer Analytics Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

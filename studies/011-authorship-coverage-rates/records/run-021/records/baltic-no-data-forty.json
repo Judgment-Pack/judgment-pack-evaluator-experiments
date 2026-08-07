@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T13:15:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Packaging O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

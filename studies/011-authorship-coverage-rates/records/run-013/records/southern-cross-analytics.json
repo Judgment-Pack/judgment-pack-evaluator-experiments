@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-analytics",
+  "decision": {
+    "decidedAt": "2026-06-05T10:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Southern Cross Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "92.4",
+    "sanctionsHit": false
+  }
+}

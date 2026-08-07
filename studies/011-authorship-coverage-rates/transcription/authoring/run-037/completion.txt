@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-sanctions",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "orion-data-sanctions-override",
+    "vendor": {
+      "legalName": "Orion Data Systems GmbH",
+      "sanctionsHit": true,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "82.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elliot Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "chollima-industrial-embargo",
+    "vendor": {
+      "legalName": "Chollima Industrial Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-02T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "pars-analytics-embargo",
+    "vendor": {
+      "legalName": "Pars Analytics Company",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Noah Okafor",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "levant-cloud-embargo-override",
+    "vendor": {
+      "legalName": "Levant Cloud Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "91.7"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elliot Chen",
+      "decidedAt": "2026-06-03T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-security-threshold",
+    "vendor": {
+      "legalName": "Meridian Security Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-04T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "summit-payments-high-risk",
+    "vendor": {
+      "legalName": "Summit Payments, Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "87.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Noah Okafor",
+      "decidedAt": "2026-06-05T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-machinery-high-risk",
+    "vendor": {
+      "legalName": "Fjord Machinery AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-05T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-hr-personal-data-threshold",
+    "vendor": {
+      "legalName": "Cedar HR Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-08T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-insights-mid-risk",
+    "vendor": {
+      "legalName": "Sakura Insights Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.6"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elliot Chen",
+      "decidedAt": "2026-06-09T12:05:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-benefits-upper-border",
+    "vendor": {
+      "legalName": "Alpine Benefits AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Noah Okafor",
+      "decidedAt": "2026-06-10T16:30:00Z"
+    }
+  },
+  {
+    "caseId": "maple-office-low-risk",
+    "vendor": {
+      "legalName": "Maple Office Supply Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-11T08:35:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-components-upper-clearance",
+    "vendor": {
+      "legalName": "Baltic Components OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-12T13:50:00Z"
+    }
+  },
+  {
+    "caseId": "lotus-customer-care-below-threshold",
+    "vendor": {
+      "legalName": "Lotus Customer Care Private Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "IN",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elliot Chen",
+      "decidedAt": "2026-06-15T09:55:00Z"
+    }
+  },
+  {
+    "caseId": "andes-research-personal-data-low-risk",
+    "vendor": {
+      "legalName": "Andes Research SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": true,
+      "riskScore": "12.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Noah Okafor",
+      "decidedAt": "2026-06-16T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "bosporus-facilities-forty-no-data",
+    "vendor": {
+      "legalName": "Bosporus Facilities A.Ş.",
+      "sanctionsHit": false,
+      "registeredCountry": "TR",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-17T11:45:00Z"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-machinery-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T15:40:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Machinery AS",
+    "registeredCountry": "NO",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-machinery-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-12T08:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Machinery SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

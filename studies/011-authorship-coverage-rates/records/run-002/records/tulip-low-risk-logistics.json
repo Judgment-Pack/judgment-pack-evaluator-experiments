@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-low-risk-logistics",
+  "decision": {
+    "decidedAt": "2026-06-09T14:10:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Logistics B.V.",
+    "registeredCountry": "BE",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

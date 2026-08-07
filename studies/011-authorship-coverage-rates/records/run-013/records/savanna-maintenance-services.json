@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-maintenance-services",
+  "decision": {
+    "decidedAt": "2026-06-11T11:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Maintenance Services Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

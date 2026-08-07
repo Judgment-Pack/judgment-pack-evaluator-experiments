@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-nonpersonal-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T13:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Machine Parts AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

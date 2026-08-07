@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Precision Works",
+    "registeredCountry": "IR",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

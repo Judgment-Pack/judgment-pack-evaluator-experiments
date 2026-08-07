@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-zero-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-09T16:05:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Payroll Tools Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-office-supplies-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T09:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Office Supplies Ltd.",
+    "registeredCountry": "NZ",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

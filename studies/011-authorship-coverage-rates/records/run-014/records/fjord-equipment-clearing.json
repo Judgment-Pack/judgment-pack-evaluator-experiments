@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-equipment-clearing",
+  "decision": {
+    "decidedAt": "2026-06-09T09:35:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Equipment AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

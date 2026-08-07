@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-high-risk-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-05T15:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Health Records Inc.",
+    "registeredCountry": "US",
+    "riskScore": "73.1",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-facilities-standard-clearance",
+  "decision": {
+    "decidedAt": "2026-06-05T16:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Facilities K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

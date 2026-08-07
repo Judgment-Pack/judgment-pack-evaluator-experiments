@@ -1,0 +1,15 @@
+{
+  "caseId": "ironwood-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Ironwood Components Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "96.75",
+    "sanctionsHit": false
+  }
+}

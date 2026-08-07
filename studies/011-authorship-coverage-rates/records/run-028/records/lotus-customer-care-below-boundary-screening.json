@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-customer-care-below-boundary-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T08:55:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Customer Care Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}
