@@ -1,0 +1,719 @@
+{
+  "baseline": "A::codex::gpt-5.6-sol",
+  "bootstrap_clusters": 216,
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 20260806,
+  "bootstrap_unit": "twin",
+  "conditions": {
+    "A::codex::gpt-5.6-sol": {
+      "ci95": {
+        "accuracy": [
+          0.7250000000000001,
+          0.8333333333333331
+        ],
+        "citation_f1": [
+          0.2819878612895642,
+          0.3391908852374775
+        ],
+        "citation_micro_f1": [
+          0.27616869336504724,
+          0.34416241571133416
+        ],
+        "citation_micro_precision": [
+          0.761580021769904,
+          0.8199087872417306
+        ],
+        "citation_micro_recall": [
+          0.16798924272804994,
+          0.2188477289613678
+        ],
+        "citation_precision": [
+          0.7517881915538165,
+          0.8218203147803839
+        ],
+        "citation_recall": [
+          0.1974984579503393,
+          0.2520940177623102
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": null,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "parse_ok_rate": [
+          1.0,
+          1.0
+        ],
+        "pass_at_k": [
+          0.6666666666666666,
+          0.7870370370370371
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_f1": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_precision": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "citation_recall": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": null,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "parse_ok_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "pass_at_k": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        }
+      },
+      "escalation_2x2": {
+        "neither": 1068,
+        "should_and_did": 0,
+        "should_but_did_not": 0,
+        "should_not_but_did": 12
+      },
+      "point": {
+        "accuracy": 0.7805555555555554,
+        "citation_f1": 0.3089582915919255,
+        "citation_micro_f1": 0.30845570978341047,
+        "citation_micro_precision": 0.7909215955983494,
+        "citation_micro_recall": 0.19158683881715952,
+        "citation_precision": 0.7867827979633536,
+        "citation_recall": 0.22398431579147962,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": null,
+        "escalation_fn": 0.0,
+        "escalation_fp": 12.0,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "escalation_tn": 1068.0,
+        "escalation_tp": 0.0,
+        "parse_ok_rate": 1.0,
+        "pass_at_k": 0.7268518518518519
+      }
+    },
+    "Aprime::codex::gpt-5.6-sol": {
+      "ci95": {
+        "accuracy": [
+          0.7175925925925926,
+          0.8333333333333334
+        ],
+        "citation_f1": [
+          0.22533453297965841,
+          0.26288951607307814
+        ],
+        "citation_micro_f1": [
+          0.2272534374614243,
+          0.2650308616394117
+        ],
+        "citation_micro_precision": [
+          0.6567761904761904,
+          0.715497790665562
+        ],
+        "citation_micro_recall": [
+          0.136732097728801,
+          0.16381581788019273
+        ],
+        "citation_precision": [
+          0.6524373933358307,
+          0.7383708124437288
+        ],
+        "citation_recall": [
+          0.15063062741358696,
+          0.18364716982088647
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": null,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "parse_ok_rate": [
+          1.0,
+          1.0
+        ],
+        "pass_at_k": [
+          0.7175925925925926,
+          0.8333333333333334
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            -0.036111111111111094,
+            0.029629629629629672
+          ],
+          "point": -0.002777777777777657,
+          "prob_gt_0": 0.4305
+        },
+        "citation_f1": {
+          "ci95": [
+            -0.09167685119870853,
+            -0.039470142155410386
+          ],
+          "point": -0.06505450608780078,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            -0.09157322391188218,
+            -0.03497320668066368
+          ],
+          "point": -0.06235234637077716,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            -0.12422473524587355,
+            -0.08411747232207926
+          ],
+          "point": -0.10468446254459418,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            -0.06397089980059822,
+            -0.02131612771125054
+          ],
+          "point": -0.041649312786339016,
+          "prob_gt_0": 0.0
+        },
+        "citation_precision": {
+          "ci95": [
+            -0.12370776924335938,
+            -0.06247505038043299
+          ],
+          "point": -0.09269018918324456,
+          "prob_gt_0": 0.0
+        },
+        "citation_recall": {
+          "ci95": [
+            -0.08099290400839766,
+            -0.03436505039153823
+          ],
+          "point": -0.05732844847861962,
+          "prob_gt_0": 0.0
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": null,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "parse_ok_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "pass_at_k": {
+          "ci95": [
+            0.0092592592592593,
+            0.09259259259259267
+          ],
+          "point": 0.05092592592592593,
+          "prob_gt_0": 0.988
+        }
+      },
+      "escalation_2x2": {
+        "neither": 1029,
+        "should_and_did": 0,
+        "should_but_did_not": 0,
+        "should_not_but_did": 51
+      },
+      "mcnemar_pass_at_k": {
+        "n_baseline_only_correct": 5,
+        "n_condition_only_correct": 16,
+        "n_discordant": 21,
+        "p_value": 0.02660369873046875
+      },
+      "point": {
+        "accuracy": 0.7777777777777778,
+        "citation_f1": 0.24390378550412473,
+        "citation_micro_f1": 0.2461033634126333,
+        "citation_micro_precision": 0.6862371330537552,
+        "citation_micro_recall": 0.1499375260308205,
+        "citation_precision": 0.694092608780109,
+        "citation_recall": 0.16665586731286,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": null,
+        "escalation_fn": 0.0,
+        "escalation_fp": 51.0,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "escalation_tn": 1029.0,
+        "escalation_tp": 0.0,
+        "parse_ok_rate": 1.0,
+        "pass_at_k": 0.7777777777777778
+      }
+    },
+    "B::mock::judgment-pack-runtime": {
+      "ci95": {
+        "accuracy": [
+          0.5092592592592593,
+          0.6435185185185185
+        ],
+        "citation_f1": [
+          0.17306316261209337,
+          0.2091814286896365
+        ],
+        "citation_micro_f1": [
+          0.17905843346362338,
+          0.2114171028439422
+        ],
+        "citation_micro_precision": [
+          0.6377933217404896,
+          0.7048356916775275
+        ],
+        "citation_micro_recall": [
+          0.10386748156142013,
+          0.1253230439783259
+        ],
+        "citation_precision": [
+          0.5644984567901231,
+          0.6670659722222221
+        ],
+        "citation_recall": [
+          0.10777447255667168,
+          0.13302200837437061
+        ],
+        "engine_refusal_rate": [
+          0.0,
+          0.0
+        ],
+        "escalation_f1": null,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "parse_ok_rate": [
+          1.0,
+          1.0
+        ],
+        "pass_at_k": [
+          0.5092592592592593,
+          0.6435185185185185
+        ]
+      },
+      "delta_vs_baseline": {
+        "accuracy": {
+          "ci95": [
+            -0.2620601851851854,
+            -0.14629629629629626
+          ],
+          "point": -0.20185185185185173,
+          "prob_gt_0": 0.0
+        },
+        "citation_f1": {
+          "ci95": [
+            -0.15412160527434812,
+            -0.08242889368619834
+          ],
+          "point": -0.11738597377758817,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_f1": {
+          "ci95": [
+            -0.1535718206381325,
+            -0.07472287920973976
+          ],
+          "point": -0.11279580227718494,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_precision": {
+          "ci95": [
+            -0.1445540124042614,
+            -0.0943325700614458
+          ],
+          "point": -0.12018988828127619,
+          "prob_gt_0": 0.0
+        },
+        "citation_micro_recall": {
+          "ci95": [
+            -0.10738312314135298,
+            -0.04967287663486847
+          ],
+          "point": -0.0770512286547272,
+          "prob_gt_0": 0.0
+        },
+        "citation_precision": {
+          "ci95": [
+            -0.21832092977752715,
+            -0.12749795844587483
+          ],
+          "point": -0.17165934117323012,
+          "prob_gt_0": 0.0
+        },
+        "citation_recall": {
+          "ci95": [
+            -0.13667691700555587,
+            -0.07239385695935921
+          ],
+          "point": -0.10353878906396026,
+          "prob_gt_0": 0.0
+        },
+        "engine_refusal_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "escalation_f1": null,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "parse_ok_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "point": 0.0,
+          "prob_gt_0": 0.0
+        },
+        "pass_at_k": {
+          "ci95": [
+            -0.21296296296296302,
+            -0.08796296296296291
+          ],
+          "point": -0.14814814814814814,
+          "prob_gt_0": 0.0
+        }
+      },
+      "escalation_2x2": {
+        "neither": 780,
+        "should_and_did": 0,
+        "should_but_did_not": 0,
+        "should_not_but_did": 300
+      },
+      "mcnemar_pass_at_k": {
+        "n_baseline_only_correct": 44,
+        "n_condition_only_correct": 12,
+        "n_discordant": 56,
+        "p_value": 2.0876568218419767e-05
+      },
+      "point": {
+        "accuracy": 0.5787037037037037,
+        "citation_f1": 0.19157231781433734,
+        "citation_micro_f1": 0.19565990750622553,
+        "citation_micro_precision": 0.6707317073170732,
+        "citation_micro_recall": 0.11453561016243231,
+        "citation_precision": 0.6151234567901235,
+        "citation_recall": 0.12044552672751936,
+        "engine_refusal_rate": 0.0,
+        "escalation_f1": null,
+        "escalation_fn": 0.0,
+        "escalation_fp": 300.0,
+        "escalation_precision": null,
+        "escalation_recall": null,
+        "escalation_tn": 780.0,
+        "escalation_tp": 0.0,
+        "parse_ok_rate": 1.0,
+        "pass_at_k": 0.5787037037037037
+      }
+    }
+  },
+  "escalation_estimable": false,
+  "instance_ids": [
+    "comp_0-000__answerable",
+    "comp_0-001__answerable",
+    "comp_0-002__answerable",
+    "comp_0-003__answerable",
+    "comp_0-004__answerable",
+    "comp_0-005__answerable",
+    "comp_0-006__answerable",
+    "comp_0-007__answerable",
+    "comp_0-008__answerable",
+    "comp_0-009__answerable",
+    "comp_0-010__answerable",
+    "comp_0-011__answerable",
+    "comp_0-012__answerable",
+    "comp_0-013__answerable",
+    "comp_0-014__answerable",
+    "comp_0-015__answerable",
+    "comp_0-016__answerable",
+    "comp_0-017__answerable",
+    "comp_0-018__answerable",
+    "comp_0-019__answerable",
+    "comp_0-020__answerable",
+    "comp_0-021__answerable",
+    "comp_0-022__answerable",
+    "comp_0-023__answerable",
+    "comp_0-024__answerable",
+    "comp_0-025__answerable",
+    "comp_0-026__answerable",
+    "comp_0-027__answerable",
+    "comp_0-028__answerable",
+    "comp_0-029__answerable",
+    "comp_0-030__answerable",
+    "comp_0-031__answerable",
+    "comp_0-032__answerable",
+    "comp_0-033__answerable",
+    "comp_0-034__answerable",
+    "comp_0-035__answerable",
+    "comp_0-036__answerable",
+    "comp_0-037__answerable",
+    "comp_0-038__answerable",
+    "comp_0-039__answerable",
+    "comp_0-040__answerable",
+    "comp_0-041__answerable",
+    "comp_0-042__answerable",
+    "comp_0-043__answerable",
+    "comp_0-044__answerable",
+    "comp_0-045__answerable",
+    "comp_0-046__answerable",
+    "comp_0-047__answerable",
+    "comp_0-048__answerable",
+    "comp_0-049__answerable",
+    "comp_0-050__answerable",
+    "comp_0-051__answerable",
+    "comp_0-052__answerable",
+    "comp_0-053__answerable",
+    "comp_0-054__answerable",
+    "comp_0-055__answerable",
+    "comp_0-056__answerable",
+    "comp_0-057__answerable",
+    "comp_0-058__answerable",
+    "comp_0-059__answerable",
+    "comp_0-060__answerable",
+    "comp_0-061__answerable",
+    "comp_0-062__answerable",
+    "comp_0-063__answerable",
+    "comp_0-064__answerable",
+    "comp_0-065__answerable",
+    "comp_0-066__answerable",
+    "comp_0-067__answerable",
+    "comp_0-068__answerable",
+    "comp_0-069__answerable",
+    "comp_0-070__answerable",
+    "comp_0-071__answerable",
+    "comp_0-072__answerable",
+    "comp_0-073__answerable",
+    "comp_0-074__answerable",
+    "comp_0-075__answerable",
+    "comp_0-076__answerable",
+    "comp_0-077__answerable",
+    "comp_0-078__answerable",
+    "comp_0-079__answerable",
+    "comp_0-080__answerable",
+    "comp_1-000__answerable",
+    "comp_1-001__answerable",
+    "comp_1-002__answerable",
+    "comp_1-003__answerable",
+    "comp_1-004__answerable",
+    "comp_1-005__answerable",
+    "comp_1-006__answerable",
+    "comp_1-007__answerable",
+    "comp_1-008__answerable",
+    "comp_1-009__answerable",
+    "comp_1-010__answerable",
+    "comp_1-011__answerable",
+    "comp_1-012__answerable",
+    "comp_1-013__answerable",
+    "comp_1-014__answerable",
+    "comp_1-015__answerable",
+    "comp_1-016__answerable",
+    "comp_1-017__answerable",
+    "comp_1-018__answerable",
+    "comp_1-019__answerable",
+    "comp_1-020__answerable",
+    "comp_1-021__answerable",
+    "comp_1-022__answerable",
+    "comp_1-023__answerable",
+    "comp_1-024__answerable",
+    "comp_1-025__answerable",
+    "comp_1-026__answerable",
+    "comp_1-027__answerable",
+    "comp_1-028__answerable",
+    "comp_1-029__answerable",
+    "comp_1-030__answerable",
+    "comp_1-031__answerable",
+    "comp_1-032__answerable",
+    "comp_1-033__answerable",
+    "comp_1-034__answerable",
+    "comp_1-035__answerable",
+    "comp_1-036__answerable",
+    "comp_1-037__answerable",
+    "comp_1-038__answerable",
+    "comp_1-039__answerable",
+    "comp_1-040__answerable",
+    "comp_1-041__answerable",
+    "comp_1-042__answerable",
+    "comp_1-043__answerable",
+    "comp_1-044__answerable",
+    "comp_1-045__answerable",
+    "comp_1-046__answerable",
+    "comp_1-047__answerable",
+    "comp_1-048__answerable",
+    "comp_1-049__answerable",
+    "comp_1-050__answerable",
+    "comp_1-051__answerable",
+    "comp_1-052__answerable",
+    "comp_1-053__answerable",
+    "comp_1-054__answerable",
+    "comp_1-055__answerable",
+    "comp_1-056__answerable",
+    "comp_1-057__answerable",
+    "comp_1-058__answerable",
+    "comp_1-059__answerable",
+    "comp_1-060__answerable",
+    "comp_1-061__answerable",
+    "comp_1-062__answerable",
+    "comp_1-063__answerable",
+    "comp_1-064__answerable",
+    "comp_1-065__answerable",
+    "comp_1-066__answerable",
+    "comp_1-067__answerable",
+    "comp_1-068__answerable",
+    "comp_1-069__answerable",
+    "comp_1-070__answerable",
+    "comp_1-071__answerable",
+    "comp_1-072__answerable",
+    "comp_1-073__answerable",
+    "comp_1-074__answerable",
+    "comp_1-075__answerable",
+    "comp_1-076__answerable",
+    "comp_1-077__answerable",
+    "comp_1-078__answerable",
+    "comp_1-079__answerable",
+    "comp_1-080__answerable",
+    "comp_1-081__answerable",
+    "comp_1-082__answerable",
+    "comp_1-083__answerable",
+    "comp_1-084__answerable",
+    "comp_1-085__answerable",
+    "comp_1-086__answerable",
+    "comp_1-087__answerable",
+    "comp_1-088__answerable",
+    "comp_2-000__answerable",
+    "comp_2-001__answerable",
+    "comp_2-002__answerable",
+    "comp_2-003__answerable",
+    "comp_2-004__answerable",
+    "comp_2-005__answerable",
+    "comp_2-006__answerable",
+    "comp_2-007__answerable",
+    "comp_2-008__answerable",
+    "comp_2-009__answerable",
+    "comp_2-010__answerable",
+    "comp_2-011__answerable",
+    "comp_2-012__answerable",
+    "comp_2-013__answerable",
+    "comp_2-014__answerable",
+    "comp_2-015__answerable",
+    "comp_2-016__answerable",
+    "comp_2-017__answerable",
+    "comp_2-018__answerable",
+    "comp_2-019__answerable",
+    "comp_2-020__answerable",
+    "comp_2-021__answerable",
+    "comp_2-022__answerable",
+    "comp_2-023__answerable",
+    "comp_2-024__answerable",
+    "comp_2-025__answerable",
+    "comp_2-026__answerable",
+    "comp_2-027__answerable",
+    "comp_2-028__answerable",
+    "comp_2-029__answerable",
+    "comp_2-030__answerable",
+    "comp_2-031__answerable",
+    "comp_2-032__answerable",
+    "comp_2-033__answerable",
+    "comp_2-034__answerable",
+    "comp_2-035__answerable",
+    "comp_2-036__answerable",
+    "comp_2-037__answerable",
+    "comp_2-038__answerable",
+    "comp_2-039__answerable",
+    "comp_2-040__answerable",
+    "comp_2-041__answerable",
+    "comp_2-042__answerable",
+    "comp_2-043__answerable",
+    "comp_2-044__answerable",
+    "comp_2-045__answerable"
+  ],
+  "paired_instances": 216,
+  "population": "answerable",
+  "redacted_instances": 0,
+  "schema": "jps-study-001-score/2",
+  "trials_per_instance": {
+    "max": 5,
+    "min": 5
+  }
+}

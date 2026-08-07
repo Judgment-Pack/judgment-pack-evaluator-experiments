@@ -11,8 +11,12 @@ listed as a gap. Nothing here is aspirational.
 → derive → evaluate → score — and every stage is deterministic. Arm B has been
 run for real over the whole corpus; its accuracy is 57.9% (80.1% on the subset it
 can decide) and the reason it cannot decide the rest is a missing constant, not a
-missing rule. See §7 G-1. No prompt arm has been run against a real model beyond
-the two-instance Codex pilot in §6.
+missing rule. See §7 G-1. *(Update 2026-08-06: the prompt arms have now run for
+real too — all three arms over the full 432-twin corpus at k = 5; results and
+their correction history are in `RESULTS-FIRST-PROMPT-ARMS.md` and
+`DEVIATIONS.md`. The sentence that previously stood here — "no prompt arm has
+been run against a real model beyond the two-instance Codex pilot" — described
+the integration-run state and is superseded.)*
 
 > **Interpreter.** The system Python here is 3.8 and **cannot run this pipeline**
 > (`X | None` annotations, `:=` in comprehension guards). Use 3.10+. Everything
@@ -283,9 +287,12 @@ Every result row records `row_id`, `instance_id`, `variant`, model id and params
 `facts_sha256`, `prompt_sha256`, the harness commit, and whether the tree was
 dirty.
 
-Test suite: **141 tests, all passing** on CPython 3.12.11 —
-`test_parse_nba.py` 26, `test_redact.py` 27, `test_derive.py` 44,
-`test_harness.py` 44.
+Test suite at the integration run: **141 tests, all passing** on CPython
+3.12.11 — `test_parse_nba.py` 26, `test_redact.py` 27, `test_derive.py` 44,
+`test_harness.py` 44. *(As of 2026-08-06 the suite is 193 passed, 2 skipped —
+the two real-CLI arm-B tests skip where `judgment-pack` is not installed —
+including the follow-up work's additions to `test_harness.py` and the new
+`tests/test_score.py`; §8's reproduction recipe carries the current count.)*
 
 ---
 
@@ -315,11 +322,21 @@ goes to all three arms, so the *comparison* is unbiased — but the absolute arm
 number is not a clean measure of the pack. `pipeline/DERIVED.md` §4 says this at
 length; any write-up must repeat it.
 
-**G-3. 18 false `illegal` verdicts on gold-legal instances, undiagnosed.** Arm B
-calls 18 of the 50 gold-legal answerable instances illegal. Most likely cause is
-G-2: an over-eager exception assignment (e.g. the Non-Taxpayer Mid-Level assigned
-to a team that in fact had Room) makes a limit rule fire. Someone should walk
-those 18 traces.
+**G-3. 18 false `illegal` verdicts on gold-legal instances — DIAGNOSED
+(2026-08-06).** Arm B calls 18 of the **37** gold-legal answerable instances
+illegal (this entry originally said "of the 50"; the pinned checkout has 37 —
+comp_0 24, comp_1 12, comp_2 1 — and the retained log splits them 18 illegal /
+10 legal / 9 cannot_decide). The traces have been walked:
+[`G3-DIAGNOSIS.md`](G3-DIAGNOSIS.md) diagnoses every instance to a named
+`derive.py` field or pack rule, each verified by counterfactual through the
+same binary. The guess above was half right: the over-eager exception
+assignment (M1/M2) is real and decisive on 5 instances, but 8 instances
+attribute to the pack's own encoding under the note's tie-break convention.
+The consequential finding is for G-2: applying diagnostic probes for four
+of the five derivation mechanisms (isolations, not repairs; one mechanism
+has no probe) *lowers* whole-corpus answerable accuracy 0.579 → 0.551 —
+the components' errors partly compensate, so the arm-B score is not
+separable into pack and preprocessor contributions.
 
 **G-4. The redaction is still invisible to arm B on 126 of 216 pairs.**
 `redact.py` chooses what to delete in terms of *raw* fact roles read off
@@ -332,13 +349,15 @@ fixed.** Fix direction: have `redact.py` prefer candidate roles that provably
 feed at least one emitted derived field, which needs a role → derived-field map
 that does not exist yet.
 
-**G-5. No prompt arm has been run against a real model at scale.** Arms A and
-A-prime have been exercised only on the mock backend plus the n = 2 Codex pilot.
-The Codex backend's author documents two caveats that still stand: no seed or
-temperature is exposed, so it is not deterministic, and the CLI loads its own
-bundled skill descriptions and keeps a shell tool even in the read-only sandbox.
-The Anthropic backend has never been executed and raises at construction without
-`ANTHROPIC_API_KEY` rather than falling back.
+**G-5. No prompt arm had been run against a real model at scale — CLOSED
+(2026-08-06).** Arms A and A′ have now run over the full corpus at k = 5 on the
+Codex backend (`RESULTS-FIRST-PROMPT-ARMS.md`). Two of this entry's caveats
+still stand and are recorded as deviations: the Codex backend exposes no seed
+or temperature, so the prompt arms are not deterministic, and the CLI loads its
+own bundled skill descriptions and keeps a shell tool even in the read-only
+sandbox. The Anthropic backend has still never been executed (no
+`ANTHROPIC_API_KEY` in the environment), so the registered pooled endpoint
+remains unestimable — `DEVIATIONS.md` §3.
 
 **G-6. Arm A-prime's prose is machine-generated and has never been read by a
 human.** `packs/render_prose.py` projects the pack into 53 KB of numbered
@@ -383,9 +402,12 @@ state no destination team; 4 three-team trades have an unresolved asset binding.
 escalate. Neither the parser nor the preprocessor guesses, and the benchmark's
 prose does not disambiguate.
 
-**G-14. `results/` currently holds only mock output.** `results/smoke-*.jsonl`
-and `results/smoke-report.*` are from this integration run and should be deleted
-or moved before the real run; they are not preregistered artifacts.
+**G-14. `results/` held only mock output — SUPERSEDED (2026-08-06).** The
+directory now retains the real k = 5 row logs for all three arms
+(`pilot-{A,Aprime}-codex.jsonl`, `pilot-B-runtime.jsonl`), the strict-rule
+audited arm-B re-run (`k5-B-runtime-audited.jsonl`), and the scored reports.
+The `smoke-*` files from the integration run remain alongside them as
+labelled mock artifacts.
 
 ---
 
@@ -430,13 +452,21 @@ $PY harness/run.py --arm B      --backend mock --instances pipeline/out/twins \
     --out results/B-mock.jsonl
 
 # 8. score
+#    --population and --bootstrap-unit are written out even though both are the
+#    defaults: they name the analysis set and the resampling unit, which is the
+#    pair a scored report must not leave to a reader's memory (DEVIATIONS.md
+#    sections 2 and 4). The registered primary endpoint is --population
+#    answerable; --bootstrap-unit twin is what every published interval used.
 $PY harness/score.py --instances pipeline/out/twins \
     --results results/A-mock.jsonl results/Aprime-mock.jsonl results/B-mock.jsonl \
     --baseline "A::mock::mock/deterministic-v1" --bootstrap 2000 \
+    --population all --bootstrap-unit twin \
     --out-md results/report.md --out-json results/report.json
 
 # tests
-$PY -m pytest pipeline/tests harness/tests -q     # 141 passed
+$PY -m pytest pipeline/tests harness/tests -q     # 193 passed, 2 skipped
+#                                                 # (the 2 skips need the
+#                                                 #  judgment-pack CLI installed)
 
 # supporting reads
 $PY pipeline/derive.py --readings                 # numbered readings R1-R10

@@ -15,6 +15,13 @@ WHAT THIS FILE DOES
 * Runs arm B against a real, tiny judgment pack through the installed
   ``judgment-pack`` CLI (skipped when it is absent) and asserts that an engine
   refusal is recorded as an arm-B failure rather than skipped.
+* Drives arm B against a *stub* CLI --- an executable that prints fixed bytes and
+  exits with a fixed status --- to pin the refusal rule and the audit trail on
+  exit statuses a conformant runtime will not produce on demand: a non-zero exit
+  alongside a valid envelope, and a success whose exit status is still recorded.
+* Checks that resuming refuses to mix the two arm-B row vintages in one file, and
+  that the model arms, whose rows did not change meaning, still resume across the
+  same schema boundary.
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
@@ -22,6 +29,9 @@ WHAT THIS FILE DELIBERATELY DOES NOT DO
   configuration failure modes are asserted, not their responses.
 * No assertions about the *content* of mock predictions beyond determinism; the
   mock is plumbing, not a model.
+* No use of the stub CLI to stand in for the runtime's *semantics*. It is a
+  process-exit fixture; what a real pack decides is asserted against the real CLI
+  or against ``map_envelope`` directly.
 """
 
 from __future__ import annotations
@@ -143,7 +153,7 @@ def test_run_mock_end_to_end_produces_wellformed_rows(instance_dir, policy_file,
                 "harness_commit", "facts_sha256", "prompt_sha256"}
     for row in rows:
         assert required <= set(row), sorted(required - set(row))
-        assert row["schema"] == "jps-study-001-result/1"
+        assert row["schema"] == "jps-study-001-result/2"
         assert row["arm"] == "A"
         # The mock must never claim to be a real model.
         assert row["backend"] == "mock"
@@ -472,6 +482,8 @@ def test_resolve_outcome_prefers_illegal_over_legal_substring():
 
 def _row(iid, trial, decision, cited, *, parse_ok=True, error=None,
          arm="A", backend="mock", model="m"):
+    # Deliberately still schema /1, and left that way: the scorer must keep
+    # reading the rows that were written before the arm-B engine keys existed.
     return {
         "schema": "jps-study-001-result/1",
         "instance_id": iid, "arm": arm, "backend": backend, "model": model,
@@ -703,3 +715,274 @@ def test_normalise_rule_id_absorbs_rulearena_spelling_variants():
             == score_mod.normalise_rule_id("non_taxpayer_mid_level_exception"))
     assert (score_mod.normalise_rule_id("Sign_And_Trade_3_To_4_Year")
             == score_mod.normalise_rule_id("sign-and-trade-3-to-4-year"))
+
+
+# --------------------------------------------------------------------------- #
+# Arm-B refusal auditability
+#
+# The adversarial review (DEVIATIONS.md section 3) found that arm B rejected a
+# non-zero exit only when stdout was also empty, and that arm-B rows retained
+# neither the exit status nor stderr --- so the reported "0 engine refusals"
+# could not be checked against the rows. These tests hold both halves of the fix:
+# the rule (any non-zero exit is a refusal) and the record (returncode and stderr
+# on every path, and in the JSONL).
+# --------------------------------------------------------------------------- #
+
+
+_STUB_ENVELOPE = {
+    "status": "evaluated",
+    "disposition": {"kind": "outcome", "outcomeId": "illegal",
+                    "reasons": [], "handoff": {"state": "none"}},
+    "trace": [{"stage": "rule", "id": "over-first-apron-is-illegal",
+               "condition": "true", "outcome": "illegal"}],
+}
+
+
+def _stub_cli(tmp_path, name, *, exit_code, stdout="", stderr=""):
+    """Write an executable stand-in for the runtime CLI and return its path.
+
+    It ignores its arguments and emits fixed bytes with a fixed exit status. A
+    conformant runtime cannot be asked for "a valid envelope *and* exit 3", which
+    is exactly the combination the refusal rule turns on, so that case is only
+    reachable through a stub. The stub asserts nothing about pack semantics.
+    """
+    path = tmp_path / name
+    path.write_text(
+        "#!%s\n"
+        "import sys\n"
+        "sys.stdout.write(%r)\n"
+        "sys.stderr.write(%r)\n"
+        "sys.exit(%d)\n" % (sys.executable, stdout, stderr, exit_code),
+        encoding="utf-8")
+    os.chmod(str(path), 0o755)
+    return str(path)
+
+
+def _stub_config(tmp_path, cli):
+    pack = tmp_path / "pack.json"
+    pack.write_text(json.dumps(_tiny_pack()), encoding="utf-8")
+    return arm_b.ArmBConfig(str(pack), cli=cli)
+
+
+def test_arm_b_nonzero_exit_is_a_refusal_even_with_a_valid_envelope(tmp_path):
+    cli = _stub_cli(tmp_path, "jp-exit-3", exit_code=3,
+                    stdout=json.dumps(_STUB_ENVELOPE),
+                    stderr="fatal: the runtime gave up\n")
+    result = arm_b.evaluate_instance(_instance("x#0", True, []),
+                                     _stub_config(tmp_path, cli))
+
+    # Before the fix this scored as ok=True with decision "illegal".
+    assert result["ok"] is False
+    assert result["prediction"] is None
+    assert result["error"].startswith("engine-refusal:exit=3:")
+    assert "fatal: the runtime gave up" in result["error"]
+    # ...and the refusal is auditable from the returned row alone.
+    assert result["returncode"] == 3
+    assert result["stderr"] == "fatal: the runtime gave up\n"
+    # The envelope that would have been scored is retained, not discarded.
+    assert json.loads(result["raw_text"]) == _STUB_ENVELOPE
+    assert result["raw"] is None
+
+
+def test_arm_b_success_still_records_returncode_and_stderr(tmp_path):
+    cli = _stub_cli(tmp_path, "jp-exit-0", exit_code=0,
+                    stdout=json.dumps(_STUB_ENVELOPE),
+                    stderr="note: 1 rule evaluated\n")
+    result = arm_b.evaluate_instance(_instance("x#0", True, []),
+                                     _stub_config(tmp_path, cli))
+
+    assert result["ok"], result["error"]
+    assert result["prediction"]["decision"] == "illegal"
+    # A refusal *rate* needs the non-refusals on the record too, so the success
+    # path carries the same two keys rather than omitting them.
+    assert result["returncode"] == 0
+    assert result["stderr"] == "note: 1 rule evaluated\n"
+
+
+def test_arm_b_unparseable_output_records_the_exit_status(tmp_path):
+    cli = _stub_cli(tmp_path, "jp-garbage", exit_code=0,
+                    stdout="not json at all", stderr="")
+    result = arm_b.evaluate_instance(_instance("x#0", True, []),
+                                     _stub_config(tmp_path, cli))
+    assert result["ok"] is False
+    assert result["error"].startswith("engine-refusal:unparseable-output")
+    # Zero, not None: a process did run, and saying otherwise would misreport it.
+    assert result["returncode"] == 0
+    assert result["stderr"] == ""
+
+
+def test_arm_b_missing_cli_records_no_exit_status(tmp_path):
+    config = _stub_config(tmp_path, "judgment-pack-that-does-not-exist")
+    result = arm_b.evaluate_instance(_instance("x#0", True, []), config)
+    assert result["ok"] is False
+    assert result["error"].startswith("engine-refusal:cli-not-found")
+    # No process completed, so no exit status is invented. None is not 0.
+    assert result["returncode"] is None
+    assert result["stderr"] == ""
+
+
+def test_run_retains_engine_keys_on_arm_b_rows_only(instance_dir, policy_file, tmp_path):
+    cli = _stub_cli(tmp_path, "jp-run", exit_code=0,
+                    stdout=json.dumps(_STUB_ENVELOPE),
+                    stderr="note: deterministic runtime\n")
+    pack = tmp_path / "pack.json"
+    pack.write_text(json.dumps(_tiny_pack()), encoding="utf-8")
+
+    b_out = tmp_path / "B-mock.jsonl"
+    b_proc = _run_cli("--arm", "B", "--backend", "mock", "--instances", instance_dir,
+                      "--trials", "1", "--seed", "0", "--out", str(b_out),
+                      "--pack", str(pack), "--judgment-pack-cli", cli,
+                      "--rule-catalog", "none")
+    assert b_proc.returncode == 0, b_proc.stderr.decode()
+    b_rows = [json.loads(line) for line in b_out.read_text(encoding="utf-8").splitlines()]
+    assert len(b_rows) == 4
+    for row in b_rows:
+        assert row["schema"] == "jps-study-001-result/2"
+        assert row["engine_returncode"] == 0
+        assert row["engine_stderr"] == "note: deterministic runtime\n"
+        # The keys sit immediately after `error`, where ROW_KEYS puts them.
+        keys = list(row)
+        assert keys[keys.index("error") + 1:keys.index("error") + 3] == \
+            ["engine_returncode", "engine_stderr"]
+
+    a_out = tmp_path / "A-mock.jsonl"
+    a_proc = _run_cli("--arm", "A", "--backend", "mock", "--instances", instance_dir,
+                      "--trials", "1", "--seed", "0", "--out", str(a_out),
+                      "--policy", policy_file, "--rule-catalog", "none")
+    assert a_proc.returncode == 0, a_proc.stderr.decode()
+    a_rows = [json.loads(line) for line in a_out.read_text(encoding="utf-8").splitlines()]
+    assert len(a_rows) == 4
+    for row in a_rows:
+        assert row["schema"] == "jps-study-001-result/2"
+        # A model arm has no child process, so it claims no exit status.
+        assert "engine_returncode" not in row
+        assert "engine_stderr" not in row
+
+
+def test_run_records_a_nonzero_exit_as_an_arm_b_error_row(instance_dir, tmp_path):
+    cli = _stub_cli(tmp_path, "jp-run-fail", exit_code=70,
+                    stdout=json.dumps(_STUB_ENVELOPE),
+                    stderr="fatal: internal error\n")
+    pack = tmp_path / "pack.json"
+    pack.write_text(json.dumps(_tiny_pack()), encoding="utf-8")
+
+    out = tmp_path / "B-fail.jsonl"
+    proc = _run_cli("--arm", "B", "--backend", "mock", "--instances", instance_dir,
+                    "--trials", "1", "--seed", "0", "--out", str(out),
+                    "--pack", str(pack), "--judgment-pack-cli", cli,
+                    "--rule-catalog", "none")
+    assert proc.returncode == 0, proc.stderr.decode()
+    # The run reports the refusals rather than exiting on them: they are data.
+    assert "errors         : 4" in proc.stdout.decode()
+
+    rows = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+    assert len(rows) == 4
+    for row in rows:
+        assert row["parse_ok"] is False
+        assert row["prediction"] is None
+        assert row["error"].startswith("engine-refusal:exit=70")
+        assert row["engine_returncode"] == 70
+        assert "internal error" in row["engine_stderr"]
+
+
+# --------------------------------------------------------------------------- #
+# Resuming across the two arm-B row vintages
+#
+# The refusal rule is what an arm-B row *means*, and it changed with the schema:
+# a `/1` arm-B row could record a non-zero exit that printed an envelope as a
+# success. Resume keys on (row_id, trial) and cannot see that, so one file could
+# end up holding both definitions with nothing able to tell them apart --- every
+# rate computed over it would silently mix the two.
+# --------------------------------------------------------------------------- #
+
+
+def _legacy_arm_b_row(instance_id, trial=1):
+    """One arm-B row as `/1` wrote them: no engine_returncode, no engine_stderr."""
+    return {
+        "schema": "jps-study-001-result/1",
+        "row_id": instance_id, "instance_id": instance_id,
+        "arm": "B", "backend": "mock", "model": "judgment-pack-runtime",
+        "params": {}, "trial": trial, "seed": 0,
+        "prediction": {"decision": "illegal", "cited_rules": [], "reason": ""},
+        "raw_text": "{}", "parse_ok": True, "parse_error": None,
+        "latency_ms": 1, "error": None,
+        "facts_sha256": "x", "prompt_sha256": None,
+        "harness_commit": "c", "harness_dirty": False, "arm_config": {},
+    }
+
+
+def test_run_refuses_to_resume_arm_b_across_row_vintages(instance_dir, tmp_path):
+    cli = _stub_cli(tmp_path, "jp-resume", exit_code=0,
+                    stdout=json.dumps(_STUB_ENVELOPE), stderr="")
+    pack = tmp_path / "pack.json"
+    pack.write_text(json.dumps(_tiny_pack()), encoding="utf-8")
+
+    out = tmp_path / "B-mixed.jsonl"
+    legacy = json.dumps(_legacy_arm_b_row("comp_0#000")) + "\n"
+    out.write_text(legacy, encoding="utf-8")
+
+    proc = _run_cli("--arm", "B", "--backend", "mock", "--instances", instance_dir,
+                    "--trials", "1", "--seed", "0", "--out", str(out),
+                    "--pack", str(pack), "--judgment-pack-cli", cli,
+                    "--rule-catalog", "none")
+    assert proc.returncode == 2
+    stderr = proc.stderr.decode()
+    assert "refusing to resume" in stderr
+    assert "jps-study-001-result/1" in stderr
+    # Nothing was appended: the file is exactly as it was left.
+    assert out.read_text(encoding="utf-8") == legacy
+
+
+def test_dry_run_refuses_the_same_mixture_before_reporting_a_plan(instance_dir, tmp_path):
+    """A plan that cannot legally be appended is not a plan worth printing."""
+    pack = tmp_path / "pack.json"
+    pack.write_text(json.dumps(_tiny_pack()), encoding="utf-8")
+    out = tmp_path / "B-mixed-dry.jsonl"
+    out.write_text(json.dumps(_legacy_arm_b_row("comp_0#000")) + "\n",
+                   encoding="utf-8")
+
+    proc = _run_cli("--arm", "B", "--backend", "mock", "--instances", instance_dir,
+                    "--trials", "1", "--seed", "0", "--out", str(out),
+                    "--pack", str(pack), "--rule-catalog", "none", "--dry-run")
+    assert proc.returncode == 2
+    assert "refusing to resume" in proc.stderr.decode()
+
+
+def test_model_arms_still_resume_across_the_schema_boundary(instance_dir, policy_file,
+                                                            tmp_path):
+    """Arm-A rows did not change meaning between `/1` and `/2`, so they may mix."""
+    out = tmp_path / "A-mixed.jsonl"
+    legacy = _legacy_arm_b_row("comp_0#000")
+    legacy.update({"arm": "A", "model": "mock/deterministic-v1",
+                   "prompt_sha256": "p"})
+    out.write_text(json.dumps(legacy) + "\n", encoding="utf-8")
+
+    proc = _run_cli("--arm", "A", "--backend", "mock", "--instances", instance_dir,
+                    "--trials", "1", "--seed", "0", "--out", str(out),
+                    "--policy", policy_file, "--rule-catalog", "none")
+    assert proc.returncode == 0, proc.stderr.decode()
+    assert "rows skipped   : 1 (already present -- resumed)" in proc.stdout.decode()
+    rows = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+    assert len(rows) == 4
+    assert [row["schema"] for row in rows] == (
+        ["jps-study-001-result/1"] + ["jps-study-001-result/2"] * 3)
+
+
+def test_arm_b_vintage_guard_is_a_no_op_on_a_uniform_or_absent_file(tmp_path):
+    missing = tmp_path / "nothing.jsonl"
+    run_mod.assert_uniform_arm_b_vintage(str(missing), "B")  # no file, no opinion
+
+    uniform = tmp_path / "B-uniform.jsonl"
+    row = _legacy_arm_b_row("comp_0#000")
+    row["schema"] = run_mod.SCHEMA
+    uniform.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    run_mod.assert_uniform_arm_b_vintage(str(uniform), "B")
+
+    stale = tmp_path / "B-stale.jsonl"
+    stale.write_text(json.dumps(_legacy_arm_b_row("comp_0#000")) + "\n",
+                     encoding="utf-8")
+    # The same file is fine for a model arm and refused for arm B.
+    run_mod.assert_uniform_arm_b_vintage(str(stale), "A")
+    with pytest.raises(ValueError) as exc:
+        run_mod.assert_uniform_arm_b_vintage(str(stale), "B")
+    assert "jps-study-001-result/1" in str(exc.value)
