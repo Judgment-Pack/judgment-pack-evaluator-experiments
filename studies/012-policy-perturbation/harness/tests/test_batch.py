@@ -17,9 +17,12 @@ slot with a refusal record and the batch CONTINUES (§2.5's ported difference
 from Study 010); that the slots the wrapper writes carry the arm, the arm
 prompt digest and the three schedule stamps §2.9 registers, in the arm's own
 tree; that resumption by global schedule index merges the ledger rather than
-replacing it [D-22]; that no slot is created before the golden capture is
-registered; that no retained byte carries the credential; and that §6 C7
-retains its three files and deletes the transcript itself.
+replacing it [D-22]; that a batch killed between a slot's seal and its ledger
+append is resumed — and declared short — from the seal the driver itself wrote,
+and refuses every wider disagreement (round 6, finding 6); that no slot is
+created before the golden capture is registered; that no retained byte carries
+the credential; and that §6 C7 retains its three files and deletes the
+transcript itself.
 
 Two adaptations to §2.10 [D-23], which are also the two things this file
 deliberately does NOT do:
@@ -1119,6 +1122,155 @@ class Batch(unittest.TestCase):
         # is the flag's and not the command's.
         self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 0)
         self.assertEqual(self.shortfall(), 0)
+
+    # --- the crash window between the seal and the ledger (round 6, finding 6)
+
+    def truncate_ledger(self, keep: int) -> list:
+        """The ledger cut to its first `keep` records, in place — the state a
+        kill between `seal_slot()` and the ledger append leaves behind.
+
+        Produced by running the REAL driver and then dropping the tail record,
+        so every slot on disk was sealed by the driver itself and the prefix
+        that remains is a chain the driver wrote. The dropped records are
+        returned, because the recovery's own claim is that it rebuilds them.
+        """
+        path = os.path.join(self.arms_root, "BATCH.json")
+        ledger = self.ledger()
+        dropped = ledger["records"][keep:]
+        ledger["records"] = ledger["records"][:keep]
+        with open(path, "w") as handle:
+            json.dump(ledger, handle, indent=2)
+        return dropped
+
+    def test_a_sealed_slot_with_no_ledger_record_is_completed_from_its_seal(self):
+        """Round 6, finding 6: §2.9 seals a slot and then appends its record, so
+        a kill in between leaves a sealed slot the ledger does not name. That
+        batch could not be resumed — the resume planned the orphan's index again
+        and refused its existing path — and could not be declared short either,
+        because the two counts disagreed. It was stuck.
+
+        The slot RAN: the wrapper returned, the refusal record and the schedule
+        stamps were written, and the driver sealed the tree, all before the
+        append. So the record is completed from the seal rather than re-run, and
+        the test's own proof of that is byte equality with the record the driver
+        wrote before it was dropped — plus the call counter, which does not move.
+        """
+        self.recapture_then_batch(extra=["--runs", "3"])
+        dropped = self.truncate_ledger(2)
+        spent = self.calls_made()
+        # …and the resume continues into the next slot in the same invocation.
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 0)
+        records = self.ledger()["records"]
+        self.assertEqual(len(records), 4)
+        self.assertEqual(records[2], dropped[0])
+        self.assertEqual([row["globalIndex"] for row in records], [1, 2, 3, 4])
+        batch.verify_chain(records)
+        # One call for the fourth slot, and none for the recovered third.
+        self.assertEqual(int(self.calls_made()), int(spent) + 1)
+
+    def test_the_crash_window_recovery_is_one_slot_and_a_verifying_seal(self):
+        """The three shapes the recovery refuses instead of guessing at: two
+        orphans, an orphan whose tree is not the tree its manifest seals, and an
+        orphan with no manifest at all. Each leaves the ledger and the slots
+        exactly as it found them and spends no call — a driver that quietly
+        adopted any of them would be signing a chain over bytes it never saw.
+        """
+        self.recapture_then_batch(extra=["--runs", "3"])
+        third = self.slot(2)
+        # Two orphans: the window can leave one, so this is not that window.
+        self.truncate_ledger(1)
+        before, spent = self.ledger(), self.calls_made()
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 1)
+        self.assertEqual(self.ledger(), before)
+        self.assertEqual(self.shortfall(), 1)
+        self.assertFalse(os.path.exists(os.path.join(self.arms_root,
+                                                     "SHORTFALL.json")))
+        # One orphan, and its seal does not recompute: a byte of the slot moved
+        # after the manifest was written, which §2.9 makes the batch's problem.
+        self.truncate_ledger(2)
+        with open(os.path.join(third, "stderr.raw"), "ab") as handle:
+            handle.write(b"appended after the seal\n")
+        before = self.ledger()
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 1)
+        self.assertEqual(self.ledger(), before)
+        # One orphan with no seal at all: the wrapper never returned, so the
+        # slot did not reach a terminal outcome and no record describes it.
+        os.unlink(os.path.join(third, "SLOT-MANIFEST.json"))
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 1)
+        self.assertEqual(self.shortfall(), 1)
+        self.assertEqual(self.ledger(), before)
+        self.assertFalse(os.path.exists(self.slot(3)))
+        self.assertEqual(self.calls_made(), spent)
+
+    def test_a_shortfall_over_a_crash_window_reconciles_before_it_declares(self):
+        """The declaration is a statement about the ledger and about the slots
+        on disk at once (§6 C5 rule 5), and a batch killed in the seal-then-
+        record window is exactly the batch that needs one. It used to count the
+        two separately and write a declaration the scorer refused; now the one
+        interrupted append is completed first, by the same function the resume
+        uses, and the declared prefix is the reconciled ledger's.
+        """
+        self.recapture_then_batch(extra=["--runs", "3"])
+        dropped = self.truncate_ledger(2)
+        spent = self.calls_made()
+        self.assertEqual(self.shortfall(), 0)
+        records = self.ledger()["records"]
+        self.assertEqual(len(records), 3)
+        self.assertEqual(records[2], dropped[0])
+        batch.verify_chain(records)
+        declared = self.declaration()
+        # The two numbers that used to disagree, and the member the scorer
+        # compares them on.
+        self.assertEqual(declared["completedThroughGlobalIndex"],
+                         records[-1]["globalIndex"])
+        self.assertEqual(declared["completedSlots"], len(records))
+        self.assertEqual(declared["lastSlot"], records[-1]["path"])
+        self.assertEqual(self.calls_made(), spent)
+
+    def test_a_shortfall_refuses_when_the_slots_and_the_ledger_disagree(self):
+        """The reconciliation's other half: a slot on disk the ledger does not
+        name and the seal-then-record window cannot explain — here an index
+        §2.8's registered order never assigns to that arm.
+
+        The count is the SCORER's own (`collect_slots()` counts an entry named
+        run-NNN whatever it holds), so the declaration cannot be written over a
+        population the scoring will then refuse under C5, and the driver says
+        which two numbers disagree instead of publishing both.
+        """
+        self.recapture_then_batch(extra=["--runs", "2"])
+        stray = os.path.join(self.arms_root, ENTRIES[0]["arm"], "authoring",
+                             "run-099")
+        os.makedirs(stray)
+        declaration = os.path.join(self.arms_root, "SHORTFALL.json")
+        self.assertEqual(self.shortfall(), 1)
+        self.assertFalse(os.path.exists(declaration))
+        self.assertEqual(len(self.ledger()["records"]), 2)
+        # …and with it gone the same command declares, so the refusal is the
+        # disagreement's and not the command's.
+        os.rmdir(stray)
+        self.assertEqual(self.shortfall(), 0)
+        self.assertEqual(self.declaration()["completedSlots"], 2)
+
+    def test_the_ledger_is_replaced_whole_and_never_written_in_place(self):
+        """The other half of finding 6: `BATCH.json` is rewritten in full after
+        every slot, and a kill during that write used to be able to truncate it
+        — losing the only record of every slot that ran before. The write goes
+        to a temporary file in the same directory and is renamed over the
+        ledger, so a reader sees one whole version or the other and never a
+        partial one, and no `.partial` file is left behind.
+        """
+        self.recapture_then_batch(extra=["--runs", "2"])
+        arms_root = self.arms_root
+        path = os.path.join(arms_root, "BATCH.json")
+        first = os.stat(path)
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 0)
+        second = os.stat(path)
+        # A rename puts a NEW inode at the name; an in-place rewrite keeps it.
+        self.assertNotEqual(first.st_ino, second.st_ino)
+        self.assertEqual(second.st_mode & 0o777, 0o644)
+        self.assertEqual([name for name in os.listdir(arms_root)
+                          if name.startswith("BATCH.json")], ["BATCH.json"])
+        self.assertEqual(len(self.ledger()["records"]), 3)
 
     # --- the shortfall declaration (round 3 finding 15) ---------------------
 

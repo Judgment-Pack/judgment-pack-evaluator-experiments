@@ -90,7 +90,10 @@ else:
      pattern probabilities and the JOINT probability of reaching a decision-table
      row — which requires the class-4 gate and the B/C control gate as well as
      the pattern. A harness test pins both, because §5.4 labelled the marginal
-     as the power to reach row 4 and they are not the same number.
+     as the power to reach row 4 and they are not the same number. Row 5's joint
+     is named COVERAGE-SIDE wherever it is named at all (round 6, finding 4):
+     §5.4's model has no label-error term, so the figure is exact for the
+     coverage pattern and an upper bound for CONFIRMED.
  14. **`authoring-empty` is §3.3's row and nothing wider** (round 3,
      finding 13): the published `authoringEmpty` count is the partition's own
      outcome — no code, no parseable array — and the wider "produced nothing
@@ -143,6 +146,23 @@ else:
      float accuracy against 1.0 — `H/(H+1)` rounds to 1.0 for large H, so an arm
      with a mislabelled record read as at the ceiling. The float is still
      published; nothing decides on it.
+ 22. **The three identity members are PRESENT strings** (round 6, finding 5):
+     `call_identity_defect()` read them with `call.get()`, which exempts an
+     absent member and a JSON `null` alike — and nothing downstream owns
+     `startedAt`, so a slot with no start clock scored valid. §3.3 registers the
+     three as the evidence a copied slot cannot agree with itself over, and an
+     absent member agrees with every other absent one.
+ 23. **`compile-refused` has its registered life** (round 6, finding 7): §3.3
+     registers it as "the compiler failed other than by finding no array" and it
+     could never fire, because the ported `extract_array()` swallows every
+     decoder `ValueError` per candidate — so an array with duplicate object keys
+     or a `NaN` reached the scorer wearing the no-array refusal and was scored
+     `authoring-empty`, VALID. `strict_decode_refusal()` asks the bytes which of
+     the two it was, at the port's own strictness boundary.
+ 24. **Ledger records are type-checked at the read** (round 6, finding 8):
+     `load_ledger()` checked only that `records` was a list, so `{"records":
+     [null]}` reached `schedule_key()` and left the scoring as a bare
+     `AttributeError` — a traceback where C5 registers a refusal.
 
 The partition that decides every denominator (§3.3):
 
@@ -177,9 +197,9 @@ admission test diffs against both this source and that table):
                          opened, because opening a FIFO blocks
   slot-shape             a required slot file is missing or not a regular file
   call-unreadable        CALL.json is not duplicate-free JSON, is not a JSON
-                         object, or records an identity member (startedAt, cwd,
-                         home) as something other than a string (round 5,
-                         finding 6)
+                         object, or does not record all three identity members
+                         (startedAt, cwd, home) as strings — absent and `null`
+                         included (round 5 finding 6; round 6 finding 5)
   model-mismatch         CALL.json names a model other than the pinned one
   binary-mismatch        CALL.json names a binary digest other than the pinned one
   cli-mismatch           CALL.json names a CLI version other than the pinned one
@@ -326,6 +346,17 @@ AUTHORING = "authoring"
 # slot tree; there is no single slot tree here.
 LEDGER_FILE = "BATCH.json"
 SHORTFALL_FILE = "SHORTFALL.json"
+# The four members every ledger record must carry to be comparable with §2.8's
+# registered order at all — `schedule_key()`'s tuple — and the type §2.9 gives
+# each. Checked at the READ (round 6, finding 8), so a malformed record refuses
+# the whole scoring through C5's registered path instead of reaching a `.get`
+# call that raises. Booleans are refused wherever an integer is registered,
+# because `isinstance(True, int)` is True in Python and `round: true` is not a
+# round.
+LEDGER_RECORD_MEMBERS = (("globalIndex", int, "an integer"),
+                         ("round", int, "an integer"),
+                         ("position", int, "an integer"),
+                         ("arm", str, "a string"))
 # §2.9: every slot is sealed by a terminal manifest, and the manifest cannot
 # cover itself.
 MANIFEST_FILE = "SLOT-MANIFEST.json"
@@ -879,13 +910,25 @@ def decision_operating_characteristics(n: int) -> dict:
     AND `nH >= 3`. So both are computed here and both are published:
 
       MARGINAL   `nH >= 3` alone, and `nP >= 3` alone
-      JOINT      the probability of actually reaching the row
+      JOINT      row 4: the probability of reaching that row, which reads
+                 coverage alone;
+                 row 5: the COVERAGE-SIDE quantity, and an upper bound for
+                 CONFIRMED — not the probability of reaching the row
+
+    Round 6, finding 4: this note used to call BOTH joints "the probability of
+    actually reaching the row", which contradicts the name the same figures are
+    published under three lines below and the name §5.4 gives its own row.
+    §5.4's model carries no label-error term, so row 5's S5 conjunct — arm E's
+    labels at the ceiling — is outside it; `row5` is exact for the coverage
+    pattern and an upper bound for the confirmatory outcome, which is the whole
+    of what "coverage-side" names. Row 4 reads coverage alone and is unaffected.
 
     The joint figures are computed over ARM A's six-class HIGH pattern rather
     than as a product of marginals, because the gate and the collapse both
     condition on the same arm-A HIGH verdicts — §5.4's own construction for its
-    CONFIRMED-and-gate row, reused here for row 4, and it reproduces that row's
-    registered 0.0364/0.3536/0.7359 as a control on the model.
+    coverage-side CONFIRMED-and-gate row, reused here for row 4, and it
+    reproduces that row's registered 0.0364/0.3536/0.7359 as a control on the
+    model.
 
     Under the registered scenario, with `q = P(HIGH | p = 0.95)` and
     `l = P(LOW | p = 0.05)` at n trials:
@@ -1622,6 +1665,69 @@ def _transcript_is_another_arm(session: str, completion: str, call_path: str,
     return None
 
 
+# The ported compiler's OWN strictness, and the same decoder without it. The
+# two differ in exactly the hooks `records_compile.extract_array()` builds its
+# decoder from — duplicate object keys and the non-JSON constants — and in
+# nothing else, so the boundary between "no array" and "an array this compiler
+# refuses" is the port's boundary rather than a second definition of it beside
+# it. Both parse numbers to the port's `JsonNumber`, which is why the host's
+# integer-string digit limit cannot make the two disagree (round 6, finding 7).
+_STRICT_DECODER = json.JSONDecoder(
+    object_pairs_hook=records_compile._refuse_duplicate_keys,
+    parse_constant=records_compile._refuse_constants,
+    parse_int=records_compile.JsonNumber,
+    parse_float=records_compile.JsonNumber)
+_ARRAY_SHAPE_DECODER = json.JSONDecoder(parse_int=records_compile.JsonNumber,
+                                        parse_float=records_compile.JsonNumber)
+
+
+def strict_decode_refusal(raw: str):
+    """The refusal detail when a completion HOLDS an array and the ported
+    compiler's strict decoder will not accept one, or None when the stream holds
+    no array at all.
+
+    Round 6, finding 7: `compile-refused` was dead. §3.3 registers it as "the
+    compiler failed other than by finding no array", and 011 §3.3 registers the
+    boundary it is the other side of — "`records_compile`'s 'no parseable array'
+    refusal classifies the run authoring-empty and valid; every other compiler
+    error classifies it pipeline-invalid". But `extract_array()` swallows every
+    decoder `ValueError` per candidate, so a completion whose only array carries
+    duplicate object keys or a `NaN` produced the SAME `CompileError` as a
+    completion of pure prose, and the scorer called both authoring-empty: a
+    valid run, in every denominator, covering nothing. That is the wrong side of
+    the line twice over — it is a pipeline outcome scored as an authoring one,
+    and §4.2's intent-to-treat arithmetic puts pipeline losses in `I_X` and
+    publishes the sensitivity bound over them.
+
+    The question is asked of the bytes and not of the exception: the widest
+    span that decodes to a JSON ARRAY at all, ties to the earliest — the
+    port's own selection rule — and then whether the port's strict decoder
+    refuses that same span. An array it refuses is an array; a `[` that opens
+    nothing is not, and the run stays authoring-empty as §3.3 registers.
+    """
+    best = None
+    start = raw.find("[")
+    while start >= 0:
+        try:
+            decoded, end = _ARRAY_SHAPE_DECODER.raw_decode(raw, start)
+        except ValueError:
+            decoded, end = None, start
+        if isinstance(decoded, list) and (best is None or end - start > best[0]):
+            try:
+                _STRICT_DECODER.raw_decode(raw, start)
+            except ValueError as error:
+                best = (end - start, start, end, str(error))
+        start = raw.find("[", start + 1)
+    if best is None:
+        return None
+    _width, first, last, detail = best
+    return ("characters %d-%d of the completion are a JSON array the ported "
+            "compiler's strict decoder refuses (%s): §3.3 reserves "
+            "authoring-empty for a completion with NO parseable array, and an "
+            "array the compiler will not decode is a compiler refusal"
+            % (first, last, detail))
+
+
 def admit(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
           arm_definition: dict, scheduled: dict, ledger_record: dict,
           reuse_detail: str = None, registry_sha256: str = None) -> tuple:
@@ -1847,6 +1953,17 @@ def admit(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
         # this study that matters more than it did in 011, because a
         # perturbation that makes the author fail outright must not be scored as
         # if it had never been tried.
+        #
+        # But only NO ARRAY is that outcome (round 6, finding 7). The ported
+        # `extract_array()` catches every decoder ValueError per candidate, so
+        # an array it REFUSES — duplicate object keys, a non-JSON constant —
+        # arrives here wearing the no-array refusal's message. The bytes are
+        # asked which of the two it was, and an array the compiler will not
+        # decode is `compile-refused`: pipeline-invalid, in `I_X`, inside the
+        # sensitivity bound, and not a valid run that covered nothing.
+        refusal = strict_decode_refusal(raw)
+        if refusal is not None:
+            return "compile-refused", refusal, False
         return None, str(error), True
     except ValueError as error:
         return "compile-refused", str(error), False
@@ -2041,14 +2158,34 @@ def call_identity_defect(call: dict):
     shape of a named file, checked before anything can hash it. Recording it as
     `scorer-error` would file an anticipated malformation under the code
     registered for the ones nobody anticipated.
+
+    Round 6, finding 5: PRESENT and a string, not "a string if it is there". The
+    check read `call.get(member)` and exempted `None`, which is both an absent
+    member and a JSON `null` — so a slot whose `startedAt` the wrapper never
+    wrote, or wrote as `null`, passed the guard, and no later gate owns it
+    (`model`, `binarySha256`, `pinsSha256` and the rest each own their own
+    member; nothing else reads `startedAt` for admission at all). The exemption
+    was not a weaker version of the registered rule but a hole in it: §3.3
+    registers these three as "the identifying members of its `CALL.json`
+    (working directory, isolated home, start clock)" and as evidence a copied
+    slot cannot agree with itself over — and an ABSENT member agrees with every
+    other absent one, so two slots stripped of the same member would have been
+    compared on nothing and found distinct. The wrapper writes all three
+    whenever it writes a `CALL.json` at all, so an honest slot never reaches
+    this; a slot that does is one whose own identity cannot be read.
     """
     for member in CALL_IDENTITY_MEMBERS:
-        value = call.get(member)
-        if value is not None and not isinstance(value, str):
+        if member not in call:
+            return ("CALL.json records no %s, and §3.3's identifying members — "
+                    "working directory, isolated home, start clock — are the "
+                    "strings the wrapper wrote: a call record that omits one is "
+                    "not evidence of which call produced this slot, and an "
+                    "absent member agrees with every other absent one" % member)
+        if not isinstance(call[member], str):
             return ("CALL.json records %s as %r, and §3.3's identifying members "
                     "are the strings the wrapper wrote: a call record whose own "
                     "identity cannot be read is not evidence of which call "
-                    "produced this slot" % (member, value))
+                    "produced this slot" % (member, call[member]))
     return None
 
 
@@ -2063,6 +2200,12 @@ def slot_identity(slot: str) -> dict:
     still published to the population's uniqueness check, so a copy of a slot
     whose `CALL.json` is malformed is still caught by the two members that are
     readable. `admit()` refuses the slot itself `call-unreadable`.
+
+    Round 6, finding 5: `callIdentity` is now three strings or nothing. The
+    all-`None` tuple this used to fold back to `None` was the shape an absent
+    member produced, and `call_identity_defect()` no longer lets one through —
+    so that fold is a branch no call can take, and a check that can never fire
+    is removed rather than kept as decoration.
     """
     session = os.path.join(slot, "session.jsonl")
     call_path = os.path.join(slot, "CALL.json")
@@ -2080,10 +2223,8 @@ def slot_identity(slot: str) -> dict:
     # already refuses it `call-unreadable`; reading `.get` off it here would
     # raise an AttributeError out of the same population-level pass.
     if isinstance(call, dict) and call_identity_defect(call) is None:
-        identity["callIdentity"] = (call.get("startedAt"), call.get("cwd"),
-                                    call.get("home"))
-        if identity["callIdentity"] == (None, None, None):
-            identity["callIdentity"] = None
+        identity["callIdentity"] = tuple(call[member]
+                                         for member in CALL_IDENTITY_MEMBERS)
     return identity
 
 
@@ -2466,7 +2607,20 @@ def verify_preconditions(pins_path: str, arms_root: str, golden_path: str,
 def load_ledger(arms_root: str) -> list:
     """§2.9's append-only chained ledger, as a list of records in file order.
     Read before any slot, because C5 rules 2-5 are questions about the ledger
-    and the slot set together."""
+    and the slot set together.
+
+    Every record is TYPE-CHECKED here, at the read (round 6, finding 8). C5
+    registers that a malformed ledger refuses the whole scoring through the
+    registered path, and this function checked only that `records` was a list:
+    `{"records": [null]}` reached `schedule_key()`, which called `.get` on
+    `None`, and the scoring ended in a bare `AttributeError` — `main()` catches
+    `ScoreError` and nothing else, so the operator got a traceback where the
+    registration promises a refusal, and a reader of the exit could not tell a
+    malformed ledger from a crashed scorer. The four members checked are the
+    ones §3.3 and C5 rules 2-4 compare a slot on; `path` and `slot` are checked
+    against the registered order in `check_population()`, which can say what
+    they should have been and is where their refusals belong.
+    """
     path = os.path.join(arms_root, LEDGER_FILE)
     if not os.path.isfile(path):
         raise ScoreError("no ledger at %s: the population is the registered "
@@ -2475,6 +2629,26 @@ def load_ledger(arms_root: str) -> list:
     ledger = load_json(path)
     if not isinstance(ledger, dict) or not isinstance(ledger.get("records"), list):
         raise ScoreError("%s is not a ledger object with a records list" % path)
+    for offset, record in enumerate(ledger["records"]):
+        if not isinstance(record, dict):
+            raise ScoreError(
+                "%s's record %d is %r and a ledger record is a JSON object: the "
+                "population is read from this file before any slot, and a record "
+                "that is not one cannot be compared with §2.8's registered order "
+                "at all (C5 rules 2-4)" % (path, offset + 1, record))
+        for member, kinds, name in LEDGER_RECORD_MEMBERS:
+            if member not in record:
+                found = "records no %s" % member
+            elif isinstance(record[member], bool) \
+                    or not isinstance(record[member], kinds):
+                found = "records %s as %r" % (member, record[member])
+            else:
+                continue
+            raise ScoreError(
+                "%s's record %d %s, and §2.9 registers it as %s: the ledger names "
+                "each slot's place in §2.8's registered order, and a record that "
+                "cannot be read there is a malformed ledger and refuses the whole "
+                "scoring (C5)" % (path, offset + 1, found, name))
     return ledger["records"]
 
 

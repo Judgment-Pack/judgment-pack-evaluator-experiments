@@ -79,7 +79,13 @@ ELEVEN = os.path.normpath(os.path.join(STUDY, "..", "011-authorship-coverage-rat
 TEN = os.path.normpath(os.path.join(STUDY, "..", "010-blinded-oracle"))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
-import policy_mirror  # noqa: E402  (the single registered module, §2.2 [D-14])
+# The single registered mirror module (§2.2 [D-14]) is imported LAZILY:
+# the bytecode gate must run before any grid module loads, or a poisoned
+# cache would already be executing when the gate inspected it (round 6,
+# finding 1).
+def _mirror():
+    import policy_mirror  # noqa: E402
+    return policy_mirror
 
 # §2.2's chain table: the two ends this study pins itself. 010's lock digest is
 # NOT here — it is read from 011's PINS.json, which is what "the digest 011
@@ -246,14 +252,14 @@ def grid(t_low, t_high) -> list:
 
 
 def verdict_vector(t_low, t_high) -> list:
-    return [policy_mirror.verdict(cell, t_low, t_high)
+    return [_mirror().verdict(cell, t_low, t_high)
             for cell in grid(t_low, t_high)]
 
 
 def class_vector(classes: list, t_low, t_high) -> list:
     """One tuple of matching class indices per cell of that arm's own grid."""
     return [tuple(entry["index"] for entry in classes
-                  if policy_mirror.predicate_matches(entry["predicate"], cell))
+                  if _mirror().predicate_matches(entry["predicate"], cell))
             for cell in grid(t_low, t_high)]
 
 
@@ -483,6 +489,12 @@ def verify_chain(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
                                  % (name, actual, pinned))
     eleven_pins = load_json(eleven_pins_path)
 
+    # The registry's own provenance members answer to the review-bound
+    # constants above — a registry stating a different chain would
+    # otherwise stand uncontradicted while the code checked its own
+    # numbers (round 6, finding 11).
+    # (checked after this study's registry is loaded, below)
+
     # 010's lock, at the digest 011 pins for it — not one this study chooses.
     lock_path = os.path.join(ten, "PROTOCOL-LOCK.json")
     if not os.path.isfile(lock_path):
@@ -520,6 +532,15 @@ def verify_chain(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
         raise IntegrityError(
             "harness/PORTS.md is sha256:%s, not the sha256:%s harness/PINS.json "
             "records for it" % (actual_ports, own_ports_pin))
+
+    recorded = pins.get("pinnedFrom", {})
+    for member, expected in (("pins", ELEVEN_PINS_SHA256),
+                             ("ports", ELEVEN_PORTS_SHA256)):
+        stated = bare((recorded.get(member) or {}).get("sha256"))
+        if stated != expected:
+            raise IntegrityError(
+                "the registry's pinnedFrom.%s digest (%s) is not the "
+                "review-bound %s" % (member, stated, expected))
 
     rows = parse_ports(ports_path)
     destinations = set(row[2] for row in rows)
@@ -936,7 +957,7 @@ def verify_mirror2(study: str = STUDY, pairs: dict = None) -> list:
         pair = pairs[arm]
         for cell in grid(*pair):
             theirs = module.verdict(dict(cell))
-            ours = policy_mirror.verdict(cell, *pair)
+            ours = _mirror().verdict(cell, *pair)
             if theirs != ours:
                 raise IntegrityError(
                     "arm %s's clean-room mirror disagrees with the registered "
@@ -952,7 +973,7 @@ def verify_mirror2(study: str = STUDY, pairs: dict = None) -> list:
 # The manifest's carrier handling (§2.10, round 3 finding 1 and round 4
 # finding 2): PREREG-REVIEW.md is excluded — it carries the attestation —
 # and PINS.json is bound through its NORMALIZED PROJECTION: the registry
-# with its three post-freeze members nulled, serialized canonically, hashed
+# with its four post-freeze members nulled, serialized canonically, hashed
 # into the manifest as its own entry. A covered-file edit paired with a
 # registry co-edit therefore fails the recomputation.
 MANIFEST_CARRIERS = ("harness/PINS.json", "PREREG-REVIEW.md")
@@ -963,7 +984,7 @@ POST_FREEZE_MEMBERS = (("freeze", "treeManifestSha256"),
 
 
 def normalized_pins(pins: dict) -> bytes:
-    """The registry as the manifest binds it: the three members that are
+    """The registry as the manifest binds it: the four members that are
     edited at registered moments after the freeze set to null, everything
     else byte-significant (§2.10)."""
     clone = json.loads(json.dumps(pins))
@@ -1074,6 +1095,40 @@ def verify_interpreter(pins: dict) -> str:
     return "%s %s" % (implementation, platform.python_version())
 
 
+def _code_equal(left, right) -> bool:
+    """Structural equality of two code objects: every code attribute, with
+    co_consts compared element-wise — nested code objects recursed, sets and
+    frozensets compared as sets (their marshal order is hash-seed-dependent),
+    everything else by type and value."""
+    code_type = type(left)
+    if not isinstance(right, code_type):
+        return False
+    members = ("co_argcount", "co_posonlyargcount", "co_kwonlyargcount",
+               "co_nlocals", "co_stacksize", "co_flags", "co_code",
+               "co_names", "co_varnames", "co_freevars", "co_cellvars",
+               "co_filename", "co_name", "co_qualname",
+               "co_exceptiontable")
+    for member in members:
+        if getattr(left, member, None) != getattr(right, member, None):
+            return False
+    left_consts = left.co_consts
+    right_consts = right.co_consts
+    if len(left_consts) != len(right_consts):
+        return False
+    for a, b in zip(left_consts, right_consts):
+        if isinstance(a, code_type) or isinstance(b, code_type):
+            if not (isinstance(a, code_type) and isinstance(b, code_type)
+                    and _code_equal(a, b)):
+                return False
+        elif isinstance(a, (set, frozenset)) or isinstance(b, (set, frozenset)):
+            if type(a) is not type(b) or a != b:
+                return False
+        else:
+            if type(a) is not type(b) or a != b:
+                return False
+    return True
+
+
 def verify_bytecode(study: str = STUDY) -> None:
     """Compiled bytecode beside a reviewed source loads even under -B, so a
     cache the sources did not produce is a byte that runs unreviewed (round 5,
@@ -1084,13 +1139,21 @@ def verify_bytecode(study: str = STUDY) -> None:
     (no source), a foreign interpreter's, or a stale one refuses. A fresh
     cache of a reviewed source is that source compiled, and passes."""
     import importlib.util
+    import marshal
     magic = importlib.util.MAGIC_NUMBER
     bad = []
     for base, directories, files in os.walk(study):
-        if os.path.basename(base) != "__pycache__":
-            continue
+        in_cache = os.path.basename(base) == "__pycache__"
         for name in files:
             path = os.path.join(base, name)
+            if not in_cache:
+                # A sourceless .pyc imports on its own; one outside a cache
+                # directory is a byte that runs with no reviewed source
+                # beside it (round 6, finding 1).
+                if name.endswith(".pyc"):
+                    bad.append((os.path.relpath(path, study),
+                                "bytecode outside __pycache__"))
+                continue
             if not name.endswith(".pyc"):
                 bad.append((os.path.relpath(path, study), "not bytecode"))
                 continue
@@ -1116,12 +1179,54 @@ def verify_bytecode(study: str = STUDY) -> None:
                 expected = importlib.util.source_hash(source_bytes)
                 if stored != expected:
                     bad.append((os.path.relpath(path, study), "stale hash"))
+                    continue
             else:
                 stat = os.stat(source)
                 mtime = int.from_bytes(header[8:12], "little")
                 size = int.from_bytes(header[12:16], "little")
                 if mtime != int(stat.st_mtime) & 0xFFFFFFFF or                         size != stat.st_size & 0xFFFFFFFF:
                     bad.append((os.path.relpath(path, study), "stale stamp"))
+                    continue
+            # The header is provenance; the PAYLOAD is what executes. A header
+            # spliced onto foreign bytecode passes every stamp, so "provably
+            # compiles from the source beside it" is checked on the marshalled
+            # body itself: it must equal the running interpreter's own
+            # compilation of that source (round 6, finding 1).
+            with open(path, "rb") as handle:
+                payload = handle.read()[16:]
+            # Two subtleties make this a STRUCTURAL comparison, not a byte
+            # one. The compile name must be the CACHED object's own
+            # co_filename (caches record the path as imported, relative
+            # under a cwd-dependent sys.path entry) — reading it from the
+            # cache is inert, since whatever name is planted, the code must
+            # still equal the reviewed source compiled under that name. And
+            # marshal bytes of set constants depend on the writing process's
+            # hash seed, so equality is decided on the code objects
+            # themselves: bytecode, names, and consts, with sets compared as
+            # sets and nested code recursed. marshal is not hardened against
+            # hostile bytes; a crafted payload that kills the interpreter
+            # here kills a refusing gate, which refuses.
+            try:
+                cached_code = marshal.loads(payload)
+                cached_name = cached_code.co_filename
+            except Exception:
+                bad.append((os.path.relpath(path, study),
+                            "unreadable payload"))
+                continue
+            if not isinstance(cached_name, str):
+                bad.append((os.path.relpath(path, study),
+                            "unreadable payload"))
+                continue
+            try:
+                expected_code = compile(source_bytes, cached_name, "exec",
+                                        dont_inherit=True)
+            except (SyntaxError, ValueError):
+                bad.append((os.path.relpath(path, study),
+                            "source does not compile"))
+                continue
+            if not _code_equal(cached_code, expected_code):
+                bad.append((os.path.relpath(path, study),
+                            "payload is not this source compiled"))
     if bad:
         raise IntegrityError(
             "compiled bytecode that the reviewed sources did not produce sits "

@@ -75,6 +75,19 @@ carries the diff. The registered changes are exactly these:
    — while `score_rates.py` reads the same file in file order and would refuse
    it. File order IS schedule order (§2.9's chain is over the file), and it is
    verified before the records are used for anything.
+14. **The crash window between the seal and the ledger is closed** (round 6,
+   finding 6). §2.9 has the driver seal a slot and then append its record, so a
+   kill in between leaves a sealed slot the ledger does not name — and that
+   batch could neither be resumed (the resume planned the orphan's index again
+   and refused its existing path) nor declared short (the two counts disagreed
+   and the scorer refused the declaration under C5). Three changes:
+   `write_ledger()` writes through a same-directory temporary and `os.replace`,
+   so a kill during the rewrite cannot truncate the ledger;
+   `reconcile_ledger()` completes that ONE interrupted append from the slot's
+   own verified seal — the slot ran, only the bookkeeping stopped — and refuses
+   every other disagreement by name; and `shortfall` reconciles through the same
+   function before it declares, because a batch killed in that window is exactly
+   the batch that needs a declaration.
 
 Everything else is 011's, including every refusal it registered.
 
@@ -117,7 +130,9 @@ Commands:
 
   run                        the registered call order, sequentially, into
                              arms/<ARM>/authoring/run-NNN. `--resume` continues
-                             at the ledger's next global index [D-22]
+                             at the ledger's next global index [D-22], first
+                             completing the one ledger record a crash between a
+                             slot's seal and the append can leave unwritten
   capture                    the §3.2 golden recapture: two probe calls into a
                              numbered attempt directory, whose pre-prompt
                              contexts must agree, then the golden derivation.
@@ -171,6 +186,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
@@ -309,6 +325,55 @@ def _canonical(body) -> bytes:
 def _write_json(path: str, body: dict) -> None:
     with open(path, "wb") as handle:
         handle.write((json.dumps(body, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+
+
+def _write_json_atomic(path: str, body: dict) -> None:
+    """The same bytes, written so that no reader ever sees half of them: a
+    temporary file in the SAME directory, flushed and fsynced, then `os.replace`,
+    then the directory entry fsynced too.
+
+    Round 6, finding 6. `BATCH.json` is rewritten in full after every slot, and
+    `_write_json()` truncates the file and then writes it — so a kill between
+    those two leaves a truncated ledger, and the batch's only record of every
+    slot that came before is gone. `os.replace` is atomic within a filesystem,
+    so the ledger on disk is always one of the two whole versions. The
+    same-directory temporary is what makes that true: a rename across
+    filesystems is a copy. The two fsyncs are what make it survive the other
+    half of a crash — the file's bytes before the rename, and the rename itself
+    — because a rename that reaches the directory before the data does can
+    leave an empty file where a whole one used to be.
+
+    The manifests and `CALL.json` do not need this: each is written once, into a
+    slot the ledger does not yet name, and a slot whose seal is half-written is
+    refused rather than merged. The ledger is the one file this driver rewrites.
+
+    What a crash can still leave is a `BATCH.json.…partial` beside the ledger,
+    if it lands between the temporary file and the rename. That file is inert —
+    nothing reads it, and the ledger itself is whole either way — and removing
+    it is a housekeeping note in `DEVIATIONS.md`, not a recovery.
+    """
+    directory = os.path.dirname(path) or "."
+    handle_fd, temporary = tempfile.mkstemp(
+        dir=directory, prefix=os.path.basename(path) + ".", suffix=".partial")
+    try:
+        with os.fdopen(handle_fd, "wb") as handle:
+            handle.write((json.dumps(body, indent=2, sort_keys=True)
+                          + "\n").encode("utf-8"))
+            handle.flush()
+            os.fsync(handle.fileno())
+        # `mkstemp` creates at 0600; the committed ledger is a published
+        # artifact and is readable like every other file in the tree.
+        os.chmod(temporary, 0o644)
+        os.replace(temporary, path)
+    except BaseException:
+        if os.path.lexists(temporary):
+            os.unlink(temporary)
+        raise
+    directory_fd = os.open(directory, os.O_RDONLY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
 
 
 def williams(first_row=WILLIAMS_FIRST_ROW) -> dict:
@@ -1045,8 +1110,24 @@ def verify_prefix(records: list, entries: list) -> None:
     verify_chain(records)
 
 
+def ledger_header(member: str, default=None):
+    """One member of the ledger FILE's own header, or `default` when there is no
+    ledger yet. `declare_shortfall()` reads `cliOverride` through this when it
+    completes a crash-interrupted record: the header describes the batch that
+    ran, and the declaration is not the place to restate it from a fresh
+    command line."""
+    path = os.path.join(ARMS_ROOT, LEDGER_NAME)
+    if not os.path.isfile(path):
+        return default
+    ledger = _load_json(path)
+    return ledger.get(member, default) if isinstance(ledger, dict) else default
+
+
 def write_ledger(records: list, pins: dict, cli_override: str) -> None:
-    _write_json(os.path.join(ARMS_ROOT, LEDGER_NAME), {
+    # Atomically (round 6, finding 6): this file is rewritten in full after
+    # every slot, and a kill during the rewrite used to be able to leave a
+    # truncated one — losing the only record of every slot that ran before it.
+    _write_json_atomic(os.path.join(ARMS_ROOT, LEDGER_NAME), {
         "batchVersion": "3",
         "registeredRunsPerArm": RUNS_PER_ARM,
         "registeredSlots": REGISTERED_SLOTS,
@@ -1073,6 +1154,168 @@ def write_ledger(records: list, pins: dict, cli_override: str) -> None:
     })
 
 
+def verify_seal_of(slot: str, entry: dict) -> str:
+    """The digest of a slot's `SLOT-MANIFEST.json` when that manifest is this
+    slot's — every regular file in the tree at the length and digest it records,
+    the sorted-list digest over them, and the slot, arm and global index it
+    names — or BatchError saying which of those failed.
+
+    This is `seal_slot()` read backwards, over a slot the driver did not just
+    make. It exists for the one case that needs it (`reconcile_ledger()` below)
+    and it recomputes rather than trusts: a manifest that does not verify is
+    exactly the evidence that a slot was interrupted mid-write or edited, and
+    neither may be admitted to the ledger on the strength of the file that
+    claims to seal it.
+    """
+    path = os.path.join(slot, MANIFEST_NAME)
+    if os.path.islink(path) or not os.path.isfile(path):
+        raise BatchError(
+            "%s is not sealed: %s is missing or is not a regular file. The driver "
+            "seals a slot BEFORE it records it, so an unsealed slot is one whose "
+            "wrapper never returned — it did not run to a terminal outcome, and no "
+            "ledger record can be completed for it. Remove it by hand and record "
+            "the cause in DEVIATIONS.md"
+            % (os.path.relpath(slot, STUDY), MANIFEST_NAME))
+    manifest = _load_json(path)
+    if not isinstance(manifest, dict):
+        raise BatchError("%s is not a JSON object" % os.path.relpath(path, STUDY))
+    named = (manifest.get("slot"), manifest.get("arm"), manifest.get("globalIndex"))
+    expected = (os.path.basename(slot), entry["arm"], entry["globalIndex"])
+    if named != expected:
+        raise BatchError(
+            "%s seals %r and §2.8's registered order puts %r at that path: the "
+            "manifest is not this slot's" % (os.path.relpath(path, STUDY),
+                                             named, expected))
+    files = slot_files(slot)
+    if manifest.get("files") != files or manifest.get("filesSha256") != files_digest(files):
+        raise BatchError(
+            "%s does not verify against the slot it seals: the tree on disk is not "
+            "the one the manifest lists. A slot whose seal does not recompute is "
+            "not admitted to the ledger — §2.9 makes that discrepancy the whole "
+            "batch's, and completing a record from a broken seal would put it "
+            "inside the chain instead" % os.path.relpath(path, STUDY))
+    return _digest(path)
+
+
+def slot_outcome(slot: str) -> tuple:
+    """(wrapper exit status, refusal code) as the SLOT's own retained bytes
+    record them: `REFUSAL.json` when the driver terminated it, and exit 0 with
+    no code when the wrapper wrote a `CALL.json` and no refusal.
+
+    Those are the only two shapes `run_batch()` produces, and the pair is
+    checked against `WRAPPER_CODES` rather than taken from the file: a refusal
+    record naming a code no exit status of this wrapper yields is not this
+    driver's, and a slot carrying neither artifact never reached a terminal
+    outcome at all (§6 C5 rule 1).
+    """
+    refusal_path = os.path.join(slot, "REFUSAL.json")
+    call_path = os.path.join(slot, "CALL.json")
+    relative = os.path.relpath(slot, STUDY)
+    if not os.path.islink(refusal_path) and os.path.isfile(refusal_path):
+        refusal = _load_json(refusal_path)
+        if not isinstance(refusal, dict):
+            raise BatchError("%s/REFUSAL.json is not a JSON object" % relative)
+        status, code = refusal.get("wrapperExit"), refusal.get("code")
+        if not isinstance(status, int) or isinstance(status, bool):
+            raise BatchError("%s/REFUSAL.json records wrapperExit %r, and §2.9 "
+                             "registers an integer exit status" % (relative, status))
+        if code != WRAPPER_CODES.get(status, "wrapper-error"):
+            raise BatchError(
+                "%s/REFUSAL.json records code %r for wrapper exit %d, and this "
+                "driver writes %r for that status: the refusal record is not one "
+                "this batch produced"
+                % (relative, code, status, WRAPPER_CODES.get(status, "wrapper-error")))
+        return status, code
+    if not os.path.islink(call_path) and os.path.isfile(call_path):
+        return 0, None
+    raise BatchError(
+        "%s carries neither CALL.json nor REFUSAL.json: it is not a terminal slot, "
+        "and no ledger record describes it honestly (§6 C5 rule 1). Record the "
+        "cause in DEVIATIONS.md" % relative)
+
+
+def reconcile_ledger(records: list, entries: list) -> dict:
+    """The ONE ledger record a crash between the seal and the ledger write can
+    leave unwritten, completed from that slot's own seal — or None when the
+    ledger and the slots on disk already agree. Any other disagreement is a
+    BatchError naming it exactly.
+
+    Round 6, finding 6. §2.9 has the driver seal a slot and then append its
+    ledger record, so there is a window in which a slot is sealed and the ledger
+    does not name it. A kill inside that window used to leave a batch that could
+    not be resumed and could not be declared short either: `--resume` planned
+    the orphan's index again and refused its existing path, while `shortfall`
+    counted the slots on disk and the ledger's records separately and wrote a
+    declaration whose two numbers disagreed — which the scorer then refused
+    under C5. The batch was stuck with no registered way forward.
+
+    **The slot RAN.** That is the whole of the reasoning, and it is why
+    completing the record is not the same as inventing one: the wrapper
+    returned, the driver wrote the refusal record and the schedule stamps, and
+    the driver sealed the tree — every one of those precedes the ledger append,
+    and the seal is the evidence that all of them happened. Only the bookkeeping
+    was interrupted. Nothing is re-run, no call is spent, and every member of
+    the completed record is READ from the slot: its place in §2.8's registered
+    order, the seal's digest, the wrapper's exit status and refusal code from
+    the slot's own `REFUSAL.json`, and the previous record's digest from the
+    ledger.
+
+    The conditions are narrow on purpose, and each refuses rather than guesses:
+
+      * the orphan is the NEXT scheduled slot and nothing further ahead — the
+        driver runs the order one slot at a time, so a slot beyond the next
+        index was not left by this driver;
+      * there is exactly ONE — two orphans mean two slots ran with no record
+        between them, which this window cannot produce and which no seal can
+        put back in order;
+      * its manifest VERIFIES — an unsealed or unverifiable slot is one whose
+        wrapper never returned or whose tree was edited, and §2.9 makes that the
+        whole batch's problem rather than something a driver quietly repairs;
+      * every recorded slot is still on disk — a ledger record whose slot is
+        gone is the disagreement in the other direction, and the scorer refuses
+        the whole scoring for it (C5 rule 2).
+    """
+    missing = [record for record in records
+               if not os.path.lexists(os.path.join(STUDY, record.get("path") or ""))]
+    if missing:
+        raise BatchError(
+            "the ledger records %d slot(s) that are not on disk (%s): a ledger "
+            "record with no slot is not a crash this driver can have caused, and "
+            "the scorer refuses the whole scoring over it (§6 C5 rule 2). Record "
+            "the cause in DEVIATIONS.md"
+            % (len(missing), ", ".join(str(record.get("path")) for record in missing)))
+    orphans = [entry for entry in entries[len(records):]
+               if os.path.lexists(slot_path(entry))]
+    if not orphans:
+        return None
+    if len(orphans) > 1:
+        raise BatchError(
+            "%d slots past the ledger's last record exist on disk (global indices "
+            "%s) and the ledger records none of them. The seal-then-record window "
+            "can leave at most ONE, so this is not an interrupted append: no slot "
+            "is admitted to the ledger from it, and the cause goes in DEVIATIONS.md"
+            % (len(orphans), ", ".join(str(entry["globalIndex"]) for entry in orphans)))
+    entry = orphans[0]
+    if entry["globalIndex"] != entries[len(records)]["globalIndex"]:
+        raise BatchError(
+            "a slot exists at global index %d and the ledger ends at %d: the driver "
+            "runs the registered order one slot at a time, so a slot past the next "
+            "index was not left by an interrupted append. Record the cause in "
+            "DEVIATIONS.md"
+            % (entry["globalIndex"], records[-1]["globalIndex"] if records else 0))
+    slot = slot_path(entry)
+    if os.path.islink(slot) or not os.path.isdir(slot):
+        raise BatchError(
+            "%s exists and is not a directory, so it is not a sealed slot this "
+            "driver left: slots already on disk are never rewritten, and this one "
+            "must be removed by hand with the cause recorded in DEVIATIONS.md"
+            % os.path.relpath(slot, STUDY))
+    manifest = verify_seal_of(slot, entry)
+    status, code = slot_outcome(slot)
+    previous = record_digest(records[-1]) if records else None
+    return ledger_record(entry, slot, status, code, manifest, previous)
+
+
 def run_batch(runs: int, resume: bool, scratch_parent: str, pins_path: str,
               cli_override: str, dry_run: bool,
               golden_override: str = None) -> int:
@@ -1085,6 +1328,35 @@ def run_batch(runs: int, resume: bool, scratch_parent: str, pins_path: str,
             "%s already records %d slots: a batch is continued with `run --resume`, "
             "which resumes at global index %d, and never restarted [D-22]"
             % (os.path.join(ARMS_ROOT, LEDGER_NAME), done, done + 1))
+    # The crash window §2.9 leaves open, closed on the resume that follows it
+    # (round 6, finding 6): a slot sealed and not yet recorded is completed from
+    # its seal, and any other disagreement between the ledger and the slots on
+    # disk refuses here rather than being planned over. `--resume` only: a plain
+    # `run` over retained slots is a restart, and no slot is ever rewritten.
+    recovered = reconcile_ledger(records, entries) if resume else None
+    if recovered is not None:
+        records.append(recovered)
+        verify_prefix(records, entries)
+        done = len(records)
+        if not dry_run:
+            # The completed record enters the ledger under the same
+            # preconditions a call does: the ported bytes, the freeze, and the
+            # no-slots-after-a-rate rule. It is written BEFORE anything else so
+            # that a resume with nothing left to run still leaves the ledger
+            # whole.
+            if os.path.exists(RESULTS):
+                raise BatchError(
+                    "%s exists: no ledger record may be completed after a rate has "
+                    "been computed, any more than a slot may be created (§2.8)"
+                    % RESULTS)
+            verify_ported_bytes()
+            recovery_pins = _load_json(pins_path)
+            require_freeze(recovery_pins)
+            write_ledger(records, recovery_pins, cli_override)
+        print("%s the ledger record for global index %d from its seal: the slot "
+              "ran and only the append was interrupted"
+              % ("dry run: would complete" if dry_run else "completed",
+                 recovered["globalIndex"]))
     if resume and not records:
         raise BatchError(
             "--resume was given and the ledger records no slot: there is nothing to "
@@ -1623,8 +1895,9 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
         raise BatchError("--reason is required: a shortfall without a reason is a gap")
     pins = _load_json(pins_path)
     require_freeze(pins)
+    entries = schedule_entries()
     records = load_ledger()
-    verify_prefix(records, schedule_entries())
+    verify_prefix(records, entries)
     # The slots actually on disk, counted per arm by the SCORER's own rule, so
     # the driver's count is not a second definition of the population.
     present = 0
@@ -1638,6 +1911,33 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
         raise BatchError(
             "%d slots are present and %d were registered: a shortfall declares a SHORT "
             "batch, and this one is not short" % (present, REGISTERED_SLOTS))
+    # The declaration is a statement about the ledger AND about the slots on
+    # disk — §6 C5 rule 5 requires the declared prefix to equal the ledger's,
+    # and the scorer requires the slots present to be exactly that prefix — so
+    # the two are reconciled before either is written down (round 6, finding 6).
+    # A batch killed in the seal-then-record window is exactly the batch that
+    # then needs a shortfall, and it used to be the one batch that could not
+    # have one: the counts were taken separately and the declaration they
+    # produced was refused by the scorer. The single interrupted append is
+    # completed from the slot's own seal, here as on the resume and by the same
+    # function; anything else refuses with the disagreement named.
+    recovered = reconcile_ledger(records, entries)
+    if recovered is not None:
+        records.append(recovered)
+        verify_prefix(records, entries)
+        write_ledger(records, pins, ledger_header("cliOverride"))
+        print("completed the ledger record for global index %d from its seal: the "
+              "slot ran and only the append was interrupted"
+              % recovered["globalIndex"])
+    if present != len(records):
+        raise BatchError(
+            "%d slots are on disk and the ledger records %d: a declaration is a "
+            "statement about the ledger AND about the slots present, and the "
+            "scorer requires the two to agree slot for slot (§6 C5 rules 2 and "
+            "5). The disagreement is not the seal-then-record window — that "
+            "leaves exactly one slot, and it is completed above — so it goes in "
+            "DEVIATIONS.md rather than into a declaration the scoring will refuse"
+            % (present, len(records)))
     last = records[-1] if records else None
     whole_rounds = completed_rounds(records)
     stopped_at, clock_record = last_slot_clock(records)

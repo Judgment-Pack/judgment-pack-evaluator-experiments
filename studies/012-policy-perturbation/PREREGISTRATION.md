@@ -235,7 +235,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `4ea1861855900ae23fd8f040465674ad2c87efeb3b319fb0196f87cf9f6ba1f8` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `ed8fbdebcc0df781d6afc2d0cf5f095744cf482b86a6004ac09d6f2e6d6f11f5` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -270,9 +270,9 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt; no other check logic changes |
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `bac41d3a960a82e32ec009f493d8153c280fa2591c6abd29e66deb3aa7fe1f04` | §2.7 |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `5d9f37cc09fbb62c9e4b073a2f53d42a01c11a74c8ec27030aea7711b9e32277` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `7b00ecac41baef50047c9f9caeae45a558636638e25840238cbe651f93f92bf9` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `8bbd881aa054e773be0b9f28c4be0a5157e72b6219a48944280cf11de7abbc58` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `fb0c62b009c1de7b77849d137ab0ae68019262affd759fcf16e1a77bb97fb08b` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `8db070843b6e0dc3ebe1bdedc46ca8dead105688f7e4dd31fcf10f63e25eac4a` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `091265103cf52dcf0fb0f7a97e5b5544805a8cc30c7c2e8a87a8d92b8bfb8447` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `fdb8ac0967e0baec29e78ea27a1af4c18b3336fa8de929d218c91802e1110de7` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -2334,10 +2334,11 @@ All four are inside the one-day rule; the earlier draft's "150 calls and about
 three hours" for N = 50 omitted them too.
 
 **[D-1] N = 30 is the proposal**, on the control gate (0.7658 against 0.4031)
-and the registered joint outcome (0.7359 against 0.3536), at a 20% larger
+and the coverage-side row-5 quantity (0.7359 against 0.3536 — §5.4's upper
+bound for CONFIRMED; S5 unmodeled), at a 20% larger
 budget and 17 more minutes. **N = 25 is registered as the alternative** with
 its cost attached in full: the control gate fails three times in five under a
-true null in both control arms, the CONFIRMED outcome lands about one time in
+true null in both control arms, the coverage-side CONFIRMED bound lands about one time in
 three, and — a second cost, found while constructing §2.8's schedule — **25
 rounds do not tile the ten-sequence Williams block**, so the registered
 carryover-balanced order would have to be reconstructed for 25 and this file
@@ -2359,8 +2360,10 @@ instance of its perturbation type; that is the design's central limitation and
 **A CONFIRMED row does not license the causal claim in general, and an
 R1-UNSUPPORTED row does not license its negation.** CONFIRMED means one
 denaming, of one policy family, at one model snapshot, on one day, produced a
-placement collapse on at least three of four narrow classes with both controls
-holding. R1-UNSUPPORTED means that collapse did not happen, and is compatible
+placement collapse on at least three of four narrow classes with arm E's S5
+labels at the ceiling, class 4 not collapsing, and both controls holding —
+the full [D-10] conjunction, restated whole so no summary of it states a
+smaller rule (round 6, finding 3). R1-UNSUPPORTED means that collapse did not happen, and is compatible
 with a snapshot that has seen this policy family before (§5.3 (i), §7, §9).
 Neither row is a measurement of "anchoring" as a property of models.
 

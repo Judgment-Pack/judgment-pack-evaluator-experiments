@@ -43,10 +43,22 @@ Two round-4 dispositions land here:
     runs the finding names are built and scored: a correctly labelled record
     outside all six predicates, and an all-Q class-reaching run.
 
+Three round-6 dispositions land here too, each a code that named no run or a
+refusal that was not one:
+
+  * **finding 5** — an absent or `null` identity member is `call-unreadable`,
+    over a sealed population and at the guard itself;
+  * **finding 7** — an array the ported compiler's strict decoder refuses is
+    `compile-refused` and not §3.3's authoring-empty row, with a no-array
+    completion beside it as the control;
+  * **finding 8** — a malformed ledger record refuses the whole scoring at the
+    read, and the registered command reports a refusal rather than a traceback.
+
 Nothing here touches the committed tree, reaches a network or runs a CLI.
 """
 from __future__ import annotations
 import ast
+import json
 import os
 import shutil
 
@@ -54,6 +66,7 @@ import pytest
 
 import batch
 import fixtures
+import records_compile
 import score_rates
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -1271,19 +1284,182 @@ def test_the_identity_guard_is_about_the_registered_type_not_about_hashing(pins)
     start clock and an object working directory are both hashable, so the old
     code took them into the uniqueness comparison as if they were the strings
     §3.3 registers. A slot whose own identity cannot be read is not evidence of
-    which call produced it, whatever Python can do with the value."""
+    which call produced it, whatever Python can do with the value.
+
+    **This case previously asserted that `{}` has no defect, and that assertion
+    enshrined the bug round 6's finding 5 names**: it is corrected here rather
+    than accommodated. `call.get()` exempted absent members and JSON `null`
+    alike, no later gate owns `startedAt`, and an absent member agrees with
+    every other absent one — so the exemption was a hole in §3.3's rule, not a
+    narrower reading of it. The registered rule is that all three identifying
+    members are PRESENT and are the strings the wrapper wrote.
+    """
     honest = {"startedAt": "2026-08-07T09:00:00Z", "cwd": "/tmp/scratch",
               "home": "/tmp/home"}
     assert score_rates.call_identity_defect(honest) is None
-    # Absent members are not malformed ones: a slot that records none of the
-    # three has no identity to compare and is refused, if at all, by the check
-    # that owns the member (`home` is `isolation-unproven`'s).
-    assert score_rates.call_identity_defect({}) is None
+    # Absence and `null` are the two spellings of the same missing evidence, and
+    # each of the three members answers for itself.
+    for member in score_rates.CALL_IDENTITY_MEMBERS:
+        absent = dict(honest)
+        absent.pop(member)
+        defect = score_rates.call_identity_defect(absent)
+        assert defect is not None and member in defect, member
+        nulled = score_rates.call_identity_defect(dict(honest, **{member: None}))
+        assert nulled is not None and member in nulled, member
+    assert score_rates.call_identity_defect({}) is not None
     for member, value in (("startedAt", 1723), ("cwd", {"path": "/tmp"}),
                           ("home", ["/tmp/home"]), ("startedAt", True)):
         defect = score_rates.call_identity_defect(dict(honest, **{member: value}))
         assert defect is not None and member in defect, (member, value)
     assert score_rates.CALL_IDENTITY_MEMBERS == ("startedAt", "cwd", "home")
+
+
+# Two completions the ported compiler's strict decoder refuses and a permissive
+# one accepts: the exact boundary `records_compile.extract_array()` names in its
+# own docstring — "duplicate object keys and non-JSON constants disqualify a
+# candidate". Both hold an ARRAY; neither holds a parseable one.
+DUPLICATE_KEY_ARRAY = (fixtures.PREAMBLE
+                       + '[{"caseId": "acme-ltd", "caseId": "acme-ltd"}]'
+                       + fixtures.TRAILER)
+NAN_ARRAY = fixtures.PREAMBLE + '[{"riskScore": NaN}]' + fixtures.TRAILER
+
+
+def test_an_array_the_compiler_refuses_is_compile_refused_not_authoring_empty(
+        pins, study):
+    """Round 6, finding 7: `compile-refused` was a registered outcome no run
+    could be given, and the runs it should have named were being scored VALID.
+
+    §3.3 registers `compile-refused` as "the compiler failed other than by
+    finding no array", and 011 §3.3 registers the line it is the other side of:
+    the no-parseable-array refusal is authoring-empty and valid, every other
+    compiler error is pipeline-invalid. `extract_array()` catches every decoder
+    `ValueError` per candidate, so an array with duplicate object keys and an
+    array carrying `NaN` both arrived at the scorer as the no-array
+    `CompileError` — and landed in the denominator as authoring outcomes, when
+    what failed was the transport of a machine-readable answer.
+
+    The third slot is the control: a completion with no array at all is still
+    §3.3's own row, valid and covering nothing, which is what the distinction
+    has to leave alone to be a distinction.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        specs = [{} for _ in range(5)]
+        # Registered call order, first round: B, C, A, D, E.
+        specs[2] = {"answer": fixtures.COMPLETION_EMPTY}   # arm A: no array
+        specs[3] = {"answer": DUPLICATE_KEY_ARRAY}         # arm D
+        specs[4] = {"answer": NAN_ARRAY}                   # arm E
+        population.build(specs)
+        results = population.score_runs()
+        for slot, expected in ((("D", "run-001"), "duplicate object keys"),
+                               (("E", "run-001"), "non-JSON constant")):
+            row = results["byKey"][slot]
+            assert row["code"] == "compile-refused", (slot, row["code"])
+            assert score_rates.CODE_PARTITION[row["code"]] == "pipeline-invalid"
+            assert not row["valid"], slot
+            # A pipeline-invalid run carries no authoring surface at all — the
+            # compile never produced one — which is the whole difference from
+            # the authoring-empty row it used to be scored as.
+            assert "authoringEmpty" not in row, slot
+            assert expected in row["detail"], (slot, row["detail"])
+        # The control, unmoved: no array is still the partition's valid row.
+        empty = results["byKey"][("A", "run-001")]
+        assert empty["valid"] and empty["code"] is None
+        assert empty["authoringEmpty"] and empty["noParseableArray"]
+        assert empty["coveredClasses"] == []
+        assert results["seal"]["verified"]
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_the_compile_refusal_boundary_is_the_ported_compilers_own(study):
+    """The same rule at the bytes, and the guarantee that the two decoders it is
+    drawn between are the PORT's and not a second copy of it.
+
+    `strict_decode_refusal()` differs from `records_compile.extract_array()`'s
+    decoder in exactly the hooks that make the port strict, so a change to the
+    port's strictness moves this boundary with it rather than leaving the
+    scorer deciding `compile-refused` by a rule the compiler no longer has.
+    """
+    assert score_rates._STRICT_DECODER.object_pairs_hook \
+        is records_compile._refuse_duplicate_keys
+    assert score_rates._STRICT_DECODER.parse_constant \
+        is records_compile._refuse_constants
+    for decoder in (score_rates._STRICT_DECODER, score_rates._ARRAY_SHAPE_DECODER):
+        assert decoder.parse_int is records_compile.JsonNumber
+        assert decoder.parse_float is records_compile.JsonNumber
+    # An array the strict decoder refuses, either way it can refuse one.
+    for raw in (DUPLICATE_KEY_ARRAY, NAN_ARRAY):
+        assert score_rates.strict_decode_refusal(raw) is not None
+        with pytest.raises(records_compile.CompileError):
+            records_compile.compile_records(raw)
+    # …and everything §3.3 leaves on the authoring-empty side: prose, a
+    # bracketed aside that opens no array, and an array that never closes.
+    for raw in (fixtures.COMPLETION_EMPTY,
+                "The office filed [7 of them] and reproduces none.",
+                'Here is the list:\n\n[{"caseId": "acme-ltd"'):
+        assert score_rates.strict_decode_refusal(raw) is None, raw
+        with pytest.raises(records_compile.CompileError):
+            records_compile.compile_records(raw)
+    # A completion the compiler ACCEPTS reaches neither: the boundary is only
+    # consulted where the compile already failed, and it agrees there.
+    honest = fixtures.completion(fixtures.full_records(
+        *fixtures.arm_pair(os.path.join(study, "arms"), "A")))
+    assert records_compile.compile_records(honest)[0]
+
+
+def test_an_absent_or_null_identity_member_is_call_unreadable(pins, study):
+    """Round 6, finding 5, over a sealed population rather than over the guard
+    alone: a slot whose `CALL.json` never records `startedAt`, and one that
+    records it as JSON `null`, are both `call-unreadable`.
+
+    Neither slot could be refused before. `call.get()` returned `None` for both,
+    the guard exempted `None`, and no other gate reads `startedAt` — so an
+    independently sealed slot with no start clock scored VALID and entered every
+    rate. The two spellings are built differently on purpose: the null is a
+    member the writer set, and the absence is the member removed from the file
+    BEFORE the seal, so the slot is sealed over what it holds and the refusal is
+    about the call record and not about the manifest.
+    """
+    def drop_started_at(slot):
+        path = os.path.join(slot, "CALL.json")
+        with open(path) as handle:
+            call = json.load(handle)
+        del call["startedAt"]
+        with open(path, "w") as handle:
+            json.dump(call, handle, indent=2)
+
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        specs = [{} for _ in range(5)]
+        # Registered call order, first round: B, C, A, D, E.
+        specs[2] = {"mutate": drop_started_at}      # arm A's first slot
+        specs[3] = {"call": {"cwd": None}}          # arm D's first slot
+        population.build(specs)
+        results = population.score_runs()
+        for slot, member in ((("A", "run-001"), "startedAt"), (("D", "run-001"), "cwd")):
+            row = results["byKey"][slot]
+            assert row["code"] == "call-unreadable", (slot, row["code"])
+            assert score_rates.CODE_PARTITION[row["code"]] == "pipeline-invalid"
+            assert member in row["detail"], (slot, row["detail"])
+            assert not row["valid"], slot
+        # The seal covers both mutations, so neither refusal is §2.9's, and the
+        # three honest slots of the same batch are still scored.
+        assert results["seal"]["verified"]
+        for slot in (("B", "run-001"), ("C", "run-001"), ("E", "run-001")):
+            assert results["byKey"][slot]["valid"], slot
+        # …and the population pass keeps what it can read of each of them: the
+        # unreadable identity is dropped and the session evidence is not, so a
+        # copy of either slot is still caught by the two members that remain.
+        for arm in ("A", "D"):
+            identity = score_rates.slot_identity(
+                os.path.join(population.arms_root, arm, "authoring", "run-001"))
+            assert identity["callIdentity"] is None
+            assert identity["sessionSha256"] and identity["sessionId"]
+    finally:
+        shutil.rmtree(root, True)
 
 
 def test_an_undecodable_completion_is_completion_unreadable(pins, study):
@@ -1323,6 +1499,80 @@ def test_an_undecodable_completion_is_completion_unreadable(pins, study):
             assert results["byKey"][slot]["valid"], slot
     finally:
         shutil.rmtree(root, True)
+
+
+# --- C5: a malformed ledger refuses, and says so (round 6, finding 8) --------
+
+def test_a_malformed_ledger_record_refuses_the_whole_scoring(pins, study):
+    """C5 registers that a malformed ledger refuses the whole scoring through
+    the registered path, and `load_ledger()` checked only that `records` was a
+    list. `{"records": [null]}` therefore reached `schedule_key()`, which called
+    `.get` on `None` and raised a bare `AttributeError` out of a function
+    `main()` does not catch: a traceback where the registration promises a
+    refusal, and an exit a reader cannot tell from a crashed scorer.
+
+    Each shape below is checked at the READ, before a slot is opened, and each
+    refusal names the record and the member. The honest ledger the same
+    population wrote is the control — a check that refused everything would
+    pass every case here and refuse the study.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(5)])
+        path = os.path.join(population.arms_root, "BATCH.json")
+        with open(path) as handle:
+            honest = json.load(handle)
+        assert score_rates.load_ledger(population.arms_root) == honest["records"]
+        first = honest["records"][0]
+        no_arm = {key: value for key, value in first.items() if key != "arm"}
+        cases = (
+            ([None], "is None"),
+            (["run-001"], "is 'run-001'"),
+            ([[first]], "is ["),
+            ([no_arm] + honest["records"][1:], "arm"),
+            ([dict(first, round="1")] + honest["records"][1:], "round"),
+            ([dict(first, globalIndex=True)] + honest["records"][1:], "globalIndex"),
+            ([dict(first, position=None)] + honest["records"][1:], "position"),
+        )
+        for records, needle in cases:
+            with open(path, "w") as handle:
+                json.dump(dict(honest, records=records), handle, indent=2)
+            with pytest.raises(score_rates.ScoreError) as caught:
+                score_rates.load_ledger(population.arms_root)
+            assert needle in str(caught.value), (needle, str(caught.value))
+            # `main()` catches `ScoreError` and nothing else, so the TYPE of the
+            # exception is what separates a refusal from a traceback.
+            assert type(caught.value) is score_rates.ScoreError, needle
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_the_registered_command_reports_a_refusal_and_not_a_traceback(monkeypatch,
+                                                                      capsys):
+    """The other half of finding 8, at `main()`: the registered command turns a
+    `ScoreError` into `refused: …` and exit 1, and lets everything else through.
+
+    That asymmetry is why the type matters. The malformed ledger used to raise
+    an `AttributeError` from inside `schedule_key()`, and this shows what the
+    operator got for it — the second half of this case fails if `main()` ever
+    starts swallowing arbitrary exceptions, which would hide a scorer bug behind
+    the same word the registration uses for a refusal.
+    """
+    def refuse(records_dir=None):
+        raise score_rates.ScoreError(
+            "arms/BATCH.json's record 1 is None and a ledger record is a JSON "
+            "object")
+
+    def crash(records_dir=None):
+        raise AttributeError("'NoneType' object has no attribute 'get'")
+
+    monkeypatch.setattr(score_rates, "score_registered", refuse)
+    assert score_rates.main(["score_rates.py", "score"]) == 1
+    assert capsys.readouterr().err.startswith("refused: arms/BATCH.json's record 1")
+    monkeypatch.setattr(score_rates, "score_registered", crash)
+    with pytest.raises(AttributeError):
+        score_rates.main(["score_rates.py", "score"])
 
 
 # --- C5's population rules the fixtures stand on ----------------------------

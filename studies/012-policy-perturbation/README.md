@@ -9,20 +9,13 @@ The preregistration is a draft until it is frozen by merge after the final
 cross-vendor review round ends clean; it governs thereafter, and
 `DEVIATIONS.md` records every departure from it.
 
-**Review status: two rounds complete, the second cross-vendor.**
-[`PREREG-REVIEW.md`](PREREG-REVIEW.md) records round 1 — an internal
-adversarial pass by the same model lineage as the drafter, 23 findings — and
-**round 2, the first cross-vendor round (OpenAI Codex CLI), 20 findings, 13 of
-them blocking-for-freeze, all accepted**. Round 2 moved N from 25 to 30,
-replaced the run order with a carryover-balanced design, made the primary
-endpoint intent-to-treat, made an incomplete batch return no verdict at all,
-rewrote arm B and arm C, removed the study name from every arm's preamble, and
-replaced the review-to-freeze binding with a whole-tree manifest. Still
-outstanding before the freeze: **the port** (which now happens *before* the
-final review, not after it), the final cross-vendor round over the complete
-post-port tree, and **C10's five clean-room mirrors**, whose verdict may itself
-force a re-authoring of arm E (`PREREGISTRATION.md` §6 C10 registers that
-consequence in advance).
+**Review status: six rounds recorded, rounds 2-6 cross-vendor.**
+[`PREREG-REVIEW.md`](PREREG-REVIEW.md) records them all — round 1 internal;
+round 2 the first cross-vendor round over the specification and arm texts;
+rounds 3-6 over the complete post-port candidate tree, each with every
+finding dispositioned by the maintainer and the dispositions implemented
+before the next round. The final round has not yet ended clean; the freeze
+binds to the manifest of the round that does.
 
 ## What it is
 
@@ -221,7 +214,9 @@ PY=/home/onword/.pyenv/versions/3.12.11/bin/python3 && "$PY" -V
 "$PY" -m pytest harness/tests -q
 
 # 3. Freeze the preregistration: put its sha256 into harness/PINS.json
-#    freeze.preregistrationSha256 and COMMIT. Nothing below will make a call or
+#    BOTH freeze pins — freeze.preregistrationSha256 AND freeze.treeManifestSha256,
+#    the latter equal to the final round's attested digest in PREREG-REVIEW.md
+#    (they land together or integrity refuses, §2.10) — and COMMIT. Nothing below will make a call or
 #    compute a rate while that member is null.
 sha256sum PREREGISTRATION.md
 
@@ -336,8 +331,10 @@ outright rather than merely narrowing it.
    they are what the preregistration says they are is a judgment no digest can
    make for you.
 6. `MIRROR-AGREEMENT.md` — C10's five clean-room mirrors, each written from one
-   arm's `POLICY.md` bytes plus the published 706-byte interface suffix and
-   nothing else, with the pre-assigned reader
+   arm's `POLICY.md` bytes plus the published fixed interface (a 28-byte
+   prefix and 678-byte suffix around the policy minus its final LF —
+   equivalently 705 non-policy bytes against the full file; the equation is
+   in `MIRROR-AGREEMENT.md`) and nothing else, with the pre-assigned reader
    roster, **every attempt including every failed one**, and the per-arm
    280-cell agreement table. Read it beside `arms/` — it is the one pre-data
    check that can tell "denamed" from "written to be hard".

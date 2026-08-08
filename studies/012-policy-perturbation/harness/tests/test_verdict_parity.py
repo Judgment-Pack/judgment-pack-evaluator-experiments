@@ -28,6 +28,13 @@ held to the registered SENTENCE instead: round 4, finding 6 pins the first
 outcome's condition — new-keyed HIGH on three or more of the four narrow
 numeric classes, old-keyed not HIGH-patterned — as quoted text and as computed
 behaviour, because the scorer had substituted a stricter rule of its own.
+
+The last two cases are a PHRASE lint over §5.4's prose rather than a table diff
+(round 6, finding 4). Round 5's rule pinned the operating-characteristic table's
+row LABELS, and the withdrawn names for `0.7359`/`0.3536` survived in the text
+beside them — so the section is parsed by heading, its tables dropped, and what
+is left must name the CONFIRMED-side figure coverage-side wherever it discusses
+it and must not carry any of the three names §5.4's own paragraph withdraws.
 """
 from __future__ import annotations
 import re
@@ -650,3 +657,138 @@ def test_the_joint_row_four_figures_are_checked_against_the_file_when_it_carries
             assert abs(computed - registered[rule][trials]) < 5e-5, (
                 "§5.4's joint row 4 prints %s at N = %d; this file computes %.7f"
                 % (registered[rule][trials], trials, computed))
+
+
+# --- §5.4's PROSE, pinned by phrase (round 6, finding 4) ---------------------
+
+SECTION_HEADING = "### 5.4 "
+# The three names round 6 finding 4 found §5.4's prose still giving these
+# figures. Each asserts something §5.4's own coverage-side paragraph withdraws:
+# that the number is the joint the study will report, that it is the chance of
+# arriving at row 5, and that it covers the whole CONFIRMED conjunction.
+BANNED_5_4_PHRASES = ("the actual joint", "actually reaching row 5",
+                      "whole registered CONFIRMED outcome")
+COVERAGE_SIDE = "coverage-side"
+# §5.4's CONFIRMED-side figure at N = 30, which is the one the false names were
+# attached to. Where the prose discusses it, the prose names what it is.
+CONFIRMED_FIGURE = "0.7359"
+
+
+def section_5_4(body: str) -> list:
+    """§5.4's own lines, from its heading down to the next `### ` heading.
+
+    Located by heading TEXT, never by line number: the section moves every time
+    anything above it is edited, and a lint anchored to a line number is a lint
+    that silently starts reading §5.3."""
+    lines = body.splitlines()
+    starts = [index for index, line in enumerate(lines)
+              if line.startswith(SECTION_HEADING)]
+    assert len(starts) == 1, (
+        "PREREGISTRATION.md holds %d headings beginning %r, and §5.4 is located "
+        "by that heading" % (len(starts), SECTION_HEADING))
+    for index in range(starts[0] + 1, len(lines)):
+        if lines[index].startswith("### "):
+            return lines[starts[0]:index]
+    return lines[starts[0]:]
+
+
+def prose_blocks_5_4(body: str) -> list:
+    """[(heading, that subsection's PROSE)] for §5.4 — every line of the section
+    that is not a pipe-table row, split at its `#### ` headings.
+
+    The tables are dropped and the headings are kept, because round 5 finding 5
+    already pins the table LABELS and round 6 finding 4 is that the false names
+    survived in the text AROUND them. A subsection is the unit because a
+    restatement four screens from the coverage-side paragraph is exactly what
+    the finding caught: `0.7359` named honestly under one heading and as the
+    registered joint outcome under another."""
+    lines = section_5_4(body)
+    blocks, heading, prose = [], lines[0].strip(), []
+    for line in lines[1:]:
+        if line.startswith("#### "):
+            blocks.append((heading, "\n".join(prose)))
+            heading, prose = line.strip(), []
+            continue
+        if line.strip().startswith("|"):
+            continue
+        prose.append(line)
+    blocks.append((heading, "\n".join(prose)))
+    return blocks
+
+
+def phrase_defects_5_4(body: str) -> list:
+    """Every way §5.4's prose breaks round 6 finding 4's rule, as sentences; the
+    empty list is the passing state.
+
+    Separate from the tests below so that one of them can hold this walk to a
+    body whose answer is known — a lint nobody has run on a planted defect is a
+    claim that it fires, not a check that it does."""
+    defects = []
+    for heading, prose in prose_blocks_5_4(body):
+        lowered = prose.lower()
+        for phrase in BANNED_5_4_PHRASES:
+            if phrase.lower() in lowered:
+                defects.append(
+                    "%s: the prose says %r. §5.4's own paragraph registers every "
+                    "CONFIRMED-side figure as a coverage-side quantity — S5 is "
+                    "outside the model — and this names it the confirmatory "
+                    "outcome (round 6, finding 4)" % (heading, phrase))
+        if CONFIRMED_FIGURE in prose and COVERAGE_SIDE not in lowered:
+            defects.append(
+                "%s: the prose discusses %s and never calls it %s. The figure is "
+                "exact for the coverage pattern and an UPPER BOUND for CONFIRMED, "
+                "and a restatement that drops the qualifier restates the wrong "
+                "quantity (round 6, finding 4)"
+                % (heading, CONFIRMED_FIGURE, COVERAGE_SIDE))
+    return defects
+
+
+def test_the_section_five_four_prose_calls_the_confirmed_figures_coverage_side(
+        preregistration):
+    """Round 6, finding 4. §5.4 correctly registers `0.7359`/`0.3536` as
+    coverage-side upper bounds because S5 — arm E's labels at the ceiling — is
+    unmodelled, and its sample-size prose nevertheless still called them the
+    registered joint/CONFIRMED outcome. Round 5's test checked only the table
+    LABELS, so the false names survived in the text beside them.
+
+    This is the lint the disposition registers: the prose of every subsection of
+    §5.4 that discusses the figure names it coverage-side, and none of the three
+    withdrawn names appears anywhere in the section's prose."""
+    defects = phrase_defects_5_4(preregistration)
+    assert defects == [], "§5.4's prose:\n  " + "\n  ".join(defects)
+
+
+def test_the_five_four_phrase_lint_fires_on_a_planted_name():
+    """The known answer the lint is held to: a §5.4 carrying each withdrawn name
+    and a coverage-side-free restatement of the figure, and a clean one built
+    from the same parts.
+
+    Without this the lint could pass by never reading anything — a heading
+    matcher that finds no section, a table filter that eats the whole body — and
+    the passing suite would say the prose is pinned when nothing is."""
+    def body(prose: str) -> str:
+        return ("## 5. Verdicts\n\n### 5.4 What N = 30 can and cannot resolve\n\n"
+                "| registered rule | N = 30 |\n| --- | --- |\n"
+                "| CONFIRMED and the gate hold — the actual joint | 0.7359 |\n\n"
+                "#### Why 30\n\n" + prose + "\n\n### 5.5 What a verdict does not "
+                "license\n\nnothing here is §5.4's.\n")
+    # The table row carries a banned name and the figure: round 5's rule owns the
+    # labels, this one owns the prose, and the two do not reach into each other.
+    clean = body("N = 30 is the proposal, on the coverage-side CONFIRMED "
+                 "quantity (0.7359 against 0.3536).")
+    assert phrase_defects_5_4(clean) == []
+    for phrase in BANNED_5_4_PHRASES:
+        planted = body("N = 30 is the proposal, on %s (0.7359 against 0.3536), "
+                       "and its coverage-side reading is registered above."
+                       % phrase)
+        defects = phrase_defects_5_4(planted)
+        assert len(defects) == 1 and phrase in defects[0], (phrase, defects)
+    unqualified = body("N = 30 is the proposal, on the control gate (0.7658 "
+                       "against 0.4031) and the registered joint outcome (0.7359 "
+                       "against 0.3536).")
+    defects = phrase_defects_5_4(unqualified)
+    assert len(defects) == 1 and CONFIRMED_FIGURE in defects[0], defects
+    # …and the section really is bounded by its own two headings: §5.5's text is
+    # not §5.4's prose, and §5.3's is not either.
+    assert len(prose_blocks_5_4(clean)) == 2
+    assert "5.5" not in "".join(prose for _heading, prose in prose_blocks_5_4(clean))
