@@ -633,14 +633,28 @@ DECISION_SCENARIOS = (
      "arms": {}, "complete": True, "sealed": True,
      "row": 4, "publishedAs": "R1-UNSUPPORTED",
      "counts": {"nP": 0, "nC": 0, "nH": 4}},
-    {"why": "arm E placement-collapses on all four: the CONFIRMED pattern",
+    {"why": "arm E placement-collapses on all four with its labels at the "
+            "ceiling: the CONFIRMED pattern",
      "arms": {"E": PLACEMENT_COLLAPSE}, "complete": True, "sealed": True,
      "row": 5, "publishedAs": "CONFIRMED",
-     "counts": {"nP": 4, "nC": 4, "nH": 0}},
+     "counts": {"nP": 4, "nC": 4, "nH": 0},
+     "reading": "PLACEMENT collapse", "labels": "at the ceiling"},
+    # The same placement collapse with the labels gone: §4.6's SECOND row, the
+    # one round 3 found unreachable. "The author could not derive or apply the
+    # values" is a comprehension collapse, it is published as one, and it does
+    # not confirm R1 — so row 5 does not fire and the table's last row does.
+    {"why": "arm E placement-collapses on all four while its S5 labels are "
+            "degraded: §4.6's comprehension collapse, and R1 is not confirmed",
+     "arms": {"E": PLACEMENT_COLLAPSE}, "mislabelled": {"E": (3, 4)},
+     "complete": True, "sealed": True,
+     "row": 7, "publishedAs": "INDETERMINATE",
+     "counts": {"nP": 4, "nC": 4, "nH": 0},
+     "reading": "comprehension collapse", "labels": "degraded"},
     {"why": "the records are still at the boundary and the labels are not",
      "arms": {"E": LABEL_COLLAPSE}, "complete": True, "sealed": True,
      "row": 6, "publishedAs": "LABEL-COLLAPSE-ONLY",
-     "counts": {"nP": 0, "nC": 4, "nH": 0}},
+     "counts": {"nP": 0, "nC": 4, "nH": 0},
+     "reading": "label collapse", "labels": "degraded"},
     {"why": "arm E MID on every class: §5.4 says this is what a PARTIAL "
             "anchoring effect looks like at N = 30",
      "arms": {"E": HALF}, "complete": True, "sealed": True,
@@ -667,8 +681,17 @@ def arm_blocks(pins):
     schedule = score_rates.registered_schedule()
     cache = {}
 
-    def block(arm: str, pattern) -> dict:
-        key = (arm, tuple(pattern))
+    def block(arm: str, pattern, mislabelled=(), old_edge=None) -> dict:
+        """One arm's block at a pattern of `(k_H, k_raw)` per class.
+
+        `mislabelled` names classes that carry a Q record in every row on top of
+        the ones the pattern already implies, which is what moves §4.6's S5
+        branch off the ceiling; `old_edge` is the per-class `k` under ARM A's
+        predicates (S10) and defaults to the arm's own coverage, which is what
+        it is for every arm keyed at (40, 70) and is not for arm D.
+        """
+        key = (arm, tuple(pattern), tuple(mislabelled),
+               None if old_edge is None else tuple(old_edge))
         if key not in cache:
             entries = [entry for entry in schedule if entry["arm"] == arm]
             assert len(entries) == pins["batch"]["n"]
@@ -676,8 +699,17 @@ def arm_blocks(pins):
             for index, entry in enumerate(entries):
                 covered = [c for c, (k_h, _) in enumerate(pattern) if index < k_h]
                 raw = [c for c, (_, k_raw) in enumerate(pattern) if index < k_raw]
+                # A class reached raw and not in H holds a mislabelled record by
+                # construction, so the row carries one: `H(r) ⊆ A(r)` is not the
+                # only thing the fixture owes the scorer — the Q count that
+                # difference implies is S5's input (round 3, finding 9).
+                q_only = [c for c in raw if c not in covered]
+                quarantined = sorted(set(mislabelled) | set(q_only))
+                old = (covered if old_edge is None
+                       else [c for c, k in enumerate(old_edge) if index < k])
                 rows.append(fixtures.synthetic_row(arm, entry, covered=covered,
-                                                   raw=raw))
+                                                   raw=raw, q=quarantined,
+                                                   q_only=q_only, old_edge=old))
             computed = score_rates.score_arm(arm, definitions[arm],
                                              pins["batch"]["n"], rows, {}, [])
             computed.pop("census")
@@ -700,7 +732,9 @@ def test_the_decision_table_rows_all_fire_at_known_integers(scenario, arm_blocks
     the scorer derived from those integers are asserted beside the row, so a
     row that fired for the wrong reason is a failure and not a pass.
     """
-    blocks = {arm: arm_blocks(arm, scenario["arms"].get(arm, PERFECT))
+    mislabelled = scenario.get("mislabelled", {})
+    blocks = {arm: arm_blocks(arm, scenario["arms"].get(arm, PERFECT),
+                              mislabelled.get(arm, ()))
               for arm in fixtures.ARMS}
     verdicts = score_rates.compute_verdicts(blocks, pins["batch"]["n"],
                                             scenario["complete"],
@@ -711,17 +745,38 @@ def test_the_decision_table_rows_all_fire_at_known_integers(scenario, arm_blocks
     assert row["condition"] == score_rates.DECISION_TABLE[row["row"] - 1]["condition"]
     if "counts" in scenario:
         assert verdicts["patternCounts"] == scenario["counts"]
+    # §4.6's reading, beside the row and never instead of it (round 3,
+    # finding 9): the branch the S5 cut put arm E on, and the row of §4.6's
+    # table its integers fall on.
+    if "reading" in scenario:
+        assert verdicts["reading"]["publishedAs"] == scenario["reading"]
+        assert verdicts["reading"]["labels"] == scenario["labels"]
+        assert row["reading"] == scenario["reading"]
+        assert verdicts["labelBranches"]["E"]["branch"] == scenario["labels"]
+        assert verdicts["reading"]["confirmsR1"] is (scenario["row"] == 5)
     if "gate" in scenario:
         assert verdicts["gate"]["arms"] == scenario["gate"]
         assert verdicts["gate"]["passed"] is False
         assert verdicts["gate"]["shortfall"] == ["B"]
     if scenario["row"] == 1:
-        # Rows 1's two causes both withdraw the whole confirmatory surface.
+        # Rows 1's two causes both withdraw the whole confirmatory surface —
+        # §4.6's reading and §5.3 (ii)'s arm-D outcome included, because both
+        # are read off level verdicts that row 1 makes UNRESOLVED-BY-DESIGN.
         assert verdicts["contrasts"] is None
         assert verdicts["patternCounts"] == {"nP": None, "nC": None, "nH": None}
+        assert verdicts["reading"] is None and verdicts["armD"] is None
+        # The S5 branch is a statement about the records, not about the rule,
+        # so it is published either way.
+        assert set(verdicts["labelBranches"]) == set(fixtures.ARMS)
     else:
         assert verdicts["resolved"] is True
         assert verdicts["gate"] is not None
+        assert verdicts["armD"]["publishedAs"] in [
+            entry["publishedAs"] for entry in score_rates.D_OUTCOME_TABLE]
+    if scenario["row"] == 2:
+        # §5.3 (iv): every other reading of arm E is withdrawn in favour of the
+        # class-4 collapse — published with that fact attached, not deleted.
+        assert verdicts["reading"]["withdrawn"] is True
 
 
 def test_rows_four_and_five_cannot_both_hold(arm_blocks, pins):
@@ -739,6 +794,298 @@ def test_rows_four_and_five_cannot_both_hold(arm_blocks, pins):
                     and counts["nP"] >= score_rates.PATTERN_MINIMUM)
         # …and the placement contrast implies the primary one, class by class.
         assert counts["nP"] <= counts["nC"]
+
+
+# --- §5.3 (ii)'s three outcomes for arm D, at known integers ----------------
+#
+# Arm D's own-keyed pattern when its narrow numeric classes collapse under its
+# OWN family, and the two S10 old-edge patterns that separate the three
+# outcomes: records at the old edges (40, 70) or at neither pair.
+D_NARROW_COLLAPSE = [(0, 0), (0, 0), (0, 0), (30, 30), (30, 30), (0, 0)]
+D_OLD_EDGES_HELD = [30, 30, 30, 30, 30, 30]
+D_OLD_EDGES_GONE = [0, 0, 0, 30, 30, 0]
+# Two of the four narrow classes LOW and two MID: one short of the three §5.3
+# (i)'s pattern minimum registers, which is the mixed case §5.3 (ii) names no
+# outcome for.
+D_MIXED = [(0, 0), (0, 0), (15, 15), (30, 30), (30, 30), (15, 15)]
+
+D_SCENARIOS = (
+    {"why": "arm D tracks arm A on all six classes under its own family: the "
+            "prediction, and coverage follows the numbers",
+     "pattern": PERFECT, "oldEdge": D_OLD_EDGES_GONE,
+     "publishedAs": "COVERAGE-FOLLOWS-THE-NUMBERS",
+     "counts": {"newKeyedLow": 0, "oldKeyedHigh": 0, "oldKeyedLow": 4,
+                "tracking": 6, "narrowMinimum": 3, "classes": 6}},
+    {"why": "arm D's new-keyed verdicts are LOW on the narrow numeric classes "
+            "while its old-keyed ones are HIGH: the model reproduced 40 and 70 "
+            "against a text that says 45 and 72",
+     "pattern": D_NARROW_COLLAPSE, "oldEdge": D_OLD_EDGES_HELD,
+     "publishedAs": "OLD-EDGE-PREFERENCE",
+     "counts": {"newKeyedLow": 4, "oldKeyedHigh": 4, "oldKeyedLow": 0,
+                "tracking": 2, "narrowMinimum": 3, "classes": 6}},
+    {"why": "neither threshold pair: a general degradation, published as one",
+     "pattern": D_NARROW_COLLAPSE, "oldEdge": D_OLD_EDGES_GONE,
+     "publishedAs": "GENERAL-DEGRADATION",
+     "counts": {"newKeyedLow": 4, "oldKeyedHigh": 0, "oldKeyedLow": 4,
+                "tracking": 2, "narrowMinimum": 3, "classes": 6}},
+    {"why": "two narrow classes LOW and two MID: the mixed case §5.3 (ii) "
+            "names no outcome for",
+     "pattern": D_MIXED, "oldEdge": D_OLD_EDGES_HELD,
+     "publishedAs": "D-INDETERMINATE",
+     "counts": {"newKeyedLow": 2, "oldKeyedHigh": 4, "oldKeyedLow": 0,
+                "tracking": 2, "narrowMinimum": 3, "classes": 6}},
+)
+
+
+@pytest.mark.parametrize("scenario", D_SCENARIOS,
+                         ids=[entry["publishedAs"] for entry in D_SCENARIOS])
+def test_arm_ds_registered_outcomes_all_fire_at_known_integers(scenario,
+                                                               arm_blocks, pins):
+    """Round 3, finding 10: §5.3 (ii) registers three outcomes for arm D and
+    the scorer computed none of them, publishing marginal old-edge levels and
+    aggregating outcomes for arm E alone.
+
+    Each row fires here from a synthetic population at known integers, and the
+    counts the scorer derived are asserted beside the outcome so a row that
+    fired for the wrong reason is a failure and not a pass.
+    """
+    blocks = {arm: arm_blocks(arm, PERFECT) for arm in fixtures.ARMS}
+    blocks["D"] = arm_blocks("D", scenario["pattern"], (), scenario["oldEdge"])
+    verdicts = score_rates.compute_verdicts(blocks, pins["batch"]["n"], True, True)
+    outcome = verdicts["armD"]
+    assert outcome["publishedAs"] == scenario["publishedAs"]
+    assert outcome["counts"] == scenario["counts"]
+    assert outcome["condition"] == \
+        score_rates.D_OUTCOME_TABLE[outcome["row"] - 1]["condition"]
+    # The old-edge preference publishes BOTH registered explanations and
+    # asserts neither; the other rows carry none.
+    if scenario["publishedAs"] == "OLD-EDGE-PREFERENCE":
+        assert len(outcome["explanations"]) == 2
+        assert outcome["separates"] == score_rates.D_OLD_EDGE_NOTE
+    else:
+        assert outcome["explanations"] == [] and outcome["separates"] is None
+    # Arm D's outcome adjudicates nothing about R1: the decision-table row is
+    # what it would have been without arm D in the batch at all.
+    assert verdicts["decisionRow"]["row"] == 4        # arm E is PERFECT here
+
+
+# --- §3.3's authoring-empty row, narrowed, and S3's denominators -------------
+
+def _arm_d_shapes(population) -> list:
+    """A twelve-slot prefix of the registered order in which ARM D holds all
+    three shapes §3.3 distinguishes: an array every element of which is
+    dropped, an array whose only record this arm's mirror quarantines, and no
+    parseable array at all.
+
+    Twelve because the registered order gives arm D its three slots at global
+    indices 4, 6 and 12 — one per shape, in one arm, so the published counts
+    are a statement about one denominator.
+    """
+    low, high = fixtures.arm_pair(population.arms_root, "D")
+    # Every element dropped: `drop_records()` without its accepted first
+    # element and without the duplicate that only duplicates it.
+    all_dropped = fixtures.completion(fixtures.drop_records()[1:-1])
+    # One accepted record, quarantined by the mirror: the array parses, the
+    # compiler accepts it, and no class is reached in H.
+    all_quarantined = fixtures.completion(
+        [record for record in fixtures.partial_records(low, high)
+         if record["caseId"] == "mislabelled-at-low"])
+    specs = [{} for _ in range(12)]
+    specs[3] = {"answer": all_dropped}            # D/run-001
+    specs[5] = {"answer": all_quarantined}        # D/run-002
+    specs[11] = {"answer": fixtures.COMPLETION_EMPTY}   # D/run-003
+    return specs
+
+
+@pytest.fixture(scope="module")
+def authoring_shapes(pins, study):
+    """The twelve-slot population above, built and scored once."""
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build(_arm_d_shapes(population))
+        yield population, population.score_runs()
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_authoring_empty_is_the_partition_row_and_not_the_wider_quantity(
+        authoring_shapes):
+    """Round 3, finding 13: §3.3 reserves `authoring-empty` for a completion
+    with NO PARSEABLE ARRAY, and the scorer also set it for a parseable array
+    every element of which was dropped and for one whose records were all
+    mislabelled. Those are real authoring outcomes and they are published — as
+    `coveredNothing`, under their own name, where no reader takes them for
+    §3.3's row.
+    """
+    _population, results = authoring_shapes
+    dropped = results["byKey"][("D", "run-001")]
+    quarantined = results["byKey"][("D", "run-002")]
+    empty = results["byKey"][("D", "run-003")]
+    # All three are VALID: none of them is a pipeline failure (§4.2 [D-24]).
+    for row in (dropped, quarantined, empty):
+        assert row["valid"] and row["code"] is None
+        assert row["coveredClasses"] == [] and row["coveredNothing"] is True
+    # …and exactly one of them is §3.3's row.
+    assert [row["authoringEmpty"] for row in (dropped, quarantined, empty)] \
+        == [False, False, True]
+    assert [row["noParseableArray"] for row in (dropped, quarantined, empty)] \
+        == [False, False, True]
+    # The shapes are what they claim to be: an array that parsed and lost every
+    # element, and an array whose one record the mirror quarantined.
+    assert dropped["accepted"] == 0 and dropped["dropped"] == 6
+    assert quarantined["accepted"] == 1 and quarantined["h"] == 0 \
+        and quarantined["q"] == 1
+    assert empty["accepted"] == 0 and empty["dropped"] == 0
+
+
+def test_both_counts_are_published_over_the_same_valid_runs(authoring_shapes,
+                                                            pins):
+    """The published pair, over arm D's three valid runs: one authoring-empty
+    by §3.3's row, three that reached no class at all."""
+    population, results = authoring_shapes
+    block = score_rates.score_arm("D", population.definitions()["D"],
+                                  pins["batch"]["n"],
+                                  [row for row in results["runs"]
+                                   if row["arm"] == "D"],
+                                  results["recordsByArm"]["D"], [])
+    assert block["population"]["valid"] == 3
+    assert block["population"]["authoringEmpty"] == 1
+    assert block["population"]["coveredNothing"] == 3
+    assert "`authoringEmpty` is §3.3's partition row" in block["population"]["note"]
+
+
+def test_the_s3_surface_is_over_one_denominator_and_names_it(authoring_shapes,
+                                                             pins):
+    """Round 3, finding 14: S3's distribution iterated the rows present while
+    its mean and all-six rate divided by N, so a twelve-slot prefix published a
+    distribution totalling 2 beside a rate over 30 and nothing said which was
+    which. One denominator now — N, intent-to-treat — with the scheduled slots
+    the batch never executed counted as `absent` in the 0 bucket and named.
+    """
+    population, results = authoring_shapes
+    n = pins["batch"]["n"]
+    definitions = population.definitions()
+    for arm, present, covering in (("B", 2, 2), ("D", 3, 0)):
+        block = score_rates.score_arm(arm, definitions[arm], n,
+                                      [row for row in results["runs"]
+                                       if row["arm"] == arm],
+                                      results["recordsByArm"][arm], [])
+        breadth = block["coverageBreadth"]
+        assert breadth["trials"] == n and breadth["denominator"] == "N"
+        assert breadth["present"] == present
+        assert breadth["absent"] == n - present
+        # Every quantity in the block is over that one denominator.
+        assert sum(breadth["distribution"].values()) == n
+        assert breadth["allSix"]["trials"] == n
+        assert breadth["allSix"]["count"] == covering
+        assert breadth["distribution"]["6"] == covering
+        assert breadth["distribution"]["0"] == n - covering
+        assert breadth["mean"] == covering * 6 / n
+        assert "%d" % breadth["absent"] in breadth["note"]
+
+
+# --- the rendered tables, over the surfaces round 3 added --------------------
+
+def _renderable(blocks: dict, verdicts: dict, pins: dict) -> dict:
+    """The results shape `render_markdown()` reads, around real `score_arm()`
+    blocks and real verdicts.
+
+    The cell and the schedule are the only synthesized members: they are the
+    provenance header, not an arithmetic surface, and every number the tables
+    below print comes from the blocks and the verdicts.
+    """
+    return {
+        "schedule": {"roundsCompleted": pins["batch"]["n"],
+                     "registeredRoundsTotal": pins["batch"]["n"],
+                     "complete": True},
+        "seal": {"verified": True, "manifestFailures": [], "chainFailure": None},
+        "cell": {"model": pins["codex"]["model"], "cli": pins["codex"]["version"],
+                 "binarySha256": pins["codex"]["binarySha256"],
+                 "mirrorSha256": None, "goldenSha256": None,
+                 "preregistrationSha256": None,
+                 "arms": {arm: {"perturbation": blocks[arm]["perturbation"],
+                                "tLow": blocks[arm]["thresholds"]["tLow"],
+                                "tHigh": blocks[arm]["thresholds"]["tHigh"],
+                                "policySha256": None, "promptSha256": None,
+                                "familySha256": None}
+                          for arm in fixtures.ARMS}},
+        "arms": blocks,
+        "crossArm": {"invalidCodes": {},
+                     "validCounts": {arm: blocks[arm]["population"]["valid"]
+                                     for arm in fixtures.ARMS},
+                     "validCountSpread": 0, "validCountCaution": False},
+        "verdicts": verdicts,
+        "runs": [],
+    }
+
+
+def test_the_rendered_tables_carry_the_surfaces_round_three_added(arm_blocks,
+                                                                  pins):
+    """`RATES.md` is the scorer's rendering, so a member computed and never
+    rendered is a member no reader sees: §4.6's reading and S5 branch, §5.3
+    (ii)'s arm-D outcome, the narrowed authoring-empty count beside
+    `coveredNothing`, and S3's named denominator all have to reach the page.
+    """
+    blocks = {arm: arm_blocks(arm, PERFECT) for arm in fixtures.ARMS}
+    blocks["E"] = arm_blocks("E", PLACEMENT_COLLAPSE)
+    verdicts = score_rates.compute_verdicts(blocks, pins["batch"]["n"], True, True)
+    page = score_rates.render_markdown(_renderable(blocks, verdicts, pins))
+    assert "| arm | N | I_X | V_X | rho_X = I_X/N | 95% CI | authoring-empty | " \
+           "covered nothing | caution |" in page
+    assert "coverage breadth (S3)" in page and "never executed), mean" in page
+    assert "§4.6's reading of arm E (S1 placement against S5 labels): " \
+           "**PLACEMENT collapse**" in page
+    assert "| arm | S5 label accuracy | branch (§4.6) |" in page
+    assert "| A | 1.0000 (H 30 / Q 0) | at the ceiling |" in page
+    assert "### Arm D's registered outcome (§5.3 (ii))" in page
+    assert "**COVERAGE-FOLLOWS-THE-NUMBERS**" in page
+    assert "**CONFIRMED**" in page
+    # Every markdown table on the page is rectangular: a column added to a
+    # header and not to its rows is how a rendering drifts silently. Rows
+    # carrying an ESCAPED pipe are skipped — `|H|/(|H|+|Q|)` is one cell in
+    # markdown and seven to a splitter that reads `|` literally, and the
+    # splitter is the fixtures' table reader, not the page.
+    for header, rows in fixtures.markdown_tables(page):
+        for row in rows:
+            if any("\\" in cell for cell in row):
+                continue
+            assert len(row) == len(header), (header, row)
+
+
+# --- C6's credential evidence, as two booleans ------------------------------
+
+def test_a_string_credential_flag_is_isolation_unproven(pins, study):
+    """Round 3, finding 18: §6 C6 requires `credentialRemoved` exactly when
+    `credentialCopied`, and the check coerced the copy flag with `bool()`.
+    `bool("false")` is True, so a slot recording the STRING "false" beside
+    `credentialRemoved: true` agreed with itself and was admitted — a live
+    credential on disk, recorded as removed, in a valid run's denominator.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        specs = [{} for _ in range(5)]
+        # The reviewer's own case, verbatim: a string that is truthy and reads
+        # as its own opposite.
+        specs[2] = {"call": {"credentialCopied": "false",
+                             "credentialRemoved": True}}
+        # And the shape a coercion also lets through in the other direction: an
+        # integer 1 is not a boolean either.
+        specs[3] = {"call": {"credentialCopied": 1, "credentialRemoved": 1}}
+        population.build(specs)
+        results = population.score_runs()
+        for slot in (("A", "run-001"), ("D", "run-001")):
+            row = results["byKey"][slot]
+            assert row["code"] == "isolation-unproven", slot
+            assert "two booleans" in row["detail"]
+            assert score_rates.CODE_PARTITION[row["code"]] == "pipeline-invalid"
+        # The honest slots in the same batch record two real booleans and are
+        # admitted, so the check refuses a shape and not the fixture.
+        assert results["byKey"][("B", "run-001")]["valid"]
+        assert results["byKey"][("C", "run-001")]["valid"]
+    finally:
+        shutil.rmtree(root, True)
 
 
 # --- C5's population rules the fixtures stand on ----------------------------

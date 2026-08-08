@@ -893,8 +893,14 @@ def synthetic_row(arm: str, entry: dict, *, covered=(), raw=None, q=(),
         "code": None, "detail": None, "batchCode": None,
         "wallClockSeconds": 42,
         "accepted": accepted, "dropped": 0, "dropCodes": {},
-        "h": accepted, "q": len(q), "authoringEmpty": not covered,
+        "h": accepted, "q": len(q),
+        # A synthetic row always carries a parseable array — the array is what
+        # `accepted` counts — so §3.3's `authoring-empty` row is False by
+        # construction and the wider "reached no class" quantity is what varies
+        # (round 3, finding 13).
+        "authoringEmpty": False,
         "noParseableArray": False,
+        "coveredNothing": not covered,
         "coveredClasses": covered, "rawClasses": raw, "qClasses": sorted(q),
         "qOnlyClasses": sorted(q_only), "oldEdgeClasses": sorted(old_edge),
         "classesCovered": len(covered),
@@ -902,3 +908,151 @@ def synthetic_row(arm: str, entry: dict, *, covered=(), raw=None, q=(),
         "completionSha256": "sha256:" + "%064d" % entry["globalIndex"],
         "compiledSha256": None,
     }
+
+
+# --- the stand-in CLI and the stand-in operator HOME -------------------------
+#
+# Added for `test_batch.py`, which drives the REAL wrapper and the REAL driver:
+# the only stand-ins are the binary and the operator's home, and neither
+# reaches a network or a model. Everything above this line is used by the
+# in-process fixtures, which invoke neither.
+
+FAKE_CLI = '''#!__PYTHON__
+"""A stand-in for the pinned codex CLI: it answers --version, writes a session
+into $CODEX_HOME, prints a planned completion, and exits with a planned status.
+It never calls a model and never reaches the network. The plan and the call
+counter live BESIDE this file, because the wrapper scrubs the environment with
+env -i and only PATH, HOME, TMPDIR and CODEX_HOME survive — and because a plan
+inside the binary would change its digest, which the wrapper checks for real.
+
+It reproduces ONE empirical behaviour of the pinned CLI that Study 010's fifth
+pre-freeze review found: skills under $HOME/.agents reach the model, as a
+pre-prompt message. That is what a fresh HOME excludes per run, and it is what
+makes the §6 C7 negative control able to FAIL the golden match instead of being
+a control whose outcome the harness decides."""
+import json
+import os
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+# The tests directory AND the harness beside it: `fixtures` imports the harness
+# modules, and this process is `env -i`-scrubbed, so nothing it needs is on the
+# path unless it is put there. The import itself is deferred past the --version
+# branch, which the wrapper takes before every call and which needs none of it.
+sys.path[:0] = ["__TESTS__", os.path.dirname("__TESTS__")]
+
+
+def main(argv):
+    if "--version" in argv:
+        # The version the wrapper gates on, read from a file BESIDE the binary
+        # so a test can drift it between invocations without moving the digest
+        # the registry pins. `test_batch.py` uses that to produce the one slot
+        # shape a batch cannot otherwise reach: a wrapper that refused at its
+        # own preflight, so the slot carries a REFUSAL.json and no CALL.json.
+        marker = os.path.join(HERE, "version.txt")
+        if os.path.exists(marker):
+            with open(marker) as handle:
+                print(handle.read().strip())
+            return 0
+        print("codex-cli 0.145.0-fake")
+        return 0
+    with open(os.path.join(HERE, "plan.json")) as handle:
+        plan = json.load(handle)
+    counter = os.path.join(HERE, "counter")
+    index = 0
+    if os.path.exists(counter):
+        with open(counter) as handle:
+            index = int(handle.read().strip())
+    with open(counter, "w") as handle:
+        handle.write(str(index + 1))
+    step = plan[index] if index < len(plan) else plan[-1]
+    import fixtures
+    if step.get("sleep"):
+        # A call still in flight: the credential copy exists, the slot is not
+        # sealed, and a signal arriving now is the case the traps cover.
+        time.sleep(step["sleep"])
+    prompt = argv[-1]
+    model = argv[argv.index("-m") + 1]
+    home = os.environ["HOME"]
+    prior = fixtures.default_prior(os.getcwd(), home)
+    skills = os.path.join(home, ".agents", "skills")
+    if os.path.isdir(skills):
+        prior = prior + [("developer", "<available_skills>\\n%s\\n</available_skills>"
+                          % ", ".join(sorted(os.listdir(skills))))]
+    sessions = os.path.join(os.environ["CODEX_HOME"], "sessions")
+    os.makedirs(sessions, exist_ok=True)
+    entries = fixtures.session_entries(prompt, step["completion"], os.getcwd(),
+                                       home, model, prior=prior,
+                                       session_id=fixtures.SESSION_ID % (index + 1))
+    if step.get("no_assistant"):
+        # Exit 0 with a transcript carrying no assistant message: the shape that
+        # kills the wrapper mid-run (completion extraction raises under set -e),
+        # used to prove the credential cleanup survives an abnormal death.
+        entries = entries[:-2]
+    if step.get("no_session"):
+        # No transcript at all: the wrapper finds no new session, retains no
+        # context, and exits 11. §6 C7's third registered outcome runs on it.
+        sys.stdout.write(step["completion"])
+        return int(step.get("exit", 0))
+    fixtures.write_session(os.path.join(sessions, "rollout-%d.jsonl" % index), entries)
+    sys.stdout.write(step["completion"])
+    return int(step.get("exit", 0))
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
+'''
+
+# The sentinel credential the wrapper-driven tests plant in a fake operator
+# HOME. No retained artifact may contain these bytes: the wrapper copies the
+# credential into the isolated home for the call and deletes it when the slot is
+# sealed, and `test_batch.py` scans every retained byte and every leftover under
+# the scratch parent for the token.
+SENTINEL_CREDENTIAL = '{"OPENAI_API_KEY": "sk-s012-sentinel-never-retained"}\n'
+SENTINEL_TOKEN = "sk-s012-sentinel-never-retained"
+SENTINEL_SKILL = "sentinel-skill-that-must-not-reach-the-model"
+
+
+def write_operator_home(root: str, credential: bool = True,
+                        skills: bool = False) -> str:
+    """A stand-in for the operator's real HOME: a `.codex/auth.json` carrying the
+    sentinel credential, and optionally a `.agents/skills` tree of the kind Study
+    010 found reaching the model. Nothing here touches the real one."""
+    os.makedirs(os.path.join(root, ".codex"), exist_ok=True)
+    if credential:
+        with open(os.path.join(root, ".codex", "auth.json"), "w") as handle:
+            handle.write(SENTINEL_CREDENTIAL)
+    if skills:
+        os.makedirs(os.path.join(root, ".agents", "skills", SENTINEL_SKILL),
+                    exist_ok=True)
+    return root
+
+
+def write_fake_cli(directory: str, plan: list, python: str, tests_dir: str) -> str:
+    """The stand-in CLI plus its plan; returns the binary path whose digest the
+    test registry pins, so the wrapper's digest check runs for real."""
+    os.makedirs(directory, exist_ok=True)
+    path = os.path.join(directory, "codex")
+    with open(path, "w") as handle:
+        handle.write(FAKE_CLI.replace("__PYTHON__", python).replace("__TESTS__",
+                                                                   tests_dir))
+    os.chmod(path, 0o755)
+    write_plan(directory, plan)
+    return path
+
+
+def write_plan(directory: str, plan: list) -> None:
+    """The stand-in CLI's plan, rewritten without touching the binary — so the
+    digest the registry pins does not move and the wrapper's binary check is
+    still a check."""
+    with open(os.path.join(directory, "plan.json"), "w") as handle:
+        json.dump(plan, handle)
+
+
+def write_cli_version(directory: str, version: str) -> None:
+    """Drift the stand-in CLI's reported version without touching its bytes: the
+    wrapper's binary-digest check still passes and its VERSION check refuses, so
+    the refusal is the wrapper's own preflight and not a driver-side stand-in."""
+    with open(os.path.join(directory, "version.txt"), "w") as handle:
+        handle.write(version + "\n")

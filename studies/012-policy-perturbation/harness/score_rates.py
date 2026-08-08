@@ -72,6 +72,39 @@ else:
      row-level tier composition rule and its LIGHT operating-characteristic
      table are not registered here and are not computed. What replaces them is
      §5.1's HIGH/LOW/MID cuts and §5.4's operating characteristics.
+ 11. **§4.6's S5 cut, and the comprehension-collapse reading** (round 3,
+     finding 9): the load-bearing table §4.6 registers is `READING_TABLE` here,
+     and `reading_verdict()` computes which of its three rows arm E's integers
+     fall on. A placement collapse whose labels are NOT at the ceiling is a
+     *comprehension* collapse — "the author could not derive or apply the
+     values" — and §4.6 registers that it does not confirm R1, so it does not
+     reach §5.3's row 5.
+ 12. **Arm D's three registered outcomes** (round 3, finding 10): §5.3 (ii)
+     registers `OLD-EDGE-PREFERENCE` and a general degradation beside the
+     predicted tracking, and `arm_d_outcome()` computes them from D's own-keyed
+     levels and its S10 old-keyed levels, with both registered explanations of
+     the first published beside it and neither asserted.
+ 13. **§5.4's operating characteristics for the rules §5.3 actually registers**
+     (round 3, finding 11): `decision_operating_characteristics()` computes,
+     with this file's own interval and threshold code, both the MARGINAL
+     pattern probabilities and the JOINT probability of reaching a decision-table
+     row — which requires the class-4 gate and the B/C control gate as well as
+     the pattern. A harness test pins both, because §5.4 labelled the marginal
+     as the power to reach row 4 and they are not the same number.
+ 14. **`authoring-empty` is §3.3's row and nothing wider** (round 3,
+     finding 13): the published `authoringEmpty` count is the partition's own
+     outcome — no code, no parseable array — and the wider "produced nothing
+     that reached a class" quantity is published beside it as `coveredNothing`,
+     so neither is read as the other.
+ 15. **S3's denominators agree** (round 3, finding 14): the coverage-breadth
+     distribution, its mean and the all-six rate are all over the arm's
+     registered N, with the slots the schedule holds and the batch never
+     executed published as `absent` in the 0 bucket, so an incomplete batch's
+     descriptive surface says what its denominator is (§2.8's stopping rule).
+ 16. **C6's credential evidence is two booleans** (round 3, finding 18):
+     `check_environment()` type-checks `credentialCopied` and
+     `credentialRemoved` rather than coercing them, because `bool("false")` is
+     True and a string there would read a live credential as a removed one.
 
 The partition that decides every denominator (§3.3):
 
@@ -83,10 +116,13 @@ The partition that decides every denominator (§3.3):
                     post-treatment selection that flatters the arm whose text
                     most disrupts authoring. It leaves `V_X` only, which is the
                     per-protocol secondary's denominator
-  authoring-empty   admissible evidence, and the author produced nothing usable
-                    (no parseable array, or every element dropped, or no
-                    policy-concordant record) — VALID, counted, coverage zero in
-                    every class
+  authoring-empty   admissible evidence and NO PARSEABLE ARRAY — §3.3's own
+                    row, and exactly that row (round 3, finding 13): VALID,
+                    counted, coverage zero in every class. The wider quantity —
+                    no array, or every element dropped, or no record this arm's
+                    mirror labelled correctly — is a real and reportable
+                    outcome, so it is published beside it as `coveredNothing`
+                    rather than folded into the partition's name
 
 Pipeline-invalid codes, in the order admission evaluates them (the same set
 CODE_PARTITION carries, which §3.3 enumerates member for member and the harness
@@ -345,7 +381,7 @@ DECISION_TABLE = (
      "publishedAs": "R1-UNSUPPORTED",
      "gloss": "§8's correction fires"},
     {"row": 5,
-     "condition": "`nP >= 3`",
+     "condition": "`nP >= 3` **and arm E's S5 labels are at the ceiling (§4.6)**",
      "outcome": "confirmed for this instance",
      "publishedAs": "CONFIRMED",
      "gloss": ""},
@@ -360,6 +396,123 @@ DECISION_TABLE = (
      "publishedAs": "INDETERMINATE",
      "gloss": ""},
 )
+# --- §4.6's load-bearing table: S1 and S5 separate three readings of a collapse
+#
+# Round 3 finding 9: §4.6 registers that S5 is what separates a placement
+# collapse that means "did not test the boundary" from one that means "could not
+# derive the boundary", and that the second — a COMPREHENSION collapse — does
+# not confirm R1. The scorer computed nP, nC and nH and confirmed from nP alone,
+# so the registered distinction was unreachable. It is data and code here, and
+# `test_verdict_parity.py` diffs the table below against §4.6's own.
+#
+# The cut is the word the file uses: **the ceiling** of a proportion is 1, so
+# arm E's pooled S5 accuracy `|H| / (|H| + |Q|)` is at the ceiling exactly when
+# no accepted record was mislabelled. No other number is registered anywhere in
+# the file for this quantity, and the two candidates were both refused: S9's
+# `mislabel share >= 0.20` escalation, which §4.6 says is not this study's
+# decision rule and which no contrast may read, and a cut chosen here, which
+# would be a §5 threshold this file invented after the design. The literal
+# reading also makes §4.6's third row exact rather than approximate: a class
+# reached raw but not in H holds a mislabelled record, so "degraded, so
+# H-coverage falls" and `|Q| > 0` are the same event.
+S5_CEILING = 1.0
+S5_BRANCHES = ("at the ceiling", "degraded")
+# The three readings, in §4.6's own order and words. `branch` is the S5 cut the
+# row is keyed on; `placementLevel` is the S1 level the row is keyed on.
+READING_TABLE = (
+    {"placementLevel": "LOW",
+     "placementGloss": "the records are not at the boundary",
+     "labels": "at the ceiling",
+     "branch": S5_BRANCHES[0],
+     "reading": "the author understood the thresholds and did not test them",
+     "publishedAs": "PLACEMENT collapse",
+     "gloss": "this is what R1 predicts, and the only thing that confirms it"},
+    {"placementLevel": "LOW",
+     "placementGloss": "",
+     "labels": "degraded",
+     "branch": S5_BRANCHES[1],
+     "reading": "the author could not derive or apply the values",
+     "publishedAs": "comprehension collapse",
+     "gloss": "published as one, R1 not confirmed"},
+    {"placementLevel": "HIGH or MID",
+     "placementGloss": "the records are at the boundary",
+     "labels": "degraded, so H-coverage falls",
+     "branch": S5_BRANCHES[1],
+     "reading": "the author placed records at the boundary and labelled them "
+                "wrong",
+     "publishedAs": "label collapse",
+     "gloss": "the hugging did not go away; R1 is not confirmed and saying "
+              "otherwise would be reading a labelling failure as an anchoring "
+              "result"},
+)
+
+# --- §5.3 (ii)'s three registered outcomes for arm D ------------------------
+#
+# Round 3 finding 10: "Three outcomes are registered for arm D, not two", and
+# the scorer aggregated outcomes for arm E alone. They are computed here from
+# D's own-keyed level verdicts (the primary ITT rate under D's own family) and
+# its old-keyed ones (S10, the same records under ARM A's family predicates,
+# labels still D's own).
+#
+# Two counts the file does not spell, and where each comes from. §5.3 (ii)
+# states its conditions over "the narrow numeric classes" with no count —
+# round 2 recorded that gap and the decision table it built to close it covers
+# arm E only — so the count used here is §5.3 (i)'s own registered
+# `PATTERN_MINIMUM`, three or more of the four, rather than a new number; and
+# the mixed case, for which §5.3 (ii) names no outcome, is published as
+# D-INDETERMINATE rather than silently as one of the three. The first three rows
+# are mutually exclusive — a class reading LOW cannot read TRACKING, and no
+# class reads HIGH and LOW at once — so the order decides no case; it is stated
+# anyway, for the reason §5.3's own table states its order.
+D_NARROW_MINIMUM = PATTERN_MINIMUM
+D_OUTCOME_TABLE = (
+    {"row": 1,
+     "condition": "arm D reads TRACKING on all six classes under its own family",
+     "publishedAs": "COVERAGE-FOLLOWS-THE-NUMBERS",
+     "gloss": "§5.3 (ii)'s prediction: coverage follows the numbers the policy "
+              "names, and D's records moved to D's edges",
+     "explanations": ()},
+    {"row": 2,
+     "condition": "arm D's new-keyed level verdicts are LOW on at least %d of "
+                  "the four narrow numeric classes and its old-keyed (S10) "
+                  "verdicts are HIGH on at least %d of them"
+                  % (D_NARROW_MINIMUM, D_NARROW_MINIMUM),
+     "publishedAs": "OLD-EDGE-PREFERENCE",
+     "gloss": "the model reproduced 40 and 70 in the face of a text that says "
+              "45 and 72",
+     "explanations": (
+         "contamination — this policy family has been public in this "
+         "repository since Study 010 merged (2026-08-06), and a snapshot that "
+         "has seen it can reproduce 40 and 70 against a text that says "
+         "otherwise",
+         "round-number salience — 40 and 70 are decade-round and 45 and 72 are "
+         "not, so an author drawn to round values rather than to the stated "
+         "literal produces the same table, having seen nothing ([D-18])")},
+    {"row": 3,
+     "condition": "arm D's new-keyed level verdicts are LOW on at least %d of "
+                  "the four narrow numeric classes and its old-keyed (S10) "
+                  "verdicts are LOW on at least %d of them"
+                  % (D_NARROW_MINIMUM, D_NARROW_MINIMUM),
+     "publishedAs": "GENERAL-DEGRADATION",
+     "gloss": "the author placed records at neither threshold pair; published "
+              "as one, and not read as evidence for or against R1",
+     "explanations": ()},
+    {"row": 4,
+     "condition": "(else)",
+     "publishedAs": "D-INDETERMINATE",
+     "gloss": "the mixed case §5.3 (ii) names no outcome for: neither the "
+              "predicted tracking, nor an old-edge preference, nor a general "
+              "degradation",
+     "explanations": ()},
+)
+# §5.3 (ii): nothing in this study separates the two explanations of an
+# old-edge preference, and the earlier name ("contamination signal") asserted
+# the first. The scorer publishes both and asserts neither.
+D_OLD_EDGE_NOTE = (
+    "Nothing in this study separates the two explanations. What would separate "
+    "them is an arm at a non-round pair with the same roundness profile as "
+    "(45, 72) but no public history, which is a different study.")
+
 # §4.6 S9: Study 011 §5's review-depth mapping, applied per arm unchanged.
 # Reported because it is the product quantity the previous study registered; it
 # is NOT this study's decision rule and no contrast reads it.
@@ -635,6 +788,113 @@ def level_operating_characteristics(n: int, p: Fraction) -> dict:
             "pMid": float(1 - p_high - p_low)}
 
 
+# §5.4's registered scenario, as exact rationals: p = 0.95 on every class of
+# arms A, B and C and on E's classes 3 and 4; p = 0.05 on arm E's four narrow
+# numeric classes when R1 holds, and 0.95 on them when it does not. Independence
+# layers 1-3 (across classes within an arm, across arms, across slots).
+SCENARIO_P = Fraction(19, 20)
+SCENARIO_P_COLLAPSED = Fraction(1, 20)
+
+
+def _binomial_at_least(k: int, n: int, p: Fraction) -> Fraction:
+    """P(X >= k) for X ~ Binomial(n, p), exactly, over a pattern of n class
+    indicators rather than over slots. Same arithmetic as `_tail_ge()`; kept
+    separate because that one is the interval's and this one is §5.4's."""
+    if k <= 0:
+        return Fraction(1)
+    return sum((Fraction(math.comb(n, j)) * p ** j * (1 - p) ** (n - j)
+                for j in range(k, n + 1)), Fraction(0))
+
+
+def decision_operating_characteristics(n: int) -> dict:
+    """§5.4's operating characteristics for the rules §5.3 actually registers,
+    computed with this file's own interval and threshold code, exactly, with no
+    simulation and no rounding until the last float.
+
+    Round 3 finding 11, dispositioned: §5.4 labelled `P(nH >= 3)` "the power to
+    reach decision row 4", and those are different numbers. Row 4 is reached
+    only when the batch is complete and sealed (row 1 does not fire), arm E does
+    not read COLLAPSE on class 4 (row 2), the B/C control gate passes (row 3),
+    AND `nH >= 3`. So both are computed here and both are published:
+
+      MARGINAL   `nH >= 3` alone, and `nP >= 3` alone
+      JOINT      the probability of actually reaching the row
+
+    The joint figures are computed over ARM A's six-class HIGH pattern rather
+    than as a product of marginals, because the gate and the collapse both
+    condition on the same arm-A HIGH verdicts — §5.4's own construction for its
+    CONFIRMED-and-gate row, reused here for row 4, and it reproduces that row's
+    registered 0.0364/0.3536/0.7359 as a control on the model.
+
+    Under the registered scenario, with `q = P(HIGH | p = 0.95)` and
+    `l = P(LOW | p = 0.05)` at n trials:
+
+      TRACKING on class i, control arm X   arm A HIGH and X HIGH -> q^2
+      the gate                             sum over the classes A reads HIGH:
+                                           P(|S| = a) * P(Bin(a, q) >= 5)^2,
+                                           which is 0 below a = 5
+      PLACEMENT-COLLAPSE on class i        arm A HIGH and E LOW  -> q * l
+      `nH >= 3`                            E alone: Bin(4, q) >= 3
+      class 4 does not collapse            1 - P(A HIGH) * P(E class 4 LOW),
+                                           and E's class 4 sits at p = 0.95 in
+                                           both scenarios, so this term is
+                                           within 1e-23 of 1 at every N
+
+    Every figure assumes the independence layers §5.4 names and is not a bound;
+    §5.4's Fréchet column is what the marginals alone imply.
+    """
+    q = probability_at_least(high_threshold(n), n, SCENARIO_P)
+    low_k = low_threshold(n)
+    # P(LOW | p = 0.05): the collapsed class reads LOW. Symmetric to q under
+    # these cuts, and computed rather than assumed to be.
+    collapsed_low = (_tail_le(low_k, n, SCENARIO_P_COLLAPSED) if low_k >= 0
+                     else Fraction(0))
+    # P(LOW | p = 0.95): arm E's class 4 collapsing when it truly sits at 0.95.
+    intact_low = (_tail_le(low_k, n, SCENARIO_P) if low_k >= 0 else Fraction(0))
+    narrow = len(NARROW_NUMERIC_CLASSES)
+    classes = narrow + 2                      # the six classes of §3.1's family
+    marginal_h = _binomial_at_least(PATTERN_MINIMUM, narrow, q)
+    marginal_p = _binomial_at_least(PATTERN_MINIMUM, narrow, q * collapsed_low)
+    # Arm A's HIGH pattern, by shape. The gate needs TRACKING on five of six in
+    # both control arms, and a class arm A does not read HIGH can never be
+    # TRACKING, so only patterns of five or six matter; among the five-class
+    # patterns what matters is whether the missing class is one of the four
+    # narrow numeric ones (which removes it from `nP`'s reach) and whether it is
+    # class 4 (which removes row 2's precondition).
+    shapes = ((classes, narrow, True, 1),           # A HIGH on all six
+              (classes - 1, narrow - 1, True, narrow),   # missing a narrow class
+              (classes - 1, narrow, True, 1),       # missing class 3
+              (classes - 1, narrow, False, 1))      # missing class 4
+    gate = row_four = row_five = Fraction(0)
+    for size, narrow_in, embargo_in, ways in shapes:
+        weight = ways * q ** size * (1 - q) ** (classes - size)
+        # Both control arms, independently, over the classes A reads HIGH.
+        passes = _binomial_at_least(CONTROL_GATE_MINIMUM, size, q) ** 2
+        no_embargo_collapse = (1 - intact_low) if embargo_in else Fraction(1)
+        gate += weight * passes
+        row_four += weight * passes * no_embargo_collapse
+        row_five += (weight * passes * no_embargo_collapse
+                     * _binomial_at_least(PATTERN_MINIMUM, narrow_in,
+                                          collapsed_low))
+    # `nH` reads arm E's own levels and nothing of arm A's, so it factors out of
+    # the pattern sum; `nP` does not, and is inside it above.
+    row_four *= marginal_h
+    return {
+        "trials": n,
+        "pHigh": float(q),
+        "pLowCollapsed": float(collapsed_low),
+        "pLowIntact": float(intact_low),
+        "marginal": {"nH": float(marginal_h), "nP": float(marginal_p)},
+        "gate": float(gate),
+        "joint": {"row4": float(row_four), "row5": float(row_five)},
+        "note": "§5.4, for the rules §5.3 registers. `marginal` is the pattern "
+                "alone; `joint` is the probability of reaching that row of the "
+                "decision table, which also requires the class-4 gate (row 2) "
+                "and the B/C control gate (row 3) and conditions on a complete, "
+                "sealed batch (row 1). Independence layers 1-3; not a bound.",
+    }
+
+
 # --- §5.1, §5.2 and §5.3, applied — never fitted ---------------------------
 
 def level_verdict(block: dict) -> str:
@@ -697,6 +957,113 @@ def second_contrast_verdict(baseline_block: dict, arm_block: dict):
     return (SECOND_CONTRAST_TABLE[0][1]
             if arm_block["ci95"][1] < baseline_block["ci95"][0]
             else SECOND_CONTRAST_TABLE[1][1])
+
+
+def label_branch(accuracy: dict) -> dict:
+    """§4.6's S5 cut for one arm: are that arm's labels **at the ceiling** or
+    **degraded**?
+
+    The ceiling of a proportion is 1, so the cut is `|Q| = 0` — no accepted
+    record mislabelled — and no threshold is chosen here (see `S5_CEILING`).
+    An arm with no accepted record at all has no label accuracy to read: it is
+    published as `degraded` with `rate: null`, because the conservative
+    direction of an absent measurement is the one that does not confirm.
+    """
+    rate = accuracy["rate"]
+    at_ceiling = rate is not None and rate >= S5_CEILING
+    return {"rate": rate, "h": accuracy["h"], "q": accuracy["q"],
+            "ceiling": S5_CEILING,
+            "branch": S5_BRANCHES[0] if at_ceiling else S5_BRANCHES[1],
+            "note": "§4.6's S5, cut at the ceiling of the pooled accuracy "
+                    "|H|/(|H|+|Q|): at the ceiling iff no accepted record was "
+                    "mislabelled. An arm with no accepted record has no "
+                    "accuracy and reads `degraded`."}
+
+
+def reading_verdict(counts: dict, branch: str) -> dict:
+    """§4.6's three readings of a collapse in arm E, by READING_TABLE's rows in
+    READING_TABLE's order (round 3, finding 9).
+
+    The rows are keyed on S1's placement level and on the S5 branch, and the
+    scorer reaches them through the counts §5.3's notation already registers:
+
+      row 1  PLACEMENT collapse    `nP >= 3` and the labels at the ceiling
+      row 2  comprehension collapse `nP >= 3` and the labels degraded
+      row 3  label collapse        `nC >= 3` and `nP < 3`
+
+    Row 3 is read from the coverage integers and not from the S5 branch, and
+    §4.6's own wording is why: its label condition is "degraded, **so H-coverage
+    falls**", and a class reached raw but not in H is a mislabelled record in
+    that class. `nC >= 3` with `nP < 3` IS that condition observed, which is
+    also exactly §5.3's decision row 6.
+
+    None when arm E's integers fall on no row of the table.
+    """
+    if counts["nP"] is None:
+        return None
+    row = None
+    if counts["nP"] >= PATTERN_MINIMUM:
+        row = READING_TABLE[0] if branch == S5_BRANCHES[0] else READING_TABLE[1]
+    elif counts["nC"] >= PATTERN_MINIMUM:
+        row = READING_TABLE[2]
+    if row is None:
+        return {"publishedAs": None, "labels": branch, "confirmsR1": False,
+                "why": "nP = %d and nC = %d: arm E's integers fall on no row of "
+                       "§4.6's table" % (counts["nP"], counts["nC"])}
+    return {"publishedAs": row["publishedAs"], "reading": row["reading"],
+            "gloss": row["gloss"], "labels": branch,
+            "confirmsR1": row is READING_TABLE[0],
+            "why": "nP = %d, nC = %d, and this arm's S5 labels are %s"
+                   % (counts["nP"], counts["nC"], branch)}
+
+
+def arm_d_outcome(new_levels: list, old_levels: list, contrasts: list) -> dict:
+    """§5.3 (ii)'s three registered outcomes for arm D, plus the mixed case it
+    names none for, by D_OUTCOME_TABLE's rows in that table's order (round 3,
+    finding 10).
+
+    `new_levels` are arm D's level verdicts on the primary ITT rate under its
+    OWN family (the new-keyed verdicts), `old_levels` its level verdicts on the
+    S10 old-edge rate — the same records keyed to arm A's family predicates,
+    labels still D's own — and `contrasts` its §5.2 contrast verdicts against
+    arm A. All three are indexed by class.
+    """
+    narrow = [index for index in NARROW_NUMERIC_CLASSES]
+    new_low = sum(1 for index in narrow if new_levels[index] == "LOW")
+    old_high = sum(1 for index in narrow if old_levels[index] == "HIGH")
+    old_low = sum(1 for index in narrow if old_levels[index] == "LOW")
+    tracking = sum(1 for row in contrasts
+                   if row["contrast"] == CONTRAST_TABLE[1][1])
+    if tracking == len(contrasts):
+        entry = D_OUTCOME_TABLE[0]
+        why = "arm D reads TRACKING on all %d classes under its own family" \
+              % len(contrasts)
+    elif new_low >= D_NARROW_MINIMUM and old_high >= D_NARROW_MINIMUM:
+        entry = D_OUTCOME_TABLE[1]
+        why = ("new-keyed LOW on %d of the four narrow numeric classes and "
+               "old-keyed HIGH on %d" % (new_low, old_high))
+    elif new_low >= D_NARROW_MINIMUM and old_low >= D_NARROW_MINIMUM:
+        entry = D_OUTCOME_TABLE[2]
+        why = ("new-keyed LOW on %d of the four narrow numeric classes and "
+               "old-keyed LOW on %d" % (new_low, old_low))
+    else:
+        entry = D_OUTCOME_TABLE[3]
+        why = ("new-keyed LOW on %d of the four narrow numeric classes, "
+               "old-keyed HIGH on %d and LOW on %d, TRACKING on %d of %d"
+               % (new_low, old_high, old_low, tracking, len(contrasts)))
+    return {"row": entry["row"], "publishedAs": entry["publishedAs"],
+            "condition": entry["condition"], "gloss": entry["gloss"],
+            "explanations": list(entry["explanations"]),
+            "separates": D_OLD_EDGE_NOTE if entry["explanations"] else None,
+            "counts": {"newKeyedLow": new_low, "oldKeyedHigh": old_high,
+                       "oldKeyedLow": old_low, "tracking": tracking,
+                       "narrowMinimum": D_NARROW_MINIMUM,
+                       "classes": len(contrasts)},
+            "why": why,
+            "note": "§5.3 (ii): the new-keyed verdicts are arm D's own-family "
+                    "primary levels and the old-keyed ones are S10's, under "
+                    "ARM A's predicates with D's own labels. This outcome "
+                    "adjudicates nothing about R1 and no §5.3 (i) row reads it."}
 
 
 def review_tier(coverage: dict, mislabel_share) -> dict:
@@ -1111,11 +1478,22 @@ def check_environment(call: dict) -> str:
                 % (values["TMPDIR"],))
     if call.get("stdin") != CLOSED_STDIN:
         return "CALL.json records stdin %r, not %r" % (call.get("stdin"), CLOSED_STDIN)
-    if call.get("credentialRemoved") is not bool(call.get("credentialCopied")):
+    # C6's credential clause is TWO BOOLEANS and this reads them as two booleans
+    # (round 3, finding 18). The earlier form coerced the copy flag with
+    # `bool()`, and `bool("false")` is True — so a slot recording the string
+    # "false" beside `credentialRemoved: true` agreed with itself and passed,
+    # which is a live credential reported as removed. A type check, not a
+    # truthiness test: `1`, `"true"`, `None` and `[]` are all refusals.
+    copied, removed = call.get("credentialCopied"), call.get("credentialRemoved")
+    if not isinstance(copied, bool) or not isinstance(removed, bool):
+        return ("CALL.json records credentialCopied %r and credentialRemoved %r: C6's "
+                "copy and removal evidence is two booleans, and a string or a number "
+                "there is not evidence of either — bool('false') is True" % (copied, removed))
+    if removed is not copied:
         return ("the run copied a credential %r and records credentialRemoved %r: a "
                 "copy that was made and not removed is a live credential left on disk, "
                 "and a removal recorded without a copy is a record of nothing"
-                % (call.get("credentialCopied"), call.get("credentialRemoved")))
+                % (copied, removed))
     return None
 
 
@@ -1282,6 +1660,11 @@ def admit(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
             return "isolation-unproven", "CALL.json does not record %s" % flag, False
     if not isinstance(call.get("home"), str) or not call["home"]:
         return "isolation-unproven", "CALL.json records no isolated home", False
+    # Which inventory a fresh home should hold depends on whether a credential
+    # was copied. `check_environment()` below refuses any non-boolean flag
+    # outright (C6, round 3 finding 18), so no run reaches a rate through this
+    # branch on a truthy string — it decides which of two refusal sentences a
+    # malformed slot gets, never whether it is refused.
     expected_inventory = ([".codex", ".codex/auth.json"]
                           if call.get("credentialCopied") else [".codex"])
     if call.get("isolatedHomeInventory") != expected_inventory:
@@ -1722,9 +2105,17 @@ def score_run(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
         "dropped": len(ledger) - len(accepted),
         "dropCodes": dict(sorted(drops.items())),
         "h": len(high), "q": len(quarantine),
-        # §3.3's third authoring outcome: admissible evidence, nothing usable.
-        "authoringEmpty": empty or not accepted or not high,
+        # §3.3's own row, and exactly that row (round 3, finding 13): the
+        # partition reserves `authoring-empty` for a completion with NO
+        # PARSEABLE ARRAY, and that is what this member counts.
+        "authoringEmpty": empty,
         "noParseableArray": empty,
+        # The wider quantity the narrowed member used to carry, published under
+        # its own name so nothing is lost: the run produced no record that
+        # reached any class — no array, or every element dropped, or nothing
+        # this arm's mirror labelled correctly. It is a real authoring outcome
+        # and a reader wants it; it is not §3.3's partition row.
+        "coveredNothing": bool(empty or not accepted or not high),
         "coveredClasses": covered,
         "rawClasses": raw_covered,
         "qClasses": q_reached,
@@ -2358,9 +2749,28 @@ def score_arm(arm: str, definition: dict, n: int, rows: list,
                 "over: the six rates are not comparable (§4.2)"
                 % (arm, member, sorted(seen), expected))
 
+    # S3's three quantities are over ONE denominator (round 3, finding 14): the
+    # distribution used to iterate the rows present while the mean and the
+    # all-six rate divided by N, so a short batch published a distribution
+    # totalling 3 beside a rate over 30 and nothing said which was which. The
+    # denominator is N — §4.2's intent-to-treat, the same one the primary
+    # carries — and the slots the schedule holds that the batch never executed
+    # are counted into the 0 bucket and published as `absent`, so an incomplete
+    # batch's descriptive surface says exactly what it is over (§2.8 [D-21]).
     distribution = {str(count): 0 for count in range(len(definition["classes"]) + 1)}
     for row in rows:
         distribution[str(row["classesCovered"] if row["valid"] else 0)] += 1
+    absent = max(0, n - scheduled)
+    distribution["0"] += absent
+    if sum(distribution.values()) != n:
+        # Asserted rather than intended: the whole point of finding 14 is that
+        # a distribution and a rate beside it were over different denominators
+        # and no published integer said so.
+        raise ScoreError(
+            "arm %s's coverage-breadth distribution totals %d over a denominator "
+            "of %d: S3's buckets and its rates are not over one denominator "
+            "(§4.6 S3, §4.2)"
+            % (arm, sum(distribution.values()), n))
     all_six = sum(1 for row in rows
                   if row["valid"] and row["classesCovered"] == len(definition["classes"]))
 
@@ -2384,7 +2794,12 @@ def score_arm(arm: str, definition: dict, n: int, rows: list,
             "invalid": i,
             "pipelineInvalidRate": pipeline,
             "invalidCodes": codes,
+            # §3.3's partition row: no code, no parseable array. Narrowed to the
+            # table's meaning in round 3 (finding 13); `coveredNothing` beside
+            # it is the wider count — every valid run that reached no class at
+            # all, whatever the reason — so neither is read as the other.
             "authoringEmpty": sum(1 for row in valid if row["authoringEmpty"]),
+            "coveredNothing": sum(1 for row in valid if row["coveredNothing"]),
             "unexpectedEntries": unexpected,
             # §4.4: at rho_X >= 0.10 this arm's contrasts carry a stated caution
             # over the whole arm. It changes no level and no contrast.
@@ -2397,16 +2812,30 @@ def score_arm(arm: str, definition: dict, n: int, rows: list,
                     "the schedule created is in it and a pipeline-invalid slot counts "
                     "as covering nothing (§4.2 [D-24]). V_X = %d is the per-protocol "
                     "secondary's denominator (S11) and the census's population. An "
-                    "authoring-empty run is VALID and covers nothing." % (n, v),
+                    "authoring-empty run is VALID and covers nothing. "
+                    "`authoringEmpty` is §3.3's partition row — no code, no "
+                    "parseable array — and `coveredNothing` is the wider count "
+                    "of valid runs that reached no class at all." % (n, v),
         },
         "classes": class_rows,
         "coverageBreadth": {
             "distribution": distribution,
+            # Named beside the numbers rather than left to a reader to infer:
+            # every bucket, the mean and the all-six rate are over this many
+            # slots, and `present` + `absent` is that number.
+            "trials": n,
+            "denominator": "N",
+            "present": scheduled,
+            "absent": absent,
             "mean": sum(row["classesCovered"] for row in rows if row["valid"]) / n
                     if n else None,
             "allSix": rate_block(all_six, n, "N"),
-            "note": "Intent-to-treat over N: an invalid slot covers nothing and sits "
-                    "in the 0 bucket.",
+            "note": "S3, intent-to-treat over N = %d: an invalid slot covers nothing "
+                    "and sits in the 0 bucket, and so do the %d scheduled slots this "
+                    "batch did not execute (`absent`). The distribution, the mean and "
+                    "the all-six rate are over that one denominator; a batch with "
+                    "`absent` > 0 returns no verdict at all ([D-21]) and this surface "
+                    "is descriptive." % (n, absent),
         },
         "labelAccuracy": {
             "h": h_total, "q": q_total,
@@ -2449,14 +2878,18 @@ def score_arm(arm: str, definition: dict, n: int, rows: list,
 
 def compute_verdicts(arm_blocks: dict, n: int, complete: bool,
                      sealed: bool) -> dict:
-    """§5.1's level verdicts, §5.2's contrasts and §5.3's decision-table row,
-    computed from the integers `score_arm()` just wrote.
+    """§5.1's level verdicts, §5.2's contrasts, §4.6's reading of arm E,
+    §5.3 (ii)'s outcome for arm D and §5.3's decision-table row, computed from
+    the integers `score_arm()` just wrote.
 
     No operator input and no flag that changes a cut (C5). When the batch is
     incomplete or the seal fails, decision-table row 1 fires: every level
     verdict is UNRESOLVED-BY-DESIGN, no contrast is computed, and the
     descriptive surface — slots, rates, intervals and census — is what gets
-    published ([D-21], §2.9).
+    published ([D-21], §2.9). The reading and arm D's outcome are read off
+    level verdicts, so row 1 withdraws both; the S5 label branch is a statement
+    about the records an arm produced rather than about the rule, so it is
+    published either way.
     """
     resolved = complete and sealed
     levels = {}
@@ -2524,8 +2957,28 @@ def compute_verdicts(arm_blocks: dict, n: int, complete: bool,
             "nH": sum(1 for index in NARROW_NUMERIC_CLASSES
                       if levels["E"]["primary"][index] == "HIGH"),
         }
+    # §4.6's S5 cut, per arm, and the reading it keys: computed whether or not
+    # the batch resolves, because the branch is a statement about the records
+    # this arm produced and not about the decision rule (§4.6 S5 carries no
+    # interval and no level verdict).
+    branches = {arm: label_branch(arm_blocks[arm]["labelAccuracy"])
+                for arm in ARMS}
+    reading = reading_verdict(counts, branches["E"]["branch"]) if resolved else None
+    # §5.3 (ii)'s three outcomes for arm D, on the same integers.
+    d_outcome = arm_d_outcome(levels["D"]["primary"], levels["D"]["oldEdge"],
+                              contrasts["D"]) if resolved else None
 
-    row = decision_row(complete, sealed, contrasts, gate, counts)
+    row = decision_row(complete, sealed, contrasts, gate, counts, reading)
+    if reading is not None and row["row"] == 2:
+        # §5.3 (iv) and decision row 2: if class 4 collapses in arm E, "every
+        # other reading of arm E is withdrawn in favour of that one". The
+        # reading is published with that fact attached rather than deleted, so a
+        # reader can see what was withdrawn.
+        reading = dict(reading, withdrawn=True,
+                       withdrawnBy="decision row 2: arm E reads COLLAPSE on "
+                                   "class %d, and every other reading of arm E "
+                                   "is withdrawn in favour of that one"
+                                   % EMBARGO_CLASS)
     return {
         "resolved": resolved,
         "unresolvedReason": None if resolved else (
@@ -2548,6 +3001,9 @@ def compute_verdicts(arm_blocks: dict, n: int, complete: bool,
         "gate": gate,
         "patternCounts": counts,
         "narrowNumericClasses": list(NARROW_NUMERIC_CLASSES),
+        "labelBranches": branches,
+        "reading": reading,
+        "armD": d_outcome,
         "decisionRow": row,
         "note": "Every verdict here is MARGINAL and no simultaneous claim is made "
                 "over any of them (§4). §5.4 says where multiplicity bites — in the "
@@ -2558,7 +3014,8 @@ def compute_verdicts(arm_blocks: dict, n: int, complete: bool,
     }
 
 
-def decision_row(complete: bool, sealed: bool, contrasts, gate, counts) -> dict:
+def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
+                 reading=None) -> dict:
     """§5.3's decision table, evaluated top to bottom: the first row whose
     condition holds is the outcome, and the last row always holds.
 
@@ -2569,17 +3026,41 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts) -> dict:
     are gates and produce no R1 verdict in either direction: a study that would
     publish CONFIRMED through a failed control but not R1-UNSUPPORTED through
     one would be a study with a preferred answer.
+
+    **Row 5 reads §4.6's reading as well as `nP`** (round 3, finding 9). Two
+    registered sentences bear on the CONFIRMED outcome and this file will not
+    choose between them by omission: §5.3's table row 5 says `nP >= 3`, and
+    §4.6's table says a placement collapse whose labels are at the ceiling is
+    "the only thing that confirms" R1, with the degraded-label case published as
+    a comprehension collapse and R1 **not** confirmed. They differ only when arm
+    E's placement collapsed AND its labels degraded, and there the conservative
+    conjunction is taken — confirmation requires every registered condition, as
+    §5.3's own confirmation box says of its three — so that case falls through
+    to the last row, published as INDETERMINATE (neither confirmed nor
+    unsupported) with §4.6's comprehension-collapse reading beside it. The
+    registration would be cleaner if §5.3's row 5 named the S5 condition
+    outright; that is a preregistration amendment and not a scorer's to make.
     """
     def published(number: int, why: str) -> dict:
         entry = DECISION_TABLE[number - 1]
         return {"row": entry["row"], "publishedAs": entry["publishedAs"],
                 "outcome": entry["outcome"], "condition": entry["condition"],
-                "gloss": entry["gloss"], "why": why}
+                "gloss": entry["gloss"], "why": why,
+                "reading": None if reading is None else reading["publishedAs"]}
 
     if not complete or not sealed:
         return published(1, "the batch is incomplete or an arm is short of its "
                             "scheduled slots" if not complete else
                             "a slot manifest or the ledger chain did not verify")
+    if reading is None:
+        # Rows 5 and 7 read §4.6's reading, so a caller that computed contrasts
+        # and no reading would silently lose the CONFIRMED outcome. Refused
+        # rather than downgraded: this is a caller error, not a data condition,
+        # and §7's totality is about the bytes a slot retains.
+        raise ScoreError(
+            "decision_row() was given contrasts and no §4.6 reading: rows 5 and "
+            "7 read the S5 branch (round 3, finding 9) and a missing one is not "
+            "a degraded label")
     e_rows = {row["index"]: row for row in contrasts["E"]}
     if e_rows[EMBARGO_CLASS]["contrast"] == CONTRAST_TABLE[0][1]:
         return published(2, "arm E reads COLLAPSE on class %d" % EMBARGO_CLASS)
@@ -2590,12 +3071,19 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts) -> dict:
                                     CONTROL_GATE_MINIMUM, gate["classes"]))
     if counts["nH"] >= PATTERN_MINIMUM:
         return published(4, "nH = %d" % counts["nH"])
-    if counts["nP"] >= PATTERN_MINIMUM:
-        return published(5, "nP = %d" % counts["nP"])
+    if counts["nP"] >= PATTERN_MINIMUM and reading is not None \
+            and reading["confirmsR1"]:
+        return published(5, "nP = %d and arm E's S5 labels are %s, which is "
+                            "§4.6's %s" % (counts["nP"], reading["labels"],
+                                           reading["publishedAs"]))
     if counts["nC"] >= PATTERN_MINIMUM and counts["nP"] < PATTERN_MINIMUM:
         return published(6, "nC = %d and nP = %d" % (counts["nC"], counts["nP"]))
-    return published(7, "nP = %d, nC = %d, nH = %d"
-                        % (counts["nP"], counts["nC"], counts["nH"]))
+    return published(7, "nP = %d, nC = %d, nH = %d%s"
+                        % (counts["nP"], counts["nC"], counts["nH"],
+                           "" if reading is None or reading["publishedAs"] is None
+                           else "; §4.6 reads arm E as a %s (%s), which does not "
+                                "confirm R1" % (reading["publishedAs"],
+                                                reading["why"])))
 
 
 def score_registered(records_dir: str = None) -> dict:
@@ -2725,16 +3213,22 @@ def render_markdown(results: dict) -> str:
         "`V_X = N − I_X`.",
         "The primary denominator is N (intent-to-treat, §4.2 [D-24]).",
         "",
-        "| arm | N | I_X | V_X | rho_X = I_X/N | 95% CI | authoring-empty | caution |",
-        "|-----|---|-----|-----|---------------|--------|-----------------|---------|",
+        "`authoring-empty` is §3.3's partition row — no code, no parseable array;",
+        "`covered nothing` is the wider count of valid runs that reached no class.",
+        "",
+        "| arm | N | I_X | V_X | rho_X = I_X/N | 95% CI | authoring-empty | "
+        "covered nothing | caution |",
+        "|-----|---|-----|-----|---------------|--------|-----------------|"
+        "-----------------|---------|",
     ]
     for arm in ARMS:
         population = results["arms"][arm]["population"]
-        lines.append("| %s | %d | %d | %d | %s %d | %s |"
+        lines.append("| %s | %d | %d | %d | %s %d | %d | %s |"
                      % (arm, population["registeredN"], population["invalid"],
                         population["valid"],
                         _rate_cell(population["pipelineInvalidRate"]),
                         population["authoringEmpty"],
+                        population["coveredNothing"],
                         "**rho_X >= %.2f: stated caution over the whole arm**"
                         % PIPELINE_CAUTION
                         if population["pipelineCaution"] else "none"))
@@ -2815,6 +3309,14 @@ def render_markdown(results: dict) -> str:
                _number(accuracy["perRunMax"]), accuracy["perRunTrials"],
                accuracy["perRunTrials"] + accuracy["perRunExcluded"]),
             "| all six classes covered | %s |" % _rate_inline(block["coverageBreadth"]["allSix"]),
+            "| coverage breadth (S3) | distribution %s over %d slots (%d run, %d "
+            "never executed), mean %s |"
+            % ("/".join("%s:%d" % (bucket, block["coverageBreadth"]["distribution"][bucket])
+                        for bucket in sorted(block["coverageBreadth"]["distribution"],
+                                             key=int)),
+               block["coverageBreadth"]["trials"], block["coverageBreadth"]["present"],
+               block["coverageBreadth"]["absent"],
+               _number(block["coverageBreadth"]["mean"], 3)),
             "| distinct completions | %d of %d valid runs (largest identical group %d) |"
             % (block["distinctOutputs"]["distinctCompletions"],
                block["distinctOutputs"]["validRuns"],
@@ -2892,6 +3394,42 @@ def render_markdown(results: dict) -> str:
                counts["nH"]),
             "",
         ]
+        reading = verdicts["reading"]
+        lines += [
+            "§4.6's reading of arm E (S1 placement against S5 labels): **%s**%s"
+            % (reading["publishedAs"] or "no row of §4.6's table",
+               " — %s" % reading["gloss"] if reading.get("gloss") else ""),
+            "",
+            "Why: %s.%s" % (reading["why"],
+                            " **Withdrawn:** %s." % reading["withdrawnBy"]
+                            if reading.get("withdrawn") else ""),
+            "",
+            "| arm | S5 label accuracy | branch (§4.6) |",
+            "|-----|-------------------|---------------|",
+        ]
+        for arm in ARMS:
+            branch = verdicts["labelBranches"][arm]
+            lines.append("| %s | %s (H %d / Q %d) | %s |"
+                         % (arm, _number(branch["rate"]), branch["h"],
+                            branch["q"], branch["branch"]))
+        d_outcome = verdicts["armD"]
+        lines += [
+            "",
+            "### Arm D's registered outcome (§5.3 (ii))",
+            "",
+            "| row | condition | published as |",
+            "|-----|-----------|--------------|",
+            "| %d | %s | **%s** |" % (d_outcome["row"], d_outcome["condition"],
+                                      d_outcome["publishedAs"]),
+            "",
+            "Why this row: %s. %s" % (d_outcome["why"], d_outcome["gloss"]),
+            "",
+        ]
+        if d_outcome["explanations"]:
+            lines += ["Registered explanations, neither asserted:", ""]
+            lines += ["%d. %s" % (number, text) for number, text
+                      in enumerate(d_outcome["explanations"], 1)]
+            lines += ["", d_outcome["separates"], ""]
     row = verdicts["decisionRow"]
     lines += [
         "### The §5.3 decision-table row",
@@ -2916,7 +3454,8 @@ def render_markdown(results: dict) -> str:
             lines.append("| %d | %d | %d | %s | `%s` | yes%s | %d | %d | %d | %d | %s |"
                          % (run["globalIndex"], run["round"], run["position"],
                             run["arm"], run["slot"],
-                            " (authoring-empty)" if run["authoringEmpty"] else "",
+                            " (authoring-empty)" if run["authoringEmpty"]
+                            else " (covered nothing)" if run["coveredNothing"] else "",
                             run["accepted"], run["dropped"], run["h"], run["q"],
                             ", ".join(str(index) for index in run["coveredClasses"])
                             or "none"))

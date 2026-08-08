@@ -1734,6 +1734,14 @@ round 2 found that saying so was not enough.** They are what separate three
 readings of a collapse in arm D or E, and an earlier draft called them
 load-bearing while giving them no cut and letting no decision read them:
 
+**"At the ceiling" is a cut, not a word** (round 3, finding 9,
+dispositioned): arm E's S5 labels are at the ceiling iff |Q| = 0 among its
+accepted records — no accepted record mislabelled across the arm's valid
+runs. The literal ceiling is chosen over a tolerance because §4.6's third
+row is exact under it, and any tolerance would be a number this file never
+registered; §5.4's operating characteristics model coverage only and do not
+describe this conjunct, which is stated here rather than discovered.
+
 | S1 (raw placement) | S5 / S2 (labels) | the reading | what §5.3 (i) does with it |
 | --- | --- | --- | --- |
 | **LOW** — the records are not at the boundary | at the ceiling | the author understood the thresholds and did not *test* them | **PLACEMENT collapse** — this is what R1 predicts, and the only thing that confirms it |
@@ -1986,6 +1994,17 @@ against arm A's family:
 > that asserts neither. What would separate them is an arm at a
 > non-round pair with the *same* roundness profile as (45, 72) but no public
 > history — which is a different study.
+>
+> **The outcome names and the count, registered** (round 3, finding 10,
+> dispositioned — the scorer needed names and a threshold this section had
+> not spelled): the predicted first outcome is published as
+> **COVERAGE-FOLLOWS-THE-NUMBERS** (new-keyed HIGH on three or more of the
+> four narrow numeric classes, old-keyed not HIGH-patterned); LOW-pattern
+> counts reuse the registered pattern minimum of **three of the four**
+> narrow numeric classes, the same cut §5.3 (i) registers for arm E rather
+> than a second number; and a D whose new-keyed and old-keyed levels
+> satisfy none of the three named outcomes is published as
+> **D-INDETERMINATE**, an outcome and not a blank.
 
 > **The third outcome, registered:** if D's **new-keyed** verdicts are LOW on
 > the narrow numeric classes **and its old-keyed verdicts are LOW too**, that
@@ -2062,7 +2081,7 @@ B TRACKING on ≥ 5 of 6 **and** arm C TRACKING on ≥ 5 of 6.
 | 2 | arm E reads COLLAPSE on **class 4** | not adjudicated | **E-DEGRADED-GENERALLY** — the denamed text degraded authoring generally; every other reading of arm E is withdrawn |
 | 3 | `gate` is false | not adjudicated | **CONTROLS-FAILED** — arm E's verdicts published in full, with the weaker reading named: paraphrase-driven if B fell short, order-driven if C |
 | 4 | `nH ≥ 3` | **unsupported** | **R1-UNSUPPORTED** — §8's correction fires |
-| 5 | `nP ≥ 3` | **confirmed for this instance** | **CONFIRMED** |
+| 5 | `nP ≥ 3` **and arm E's S5 labels are at the ceiling (§4.6)** | **confirmed for this instance** | **CONFIRMED** |
 | 6 | `nC ≥ 3` and `nP < 3` | not adjudicated | **LABEL-COLLAPSE-ONLY** — the records are still at the boundary; the labels are not |
 | 7 | *(else)* | neither confirmed nor unsupported | **INDETERMINATE** |
 
@@ -2175,11 +2194,36 @@ E's four narrow numeric classes), and under independence layers 1–3:
 | **the B/C control gate (row 3 passes)** | §5.3 (iii) | 0.0557 | 0.4031 | **0.7658** |
 | all twelve TRACKING (`q¹⁸`) | §5.3 (iii) | 0.0040 | 0.0866 | 0.3235 |
 | **CONFIRMED *and* the gate holds — the actual joint outcome** | table row 5 | 0.0364 | 0.3536 | **0.7359** |
-| `nH ≥ 3` when R1 is false and E truly sits at 0.95 — the power to reach R1-UNSUPPORTED | table row 4 | 0.7142 | 0.9187 | **0.9796** |
+| `nH ≥ 3` when R1 is false and E truly sits at 0.95 — **the marginal pattern alone** | §5.3 (i) | 0.7142 | 0.9187 | **0.9796** |
+| **row 4 reached — `nH ≥ 3` *and* class 4 does not collapse *and* the B/C gate holds: the power to publish R1-UNSUPPORTED** | table row 4 | 0.0398 | 0.3704 | **0.7502** |
 
-The CONFIRMED-and-gate row is computed jointly over arm A's six-class pattern
-rather than as a product, because the gate and the collapse both condition on
-the same arm-A HIGH verdicts.
+The CONFIRMED-and-gate row and the row-4 row are both computed **jointly over
+arm A's six-class pattern** rather than as products of marginals, because the
+gate and the collapse condition on the same arm-A HIGH verdicts.
+
+**The last two rows are one quantity's two halves, and round 3's finding 11 is
+that an earlier draft published the first under the second's name.**
+`0.7142 / 0.9187 / 0.9796` is the marginal probability that arm E reads HIGH on
+three or more of the four narrow numeric classes. It is *not* the power to
+reach decision row 4: the table is evaluated top to bottom, row 2 (arm E
+collapsing on class 4) and row 3 (the B/C control gate) are decided first, and
+R1-UNSUPPORTED is published only through both. Conditional on a complete,
+sealed batch (row 1 not firing), and under independence layers 1-3, the power
+to publish R1-UNSUPPORTED is **0.0397841 at N = 20, 0.3703584 at N = 25 and
+0.7501924 at N = 30** — the marginal times the gate's 0.0557 / 0.4031 / 0.7658,
+the class-4 term being `1 − P(LOW | p = 0.95)` and below 10⁻²³ at every N.
+
+**The consequence is registered rather than left to be noticed.** The control
+gate binds R1-UNSUPPORTED exactly as it binds CONFIRMED (0.7502 against 0.7359
+at N = 30): rows 1-3 produce no R1 verdict *in either direction*, and a study
+that could publish one adjudication through a failed control and not the other
+would be a study with a preferred answer. N = 30 is retained on that
+arithmetic, stated honestly, rather than raised.
+
+`harness/score_rates.py::decision_operating_characteristics()` computes every
+figure in this section with this study's own interval and threshold code, and
+`harness/tests/test_verdict_parity.py` diffs the table above against it row by
+row and pins both sets of numbers.
 
 Read plainly:
 

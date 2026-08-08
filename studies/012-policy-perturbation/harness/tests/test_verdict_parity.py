@@ -300,3 +300,272 @@ def test_the_cut_locations_are_marked_at_the_vectors_they_fall_on(preregistratio
     assert marks[26].startswith("last k below the HIGH cut")
     assert score_rates.low_threshold(30) == 3
     assert score_rates.high_threshold(30) == 27
+
+
+# --- §4.6's load-bearing table, and the S5 cut it turns on -------------------
+
+READING_HEADER = ["S1 (raw placement)", "S5 / S2 (labels)", "the reading",
+                  "what §5.3 (i) does with it"]
+
+
+def reading_rows(body: str) -> list:
+    """§4.6's three readings as (placement cell, labels cell, reading cell,
+    published cell), straight out of the frozen file."""
+    return [tuple(row) for row in table(body, READING_HEADER)]
+
+
+def encoded_reading(entry: dict) -> tuple:
+    """One `READING_TABLE` row put back into the four cells the file writes,
+    so the diff is between two rules and not two spellings."""
+    placement = entry["placementLevel"]
+    if entry["placementGloss"]:
+        placement += " — " + entry["placementGloss"]
+    return (placement, entry["labels"], entry["reading"],
+            entry["publishedAs"] + " — " + entry["gloss"])
+
+
+def test_the_reading_table_is_the_scorers_reading_table(preregistration):
+    """Round 3, finding 9: §4.6 registers the table that separates a placement
+    collapse from a comprehension collapse from a label collapse, and the
+    scorer computed none of it. It is `READING_TABLE` now, and this is the same
+    three-way diff §5's other tables get."""
+    registered = reading_rows(preregistration)
+    assert registered == [encoded_reading(entry)
+                          for entry in score_rates.READING_TABLE]
+    assert [entry["publishedAs"] for entry in score_rates.READING_TABLE] == [
+        "PLACEMENT collapse", "comprehension collapse", "label collapse"]
+
+
+def test_the_s5_cut_is_the_ceiling_the_file_names(preregistration):
+    """The cut is the word §4.6 uses. The ceiling of `|H| / (|H| + |Q|)` is 1,
+    so an arm is at it exactly when no accepted record was mislabelled — no
+    threshold is chosen here, and S9's `mislabel share >= 0.20` is not borrowed,
+    because §4.6 says S9 is not this study's decision rule and no contrast reads
+    it."""
+    assert score_rates.S5_CEILING == 1.0
+    assert score_rates.S5_BRANCHES == ("at the ceiling", "degraded")
+    ceiling = score_rates.label_branch({"rate": 1.0, "h": 30, "q": 0})
+    degraded = score_rates.label_branch({"rate": 30 / 31, "h": 30, "q": 1})
+    silent = score_rates.label_branch({"rate": None, "h": 0, "q": 0})
+    assert ceiling["branch"] == "at the ceiling"
+    # One mislabelled record in an arm of thirty runs is below the ceiling, and
+    # the cut is on the ceiling and not near it.
+    assert degraded["branch"] == "degraded"
+    # No accepted record is no evidence the author could apply the values, and
+    # the conservative direction of an absent measurement does not confirm.
+    assert silent["branch"] == "degraded" and silent["rate"] is None
+    flat = " ".join(preregistration.split())
+    assert "the one-step escalation at mislabel share ≥ 0.20" in flat
+    assert score_rates.MISLABEL_ESCALATION not in (score_rates.S5_CEILING,)
+
+
+def test_the_three_readings_are_reachable_at_known_counts():
+    """Each row of §4.6's table, from the counts §5.3's notation registers —
+    including the row round 3 found unreachable, which is the whole point:
+    a placement collapse whose labels are degraded is a COMPREHENSION collapse
+    and does not confirm R1."""
+    at_ceiling, degraded = score_rates.S5_BRANCHES
+    collapse = {"nP": 4, "nC": 4, "nH": 0}
+    placement = score_rates.reading_verdict(collapse, at_ceiling)
+    comprehension = score_rates.reading_verdict(collapse, degraded)
+    label = score_rates.reading_verdict({"nP": 0, "nC": 4, "nH": 0}, degraded)
+    none_of_them = score_rates.reading_verdict({"nP": 0, "nC": 0, "nH": 4},
+                                               at_ceiling)
+    assert placement["publishedAs"] == "PLACEMENT collapse"
+    assert placement["confirmsR1"] is True
+    assert comprehension["publishedAs"] == "comprehension collapse"
+    assert comprehension["confirmsR1"] is False
+    assert label["publishedAs"] == "label collapse"
+    assert label["confirmsR1"] is False
+    assert none_of_them["publishedAs"] is None
+    # Three of four is the registered pattern minimum here as everywhere else.
+    assert score_rates.reading_verdict({"nP": 3, "nC": 3, "nH": 0},
+                                       at_ceiling)["confirmsR1"] is True
+    assert score_rates.reading_verdict({"nP": 2, "nC": 2, "nH": 0},
+                                       at_ceiling)["publishedAs"] is None
+    # An unresolved batch has no counts and therefore no reading.
+    assert score_rates.reading_verdict({"nP": None, "nC": None, "nH": None},
+                                       degraded) is None
+
+
+# --- §5.3 (ii)'s three registered outcomes for arm D ------------------------
+
+def test_arm_ds_outcomes_are_the_ones_section_5_3_registers(preregistration):
+    """Round 3, finding 10: "Three outcomes are registered for arm D, not two",
+    and the scorer aggregated outcomes for arm E alone. The two the file names
+    are named here, with the two explanations of the first published beside it
+    and neither asserted."""
+    flat = " ".join(preregistration.split())
+    assert "**Three outcomes are registered for arm D, not two.**" in flat
+    assert "published as **OLD-EDGE-PREFERENCE**" in flat
+    assert "It is a **general degradation**" in flat
+    published = [entry["publishedAs"] for entry in score_rates.D_OUTCOME_TABLE]
+    assert published == ["COVERAGE-FOLLOWS-THE-NUMBERS", "OLD-EDGE-PREFERENCE",
+                         "GENERAL-DEGRADATION", "D-INDETERMINATE"]
+    assert score_rates.D_OUTCOME_TABLE[-1]["condition"] == "(else)"
+    # Registered with TWO explanations, not one, and nothing in this study
+    # separates them — the earlier name asserted the first.
+    explanations = score_rates.D_OUTCOME_TABLE[1]["explanations"]
+    assert len(explanations) == 2
+    assert explanations[0].startswith("contamination")
+    assert explanations[1].startswith("round-number salience")
+    assert "Nothing in this study separates them" in flat
+    assert score_rates.D_OLD_EDGE_NOTE.startswith(
+        "Nothing in this study separates the two explanations")
+    # The count §5.3 (ii) does not spell is §5.3 (i)'s own, not a new one.
+    assert score_rates.D_NARROW_MINIMUM == score_rates.PATTERN_MINIMUM == 3
+
+
+def test_arm_ds_outcome_is_computed_from_the_registered_levels():
+    """The four rows at known level verdicts, over the six classes: the
+    predicted tracking, the old-edge preference, the general degradation, and
+    the mixed case §5.3 (ii) names no outcome for."""
+    tracking = [{"index": index, "contrast": "TRACKING"} for index in range(6)]
+    indeterminate = [{"index": index,
+                      "contrast": "TRACKING" if index in (3, 4)
+                      else "INDETERMINATE"} for index in range(6)]
+    high_six = ["HIGH"] * 6
+    # New-keyed LOW on the four narrow numeric classes, HIGH on 3 and 4.
+    new_low = ["LOW", "LOW", "LOW", "HIGH", "HIGH", "LOW"]
+    old_high = ["HIGH", "HIGH", "HIGH", "HIGH", "HIGH", "HIGH"]
+    old_low = ["LOW", "LOW", "LOW", "HIGH", "HIGH", "LOW"]
+    assert score_rates.arm_d_outcome(high_six, old_low,
+                                     tracking)["publishedAs"] \
+        == "COVERAGE-FOLLOWS-THE-NUMBERS"
+    preference = score_rates.arm_d_outcome(new_low, old_high, indeterminate)
+    assert preference["publishedAs"] == "OLD-EDGE-PREFERENCE"
+    assert preference["counts"] == {"newKeyedLow": 4, "oldKeyedHigh": 4,
+                                    "oldKeyedLow": 0, "tracking": 2,
+                                    "narrowMinimum": 3, "classes": 6}
+    assert len(preference["explanations"]) == 2 and preference["separates"]
+    degradation = score_rates.arm_d_outcome(new_low, old_low, indeterminate)
+    assert degradation["publishedAs"] == "GENERAL-DEGRADATION"
+    assert degradation["explanations"] == []
+    # Two narrow classes LOW is one short of the registered three, and the file
+    # names no outcome for the mixed case: it is published as one.
+    mixed = ["LOW", "LOW", "MID", "HIGH", "HIGH", "MID"]
+    assert score_rates.arm_d_outcome(mixed, old_low,
+                                     indeterminate)["publishedAs"] \
+        == "D-INDETERMINATE"
+
+
+# --- §5.4's operating characteristics ---------------------------------------
+
+OC_HEADER = ["registered rule", "where", "N = 20", "N = 25", "N = 30"]
+TRIALS = (20, 25, 30)
+# The MARGINAL pattern probabilities §5.4 publishes, recomputed here rather
+# than copied: `nH >= 3` reads arm E's own levels, `nP >= 3` needs arm A HIGH
+# on the same class as well.
+REGISTERED_MARGINAL_NH = {20: 0.7142, 25: 0.9187, 30: 0.9796}
+# The JOINT probability of REACHING decision row 4, which §5.4 labelled the
+# marginal with (round 3, finding 11): row 4 is reached only when arm E does
+# not collapse on class 4 (row 2) and the B/C control gate passes (row 3), so
+# the marginal is multiplied by the gate's 0.0557 / 0.4031 / 0.7658. Seven
+# significant figures, computed by `decision_operating_characteristics()` with
+# this study's own interval code; the amendment §5.4 needs must carry these.
+REGISTERED_JOINT_ROW4 = {20: 0.03978409, 25: 0.3703584, 30: 0.7501924}
+REGISTERED_JOINT_ROW5 = {20: 0.0364, 25: 0.3536, 30: 0.7359}
+
+
+def operating_characteristics(body: str) -> dict:
+    """§5.4's operating-characteristic table, keyed by the rule's own first
+    cell, as {rule: {trials: printed value}}."""
+    rows = {}
+    for rule, _where, twenty, twenty_five, thirty in table(body, OC_HEADER):
+        rows[rule] = dict(zip(TRIALS, (float(twenty), float(twenty_five),
+                                       float(thirty))))
+    return rows
+
+
+@pytest.mark.parametrize("trials", TRIALS)
+def test_the_registered_operating_characteristics_are_reproduced(trials,
+                                                                 preregistration):
+    """§5.4's own table, rule by rule, against this file's arithmetic — the
+    figures it publishes for the rules §5.3 registers.
+
+    Every row here is computed from `level_operating_characteristics()`'s two
+    probabilities under §5.4's registered scenario, so a cut that moved would
+    move these numbers and this test rather than being noticed later.
+    """
+    from fractions import Fraction
+    characteristics = score_rates.decision_operating_characteristics(trials)
+    level_high = score_rates.level_operating_characteristics(
+        trials, Fraction(19, 20))
+    level_collapsed = score_rates.level_operating_characteristics(
+        trials, Fraction(1, 20))
+    # The joint arithmetic stands on the same two marginals §5.4's first table
+    # publishes, and not on a second derivation of them.
+    assert characteristics["pHigh"] == level_high["pHigh"]
+    assert characteristics["pLowCollapsed"] == level_collapsed["pLow"]
+    q, collapsed = characteristics["pHigh"], characteristics["pLowCollapsed"]
+    computed = {
+        "per-class COLLAPSE": q * collapsed,
+        "all four narrow COLLAPSE": (q * collapsed) ** 4,
+        "nP >= 3": characteristics["marginal"]["nP"],
+        "the B/C control gate": characteristics["gate"],
+        "all twelve TRACKING": q ** 18,
+        "CONFIRMED and the gate holds": characteristics["joint"]["row5"],
+        "nH >= 3": characteristics["marginal"]["nH"],
+    }
+    registered = operating_characteristics(preregistration)
+    for prefix, value in computed.items():
+        matched = [rule for rule in registered if rule.startswith(prefix)]
+        assert len(matched) == 1, (
+            "§5.4 holds %d rules beginning %r" % (len(matched), prefix))
+        printed = registered[matched[0]][trials]
+        assert abs(value - printed) < 5e-5, (
+            "§5.4 prints %s for %r at N = %d; this file computes %.6f"
+            % (printed, matched[0], trials, value))
+
+
+@pytest.mark.parametrize("trials", TRIALS)
+def test_the_power_to_reach_row_four_is_not_the_marginal(trials):
+    """Round 3, finding 11: §5.4 labels `0.7142 / 0.9187 / 0.9796` "the power to
+    reach decision row 4", and they are the marginal `P(nH >= 3)`. Reaching row
+    4 also requires that arm E does not collapse on class 4 (row 2) and that the
+    B/C control gate passes (row 3), and the decision table is evaluated in that
+    order — so the power to publish R1-UNSUPPORTED is the smaller number.
+
+    Both are pinned here, to the places each is published at, so the amendment
+    §5.4 needs is machine-checked the moment it lands: the marginal row keeps
+    its figures and the new joint row must carry `REGISTERED_JOINT_ROW4`.
+    """
+    characteristics = score_rates.decision_operating_characteristics(trials)
+    marginal = characteristics["marginal"]["nH"]
+    joint = characteristics["joint"]["row4"]
+    assert round(marginal, 4) == REGISTERED_MARGINAL_NH[trials]
+    assert "%.7g" % joint == "%.7g" % REGISTERED_JOINT_ROW4[trials]
+    assert round(characteristics["joint"]["row5"], 4) \
+        == REGISTERED_JOINT_ROW5[trials]
+    # The joint figure IS the marginal times the gate, to within the class-4
+    # term — arm E's class 4 sits at p = 0.95 in this scenario and reading LOW
+    # there is a 1e-23 event, so the two agree to every place §5.4 prints and
+    # the difference below is the double's own epsilon, not the term.
+    assert characteristics["pLowIntact"] < 1e-20
+    assert abs(joint - marginal * characteristics["gate"]) < 1e-12
+    assert joint < marginal
+    # …and the gate is what does it: at N = 20 the design's own precondition for
+    # reading arm E holds one time in eighteen.
+    assert round(characteristics["gate"], 4) == {20: 0.0557, 25: 0.4031,
+                                                 30: 0.7658}[trials]
+
+
+def test_the_joint_row_four_figures_are_checked_against_the_file_when_it_carries_them(
+        preregistration):
+    """The half of the previous test that binds the FILE.
+
+    §5.4 does not carry the joint row yet — the amendment round 3's finding 11
+    calls for is what adds it — so this asserts the mislabel is still the only
+    thing to fix and, the moment a row beginning "row 4 reached" appears, that
+    it carries the computed figures rather than a second transcription of them.
+    """
+    registered = operating_characteristics(preregistration)
+    joint_rows = [rule for rule in registered if rule.startswith("row 4 reached")]
+    assert len(joint_rows) <= 1
+    for rule in joint_rows:
+        for trials in TRIALS:
+            computed = score_rates.decision_operating_characteristics(
+                trials)["joint"]["row4"]
+            assert abs(computed - registered[rule][trials]) < 5e-5, (
+                "§5.4's joint row 4 prints %s at N = %d; this file computes %.7f"
+                % (registered[rule][trials], trials, computed))

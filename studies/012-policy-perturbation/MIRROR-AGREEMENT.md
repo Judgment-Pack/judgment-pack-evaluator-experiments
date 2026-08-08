@@ -5,7 +5,8 @@ its census's circularity caveat. This study inherits the circularity five ways
 — five policy texts, three of them substantive authored prose from the team
 holding the prediction — so §6 C10 registers the instrument **before any
 call**: per arm, an independent reader is given that arm's `POLICY.md` bytes
-and nothing else, writes `analysis/mirror2_<arm>.py`, and must agree with the
+and nothing of the study's substance beyond the published interface suffix,
+and writes `analysis/mirror2_<arm>.py`, and must agree with the
 registered mirror elementwise on that arm's 280-cell landmark grid.
 `harness/integrity.py` refuses the batch while any arm's clean-room mirror is
 missing or disagreeing. Every attempt is retained and published, including
