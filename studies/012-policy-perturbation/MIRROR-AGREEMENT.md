@@ -76,8 +76,40 @@ code block.
 
 ## Attempts and agreement
 
-*(Recorded per attempt as each reader runs; the agreement is
-`harness/integrity.py`'s `verify_mirror2()` — the registered mirror at the
-arm's pinned `(T_low, T_high)` against the reader's module, elementwise over
-the arm's own 280-cell grid. Raw reader output is retained under
-`analysis/mirror2-attempts/`.)*
+One attempt per arm, in the registered commission order, all on 2026-08-08;
+raw reader output, the exact prompt sent, the extracted module and the
+consulted statement are retained per attempt under
+`analysis/mirror2-attempts/<ARM>/attempt-1/`. No attempt was discarded and no
+reader was re-commissioned.
+
+| arm | commissioned (UTC) | exit | module | agreement (`integrity.verify_mirror2()`) | consulted statement |
+| --- | --- | --- | --- | --- | --- |
+| A | 15:01:18Z | 0 | `analysis/mirror2_a.py`, 24 lines | **AGREES**, 280/280 at (40, 70) | "I consulted only the vendor screening policy provided in the prompt." |
+| B | 15:01:35Z | 0 | `analysis/mirror2_b.py`, 26 lines | **AGREES**, 280/280 at (40, 70) | same |
+| C | 15:01:47Z | 0 | `analysis/mirror2_c.py`, 26 lines | **AGREES**, 280/280 at (40, 70) | same |
+| D | 15:01:59Z | 0 | `analysis/mirror2_d.py`, 27 lines | **AGREES**, 280/280 at (45, 72) | same — emitted inside the module as its closing comment rather than after the block; `attempt-1/consulted.txt` records the placement |
+| E | 15:02:10Z | 0 | `analysis/mirror2_e.py`, 25 lines | **AGREES**, 280/280 at (40, 70) | same |
+
+**The two derivations that were the point.** Arm D's reader, given a text
+whose literals are 45 and 72, wrote comparisons at 45 and 72 — the rename is
+readable. Arm E's reader, given a text with **no numeric content in any
+clause body**, derived `Decimal("70")` and `Decimal("40")` from the
+conventions paragraph's stated 0–100 scale and the two threshold definitions
+("seven tenths of that full range", "four tenths of that same full range"),
+and its module agrees with the registered mirror on every cell. **The
+registered failure consequence — arm E re-authored as an ambiguity arm — does
+not fire**: the denamed values are derivable by an independent reader from
+the arm's bytes alone, which is precisely what this instrument existed to
+establish before any call.
+
+**What the agreement establishes, and what it does not** — 011's honesty,
+restated for five arms: agreement shows each arm's reading is *reproducible
+from that arm's own bytes by an independent reader*; it does not show the
+reading is correct, and it cannot see a divergence that lives only in the
+prose and never reaches a verdict. C8's census and inclusivity checks bound
+that syntactically, the pre-freeze cross-vendor review reads the five texts,
+and §7 and §9 record that no instrument closes it. The readers' speed and
+brevity are visible in the retained transcripts; a reader that agrees for a
+shallow reason is bounded by the same grid that catches a shallow
+disagreement — 280 cells pin every inclusive/exclusive decision every
+predicate names, and §2.4 records what no finite grid can pin.
