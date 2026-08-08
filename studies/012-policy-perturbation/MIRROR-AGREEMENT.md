@@ -22,7 +22,7 @@ arm E, the one arm whose derivability is the study's central question.
 
 | arm | reader vendor | model | harness | commission order |
 | --- | --- | --- | --- | --- |
-| A | OpenAI | `gpt-5.6-sol` | `codex-cli 0.145.0`, `exec --sandbox read-only`, empty working directory, policy bytes inlined in the prompt | 1 |
+| A | OpenAI | `gpt-5.6-sol` | `codex-cli 0.145.0`, `exec --ignore-user-config --sandbox read-only`, empty working directory, fresh CODEX_HOME, policy bytes inlined in the prompt | 1 |
 | B | OpenAI | `gpt-5.6-sol` | same | 2 |
 | C | OpenAI | `gpt-5.6-sol` | same | 3 |
 | D | OpenAI | `gpt-5.6-sol` | same | 4 |
