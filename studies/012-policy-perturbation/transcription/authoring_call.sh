@@ -1,30 +1,37 @@
 #!/usr/bin/env bash
-# One authoring call, ported from Study 010's registered wrapper
-# (harness/PORTS.md records the source digest and every change). Every element
-# of the invocation is 010's, validated there against the pinned CLI: a fresh
-# HOME and a fresh CODEX_HOME beneath it (skills load from $HOME/.agents and DO
-# reach the model — --ignore-user-config alone does not stop them), an explicit
-# model, --ignore-user-config, an env -i scrubbed environment, an exclusively
-# created scratch path outside every git worktree and free of study vocabulary,
-# a binary digest checked against the pinned one, and the prompt passed as the
-# byte-exact contents of transcription/PROMPT.txt (no trailing newline).
+# One authoring call, ported from Study 011's wrapper, itself a port of Study
+# 010's registered wrapper (harness/PORTS.md records both source digests and
+# every change). Every element of the isolation invocation is 011's, unchanged:
+# a fresh HOME and a fresh CODEX_HOME beneath it (skills load from $HOME/.agents
+# and DO reach the model — --ignore-user-config alone does not stop them), an
+# explicit model, --ignore-user-config, an env -i scrubbed environment with PATH
+# and TMPDIR constructed rather than inherited, an exclusively created scratch
+# path outside every git worktree and free of study vocabulary, a binary digest
+# and CLI version checked BEFORE the call, the prompt passed byte-exact with
+# stdin closed, the credential copied and deleted on the seal path and on EXIT,
+# INT, TERM and HUP, the recursive pre-call inventory of the isolated home, and
+# new-session identification by set difference.
 #
-# What this port changes, and only this: the slot is an argument rather than
-# the single call-1 (Study 011 runs N of these, and a failed run does not end
-# the study — see batch.py), the pins come from a registry file passed in, the
-# helper interpreter is $PYTHON_BIN, the codex binary may be named explicitly
-# (its digest is still checked, so a test CLI needs a test registry naming its
-# digest), a missing operator credential is recorded rather than fatal, the
-# child PATH and TMPDIR are built from fixed paths rather than inherited, the
-# isolated home's recursive inventory is recorded as the per-run isolation
-# evidence, the copied credential is deleted when the slot is sealed, the
-# session is identified as the NEW session rather than the only one, and
-# ISOLATION=operator-home runs the registered C7 negative control.
+# What this port changes, and only this (PREREGISTRATION.md §2.7): the wrapper
+# takes the ARM ID and the ARM'S PROMPT PATH as arguments and writes into
+# arms/<ARM>/authoring/run-NNN/ — this study runs five cells, not one, and the
+# prompt is the arm's own PROMPT.txt at that arm's pinned digest; it stamps
+# `arm` and `armPromptSha256` into CALL.json, so a slot names the arm it was
+# made under and the exact prompt bytes it was made with (§3.3's arm-mismatch
+# is then a per-slot check rather than a claim about the driver's bookkeeping);
+# and its scratch, isolated home and per-run binary directory are named
+# `s012-…`.
 #
-# What it deliberately does NOT do: retry, judge the completion, compile
-# records, or decide admissibility. It retains bytes and exits with a code.
+# What it deliberately does NOT do: retry, judge a completion, compile records,
+# decide admissibility, or seal the slot — SLOT-MANIFEST.json and the ledger
+# chain of §2.9 are the driver's (batch.py), which sees every exit path of this
+# process and seals refused slots too. It retains bytes and exits with a code.
 #
-# Usage: authoring_call.sh <scratch-parent> <slot-dir> <pins-json> [codex-binary]
+# Usage: authoring_call.sh <scratch-parent> <slot-dir> <pins-json> <arm-id> \
+#                          <arm-prompt-path> [codex-binary]
+#   <arm-id> is one of the registry's arms (A…E) for PROMPT_KIND=registered,
+#   and the literal `none` for PROMPT_KIND=probe — a capture call is made
+#   under no arm, and stamps `arm: null`.
 # Env:   PYTHON_BIN  - interpreter for the helper steps (default python3). It
 #                     must be the implementation and version series the
 #                     registry's `python` member pins, checked before anything
@@ -33,13 +40,13 @@
 #                     preflight, stamped into CALL.json so the
 #                     golden-before-slots ordering is checkable per slot.
 #                     Empty for the probe calls, which precede the golden.
-#        PROMPT_KIND - "registered" (default, transcription/PROMPT.txt) or
-#                      "probe" (transcription/PROBE-PROMPT.txt). The probe is
-#                      the golden recapture's prompt: the pre-prompt context
-#                      does not depend on the prompt, and running the
-#                      registered one before the batch would show coverage
-#                      profiles first. Either way the file's digest must equal
-#                      the one the registry pins for that kind.
+#        PROMPT_KIND - "registered" (default: the arm's PROMPT.txt, at that
+#                      arm's pinned digest) or "probe"
+#                      (transcription/PROBE-PROMPT.txt, §3.2: one golden
+#                      recapture serves all five arms, because the pre-prompt
+#                      context precedes the prompt and does not depend on it).
+#                      Either way the file's digest must equal the one the
+#                      registry pins for it.
 #        ISOLATION   - "isolated" (default: a fresh HOME and CODEX_HOME for
 #                      this run alone) or "operator-home" (PREREGISTRATION.md
 #                      §6 C7 only: the operator's real HOME and its .codex,
@@ -55,8 +62,9 @@
 #   CALL.json      - argv, cwd, isolated home, environment names AND values,
 #                    the isolated home's recursive pre-call inventory, model,
 #                    CLI identity and binary digest, exit status, new-session
-#                    count, credential copied/removed, and the digests of the
-#                    registry and the golden capture this run was made under
+#                    count, credential copied/removed, the arm id and the arm
+#                    prompt digest, and the digests of the registry and the
+#                    golden capture this run was made under
 #   stdout.raw / stderr.raw
 #   session.jsonl  - the NEW transcript from the run's CODEX_HOME
 #   completion.txt - the transcript's last assistant message (compiler
@@ -71,8 +79,8 @@
 #   11 the run produced other than exactly one new session; slot retained
 set -euo pipefail
 
-if [ "$#" -lt 3 ] || [ "$#" -gt 4 ]; then
-  echo "usage: authoring_call.sh <scratch-parent> <slot-dir> <pins-json> [codex-binary]" >&2
+if [ "$#" -lt 5 ] || [ "$#" -gt 6 ]; then
+  echo "usage: authoring_call.sh <scratch-parent> <slot-dir> <pins-json> <arm-id> <arm-prompt-path> [codex-binary]" >&2
   exit 1
 fi
 
@@ -81,6 +89,8 @@ GIT_ROOT="$(cd "$(git -C "$STUDY" rev-parse --show-toplevel)" && pwd -P)"
 PYTHON="${PYTHON_BIN:-python3}"
 PINS="$3"
 SLOT="$2"
+ARM="$4"
+ARM_PROMPT="$5"
 
 pin() { "$PYTHON" -c 'import json,sys
 d = json.load(open(sys.argv[1]))
@@ -102,7 +112,7 @@ PINS_DIGEST="sha256:$(sha256sum "$PINS" | cut -d' ' -f1)"
 # for the probe calls (the recapture and §6 C7), which have no golden yet.
 GOLDEN_SHA256="${GOLDEN_SHA256:-}"
 
-# The interpreter is a pin (§2.6), so it is a pre-call gate here too: every
+# The interpreter is a pin (§2.10), so it is a pre-call gate here too: every
 # helper step below runs under $PYTHON, and a run made under an unregistered
 # interpreter is not the registered harness.
 PINNED_PY_IMPL="$(pin python implementation)"
@@ -116,8 +126,33 @@ fi
 
 PROMPT_KIND="${PROMPT_KIND:-registered}"
 case "$PROMPT_KIND" in
-  registered) PROMPT_NAME="PROMPT.txt"; PINNED_PROMPT="$(pin prompt sha256)";;
-  probe)      PROMPT_NAME="PROBE-PROMPT.txt"; PINNED_PROMPT="$(pin probePrompt sha256)";;
+  registered)
+    # The arm is the cell (§2.6). An unregistered arm id refuses before
+    # anything is called, and the prompt is the ARM'S prompt at that arm's
+    # pinned digest — the arm-keyed form of 011's prompt gate.
+    case "$ARM" in
+      none)
+        echo "refused: PROMPT_KIND=registered needs an arm id, not none" >&2
+        exit 1;;
+    esac
+    PINNED_PROMPT="$(pin arms "$ARM" promptSha256)" || {
+      echo "refused: arm $ARM is not in the registry" >&2; exit 1; }
+    # §2.7: the wrapper writes into arms/<ARM>/authoring/run-NNN/ — checked
+    # here so that sentence is true of the wrapper itself, not only of the
+    # driver's bookkeeping. An off-by-one in the driver's arm sequence would
+    # otherwise place a slot in the wrong tree silently.
+    SLOT_ARM="$(basename "$(dirname "$(dirname "$SLOT")")")"
+    SLOT_KIND="$(basename "$(dirname "$SLOT")")"
+    if [ "$SLOT_ARM" != "$ARM" ] || [ "$SLOT_KIND" != "authoring" ]; then
+      echo "refused: slot $SLOT is not under arms/$ARM/authoring/" >&2
+      exit 1
+    fi;;
+  probe)
+    if [ "$ARM" != "none" ]; then
+      echo "refused: PROMPT_KIND=probe is made under no arm; pass none, not $ARM" >&2
+      exit 1
+    fi
+    PINNED_PROMPT="$(pin probePrompt sha256)";;
   *) echo "refused: PROMPT_KIND must be registered or probe, not $PROMPT_KIND" >&2; exit 1;;
 esac
 
@@ -126,7 +161,7 @@ case "$ISOLATION" in
   isolated) ;;
   operator-home)
     # §6 C7 only, and only through batch.py capture-isolation-negative, which
-    # requires the operator's recorded assent. The registered prompt is never
+    # requires the operator's recorded assent. No registered prompt is ever
     # run this way: the probe is.
     if [ "$PROMPT_KIND" != "probe" ]; then
       echo "refused: ISOLATION=operator-home runs the probe prompt only" >&2; exit 1
@@ -135,11 +170,13 @@ case "$ISOLATION" in
 esac
 
 # The prompt is the cell. A prompt whose bytes are not the pinned ones is a
-# different study, so this refuses before anything is called.
-PROMPT_FILE="$STUDY/transcription/$PROMPT_NAME"
+# different study — and here a prompt whose bytes are another ARM'S is a
+# different cell — so this refuses before anything is called.
+PROMPT_FILE="$ARM_PROMPT"
+PROMPT_NAME="$(basename "$PROMPT_FILE")"
 PROMPT_DIGEST="sha256:$(sha256sum "$PROMPT_FILE" | cut -d' ' -f1)"
 if [ "$PINNED_PROMPT" != "$PROMPT_DIGEST" ]; then
-  echo "refused: $PROMPT_NAME is $PROMPT_DIGEST, not the pinned $PINNED_PROMPT" >&2
+  echo "refused: $PROMPT_FILE is $PROMPT_DIGEST, not the pinned $PINNED_PROMPT" >&2
   exit 1
 fi
 PROMPT="$(cat "$PROMPT_FILE")"
@@ -151,7 +188,7 @@ PROMPT="$(cat "$PROMPT_FILE")"
 # path carrying a study term would blunt that screen).
 PARENT="$(cd "$1" && pwd -P)"
 SLOT_NAME="$(basename "$SLOT")"
-SCRATCH="$PARENT/s011-authoring-$SLOT_NAME-$$"
+SCRATCH="$PARENT/s012-authoring-$ARM-$SLOT_NAME-$$"
 mkdir "$SCRATCH"
 case "$SCRATCH/" in
   "$GIT_ROOT"/*) echo "refused: the scratch dir resolves inside the repository" >&2; exit 1;;
@@ -176,8 +213,8 @@ PY
 RUN_TMP="$SCRATCH/tmp"
 mkdir "$RUN_TMP"
 
-if [ "$#" -eq 4 ]; then
-  CODEX_BIN="$(cd "$(dirname "$4")" && pwd -P)/$(basename "$4")"
+if [ "$#" -eq 6 ]; then
+  CODEX_BIN="$(cd "$(dirname "$6")" && pwd -P)/$(basename "$6")"
 else
   CODEX_BIN="$(command -v codex)"
 fi
@@ -186,7 +223,7 @@ if [ "$PINNED_DIGEST" != "$ACTUAL_DIGEST" ]; then
   echo "refused: codex binary $ACTUAL_DIGEST is not the pinned $PINNED_DIGEST" >&2
   exit 1
 fi
-# The CLI version is a PRE-call gate, not only a recorded field: §2.1 says the
+# The CLI version is a PRE-call gate, not only a recorded field: §2.2 says the
 # study does not run with a substitute, and a version read after the call would
 # only let the scorer mark the spent run invalid. Read from the resolved binary
 # rather than from PATH.
@@ -220,7 +257,7 @@ OUT="$(cd "$SLOT" && pwd -P)"
 # tokens the same wrapper screens the scratch path for. Here PATH is fixed
 # system directories plus this one per-run directory, and CALL.json records
 # the exact string so a published slot shows it.
-RUN_BIN="$PARENT/s011-bin-$SLOT_NAME-$$"
+RUN_BIN="$PARENT/s012-bin-$ARM-$SLOT_NAME-$$"
 mkdir "$RUN_BIN"
 ln -s "$CODEX_BIN" "$RUN_BIN/codex"
 CHILD_PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$RUN_BIN"
@@ -237,7 +274,7 @@ CREDENTIAL=false
 CREDENTIAL_REMOVED=false
 INVENTORY='null'
 if [ "$ISOLATION" = "isolated" ]; then
-  ISOLATED_HOME="$PARENT/s011-home-$SLOT_NAME-$$"
+  ISOLATED_HOME="$PARENT/s012-home-$ARM-$SLOT_NAME-$$"
   mkdir "$ISOLATED_HOME"
   CODEX_HOME_DIR="$ISOLATED_HOME/.codex"
   mkdir "$CODEX_HOME_DIR"
@@ -250,7 +287,7 @@ if [ "$ISOLATION" = "isolated" ]; then
     # set -e death (EXIT), and SIGINT, SIGTERM and SIGHUP, each of which
     # cleans up and then exits with the conventional 128+signal status. All of
     # them are idempotent with the seal-path rm. SIGKILL and power loss run no
-    # handler and are not preventable by any process; §2.5 says so, and says
+    # handler and are not preventable by any process; §2.9 says so, and says
     # what the residual is.
     remove_credential_copy() { rm -f "$CODEX_HOME_DIR/auth.json"; }
     trap remove_credential_copy EXIT
@@ -289,7 +326,7 @@ fi
 # refuse the control before its registered comparison could run.
 SESSIONS_BEFORE="$(find "$CODEX_HOME_DIR" -name '*.jsonl' -type f 2>/dev/null | LC_ALL=C sort || true)"
 
-# Wall clock, recorded per slot (§4.4 S9). It is retained here and nowhere
+# Wall clock, recorded per slot (§2.9). It is retained here and nowhere
 # else: the scorer never reads it, so RESULTS.json stays byte-stable.
 STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 set +e
@@ -327,9 +364,10 @@ PY
 fi
 
 # The credential copy dies with the run. The call has terminated and its bytes
-# are in the slot, so the copy has no further use; leaving fifty of them under
-# one scratch parent is a live credential spread across a disk for no reason.
-# Only a copy this wrapper made is ever removed — under C7 there is none.
+# are in the slot, so the copy has no further use; leaving a hundred and fifty
+# of them under one scratch parent is a live credential spread across a disk
+# for no reason. Only a copy this wrapper made is ever removed — under C7
+# there is none.
 if [ "$CREDENTIAL" = "true" ] && [ -f "$CODEX_HOME_DIR/auth.json" ]; then
   rm -f "$CODEX_HOME_DIR/auth.json"
   if [ ! -e "$CODEX_HOME_DIR/auth.json" ]; then
@@ -343,21 +381,23 @@ rm -rf "$RUN_BIN"
     "$PROMPT_KIND" "$PROMPT_NAME" "$PROMPT_DIGEST" "$SLOT_NAME" \
     "$STARTED_AT" "$ENDED_AT" "$CHILD_PATH" "$RUN_TMP" "$CODEX_HOME_DIR" \
     "$HOME_ISOLATED" "$CREDENTIAL_REMOVED" "$ISOLATION" "$PINS_DIGEST" \
-    "$GOLDEN_SHA256" <<'PY'
+    "$GOLDEN_SHA256" "$ARM" <<'PY'
 import json, sys
 (out, scratch, exit_status, digest, count, model, home, version,
  credential, inventory, skills, prompt_kind, prompt_name, prompt_digest,
  slot_name, started_at, ended_at, child_path, tmpdir, codex_home,
  home_isolated, credential_removed, isolation, pins_digest,
- golden_digest) = sys.argv[1:26]
+ golden_digest, arm) = sys.argv[1:27]
 digits = "".join(ch for ch in slot_name if ch.isdigit())
 with open(out + "/CALL.json", "w") as handle:
     json.dump({
         "argv": ["codex", "exec", "--ignore-user-config", "-m", model,
                  "--sandbox", "workspace-write", "-c", "mcp_servers={}",
-                 "<the exact bytes of transcription/%s>" % prompt_name],
+                 "<the exact bytes of %s>" % prompt_name],
         "slot": slot_name,
         "slotIndex": int(digits) if digits else None,
+        "arm": None if arm == "none" else arm,
+        "armPromptSha256": None if arm == "none" else prompt_digest,
         "promptKind": prompt_kind,
         "promptSha256": prompt_digest,
         "pinsSha256": pins_digest,
@@ -385,7 +425,7 @@ with open(out + "/CALL.json", "w") as handle:
         "exitStatus": int(exit_status),
         "newSessionCount": int(count),
         "stdin": "closed (/dev/null)",
-        "note": "One run of Study 011's single cell; session.jsonl is the transcript evidence.",
+        "note": "One run of one of Study 012's five cells; session.jsonl is the transcript evidence.",
     }, handle, indent=2)
     handle.write("\n")
 PY
