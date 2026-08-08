@@ -84,8 +84,8 @@
   },
   "claim": {
     "path": "CLAIM.md",
-    "sha256": null,
-    "note": "The verbatim published wording of R1, its venue, URL and retrieval date (§1). Committed and pinned before the freeze; null until then, and a null here at the freeze refuses."
+    "sha256": "sha256:5a5bf538b1482e4c4a5bd5da97a23a312644ae608dc3cab423f4fd213aae367b",
+    "note": "The verbatim published wording of R1, its venues, URLs and retrieval date (§1). Two records: 011's MIRROR-AGREEMENT.md §(d) at the commit-pinned URL (the pre-stated directional prediction), and issue #45 (the restatement carrying both halves)."
   },
   "probePrompt": {
     "path": "transcription/PROBE-PROMPT.txt",
