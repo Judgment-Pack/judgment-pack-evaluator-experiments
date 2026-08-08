@@ -85,4 +85,3 @@ def predicate_matches(predicate: dict, vendor: dict) -> bool:
         if "lt" in score and value >= Decimal(score["lt"]):
             return False
     return True
-

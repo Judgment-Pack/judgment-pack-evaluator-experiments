@@ -156,11 +156,16 @@ permitted wrapper differences are "exactly these" three — the two sentences
 cannot both be read literally. This port resolves the tension on §2.7's side:
 the **driver** (`harness/batch.py`) seals every slot immediately after the
 wrapper returns, on every exit path including refusals, and chains the seal
-into the ledger. The driver is the process that writes the ledger the seal is
-chained into, and sealing driver-side keeps the wrapper's diff at exactly the
-three registered items. The final cross-vendor review adjudicates the reading;
-if it lands the other way, the seal moves into the wrapper and this file and
-the wrapper's row above change together.
+into the ledger. Two reasons, the second the stronger: sealing driver-side
+keeps the wrapper's diff at exactly the three registered items, and the
+wrapper is **not the last writer into a refused slot** — `REFUSAL.json` is
+the driver's — so a wrapper-side seal would cover every slot except exactly
+the ones whose retained bytes explain a failure, and the pipeline-invalid
+rate is an endpoint (§4.4). The seal is taken after the refusal record and
+the schedule stamps are written and before the ledger record is appended.
+The final cross-vendor review adjudicates the reading; if it lands the other
+way, the seal moves into the wrapper and this file and the wrapper's row
+above change together.
 
 ## The three 011-adapted files, taken as 011 left them
 
