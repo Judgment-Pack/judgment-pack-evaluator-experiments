@@ -30,8 +30,13 @@ and the section discipline of this file; its `DIVERSITY.md` is the census whose
 reading this study exists to falsify; its `DEVIATIONS.md` is empty and its
 `ANALYSIS.md` §"The one invalid run" is the rule §3.3 restates. And
 [`studies/010-blinded-oracle`](../010-blinded-oracle/), whose
-`PROTOCOL-LOCK.json` is still the ultimate authority for the compiler, the
-mirror, the transcript gates and arm A's prompt and family. Tracker:
+`PROTOCOL-LOCK.json` is the ultimate authority for **the mirror module, arm
+A's family, arm A's policy source, and the prompt bytes 011 pinned** — and,
+stated exactly because an earlier draft overstated it, **not** for the
+compiler, the transcript checker or the wrapper: Study 011 *adapted* all
+three, so the bytes this study ports are **011's**, and 010's lock is their
+ancestor rather than their authority (§2.2's authority column and §6 C1's
+tier 3 are where that distinction is enforced). Tracker:
 evaluator-experiments **issue #45**, whose body registers this mandate.
 
 ## 1. The question
@@ -107,8 +112,8 @@ prose. What varies is one artifact per arm: the policy text the prompt inlines.
 
 | arm | perturbation | thresholds | mirror and family |
 | --- | --- | --- | --- |
-| **A** baseline | none — Study 011's policy text plus the registered conventions delta [D-15] | 40, 70 | the registered mirror at (40, 70); 010's locked family |
-| **B** reworded | the five clause bodies paraphrased; every literal and the clause order unchanged | 40, 70 | A's |
+| **A** baseline | none — Study 011's policy text plus the two registered deltas, `CONVENTIONS_DELTA` [D-15] and `PREAMBLE_DELTA` [D-16], both of which are in **all five** arms | 40, 70 | the registered mirror at (40, 70); 010's locked family |
+| **B** reworded | the five clause bodies paraphrased; every literal, the clause order and the inclusivity-adjacency pattern unchanged | 40, 70 | A's |
 | **C** reordered | the five clause bodies byte-identical to A's, presented in a registered permutation | 40, 70 | A's |
 | **D** renamed | the threshold literals moved | **45, 72** | the registered mirror at (45, 72); the σ-image of A's family (§2.4) |
 | **E** denamed | no numeric content in any clause body; the same values stated only by reference | 40, 70, by reference | A's |
@@ -120,37 +125,51 @@ clause 6 checks that its verdicts agree with arm A's on every landmark.
 ### 2.1 Why A is re-run rather than read off Study 011
 
 Study 011's 49 valid runs are **historical reference, not this study's
-baseline**. They were produced on 2026-08-07 against a model snapshot whose
-drift since is uncontrolled and unmeasurable from here. A contrast between an
-arm run today and a batch run months ago confounds the perturbation with
-whatever moved in between, and no pin in this repository can rule that out.
+baseline**. They were produced on 2026-08-07 — the same day this file was
+drafted, a few hours earlier — against a model snapshot whose drift since is
+uncontrolled and unmeasurable from here. **The reason is not elapsed time and
+this file no longer says it is**: a provider-side snapshot can move between two
+calls a minute apart, nothing in this repository observes it, and a contrast
+between an arm run in this batch and a batch run at any earlier moment
+confounds the perturbation with whatever moved in between. The interval being
+short makes the confound smaller than it would otherwise be; it does not make
+it measurable, and an unmeasurable confound is not one this study is willing to
+put under a registered contrast.
 
 So arm A is Study 011's registered call, re-run in the same batch as B–E, and
 every registered contrast in §5 is **within this batch**.
 
-**Arm A's prompt is 011's pinned text plus exactly the registered conventions
-delta [D-15], and nothing else.** §2.6's conventions paragraph adds one
-sentence — the scale sentence — to all five arms alike, so that arm E's
-threshold definitions do not smuggle a second intervention into arm E only
-(the reasoning is in §2.5 and the choice is registered as **[D-15]**). The
-consequence for this section is that arm A's prompt no longer hashes to Study
-011's pinned prompt digest
+**Arm A's prompt is 011's pinned text plus exactly the two registered deltas,
+and nothing else.** Both deltas are in **all five arms**, which is the whole
+point of each: `CONVENTIONS_DELTA` adds the scale sentence to every arm so
+that arm E's threshold definitions do not smuggle a second intervention into
+arm E only (§2.5, **[D-15]**), and `PREAMBLE_DELTA` replaces the preamble's
+study name in every arm so that arm E is *de-referenced as well as denamed*
+(§2.5, **[D-16]**, adopted in round 2). The consequence for this section is
+that arm A's prompt no longer hashes to Study 011's pinned prompt digest
 `a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2`. What is
 required in code instead, and is a stronger relation than the digest was:
 
 ```
 arms/A/POLICY.md == 010's locked policy/POLICY.md bytes
-                   with CONVENTIONS_DELTA inserted at the registered position
+                   with PREAMBLE_DELTA applied at its single occurrence
+                   and CONVENTIONS_DELTA appended at the registered position
 arms/A/PROMPT.txt == HEADER + (arms/A/POLICY.md minus its final LF)
 ```
 
-where `CONVENTIONS_DELTA` is published verbatim in §2.6 and Appendix A, pinned
-by its own sha256 in `harness/PINS.json`, and `HEADER` is derived from 011's
-pinned prompt bytes (§2.6). So the byte relation to 011's cell is still
-arithmetic on bytes and not an assurance; it is now an *equation with a
-published, pinned residue* rather than an equality. 011's prompt digest is
-still pinned and still verified — as the source of `HEADER`, which is the 948
-bytes of 011's prompt that precede the policy text.
+where both deltas are published verbatim in §2.6 and Appendix A; the
+**assembled preamble** and `CONVENTIONS_DELTA` are each pinned by their own
+sha256 in `harness/PINS.json`; and `HEADER` is derived from 011's pinned prompt
+bytes (§2.6). So the byte relation to 011's cell is still arithmetic on bytes
+and not an assurance; it is now an *equation with two published, pinned
+residues* rather than an equality. 011's prompt digest is still pinned and
+still verified — as the source of `HEADER`, which is the 948 bytes of 011's
+prompt that precede the policy text.
+
+Registered as a cost rather than as a detail: **two registered deltas is one
+more than an earlier draft carried**, and D-16's alternative — keeping 010's
+preamble byte-identical — is what the second one buys out of. §2.5 states what
+it buys and §5.3 (i) states what it does not.
 
 The comparison of arm A against Study 011's published rates is reported in
 `ANALYSIS.md` as **drift information, with no verdict attached** (§4.7). It is
@@ -160,18 +179,37 @@ the digest pin was load-bearing only for that drift report.
 
 One consequence is registered here rather than discovered later, and it is
 registered as *weaker* than an earlier draft claimed. **An arm-A class below
-HIGH is at least as likely to be sampling noise at N = 25 as drift**: §5.4
+HIGH is at least as likely to be sampling noise at N = 30 as drift**: §5.4
 records that at a true per-class p of 0.95 — inside Study 011's own published
 interval, whose lower bound is 0.9275 — the probability that arm A reads HIGH
-on **all six** classes is only **0.4424**, and on all four narrow numeric
-classes only **0.5806**. So a single arm-A class below HIGH is **reported as
-an unresolved baseline for that class, not as a drift finding**, every §5
+on **all six** classes is **0.6865** under the registered conditional-
+independence scenario, and on all four narrow numeric classes **0.7782** (at
+the N = 25 the round-2 review re-adjudicated away from, the same figures were
+0.4424 and 0.5806). So a single arm-A class below HIGH is **reported as an
+unresolved baseline for that class, not as a drift finding**, every §5
 contrast involving that class is INDETERMINATE by §5.2's own rule, and the
-drift report of §4.7 stands beside it without a verdict. Only a pattern that
-§5.4's operating characteristics make implausible under zero drift — several
-classes at once, or a class far below the cut — is reported as drift, and even
-then it is reported as a finding about the contemporaneous baseline and not as
-a measurement of drift, which this design cannot make.
+drift report of §4.7 stands beside it without a verdict.
+
+**The drift classification is numeric or it does not exist [D-19].** An earlier
+draft said a "pattern that §5.4's operating characteristics make implausible —
+several classes at once, or a class far below the cut" is reported as drift,
+which is an unregistered rule wearing a registered one's clothes: "several" and
+"far below" are the analyst's to set after seeing the data. The registered rule
+is now a count and a bound, both fixed here:
+
+> **Arm A is reported as DRIFT-SUSPECTED iff arm A reads below HIGH on four or
+> more of its six classes, or reads LOW on any one of them.** Anything else —
+> including three classes below HIGH — is reported as **an unresolved baseline
+> on those classes and nothing more**. No other pattern is called drift, and no
+> quantity outside this rule may be cited as evidence of drift.
+
+Under the scenario above, P(four or more of six below HIGH) is **0.0002** at
+N = 30 and **0.0032** at N = 25, so the rule fires by sampling alone about
+twice in ten thousand runs of this study at the registered N (three in a
+thousand at the alternative). Even when it fires it is
+reported as **a finding about the contemporaneous baseline, not as a
+measurement of drift**, which this design cannot make: there is no second
+snapshot to compare against.
 
 ### 2.2 What is constant across the arms, and where it comes from
 
@@ -180,10 +218,24 @@ levels deep and is verified in code before any call and before any scoring
 (§6 C1):
 
 ```
-Study 012's harness/PORTS.md
-    -> Study 011's harness/PINS.json + harness/PORTS.md   (both pinned here)
-        -> Study 010's PROTOCOL-LOCK.json                 (pinned in 011)
+Study 012's harness/PORTS.md      (pinned in harness/PINS.json at port time)
+    -> Study 011's harness/PINS.json   e0007697…   (pinned here)
+       Study 011's harness/PORTS.md    783cc9c3…   (pinned here)
+        -> Study 010's PROTOCOL-LOCK.json          (pinned in 011)
 ```
+
+**Every link in that chain is a pinned digest, including the two ends.** An
+earlier draft said 011's `PINS.json` and `PORTS.md` were "both pinned" while
+specifying a digest only for the former, and left this study's own `PORTS.md`
+unpinned — so the file that records what every enumerated change *was* could
+be rewritten after the review with nothing refusing. The registered digests:
+
+| chain artifact | sha256 | pinned where |
+| --- | --- | --- |
+| Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
+| Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
+| Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
+| Study 012 `harness/PORTS.md` | (port time) | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -197,9 +249,14 @@ earlier draft conflated them).
 
 `arms/A/POLICY.md` is **not** a byte-identical port: it is 010's locked
 `policy/POLICY.md`
-(`e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f`) plus the
-registered `CONVENTIONS_DELTA` of §2.1 and §2.6, and it appears in the
-enumerated-change table below with 010's lock as its source-side authority.
+(`e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f`) with the
+registered `PREAMBLE_DELTA` and `CONVENTIONS_DELTA` of §2.1 and §2.6, and it
+appears in the enumerated-change table below with **010's lock directly** as
+its source-side authority. It does not travel "through 011's `PORTS.md`":
+Study 011 holds no separate copy of the policy text — it inlines it in the
+prompt — so there is no 011-side blob for that row to answer to, and an
+earlier draft's "through 011 `PORTS`" wording named a provenance step that
+does not exist.
 `arms/A/PROMPT.txt` is likewise derived rather than copied: `HEADER` is taken
 from 011's pinned prompt bytes
 (`a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2`, itself
@@ -209,14 +266,34 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | ported with enumerated changes | source sha256 | source authority | destination sha256 | registered scope of the change |
 | --- | --- | --- | --- | --- |
 | `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | 010's lock | (port time) | **[D-14]** the two threshold comparisons read `T_low` and `T_high` from the arm's `ARM.json` instead of the literals 40 and 70; the module is otherwise line-for-line 010's, and the diff is published in `harness/PORTS.md`. **One module serves all five arms** — see below |
-| `arms/A/POLICY.md` | `e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f` | 010's lock, through 011's `PORTS.md` | (port time) | `CONVENTIONS_DELTA` inserted at the registered position (§2.1, §2.6, Appendix A), and nothing else. The delta is published verbatim and pinned by its own sha256 |
+| `arms/A/POLICY.md` | `e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f` | **010's lock directly** — 011 holds no separate policy copy, so there is no 011-side blob for this row | (port time) | exactly two registered deltas and nothing else: `PREAMBLE_DELTA` applied at its single occurrence and `CONVENTIONS_DELTA` appended at the registered position (§2.1, §2.6, Appendix A). Both are published verbatim; the assembled preamble and the conventions delta are each pinned by their own sha256 |
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | (port time) | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | (port time) | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt; no other check logic changes |
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | (port time) | §2.7 |
 | `harness/integrity.py` | (port time) | 011's commit only | (port time) | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | (port time) | 011's commit only | (port time) | §2.8's per-arm round-robin schedule; per-arm slot roots; the arm stamp in `CALL.json` |
+| `harness/batch.py` | (port time) | 011's commit only | (port time) | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
 | `harness/score_rates.py` | (port time) | 011's commit only | (port time) | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | (port time) | 011's commit only | (port time) | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
+
+**The port happens before the final cross-vendor review, not after it
+[D-20].** An earlier draft ordered the work review → port → freeze, which put
+every `(port time)` cell — four inherited harness sources, this study's own
+`PORTS.md`, and all twenty arm-artifact digests — outside the reach of every
+review that ran. The registered order is now:
+
+```
+1. review rounds over the specification and the arm texts   (this file, Appendix A)
+2. THE PORT: every harness file written, every arm artifact assembled,
+   every (port time) cell filled, PORTS.md and PINS.json completed
+3. THE FINAL cross-vendor review, over the complete post-port candidate tree
+4. the freeze: the tree manifest of the final review round is recorded in
+   PINS.json, the preregistration's own digest is filled, and the file is merged
+```
+
+so that the last review sees the bytes that run, including the ported code. The
+cost is registered rather than hidden: the final round is a larger review than
+a specification-only round, and if it finds anything that changes a byte, the
+port and the review both repeat — §2.10 makes that a rule and not a preference.
 
 **One mirror module, five arms, parameterized by a registered artifact
 [D-14].** Study 010's locked `policy_mirror.py` encodes 40 and 70 as literals
@@ -299,9 +376,17 @@ marginal rather than a simultaneous region.
 Arm D moves `T_low` 40 → 45 and `T_high` 70 → 72, and everything keyed to them
 moves with them: the policy text's two literals, the mirror's two comparisons,
 and the five family edges of §2.3. The moves are deliberately **unequal** (+5
-and +2) so that no single affine shift explains the arm, and deliberately still
-ordered `T_low` < `T_low`+1 < `T_high` so the six classes stay disjointness-
-compatible and non-empty.
+and +2) so that no single **additive shift** explains the arm, and deliberately
+still ordered `T_low` < `T_low`+1 < `T_high` so the six classes stay
+disjointness-compatible and non-empty.
+
+**"Additive shift" is the exact word and an earlier draft used the wrong one.**
+It said *affine*, which is false: unequal moves exclude a translation `x + c`,
+they do not exclude an affine map. `0.9x + 9` sends 40 → 45 and 70 → 72
+exactly, so an author who rescaled rather than translated would produce arm D's
+pair. Nothing in this study excludes that, the claim is narrowed to what is
+true — **(45, 72) is not a translation of (40, 70)** — and the wider claim is
+withdrawn.
 
 **The pair (45, 72) is an authored choice with two named costs, registered as
 [D-18] rather than presented as forced.** (i) *Salience.* 40 and 70 are
@@ -328,6 +413,7 @@ code (§6 C8):
 
 ```
 landmarks(T_low, T_high) = [ 0,
+                             T_low  - 1 - 0.01,
                              T_low  - 1,     T_low  - 0.01,  T_low,
                              T_low  + 0.01,  T_low  + 1 - 0.01,  T_low  + 1,
                              T_high - 0.01,  T_high,         T_high + 0.01,
@@ -336,13 +422,32 @@ landmarks(T_low, T_high) = [ 0,
 grid(arm)  = {false,true} x {KP, IR, SY, CA, DE} x {false,true} x landmarks(arm)
 ```
 
-**Thirteen landmarks, 260 cells per arm** (2 × 5 × 2 × 13). The four landmarks
-at `T_low + 1` and `T_high + 1`, on both sides, are there because those are the
-**exclusive upper bounds of classes 2 and 1** (§2.3) and an earlier
-nine-landmark grid probed neither: a family that encoded class 2 as
-`[45, 47)` or class 1 as `[72, 74)` would have passed the class-membership half
-of the check unchanged, while the grid was advertised as the check that carries
-the whole claim about arm D. It now probes every edge the six predicates name.
+**Fourteen landmarks, 280 cells per arm** (2 × 5 × 2 × 14). Each landmark that
+is not `0` or `100` is there because some predicate names that edge, and the
+set has been closed twice, each time by a review that found a mutant family it
+could not see:
+
+- the four at `T_low + 1` and `T_high + 1`, on both sides, are the **exclusive
+  upper bounds of classes 2 and 1** (§2.3); a nine-landmark grid probed
+  neither, so a family encoding class 2 as `[45, 47)` or class 1 as
+  `[72, 74)` would have passed the class-membership half unchanged (round 1);
+- `T_low − 1 − 0.01` is the point immediately below **class 5's lower edge**;
+  a thirteen-landmark grid probed the edge but nothing under it, so a family
+  encoding class 5 as `[T_low − 2, T_low)` passed **every one of the 260
+  cells** (round 2). Verified both ways before it was written in: the mutant
+  agrees with arm A's class vector on all 260 cells of the old grid and
+  disagrees on the new one.
+
+**The claim the grid carries, stated exactly and no wider.** For **every edge
+any of the six predicates names** — `T_low − 1`, `T_low`, `T_low + 1`,
+`T_high`, `T_high + 1` — the grid holds a point exactly at it and a point 0.01
+to its excluded side, so every inclusive/exclusive decision the six predicates
+make is pinned by a cell. What it does **not** establish, because no finite
+grid can: that two families agreeing on all 280 cells agree everywhere. A
+mutant that differs only strictly between two adjacent landmarks survives this
+check, and **C9's structural equality of the predicate encodings is what bounds
+that** — the two controls are complements and §6 C9 says which failure each
+one catches.
 
 The registered requirement: **the verdict vector of every arm's mirror over its
 own grid, in the registered cell order, is elementwise equal to arm A's**, and
@@ -406,36 +511,63 @@ wrong.
 it does not remove numeric information. A reader who expected "no numbers at
 all" is owed that sentence, and §9 repeats it.
 
-*Second, and stated because an earlier draft got it wrong:* arm E's
-`POLICY.md` **is not digit-free**, and no honest version of it can be. Three
-digit-runs survive in the frozen bytes, in text that is byte-identical across
-all five arms and is therefore not a difference between them:
+*Second, and stated because an earlier draft got it wrong twice:* arm E's
+`POLICY.md` **is not digit-free**, and no honest version of it can be. **Four
+non-label digit-runs, from two sources**, survive in the frozen bytes, in text
+that is byte-identical across all five arms and is therefore not a difference
+between them:
 
 | digit-run | where | why it is there |
 | --- | --- | --- |
-| `010` | the preamble's "Synthetic policy for Study 010" | inherited from 010, held byte-identical across all five arms (§2.6) |
 | `4` | P5's body, "unless P4 applies" | a structural cross-reference to a clause label, present identically in A, B, C, D and E |
 | `3166`, `1`, `2` | the conventions paragraph's `ISO 3166-1 alpha-2` | inherited from 010, held byte-identical across all five arms |
 
-plus the clause labels `P1`–`P5` themselves. Registered mechanically (§6 C8),
-and true of the frozen artifact:
+plus the clause labels `P1`–`P5` themselves. **The count and the sources are
+stated because two earlier drafts miscounted them**: the first said "three
+digit-runs survive" while listing rows rather than runs, and both carried a
+fifth run, `010`, from the preamble's "Synthetic policy for Study 010" — which
+**round 2 removes from every arm** under `PREAMBLE_DELTA` (D-16 adopted). The
+figure the round-2 review computed over the bytes it read, *five non-label runs
+from three sources*, was correct of those bytes; the figure above is correct of
+the round-2 bytes.
+
+Registered mechanically (§6 C8), and true of the frozen artifact:
 
 > **The only digit-runs anywhere in arm E's `POLICY.md` are the clause labels
-> `P1`–`P5`, in-body clause-label references of the form `P<n>`, the token
-> `ISO 3166-1 alpha-2`, and the preamble's study reference; and no digit-run
-> in the file equals `40` or `70`.** The clause-body census of §2.6 and C8
-> runs over each body with clause-label tokens `P1`–`P5` masked out, so
-> "arm E's clause bodies carry no numeric content" is checked as the statement
-> it is meant to be rather than refuted by a cross-reference.
+> `P1`–`P5`, in-body clause-label references of the form `P<n>`, and the token
+> `ISO 3166-1 alpha-2`; and no digit-run in the file equals `40` or `70`.**
+> The clause-body census of §2.6 and C8 runs over each body with clause-label
+> tokens `P1`–`P5` masked out, so "arm E's clause bodies carry no numeric
+> content" is checked as the statement it is meant to be rather than refuted
+> by a cross-reference.
 
-**The preamble's `010` is a recall channel, and it is registered as one.**
-"Study 010" is a name-keyed pointer to a public repository whose policy text
-states 40 and 70. Arm E is therefore *denamed but not de-referenced*: it
-retains one textual hook by which a contaminated snapshot could recall the
-literals it was denied. §5.3 (i) registers this as a third reading of an
-E-maintains-coverage outcome, with the discriminator named. **[D-16]** records
-the alternative — replacing the study reference with a digit-free, name-free
-equivalent in all five arms — and what it would cost.
+**The preamble's study name was a recall channel, and round 2 closes it
+[D-16].** "Study 010" was a name-keyed pointer to a public repository whose
+policy text states 40 and 70: arm E was *denamed but not de-referenced*, and
+retained one textual hook by which a contaminated snapshot could look up the
+literals it was denied. The registered `PREAMBLE_DELTA` replaces that name with
+a self-reference in **all five arms**, so the preamble stays byte-identical
+across arms and arm E loses the hook:
+
+```
+Synthetic policy for Study 010.   ->   Synthetic policy for this study.
+```
+
+one substitution, at its single occurrence in 010's locked bytes, +1 byte, and
+the assembled preamble is pinned by its own sha256 in `harness/PINS.json`.
+
+**What that fixes and what it does not, stated exactly.** It removes the one
+*textual* route from arm E's own bytes to the literals. It does **not** remove
+residual memorization: the policy family's clause wording, its country codes
+and its outcome vocabulary have been public in this repository since
+2026-08-06, and a snapshot that has seen the corpus could recognise the *shape*
+of the policy without being told its name. So §5.3 (i)'s recall explanation is
+narrowed rather than deleted — from "recall keyed to a name the text supplies"
+to "recall keyed to the text's own shape" — and the honest statement stands:
+**this study still cannot separate derive-then-hug from residual
+memorization.** What it can now say is that no arm hands the author a pointer.
+The cost is registered in §2.1 and under [D-16]: a second registered delta from
+010's locked text, on top of D-15's.
 
 **[D-3]** The exact reference wording of arm E is the single most consequential
 authored artifact in this study. Appendix A carries the draft; the pre-freeze
@@ -473,14 +605,14 @@ files, each pinned by sha256 in `harness/PINS.json` **before any call**:
 | E | (port time) | (port time) | (port time — equals A's) | (port time) |
 
 Arm A's `POLICY.md` and `PROMPT.txt` are `(port time)` rather than filled from
-011's lock because of the registered `CONVENTIONS_DELTA` (§2.1, [D-15]); what
+011's lock because of the two registered deltas (§2.1, [D-15], [D-16]); what
 is filled now, and checked, is the pair of authorities they are derived from —
 010's locked `policy/POLICY.md` at
 `e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f` and 011's
 pinned prompt at
 `a68dad107dc5d250a399f6a6ac43c8d06d4894d06fb21022ea7819188510d3a2`. If the
-review chooses D-15's alternative (E-only scale sentence), arm A's two cells
-become those two digests outright and the derivation collapses to equality.
+review reverses both D-15 and D-16, arm A's two cells become those two digests
+outright and the derivation collapses to equality.
 
 **The policy document's structure is registered**, because the mechanical
 checks of §6 C8 parse it:
@@ -502,11 +634,14 @@ use.
 
 Registered per arm, and checked:
 
-- the **preamble is byte-identical in all five arms**. It is inherited from
-  Study 010 and its references to packs and to Study 010 are historical;
-  keeping it fixed is what confines each arm's variation to the intervention.
-  What that costs arm E is registered in §2.5 and §5.3 (i) and its alternative
-  is **[D-16]**;
+- the **preamble is byte-identical in all five arms**, and equals 010's
+  preamble with the registered `PREAMBLE_DELTA` **[D-16]** applied at its
+  single occurrence — the substitution `Study 010` → `this study`, published
+  verbatim in Appendix A, with the assembled preamble pinned by its own
+  sha256. Keeping the preamble fixed across arms is what confines each arm's
+  variation to the intervention; removing the study name is what stops arm E
+  carrying a pointer to a public text that states 40 and 70 (§2.5). C8 checks
+  both the cross-arm equality and the derivation from 010's bytes;
 - the **conventions paragraph is byte-identical in A, B, C and D**, and equals
   010's conventions paragraph plus the registered `CONVENTIONS_DELTA`
   **[D-15]**, which is exactly one sentence and is published verbatim in
@@ -528,61 +663,119 @@ Registered per arm, and checked:
   the digit-run census is A's under σ, which is `{45, 45, 72, 72, 72, 72}`;
 - **E**: the five bodies' digit-run census is **empty**; P1's and P2's bodies
   are byte-identical to A's (they carry no numeric content), and P3, P4 and P5
-  are the registered reference wordings.
+  are the registered reference wordings. **The inclusivity invariant applies to
+  arm E in the only form it can, and the difference is registered rather than
+  glossed**: E has no literals, so no adjacency *side* can be preserved — you
+  cannot write "the review threshold or above" in English the way you write "70
+  or above". What is checked is that E's six bound phrases carry the **same six
+  senses in the same six places** as A's: inclusive at `T_high` in P3;
+  inclusive at `T_low` and exclusive at `T_high` in P4; exclusive at `T_high`
+  twice and exclusive at `T_low` once in P5. The side flips from *after the
+  literal* to *before the name* at the two inclusive bounds, and that flip is
+  **inherent to denaming, not an authored choice** — which is exactly why it is
+  written down here instead of being discovered in the analysis.
 
 **Arm B carries a clause-level invariant the digit census cannot express.**
 The literal multiset is preserved by any paraphrase that keeps the numbers;
 what 011's census identifies as the single most anchoring-relevant feature of
 the text is the **boundary-inclusivity phrasing** — A's P4 reads "40 or above
-but below 70", B's reads "from 40 up to but not including 70" — and those are
-exactly the cues the on-edge records at 40 and 70 answer. If B collapsed and
-that phrasing were unconstrained, "the paraphrase weakened the inclusivity cue"
-would explain it at least as well as "the author anchors to the prompt's
-shape", and §5.3 (iii)'s registered dependency would take arm E's result down
-with it. So, registered and checked in C8:
+but below 70" — and those are exactly the cues the on-edge records at 40 and 70
+answer. If B collapsed and that phrasing were unconstrained, "the paraphrase
+weakened the inclusivity cue" would explain it at least as well as "the author
+anchors to the prompt's shape", and §5.3 (iii)'s registered dependency would
+take arm E's result down with it. So, registered and checked in C8:
 
 > **In every arm at (40, 70), each numeric bound is stated with an explicit
 > inclusivity word immediately adjacent to its literal, and the adjacency
 > pattern of arm B's bodies matches arm A's clause for clause** — same clause,
-> same literal, same side, an inclusivity word on the same side of the literal.
+> same literal, same side, an inclusivity word of the same sense on the same
+> side of the literal.
+
+The registered vocabulary, so that "inclusivity word" is a check and not a
+reading: the **inclusive** cues are `or above`, `or more`, `or higher` and
+`at or above`; the **exclusive** cues are `below`, `under` and `less than`. The
+check masks clause-label tokens `P1`–`P5` first (as the digit census does),
+strips emphasis markers, and records for each remaining literal the ordered
+tuple *(clause label, literal, side, sense)*; the invariant is that arm B's
+tuple sequence equals arm A's, and that arm D's equals arm A's under σ.
+
+**The vocabulary is closed, and that is part of the invariant rather than an
+implementation detail.** A bound whose cue is not one of the seven listed
+phrases fails the check even if a reader would call it an inclusivity cue —
+"up to but not including 70" says the right thing and is not on the list. The
+closure is deliberate: an open-ended notion of "an inclusivity word" is a
+reading, and a reading is what this invariant exists to replace. Its cost is
+that the invariant constrains B's word choice and not only B's word *order*,
+which §2.6 already registers as the price of the control. The seven phrases are
+what arms A, B, C and D actually use; a future arm needing another would be
+changing a registered property, not filling a gap.
+
+**Round 2 found the invariant violated by the very text it was written for,
+and the text is what changed.** The round-1 arm B read "from **40** up to but
+not including 70": A's P4 lower cue follows the literal ("40 or above"), B's
+preceded it ("from 40"), and Appendix A's own substitution table flagged the
+asymmetry as "the review's to adjudicate" while §6 C8 asserted the invariant
+held and the round-1 re-verification reported 46 registered properties passing.
+Both cannot be true. The registered resolution is the one that keeps the
+control: **arm B's P4 is rewritten** so its lower bound reads "**40 or more**"
+and its upper bound "**below 70**", matching A's sides and senses clause for
+clause. The invariant is not weakened, and the round-1 property count is
+corrected in `PREREG-REVIEW.md` rather than left standing.
+
+**What the invariant costs arm B, registered rather than discovered.** It
+constrains the six bound phrases to A's sides and senses, so B's paraphrase
+lives in everything *except* the bound phrases — and at P4's upper bound and
+P5's three bounds it now uses A's own cue word. Arm B is therefore a paraphrase
+of the *clause frames*, not of the *boundary language*, and §5.3 (iii) reads a
+B result against that fact: a B that tracks says this reframing did not move
+coverage, and says nothing about a paraphrase that also moves the cues. That is
+a narrower control than an unconstrained paraphrase would be, and it is the
+narrowness that makes it a control at all.
 
 The clause-by-clause A ↔ B substitution table is published under **[D-4]** in
 Appendix A so the pre-freeze review adjudicates each substitution rather than
 reading five paragraphs as a whole.
 
-**Arm C's permutation is registered as (P2, P1, P4, P5, P3) [D-5].** The
+**Arm C's permutation is registered as (P1, P2, P4, P5, P3) [D-5].** The
 constraint it satisfies is stated generally rather than as one special case,
 and it is checked in code:
 
-1. it is a **derangement** — no clause keeps its position: P1 1→2, P2 2→1,
-   P3 3→5, P4 4→3, P5 5→4;
-2. **every explicit clause-label reference resolves backward** — P5's body says
+1. **every explicit clause-label reference resolves backward** — P5's body says
    "unless P4 applies", and P4 is at position 3 with P5 at position 4;
-3. **every three-part "absent a sanctions hit or an embargoed registration"
+2. **every three-part "absent a sanctions hit or an embargoed registration"
    precondition resolves backward** — P3, P4 and P5 all open with it, and both
    P1 (which establishes sanctions hits) and P2 (which establishes embargoed
-   registrations) occupy positions 1 and 2.
+   registrations) precede all three;
+3. **the two-part "Absent a sanctions hit" precondition resolves backward too**
+   — P2 opens with it, and P1 is at position 1;
+4. subject to 1–3, the permutation **moves as many clauses as possible**:
+   three of five (P3 3→5, P4 4→3, P5 5→4), with P1 and P2 in place.
 
-**(P2, P1, P4, P5, P3) is the unique permutation of the five clauses
-satisfying 1–3**, verified by exhaustive enumeration of all 120 permutations
-and asserted by a harness test. The permutation an earlier draft registered,
-(P2, P4, P1, P5, P3), fails clause 3: P4 at position 2 opens with "absent a
-sanctions hit or an embargoed registration" while P1 does not appear until
-position 3.
+**(P1, P2, P4, P5, P3) is the unique permutation satisfying 1–4**, verified by
+exhaustive enumeration of all 120: exactly three permutations resolve every
+reference backward — the identity, (P1, P2, P4, P3, P5) which moves two, and
+this one which moves three — and no other reaches three. A harness test
+re-derives that from the parsed bodies rather than comparing against a
+hard-coded tuple.
 
-**One residual forward reference remains, and no derangement can remove it.**
-P2's own body opens with the two-part "Absent a sanctions hit", and under
-(P2, P1, P4, P5, P3) it sits at position 1 with P1 at position 2. Requiring
-*that* reference to resolve backward as well would force P1 to position 1 and
-P2 to position 2, which is not a derangement — the constraint set is provably
-unsatisfiable, by the same enumeration. So arm C perturbs order and leaves
-exactly one two-part precondition unresolved at first reading, and §5.3 (iii)
-reads a C-collapse against that fact rather than against a stronger claim. The
-alternative — (P1, P2, P4, P5, P3), which resolves *every* reference backward
-and is the maximum-movement permutation that does, at the cost of leaving two
-clauses in place instead of deranging all five — is registered under **[D-5]**.
+**Arm C is no longer a derangement, and that is the round-2 trade [D-5].** The
+round-1 registration was (P2, P1, P4, P5, P3): the unique *derangement* that
+resolves clause 1 and clause 2, at the cost of leaving P2's own two-part opener
+forward-referencing P1 at position 2 — provably unavoidable, since *derangement
++ every reference backward* is empty over all 120 permutations, by the same
+enumeration. Round 2's finding is that arm C is **a control on which arm E's
+interpretation depends**, so a residual comprehension difficulty in C is not a
+disclosed cost but a live alternative explanation for a C-collapse — and a
+C-collapse disarms E under §5.3 (iii)'s dependency. Comprehensibility
+therefore wins over full derangement: every reference in arm C resolves
+backward, and the price is that two of five clauses keep their positions.
+(P2, P1, P4, P5, P3) is registered under **[D-5]** as the alternative, with the
+trade stated in both directions — full derangement is the stronger *perturbation*
+and the weaker *control*, and this study needs C to be a control.
+
 Nothing else about the permutation is claimed; one permutation is one
-permutation.
+permutation, and moving three clauses is not "reordering the policy" in
+general.
 
 **The prompt relation is registered and checked**, not described:
 
@@ -598,8 +791,8 @@ policy at `e46f8c48…` (1759 bytes, 1758 without the final LF), which gives
 2706 − 1758 = **948** header bytes. Every arm's prompt — arm A's included —
 must satisfy the equation above with no trailing newline. So "only the policy
 differs" is arithmetic on bytes and not an assurance, and arm A's relation to
-011's cell is the composition of that equation with the registered
-`CONVENTIONS_DELTA` (§2.1).
+011's cell is the composition of that equation with the two registered deltas
+(§2.1).
 
 ### 2.7 The wrapper is an adaptation of an adaptation
 
@@ -626,74 +819,192 @@ It **does not** retry, judge a completion, compile records, or decide
 admissibility. Because it is adapted, the pre-freeze review reviews it as its
 own artifact, exactly as 011's review did.
 
-### 2.8 Sample size, the round-robin schedule, and the shortfall rule
+### 2.8 Sample size, the registered call order, and the shortfall rule
 
-**N = 25 slots per arm [D-1]**, 125 authoring slots in total, fixed before the
+**N = 30 slots per arm [D-1]**, 150 authoring slots in total, fixed before the
 batch and executed **sequentially, never in parallel**. §5.4 is the power
-reasoning; the short version is that N = 25 is the smallest round number at
-which the registered HIGH cut is reachable with slack (a perfect arm's exact
-lower bound is 0.8628, and an arm may miss twice and still read HIGH) and at
-which a genuine collapse to ≤ 0.05 is called LOW about 87% of the time.
+reasoning and round 2 re-adjudicated it against the *actual* registered rules
+rather than a stricter proxy; the short version is that the study's binding
+quantity is not the marginal per-class figure but **the joint probability that
+the B and C control gate of §5.3 (iii) passes at all**, and that gate stands at
+**0.4031 at N = 25 and 0.7658 at N = 30** under the registered scenario. A
+control that fails three times in five under a *true null effect in both
+control arms* is not a control, which is this file's own criterion, applied to
+itself. N = 25 is registered as the alternative under [D-1] with that cost
+attached.
 
-**The five arms are interleaved round-robin, not run in blocks [D-7].** The
-batch is 25 **rounds**; each round runs one slot of each arm. Blocked
-execution would confound the arm with the two-hour drift across the batch —
-the same reason §2.1 refuses Study 011 as a baseline, applied within the day.
-Within round *j* the arm order is the cyclic shift of (A, B, C, D, E) by
-(*j*−1) mod 5, so over 25 rounds **each arm occupies each within-round position
-exactly five times**. That balance is why N is a multiple of 5, and if the
-review moves N it should keep it one.
+#### The registered call order: first-order carryover-balanced [D-7]
 
-All 125 slots are begun and completed within **one UTC calendar day**;
+**The five arms are interleaved, not run in blocks**, because blocked execution
+would confound the arm with the drift across the batch — the same reason §2.1
+refuses Study 011 as a baseline, applied within the day. The batch is 30
+**rounds**; each round runs one slot of each arm.
+
+**Balancing position is not enough, and round 2 found the gap.** The round-1
+schedule rotated (A, B, C, D, E) cyclically by round, which balances *position*
+perfectly and balances *predecessor* not at all: under it arm E follows arm D
+in 20 of its 25 calls and arm C in the other 5, and **never once follows A or
+B** — verified by enumeration over the round-1 schedule. Provider-side state
+carried from one call to the next is exactly what §7 admits this design cannot
+exclude, and under a schedule like that, state carried from arm D's 45/72
+prompt could *manufacture* arm E's predicted collapse. §7 claimed such state
+"could only blur a contrast"; against an unbalanced predecessor structure that
+claim was false, and it is withdrawn.
+
+The registered order is built from a **Williams design for five treatments**,
+which is the standard construction for first-order carryover balance. Ten
+sequences, each a permutation of the five arms:
+
+| | order |
+| --- | --- |
+| **W1** | A, B, E, C, D |
+| **W2** | B, C, A, D, E |
+| **W3** | C, D, B, E, A |
+| **W4** | D, E, C, A, B |
+| **W5** | E, A, D, B, C |
+| **W6** | D, C, E, B, A |
+| **W7** | E, D, A, C, B |
+| **W8** | A, E, B, D, C |
+| **W9** | B, A, C, E, D |
+| **W10** | C, B, D, A, E |
+
+(W1–W5 are the cyclic rows of the Williams first row `A, B, E, C, D`; W6–W10
+are those five rows reversed.) Over the ten, **each arm holds each of the five
+positions exactly twice** and **each of the twenty ordered pairs X→Y is
+adjacent exactly twice**.
+
+The batch is **three blocks of those ten sequences**, each block in its own
+registered order:
+
+```
+block 1 (rounds  1-10):  W2 W4 W7 W10 W1 W9 W8 W6 W3 W5
+block 2 (rounds 11-20):  W4 W3 W2 W10 W9 W8 W5 W1 W7 W6
+block 3 (rounds 21-30):  W4 W6 W5 W7  W1 W2 W10 W8 W9 W3
+```
+
+The three orders are registered artifacts, chosen before any call so that the
+round-boundary transitions are as flat as an odd number of them permits. **The
+properties the harness test asserts over the expanded 150-slot order**, each
+re-derived from the table above rather than restated:
+
+| property | registered value |
+| --- | --- |
+| slots per arm | 30, all five equal |
+| **position counts** | each arm in each within-round position exactly **6** times (25 cells, all 6) |
+| **within-round directed transitions** | each of the 20 ordered pairs X→Y exactly **6** times (120 transitions) |
+| **round-boundary transitions** | 29 in total; no arm ever immediately follows itself; 9 ordered pairs occur twice and 11 occur once |
+| **total directed transitions** | 149; every ordered pair occurs **7 or 8** times — max minus min is **1** |
+
+The full transition matrix, rows = predecessor, columns = successor, over all
+149 transitions:
+
+```
+      A   B   C   D   E
+  A   -   7   7   7   8
+  B   7   -   8   8   7
+  C   7   7   -   8   8
+  D   8   8   7   -   7
+  E   8   7   8   7   -
+```
+
+**Exact balance is arithmetically impossible here and the file says so rather
+than claiming it.** 150 slots give 149 transitions and 149 is not a multiple of
+20, so no order over this batch can make all twenty counts equal. What is
+achievable and is registered is *max − min = 1*, and the within-round half is
+exactly balanced at 6 apiece. That is the strongest first-order statement this
+shape admits.
+
+**A truncated batch is not balanced, and no balance is claimed over one.** If
+the batch stops short, the transition census of the prefix that ran is
+published as computed and every registered balance property is reported as
+**not established**. §5's verdicts are unavailable in that case anyway (the
+stopping rule below), so nothing reads a balance the prefix does not have.
+
+All 150 slots are begun and completed within **one UTC calendar day**;
 spilling past midnight is a `DEVIATIONS.md` entry, not a stopping rule.
 
-**Denominators.** Let N = 25 be the slots executed per arm, `I_X` the
-pipeline-invalid runs in arm X, and `V_X = N − I_X` its valid runs. Every rate
-in §4 is computed over that arm's own `V_X`. The §5 cuts are stated on **exact
-interval bounds**, not on observed coverage, precisely so that an arm with a
-smaller `V_X` faces a boundary that already carries its smaller sample — Study
-011 §5's lesson, reused. **[D-13]** The arms are not truncated to a common
-denominator; each `V_X` is published beside its rates, and if two arms' valid
-counts differ by more than 2 the contrasts carry a stated caution.
+**Denominators.** Let N = 30 be the slots executed per arm, `I_X` the
+pipeline-invalid runs in arm X, and `V_X = N − I_X` its valid runs. **The
+primary endpoint's denominator is N, not `V_X`** — §4.2 registers why, and it
+is a round-2 change: excluding pipeline-invalid runs conditions the endpoint on
+an outcome the arm's own policy text can influence. `V_X` survives as the
+per-protocol secondary's denominator. The §5 cuts are stated on **exact
+interval bounds**, not on observed coverage, precisely so that a denominator
+carrying more misses faces a boundary that already carries them — Study 011
+§5's lesson, reused. **[D-13]** The arms are not truncated to a common
+denominator; every arm's N, `I_X` and `V_X` are published beside its rates, and
+if two arms' valid counts differ by more than 2 the per-protocol secondary
+carries a stated caution.
 
-**Shortfall rule.** If the batch cannot complete all 25 rounds, the driver
-writes `SHORTFALL.json` naming the reason, the last completed round *R*, and
-**the UTC wall-clock time of the last completed slot**, all **before anything
-is scored**, and the headline reports "R of 25 rounds completed". Because the
-schedule is round-robin, a shortfall at round *R* leaves every arm with *R* or
-*R*−1 slots, which is the reason the schedule is round-robin and not blocked: a
-batch that dies half way still has five comparable arms rather than two
-complete ones and three empty. `batch.py shortfall` refuses when the slots
-present are not fewer than the registered plan, and the scorer requires the
-declaration's round count to match the slots actually present. The wall-clock
-member does not make a stop involuntary — §7 still lists that as unproven — but
-it timestamps the stop against the append-only ledger, so a declaration and the
-slots it was made over can be read in order.
+#### The stopping rule: an incomplete batch is descriptive-only [D-21]
 
-**The shortfall floor, registered.** The §5.1 HIGH cut is *unreachable* at
-small denominators: a perfect arm's exact lower bound is **0.6915 at V = 10**
-and **0.7151 at V = 11**, so no arm with fewer than **eleven valid runs** can
-read HIGH under the `L ≥ 0.70` cut, every contrast involving it is
-INDETERMINATE by construction, and the study produces no verdict at all.
-Registered consequences, in advance:
+**If the batch does not complete all 30 rounds, this study returns no verdict
+of any kind.** Not a reduced-confidence verdict, not a verdict on the arms that
+happen to be complete, not a contrast over a smaller denominator. Every level
+verdict is `UNRESOLVED-BY-DESIGN`, no contrast is computed or reported, and the
+batch is published as slots, rates, intervals and census — the whole descriptive
+surface — with R of 30 rounds named in the headline.
 
-- since a shortfall at round *R* leaves every arm with *R* or *R*−1 slots and
-  `V_X ≤` that, **a shortfall at *R* < 11 rounds leaves the level rule unable
-  to return HIGH for any arm**. The batch is published as slots and rates —
-  every integer, every interval, the whole census — with **every verdict
-  recorded as `UNRESOLVED-BY-DESIGN`**, and **no contrast is reported**;
-- more generally, and checked per arm rather than per batch: any arm whose
-  `V_X` < 11 is recorded `UNRESOLVED-BY-DESIGN` on all six classes and enters
-  no contrast, whatever *R* was, because pipeline-invalid runs reduce `V_X`
-  below the slot count;
-- the scorer computes this itself and writes it, so "the rule could not have
-  fired" is a published fact rather than a reader's inference from a table of
-  INDETERMINATEs.
+**Why the rule is this blunt.** §7 admits an in-process route: nothing prevents
+a library caller importing the scorer, computing arm E's rate at round 10,
+publishing nothing, and leaving the driver's guard unarmed. Combined with the
+interleaved order — every arm exists from round 1 — and a shortfall declarable
+at any round, that is textbook optional stopping: an operator holding a
+directional prediction could look, like what they saw, and declare a shortfall.
+An earlier draft answered this with a **floor** — no verdict below eleven valid
+runs, since a perfect arm's exact lower bound is 0.6915 at V = 10 and 0.7151 at
+V = 11 — and with a recorded wall clock. Round 2's finding is that a floor does
+not remove optional stopping, it only moves it: the operator waits until round
+11 and then stops when the picture is favourable. **A timestamp is not a
+pre-commitment, and a denominator large enough to support a verdict is exactly
+the denominator an interested stopper wants.** The registered operating
+characteristics of §5.4 are computed for a fixed N and do not describe a rule
+that may stop when the data look right; publishing them beside a stopped
+batch's verdicts would be publishing a guarantee this study did not earn.
 
-**Resume after a crash.** `batch.py run --start-round K` continues at round K
-and runs the remaining `25 − K + 1` rounds. The ledger `BATCH.json` holds one
-append-only record per slot; a resumed invocation merges into it and refuses to
-overlap a slot the ledger already records. No slot is ever re-run.
+So the rule keys on **completeness, not on size**:
+
+- **any incomplete batch, at any round, for any reason, is descriptive-only.**
+  All 30 level verdicts are `UNRESOLVED-BY-DESIGN`; no contrast verdict, no
+  COLLAPSE-DISJOINT, no §5.3 pattern verdict, and no R1 adjudication is
+  computed, reported, or inferable from the published tables;
+- the same holds **per arm** if any arm holds fewer than 30 scheduled slots,
+  whatever the round count was;
+- `V_X` < 11 is retained as a *second*, independent floor for the per-protocol
+  secondary, so a complete batch that lost most of an arm to pipeline
+  invalidity also returns no per-protocol verdict for it;
+- the scorer computes and writes all of this itself, so "the rule could not
+  have fired" is a published fact rather than a reader's inference from a table
+  of INDETERMINATEs;
+- and this is registered **before any call**, so it costs the study a real
+  outcome: a batch that dies at round 29 for reasons no one chose publishes no
+  verdict. That is the price of the guarantee, it is paid in advance, and
+  [D-21] records the alternative (verdicts above a floor, with the stopping
+  risk stated) and why it was not taken.
+
+**Shortfall declaration.** If the batch cannot complete, the driver writes
+`SHORTFALL.json` naming the reason, the last completed round *R*, **the exact
+completed prefix of the registered schedule** (§2.8's global index of the last
+completed slot), and **the UTC wall-clock time of that slot**, all **before
+anything is scored**, and the headline reports "R of 30 rounds completed".
+`batch.py shortfall` refuses when the slots present are not fewer than the
+registered plan, and the scorer requires the declaration's prefix to match the
+slots actually present, slot for slot. The wall-clock member does not make a
+stop involuntary — §7 still lists that as unproven — but it timestamps the stop
+against the append-only ledger.
+
+**Resume after a crash [D-22].** Resumption is by **global schedule index**,
+not by round: `batch.py run --resume` reads the ledger, finds the highest
+global index recorded, verifies that the ledger's prefix is exactly the
+registered schedule's prefix of that length, and continues at the next index.
+`--start-round K` is **removed** — round 2 found it cannot resume a partly
+completed round without either overlapping slots the ledger holds or silently
+omitting the rest of that round, and neither is detectable after the fact from
+a round number alone. The ledger `BATCH.json` holds one append-only record per
+slot carrying `(globalIndex, round, position, arm, slotIndex)`; a resumed
+invocation merges into it, refuses to overlap any recorded global index, and
+refuses if the recorded prefix diverges from the registered schedule at any
+position. No slot is ever re-run.
 
 **Prohibited, without exception:** computing any rate or verdict before the
 batch is sealed; adding rounds after any rate has been computed; running a
@@ -703,25 +1014,49 @@ arm after any call has been made.** An arm is a registered artifact; a sixth
 arm, or a different arm E, is a separate study with its own registration.
 Mechanically, as in 011: the driver cannot compute coverage; the scorer refuses
 unless the batch is terminal; the driver refuses to create any slot in any arm
-once `RESULTS.json` exists; no invocation can plan a round past 25; and the
-registered scoring command takes the batch root and an optional
+once `RESULTS.json` exists; no invocation can plan a slot past global index
+150; and the registered scoring command takes the batch root and an optional
 record-emission directory and refuses every other argument.
 
 ### 2.9 What each slot retains
 
-Study 011's retention set, unchanged, plus the arm stamp: `CALL.json` (argv,
-cwd, isolated home and `CODEX_HOME`, environment names **and values**, model,
-CLI identity and binary digest, integer exit status, new-session count, slot
-index, round index, **arm id**, **arm prompt digest**, UTC start/end, the
-recursive pre-call inventory of the isolated home, whether the credential was
-copied and removed, and the digests of the registry (`pinsSha256`) and the
+Study 011's retention set, unchanged, plus the arm and schedule stamps:
+`CALL.json` (argv, cwd, isolated home and `CODEX_HOME`, environment names **and
+values**, model, CLI identity and binary digest, integer exit status,
+new-session count, slot index, round index, **within-round position**,
+**global schedule index**, **arm id**, **arm prompt digest**, UTC start/end,
+the recursive pre-call inventory of the isolated home, whether the credential
+was copied and removed, and the digests of the registry (`pinsSha256`) and the
 golden capture (`goldenSha256`)), `stdout.raw`, `stderr.raw`, `session.jsonl`,
 `context.json`, `completion.txt` (written **only** when the process exited 0),
 and `REFUSAL.json` when the wrapper's exit status was not 0. Nothing in that
 set is a judgment.
 
-All 125 slots are committed, invalid ones included (§8) — roughly 90 KB per
-slot, about 11 MB in total.
+**Each slot is sealed by a terminal manifest, and the manifest is chained into
+the ledger.** When the wrapper finishes a slot it writes `SLOT-MANIFEST.json`:
+every regular file in the slot tree by relative path, its byte length, its
+sha256, and the sha256 of that sorted list. The ledger record for the slot
+carries that manifest digest **and the previous ledger record's digest**, so
+`BATCH.json` is a hash chain over the batch in schedule order rather than a
+list of independent lines. Round 2's finding is the reason this exists: a slot
+tree with retained bytes and no seal can be edited afterwards, and **one
+edited slot moves a verdict** — changing a single arm-A miss turns 22/25 MID
+into 22/24 HIGH, and changing a single arm-E hit turns 3/25 MID into 2/24 LOW.
+Registered consequence, in advance: **if any slot's recomputed manifest differs
+from the ledger's, or the chain does not verify, the batch is not scored
+confirmatorily at all** — the discrepancy is published, every level verdict is
+`UNRESOLVED-BY-DESIGN`, and no contrast is reported. It is *not* handled by
+moving the slot into `V_X`'s complement, which would let an alteration buy
+exactly the denominator change that produces the verdict.
+
+Registered honestly, because a hash chain in the same tree is not a
+transparency log: **the operator can recompute the whole chain.** What the
+chain establishes is that a slot was not altered *in isolation* or after the
+ledger was published; it does not establish that the ledger was written
+honestly. §7 lists it under "recorded, not proven" in those words.
+
+All 150 slots are committed, invalid ones included (§8) — roughly 90 KB per
+slot, about 13 MB in total.
 
 ### 2.10 The batch registry
 
@@ -730,15 +1065,68 @@ version and model; the digests of every arm's `POLICY.md`, `PROMPT.txt`,
 `FAMILY.json` and `ARM.json`; **the digest of the single registered mirror
 module `harness/policy_mirror.py`** (§2.2 [D-14]), which is the arbiter of
 every arm's labels and is pinned here as well as in `harness/PORTS.md`; **the
-digest of `CONVENTIONS_DELTA`** (§2.1, §2.6 [D-15]); **the digest of
-`CLAIM.md`** (§1); the probe prompt; N and the round-robin schedule; the
-interpreter; the recorded operator assent for §6 C7; the recaptured golden
-context's digest (`null` until §3.2's capture is registered); this
-preregistration's digest at the freeze (`null` until then); **the five arm
-`POLICY.md` digests recorded by the final round of `PREREG-REVIEW.md`** (§8,
-finding of the round-1 review — the binding that makes "the texts that were
-reviewed are the texts that ran" a checked relation); and a pointer to
-`harness/PORTS.md`.
+digests of the assembled preamble and of `CONVENTIONS_DELTA`** (§2.1, §2.6
+[D-15], [D-16]); **the digest of `CLAIM.md`** (§1); the probe prompt; N and
+**the registered call order of §2.8**; the interpreter; the recorded operator
+assent for §6 C7; **Study 011's `PINS.json` and `PORTS.md` digests and this
+study's own `PORTS.md` digest** (§2.2); the recaptured golden context's digest
+(`null` until §3.2's capture is registered); this preregistration's digest at
+the freeze (`null` until then); **the final review round's tree manifest
+digest** (below); and a pointer to `harness/PORTS.md`.
+
+#### The review-to-freeze binding is over the whole tree [D-20]
+
+**Round 2's first finding is that the round-1 binding was self-authenticating,
+and it was right.** That binding recorded, per review round, the sha256 of the
+five arm texts, and required each frozen `arms/<X>/POLICY.md` to equal the
+digest the final round recorded. But `PREREG-REVIEW.md` is itself a file in
+this study directory: the preregistration, the README, `CLAIM.md`, the port
+table, the harness sources, `PINS.json`, the five arm texts **and the review
+record's own digest table** could all move together between the last review and
+the freeze, and every specified equality would still pass — because the thing
+each artifact is checked against is a number the same commit supplies. Only the
+five policy texts were covered at all; nothing bound the code that computes the
+verdicts.
+
+Registered instead, and this is what "the artifacts that were reviewed are the
+artifacts that ran" now means:
+
+1. **The final review round is performed over the complete post-port candidate
+   tree** (§2.2 [D-20] fixes the ordering that makes this possible), and the
+   reviewer attests **an exact commit id and a tree manifest** covering every
+   artifact of this study — `PREREGISTRATION.md`, `README.md`,
+   `PREREG-REVIEW.md` as it stood entering that round, `CLAIM.md`, all twenty
+   arm files, every `harness/` source and test, `harness/PORTS.md`,
+   `harness/PINS.json`, `analysis/mirror2_<arm>.py` for all five arms, and
+   `MIRROR-AGREEMENT.md`. The manifest is the sorted list of
+   `(relative path, byte length, sha256)` over every tracked regular file in
+   the study directory, and its own sha256 is the **tree manifest digest**.
+2. **That digest is recorded in `PREREG-REVIEW.md` and pinned in
+   `harness/PINS.json`**, and `harness/integrity.py` recomputes the manifest
+   over the frozen tree and refuses unless it matches — excluding only the
+   files that cannot exist yet by construction (`RESULTS.json`, `RATES.md`,
+   `CENSUS.md`, `ANALYSIS.md`, `DEVIATIONS.md`, and the slot trees), which are
+   named in the registry as an explicit exclusion list rather than left to a
+   pattern.
+3. **Any byte change after the final review requires a new review round.**
+   There is no "editorial" exemption, no "the digest table was updated" path,
+   and no way to change one file and re-record one digest: the manifest covers
+   everything at once, so any edit invalidates it and the only way forward is
+   another round with its own attestation.
+4. Registered honestly, because this is a bound and not a proof: **the manifest
+   is computed by this study's own code over this study's own worktree.** It
+   binds the *reviewer's* attestation to a specific byte state, and it makes a
+   post-review edit visible to anyone who recomputes it; it does not make the
+   tree externally timestamped, and this study has no transparency log (§7).
+   An externally signed attestation — the reviewer signing the manifest digest
+   with a key this repository does not hold — is registered as [D-20]'s
+   alternative and is the stronger form.
+
+**The rule applies from round 3 onward.** Rounds 1 and 2 reviewed a
+specification and five draft texts before any port existed, so they record what
+they could bind: the five arm-text digests, computed from Appendix A by the
+registered assembly rule. The freeze is bound to the **final** round's tree
+manifest, and a final round that carries only arm digests is not a final round.
 
 The committed `harness/PINS.json` is the registry of record and that is
 enforced per run and per population, exactly as in 011: the wrapper records the
@@ -748,6 +1136,23 @@ digest itself, and any slot whose stamp differs is `registry-mismatch`. The
 harness's own location, because a supplied registry identical to the committed
 one except for the arm digests or for N would otherwise redefine what was
 measured while every per-slot stamp still matched.
+
+**The population root is derived too, and round 2 is why [D-23].** An earlier
+draft left `--slots` on both the scorer and the shortfall declaration, so the
+population could be pointed at any directory of the right shape — a copy with a
+slot removed, a duplicated arm, a renamed tree. Every per-slot check would still
+pass, because a same-arm slot copied into the same arm is not `arm-mismatch`.
+The registered surface is now:
+
+```
+score_rates.py score [--emit-records DIR]      # the ONLY publisher
+batch.py shortfall --reason TEXT
+```
+
+and **`--slots` does not exist on either**. The canonical `arms/` root is
+`harness/../arms`, resolved from the harness's own location; anything else
+refuses. `--emit-records` survives because its target must be *outside* the
+population and is checked to be (§7).
 
 `PINS.json` is **not edited between the batch and the scoring**. The freeze
 digest is filled at the freeze, the golden digest before round 1, and after
@@ -844,13 +1249,27 @@ short at the last good round and the study reports the arms as far as they got.
 ### 3.3 Invalid runs, the partition, and the run-026 rule
 
 A run that fails admission or regeneration is **pipeline-invalid**: counted,
-reported with its refusal code, and excluded from that arm's rate
-denominators. A run that is admissible and compiles but whose author produced
+reported with its refusal code, and — under the round-2 endpoint of §4.2 —
+**counted as covering nothing in the primary denominator rather than removed
+from it**. A run that is admissible and compiles but whose author produced
 nothing usable is **authoring-empty** — valid, counted, covering nothing.
 Excluding authoring-empty runs would quietly condition every rate on the author
 having succeeded, which is not the quantity §1 asks for, and in this study it
 would do something worse: **a perturbation that makes the author fail outright
 would be scored as if it had never been tried.**
+
+**Round 2 found that the same argument applies to pipeline-invalid runs, and
+this file had made the opposite call.** The old text justified excluding them
+on the ground that "the gates are arm-independent by construction". The gates
+are; **the probability of tripping them is not**. A policy text can move
+whether the author reaches for a tool (transcript whitelist), whether the
+process exits 0, whether a completion is produced at all, and whether what it
+produces parses — every one of those is a refusal code in the table below, and
+every one of them is downstream of the intervention. Conditioning the primary
+endpoint on surviving them is post-treatment selection, and it points the wrong
+way: the arm whose text most disrupts authoring loses exactly the runs that
+would have covered nothing. §4.2 registers the fix — intent-to-treat over the
+scheduled N — and this section registers the classification that feeds it.
 
 **The run-026 rule, registered.** Study 011 lost one run of fifty to
 `transcript-refused` — a pre-prompt context that differed from the golden at
@@ -865,11 +1284,17 @@ making exceptions is a denylist. Registered consequences:
   them to decide the run's fate;
 - the pipeline-invalid rate is **its own endpoint, per arm** (§4.4), reported
   in the headline beside the coverage rates;
-- pipeline loss is **not** evidence about a perturbation. If one arm loses
-  conspicuously more runs than the others, that is reported as a caution over
-  that arm's contrasts and is not itself a contrast result — the gates are
-  arm-independent by construction and no registered reading treats a refusal
-  rate as an effect of the policy text.
+- pipeline loss is **conservatively charged against the arm that produced it**
+  in the primary endpoint (§4.2), and its effect on every rate is published as
+  the registered sensitivity bound `[k/N, (k+I)/N]`, so a reader can see
+  exactly how much of a rate the losses could account for;
+- an arm losing conspicuously more runs than the others is **reported as a
+  finding about that arm**, not filtered away as noise. The *gates* are
+  arm-independent by construction; **tripping them is not**, and an earlier
+  draft's claim that a refusal rate can never be an effect of the policy text
+  is withdrawn. What is still refused is the reverse move: a high `rho_X` is
+  not read as *support* for a collapse prediction, because §5's rules read
+  coverage and nothing else.
 
 The partition is registered exhaustively, code by code. This is every outcome
 the scorer can assign to a run, and a harness test parses this table out of
@@ -888,6 +1313,8 @@ codes its admission can actually return.
 | `registry-mismatch` | pipeline-invalid |
 | `golden-mismatch` | pipeline-invalid |
 | **`arm-mismatch`** | **pipeline-invalid** |
+| **`schedule-mismatch`** | **pipeline-invalid** |
+| **`session-reused`** | **pipeline-invalid** |
 | `isolation-unproven` | pipeline-invalid |
 | `session-count` | pipeline-invalid |
 | `call-nonzero-exit` | pipeline-invalid |
@@ -904,12 +1331,45 @@ codes its admission can actually return.
 | *(no code, no parseable array)* | **authoring-empty — valid, in every denominator, covering nothing** |
 | *(no code)* | **valid** |
 
-`arm-mismatch` is the one new code: the slot's recorded arm or arm-prompt
-digest is not the arm whose tree it sits in. Every other code, and every
-registration behind it — the `lstat`-first slot-tree rule, the totality rule
-that reads `REFUSAL.json` inside the total path through the duplicate-key
-loader, `refusal-conflict`, `scorer-error` — is Study 011 §3.3's, ported
-unchanged, and the port is reviewed against that text rather than re-derived.
+**Three codes are new to this study**, and each closes a route round 1 or round
+2 found open:
+
+- **`arm-mismatch`** — the slot's recorded arm or arm-prompt digest is not the
+  arm whose tree it sits in;
+- **`schedule-mismatch`** — the slot's recorded `(globalIndex, round, position,
+  arm)` is not what §2.8's registered call order assigns to that global index,
+  or the slot at that index in the ledger is not this slot. This is what a
+  same-arm copy, a rename, or a duplicated slot trips: `arm-mismatch` cannot
+  see any of them, because a copy of an A slot placed in the A tree names the
+  right arm and carries the right prompt digest. **The ledger and the slot set
+  must be in bijection** — every ledger record has exactly one slot at its
+  registered path, every slot has exactly one ledger record, and the counts
+  agree per arm and in total. A slot with no ledger record, or a ledger record
+  with no slot, refuses the whole scoring rather than scoring that slot;
+- **`session-reused`** — the slot's `session.jsonl` bytes, session id, or the
+  identifying members of its `CALL.json` (working directory, isolated home,
+  start clock) are shared with **any other slot in any arm**. §3.2 already
+  applies this rule to the two capture slots, on the reasoning that a copied
+  slot must not be able to agree with itself; round 2's finding is that the
+  same reasoning applies to the 150 batch slots, where a copied slot would
+  otherwise add a covered run to a denominator. Cross-slot uniqueness is
+  checked over the whole population before any rate is computed.
+
+Every other code, and every registration behind it — the `lstat`-first
+slot-tree rule, the totality rule that reads `REFUSAL.json` inside the total
+path through the duplicate-key loader, `refusal-conflict`, `scorer-error` — is
+Study 011 §3.3's, ported unchanged, and the port is reviewed against that text
+rather than re-derived.
+
+**One class of failure is deliberately *not* a refusal code, because a code
+would understate it.** A slot whose recomputed `SLOT-MANIFEST.json` disagrees
+with the ledger, or a ledger whose hash chain does not verify (§2.9), does not
+mark that slot invalid: it **invalidates confirmatory scoring for the whole
+batch**. Every level verdict is `UNRESOLVED-BY-DESIGN`, no contrast is
+reported, and the discrepancy is published with the slot named. Round 2's
+reasoning, registered so it is not softened later: a code that moves one slot
+out of `V_X` hands an alteration precisely the denominator change that produces
+the verdict it was made to produce.
 
 ## 4. Endpoints
 
@@ -922,10 +1382,14 @@ inferences with an error rate to control.
 
 | verdicts | how many | where |
 | --- | --- | --- |
-| level verdicts (per arm × per class) | 5 × 6 = **30** | §5.1 |
+| primary (ITT) level verdicts, per arm × per class | 5 × 6 = **30** | §5.1, §4.2 |
+| **S1 placement level verdicts**, per arm × per class | 5 × 6 = **30** | §5.1, §4.6 S1 |
+| **per-protocol level verdicts**, per arm × per class | 5 × 6 = **30** | §5.1, §4.6 S11 |
 | contrast verdicts (four arms against A × per class) | 4 × 6 = **24** | §5.2 |
+| **placement contrast verdicts** | 4 × 6 = **24** | §5.2 |
 | level verdicts under S10 old-edge cross-scoring | up to 5 × 6 = **30** | §4.6 S10 |
 | registered census expectation patterns (per arm) | **5** | §4.5 |
+| **the decision-table row** — one, for the whole study | **1** | §5.3 |
 
 **Every one of them is marginal, and no simultaneous claim is made over any of
 them.** Every interval is marginal too. §5.4 says where multiplicity actually
@@ -949,20 +1413,58 @@ evaluator runs; no pack is evaluated; jpack never runs.
 - **class_i(r)** — the records in A satisfying arm X's `FAMILY.json` mutation
   *i*'s predicate under the ported `predicate_matches`.
 
-### 4.2 Primary endpoint: per-class per-arm coverage rate
+### 4.2 Primary endpoint: per-class per-arm coverage rate, intent-to-treat
 
-For each arm X ∈ {A, B, C, D, E} and each i ∈ 0…5:
+**The denominator is the arm's scheduled slots, N, and a slot that produced no
+usable evidence is counted as covering nothing.** For each arm
+X ∈ {A, B, C, D, E} and each i ∈ 0…5:
 
 ```
-k_{i,X} = |{ valid runs r of arm X : H(r) ∩ class_i(r) ≠ ∅ }|
-c_{i,X} = k_{i,X} / V_X
+k_{i,X} = |{ slots s of arm X : s is valid and H(s) ∩ class_i(s) ≠ ∅ }|
+c_{i,X} = k_{i,X} / N                                   <- PRIMARY (ITT)
 ```
 
 reported as the exact fraction, as a decimal to 3 places, and with the §4.3
-interval. Thirty numbers with thirty intervals. Denominators are identical
-across classes *within* an arm by construction, and the scorer asserts it: it
-collects the six `trials` values it just wrote per arm and refuses the whole
-scoring unless the set is exactly `{V_X}`.
+interval. Thirty numbers with thirty intervals.
+
+**Why the denominator is N and not `V_X` [D-24].** An earlier draft made
+`k/V_X` primary and defended it on the ground that the admission gates are
+arm-independent. §3.3 now records why that defence does not hold: the gates are
+arm-independent, the *probability of tripping them* is not, and excluding
+tripped runs conditions the primary endpoint on a post-treatment outcome the
+intervention can move. The direction of the bias is the bad one — an arm whose
+text disrupts authoring sheds exactly the slots that would have covered
+nothing, and its rate rises. Intent-to-treat over the scheduled slots removes
+that channel: **every slot the schedule created is in every denominator, and a
+slot that did not yield an admissible, compiled, class-reaching record counts
+as not reaching the class**, whatever the reason.
+
+**The sensitivity bound is published beside every primary rate**, because ITT
+is conservative in the other direction and this file will not pretend
+otherwise. With `I_X` pipeline-invalid slots in arm X, the true rate over the
+runs that *could* have covered lies in
+
+```
+[ k_{i,X} / N ,  (k_{i,X} + I_X) / N ]
+```
+
+— the lower end is the registered primary (every invalid slot assumed to have
+covered nothing), the upper end is its complement (every invalid slot assumed
+to have covered). Both ends are published, per class per arm, with the §4.3
+interval on each. When `I_X = 0` the two ends coincide and the bound is a
+point, which is the expected case: Study 011 lost one slot in fifty.
+
+**`k/V_X` survives as the registered per-protocol secondary** (§4.6 S11), with
+its own intervals, published beside the primary and never substituted for it.
+Where the two disagree in level, **the primary governs every §5 verdict** and
+the disagreement is reported in `ANALYSIS.md` as a finding about the arm's
+pipeline loss.
+
+Denominators are identical across classes *within* an arm by construction —
+they are N for every arm and every class — and the scorer asserts it: it
+collects the six `trials` values it just wrote per arm for each endpoint and
+refuses the whole scoring unless the primary set is exactly `{N}` and the
+per-protocol set is exactly `{V_X}`.
 
 ### 4.3 Clopper–Pearson 95% intervals, normatively
 
@@ -992,20 +1494,39 @@ and every comparison against `Fraction(1,40)` is an exact rational comparison;
 terms are summed in ascending `j`; there is no randomness anywhere and nothing
 to seed.
 
-**Registered test vectors, asserted by the harness tests in CI.** At n = 25,
-this study's own denominator:
+**What "exact" means here, stated because the word is doing more work than it
+can carry.** Clopper–Pearson coverage is exact **conditional on the slots of a
+class being independent Bernoulli trials with a constant success probability**.
+The arithmetic is exact rationals with no libm; the *model* is an assumption,
+and §7 records that this study cannot rule out provider-side state shared
+across calls, which would break both halves of it. So every interval in this
+file is an exact interval **for a model this design cannot verify**, the phrase
+"exact interval" always means that, and §9 repeats it. S6 (distinct completions
+across arms) is the one observable that would hint at the assumption failing.
 
-| k / 25 | exact 95% interval |
-| --- | --- |
-| 0 | [0.0000, 0.1372] |
-| 1 | [0.0010, 0.2035] |
-| 2 | [0.0098, 0.2603] |
-| 3 | [0.0255, 0.3122] |
-| 12 | [0.2780, 0.6869] |
-| 22 | [0.6878, 0.9745] |
-| 23 | [0.7397, 0.9902] |
-| 24 | [0.7965, 0.9990] |
-| 25 | [0.8628, 1.0000] |
+**Registered test vectors, asserted by the harness tests in CI.** At n = 30,
+this study's own denominator, with the two §5.1 cut locations marked:
+
+| k / 30 | exact 95% interval | |
+| --- | --- | --- |
+| 0 | [0.0000, 0.1157] | |
+| 1 | [0.0008, 0.1722] | |
+| 2 | [0.0082, 0.2207] | |
+| 3 | [0.0211, 0.2653] | **LOW cut** — the largest k with `U ≤ 0.30` |
+| 4 | [0.0376, 0.3072] | first k above the LOW cut |
+| 15 | [0.3130, 0.6870] | |
+| 26 | [0.6928, 0.9624] | last k below the HIGH cut |
+| 27 | [0.7347, 0.9789] | **HIGH cut** — the smallest k with `L ≥ 0.70` |
+| 28 | [0.7793, 0.9918] | |
+| 29 | [0.8278, 0.9992] | |
+| 30 | [0.8843, 1.0000] | a perfect arm |
+
+**The n = 25 vectors are retained** because N = 25 is [D-1]'s live alternative
+and the review may take it: `k=0 → [0.0000, 0.1372]`, `k=1 → [0.0010, 0.2035]`,
+`k=2 → [0.0098, 0.2603]`, `k=3 → [0.0255, 0.3122]`,
+`k=12 → [0.2780, 0.6869]`, `k=22 → [0.6878, 0.9745]`,
+`k=23 → [0.7397, 0.9902]`, `k=24 → [0.7965, 0.9990]`,
+`k=25 → [0.8628, 1.0000]`.
 
 And **Study 011's registered vectors at n = 50 are retained as a port
 control** — `k=0 → [0.0000, 0.0711]`, `k=1 → [0.0005, 0.1065]`,
@@ -1014,28 +1535,36 @@ control** — `k=0 → [0.0000, 0.0711]`, `k=1 → [0.0005, 0.1065]`,
 arithmetic is checked against numbers a predecessor already published.
 
 **The frozen interval scope.** An interval is computed and published for every
-rate whose denominator is `V_X` or N: the six primary rates per arm (§4.2); the
-raw, Q and Q-only per-class rates per arm (§4.6 S1, S2); the all-six rate per
-arm (S3); the old-edge cross-scored rates per arm (§4.6 S10); and the
-pipeline-invalid rate per arm (§4.4). It is **not** computed for the mislabel
-share, whose denominator is the runs that reached the class, nor for any
-record-level pooled quantity, nor for any census count in §4.5, because records
-within a run are not independent. A harness test walks `RESULTS.json` and
-requires the set of blocks carrying `ci95` to be exactly that list.
+rate whose denominator is N or `V_X`: the six primary ITT rates per arm and the
+upper end of each one's sensitivity bound (§4.2); the six per-protocol rates
+per arm (§4.6 S11); the raw, Q and Q-only per-class rates per arm (§4.6 S1,
+S2); the all-six rate per arm (S3); the old-edge cross-scored rates per arm
+(§4.6 S10); and the pipeline-invalid rate per arm (§4.4). It is **not**
+computed for the mislabel share, whose denominator is the runs that reached the
+class, nor for any record-level pooled quantity, nor for any census count in
+§4.5, because records within a run are not independent. A harness test walks
+`RESULTS.json` and requires the set of blocks carrying `ci95` to be exactly
+that list.
 
 ### 4.4 Primary endpoint: the pipeline-invalid rate, per arm
 
 `rho_X = I_X / N`, with an exact interval, and the histogram of refusal codes
 over §3.3's registered table, **per arm and pooled**. Reported in the headline
 beside the coverage rates, never as a footnote. At `rho_X ≥ 0.10` the arm's
-contrasts carry a stated caution over the whole arm. It changes no verdict:
-pipeline-invalid runs have already left the denominator and already widened
-every bound, and charging them twice would be double-counting — Study 011 §5's
-correction, ported.
+contrasts carry a stated caution over the whole arm.
 
-At N = 25 this endpoint is coarse and the coarseness is registered: 0/25 gives
-[0.0000, 0.1372] and 1/25 gives [0.0010, 0.2035], so this study cannot
-distinguish a 2% loss rate from a 15% one and does not try.
+**Under the round-2 endpoint this rate is no longer verdict-neutral, and the
+old sentence saying it was is withdrawn.** With `k/N` primary, a
+pipeline-invalid slot lowers that arm's primary rate by `1/N` for every class
+it would have covered, so `rho_X` is exactly the width of the §4.2 sensitivity
+bound. That is not double-counting — it is the single place the loss is
+charged, and the bound's upper end is published so the reader can undo it. What
+the earlier text got right and this keeps: `rho_X` is not itself evidence for
+or against any §5 prediction, because no §5 rule reads it.
+
+At N = 30 this endpoint is coarse and the coarseness is registered: 0/30 gives
+[0.0000, 0.1157] and 1/30 gives [0.0008, 0.1722], so this study cannot
+distinguish a 2% loss rate from a 12% one and does not try.
 
 ### 4.5 Registered secondary: the probe census, promoted
 
@@ -1082,20 +1611,32 @@ Registered census endpoints, per arm, all descriptive, all published:
 - **X4 — within-run and across-run redundancy**: distinct profiles per run, and
   the number of runs sharing a whole-run profile multiset.
 - **X5 — per-clause deciding counts** and the outcome distribution.
-- **X6 — the plausible-misderivation census, arm E only.** Registered *before*
-  the data, as a named census output, so that a comprehension failure in arm E
-  is **diagnosed rather than assumed away by S5**. The registered list is every
-  value arm E's frozen wording admits under a wrong but coherent reading, and
-  the census reports, per value, the count of records at it and within 0.01 of
-  it:
+- **X6 — the misderivation sentinel list, arm E only.** Registered *before* the
+  data, as a named census output, so that a comprehension failure in arm E is
+  **diagnosed rather than assumed away by S5**. The census reports, per listed
+  value, the count of records at it and within 0.01 of it:
 
   | value | the misreading that produces it |
   | --- | --- |
   | 70, 40 | the correct derivation — seven tenths and four tenths of a full range of one hundred |
   | 0.7, 0.4 | the fractions taken as scores rather than as fractions *of the range* |
   | 7, 4 | "seven tenths"/"four tenths" read as the numerals alone |
-  | 28 | four tenths of the **review threshold** (0.4 × 70) instead of of the range — the reading an earlier draft's pronoun made available, removed under D-3 and registered here because removing a reading is not the same as proving it gone |
+  | 28 | four tenths of the **review threshold** (0.4 × 70) instead of of the range — the reading an earlier draft's pronoun made available, removed under D-3 |
 
+  **This is a sentinel list, not an enumeration, and round 2 corrected the
+  claim.** An earlier draft called it "every value arm E's frozen wording
+  admits under a wrong but coherent reading". No finite list can be that: a
+  reader can compound a scale error with a fraction error, misread the
+  conventions paragraph's range, apply one threshold's derivation to the other,
+  or arrive at a value by a route nobody anticipated. What X6 does is check the
+  four *anticipated* families cheaply and in advance. **X4's and X3's full
+  distributions are what catch an unanticipated one**, and a mass of arm E
+  records at any single value not in this list is reported as a finding in its
+  own right.
+  Registered honestly: **28 comes from wording this study has already
+  removed** — it is kept as a sentinel precisely because removing a reading is
+  not the same as proving it gone, and if 28 appears anyway that is
+  information about the model rather than about the text.
   Mass at 0.7/0.4, 7/4 or 28 is evidence that arm E measured comprehension
   rather than anchoring, and §5.3 (i) reads it that way. Descriptive; no §5
   decision reads X6, and it carries no interval (record-level counts).
@@ -1114,15 +1655,23 @@ them:
 
 If E's records nevertheless cluster exactly on 40 and 70, the model derived the
 literals and then anchored on them, and the anchoring is to the *value* rather
-than to the *token* — **derive-then-hug**, reading 2 of the three §5.3 (i)
-enumerates. It is registered here so it is available before the data rather
-than improvised after it. §5.3 (i) also registers **recall** as reading 3, and
-records that exact clustering cannot separate reading 2 from reading 3.
+than to the *token* — **derive-then-hug**. It is registered here so it is
+available before the data rather than improvised after it. §5.3 (i) registers
+**residual memorization** beside it as the other explanation of exact
+clustering, and records that **this design cannot separate the two**: [D-16]
+removes the textual pointer, not the corpus.
 
 ### 4.6 The other secondaries, ported
 
 - **S1 — raw intersection rate**, per class per arm: the class was reached by
-  some accepted record, label irrelevant. `a_i − c_i` is the label tax.
+  some accepted record, **label irrelevant**. `a_i − c_i` is the label tax.
+  **S1 is not a secondary in the ordinary sense: §5.3 (i)'s confirmation rule
+  reads it directly**, because it is the only endpoint in this file that
+  measures *where the author put records* rather than *where the author put
+  records and labelled them correctly*. It carries the same §4.2 denominator
+  (N, intent-to-treat), the same §4.3 intervals and the same §5.1 cuts as the
+  primary, so a level verdict on S1 means what a level verdict on the primary
+  means. §5.3 (i) is where it is read.
 - **S2 — reached-but-mislabelled**, per class per arm, and the mislabel share
   `s_i` over the runs that reached the class (0 when that denominator is 0).
 - **S3 — coverage breadth per run**, per arm: the distribution over 0…6 and the
@@ -1151,34 +1700,52 @@ records that exact clustering cannot separate reading 2 from reading 3.
   that arm's own mirror. This is class membership only: it asks where each arm's
   records land in *the baseline's* coordinate system. It is the direct measure
   of the rename prediction and its registered pattern is in §5.3.
+- **S11 — the per-protocol coverage rate**, per class per arm: §4.2's `k/V_X`,
+  the quantity an earlier draft made primary, with its own §4.3 intervals and
+  its own §5.1 level verdicts. Published beside the primary, never substituted
+  for it, and where the two levels disagree the disagreement is itself
+  reported. New in round 2.
 
 **The S-numbers diverge from Study 011's, and the mapping is stated rather
 than left to trip a reader coming from that file.** 011's S8 is the
 pipeline-invalid rate and its S9 the wall clock; here the pipeline-invalid rate
 is **promoted out of the secondaries to §4.4** as a primary endpoint, **S8** is
 the wall clock (011's S9), **S9** is 011's §5 tier mapping (which 011 carried
-in its §5 rather than as a secondary), and **S10** is new to this study. S1–S7
-are 011's S1–S7 unchanged in meaning, keyed per arm.
+in its §5 rather than as a secondary), and **S10** and **S11** are new to this
+study. S1–S7 are 011's S1–S7 unchanged in meaning, keyed per arm.
 
-**S5 and S2 are load-bearing this time and are registered as such.** They are
-what separates two readings of a collapse in arm D or E. If coverage collapses
-while label accuracy stays at the ceiling, the model understood the thresholds
-and simply did not *test* them — an anchoring result. If label accuracy
-degrades too, the model failed to derive or apply the values, and the collapse
-is a comprehension failure, not an anchoring one. Both are publishable; they
-are different findings; and which one this study is looking at is decided by a
-quantity registered before the data.
+**S1, S2 and S5 are load-bearing this time and are registered as such — and
+round 2 found that saying so was not enough.** They are what separate three
+readings of a collapse in arm D or E, and an earlier draft called them
+load-bearing while giving them no cut and letting no decision read them:
+
+| S1 (raw placement) | S5 / S2 (labels) | the reading | what §5.3 (i) does with it |
+| --- | --- | --- | --- |
+| **LOW** — the records are not at the boundary | at the ceiling | the author understood the thresholds and did not *test* them | **PLACEMENT collapse** — this is what R1 predicts, and the only thing that confirms it |
+| **LOW** | degraded | the author could not derive or apply the values | **comprehension collapse** — published as one, R1 not confirmed |
+| **HIGH or MID** — the records *are* at the boundary | degraded, so H-coverage falls | the author placed records at the boundary and labelled them wrong | **label collapse** — the hugging did **not** go away; R1 is not confirmed and saying otherwise would be reading a labelling failure as an anchoring result |
+
+That third row is why §5.3 (i)'s confirmation rule reads S1 and not only the
+primary: **H ⊆ raw by construction**, so a class can lose H-coverage entirely
+while every raw record still sits on 40 and 70 — and the registered
+proposition R1 is about where the records *are*.
 
 ### 4.7 What is reported, and how
 
 `RESULTS.json` carries, for every rate, the integer numerator, the integer
 denominator, the float point estimate, and both bounds, arm by arm — so every
-published decimal is recomputable from integers. `RATES.md` is the scorer's
-rendering of the rate tables; `CENSUS.md` is the scorer's rendering of §4.5;
-`ANALYSIS.md` leads with the five arms' per-class rates, the five `rho_X`, and
-the §5 verdict table, and applies §5's rule without adjusting it. `ANALYSIS.md`
-also reports, without a verdict: arm A against Study 011's published rates and
-census (drift, §2.1), and the recaptured golden against 011's (§3.2).
+published decimal is recomputable from integers. It carries the ITT primary and
+its sensitivity bound, the S1 placement rate and the S11 per-protocol rate side
+by side for every arm and class, each labelled by which denominator it is over,
+and it carries **the §5.3 decision-table row number and name** as a first-class
+member rather than as prose. `RATES.md` is the scorer's rendering of the rate
+tables; `CENSUS.md` is the scorer's rendering of §4.5; `ANALYSIS.md` leads with
+the five arms' per-class rates, the five `rho_X`, the §5 verdict table and the
+decision-table row, and applies §5's rules without adjusting them.
+`ANALYSIS.md` also reports, without a verdict: arm A against Study 011's
+published rates and census (drift, §2.1, under §2.1's numeric rule and no
+other), the realised call-order transition census against §2.8's registered
+counts, and the recaptured golden against 011's (§3.2).
 
 ## 5. The registered decision rule, and the predictions
 
@@ -1198,31 +1765,45 @@ of §4.3 for that arm's own rate, written `L_{i,X}` and `U_{i,X}`.
 | otherwise, `U_{i,X} ≤ 0.30` | **LOW** |
 | otherwise | **MID** |
 
-The two cuts are symmetric about 0.5 and, at `V_X` = 25, land at: HIGH iff
-`k ≥ 23` (the arm missed at most 2 of 25), LOW iff `k ≤ 2` (the arm reached the
-class at most 2 times of 25). MID is everything between, and MID is a real
+The rule applies unchanged to the **primary ITT rate** (§4.2, denominator N),
+to the **S1 raw-placement rate** (§4.6, denominator N), and to the
+**per-protocol rate** (S11, denominator `V_X`). Every level verdict in this
+file names which of the three it is a verdict on.
+
+The two cuts are symmetric about 0.5 and, at n = 30, land at: HIGH iff
+`k ≥ 27` (the arm missed at most 3 of 30), LOW iff `k ≤ 3` (the arm reached the
+class at most 3 times of 30). MID is everything between, and MID is a real
 outcome that gets published as MID.
 
 **[D-2]** These cuts are this study's, not Study 011's. 011's LIGHT cut of
-`L ≥ 0.80` is unreachable at N = 25 by anything but a perfect arm (`k = 24`
-gives `L = 0.7965`), which would make a single stray miss in a control arm read
-as an inconclusive result; the operating characteristics in §5.4 are why 0.70
-and 0.30 were chosen instead, and they are stated so the review can move them
-before the data rather than a reader after it. 011's tier cuts are still
-computed and published, as S9.
+`L ≥ 0.80` lands at `k ≥ 29` at n = 30 — one miss allowed in thirty — so a
+single stray miss in a control arm would still read as an inconclusive result,
+and at the N = 25 alternative it needs a perfect arm outright (`k = 24` gives
+`L = 0.7965`). The operating characteristics in §5.4 are why 0.70 and 0.30 were
+chosen instead, and they are stated so the review can move them before the data
+rather than a reader after it. 011's tier cuts are still computed and
+published, as S9.
 
-The cuts are stated **on bounds, not on observed coverage**, so that an arm
-with a smaller `V_X` faces a boundary that already carries its smaller sample.
-That is Study 011 §5's own correction, and it is why unequal arm denominators
-(§2.8) do not silently move a registered threshold. Its floor is registered in
-§2.8: **below `V_X` = 11 the HIGH level is unreachable** (a perfect arm is
-bounded below at 0.6915 at V = 10 and 0.7151 at V = 11), and such an arm's six
-verdicts are `UNRESOLVED-BY-DESIGN` rather than a table of MIDs a reader might
-mistake for a measurement.
+The cuts are stated **on bounds, not on observed coverage**, so that a
+denominator carrying more misses faces a boundary that already carries them.
+That is Study 011 §5's own correction, and it is why unequal per-protocol
+denominators (§2.8) do not silently move a registered threshold. Two floors are
+registered rather than one:
+
+- **the primary and S1 have no denominator floor**, because ITT fixes their
+  denominator at N = 30 for every arm and every class; what governs them
+  instead is §2.8's completeness rule — an incomplete batch returns no verdict
+  at all;
+- **the per-protocol rate keeps the `V_X` floor**: below `V_X` = 11 the HIGH
+  level is unreachable (a perfect arm is bounded below at 0.6915 at V = 10 and
+  0.7151 at V = 11; 11 is the smallest denominator at which a perfect arm reads
+  HIGH under this cut), so such an arm's six S11 verdicts are
+  `UNRESOLVED-BY-DESIGN` rather than a table of MIDs a reader might mistake for
+  a measurement.
 
 ### 5.2 The contrast verdict, per arm per class
 
-Against arm A, in the same batch:
+Against arm A, in the same batch, on the **primary ITT rate**:
 
 | condition | contrast |
 | --- | --- |
@@ -1236,12 +1817,27 @@ without a distribution for a difference of proportions. INDETERMINATE covers
 both "the arm landed in the middle" and "the baseline itself was not HIGH", and
 it is a publishable outcome, not a failure to report.
 
+**The same rule, computed on S1, is the PLACEMENT contrast**, and it is a
+distinct registered verdict rather than a gloss on the first:
+
+| condition (levels on the **S1 raw** rate) | placement contrast |
+| --- | --- |
+| level(A, S1) = HIGH and level(X, S1) = LOW | **PLACEMENT-COLLAPSE** |
+| level(A, S1) = HIGH and level(X, S1) = HIGH | **PLACEMENT-TRACKING** |
+| otherwise | **PLACEMENT-INDETERMINATE** |
+
+Because `H(r) ⊆ A(r)` for every run, `k_H ≤ k_raw` always, so
+**PLACEMENT-COLLAPSE implies COLLAPSE on the same class** and the converse
+fails exactly in the case §4.6's table calls a *label collapse*. Both verdicts
+are published for all 24 arm×class contrasts; §5.3 (i) says which one confirms
+R1 and which one does not.
+
 **A second, weaker contrast is reported beside the first and never substituted
 for it [D-17].** The level-gated rule above discards information: a class where
-arm E reads LOW (`k ≤ 2`, `U ≤ 0.2603`) while arm A reads MID (say `k = 22`,
-`L = 0.6878`) is published as INDETERMINATE even though the two exact intervals
+arm E reads LOW (`k = 3`, `U = 0.2653`) while arm A reads MID (say `k = 26`,
+`L = 0.6928`) is published as INDETERMINATE even though the two exact intervals
 are disjoint by a wide margin in the predicted direction — and §5.4's joint
-arithmetic makes that the *likely* shape of a partial baseline, not a corner
+arithmetic makes that a live shape for a partial baseline, not a corner
 case. So:
 
 | condition | second contrast |
@@ -1262,66 +1858,82 @@ alone, accepting the discarded information — is registered under **[D-17]**.
 the four narrow numeric classes 0, 1, 2 and 5**, with class 3 (a 30-wide band
 in arms A, B, C and E) and class 4 (no numeric content) predicted TRACKING.
 
-**Both directions are registered, symmetrically, and every remaining pattern
-is registered too [D-10].** An earlier draft was crisp on falsification and
-silent on confirmation, which is the wrong asymmetry for a study whose headline
-would be the confirmed prediction. Over the four narrow numeric classes 0, 1, 2
-and 5:
+**The confirmation rule reads PLACEMENT, not labelled coverage, and round 2 is
+why.** The primary endpoint counts runs in which a *correctly labelled* record
+fell inside a class. R1 is a proposition about **where the author puts
+records**. Those come apart in one direction and it is the direction that
+matters: because `H(r) ⊆ A(r)`, an arm E that still places records exactly on
+40 and 70 but mislabels them loses H-coverage entirely while the hugging R1
+predicts would disappear is **still there**. Under an earlier draft that
+pattern read as CONFIRMED. It is not confirmation of R1; it is a labelling
+failure, and §4.6's table names it as one.
+
+So, over the four narrow numeric classes 0, 1, 2 and 5, and **only after the
+gates of the decision table below**:
 
 | pattern | reading | published as |
 | --- | --- | --- |
-| COLLAPSE on **≥ 3 of 4** | R1 **confirmed** | CONFIRMED |
-| HIGH on **≥ 3 of 4** | R1 **falsified** | FALSIFIED |
+| **PLACEMENT-COLLAPSE on ≥ 3 of 4** | R1 **confirmed for this instance** | CONFIRMED |
+| E reads HIGH on the primary on **≥ 3 of 4** | the predicted collapse did not occur | **R1-UNSUPPORTED** |
+| COLLAPSE on ≥ 3 of 4 **without** placement collapse on ≥ 3 | the records are still at the boundary and the labels failed | **LABEL-COLLAPSE-ONLY** |
 | every other pattern | neither | **INDETERMINATE** |
 
-> **Falsification, registered [D-10]:** if arm E's level verdict is **HIGH for
-> three or more of the four narrow numeric classes**, **R1 is wrong**. The
-> correction is published with the same prominence as the claim — in
-> `ANALYSIS.md`'s headline, in this study's README, in the venue `CLAIM.md`
-> records, and as a correction banner at the head of
-> `studies/011-authorship-coverage-rates/DIVERSITY.md` — and it is stated as a
-> correction, not as a nuance. What is retracted is **R1**; the census's
+> **Confirmation, registered [D-10]:** R1 is **confirmed for this instance** —
+> in the sense §5.5 and §9 bound: one denaming, one policy family, one model,
+> one day — iff **arm E's S1 placement level is LOW with arm A's HIGH on three
+> or more of the four narrow numeric classes**, **and** the B/C control gate of
+> (iii) holds, **and** class 4 does not collapse in arm E. Nothing less
+> confirms it, and the three conditions are conjunctive.
+
+> **Non-support, registered [D-10]:** if arm E's primary level verdict is
+> **HIGH for three or more of the four narrow numeric classes**, the collapse
+> R1 predicted **did not occur**, and R1 is published as **UNSUPPORTED** with
+> the same prominence as the claim — in `ANALYSIS.md`'s headline, in this
+> study's README, in the venue `CLAIM.md` records, and as a correction banner
+> at the head of
+> `studies/011-authorship-coverage-rates/DIVERSITY.md`. It is stated as a
+> correction, not as a nuance. What is withdrawn is **R1**; the census's
 > descriptive sentence about its own corpus stands regardless, and §8 says so.
 
-> **Confirmation, registered [D-10]:** if arm E's level verdict is **LOW on
-> three or more of the four narrow numeric classes with arm A HIGH on the
-> same** — that is, COLLAPSE on ≥ 3 of 4 — R1 is **confirmed for this
-> instance**, in the sense §5.5 and §9 bound: one denaming, one policy family,
-> one model, one day.
+**Why the outcome is called UNSUPPORTED and not "R1 is wrong", registered
+before the data so it cannot be read as softening afterwards.** R1 is a
+*causal* claim: the hugging is caused by the text naming 40 and 70. An arm E
+that maintains coverage refutes R1's prediction, and that is all it does
+directly. It is **compatible with contamination**: the policy family's clause
+wording, country codes and outcome vocabulary have been public in this
+repository since 2026-08-06, and a snapshot that has seen the corpus can
+reproduce this policy's boundaries without being told them and without deriving
+them. [D-16] removes the one *textual* pointer — no arm names a study — but no
+design in this repository can remove residual memorization from a public
+corpus. So:
 
-**INDETERMINATE is a real outcome and is very likely the modal one.** Two
-COLLAPSE and two MID is INDETERMINATE. **All four MID is INDETERMINATE** — and
-§5.4 records that at a true coverage of 0.30 this rule returns MID 99.1% of the
-time, so an all-MID arm E is exactly what any *partial* anchoring effect looks
-like here. It is published as INDETERMINATE, R1 is recorded as **neither
-confirmed nor falsified**, and no post-hoc pattern is substituted for the
-registered one.
+- **R1-UNSUPPORTED is unconditional** as a verdict and is published as one. The
+  prediction failed; the study's own claim does not survive its own test.
+- **The positive counter-thesis is not claimed.** "The author derives
+  boundaries rather than copying them" is one explanation of maintained
+  coverage; "the author recognises this policy family and reproduces its
+  boundaries" is another; and **this design cannot separate them.** Any
+  write-up asserting the first is a claim this study did not earn, and §8's
+  correction text says so in the same paragraph as the retraction.
+- The registered evidence reported beside the verdict, changing no verdict:
+  **§4.5's X3 near-edge tables and X2 buckets.** Exact clustering on 40 and 70
+  in arm E is consistent with derive-then-hug **and** with memorization and
+  separates neither; **dispersion** — mass in the `0.01 < d ≤ 1` buckets, or at
+  X6's sentinel values — is consistent with neither and is the one observation
+  that would point at derivation. It is reported as a pointer and never as a
+  verdict.
 
-§4.6 S5 is what distinguishes a collapse that means "did not test the boundary"
-from one that means "could not derive the boundary"; §4.5's X6 census is what
-diagnoses a wrong derivation specifically; and §4.5's X2/X3 census is what
-distinguishes "no anchor" from "an anchor derived and then hugged".
+**INDETERMINATE is a real outcome.** Two COLLAPSE and two MID is INDETERMINATE.
+**All four MID is INDETERMINATE** — and §5.4 records that at a true coverage of
+0.30 this rule returns MID 99.1% of the time, so an all-MID arm E is exactly
+what any *partial* anchoring effect looks like here. It is published as
+INDETERMINATE, R1 is recorded as **neither confirmed nor unsupported**, and no
+post-hoc pattern is substituted for the registered one.
 
-**A third reading of an E-maintains-coverage outcome is registered before the
-data, because arm E is denamed but not de-referenced.** §2.5 records that arm
-E's preamble retains "Study 010", a name-keyed pointer to a public repository
-whose policy states 40 and 70. So an arm E that maintains coverage admits three
-readings, not two:
-
-1. **R1 is wrong** — the author derives boundaries rather than copying them;
-2. **derive-then-hug** — the author derived 40 and 70 from the words and then
-   anchored on the *values*, so the anchoring is to the value rather than to
-   the token (already registered at the end of §4.5, and it stands);
-3. **recall** — the author recognised the named study and recalled its
-   literals, deriving nothing.
-
-The registered discriminator is **§4.5's X3 near-edge tables**: exact
-clustering on 40 and 70 in arm E is consistent with reading 2 *and* with
-reading 3 and cannot separate them, while **dispersion** — mass in the
-`0.01 < d ≤ 1` buckets, or in X6's misderivation values — is consistent with
-neither and supports reading 1. Registered honestly: **this study cannot
-separate readings 2 and 3 from each other.** [D-16] is the design change that
-would (a preamble carrying no study name), and it is the review's to make.
+§4.6's S5 is what distinguishes a placement collapse that means "did not test
+the boundary" from one that means "could not derive the boundary"; §4.5's X6
+census is what flags an anticipated wrong derivation; and §4.5's X2/X3 census
+is what distinguishes "no anchor" from "an anchor derived and then hugged".
 
 **(ii) D vs A — coverage follows the numbers.** Predicted: **TRACKING on all
 six classes under D's own family**, and, under the S10 old-edge cross-scoring
@@ -1332,28 +1944,39 @@ against arm A's family:
 | 0 (exactly 70) | LOW | D's records hug 72 |
 | 1 ([70, 71)) | LOW | same |
 | 2 (P ∧ [40, 41)) | LOW | D's records hug 45 |
-| 3 ([40, 70)) | **HIGH — not a falsifier** | arm A's 30-wide band, which D's [45, 72) records fall inside by construction |
+| 3 ([40, 70)) | **HIGH — not a falsifier** | arm A's 30-wide band. Most of D's `[45, 72)` band lies inside it, so a diffuse D covers it easily — but **not "by construction"**: the sub-band `[70, 72)` is inside D's class 3 and outside A's, so a D that placed every record there would read LOW here. The earlier draft's "by construction" is withdrawn |
 | 4 (SY) | **HIGH — not a falsifier** | no numeric content |
 | 5 (P ∧ [39, 40)) | LOW | D's below-threshold hugs are at 44 |
 
 **Three outcomes are registered for arm D, not two.**
 
-> **Falsification, registered:** if D's **new-keyed** verdicts are LOW on the
-> narrow numeric classes while its **old-keyed** verdicts are HIGH, the model
-> reproduced 40 and 70 in the face of a text that says 45 and 72. That is not a
-> failure of the anchoring hypothesis; it is a **contamination signal** — this
-> policy family has been public in this repository since Study 010 merged
-> (2026-08-06) — and it is registered here, before the data, as the reading
-> that outcome gets.
+> **The second outcome, registered:** if D's **new-keyed** verdicts are LOW on
+> the narrow numeric classes while its **old-keyed** verdicts are HIGH, the
+> model reproduced 40 and 70 in the face of a text that says 45 and 72. That is
+> not a failure of the anchoring hypothesis. It is published as
+> **OLD-EDGE-PREFERENCE**, and it is registered with **two** explanations, not
+> one:
+>
+> 1. **contamination** — this policy family has been public in this repository
+>    since Study 010 merged (2026-08-06), and a snapshot that has seen it can
+>    reproduce 40 and 70 against a text that says otherwise;
+> 2. **round-number salience** — 40 and 70 are decade-round and 45 and 72 are
+>    not, so an author drawn to round values rather than to the stated literal
+>    produces the same table, having seen nothing. [D-18] registers this as the
+>    cost of the (45, 72) pair and (50, 80) as the salience-matched
+>    alternative.
+>
+> **Nothing in this study separates them**, the earlier draft's name
+> ("contamination signal") asserted the first, and the name is changed to one
+> that asserts neither. What would separate them is an arm at a
+> non-round pair with the *same* roundness profile as (45, 72) but no public
+> history — which is a different study.
 
 > **The third outcome, registered:** if D's **new-keyed** verdicts are LOW on
 > the narrow numeric classes **and its old-keyed verdicts are LOW too**, that
-> is neither tracking nor contamination. It is a **general degradation** — the
-> author placed records at neither threshold pair — and it is **published as
-> one**, not read as evidence for or against R1. The registered candidate
-> explanation is §2.4's salience confound [D-18]: 40 and 70 are decade-round
-> and 45 and 72 are not, so an author drawn to round values rather than to the
-> stated literal produces exactly this pattern. §4.5's X2 and X3 census under
+> is neither tracking nor old-edge preference. It is a **general degradation** —
+> the author placed records at neither threshold pair — and it is **published as
+> one**, not read as evidence for or against R1. §4.5's X2 and X3 census under
 > arm D is what shows where the records went instead, and S5 is what says
 > whether the labels survived.
 
@@ -1368,18 +1991,27 @@ all six classes in both arms.**
 And a dependency that is registered rather than discovered at write-up time,
 **stated as a count rather than as a word**: arm E's result is interpretable as
 a literal effect only if **arm B reads TRACKING on at least five of its six
-classes and arm C reads TRACKING on at least five of its six**. Below that, the
-study publishes arm E's verdicts *and* says the controls did not hold: if B
-falls short, E's collapse could be paraphrase-driven; if C falls short, it
-could be order-driven; either way the weaker reading is what gets claimed.
+classes and arm C reads TRACKING on at least five of its six**. This is the
+**control gate**, it is a gate and not a caution, and the decision table below
+places it above every reading of arm E. Below it, the study publishes arm E's
+verdicts *and* says the controls did not hold: if B falls short, E's collapse
+could be paraphrase-driven; if C falls short, it could be order-driven; either
+way the weaker reading is what gets claimed.
 
 What that dependency costs is stated before the data rather than discovered
-after it. It is a joint condition over twelve level verdicts, and §5.4 records
-that at a true per-class p of 0.95 — inside 011's own published interval —
-**P(all twelve read HIGH) is 0.1957**. The five-of-six form is chosen for
-exactly that reason: requiring all twelve would make the dependency fail
-roughly four times in five under a *true* null effect in both control arms, and
-a dependency that usually fails is not a control.
+after it, and round 2 found the earlier statement of the cost was computed for
+the wrong rule. It is a joint condition over twelve **contrast** verdicts, and
+every TRACKING verdict requires **arm A HIGH on that class as well** — so the
+gate is a statement about eighteen level verdicts, not twelve. §5.4 records
+that at a true per-class p of 0.95 the gate passes **0.7658** of the time at
+N = 30 and **0.4031** at N = 25. The earlier draft cited `q¹² = 0.1957` as
+"P(all twelve read HIGH)", which omits arm A's requirement; the actual
+all-twelve-TRACKING probability is `q¹⁸`, **0.3235** at N = 30 and **0.0866**
+at N = 25. The five-of-six form is chosen for exactly that reason: requiring
+all twelve would make the dependency fail two times in three under a *true null
+effect in both control arms*, and a dependency that usually fails is not a
+control. That the five-of-six form *itself* fails three times in five at N = 25
+is the round-2 argument that moved [D-1] to N = 30.
 
 **(iv) Class 4, the embargo-membership class, in every arm.** Predicted:
 **TRACKING in all four contrasts.** It is the only class whose predicate names
@@ -1389,131 +2021,258 @@ in the corpus (26 distinct probes, no probe reaching more than 11 of 49 runs).
 > **Falsification, registered:** if class 4 collapses in arm E, the effect is
 > not literal-specific — something about the denamed text degraded authoring
 > generally — and every other reading of arm E in this study is withdrawn in
-> favour of that one.
+> favour of that one. The decision table below gives that rule its precedence
+> explicitly rather than leaving "withdrawn in favour of" to a reader.
 
-### 5.4 What N = 25 can and cannot resolve
+#### The decision table, ordered, exhaustive, and total
+
+Round 2's finding: the rules above were individually crisp and jointly
+under-determined. The E table did not incorporate the control gate; the class-4
+rule claimed to override "every other reading" with no stated precedence; arm
+D's rule said "LOW on the narrow classes" with no count and named no outcome
+for the mixed case; and the drift rule ran on "several" and "far below". A
+motivated analyst could have argued more than one outcome from the same
+integers. **This is the whole rule.** It is evaluated top to bottom, the first
+row whose condition holds is the outcome, and the last row always holds.
+
+Notation, all computed by the scorer from the integers it just wrote: `nP` =
+the number of the four narrow numeric classes on which arm E reads
+PLACEMENT-COLLAPSE (§5.2); `nC` = the number on which it reads COLLAPSE on the
+primary; `nH` = the number on which arm E's primary level is HIGH; `gate` = arm
+B TRACKING on ≥ 5 of 6 **and** arm C TRACKING on ≥ 5 of 6.
+
+| # | condition | outcome for R1 | published as |
+| --- | --- | --- | --- |
+| 1 | the batch is incomplete (§2.8), or any arm holds fewer than 30 scheduled slots, or a slot manifest or the ledger chain fails to verify (§2.9) | not adjudicated | **UNRESOLVED-BY-DESIGN** — descriptive publication only, no contrast reported |
+| 2 | arm E reads COLLAPSE on **class 4** | not adjudicated | **E-DEGRADED-GENERALLY** — the denamed text degraded authoring generally; every other reading of arm E is withdrawn |
+| 3 | `gate` is false | not adjudicated | **CONTROLS-FAILED** — arm E's verdicts published in full, with the weaker reading named: paraphrase-driven if B fell short, order-driven if C |
+| 4 | `nH ≥ 3` | **unsupported** | **R1-UNSUPPORTED** — §8's correction fires |
+| 5 | `nP ≥ 3` | **confirmed for this instance** | **CONFIRMED** |
+| 6 | `nC ≥ 3` and `nP < 3` | not adjudicated | **LABEL-COLLAPSE-ONLY** — the records are still at the boundary; the labels are not |
+| 7 | *(else)* | neither confirmed nor unsupported | **INDETERMINATE** |
+
+Registered notes on the table, so its edges are not left to be discovered:
+
+- **Rows 4 and 5 cannot both hold.** `k_H ≤ k_raw` per class, so a class with
+  E's primary HIGH has E's placement HIGH too and cannot be a placement
+  collapse; with four classes, `nH ≥ 3` and `nP ≥ 3` are incompatible. The
+  order is stated anyway, because a decision table with an unreachable
+  ambiguity is still a decision table with an ambiguity.
+- **Rows 1–3 are gates and produce no R1 verdict of any kind**, in either
+  direction. A study that would publish CONFIRMED through a failed control but
+  not R1-UNSUPPORTED through one would be a study with a preferred answer.
+- **Every row is published with the full verdict tables beside it**, including
+  the rows that adjudicate nothing. `UNRESOLVED-BY-DESIGN`, `CONTROLS-FAILED`
+  and `E-DEGRADED-GENERALLY` are outcomes, not failures to report.
+- **The scorer computes the row**, writes its number and its name into
+  `RESULTS.json`, and a harness test parses this table out of this file and
+  diffs it against the scorer's own. No operator selects a row.
+
+### 5.4 What N = 30 can and cannot resolve
 
 Computed with this study's own interval code, before any data, and asserted by
 a harness test so the rule's power is not left to a reader's intuition. Under
-the §5.1 cuts at `V_X` = 25 (HIGH iff `k ≥ 23`, LOW iff `k ≤ 2`), the
-probability the rule assigns each level to a class whose *true* coverage is p:
+the §5.1 cuts at n = 30 (HIGH iff `k ≥ 27`, LOW iff `k ≤ 3`), the probability
+the rule assigns each level to a class whose *true* coverage is p:
 
 | true p | P(HIGH) | P(LOW) | P(MID) |
 | --- | --- | --- | --- |
 | 1.00 | 1.0000 | 0.0000 | 0.0000 |
-| 0.98 | 0.9868 | 0.0000 | 0.0132 |
-| 0.95 | 0.8729 | 0.0000 | 0.1271 |
-| 0.90 | 0.5371 | 0.0000 | 0.4629 |
-| 0.80 | 0.0982 | 0.0000 | 0.9018 |
+| 0.98 | 0.9971 | 0.0000 | 0.0029 |
+| 0.95 | 0.9392 | 0.0000 | 0.0608 |
+| 0.90 | 0.6474 | 0.0000 | 0.3526 |
+| 0.80 | 0.1227 | 0.0000 | 0.8773 |
 | 0.50 | 0.0000 | 0.0000 | 1.0000 |
-| 0.30 | 0.0000 | 0.0090 | 0.9910 |
-| 0.20 | 0.0000 | 0.0982 | 0.9018 |
-| 0.10 | 0.0000 | 0.5371 | 0.4629 |
-| 0.05 | 0.0000 | 0.8729 | 0.1271 |
-| 0.02 | 0.0000 | 0.9868 | 0.0132 |
+| 0.30 | 0.0000 | 0.0093 | 0.9907 |
+| 0.20 | 0.0000 | 0.1227 | 0.8773 |
+| 0.10 | 0.0000 | 0.6474 | 0.3526 |
+| 0.05 | 0.0000 | 0.9392 | 0.0608 |
+| 0.02 | 0.0000 | 0.9971 | 0.0029 |
 | 0.00 | 0.0000 | 1.0000 | 0.0000 |
 
-**The joint figures, registered beside the marginal ones**, because the study's
-own headline is a joint statement and an earlier draft published only the
-marginal column. Computed under an independence assumption across classes that
-the data will not support (Study 011's runs covered all six classes together in
-every valid run), which makes these **lower bounds on the true joint
-probabilities rather than estimates of them** — and stated anyway, because
-independence is the assumption under which they are *worst*, and a design that
-survives its worst case does not need the better one. Asserted by the same
-harness test as the marginal table:
+**Every `0.0000` in this file is a rounded figure, not a zero.** P(HIGH) at
+p = 0.30 is about 4 × 10⁻¹¹ and P(LOW) at p = 0.95 is smaller still; they are
+printed to four places because every other number here is, and no rule in §5
+reads them. Nothing in this study asserts that any of these events is
+impossible.
 
-| true p | P(HIGH), one class | P(all **four** narrow HIGH) | P(all **six** HIGH) | P(all **twelve** HIGH, arms B and C) |
+#### The joint figures, and exactly what they assume
+
+The study's own headline is a joint statement, so the joint arithmetic is
+registered beside the marginal. **These are conditional-independence scenarios,
+not bounds, and round 2 corrected an earlier draft that called them "lower
+bounds" and independence "the worst case".** Both claims were wrong:
+independence is neither an upper nor a lower bound on a joint probability, and
+for positively dependent classes — which is what Study 011's corpus suggests,
+since its runs covered all six classes together in every valid run — the true
+joint probability is *higher* than the independence product, not lower. The
+Fréchet lower bound is what an actual worst case looks like, and it is given
+below beside each product so the gap is visible.
+
+**Every independence layer used, named:**
+
+1. **across classes within an arm** — the six per-class indicators of one arm
+   are treated as independent. Study 011's corpus contradicts this directly;
+2. **across arms** — arm A's, B's, C's and E's class indicators are treated as
+   independent of one another. The interleaved schedule and any provider-side
+   state (§7) work against it;
+3. **across slots within a class** — the Clopper–Pearson interval itself
+   assumes constant-p independent Bernoulli slots (§4.3);
+4. **between the primary and the S1 placement endpoint**, wherever a figure
+   below combines them. These are *not* independent — `H ⊆ raw` — and any such
+   figure is marked.
+
+Under layers 1–3, at `q = P(HIGH | p)` from the table above:
+
+| true p | P(HIGH), one class | P(all **four** narrow HIGH) | P(all **six** HIGH) | Fréchet lower bound on all six | P(all **twelve** TRACKING, B and C) |
+| --- | --- | --- | --- | --- | --- |
+| 1.00 | 1.0000 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| 0.98 | 0.9971 | 0.9885 | 0.9828 | 0.9826 | 0.9492 |
+| 0.95 | 0.9392 | 0.7782 | 0.6865 | 0.6354 | 0.3235 |
+
+The Fréchet column is `max(0, 6q − 5)`: it is what the six marginals alone
+imply, with no dependence assumption at all. At p = 0.95 and N = 30 the honest
+statement is therefore **"between 0.64 and 1.00, and 0.69 under independence"**,
+not "0.69". At N = 25 the same three numbers are **0.2374, 0.4424 and 1.00** —
+the independence figure the earlier draft published as a worst case was nearly
+twice its actual floor.
+
+**P(all twelve TRACKING) is `q¹⁸`, not `q¹²`.** A TRACKING verdict requires
+arm A HIGH on that class as well as the control arm, so all twelve TRACKING is
+eighteen level verdicts, not twelve. `q¹²` at p = 0.95 is 0.4713 at N = 30 and
+0.1957 at N = 25; the correct `q¹⁸` figures are **0.3235** and **0.0866**.
+
+#### Operating characteristics for the rules this file actually registers
+
+Round 2's finding, and the one that moved [D-1]: the earlier draft published
+power for *stricter proxies* of its own rules — all-four COLLAPSE where the
+rule says three-of-four, `q¹²` where the gate says five-of-six over eighteen
+verdicts — and then reasoned about N from those numbers. Recomputed for the
+registered rules, under the scenario the prediction describes (`p = 0.95` on
+every class of arms A, B and C and on E's classes 3 and 4; `p = 0.05` on arm
+E's four narrow numeric classes), and under independence layers 1–3:
+
+| registered rule | where | N = 20 | **N = 25** | **N = 30** |
 | --- | --- | --- | --- | --- |
-| 1.00 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
-| 0.98 | 0.9868 | 0.9481 | 0.9231 | 0.8522 |
-| 0.95 | 0.8729 | 0.5806 | 0.4424 | 0.1957 |
+| per-class COLLAPSE | §5.2 | 0.5415 | 0.7619 | 0.8822 |
+| all four narrow COLLAPSE | — | 0.0860 | 0.3370 | 0.6056 |
+| **`nP ≥ 3` — the CONFIRMED pattern (row 5)** | §5.3 (i) | 0.3771 | 0.7583 | **0.9292** |
+| **the B/C control gate (row 3 passes)** | §5.3 (iii) | 0.0557 | 0.4031 | **0.7658** |
+| all twelve TRACKING (`q¹⁸`) | §5.3 (iii) | 0.0040 | 0.0866 | 0.3235 |
+| **CONFIRMED *and* the gate holds — the actual joint outcome** | table row 5 | 0.0364 | 0.3536 | **0.7359** |
+| `nH ≥ 3` when R1 is false and E truly sits at 0.95 — the power to reach R1-UNSUPPORTED | table row 4 | 0.7142 | 0.9187 | **0.9796** |
 
-and, for the predicted effect itself, `P(all four classes COLLAPSE)` at
-`p_A = 0.95` and `p_E = 0.05` — each class needing arm A HIGH *and* arm E LOW —
-is **0.3370**.
+The CONFIRMED-and-gate row is computed jointly over arm A's six-class pattern
+rather than as a product, because the gate and the collapse both condition on
+the same arm-A HIGH verdicts.
 
 Read plainly:
 
-- **The baseline is comfortable marginally and is not comfortable jointly.**
-  Study 011 observed 49/49 with a lower bound of 0.9275; at a true p of 0.98 an
-  arm reads HIGH 98.7% of the time, and at 0.95, 87.3%. But at that same 0.95 —
-  which is *inside* 011's own published interval — **arm A reads HIGH on all
-  six classes only 44.2% of the time, and on all four narrow numeric classes
-  only 58.1%.** Since §5.2 makes `level(A) = HIGH` a precondition of any
-  COLLAPSE, there is roughly a 42% chance that at least one falsifier-relevant
-  class cannot yield a contrast verdict at all, **from sampling alone, under
-  zero drift**. §2.1 registers the consequence: an arm-A class below HIGH is
-  reported as an unresolved baseline for that class, not as a drift finding.
-- **Even a near-total collapse is not certain to be read as one.** At
-  `p_A = 0.95` and `p_E = 0.05` — the regime the prediction describes — the
-  probability of COLLAPSE on all four narrow numeric classes is 0.3370, while
-  the registered CONFIRMED pattern (≥ 3 of 4) is far more attainable. That
-  asymmetry is why the pattern threshold is three and not four.
-- **A real collapse is caught.** At a true p of 0.05 the rule says LOW 87.3% of
-  the time, and at 0.02, 98.7%. The prediction is that E's numeric classes go
+- **The binding quantity is the control gate, and at N = 25 it fails more often
+  than it passes.** 0.4031 is the probability that the design's own
+  precondition for interpreting arm E holds *when both control arms are
+  behaving exactly as predicted*. This file's own criterion — "a dependency
+  that usually fails is not a control" — condemns N = 25 by that number. At
+  N = 30 the gate passes 0.7658 of the time and the whole registered CONFIRMED
+  outcome lands 0.7359 of the time, against 0.3536 at N = 25. That is the
+  argument that moved [D-1]; it is not the marginal 0.8729 → 0.9392, which is
+  the comparison an earlier draft made and which understates the difference
+  because it does not compound.
+- **The baseline is comfortable marginally and less comfortable jointly.** At a
+  true p of 0.95 — *inside* 011's own published interval, lower bound 0.9275 —
+  arm A reads HIGH on all six classes 68.7% of the time under independence and
+  at least 63.5% by the Fréchet bound. Since §5.2 makes `level(A) = HIGH` a
+  precondition of any COLLAPSE, roughly three runs of this study in ten would
+  find at least one falsifier-relevant class with no contrast verdict
+  available, **from sampling alone, under zero drift** — against roughly
+  *four in ten* at N = 25. §2.1 registers the consequence: such a class is
+  reported as an unresolved baseline, not as drift.
+- **A real collapse is caught.** At a true p of 0.05 the rule says LOW 93.9% of
+  the time, and at 0.02, 99.7%. The prediction is that E's numeric classes go
   to roughly zero, and that is the regime the rule resolves.
 - **A partial collapse is not.** At a true p of 0.30 the rule says MID
-  essentially always (99.1%), and at 0.10 it says LOW only 53.7% of the time.
-  **N = 25 separates "still reliably covered" from "essentially never covered"
+  essentially always (99.1%), and at 0.10 it says LOW only 64.7% of the time.
+  **N = 30 separates "still reliably covered" from "essentially never covered"
   and resolves nothing in between**, and every MID in the published table means
   exactly that. Stated as the smallest real effect this design cannot see:
   **any anchoring effect that leaves coverage above roughly one run in five is
   invisible to this study.** A drop from 1.00 to 0.30 reads MID 99% of the
-  time; a drop to 0.10 reads LOW only 54% of the time; only a fall below about
-  0.06 is reliably called (P(LOW) = 0.8129 at p = 0.06, 0.7466 at 0.07). §9
-  repeats it in those words.
-- **Multiplicity, where it bites and where it does not.** The 30 level verdicts,
-  the 24 contrast verdicts and the up-to-30 S10 verdicts (§4) are all marginal
-  and no simultaneous claim is made over any of them. Where it matters is the
-  *pattern* thresholds of §5.3 — "three or more of four", the twelve-verdict
-  control dependency — and there the arithmetic is stated rather than assumed:
-  if E's four narrow numeric classes each truly sat at 0.95, the probability of
-  reading three-or-more HIGH would be 0.9187, under the same independence
-  assumption as the joint table above. The predicted effect is 1.00 → ~0, which
-  is not a regime where multiplicity is the binding uncertainty; the binding
-  uncertainty is §9's, and this bullet exists so nobody mistakes one for the
-  other.
+  time; a drop to 0.10 reads LOW only 65% of the time; only a fall below about
+  0.08 is called four times in five (P(LOW) = 0.7842 at p = 0.08, 0.8450 at
+  0.07, 0.8974 at 0.06). §9 repeats it in those words.
+- **Multiplicity, where it bites and where it does not.** The 30 primary level
+  verdicts, the 30 S1 placement verdicts, the 30 per-protocol verdicts, the 24
+  contrast verdicts, the 24 placement contrasts and the up-to-30 S10 verdicts
+  (§4) are all marginal and no simultaneous claim is made over any of them.
+  Where it matters is the *pattern* thresholds of §5.3 — "three or more of
+  four", the control gate — and there the arithmetic is in the table above
+  rather than assumed. The predicted effect is 1.00 → ~0, which is not a regime
+  where multiplicity is the binding uncertainty; the binding uncertainty is
+  §9's, and this bullet exists so nobody mistakes one for the other.
 
-**Why 25 and not 20, 30 or 50.** The exact bounds, for a perfect arm:
-n = 16 → [0.7941, 1] (below the HIGH cut, so a perfect arm could not read
-HIGH); n = 17 → [0.8049, 1]; n = 20 → [0.8316, 1]; n = 25 → [0.8628, 1];
-n = 30 → [0.8843, 1]; n = 50 → [0.9289, 1]. A half-covered class carries
-±0.228 at n = 20, ±0.205 at 25, ±0.187 at 30, ±0.145 at 50. At n = 20 the HIGH
-cut lands at `k ≥ 19` — one miss allowed — and P(HIGH | p = 0.95) falls to
-0.736; at n = 30 it lands at `k ≥ 27` and P(HIGH | p = 0.95) rises to 0.939.
-Thirty is better and costs 25 more calls; fifty is better still and costs 125
-more. **The budget: 5 arms × 25 = 125 authoring calls, plus 2 golden probes and
-1 isolation-negative probe = 128 calls**, which at Study 011's observed mean of
-42.08 seconds per call is about 90 minutes of sequential wall clock, comfortably
-inside the one-day rule. At N = 30 it is 150 calls and about 105 minutes; at
-N = 50, 250 calls and about three hours. **[D-1]** N = 25 is the proposal
-because it is the smallest multiple of 5 that gives the HIGH cut two runs of
-slack and catches the predicted collapse with high probability; the review may
-move it to 30 for a materially better control arm at a 20% larger budget, and
-should keep it a multiple of 5 for §2.8's position balance.
+#### Why 30, and not 20, 25 or 50
 
-**The joint figures strengthen the case for N = 30 more than the marginal ones
-do, and are stated here so D-1 is decided on the right quantity.** Marginally,
-P(HIGH | p = 0.95) rises 0.8729 → 0.9392 — a 6.6-point gain that looks modest.
-Jointly, **P(arm A reads HIGH on all six classes) rises 0.4424 → 0.6865**, from
-a coin flip to better than two in three, because the marginal gain compounds
-six times. That is the quantity §5.2 actually depends on, and at N = 25 it is
-the single largest way this design fails without anything being wrong.
+The exact bounds, for a perfect arm: n = 11 → [0.7151, 1] — **the smallest
+denominator at which a perfect arm reads HIGH under the 0.70 cut**;
+n = 16 → [0.7941, 1] (HIGH, and an earlier draft's claim that it was below the
+cut was wrong); n = 17 → [0.8049, 1]; n = 20 → [0.8316, 1]; n = 25 →
+[0.8628, 1]; n = 30 → [0.8843, 1]; n = 50 → [0.9289, 1]. A half-covered class
+carries ±0.228 at n = 20, ±0.205 at 25, ±0.187 at 30, ±0.145 at 50. At n = 20
+the HIGH cut lands at `k ≥ 19` (one miss allowed), at n = 25 at `k ≥ 23` (two),
+at n = 30 at `k ≥ 27` (three), at n = 50 at `k ≥ 42` (eight).
+
+**The budget, with the probe calls counted.** Each N costs `5N` authoring calls
+plus 2 golden probes and 1 isolation-negative probe, and Study 011's observed
+mean was 42.08 seconds per call:
+
+| N | authoring | total calls | sequential wall clock |
+| --- | --- | --- | --- |
+| 20 | 100 | 103 | ~72 min |
+| 25 | 125 | 128 | ~90 min |
+| **30** | **150** | **153** | **~107 min** |
+| 50 | 250 | 253 | ~177 min |
+
+All four are inside the one-day rule; the earlier draft's "150 calls and about
+105 minutes" for N = 30 omitted the three probes, and its "250 calls and about
+three hours" for N = 50 omitted them too.
+
+**[D-1] N = 30 is the proposal**, on the control gate (0.7658 against 0.4031)
+and the registered joint outcome (0.7359 against 0.3536), at a 20% larger
+budget and 17 more minutes. **N = 25 is registered as the alternative** with
+its cost attached in full: the control gate fails three times in five under a
+true null in both control arms, the CONFIRMED outcome lands about one time in
+three, and — a second cost, found while constructing §2.8's schedule — **25
+rounds do not tile the ten-sequence Williams block**, so the registered
+carryover-balanced order would have to be reconstructed for 25 and this file
+does not carry that construction. N should stay a multiple of 5 for §2.8's
+position balance, and a multiple of 10 for its transition balance.
 
 ### 5.5 What a verdict does not license
 
-A TRACKING verdict on arm B says that *this* paraphrase did not move coverage.
-It does not say paraphrase never does. A COLLAPSE verdict on arm E says that
-*this* denaming did. Each arm is one instance of its perturbation type; that is
-the design's central limitation and §9 states it again rather than leaving it
-here.
+A TRACKING verdict on arm B says that *this* paraphrase — under §2.6's
+inclusivity invariant, so a paraphrase of the clause frames and not of the
+boundary language — did not move coverage. It does not say paraphrase never
+does. A TRACKING verdict on arm C says that *this* permutation, which moves
+three clauses and leaves every reference resolving backward, did not move
+coverage; it says nothing about an order that breaks a reference. A COLLAPSE
+verdict on arm E says that *this* denaming did move coverage. Each arm is one
+instance of its perturbation type; that is the design's central limitation and
+§9 states it again rather than leaving it here.
+
+**A CONFIRMED row does not license the causal claim in general, and an
+R1-UNSUPPORTED row does not license its negation.** CONFIRMED means one
+denaming, of one policy family, at one model snapshot, on one day, produced a
+placement collapse on at least three of four narrow classes with both controls
+holding. R1-UNSUPPORTED means that collapse did not happen, and is compatible
+with a snapshot that has seen this policy family before (§5.3 (i), §7, §9).
+Neither row is a measurement of "anchoring" as a property of models.
 
 No verdict in this study is a statement about defect detection. No pack is
 evaluated, no mutation is applied, no evaluator runs. "Coverage" means a
 correctly-labelled record fell inside a registered predicate under the correct
-policy, and Study 011's census already recorded that the claim "low probe
-diversity costs detection power" is a plausible mechanism there and a
+policy — and the placement endpoint means only that *some* accepted record did,
+label or no label — and Study 011's census already recorded that the claim "low
+probe diversity costs detection power" is a plausible mechanism there and a
 demonstrated one nowhere.
 
 ## 6. Controls and counting integrity
@@ -1527,10 +2286,15 @@ population itself.
 
 **C1 — ported bytes, through a three-level chain, bound by authority rather
 than by port kind.** `harness/integrity.py`, in this order: verifies Study
-011's `harness/PINS.json` against the digest this study pins for it; verifies
-Study 010's `PROTOCOL-LOCK.json` against the digest *011* pins for it; reads
-011's `PORTS.md`; then binds every row of §2.2 **to the authority that row
-actually has**, as three tiers.
+011's `harness/PINS.json` against the digest this study pins for it
+(`e0007697…`); **verifies Study 011's `harness/PORTS.md` against the digest
+this study pins for it (`783cc9c3…`)** — round 2's finding, since an earlier
+draft called it pinned while pinning only the registry beside it; verifies
+Study 010's `PROTOCOL-LOCK.json` (`4966aa82…`) against the digest *011* pins
+for it; **verifies this study's own `harness/PORTS.md` against the digest
+`harness/PINS.json` records for it**, so the file that says what each
+enumerated change *was* cannot be rewritten after the review; then binds every
+row of §2.2 **to the authority that row actually has**, as three tiers.
 
 An earlier draft bound the chain by port kind — "every file this study ports
 from 011 that 011 itself ported from 010 must equal 010's locked digest on the
@@ -1556,11 +2320,12 @@ scorer** — `batch.preflight()` before it creates a slot, `score()` before it
 reads one.
 
 What C1 does **not** do, so §7 cannot claim it: it compares no file to a git
-`HEAD` blob (this study has no lock-commit machinery), `harness/PORTS.md` is
-itself unpinned, and **the four files this study takes from Study 011's own
-harness are bound to no lock at all**, because 011 pinned none. What rests on
-review and on C3 rather than on a digest chain is exactly those four:
-`batch.py`, `score_rates.py`, `integrity.py`, and the census.
+`HEAD` blob (this study has no lock-commit machinery), and **the four files
+this study takes from Study 011's own harness are bound to no lock at all**,
+because 011 pinned none. What rests on review and on C3 rather than on a digest
+chain is exactly those four: `batch.py`, `score_rates.py`, `integrity.py`, and
+the census — and, from round 3 onward, on §2.10's tree manifest, which does not
+give them an *ancestor* but does bind them to the bytes a reviewer read.
 
 **C2 — family/pack coherence, for the arms where it is available.** For arms A,
 B, C and E — every arm at (40, 70) — Study 011 C2 runs unchanged against Study
@@ -1615,8 +2380,8 @@ old-keyed ones**, so S10's cross-scoring is exercised at a known answer; and the
 check**, registered because `arm-mismatch` is the only code this study
 introduces and the arm-specific terminal-prompt gate is the only check it
 changes — and because in this study **five** prompts first meet that gate on a
-real slot, under a round-robin rotation where an off-by-one in the driver's arm
-order would place slots in the wrong tree silently. 011 could note that its one
+real slot, under an interleaved order where an off-by-one in the driver's arm
+sequence would place slots in the wrong tree silently. 011 could note that its one
 registered prompt first met the ported gate on batch slot 1; that consolation
 is not available here. So C4 additionally requires:
 
@@ -1627,24 +2392,54 @@ is not available here. So C4 additionally requires:
    disagree with each other**, required to score `arm-mismatch`;
 3. **one admissible slot per arm**, so the arm-specific terminal-prompt gate is
    exercised at **all five** registered prompt digests in CI, before the batch
-   rather than on slot 1.
+   rather than on slot 1;
+4. **a same-arm slot copied to another index in its own arm** — right arm,
+   right prompt digest, right registry, so `arm-mismatch` cannot see it —
+   required to score `schedule-mismatch`, and required to make the ledger↔slot
+   bijection fail (§3.3);
+5. **a slot whose recorded `(globalIndex, round, position, arm)` disagrees with
+   §2.8's registered call order**, required to score `schedule-mismatch`;
+6. **two slots sharing session bytes**, required to score `session-reused` on
+   the later one;
+7. **a slot whose `SLOT-MANIFEST.json` disagrees with its bytes**, required to
+   make the whole scoring return `UNRESOLVED-BY-DESIGN` with no contrast — the
+   fixture that proves the §2.9 consequence is code and not a sentence, and
+   required to demonstrate specifically that the altered slot is **not**
+   quietly moved out of `V_X`;
+8. **a synthetic population exercising every row of §5.3's decision table**,
+   including rows 1, 2, 3 and 6, at known integers — because a table whose
+   gate rows never fire in any test is a table nobody has run.
 
-**C5 — the population filter and the verdicts are in code.** The scorer reads
-every slot of every arm, computes each run's admission verdict and each arm's
-valid population itself with the §3.3 rule, and refuses if any slot lacks a
-terminal outcome, if any arm's slot indices are not exactly the contiguous
-range **1…R — where R is the round count `SHORTFALL.json` declares, and exactly
-1…N when no shortfall is declared** — or if the arms' slot counts are not the
-round-robin schedule's for that R. (An earlier draft required 1…N
-unconditionally, which contradicts §2.8's own shortfall path, under which arms
-hold R or R−1 slots.) The existing requirement stands unchanged: the declared
-round count must match the slots actually present.
-**The §5.1 level verdicts and §5.2 contrast verdicts are computed by the scorer
-from the integers it just wrote, by the registered rule, with no operator input
-and no flag that changes a cut**, and a harness test parses §5.1's and §5.2's
-tables out of this file and diffs them against the scorer's own tables. No rate
-or verdict may be computed by any other path, and none is reported without its
-denominator beside it.
+**C5 — the population is the registered schedule, and the verdicts are in
+code.** The scorer derives the canonical `arms/` root from its own location
+(§2.10 [D-23]; there is no `--slots`), reads every slot of every arm, computes
+each run's admission verdict and each arm's populations itself with the §3.3
+rule, and refuses unless **all** of the following hold:
+
+1. every slot carries a terminal outcome;
+2. the ledger `BATCH.json` and the slot set are **in bijection** — one ledger
+   record per slot, one slot per record, at the path the record names;
+3. the ledger's `(globalIndex, round, position, arm)` sequence is **exactly a
+   prefix of §2.8's registered call order**, with no gap and no reordering;
+4. each arm's slot indices are exactly the contiguous range `1…count_X`, where
+   `count_X` is **derived from that prefix** rather than from a round number —
+   which is what an earlier draft could not do, since it required `1…R` from
+   `SHORTFALL.json`'s round count while §2.8's own text left arms holding `R`
+   or `R−1` slots, and a partly completed round satisfies neither;
+5. when a shortfall is declared, the declared prefix equals the ledger's
+   prefix, slot for slot;
+6. the ledger's hash chain verifies and every slot's `SLOT-MANIFEST.json`
+   recomputes (§2.9) — and a failure here does **not** move a slot out of a
+   denominator, it makes the whole scoring `UNRESOLVED-BY-DESIGN`;
+7. the prefix is the **complete** 150-slot order, or every verdict is
+   `UNRESOLVED-BY-DESIGN` and no contrast is computed (§2.8's stopping rule).
+
+**The §5.1 level verdicts, §5.2 contrast verdicts and §5.3 decision-table row
+are computed by the scorer from the integers it just wrote, by the registered
+rules, with no operator input and no flag that changes a cut**, and a harness
+test parses §5.1's, §5.2's and §5.3's tables out of this file and diffs them
+against the scorer's own. No rate or verdict may be computed by any other path,
+and none is reported without its denominator beside it.
 
 **C6 — isolation demonstrated per run.** Study 011 C6's clause list, ported
 unchanged and enforced per run: `isolation: isolated`; a resolved isolated
@@ -1685,7 +2480,7 @@ own. `harness/integrity.py` requires, before any call and before any scoring:
 1. every arm's four files at their registered digests; the **single registered
    mirror module** `harness/policy_mirror.py` at its registered destination
    digest (§2.2 [D-14]), because it is the arbiter of every arm's labels; and
-   `CONVENTIONS_DELTA` and `CLAIM.md` at theirs;
+   the **assembled preamble**, `CONVENTIONS_DELTA` and `CLAIM.md` at theirs;
 2. the prompt equation of §2.6 for every arm — `PROMPT.txt` = `HEADER` +
    `POLICY.md` minus its final LF — with `HEADER` derived from **011's pinned
    prompt bytes minus 010's locked policy bytes**, 948 bytes, and `arms/A`
@@ -1693,44 +2488,59 @@ own. `harness/integrity.py` requires, before any call and before any scoring:
 3. the document structure of §2.6 parsed for every arm: one preamble, exactly
    five clause bullets with labels P1–P5 each appearing once, one conventions
    paragraph;
-4. the **preamble byte-identical across all five arms**; the conventions
-   paragraph byte-identical across A, B, C, D and equal to **010's conventions
-   paragraph plus `CONVENTIONS_DELTA`**; and E's equal to that plus the
-   registered threshold-definition sentence and nothing else;
+4. the **preamble byte-identical across all five arms** and equal to **010's
+   preamble with `PREAMBLE_DELTA` applied at its single occurrence** — checked
+   both ways, so neither the cross-arm equality nor the derivation from 010's
+   bytes can be satisfied alone; the conventions paragraph byte-identical
+   across A, B, C, D and equal to **010's conventions paragraph plus
+   `CONVENTIONS_DELTA`**; and E's equal to that plus the registered
+   threshold-definition sentence and nothing else;
 5. the **literal census** over clause bodies, run under §2.6's definition —
    digit-runs with clause-label tokens `P1`–`P5` masked out first:
    - B's clause-body digit-run census equals A's, which is
      `{40, 40, 70, 70, 70, 70}`;
    - **B's inclusivity-adjacency pattern matches A's clause for clause**
      (§2.6): in every arm at (40, 70), each numeric bound carries an explicit
-     inclusivity word immediately adjacent to its literal, on the same side, in
-     the same clause;
+     inclusivity word from the registered vocabulary immediately adjacent to
+     its literal, on the same side, of the same sense, in the same clause —
+     compared as the ordered tuple sequence *(label, literal, side, sense)*,
+     and required to be **equal**, not merely compatible. **D's tuple sequence
+     must equal A's under σ**, and **E's six bound senses must equal A's six
+     senses in the same clauses**, with the side comparison omitted for E
+     because a named bound carries no side (§2.6);
    - C's bodies are byte-identical to A's, and its label order is the
-     registered permutation, which must be a **derangement**, must resolve
-     **every explicit clause-label reference backward**, and must resolve
-     **every three-part "absent a sanctions hit or an embargoed registration"
-     precondition backward** — the three conditions of §2.6, checked by
-     re-deriving them from the parsed bodies rather than by comparing against a
-     hard-coded tuple;
+     registered permutation, which must resolve **every explicit clause-label
+     reference backward**, **every three-part "absent a sanctions hit or an
+     embargoed registration" precondition backward**, and **the two-part
+     "Absent a sanctions hit" precondition backward**, and must be the
+     **maximum-movement** permutation that does — the four conditions of §2.6,
+     checked by re-deriving them from the parsed bodies and by enumerating all
+     120 permutations rather than by comparing against a hard-coded tuple;
    - D's clause-body digit-run census is A's under σ, which is
      `{45, 45, 72, 72, 72, 72}`;
    - **E's clause-body digit-run census is empty**, and the digit-runs in the
-     whole of E's `POLICY.md` are exactly the clause labels `P1`–`P5`, in-body
-     clause-label references of the form `P<n>`, the token `ISO 3166-1
-     alpha-2`, and the preamble's study reference — **and no digit-run anywhere
+     whole of E's `POLICY.md` are exactly the clause labels `P1`–`P5` and
+     in-body clause-label references of the form `P<n>` — five plus one — and
+     the token `ISO 3166-1 alpha-2` — three more — **and no digit-run anywhere
      in the file equals `40` or `70`**. Registered as the truth of the frozen
-     artifact rather than as an aspiration: an earlier draft asserted arm E's
-     file was digit-free except for the labels and `ISO 3166-1 alpha-2`, which
-     is false of the inherited preamble (`Study 010`) and of P5's own
-     cross-reference (`unless P4 applies`), and the check as written would have
-     refused the study's own artifact. §2.5 states what the surviving `010`
-     costs and §5.3 (i) registers the reading it makes available;
+     artifact rather than as an aspiration, and corrected twice: a first draft
+     asserted the file was digit-free except for the labels and
+     `ISO 3166-1 alpha-2`, which was false of P5's own cross-reference
+     (`unless P4 applies`) and of the inherited preamble (`Study 010`), and the
+     check as written would have refused the study's own artifact; round 2
+     removes the preamble's study reference from every arm under
+     `PREAMBLE_DELTA` (§2.5, [D-16]), which is why it no longer appears in this
+     list;
 6. the **landmark-grid verdict equality** of §2.4: the registered mirror
    module, **at its registered destination digest**, instantiated at each arm's
    registered `(T_low, T_high)` from that arm's pinned `ARM.json`, produces arm
-   A's verdict vector elementwise over that arm's own **260-cell** grid, and
+   A's verdict vector elementwise over that arm's own **280-cell** grid, and
    every arm's family produces A's class-membership vector elementwise over the
-   same grid.
+   same grid. The grid is the 14-landmark set of §2.4, and the harness test
+   additionally asserts the **negative** control that motivated its last
+   landmark: a family encoding class 5 as `[T_low − 2, T_low)` agrees with arm
+   A on all 260 cells of the 13-landmark grid and **disagrees** on the
+   14-landmark one.
 
 What C8 cannot check, stated in the control itself: that arm B's prose is a
 *paraphrase* rather than a subtle semantic change, and that arm E's references
@@ -1757,25 +2567,40 @@ the extensional check, and it is what catches an error in the substitution
 itself.
 
 **C10 — a clean-room second mirror per arm, before any call.** Study 011 built
-this instrument one day before this study was drafted, in
-`MIRROR-AGREEMENT.md`, for exactly the circularity this study inherits and
-multiplies: "the mirror encodes the same policy text the prompt inlines, so a
-misreading the model and the mirror share produces 784/784 agreement no matter
-how many witness records exist." Study 012 has **five** policy texts, two of
-which (D and E) are authored by the team holding the prediction, and it is the
-one pre-data, model-call-free check that can answer the central attack on this
-design — *is arm E's wording derivable, or was it written to be hard?*
+this instrument **earlier the same day** this study was drafted — its
+`MIRROR-AGREEMENT.md` merged at 13:50 and this draft was committed at 18:43 on
+2026-08-07 — for exactly the circularity this study inherits and multiplies:
+"the mirror encodes the same policy text the prompt inlines, so a misreading
+the model and the mirror share produces 784/784 agreement no matter how many
+witness records exist." Study 012 has **five** policy texts, **three** of which
+(B, D and E) are substantive authored prose from the team holding the
+prediction, and it is the one pre-data, model-call-free check that can answer
+the central attack on this design — *is arm E's wording derivable, or was it
+written to be hard?*
 
 Registered, per arm, before any call:
 
-1. an independent author receives **that arm's `POLICY.md` bytes and nothing
+1. **the readers are pre-assigned, and the assignment is recorded before any
+   of them runs.** `MIRROR-AGREEMENT.md` names, per arm, the reader identity
+   (vendor, model, harness) that will be given that arm and the order in which
+   the five are commissioned. Round 2's finding: with no pre-designation,
+   "commission a reader, and if it fails, commission another" is available and
+   invisible, and the arm most likely to need a second reader is arm E — the
+   one arm whose derivability is the study's central question;
+2. an independent author receives **that arm's `POLICY.md` bytes and nothing
    else** — not another arm, not the registered mirror, not `FAMILY.json`, not
    a record, not this file — and writes `analysis/mirror2_<arm>.py`;
-2. **every clean-room mirror must agree with that arm's registered mirror
-   elementwise on the §2.4 landmark grid**, all 260 cells. This is a
+3. **every clean-room mirror must agree with that arm's registered mirror
+   elementwise on the §2.4 landmark grid**, all 280 cells. This is a
    precondition of the batch, not a post-hoc analysis: `harness/integrity.py`
    refuses while any arm's clean-room mirror is missing or disagreeing;
-3. the isolation rule, the builder's own report of what it consulted, and the
+4. **every attempt is retained and published, including every failed one.** A
+   reader that cannot produce a mirror, produces one that disagrees, or reports
+   that it could not determine the thresholds is recorded in
+   `MIRROR-AGREEMENT.md` with its output, its report and the arm it was given.
+   Nothing is discarded and no attempt is unpublished; a study that keeps only
+   the readers that agreed has measured nothing;
+5. the isolation rule, the builder's own report of what it consulted, and the
    full agreement table are published as `MIRROR-AGREEMENT.md` in this study
    directory, following 011's format — including 011's own honesty about what
    agent isolation is: a claim about a process, not a proof.
@@ -1788,6 +2613,16 @@ anchoring, and it is **re-authored and re-registered before the freeze rather
 than run**. The same rule applies to any arm: a clean-room disagreement on the
 grid is a defect in the arm text or in the registered mirror, and it is fixed
 before the freeze, not explained after the data.
+
+**And a re-authored arm restarts the instrument, rather than reusing its
+verdict.** If any arm text changes for any reason after its clean-room reader
+has run — a re-authoring under this control, a review finding, an editorial
+fix — then **that arm gets a fresh reader that has not seen the previous
+version**, its earlier attempt stays published as an attempt against the
+earlier bytes, and §2.10's tree manifest makes the change a new review round
+besides. An agreement obtained against bytes that no longer exist is not
+evidence about the bytes that run, and round 2 found the earlier text silently
+permitted carrying one forward.
 
 ## 7. What is enforced, what is recorded, what is not prevented
 
@@ -1804,12 +2639,23 @@ or in both:
   column names** — 010's lock, 011's `PINS.json`, or 011's own adapted bytes —
   checked before the driver creates a slot and before the scorer reads one (C1);
 - **every arm artifact at its registered digest**, **the single registered
-  mirror module at its registered digest**, `CONVENTIONS_DELTA` and `CLAIM.md`
-  at theirs, the prompt equation, the document structure, the preamble and
-  conventions equalities, the literal census, arm B's inclusivity-adjacency
-  pattern, arm C's three ordering conditions, and the 260-cell landmark-grid
-  verdict and class equality across all five arms (C8), and the class schema
+  mirror module at its registered digest**, the assembled preamble,
+  `CONVENTIONS_DELTA` and `CLAIM.md` at theirs, the prompt equation, the
+  document structure, the preamble and conventions equalities **in both
+  directions** (cross-arm, and derived from 010's bytes), the literal census,
+  arm B's inclusivity-adjacency tuple equality with arm A and arm D's under σ,
+  arm E's bound-sense equality, arm C's four ordering conditions re-derived by
+  enumeration, and the 280-cell landmark-grid verdict and class equality across
+  all five arms with its registered negative control (C8), and the class schema
   per arm, structurally (C9);
+- **the whole-tree review binding**: the tree manifest the final review round
+  attested, recomputed over the frozen study directory and refused on any
+  mismatch (§2.10 [D-20]) — this supersedes the round-1 binding, which covered
+  only the five arm texts and was authenticated by the same commit it was
+  meant to constrain;
+- **the provenance chain at both ends**: 011's `PINS.json` *and* `PORTS.md` at
+  their pinned digests, 010's `PROTOCOL-LOCK.json` at the digest 011 pins, and
+  this study's own `PORTS.md` at the digest `PINS.json` records (C1);
 - **a clean-room second mirror per arm, agreeing elementwise on the landmark
   grid**, as a precondition of the batch rather than a post-hoc analysis (C10);
 - the codex binary digest and the CLI version string, both **before the call**,
@@ -1819,16 +2665,28 @@ or in both:
   run;
 - the registry of record, per run and per population: every run records the
   registry digest it was made under and any other is `registry-mismatch`; the
-  scorer takes no registry, family, prompt, arm or golden path at all and
-  derives each from the harness's own location, refusing every argument but the
-  batch root and an optional record-emission directory;
+  scorer takes no registry, family, prompt, arm, golden **or slots** path at
+  all and derives each from the harness's own location, refusing every argument
+  but an optional record-emission directory (§2.10 [D-23]);
 - **the arm binding, per slot**: the arm id and the arm prompt digest are
   stamped by the wrapper and checked by the scorer against the tree the slot
   sits in, so a slot made with the wrong policy text cannot enter another arm's
   denominator (`arm-mismatch`);
-- **the round-robin schedule**: the driver refuses to create a slot out of the
-  registered (round, position) order, refuses any plan that would reach past
-  round 25, and refuses any slot in any arm once `RESULTS.json` exists;
+- **the schedule binding, per slot and per population**: every slot records its
+  global schedule index, round, position and arm; the scorer refuses unless the
+  ledger is in bijection with the slot set and the ledger's sequence is exactly
+  a prefix of §2.8's registered call order (`schedule-mismatch`, C5). A
+  same-arm slot copied, renamed or duplicated fails here, which is what
+  `arm-mismatch` alone could not see;
+- **cross-slot session uniqueness** over the whole population, on raw retained
+  evidence, so no slot can agree with a copy of itself (`session-reused`);
+- **per-slot terminal manifests chained into the ledger** (§2.9), with a
+  mismatch invalidating confirmatory scoring for the batch rather than moving
+  one slot out of a denominator;
+- **the registered call order**: the driver refuses to create a slot out of the
+  registered global-index order, refuses any plan that would reach past global
+  index 150, refuses to resume anywhere but at the ledger's next index, and
+  refuses any slot in any arm once `RESULTS.json` exists;
 - a slot tree of regular files and directories only, decided by `lstat` before
   anything in the tree is opened, before any other check and before the batch's
   own `REFUSAL.json` is read;
@@ -1855,10 +2713,15 @@ or in both:
   resumed run merges into and refuses to overwrite;
 - the §3.3 partition and the population filter, with the registered code table
   diffed against the code by a test; the equality of the six denominators within
-  each arm; **and the §5.1 and §5.2 rules, diffed against this file's tables by
-  a test and computed by the scorer alone**;
+  each arm and each endpoint; **and the §5.1, §5.2 and §5.3 rules — including
+  the ordered decision table — diffed against this file's tables by a test and
+  computed by the scorer alone**;
+- **the stopping rule**: an incomplete batch, or any arm short of its 30
+  scheduled slots, yields `UNRESOLVED-BY-DESIGN` on every level verdict and no
+  contrast at all, computed by the scorer and published as a stated fact
+  (§2.8 [D-21]);
 - the batch/score separation: the driver cannot compute coverage or a verdict;
-  the scorer refuses unless the batch is terminal (exactly 25 rounds, or a
+  the scorer refuses unless the batch is terminal (exactly 150 slots, or a
   matching `SHORTFALL.json`, never both); the registered scoring command is the
   only publisher and writes to the study root or nowhere.
 
@@ -1882,6 +2745,12 @@ digest chain above, ledger discipline, and re-runnability.
   second by one independent reader's re-derivation, which is evidence and not
   proof — a single clean-room author who derives (40, 70) shows the text
   *can* be read that way, not that it will be;
+- **that the per-slot manifests and the ledger chain were written honestly.**
+  §2.9's chain makes a post-hoc edit to a slot visible to anyone who recomputes
+  it, and that is all it does: the operator holds every input to the chain and
+  could recompute the whole of it. There is no external timestamp and no
+  transparency log in this study, and the chain is a bound against later
+  alteration rather than a proof of contemporaneous recording;
 - that the retained slots are ALL the invocations that occurred — an off-ledger
   call leaves no slot;
 - that `CALL.json`'s self-reported fields describe the process that ran; only
@@ -1896,53 +2765,71 @@ digest chain above, ledger discipline, and re-runnability.
   and the batch is interleaved: a mid-batch glance at arm E would be a glance at
   the answer. Nothing prevents it; the ledger, the fixed N, the fixed arms and
   the registered rule are what bound what such a glance could change;
-- **the in-process route, and its interaction with the interleaved schedule
-  and the shortfall path.** Study 011 §2.4 stated the ceiling plainly and this
-  study restores it, with the interaction named rather than left for a reader
-  to assemble from three separate bullets. The registered scoring command is
-  the only *publisher*, and what arms the driver's guard is `RESULTS.json`
-  existing — but **nothing prevents a library caller importing the scorer and
-  computing an arm's rate in process, publishing nothing and leaving the marker
-  unarmed**. Here the operator holds a directional prediction, the schedule is
-  interleaved so every arm exists from round 1, and §2.8 permits a shortfall
-  declaration at any round. So an operator could in principle read arm E's
-  coverage at round 10 and stop the batch at a favourable round. **Nothing here
-  prevents it.** What bounds it: the fixed N, the fixed arm set, the
-  append-only ledger, the registered rule that no rate is recomputed on a
-  different population, `SHORTFALL.json`'s recorded wall clock of the last
-  completed slot (§2.8) — and the fact that a shortfall below R = 11 produces
-  no verdict at all (§2.8's floor), so the favourable early stop this route
-  would buy is, for the first ten rounds, worth nothing;
-- that a declared shortfall was involuntary.
+- **the in-process route.** Study 011 §2.4 stated the ceiling plainly and this
+  study restores it. The registered scoring command is the only *publisher*,
+  and what arms the driver's guard is `RESULTS.json` existing — but **nothing
+  prevents a library caller importing the scorer and computing an arm's rate in
+  process, publishing nothing and leaving the marker unarmed**. Here the
+  operator holds a directional prediction and the schedule is interleaved, so
+  every arm exists from the first round. **Nothing here prevents the look.**
+  What round 2 changed is what the look could *buy*: under §2.8's stopping rule
+  an incomplete batch yields no verdict at all, at any round and for any
+  reason, so an operator who reads arm E early and stops has published a
+  descriptive table and forfeited the study's conclusion. An earlier draft
+  answered this with a floor at eleven valid runs plus a recorded wall clock,
+  which left the whole range from round 11 to round 24 open to exactly this
+  move; that answer is withdrawn as insufficient and §2.8 [D-21] replaces it.
+  What still is not prevented: an operator who looks, dislikes what they see,
+  and **completes the batch anyway** while writing the analysis around it —
+  bounded only by the fixed N, the fixed arm set, the registered decision table
+  computed by the scorer, and the append-only chained ledger;
+- that a declared shortfall was involuntary. This is unchanged and it is why
+  the stopping rule keys on completeness rather than on the declared reason.
 
 **Not prevented:**
 
-- **The perturbations were authored by the team that published the
-  prediction [D-9].** This is the design's structural conflict and it is stated here
-  rather than in a footnote. Someone who expects E to collapse can write an E
-  that collapses for reasons other than denaming — a clumsy sentence, an
-  ambiguous reference, an accidental semantic change. **Five** things bound it
-  and none removes it: every arm artifact is **registered by digest before any
-  call**, so the texts cannot be adjusted once a rate exists; the **mirror is
-  the arbiter** and C8 binds every arm's mirror to A's, so an accidental
-  semantic change is a refusal rather than a result; **C10's clean-room second
-  mirrors** re-derive each arm's semantics from that arm's bytes alone, and an
-  arm E whose reader cannot derive (40, 70) is re-authored before the freeze
-  rather than run; the five texts get **cross-vendor adversarial review before
-  the freeze**, whose findings and dispositions are published with this study;
-  and **that review is bound to the frozen bytes** — `PREREG-REVIEW.md` records
-  the sha256 of each of the five arm texts per round, and
-  `harness/integrity.py` refuses unless each frozen `arms/<X>/POLICY.md` digest
-  equals the digest the final review round recorded, so "the texts that were
-  reviewed are the texts that ran" is a checked relation rather than a
-  sequencing convention. §9 repeats it as a bound.
+- **All five perturbations were authored by the team that published the
+  prediction [D-9].** This is the design's structural conflict and it is stated
+  here rather than in a footnote — and it is stated at its **full extent**,
+  which an earlier draft understated by naming only D and E. **Three of the
+  five arms are substantive authored prose from the prediction-holding team**:
+  arm B is a five-clause paraphrase, arm D is A's text under a substitution,
+  arm E is a denaming with two authored reference sentences. Arm C is A's
+  bodies in a different order — authored only in the choice of permutation, and
+  that choice is now itself a registered maximum under four stated constraints.
+  Only arm A is inherited. The conflict is sharpest where the control is
+  weakest: a B that collapses disarms E under §5.3 (iii), so an author who
+  wanted E's result had an interest in a B that *tracks*, and an author who
+  wanted a clean story had an interest in a B whose bound phrases match A's —
+  which is exactly what §2.6's invariant now requires. That coincidence is
+  named here rather than left for a reader to notice.
+  **Five things bound the conflict and none removes it:** every arm artifact is
+  **registered by digest before any call**, so the texts cannot be adjusted
+  once a rate exists; the **mirror is the arbiter** and C8 binds every arm's
+  mirror to A's, so an accidental semantic change is a refusal rather than a
+  result; **C10's clean-room second mirrors** re-derive each arm's semantics
+  from that arm's bytes alone, with pre-assigned readers, every attempt
+  retained, and a fresh reader after any re-authoring, and an arm E whose
+  reader cannot derive (40, 70) is re-authored before the freeze rather than
+  run; every artifact gets **cross-vendor adversarial review before the
+  freeze**, whose findings and dispositions are published with this study; and
+  **that review is bound to the frozen bytes by a whole-tree manifest** (§2.10
+  [D-20]), so nothing this study ships — not a policy text, not the scorer, not
+  this file — can change between the final review and the freeze without
+  another review. §9 repeats it as a bound.
 - **Contamination through the public repository.** `POLICY.md`, `FAMILY.json`,
   `PROMPT.txt` and Study 010's and 011's records have been public in this
   repository since 2026-08-06. The transcript whitelist mechanically excludes
   tool use, so no run can *retrieve* the repository during authoring; what
-  cannot be excluded is that a model snapshot has seen this material. Arm D is
-  the one arm that puts a partial probe on it — §5.3 (ii) registers what a
-  D-old-edge-HIGH outcome would mean — and a partial probe is all it is.
+  cannot be excluded is that a model snapshot has seen this material. [D-16]
+  removes the one *textual* pointer — no arm names a study — and that is a
+  strictly smaller intervention than removing memorization, which nothing here
+  can do. Two registered readings turn on it and neither is resolvable inside
+  this design: §5.3 (i)'s R1-UNSUPPORTED outcome is **contamination-compatible**
+  and is published saying so, and §5.3 (ii)'s OLD-EDGE-PREFERENCE outcome has
+  contamination and round-number salience as two explanations this study cannot
+  separate. Arm D is a partial probe on the first; a partial probe is all it
+  is.
 - **Prior-context leakage that reproduces the golden capture after
   normalization.** The allowlist matches normalized digests, not raw bytes, so
   it cannot refuse a leak that stays inside the normalization equivalence class.
@@ -1951,17 +2838,31 @@ digest chain above, ledger discipline, and re-runnability.
 - **Per-run isolation limits.** Fresh `HOME` and `CODEX_HOME` close the paths
   Study 010 found empirically. They do not close provider-side state: if the
   pinned CLI's backend carries cross-session memory keyed to the credential, the
-  125 runs are not independent in the way this study assumes. S6 is the one
-  observable that would hint at it. **The interleaved schedule makes this
-  sharper, not weaker**: arms alternate call by call, so provider-side state
-  carried across calls is carried across arms, and a contrast between arms is
-  the one thing such a state could not manufacture out of nothing — but it could
-  blur one, and this study cannot measure that.
+  150 runs are not independent in the way this study assumes, and §4.3's
+  intervals rest on an assumption that is then false. S6 is the one observable
+  that would hint at it.
+  **An earlier draft claimed such state "could only blur a contrast, not
+  manufacture one", and that claim was false of the schedule it was written
+  for.** Under the round-1 cyclic rotation arm E followed arm D in 20 of its 25
+  calls and never followed A or B, so state carried from arm D's 45/72 prompt
+  would have been carried into arm E's call almost every time — which is a
+  mechanism for manufacturing exactly the predicted collapse, not for blurring
+  it. §2.8's carryover-balanced order is the fix: every ordered pair of arms
+  occurs 7 or 8 times in 149 transitions, so no arm is systematically preceded
+  by any other. **What that buys and what it does not:** balance means a
+  carryover effect is spread evenly across arms instead of loading onto one
+  contrast, which is the difference between a bias and added variance. It does
+  not remove the state, this study cannot measure it, and a *truncated* batch
+  is not balanced at all — which is one more reason §2.8's stopping rule
+  returns no verdict from one.
 - **What `/tmp` still exposes.** The pinned CLI's sandbox is writable at
   `[workdir, /tmp, $TMPDIR]`; each run gets its own workdir and its own `TMPDIR`
   inside it, and the recommended scratch parent is outside `/tmp`. A run that
-  used a tool at all is refused by the whitelist and leaves the denominator, so
-  the rates are conditional on the author having happened not to use one.
+  used a tool at all is refused by the whitelist — and under §4.2's
+  intent-to-treat endpoint it stays in the denominator counting as covering
+  nothing, so the primary rates are **not** conditional on the author having
+  happened not to use one. The per-protocol secondary S11 still is, which is
+  what that endpoint is for.
 - **Five texts, one prompt template, one model, one policy family, one day.**
   Every rate and every verdict is conditional on all of them.
 
@@ -1994,13 +2895,26 @@ in this study that commitment has a named edge case, so it is stated as a rule
 and not as a sentiment:
 
 > **If arm E maintains coverage — HIGH on three or more of the four narrow
-> numeric classes, §5.3 (i) — `R1` is published as WRONG, with the same
-> prominence as the claim: in `ANALYSIS.md`'s first paragraph, in this study's
-> README, in the venue and at the URL `CLAIM.md` records, and as a correction
-> banner at the head of
+> numeric classes, §5.3 (i) row 4 — `R1` is published as UNSUPPORTED, with the
+> same prominence as the claim: in `ANALYSIS.md`'s first paragraph, in this
+> study's README, in the venue and at the URL `CLAIM.md` records, and as a
+> correction banner at the head of
 > `studies/011-authorship-coverage-rates/DIVERSITY.md`.** No re-cutting of §5's
 > thresholds, no "the effect was smaller than expected", no relegation to a
 > limitations section.
+
+**The correction says two things, and the second is not optional.** First: the
+prediction R1 made did not happen — the coverage R1 said rests on the literals
+did not go away when the literals went away, and R1 is withdrawn. Second, in
+the same paragraph and not in a footnote: **this study does not thereby
+establish the opposite.** Maintained coverage in arm E is compatible with the
+author deriving the boundaries *and* with the author reproducing a policy
+family it has seen before, and this design separates neither (§5.3 (i), §7,
+§9). A correction that retracted R1 and installed "the author derives
+boundaries" in its place would be trading one unearned causal claim for
+another, which is the failure this whole study exists to avoid. §5.3 (i)
+registers the census evidence that points one way or the other and registers
+that it changes no verdict.
 
 **What is retracted is R1 and nothing else.** The census's own committed
 sentence — "boundary placement follows the numbers the policy names, not an
@@ -2012,11 +2926,14 @@ dishonest as keeping a causal claim that is false.
 
 Beyond that:
 
-- all 125 raw slot directories across the five arms, **including every invalid
+- all 150 raw slot directories across the five arms, **including every invalid
   one**, with every byte the run left in them and nothing removed, in one of
-  Study 011 §8's four registered slot shapes; beside them the ledger
-  `BATCH.json` and `SHORTFALL.json` if one is declared. Nothing in the tree is
-  `.gitignore`d;
+  Study 011 §8's four registered slot shapes, each with its
+  `SLOT-MANIFEST.json`; beside them the chained ledger `BATCH.json` and
+  `SHORTFALL.json` if one is declared. Nothing in the tree is `.gitignore`d;
+- **the expanded 150-slot registered call order and its realised transition
+  census**, so a reader can check §2.8's balance claims against what actually
+  ran rather than against the construction;
 - the per-run admission verdict, refusal code, counts and class classification
   the scorer derives, for **every** slot, in `RESULTS.json`'s `runs` array;
 - the compiled record trees for the valid runs whose completion held a parseable
@@ -2025,29 +2942,31 @@ Beyond that:
   files;
 - `RESULTS.json`, `RATES.md` and `CENSUS.md`, written by the registered scoring
   command, with every rate's integers and bounds and every census count;
-- `ANALYSIS.md` leading with the five arms' rates, the five `rho_X`, and the §5
-  verdict table — a class covered in 1 run of 25 is published as 1/25 with its
-  interval, in the headline;
+- `ANALYSIS.md` leading with the five arms' rates, the five `rho_X`, the §5
+  verdict table and **the decision-table row the scorer computed** — a class
+  covered in 1 run of 30 is published as 1/30 with its interval, in the
+  headline;
 - **the five arm artifacts themselves**, as committed before the batch, so any
   reader can judge whether the perturbations are what this file says they are;
 - **`CLAIM.md`** — the verbatim published wording of R1, its venue, its URL and
   its retrieval date — committed and pinned before the freeze, so the
   retraction target is frozen with everything else;
-- **`MIRROR-AGREEMENT.md`** — C10's five clean-room mirrors, the isolation rule
-  each builder ran under, each builder's own report of what it consulted, and
-  the per-arm 260-cell agreement table, following Study 011's format;
+- **`MIRROR-AGREEMENT.md`** — C10's five clean-room mirrors, the pre-assigned
+  reader roster, **every attempt including every failed one**, the isolation
+  rule each builder ran under, each builder's own report of what it consulted,
+  and the per-arm 280-cell agreement table, following Study 011's format;
 - `DEVIATIONS.md` for every departure from this file, written as it happens;
 - **`PREREG-REVIEW.md`** — the complete pre-freeze review record, following
-  Study 011's per-round, per-finding disposition format, and **carrying, per
-  round, the sha256 of each of the five arm texts as that round reviewed
-  them**. `harness/integrity.py` refuses unless each frozen
-  `arms/<X>/POLICY.md` digest equals the digest recorded in the final review
-  round, so a clause of arm E cannot change between the last review and the
-  freeze with Appendix A updated to match — the registered-illustration check
-  would pass either way, because both would have moved together, and this is
-  the binding that catches it;
-- the pre-freeze cross-vendor adversarial review of this file **and of the five
-  arm texts**, and the post-run cross-vendor review, both with per-finding
+  Study 011's per-round, per-finding disposition format, carrying **per round
+  the sha256 of each of the five arm texts as that round reviewed them** and,
+  **from round 3 onward, that round's whole-tree manifest digest** (§2.10
+  [D-20]). `harness/integrity.py` refuses unless the manifest it recomputes
+  over the frozen tree equals the one the final round recorded, so nothing this
+  study ships can change between the last review and the freeze — not a clause
+  of arm E with Appendix A updated to match, not the scorer, not this file, and
+  not the review record's own digest table;
+- the pre-freeze cross-vendor adversarial review of **the complete post-port
+  tree**, and the post-run cross-vendor review, both with per-finding
   dispositions, both recorded in `PREREG-REVIEW.md`.
 
 No slot is deleted. No rate or verdict is recomputed on a different population
@@ -2057,27 +2976,57 @@ recapture, an arm that cannot be made to pass C8 — that is published too, in
 
 ## 9. Bounds
 
-Twenty-five samples per arm, five arms, one prompt template, one model, one CLI
-build, one policy family of six classes, one machine, one day. At `V_X` = 25 a
-perfect arm is bounded below at 0.8628 and a half-covered class carries ±0.205,
+Thirty samples per arm, five arms, one prompt template, one model, one CLI
+build, one policy family of six classes, one machine, one day. At n = 30 a
+perfect arm is bounded below at 0.8843 and a half-covered class carries ±0.187,
 so this study separates "reliably covered" from "essentially never covered" and
 resolves nothing between — §5.4 says exactly what that costs.
 
 **The smallest real effect this design cannot see, stated plainly: any
 anchoring effect that leaves coverage above roughly one run in five.** A drop
-from 1.00 to 0.30 reads MID 99% of the time; a drop to 0.10 reads LOW only 54%
-of the time; only a fall below about 0.06 is reliably called. A partial
-anchoring effect — the outcome most designs of this kind actually find — is
-invisible here and is published as INDETERMINATE, which is what INDETERMINATE
-means in this file.
+from 1.00 to 0.30 reads MID 99% of the time; a drop to 0.10 reads LOW only 65%
+of the time; only a fall below about 0.08 is called four times in five. A
+partial anchoring effect — the outcome most designs of this kind actually
+find — is invisible here and is published as INDETERMINATE, which is what
+INDETERMINATE means in this file.
 
-**The baseline is not jointly comfortable.** At a true per-class coverage of
-0.95, inside Study 011's own published interval, arm A reads HIGH on all six
-classes only 44.2% of the time. So roughly two runs of this study in five would
-find at least one falsifier-relevant class with no contrast verdict available,
-from sampling alone and with nothing wrong. That is a bound on what this
-design can return, not a prediction about the model, and §2.1 registers that
-such a class is reported as an unresolved baseline rather than as drift.
+**Every interval here is exact for a model this design cannot verify.**
+Clopper–Pearson coverage is exact conditional on independent, constant-`p`
+Bernoulli slots; §7 records that provider-side state shared across calls cannot
+be excluded, and if it exists both halves of that condition fail. The phrase
+"exact interval" in this file always means "exact under that model", never
+"assumption-free".
+
+**The joint figures are scenarios, not bounds.** Every "P(all six)" in this
+file is computed under an explicit independence assumption across classes and
+across arms that Study 011's own corpus contradicts — its runs covered all six
+classes together in every valid run. Independence is not a worst case: for
+positively dependent classes the true joint probability is *higher*. Where a
+worst case is wanted, §5.4 gives the Fréchet lower bound beside each product,
+and the honest form of the headline joint figure at p = 0.95 and N = 30 is
+**"at least 0.6354, and 0.6865 under independence"**.
+
+**The baseline is not fully comfortable jointly.** At a true per-class coverage
+of 0.95, inside Study 011's own published interval, arm A reads HIGH on all six
+classes 68.7% of the time under independence. So roughly three runs of this
+study in ten would find at least one falsifier-relevant class with no contrast
+verdict available, from sampling alone and with nothing wrong. That is a bound
+on what this design can return, not a prediction about the model, and §2.1
+registers that such a class is reported as an unresolved baseline rather than
+as drift.
+
+**And the design's own precondition can fail.** §5.3 (iii)'s control gate — B
+and C each TRACKING on five of six classes — passes 76.6% of the time at N = 30
+under the same scenario, so about one run of this study in four returns
+`CONTROLS-FAILED` and adjudicates R1 in neither direction, with both control
+arms behaving exactly as predicted. At the N = 25 this study nearly registered
+it would have been three runs in five.
+
+**An incomplete batch returns nothing.** §2.8's stopping rule is a real cost
+and not a formality: a batch that dies at round 29 for reasons nobody chose
+publishes a full descriptive surface and no verdict at all. That is the price
+of removing optional stopping, and it is paid before the data rather than
+argued about after.
 
 **Each arm is one instance of its perturbation.** One paraphrase, one
 permutation, one rename, one denaming. A TRACKING verdict on arm B is evidence
@@ -2087,18 +3036,28 @@ thresholds, (45, 72), whose roundness differs from (40, 70)'s — §2.4 and
 [D-18] state that confound and §5.3 (ii) registers the outcome it would
 produce.
 
-**The perturbations were authored by the team that predicted the outcome.**
-Registration before any call, the mirror as arbiter with C8's mechanical
-equality across arms, C10's clean-room re-derivation of each arm's semantics
-from that arm's bytes alone, cross-vendor review of the five texts before the
-freeze, and the digest binding between that review record and the frozen bytes
-are the mitigations. They bound the risk; they do not remove it, and a reader
-who discounts this study for that reason is applying the right standard.
+**The perturbations were authored by the team that predicted the outcome —
+three of the five arms as substantive prose, not two.** Arm B's paraphrase is
+authored, and arm B is the control whose failure would disarm arm E, which
+makes it the arm where the conflict has the most to gain. Registration before
+any call, the mirror as arbiter with C8's mechanical equality across arms,
+C10's clean-room re-derivation of each arm's semantics from that arm's bytes
+alone with pre-assigned readers and every attempt published, cross-vendor
+review of the complete post-port tree before the freeze, and the whole-tree
+manifest binding between that review record and the frozen bytes are the
+mitigations. They bound the risk; they do not remove it, and a reader who
+discounts this study for that reason is applying the right standard.
 
-**Arm E denames literals, it does not remove numeric information.** Its
-threshold values are recoverable by arithmetic from words, because a policy that
-did not determine them would be a different policy and the contrast would be
-confounded. What E measures is the cost of *indirection*, not of *absence*.
+**Arm E denames literals, it does not remove numeric information, and it does
+not remove memorization.** Its threshold values are recoverable by arithmetic
+from words, because a policy that did not determine them would be a different
+policy and the contrast would be confounded. What E measures is the cost of
+*indirection*, not of *absence*. [D-16] removes the one textual pointer any arm
+carried to a public text stating 40 and 70; what it cannot remove is that this
+policy family has been public since 2026-08-06 and a model snapshot may have
+seen it. So an arm E that maintains coverage is published as **R1-UNSUPPORTED
+and contamination-compatible**, and this study does not claim the positive
+counter-thesis.
 
 **Nothing here measures defect detection.** No pack is evaluated, no mutation is
 applied, no evaluator runs, no unresolved/no-match/conflict outcome is observed.
@@ -2129,39 +3088,56 @@ Every genuinely open parameter, its proposal, and its alternative. The
 pre-freeze review settles each one; the settled values are written into this
 file before it is frozen, and after that this section is history.
 
-**The review record is bound to the bytes it reviewed.** `PREREG-REVIEW.md`
-follows Study 011's per-round, per-finding disposition format and records, per
-round, **the sha256 of each of the five arm texts as that round reviewed
-them**. `harness/integrity.py` refuses unless each frozen
-`arms/<X>/POLICY.md` digest equals the digest the final round recorded. The
-sequencing is unchanged and is still right — the review settles D-3, D-4, D-5,
-D-14 through D-18; then the port fills the digests; then the freeze — but the
-sequencing is no longer the only thing holding it together.
+**The review record is bound to the bytes it reviewed, and from round 3 that
+means the whole tree.** `PREREG-REVIEW.md` follows Study 011's per-round,
+per-finding disposition format and records, per round, **the sha256 of each of
+the five arm texts as that round reviewed them** and — from the first
+post-port round onward — **that round's whole-tree manifest digest** (§2.10
+[D-20]). `harness/integrity.py` refuses unless the manifest it recomputes over
+the frozen tree equals the final round's.
 
-**Decisions marked with a round in the last column were opened by the round-1
-review**, not by the drafters, and each records the option the maintainer took
-and the option not taken.
+**The sequencing changed in round 2 and the change is the point.** It was
+review → port → freeze, which left every ported byte and every filled digest
+outside the reach of every review that ran. It is now:
+
+```
+review rounds over the specification and the arm texts
+  -> THE PORT (harness written, arms assembled, every (port time) cell filled)
+    -> THE FINAL cross-vendor round, over the complete post-port tree
+      -> the freeze
+```
+
+**Decisions marked with a round in the last column were opened by a review**,
+not by the drafters, and each records the option the maintainer took and the
+option not taken. Round 1 opened D-14 through D-18; round 2 opened D-19 through
+D-24 and re-adjudicated D-1, D-4, D-5, D-7, D-9, D-10, D-13, D-16 and D-18.
 
 | # | decision | proposal | alternative, and what turns on it | opened |
 | --- | --- | --- | --- | --- |
-| **D-1** | N per arm (§2.8, §5.4) | **25** | 30 (P(HIGH \| p=0.95) rises 0.8729 → 0.9392 marginally, and **P(arm A HIGH on all six) rises 0.4424 → 0.6865** jointly, +25 calls) or 20 (marginal falls to 0.7358, joint to 0.1587, −25 calls). Keep a multiple of 5 for §2.8's position balance | draft |
-| **D-2** | The §5.1 level cuts | **`L ≥ 0.70` HIGH, `U ≤ 0.30` LOW** | Study 011's tier cuts 0.80/0.40. At N = 25 the 0.80 cut needs a perfect arm, so a single stray miss in a control arm reads INDETERMINATE. Interacts with D-1 | draft |
+| **D-1** | N per arm (§2.8, §5.4) | **30** | **25** (the round-1 proposal, re-adjudicated in round 2). The decisive quantity is not the marginal P(HIGH \| p=0.95), which rises only 0.8729 → 0.9392, but the **registered B/C control gate of §5.3 (iii), which passes 0.4031 at N = 25 and 0.7658 at N = 30**, and the whole registered CONFIRMED outcome, 0.3536 against 0.7359. This file's own criterion — a dependency that usually fails is not a control — condemns N = 25 on its own numbers. N = 25 also costs the §2.8 schedule: **25 rounds do not tile the ten-sequence Williams block**, so its carryover-balanced order would have to be reconstructed and this file does not carry that construction. 20 is worse again (gate 0.0557). N = 30 costs +25 calls and ~17 minutes. Keep a multiple of 5 for position balance and of 10 for transition balance | draft; re-adjudicated round 2 |
+| **D-2** | The §5.1 level cuts | **`L ≥ 0.70` HIGH, `U ≤ 0.30` LOW** | Study 011's tier cuts 0.80/0.40. At N = 30 the 0.80 cut lands at `k ≥ 29` — one miss in thirty — and at N = 25 it needs a perfect arm, so a single stray miss in a control arm reads INDETERMINATE either way. Interacts with D-1 | draft |
 | **D-3** | Arm E's exact reference wording (§2.5, §4.5 X6, Appendix A) | the Appendix A text **as rewritten in round 1**: one denominator, no pronoun, §2.3's own threshold names — "The **review threshold** is seven tenths of that full range; the **personal-data threshold** is four tenths of that same full range." | any wording that keeps the clause-body digit census empty and the values exactly derivable. The round-1 draft's wording is **not** an option: its pronoun admitted 28 (two fifths of the review threshold), it called `T_low` the "clearance threshold" against §2.3's own key, and its two denominators made one derivation harder than the other. X6 registers the misderivation audit under either wording | draft; rewritten round 1 |
-| **D-4** | Arm B's exact paraphrase (Appendix A) | the Appendix A draft, **plus the clause-by-clause A ↔ B substitution table** the review adjudicates row by row | any paraphrase preserving the clause-body digit census, the clause order, the semantics, **and §2.6's inclusivity-adjacency pattern** — the last is new in round 1, because the digit census cannot express the boundary-inclusivity phrasing that 011's census calls the most anchoring-relevant feature of the text | draft; invariant added round 1 |
-| **D-5** | Arm C's permutation and label handling (§2.6) | **(P2, P1, P4, P5, P3)**, labels travel with their bodies. It is the **unique** permutation that is a derangement, resolves every explicit label reference backward, and resolves every three-part "absent …" precondition backward | (a) **(P1, P2, P4, P5, P3)** — resolves *every* reference backward including P2's own two-part opener, which no derangement can, at the cost of leaving P1 and P2 in place (3 of 5 clauses move); (b) renumbering labels to presentation order, which would add a second perturbation. The round-1 draft's (P2, P4, P1, P5, P3) is **not** an option: P4 at position 2 opens with "absent a sanctions hit or an embargoed registration" while P1 does not appear until position 3 | draft; replaced round 1 |
+| **D-4** | Arm B's exact paraphrase (Appendix A) | the Appendix A text **as rewritten in round 2**, plus the clause-by-clause A ↔ B substitution table the review adjudicates row by row. P4 now reads "**40 or more** but **below 70**", so every bound's cue sits on A's side with A's sense | any paraphrase preserving the clause-body digit census, the clause order, the semantics, **and §2.6's inclusivity-adjacency pattern**. The round-1 text is **not** an option: its "from **40** up to but not including 70" put P4's lower cue *before* the literal where A's is *after*, violating the very invariant round 1 added — round 2 found it, and the invariant is kept and the text changed rather than the reverse. Weakening the invariant is the alternative not taken, and it would cost §5.3 (iii)'s dependency its meaning | draft; invariant added round 1; text fixed round 2 |
+| **D-5** | Arm C's permutation and label handling (§2.6) | **(P1, P2, P4, P5, P3)**, labels travel with their bodies. It resolves **every** reference backward — explicit label references, both precondition forms, including P2's own two-part opener — and is the **unique maximum-movement** permutation that does, moving three of five | (a) **(P2, P1, P4, P5, P3)** — the round-1 registration, and the unique *derangement* resolving the explicit and three-part references, at the cost of leaving P2's own opener forward-referencing P1; *derangement + every reference backward* is **empty** over all 120 permutations, so the two properties cannot both be had. Round 2's finding: arm C is a control on which arm E's interpretation depends, so a residual comprehension difficulty in C is a live alternative explanation for a C-collapse and not merely a disclosed cost — comprehensibility beats full derangement here, and the trade is that C perturbs order less. (b) renumbering labels to presentation order, which would add a second perturbation. The round-1 draft's (P2, P4, P1, P5, P3) is **not** an option | draft; replaced round 1; replaced again round 2 |
 | **D-6** | Arm D's C2 pack-side clause (§6 C2) | replace with the C8 landmark-grid check and say so | construct a threshold-shifted pack `C_D` solely to keep the clause, adding an artifact no run evaluates | draft |
-| **D-7** | Arm ordering within the batch (§2.8) | **round-robin, cyclic rotation by round** | fixed within-round order (simpler; confounds arm with within-round position) or blocked by arm (confounds arm with time-of-day drift, and is why round-robin is proposed) | draft |
+| **D-7** | The call order within the batch (§2.8) | **the registered first-order carryover-balanced order**: a Williams design for five treatments (ten sequences), three blocks, in the three registered block orders. Each arm holds each position 6 times; each ordered pair is adjacent exactly 6 times within rounds; every ordered pair occurs 7 or 8 times over all 149 transitions | cyclic rotation by round (the round-1 proposal) — balances position perfectly and predecessor not at all: under it **arm E follows D in 20 of 25 calls, C in 5, and A or B never**, so provider-side carryover from arm D's 45/72 prompt could manufacture arm E's predicted collapse. Round 2 found it and §7's claim that such state "could only blur a contrast" is withdrawn with it. Also available: fixed within-round order (confounds arm with position) or blocking by arm (confounds arm with time-of-day drift). Exact balance over 149 transitions is arithmetically impossible; max − min = 1 is the registered achievable | draft; replaced round 2 |
 | **D-8** | Golden recapture and C7, once or per arm (§3.2, §6 C7) | **once for the whole batch**, because both use the arm-independent probe prompt and the pre-prompt context does not depend on the prompt | per arm, which costs 10 extra probe calls and buys nothing this file can name | draft |
-| **D-9** | Who authors the arm texts (§7, §9) | the study team, with **C10's clean-room re-derivation**, cross-vendor adversarial review of the five texts before the freeze, and the review record bound to the frozen digests | cross-vendor *authorship* to a registered spec, which weakens the conflict in §9 and adds an uncontrolled authoring step of its own | draft; C10 and the digest binding added round 1 |
-| **D-10** | The E decision patterns (§5.3 i) | **CONFIRMED iff COLLAPSE on ≥ 3 of the 4 narrow numeric classes; FALSIFIED iff HIGH on ≥ 3 of 4; every other pattern INDETERMINATE**, all-MID explicitly included | ≥ 2 of 4 (more easily decided in both directions) or all 4 (harder in both). The round-1 draft registered only the falsification half, which let a motivated analyst call 2 COLLAPSE + 2 MID a confirmation afterwards with nothing in this file to stop them | draft; confirmation half added round 1 |
+| **D-9** | Who authors the arm texts (§7, §9) | the study team — **three of the five arms as substantive authored prose (B, D, E), which round 2 corrected from two** — with **C10's clean-room re-derivation under pre-assigned readers with every attempt published and a fresh reader after any re-authoring**, cross-vendor adversarial review of the complete post-port tree before the freeze, and the review record bound to that tree by manifest | cross-vendor *authorship* to a registered spec, which weakens the conflict in §9 and adds an uncontrolled authoring step of its own | draft; C10 and the digest binding added round 1; extent corrected and C10 hardened round 2 |
+| **D-10** | The E decision patterns (§5.3 i) | **CONFIRMED iff PLACEMENT-COLLAPSE (S1) on ≥ 3 of the 4 narrow numeric classes, *and* the B/C control gate holds, *and* class 4 does not collapse; R1-UNSUPPORTED iff E reads HIGH on the primary on ≥ 3 of 4; LABEL-COLLAPSE-ONLY iff COLLAPSE on ≥ 3 without placement collapse on ≥ 3; every other pattern INDETERMINATE**, all-MID explicitly included, with §5.3's ordered decision table making the whole rule total | ≥ 2 of 4 (more easily decided in both directions) or all 4 (harder in both); and confirmation on the *primary* rather than on S1 placement — the round-1 form, which round 2 found reads the wrong mechanism: because `H ⊆ raw`, an arm E that still places records on 40 and 70 but mislabels them loses H-coverage entirely and would have read CONFIRMED while the hugging R1 predicts would vanish was still there. The round-1 draft registered only the falsification half, which let a motivated analyst call 2 COLLAPSE + 2 MID a confirmation afterwards | draft; confirmation half added round 1; mechanism and totality fixed round 2 |
 | **D-11** | Which classes the collapse prediction covers (§2.3, §5.3) | **0, 1, 2, 5 only**; classes 3 and 4 predicted TRACKING everywhere | include class 3, which a diffuse author covers by accident across a 30-wide band (27-wide in arm D) and which would therefore flatter the prediction | draft |
 | **D-12** | S10 old-edge cross-scoring status (§4.6, §5.3 ii) | **registered secondary with its own registered predicted pattern** | promote to primary (it is the sharper measure of the rename claim) or drop it (it is the only registered probe on contamination) | draft |
-| **D-13** | Unequal valid counts across arms (§2.8) | **no truncation**; each arm uses its own `V_X`, and a caution is stated if two arms differ by more than 2 | truncate every arm to the common minimum for the contrasts, at the cost of discarding admitted runs | draft |
+| **D-13** | Unequal valid counts across arms (§2.8, §4.2) | **no truncation**; the primary endpoint's denominator is N for every arm (intent-to-treat), and the per-protocol secondary S11 uses each arm's own `V_X` with a caution if two arms differ by more than 2 | truncate every arm to the common minimum, at the cost of discarding admitted runs. Round 2's move of the primary to N makes this decision smaller than it was: unequal denominators now affect only the secondary | draft; scope narrowed round 2 |
 | **D-14** | How arm D gets a mirror (§2.2, §2.6, §2.10, §6 C1, C8 clause 6) | **(b) one 010-locked module parameterized by (`T_low`, `T_high`) read from the arm's registered `ARM.json`.** One mirror artifact, one destination digest, five arms; D's behaviour is keyed to an artifact that is already pinned before any call, and the §2.2 row becomes an enumerated-change port bound to 010's lock on the source side | **(a) a fifth registered per-arm file `arms/<X>/MIRROR.py`**, five artifacts pinned in §2.6, §2.10 and C8 clause 1, with D's derived from 010's locked mirror by substituting exactly two integer literals and the diff published in `harness/PORTS.md`. (a) keeps each arm's mirror byte-visible in its own directory; (b) keeps the count of unreviewed artifacts at one. Under either, C8 clause 6 runs against the arm's actual mirror at its registered digest. **Round 1 found that neither was registered**: the draft ported the mirror byte-identically, which encodes 40/70 and cannot serve arm D, and pinned no per-arm mirror anywhere | round 1 |
 | **D-15** | Where the scale sentence goes (§2.1, §2.5, §2.6, Appendix A) | **(a) the identical sentence "The office's risk scale runs from zero to one hundred." in all five arms' conventions paragraphs**, as the registered `CONVENTIONS_DELTA`, pinned by its own sha256. This relaxes §2.1's arm-A byte-equality to *011's pinned text plus exactly that published delta* — acceptable because §2.1 already declares 011's runs historical and every contrast within-batch, so the prompt digest was load-bearing only for the §4.7 drift report, which gates nothing | (b) **a sixth arm A′ = A + the scale sentence** as an explicit scale-disclosure control, +25 calls, which measures the confound instead of eliminating it; (c) **keep it in arm E only** and state in §5.3 (i), §8 and §9 that arm E carries two differences from baseline and its falsifier is correspondingly weaker. Round 1's finding: the scale sentence is *new semantic information* — neither 011's prompt header nor 010's conventions bounds `riskScore` anywhere, 011's corpus contains scores authored with no stated scale, and no mirror can catch a domain hint because the mirror encodes no domain | round 1 |
-| **D-16** | The preamble's study reference (§2.5, §2.6, §5.3 i) | **keep the preamble byte-identical across all five arms**, inherited from 010, and register the recall channel it leaves open: §5.3 (i)'s third reading, with X3 dispersion as the registered discriminator | **replace "Study 010" with a digit-free, name-free equivalent in all five arms**, which removes arm E's one textual hook back to a public policy stating 40 and 70 — and separates §5.3 (i)'s readings 2 and 3, which this design otherwise cannot — at the cost of a second registered delta from 010's locked text, on top of D-15's | round 1 |
-| **D-17** | The contrast rule (§5.2) | **the level-gated rule, plus COLLAPSE-DISJOINT (`U_X < L_A`) reported beside it and never substituted for it.** Both computable from the same integers; neither needs a distribution for a difference of proportions, so the estimation-first posture is preserved | **the level-gated rule alone**, accepting that a class where E reads LOW and A reads MID is published as INDETERMINATE despite widely disjoint intervals in the predicted direction. §5.4's joint arithmetic makes that the *likely* shape of a partial baseline, not a corner case. Round 1's finding: the contrast rule is the study's second-most consequential registered choice after the level cuts, and the draft registered thirteen decisions without it | round 1 |
-| **D-18** | Arm D's threshold pair (§2.4, §5.3 ii, §9) | **(45, 72)** — no single additive shift explains it, which is the confound this pair was chosen to exclude | **(50, 80)** — salience-matched (both decade-round, as 40 and 70 are) and width-preserving (class 3 stays 30 wide, where (45, 72) narrows it to 27), at the cost of being exactly a +10 additive shift of (40, 70). The two candidates trade one confound against the other and the review picks which one this study would rather not be able to rule out. Under either, §5.3 (ii)'s third outcome — new-keyed LOW *and* old-keyed LOW, published as a general degradation — stays registered | round 1 |
+| **D-16** | The preamble's study reference (§2.1, §2.5, §2.6, §5.3 i) | **replace `Study 010` with `this study` in all five arms**, as the registered `PREAMBLE_DELTA` at its single occurrence in 010's locked bytes, with the assembled preamble pinned by its own sha256. This removes the one textual hook by which any arm points at a public text stating 40 and 70 | **keep the preamble byte-identical to 010's** (the round-1 proposal) and register the recall channel it leaves open. Round 2's finding: with the name in place, an arm E that maintained coverage was being labelled an unconditional falsification of R1 while the text handed the author a pointer to the answer — recall does not falsify a causal proposition about denaming. The adopted option costs **a second registered delta from 010's locked text**, on top of D-15's, and it buys strictly less than it appears to: it removes the *pointer*, not residual memorization of a corpus public since 2026-08-06, which is why §5.3 (i) publishes maintained coverage as **contamination-compatible** rather than as a clean falsification | round 1; adopted round 2 |
+| **D-17** | The contrast rule (§5.2) | **the level-gated rule, plus COLLAPSE-DISJOINT (`U_X < L_A`) reported beside it and never substituted for it**, and the same level-gated rule computed on S1 as the **PLACEMENT contrast**. All computable from the same integers; none needs a distribution for a difference of proportions, so the estimation-first posture is preserved | **the level-gated rule alone**, accepting that a class where E reads LOW and A reads MID is published as INDETERMINATE despite widely disjoint intervals in the predicted direction. Round 1's finding: the contrast rule is the study's second-most consequential registered choice after the level cuts, and the draft registered thirteen decisions without it | round 1; placement contrast added round 2 |
+| **D-18** | Arm D's threshold pair (§2.4, §5.3 ii, §9) | **(45, 72)** — no single **additive shift** explains it, which is the confound this pair was chosen to exclude. Round 2 corrected the claim's wording: unequal moves exclude a translation, **not** an affine map (`0.9x + 9` sends 40 → 45 and 70 → 72), and the wider claim is withdrawn | **(50, 80)** — salience-matched (both decade-round, as 40 and 70 are) and width-preserving (class 3 stays 30 wide, where (45, 72) narrows it to 27), at the cost of being exactly a +10 additive shift of (40, 70). The two candidates trade one confound against the other and the review picks which one this study would rather not be able to rule out. Under either, §5.3 (ii)'s second outcome is published as **OLD-EDGE-PREFERENCE** with contamination *and* round-number salience as two explanations this study cannot separate, and the third — new-keyed LOW *and* old-keyed LOW, a general degradation — stays registered | round 1; terminology and outcome name fixed round 2 |
+| **D-19** | How drift is classified (§2.1) | **numeric: arm A is DRIFT-SUSPECTED iff it reads below HIGH on four or more of its six classes, or LOW on any one.** Everything else, including three classes below HIGH, is an unresolved baseline on those classes and nothing more | **remove the drift classification entirely** and report only unresolved baselines, which costs the study its one registered way of naming a baseline that has plainly moved. The round-1 wording — "several classes at once, or a class far below the cut" — is **not** an option: it is an unregistered rule wearing a registered one's clothes, since "several" and "far below" are the analyst's to set after the data. Round 2's finding. Under the registered scenario the numeric rule fires by sampling alone with probability 0.0002 at N = 30 | round 2 |
+| **D-20** | Review-to-freeze binding and the port ordering (§2.2, §2.10, §7, §8) | **the final cross-vendor round reviews the complete post-port candidate tree and attests an exact commit and tree manifest**; the manifest digest is pinned and recomputed at the freeze; any byte change requires a new round; the port therefore happens **before** the final review, not after it | **an externally signed attestation** — the reviewer signing the manifest digest with a key this repository does not hold — which is strictly stronger and is not available in this environment. The round-1 binding is **not** an option: it covered only the five arm texts and was self-authenticating, since `PREREG-REVIEW.md`, Appendix A, the policies and `PINS.json` could all move together in one commit and every specified equality would still pass. Cost of the adopted option: the final round is a much larger review, and any finding that changes a byte repeats both the port and the round | round 2 |
+| **D-21** | What an incomplete batch may return (§2.8, §7, §9) | **nothing: descriptive-only, every verdict `UNRESOLVED-BY-DESIGN`, no contrast, at any round, for any reason** | **verdicts above a floor** — the round-1 rule, no verdict below eleven valid runs plus a recorded wall clock. Round 2's finding: a floor does not remove optional stopping, it relocates it to round 11, and an operator holding a directional prediction can read arm E in process (§7) and stop when the picture is favourable. A timestamp is not a pre-commitment. Cost of the adopted option, paid in advance: a batch that dies at round 29 for reasons nobody chose publishes a full descriptive surface and no conclusion | round 2 |
+| **D-22** | How a crashed batch resumes (§2.8, §6 C5) | **by global schedule index**: `--resume` continues at the ledger's next index after verifying the recorded prefix against §2.8's registered order, slot for slot | `--start-round K`, the round-1 form, which is **not** an option: it cannot resume a partly completed round without either overlapping recorded slots or silently omitting the rest of that round, and a round number alone makes neither detectable afterwards | round 2 |
+| **D-23** | The scorer's argument surface and the population root (§2.10, §6 C5) | **`--slots` is removed** from the scorer and from the shortfall declaration; the canonical `arms/` root is derived from the harness's own location, and `--emit-records` is the whole remaining surface | keep `--slots` for operator convenience, which round 2 found lets the published population be pointed at any tree of the right shape — a copy with a slot removed, a duplicated arm — with every per-slot check still passing, because a same-arm copy is not `arm-mismatch` | round 2 |
+| **D-24** | The primary endpoint's denominator (§3.3, §4.2, §4.6 S11) | **intent-to-treat: `k/N` over the scheduled slots**, with pipeline-invalid slots counted as covering nothing and the `[k/N, (k+I)/N]` sensitivity bound published beside every rate | **`k/V_X`**, the round-1 primary, retained as the per-protocol secondary S11. Round 2's finding: the admission gates are arm-independent but the probability of tripping them is not — a policy text can move tool use, exit status, completion production and parseability — so excluding tripped runs conditions the primary on a post-treatment outcome, and the bias runs the wrong way, since the arm whose text most disrupts authoring sheds exactly the slots that would have covered nothing. Cost of the adopted option: ITT is conservative in the other direction, which is what the published bound exists to show | round 2 |
 
 ---
 
@@ -2177,19 +3153,27 @@ move together between the last review round and the freeze and still satisfy
 it; what closes that is §8's and §10's binding of `PREREG-REVIEW.md`'s
 per-round arm digests to the frozen bytes.
 
-**The preamble, byte-identical in all five arms** (inherited from Study 010; its
-references to packs and to Study 010 are historical and are kept fixed so that
-each arm's variation is confined to the intervention — with the cost to arm E
-registered in §2.5 and §5.3 (i) and the alternative in **[D-16]**):
+**The preamble, byte-identical in all five arms** — inherited from Study 010
+with the registered `PREAMBLE_DELTA` **[D-16]** applied, so that no arm hands
+its author a name-keyed pointer to a public text stating 40 and 70 (§2.5). It
+is held fixed across arms so that each arm's variation is confined to the
+intervention:
 
 ```
 # Vendor screening policy — the arbiter
 
-Synthetic policy for Study 010. Every other artifact in this study is checked
+Synthetic policy for this study. Every other artifact in this study is checked
 against this text; a divergence between a pack and this text is a pack bug.
 This is also the exact policy text the record author receives (inlined in the
 registered prompt), so it is the whole of what the two sides share.
 ```
+
+`PREAMBLE_DELTA` is the substitution `Study 010` → `this study`, applied at its
+**single occurrence** in 010's locked `policy/POLICY.md` (byte offset 64, one
+occurrence, verified against the locked bytes). It lengthens the file by one
+byte. The assembled preamble is **343 bytes**, sha256
+`83b7b27fb8cb9054d4536edc6d20ec1c7f9e57cc66f69b5c68891f9def83734d`, and it is
+pinned by that digest in `harness/PINS.json`.
 
 **The conventions paragraph, byte-identical in A, B, C and D.** It is 010's
 conventions paragraph plus `CONVENTIONS_DELTA` **[D-15]** — the final
@@ -2210,8 +3194,10 @@ record can present. The office's risk scale runs from zero to one hundred.
 
 `CONVENTIONS_DELTA` is exactly ` The office's risk scale runs from zero to one
 hundred.` — **55 bytes**, one leading space, appended to the end of 010's final
-sentence — and it is pinned by its own sha256 in `harness/PINS.json`. Arm A's
-`POLICY.md` is therefore 1759 + 55 = **1814 bytes**.
+sentence — sha256
+`3b121dd02f8aedd103d0d047b77ee289f788b8d8d22589e396e13baa268223e0`, pinned by
+that digest in `harness/PINS.json`. Arm A's `POLICY.md` is therefore
+1759 + 55 + 1 = **1815 bytes**, the last byte being `PREAMBLE_DELTA`'s.
 
 **The assembly rule, registered so every digest below is reproducible from
 these bytes**: an arm's `POLICY.md` is
@@ -2230,10 +3216,10 @@ resulting five digests are recorded per review round in `PREREG-REVIEW.md`
 ### A.1 Arm A — baseline (clause bodies, in order P1…P5)
 
 Byte-identical to Study 010's. The whole file is 010's locked `policy/POLICY.md`
-plus `CONVENTIONS_DELTA` **[D-15]**, and it must produce arm A's prompt under
-§2.6's equation with `HEADER` derived from 011's pinned prompt bytes. Under
-D-15's alternative (c) it is 010's locked file outright and arm A's prompt is
-011's pinned digest.
+with `PREAMBLE_DELTA` **[D-16]** and `CONVENTIONS_DELTA` **[D-15]**, and it must
+produce arm A's prompt under §2.6's equation with `HEADER` derived from 011's
+pinned prompt bytes. If the review reverses both deltas, arm A is 010's locked
+file outright and arm A's prompt is 011's pinned digest.
 
 ```
 - **P1.** A vendor with a sanctions hit is **rejected**, regardless of
@@ -2264,8 +3250,8 @@ Same literals, same order, paraphrased bodies.
   vendor carrying a risk score of **70 or more** is sent to **manual
   review**.
 - **P4.** With neither a sanctions hit nor an embargoed registration, a
-  vendor that **handles personal data** and carries a risk score from **40
-  up to but not including 70** is likewise sent to **manual review**.
+  vendor that **handles personal data** and carries a risk score of **40 or
+  more** but **below 70** is likewise sent to **manual review**.
 - **P5.** With neither a sanctions hit nor an embargoed registration, a
   vendor scoring **below 70** is **cleared** except where P4 catches it: a
   vendor that handles no personal data clears anywhere below 70, while one
@@ -2279,30 +3265,41 @@ masked, so P5's "unless P4 applies" contributes nothing): sorted,
 **The clause-by-clause A ↔ B substitution table [D-4]**, published so the
 pre-freeze review adjudicates each substitution rather than reading five
 paragraphs as a whole. The right-hand column is the §2.6 invariant the digit
-census cannot express: each numeric bound with an explicit inclusivity word
-immediately adjacent to its literal, on the same side, in the same clause.
+census cannot express, as the ordered tuple *(literal, side, sense)* the
+harness compares: each numeric bound with an explicit inclusivity word from the
+registered vocabulary immediately adjacent to its literal, on the same side,
+of the same sense, in the same clause.
 
 | clause | arm A | arm B | inclusivity adjacency |
 | --- | --- | --- | --- |
 | P1 | "A vendor with a sanctions hit is **rejected**, regardless of anything else." | "If a vendor has a sanctions hit, the outcome is **reject**, whatever else the file shows." | no numeric bound |
 | P2 | "Absent a sanctions hit, a vendor registered in an embargoed country … is **rejected**." | "With no sanctions hit, a vendor whose registration is in an embargoed country … is also **rejected**." | no numeric bound |
-| P3 | "risk score is **70 or above**" | "carrying a risk score of **70 or more**" | inclusive-at-70, word *after* the literal, both arms |
-| P4 lower | "**40 or above** but below 70" | "from **40** up to but not including 70" | inclusive-at-40, word after the literal in A ("or above"), before it in B ("from") — **the one asymmetry in the table, and the review's to adjudicate** |
-| P4 upper | "40 or above but **below 70**" | "from 40 **up to but not including 70**" | exclusive-at-70, word before the literal, both arms |
-| P5 outer | "risk score is **below 70**" | "vendor scoring **below 70**" | exclusive-at-70, word before the literal, both arms |
-| P5 gloss (non-P) | "clears **below 70**" | "clears anywhere **below 70**" | exclusive-at-70, word before the literal, both arms |
-| P5 gloss (P) | "clears only **below 40**" | "clears only **below 40**" | exclusive-at-40, word before the literal, byte-identical |
+| P3 | "risk score is **70 or above**" | "carrying a risk score of **70 or more**" | (70, after, inclusive) in both |
+| P4 lower | "**40 or above** but below 70" | "risk score of **40 or more** but below 70" | (40, after, inclusive) in both — **fixed in round 2**; the round-1 B read "from **40** up to but not including 70", which put the cue *before* the literal and broke the invariant this table exists to display |
+| P4 upper | "40 or above but **below 70**" | "40 or more but **below 70**" | (70, before, exclusive) in both |
+| P5 outer | "risk score is **below 70**" | "vendor scoring **below 70**" | (70, before, exclusive) in both |
+| P5 gloss (non-P) | "clears **below 70**" | "clears anywhere **below 70**" | (70, before, exclusive) in both |
+| P5 gloss (P) | "clears only **below 40**" | "clears only **below 40**" | (40, before, exclusive) in both, byte-identical |
+
+**Verified over the assembled bytes**: arm B's six tuples equal arm A's six,
+clause for clause, in order — `(P3, 70, after, inclusive)`,
+`(P4, 40, after, inclusive)`, `(P4, 70, before, exclusive)`,
+`(P5, 70, before, exclusive)`, `(P5, 70, before, exclusive)`,
+`(P5, 40, before, exclusive)`. Arm D's equal these under σ; arm C's are A's
+own, reordered with their clauses. **What the invariant costs is stated in
+§2.6 and is real**: B's paraphrase now lives in the clause frames and not in
+the boundary language, and at four of the six bounds B uses A's own cue word.
 
 ### A.3 Arm C — reordered [D-5]
 
-Bodies byte-identical to arm A's; presentation order **(P2, P1, P4, P5, P3)**;
+Bodies byte-identical to arm A's; presentation order **(P1, P2, P4, P5, P3)**;
 each label travels with its own body.
 
 ```
-- **P2.** Absent a sanctions hit, a vendor registered in an embargoed
-  country — **KP, IR, or SY** — is **rejected**.
 - **P1.** A vendor with a sanctions hit is **rejected**, regardless of
   anything else.
+- **P2.** Absent a sanctions hit, a vendor registered in an embargoed
+  country — **KP, IR, or SY** — is **rejected**.
 - **P4.** Absent a sanctions hit or an embargoed registration, a vendor that
   **handles personal data** and whose risk score is **40 or above but below
   70** goes to **manual review**.
@@ -2314,25 +3311,30 @@ each label travels with its own body.
   whose risk score is **70 or above** goes to **manual review**.
 ```
 
-**Derangement:** P1 1→2, P2 2→1, P3 3→5, P4 4→3, P5 5→4 — every clause moves.
+**Movement:** P3 3→5, P4 4→3, P5 5→4 — **three of five clauses move**; P1 and
+P2 keep their positions. This is **not** a derangement, and §2.6 and [D-5]
+state why round 2 traded the derangement away.
 
-**Reference resolution**, checked by re-deriving it from the parsed bodies:
+**Reference resolution**, checked by re-deriving it from the parsed bodies —
+**every reference resolves backward, with no residual**:
 
 | reference | in clause at position | resolved by clause at position | backward? |
 | --- | --- | --- | --- |
 | "unless P4 applies" | P5, position 4 | P4, position 3 | yes |
-| "absent a sanctions hit **or an embargoed registration**" | P4 (3), P5 (4), P3 (5) | P1 (2) and P2 (1) | yes, all three |
-| "Absent a sanctions hit" | P2, position 1 | P1, position 2 | **no — the one residual** |
+| "absent a sanctions hit **or an embargoed registration**" | P4 (3), P5 (4), P3 (5) | P1 (1) and P2 (2) | yes, all three |
+| "Absent a sanctions hit" | P2, position 2 | P1, position 1 | **yes — the round-1 residual is gone** |
 
-**The residual is unavoidable and is registered rather than hidden.** Requiring
-P2's own two-part opener to resolve backward forces P1 to position 1 and P2 to
-position 2, which is not a derangement; the constraint set *derangement + every
-reference backward* is empty over all 120 permutations, verified by exhaustive
-enumeration and asserted by a harness test. Of the permutations that do resolve
-every reference backward, the one that moves the most clauses is
-(P1, P2, P4, P5, P3), which moves three of five — that is D-5's alternative
-(a). §5.3 (iii) reads a C-collapse against this table and not against a
-stronger claim.
+**Uniqueness, by exhaustive enumeration of all 120 permutations and asserted by
+a harness test.** Exactly three permutations resolve every reference backward:
+the identity (0 clauses move), (P1, P2, P4, P3, P5) (2 move), and
+(P1, P2, P4, P5, P3) (3 move). So the registered permutation is the **unique
+maximum-movement** permutation under the full constraint set. The same
+enumeration confirms round 1's finding that *derangement + every reference
+backward* is **empty**: the two properties cannot both be had, and round 2
+chose comprehensibility because arm C is a control on which arm E's reading
+depends. The round-1 registration (P2, P1, P4, P5, P3) — the unique derangement
+under the weaker constraint set — is [D-5]'s alternative (a). §5.3 (iii) reads
+a C-collapse against this table.
 
 ### A.4 Arm D — renamed [D-18]
 
@@ -2417,11 +3419,18 @@ misderivation census (including 28) so that a comprehension failure is
 diagnosed rather than assumed away.
 
 So arm E's semantics, mirror and family are arm A's exactly. **The digit-runs
-in this file**, exhaustively, are: the clause labels `P1`–`P5`; the `4` in P5's
-`unless P4 applies`; `3166`, `1` and `2` in the token `ISO 3166-1 alpha-2` in
-the inherited conventions paragraph; and `010` in the inherited preamble's
-"Synthetic policy for Study 010". **None equals `40` or `70`**, and the
-clause-body census under §2.6's definition is empty — which is what §6 C8
-clause 5 checks. §2.5 registers what the surviving `010` costs, §5.3 (i)
-registers the reading it makes available, and **[D-16]** is the change that
-would remove it.
+in this file**, exhaustively and verified over the assembled bytes, are nine:
+the five clause labels `P1`–`P5`; the `4` in P5's `unless P4 applies`; and
+`3166`, `1` and `2` in the token `ISO 3166-1 alpha-2` in the inherited
+conventions paragraph. **Four are non-label runs, from two sources**, and
+**none equals `40` or `70`**; the clause-body census under §2.6's definition is
+empty — which is what §6 C8 clause 5 checks. The preamble's `010` is gone under
+`PREAMBLE_DELTA` **[D-16]**, adopted in round 2; §2.5 records what removing it
+buys and what it does not.
+
+**Arm E's bound senses, matching arm A's clause for clause** (§2.6 — the side
+cannot be preserved when the bound is a name rather than a numeral, and that is
+inherent to denaming): `(P3, T_high, inclusive)`, `(P4, T_low, inclusive)`,
+`(P4, T_high, exclusive)`, `(P5, T_high, exclusive)`,
+`(P5, T_high, exclusive)`, `(P5, T_low, exclusive)` — the same six senses, in
+the same six places, as arm A's six literals carry.
