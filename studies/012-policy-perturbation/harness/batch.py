@@ -1459,10 +1459,13 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
         "registeredSlots": REGISTERED_SLOTS,
         "completedRounds": last["round"] if last else 0,
         # §2.8's "exact completed prefix of the registered schedule" is the
-        # global index of the last completed slot, and `score_rates.py` reads
-        # it under this name to check C5 rule 5 — the declared prefix against
-        # the ledger's, slot for slot.
-        "globalIndex": last["globalIndex"] if last else 0,
+        # global index of the last completed slot. `score_rates.py`'s
+        # check_population() reads exactly this member to check C5 rule 5 —
+        # the declared prefix against the ledger's, slot for slot — and the
+        # registered parity test asserts the two spellings agree (a first
+        # draft wrote it as `globalIndex` and every honest short batch would
+        # have refused).
+        "completedThroughGlobalIndex": last["globalIndex"] if last else 0,
         "completedSlots": present,
         "lastSlot": last["path"] if last else None,
         "lastSlotEndedAt": stopped_at,

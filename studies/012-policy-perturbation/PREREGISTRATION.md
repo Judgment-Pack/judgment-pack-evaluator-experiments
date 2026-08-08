@@ -235,7 +235,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | (port time) | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `9ee7198cf68b8be234c366cef0d389a58948b6b7b824f13816708674a34cfef3` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -270,10 +270,10 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `a6f6ee5514e25f784f7853a821a8a31d41430ddd71bdcf7e16917bf7e30a1015` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt; no other check logic changes |
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `bac41d3a960a82e32ec009f493d8153c280fa2591c6abd29e66deb3aa7fe1f04` | §2.7 |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | (port time) | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | (port time) | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | (port time) | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
-| `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | (port time) | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `d809000ca32a17cef684694d5c8b5fb1b2a9eaa8ab0973ae423ac61ee80e98e7` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `5474c7a0c77eecd5b0968d5221cf124f21ef9cb15d16f9a9d2aff97a01d07bd7` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `b612f204ffd10160e4fc71ce7412a3038b3034cdb7837fb469ebdb6410ba11c7` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `354d47a1b91f8a096fe76e9ddcb7c0f49ed1fbe04f6a6e937aa837d9b579c0f8` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
 [D-20].** An earlier draft ordered the work review → port → freeze, which put

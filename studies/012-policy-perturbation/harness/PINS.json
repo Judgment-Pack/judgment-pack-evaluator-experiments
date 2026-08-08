@@ -15,8 +15,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-    "note": "Refreshed whenever PORTS.md changes; filled with the final port digest before anything runs."
+    "sha256": "sha256:9ee7198cf68b8be234c366cef0d389a58948b6b7b824f13816708674a34cfef3"
   },
   "codex": {
     "model": "gpt-5.6-sol",
