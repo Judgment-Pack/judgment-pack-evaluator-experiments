@@ -1,12 +1,13 @@
 # Study 012 — is the blinded author's test surface anchored to the policy's surface form?
 
-**Status: DRAFT. Nothing has run.** No authoring call, no batch, no rate, no
-verdict. The five arm artifacts are not frozen. **The harness does not exist
-yet** — [`PREREGISTRATION.md`](PREREGISTRATION.md) specifies it and it is built,
-by digest port from Study 011, after pre-freeze review. The preregistration is a
-draft until it is frozen by merge after cross-vendor review of the file **and of
-the five policy texts**; it governs thereafter, and `DEVIATIONS.md` records every
-departure from it.
+**Status: DRAFT, port complete, freeze pending. Nothing has run.** No
+authoring call, no batch, no rate, no verdict. The harness is built — the
+digest port from Study 011 that [`PREREGISTRATION.md`](PREREGISTRATION.md)
+specifies — the twenty arm artifacts are assembled and pinned, and §6 C10's
+five clean-room mirrors are commissioned and agreeing; none of it is frozen.
+The preregistration is a draft until it is frozen by merge after the final
+cross-vendor review round ends clean; it governs thereafter, and
+`DEVIATIONS.md` records every departure from it.
 
 **Review status: two rounds complete, the second cross-vendor.**
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md) records round 1 — an internal

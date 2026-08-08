@@ -1215,6 +1215,116 @@ def test_a_string_credential_flag_is_isolation_unproven(pins, study):
         shutil.rmtree(root, True)
 
 
+# --- malformed slot evidence: one slot's refusal, never the score's end ------
+
+def test_a_malformed_call_identity_member_refuses_its_own_slot(pins, study):
+    """Round 5, finding 6: a slot recording `startedAt: []`.
+
+    `session_reuse()` runs over the whole population BEFORE any slot is
+    admitted, and it put arbitrary `CALL.json` member values in a dict key. That
+    slot raised `TypeError: unhashable type: 'list'` out of a population-level
+    pass with no per-slot catch, so NOTHING was scored — in any arm — and §3.3's
+    promise that malformed slot evidence becomes that slot's own refusal was not
+    kept. The value is checked now instead of hashed, and the slot is refused
+    `call-unreadable` (`score_rates.call_identity_defect()` says why that code
+    and not `scorer-error`).
+
+    The malformed slot's OTHER identity evidence still holds the population to
+    cross-slot uniqueness: arm E's slot here carries arm A's session id, and it
+    is refused `session-reused` as the later slot on the registered schedule. A
+    fix that simply dropped an unreadable slot out of the uniqueness pass would
+    have handed a copied slot a way to stop being a copy.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        shared = fixtures.SESSION_ID % 777
+        specs = [{} for _ in range(5)]
+        # Registered call order, first round: B, C, A, D, E.
+        specs[2] = {"call": {"startedAt": []}, "session_id": shared}
+        specs[4] = {"session_id": shared}
+        population.build(specs)
+        results = population.score_runs()
+        row = results["byKey"][("A", "run-001")]
+        assert row["code"] == "call-unreadable"
+        assert score_rates.CODE_PARTITION[row["code"]] == "pipeline-invalid"
+        assert "startedAt" in row["detail"]
+        # The score exists at all, which is the finding: every other slot in
+        # every other arm was scored, and two of them are valid runs.
+        assert len(results["runs"]) == 5
+        assert results["byKey"][("E", "run-001")]["code"] == "session-reused"
+        for slot in (("B", "run-001"), ("C", "run-001"), ("D", "run-001")):
+            assert results["byKey"][slot]["valid"], slot
+        # The population pass keeps what it can read of the malformed slot: the
+        # session bytes and the session id are still published to the
+        # uniqueness check, and only the unreadable member is dropped.
+        identity = score_rates.slot_identity(
+            os.path.join(population.arms_root, "A", "authoring", "run-001"))
+        assert identity["callIdentity"] is None
+        assert identity["sessionSha256"] and identity["sessionId"] == shared
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_the_identity_guard_is_about_the_registered_type_not_about_hashing(pins):
+    """The same check on the shapes a crash would never have found: an integer
+    start clock and an object working directory are both hashable, so the old
+    code took them into the uniqueness comparison as if they were the strings
+    §3.3 registers. A slot whose own identity cannot be read is not evidence of
+    which call produced it, whatever Python can do with the value."""
+    honest = {"startedAt": "2026-08-07T09:00:00Z", "cwd": "/tmp/scratch",
+              "home": "/tmp/home"}
+    assert score_rates.call_identity_defect(honest) is None
+    # Absent members are not malformed ones: a slot that records none of the
+    # three has no identity to compare and is refused, if at all, by the check
+    # that owns the member (`home` is `isolation-unproven`'s).
+    assert score_rates.call_identity_defect({}) is None
+    for member, value in (("startedAt", 1723), ("cwd", {"path": "/tmp"}),
+                          ("home", ["/tmp/home"]), ("startedAt", True)):
+        defect = score_rates.call_identity_defect(dict(honest, **{member: value}))
+        assert defect is not None and member in defect, (member, value)
+    assert score_rates.CALL_IDENTITY_MEMBERS == ("startedAt", "cwd", "home")
+
+
+def test_an_undecodable_completion_is_completion_unreadable(pins, study):
+    """Round 5, finding 7: §3.3 registers `completion-unreadable` as reachable,
+    and no run could be given it.
+
+    The transcript binding reads `completion.txt` to check it against the
+    transcript's last assistant message, and that read is what a completion of
+    invalid UTF-8 fails first. The decode raised a `UnicodeDecodeError` — a
+    `ValueError` — which `admit()` catches beside the ported gate's own
+    refusals, so the run scored `transcript-refused`: the pipeline-invalid
+    histogram named the transcript for a fact about the completion file.
+
+    The bytes below are written BEFORE the seal, so the slot is sealed over what
+    it holds and the refusal is about the completion and not about the manifest.
+    """
+    def undecodable(slot):
+        with open(os.path.join(slot, "completion.txt"), "wb") as handle:
+            handle.write(b'[{"caseId": "\xff\xfe-not-utf-8"}]')
+
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        specs = [{} for _ in range(5)]
+        specs[3] = {"mutate": undecodable}          # arm D's first slot
+        population.build(specs)
+        results = population.score_runs()
+        row = results["byKey"][("D", "run-001")]
+        assert row["code"] == "completion-unreadable"
+        assert row["code"] != "transcript-refused"
+        assert score_rates.CODE_PARTITION[row["code"]] == "pipeline-invalid"
+        assert "not decodable UTF-8" in row["detail"]
+        # The seal is intact, so nothing here is the §2.9 alteration case.
+        assert results["seal"]["verified"]
+        for slot in (("A", "run-001"), ("B", "run-001"), ("C", "run-001"),
+                     ("E", "run-001")):
+            assert results["byKey"][slot]["valid"], slot
+    finally:
+        shutil.rmtree(root, True)
+
+
 # --- C5's population rules the fixtures stand on ----------------------------
 
 def test_the_scoring_refuses_before_it_reads_a_slot(pins_path, study):

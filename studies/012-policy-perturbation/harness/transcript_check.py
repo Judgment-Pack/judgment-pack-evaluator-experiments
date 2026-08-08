@@ -96,6 +96,27 @@ class TranscriptError(Exception):
     pass
 
 
+class CompletionUndecodable(ValueError):
+    """`completion.txt` is not decodable UTF-8 — a fact about the FILE, not a
+    refusal by this gate (round 5, finding 7).
+
+    §3.3 registers `completion-unreadable` as a reachable outcome and the scorer
+    reaches it from `records_compile.read_completion()`. That read happens after
+    this module's, so every undecodable completion was refused here first: the
+    decode raised a bare `UnicodeDecodeError`, which is a `ValueError`, which
+    `admit()` catches alongside `TranscriptError` and scores
+    `transcript-refused`. The registered code named no run.
+
+    Deliberately NOT a `TranscriptError`: this gate refuses a transcript, and a
+    completion that will not decode is not a transcript refusal. Deliberately
+    still a `ValueError`: every existing caller that catches one — including
+    `score_rates._transcript_is_another_arm()`, which re-runs this gate against
+    four other arms' prompts — keeps the behaviour it was ported with, and only
+    the caller that asks for the distinction (`admit()`, which catches this
+    class first) sees it.
+    """
+
+
 def _refuse_duplicate_keys(pairs):
     keys = [key for key, _ in pairs]
     if len(set(keys)) != len(keys):
@@ -335,7 +356,15 @@ def check(session_path: str, prompt_path: str, completion_path: str,
                         if role == "assistant" and index > position]
     if not assistants_after:
         raise TranscriptError("no assistant message answers the registered prompt")
-    completion = open(completion_path, "rb").read().decode("utf-8")
+    # The read and the decode are two steps, and the binding is a third (round
+    # 5, finding 7): whether the file decodes is a question about the file, and
+    # only a file that decoded can be compared to the transcript's own text.
+    raw_completion = open(completion_path, "rb").read()
+    try:
+        completion = raw_completion.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise CompletionUndecodable(
+            "completion.txt is not decodable UTF-8: %s" % error)
     if completion != assistants_after[-1]:
         raise TranscriptError("completion.txt is not the transcript's last assistant message")
     status = call.get("exitStatus")

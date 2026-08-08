@@ -957,6 +957,7 @@ def verify_mirror2(study: str = STUDY, pairs: dict = None) -> list:
 # registry co-edit therefore fails the recomputation.
 MANIFEST_CARRIERS = ("harness/PINS.json", "PREREG-REVIEW.md")
 POST_FREEZE_MEMBERS = (("freeze", "treeManifestSha256"),
+                       ("freeze", "preregistrationSha256"),
                        ("golden", "sha256"),
                        ("isolationNegative", "assent"))
 
@@ -1012,16 +1013,34 @@ def verify_tree(study: str = STUDY, pins: dict = None) -> str:
         os.path.join(study, "harness", "PINS.json"))
     freeze = pins.get("freeze", {})
     pinned = freeze.get("treeManifestSha256")
+    prereg_pin = freeze.get("preregistrationSha256")
+    # The two freeze pins land together or not at all, in both directions
+    # (round 4 finding 1; round 5 finding 2 made the coupling two-way).
+    if (pinned is None) != (prereg_pin is None):
+        raise IntegrityError(
+            "the freeze pins disagree: preregistrationSha256 is %s and "
+            "treeManifestSha256 is %s — they land together or not at all "
+            "(§2.10)" % ("filled" if prereg_pin is not None else "null",
+                         "filled" if pinned is not None else "null"))
     if pinned is None:
-        # The two freeze pins land together or not at all (round 4,
-        # finding 1): a frozen preregistration with no tree binding is the
-        # state [D-20] exists to prevent, not a stage.
-        if freeze.get("preregistrationSha256") is not None:
-            raise IntegrityError(
-                "the preregistration is frozen (preregistrationSha256 is "
-                "filled) and treeManifestSha256 is null: a frozen study "
-                "with no tree binding refuses (§2.10)")
         return "unbound (pre-freeze; §2.10 binds the tree at the freeze)"
+    # The pin must equal the attestation the final review round wrote into
+    # PREREG-REVIEW.md (round 5, finding 1): a self-computed digest cannot
+    # authenticate itself, so the pin answers to the review record —
+    # defeating the binding means rewriting the record the reviewer holds.
+    review_path = os.path.join(study, "PREREG-REVIEW.md")
+    with open(review_path, "rb") as handle:
+        review = handle.read().decode("utf-8")
+    attested = re.findall(r"Tree manifest \(my computation\):\s*`?([0-9a-f]{64})`?",
+                          review)
+    if not attested:
+        raise IntegrityError("PREREG-REVIEW.md carries no tree-manifest "
+                             "attestation to check the freeze pin against")
+    if bare(pinned) != attested[-1]:
+        raise IntegrityError(
+            "the frozen treeManifestSha256 (%s) is not the final round's "
+            "attested digest (%s): the pin answers to the review record "
+            "(§2.10)" % (bare(pinned), attested[-1]))
     actual = tree_manifest(study, tuple(freeze.get("excluded", ())))
     if actual != bare(pinned):
         raise IntegrityError(
@@ -1055,10 +1074,66 @@ def verify_interpreter(pins: dict) -> str:
     return "%s %s" % (implementation, platform.python_version())
 
 
+def verify_bytecode(study: str = STUDY) -> None:
+    """Compiled bytecode beside a reviewed source loads even under -B, so a
+    cache the sources did not produce is a byte that runs unreviewed (round 5,
+    finding 3). The gate VALIDATES rather than banning: a cache entry is
+    admitted only when it provably compiles from the source beside it — the
+    running interpreter's magic number and, per the header's own mode, the
+    source's exact mtime-and-size stamp or its source hash. An orphaned entry
+    (no source), a foreign interpreter's, or a stale one refuses. A fresh
+    cache of a reviewed source is that source compiled, and passes."""
+    import importlib.util
+    magic = importlib.util.MAGIC_NUMBER
+    bad = []
+    for base, directories, files in os.walk(study):
+        if os.path.basename(base) != "__pycache__":
+            continue
+        for name in files:
+            path = os.path.join(base, name)
+            if not name.endswith(".pyc"):
+                bad.append((os.path.relpath(path, study), "not bytecode"))
+                continue
+            try:
+                source = importlib.util.source_from_cache(path)
+            except ValueError:
+                bad.append((os.path.relpath(path, study), "unmappable name"))
+                continue
+            if not os.path.isfile(source):
+                bad.append((os.path.relpath(path, study), "orphaned"))
+                continue
+            with open(path, "rb") as handle:
+                header = handle.read(16)
+            if len(header) < 16 or header[:4] != magic:
+                bad.append((os.path.relpath(path, study),
+                            "foreign interpreter"))
+                continue
+            flags = int.from_bytes(header[4:8], "little")
+            with open(source, "rb") as handle:
+                source_bytes = handle.read()
+            if flags & 0b1:
+                stored = header[8:16]
+                expected = importlib.util.source_hash(source_bytes)
+                if stored != expected:
+                    bad.append((os.path.relpath(path, study), "stale hash"))
+            else:
+                stat = os.stat(source)
+                mtime = int.from_bytes(header[8:12], "little")
+                size = int.from_bytes(header[12:16], "little")
+                if mtime != int(stat.st_mtime) & 0xFFFFFFFF or                         size != stat.st_size & 0xFFFFFFFF:
+                    bad.append((os.path.relpath(path, study), "stale stamp"))
+    if bad:
+        raise IntegrityError(
+            "compiled bytecode that the reviewed sources did not produce sits "
+            "in the study tree (%s): delete it (§2.10)"
+            % ", ".join("%s: %s" % item for item in sorted(bad)))
+
+
 def verify(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN) -> dict:
     """Everything, in the registered order: the chain, the arm artifacts, the
     interpreter, the clean-room mirrors, the tree manifest. IntegrityError on
     the first refusal; a summary dict when every check passed."""
+    verify_bytecode(study)
     chain = verify_chain(study, eleven, ten)
     arms = verify_arms(study, eleven, ten, pins=chain["pins"])
     interpreter = verify_interpreter(chain["pins"])

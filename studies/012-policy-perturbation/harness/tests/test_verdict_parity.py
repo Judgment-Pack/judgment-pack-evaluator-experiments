@@ -365,6 +365,33 @@ def test_the_s5_cut_is_the_ceiling_the_file_names(preregistration):
     assert score_rates.MISLABEL_ESCALATION not in (score_rates.S5_CEILING,)
 
 
+def test_a_near_ceiling_accuracy_with_one_mislabelled_record_is_degraded():
+    """Round 5, finding 13: the cut is the INTEGER `|Q| = 0` §4.6 registers, and
+    the scorer compared the published float against 1.0.
+
+    `|H| / (|H| + 1)` is never 1, but the nearest float to it IS exactly 1.0
+    once |H| passes 2^53, so an arm holding a mislabelled record reached "at the
+    ceiling" — the one S5 branch §4.6's table lets confirm R1. The count below is
+    absurd for a batch of thirty runs, and that is the point: a rule registered
+    on an integer has to hold at every |H|, not at the ones this study expects to
+    see, and the alternative fix — a tolerance — would be a number §4.6 never
+    registered.
+    """
+    h, q = 10 ** 17, 1
+    rate = h / (h + q)
+    assert rate == 1.0, "the fixture is a fixture only if the float rounds up"
+    # Exactly what the old cut asked, kept here so the case cannot quietly stop
+    # being the case: on the float alone this arm is at the ceiling.
+    assert rate >= score_rates.S5_CEILING
+    branch = score_rates.label_branch({"rate": rate, "h": h, "q": q})
+    assert branch["branch"] == "degraded"
+    assert branch["q"] == 1
+    # The fix moves the decision, not the published surface: the float and the
+    # registered ceiling are still there to be read.
+    assert branch["rate"] == rate
+    assert branch["ceiling"] == score_rates.S5_CEILING
+
+
 def test_the_three_readings_are_reachable_at_known_counts():
     """Each row of §4.6's table, from the counts §5.3's notation registers —
     including the row round 3 found unreachable, which is the whole point:
@@ -552,10 +579,20 @@ def test_the_registered_operating_characteristics_are_reproduced(trials,
         "nH >= 3": characteristics["marginal"]["nH"],
     }
     registered = operating_characteristics(preregistration)
+    # Round 5, finding 5: the two renamed rows must CARRY their renames —
+    # a prefix match alone would let the coverage-side qualifiers drift
+    # back out of the registration unnoticed.
+    qualified = {"CONFIRMED and the gate holds": "coverage-side",
+                 "nP": "coverage pattern"}
     for prefix, value in computed.items():
         matched = [rule for rule in registered if rule.startswith(prefix)]
         assert len(matched) == 1, (
             "§5.4 holds %d rules beginning %r" % (len(matched), prefix))
+        for stem, needed in qualified.items():
+            if prefix.startswith(stem):
+                assert needed in matched[0], (
+                    "§5.4's %r row lost its %r qualifier"
+                    % (matched[0], needed))
         printed = registered[matched[0]][trials]
         assert abs(value - printed) < 5e-5, (
             "§5.4 prints %s for %r at N = %d; this file computes %.6f"

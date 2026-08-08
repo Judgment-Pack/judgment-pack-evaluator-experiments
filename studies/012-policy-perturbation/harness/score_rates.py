@@ -119,6 +119,30 @@ else:
      `empty or not accepted or not high` asked whether the run held any correctly
      labelled record, which called a run whose one correctly labelled record
      satisfies no class predicate a covering run.
+ 19. **Malformed identity evidence refuses its own slot and no other** (round 5,
+     finding 6): `session_reuse()` runs over the whole population BEFORE any
+     slot's admission, and it used to put arbitrary `CALL.json` member values in
+     a dict key. A slot recording `startedAt: []` raised
+     `TypeError: unhashable type: 'list'` out of that pass — outside §7's
+     per-slot catch, so one malformed slot ended the scoring of all 150.
+     `call_identity_defect()` checks the three identity members instead of
+     hashing them, `slot_identity()` drops only the member it cannot read (the
+     session bytes and session id of a slot with a malformed `CALL.json` still
+     hold every other slot to cross-slot uniqueness), and `admit()` refuses that
+     slot `call-unreadable`.
+ 20. **`completion-unreadable` is reachable, as §3.3 registers it** (round 5,
+     finding 7): the transcript binding reads `completion.txt` to bind it to the
+     transcript's last assistant message, and its decode used to raise a bare
+     `UnicodeDecodeError` — a `ValueError`, indistinguishable from the ported
+     gate's own refusals, so a completion that is not UTF-8 scored
+     `transcript-refused` and the registered code named no run.
+     `transcript_check.CompletionUndecodable` separates the decode from the
+     binding and `admit()` catches it first.
+ 21. **S5's ceiling is decided on the integer `|Q|`** (round 5, finding 13):
+     §4.6 registers the cut as `|Q| = 0`, and `label_branch()` compared the
+     float accuracy against 1.0 — `H/(H+1)` rounds to 1.0 for large H, so an arm
+     with a mislabelled record read as at the ceiling. The float is still
+     published; nothing decides on it.
 
 The partition that decides every denominator (§3.3):
 
@@ -152,7 +176,10 @@ admission test diffs against both this source and that table):
                          a device, a door. Decided by lstat BEFORE anything is
                          opened, because opening a FIFO blocks
   slot-shape             a required slot file is missing or not a regular file
-  call-unreadable        CALL.json is not duplicate-free JSON
+  call-unreadable        CALL.json is not duplicate-free JSON, is not a JSON
+                         object, or records an identity member (startedAt, cwd,
+                         home) as something other than a string (round 5,
+                         finding 6)
   model-mismatch         CALL.json names a model other than the pinned one
   binary-mismatch        CALL.json names a binary digest other than the pinned one
   cli-mismatch           CALL.json names a CLI version other than the pinned one
@@ -643,6 +670,11 @@ SESSION_IDENTITY = (
     ("callIdentity", "the call record's own start clock, working directory and "
                      "isolated home"),
 )
+# The three `CALL.json` members `callIdentity` is built from, in the order a
+# refusal names them. The wrapper writes all three as STRINGS — a UTC stamp and
+# two absolute paths — so any other JSON type there is malformed evidence rather
+# than evidence of another shape (round 5, finding 6).
+CALL_IDENTITY_MEMBERS = ("startedAt", "cwd", "home")
 
 
 class ScoreError(Exception):
@@ -918,9 +950,12 @@ def decision_operating_characteristics(n: int) -> dict:
         "joint": {"row4": float(row_four), "row5": float(row_five)},
         "note": "§5.4, for the rules §5.3 registers. `marginal` is the pattern "
                 "alone; `joint` is the probability of reaching that row of the "
-                "decision table, which also requires the class-4 gate (row 2) "
-                "and the B/C control gate (row 3) and conditions on a complete, "
-                "sealed batch (row 1). Independence layers 1-3; not a bound.",
+                "decision table through the class-4 gate (row 2) and the B/C "
+                "control gate (row 3), conditional on a complete, sealed batch "
+                "(row 1). Independence layers 1-3. For row 4 that is the power "
+                "to publish R1-UNSUPPORTED; for row 5 it is the COVERAGE-SIDE "
+                "quantity and an upper bound for CONFIRMED — the S5 ceiling "
+                "conjunct is outside this model (§5.4, round 5 finding 5).",
     }
 
 
@@ -997,15 +1032,29 @@ def label_branch(accuracy: dict) -> dict:
     An arm with no accepted record at all has no label accuracy to read: it is
     published as `degraded` with `rate: null`, because the conservative
     direction of an absent measurement is the one that does not confirm.
+
+    **The cut is decided on the INTEGER `q`** (round 5, finding 13). §4.6
+    registers `|Q| = 0`, and this compared the float `rate` against 1.0:
+    `|H| / (|H| + 1)` rounds to exactly 1.0 once |H| passes about 2^53, so an
+    arm with mislabelled records read as at the ceiling — the one reading §4.6's
+    table says confirms R1. No batch of this size reaches that |H|, which is
+    exactly why the fix is the integer and not a tolerance: the rule must be the
+    registered one at every |H|, not at the ones this study expects. The float
+    `rate` and `S5_CEILING` are still published; neither decides anything now.
+    An arm with no accepted record has `q == 0` and `rate is None`, so the
+    absent measurement is still read off `rate` and still reads `degraded`.
     """
     rate = accuracy["rate"]
-    at_ceiling = rate is not None and rate >= S5_CEILING
-    return {"rate": rate, "h": accuracy["h"], "q": accuracy["q"],
+    q = accuracy["q"]
+    at_ceiling = rate is not None and q == 0
+    return {"rate": rate, "h": accuracy["h"], "q": q,
             "ceiling": S5_CEILING,
             "branch": S5_BRANCHES[0] if at_ceiling else S5_BRANCHES[1],
             "note": "§4.6's S5, cut at the ceiling of the pooled accuracy "
                     "|H|/(|H|+|Q|): at the ceiling iff no accepted record was "
-                    "mislabelled. An arm with no accepted record has no "
+                    "mislabelled, decided on the integer |Q| and not on the "
+                    "published float, which rounds to 1.0 for large |H| (round "
+                    "5, finding 13). An arm with no accepted record has no "
                     "accuracy and reads `degraded`."}
 
 
@@ -1629,6 +1678,14 @@ def admit(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
         return "call-unreadable", str(error), False
     if not isinstance(call, dict):
         return "call-unreadable", "CALL.json is not a JSON object", False
+    # Round 5, finding 6: read here, next to the other readability checks and
+    # before anything downstream indexes, hashes or joins these members. The
+    # population's session-uniqueness pass already had to skip this slot's
+    # `callIdentity` (`slot_identity()`), and this is the check that makes its
+    # docstring's "already refused by an earlier code" true.
+    identity_defect = call_identity_defect(call)
+    if identity_defect is not None:
+        return "call-unreadable", identity_defect, False
     if call.get("model") != pins["codex"]["model"]:
         return "model-mismatch", "CALL.json names model %r" % call.get("model"), False
     if call.get("binarySha256") != pins["codex"]["binarySha256"]:
@@ -1749,6 +1806,16 @@ def admit(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
         transcript_check.check(session, arm_path(arms_root, arm, "prompt"),
                                completion, call_path, golden_path,
                                model=pins["codex"]["model"], arm=arm)
+    except transcript_check.CompletionUndecodable as error:
+        # §3.3 registers `completion-unreadable` — "completion.txt is not
+        # decodable UTF-8" — and the transcript binding reads that file before
+        # `records_compile.read_completion()` does, to bind it to the
+        # transcript's last assistant message. Its decode used to raise a bare
+        # `UnicodeDecodeError`, which is a `ValueError`, so every undecodable
+        # completion was named a transcript refusal and the registered code
+        # named no run (round 5, finding 7). Caught FIRST, ahead of the ported
+        # gate's own refusals, because it is not one of them.
+        return "completion-unreadable", str(error), False
     except (transcript_check.TranscriptError, ValueError) as error:
         # §3.1 gate 2 / §3.3: a transcript that is terminal under ANOTHER arm's
         # registered prompt is `arm-mismatch`, not `transcript-refused` — the
@@ -1950,11 +2017,53 @@ def session_identity(session_path: str):
     return None
 
 
+def call_identity_defect(call: dict):
+    """The sentence naming the first `CALL.json` identity member this scorer
+    cannot read, or None when all three are readable.
+
+    Round 5, finding 6. §3.3 registers the identifying members of `CALL.json` —
+    working directory, isolated home, start clock — as the raw evidence of which
+    call produced a slot, and the wrapper writes all three as strings. A slot
+    recording one of them as a list or an object is malformed evidence, and it
+    was previously discovered by HASHING it: `session_reuse()` put the value in
+    a dict key and a `startedAt: []` raised `TypeError: unhashable type: 'list'`
+    out of a population-level pass that has no per-slot catch, ending the
+    scoring of every other slot.
+
+    The registered code for that slot is `call-unreadable` and NOT
+    `scorer-error`, and §3.3 is why. `call-unreadable` is this study's code for a
+    `CALL.json` the scorer cannot read as a call record — the file, and the
+    reading of it, are exactly what is wrong here. `scorer-error` is §7's
+    totality rule, ported unchanged from 011 §3.3: "an unexpected exception
+    during one slot's ADMISSION becomes that slot's recorded verdict". This
+    exception was not raised during that slot's admission — it was raised before
+    any slot was admitted — and it is no longer unexpected: it is an anticipated
+    shape of a named file, checked before anything can hash it. Recording it as
+    `scorer-error` would file an anticipated malformation under the code
+    registered for the ones nobody anticipated.
+    """
+    for member in CALL_IDENTITY_MEMBERS:
+        value = call.get(member)
+        if value is not None and not isinstance(value, str):
+            return ("CALL.json records %s as %r, and §3.3's identifying members "
+                    "are the strings the wrapper wrote: a call record whose own "
+                    "identity cannot be read is not evidence of which call "
+                    "produced this slot" % (member, value))
+    return None
+
+
 def slot_identity(slot: str) -> dict:
     """The raw retained evidence of WHICH call produced this slot, or None when
     the slot cannot be read far enough to say. A slot that cannot be read is
     already refused by an earlier code; it is not additionally accused of
-    sharing a session it never produced."""
+    sharing a session it never produced.
+
+    A malformed identity member costs this slot its `callIdentity` and NOTHING
+    else (round 5, finding 6): the retained session bytes and the session id are
+    still published to the population's uniqueness check, so a copy of a slot
+    whose `CALL.json` is malformed is still caught by the two members that are
+    readable. `admit()` refuses the slot itself `call-unreadable`.
+    """
     session = os.path.join(slot, "session.jsonl")
     call_path = os.path.join(slot, "CALL.json")
     links, irregular = slot_irregularities(slot)
@@ -1964,12 +2073,17 @@ def slot_identity(slot: str) -> dict:
         call = load_json(call_path)
         identity = {"sessionSha256": file_digest(session),
                     "sessionId": session_identity(session),
-                    "callIdentity": (call.get("startedAt"), call.get("cwd"),
-                                     call.get("home"))}
+                    "callIdentity": None}
     except (ValueError, OSError):
         return None
-    if identity["callIdentity"] == (None, None, None):
-        identity["callIdentity"] = None
+    # A CALL.json that is not an object has no members at all, and `admit()`
+    # already refuses it `call-unreadable`; reading `.get` off it here would
+    # raise an AttributeError out of the same population-level pass.
+    if isinstance(call, dict) and call_identity_defect(call) is None:
+        identity["callIdentity"] = (call.get("startedAt"), call.get("cwd"),
+                                    call.get("home"))
+        if identity["callIdentity"] == (None, None, None):
+            identity["callIdentity"] = None
     return identity
 
 

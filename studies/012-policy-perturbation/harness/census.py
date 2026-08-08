@@ -43,6 +43,19 @@ different ways it was reached. The enumerated changes, and nothing else:
      produced sixteen records in every valid run. Five arms of a perturbation
      study may not, so per-run quantities are computed per run and the
      min/max are published.
+  8. **X3 and X4 publish the FULL distributions §4.5 promises, and arm D
+     publishes the old edges** (round 5, finding 9). §4.5 says "X4's and X3's
+     full distributions are what catch an unanticipated one" and registers the
+     expectation that under D "the near-edge tables at 40 and 70 empty out".
+     011's script published neither: its X3 kept exact values only within 1.0 of
+     an edge, so two arm E corpora at 12 and at 13 produced identical census
+     objects, and its X4 published four aggregates over the run signatures
+     rather than the signatures. `x3.values` is every distinct `riskScore` with
+     its count, `x3.oldEdges` is arm D's near-edge table at 40 and 70, and
+     `x4.signatures[*].groups` is every distinct whole-run multiset with the
+     number of runs carrying it. Registered secondaries publishing less than
+     their registration promised is what this is; the counts C3 clause 2
+     replicates against 011 are untouched aggregates and still reproduce.
 
 Descriptive, and no §5 decision reads any of it (§4.5). It carries **no
 interval**: every count here is record-level, and records inside one completion
@@ -100,6 +113,16 @@ X6_SENTINELS = (
 # X6 reports, per listed value, the count of records AT it and WITHIN 0.01 of
 # it (§4.5).
 X6_NEIGHBOURHOOD = Decimal("0.01")
+
+# §4.5's registered expectation for arm D, in the sentence's own numbers: "under
+# D, the mass of X2's on-edge and near-edge buckets moves to the new edges
+# {45, 72}, and the near-edge tables at 40 and 70 empty out". A near-edge table
+# keyed to D's own edges cannot show that, so D publishes the OLD ones too
+# (round 5, finding 9). Written as literals for the same reason X6's sentinels
+# are: which numbers the expectation names is a fact about the preregistration,
+# not something to re-derive from an arm's registered pair.
+X3_OLD_EDGE_ARM = "D"
+X3_OLD_EDGES = ("40", "70")
 
 
 # ------------------------------------------------------------- vocabulary
@@ -188,6 +211,23 @@ def show_probe(key: tuple) -> str:
                                    str(personal).lower())
 
 
+def show_signature(multiset: tuple) -> str:
+    """One whole-run multiset as text — `(false, false, true, [40,70)) x3, …` —
+    in the order the multiset was built in, so two runs that asked the same
+    questions the same number of times render identically and two that did not
+    cannot render the same (§4.5 X4, round 5 finding 9)."""
+    if not multiset:
+        return "none"
+    return ", ".join("(%s) x%d" % (", ".join(_token(part) for part in key), count)
+                     for key, count in multiset)
+
+
+def _token(part) -> str:
+    """One member of a profile or probe key, written as the census writes
+    booleans everywhere else in this file."""
+    return str(part).lower() if isinstance(part, bool) else str(part)
+
+
 def show_multiset(counter: collections.Counter) -> str:
     """Exact riskScore values, ascending, as `39.99 x58`."""
     if not counter:
@@ -258,7 +298,7 @@ def census(arm: str, runs: dict, classes: list, embargo: tuple,
         "population": population,
         "x1": _x1(records, classes, embargo, n_runs, concordant),
         "x2": _x2(vendors, edge_values),
-        "x3": _x3(vendors, arm_edges),
+        "x3": _x3(vendors, arm_edges, arm),
         "x4": _x4(slots, runs, embargo, t_low, t_high),
         "x5": _x5(slots, runs, vendors, records, embargo, t_low, t_high),
         "x6": _x6(vendors) if arm == X6_ARM else None,
@@ -360,37 +400,89 @@ def _x2(vendors: list, edge_values: list) -> dict:
     }
 
 
-def _x3(vendors: list, arm_edges: tuple) -> dict:
+def _near_edge_row(vendors: list, edge, stated: str) -> dict:
+    """One near-edge row: the exact values strictly below within 1.0, the count
+    exactly at, and the exact values strictly above within 1.0."""
+    below, above, at = collections.Counter(), collections.Counter(), 0
+    for _slot, vendor in vendors:
+        value = score(vendor)
+        if value == edge:
+            at += 1
+        elif edge - 1 <= value < edge:
+            below[str(value)] += 1
+        elif edge < value <= edge + 1:
+            above[str(value)] += 1
+    return {
+        "edge": str(edge), "stated": stated,
+        "below": [[value, below[value]] for value in sorted(below, key=Decimal)],
+        "belowCount": sum(below.values()),
+        "at": at,
+        "above": [[value, above[value]] for value in sorted(above, key=Decimal)],
+        "aboveCount": sum(above.values()),
+    }
+
+
+def _x3(vendors: list, arm_edges: tuple, arm: str) -> dict:
     """X3 — the near-edge tables, per edge: the exact values strictly below
     within 1.0, the count exactly at, and the exact values strictly above
-    within 1.0. This is the table that showed the empty (23.75, 39) band."""
-    rows = []
-    for edge, stated in arm_edges:
-        below, above, at = collections.Counter(), collections.Counter(), 0
-        for _slot, vendor in vendors:
-            value = score(vendor)
-            if value == edge:
-                at += 1
-            elif edge - 1 <= value < edge:
-                below[str(value)] += 1
-            elif edge < value <= edge + 1:
-                above[str(value)] += 1
-        rows.append({
-            "edge": str(edge), "stated": stated,
-            "below": [[value, below[value]] for value in
-                      sorted(below, key=Decimal)],
-            "belowCount": sum(below.values()),
-            "at": at,
-            "above": [[value, above[value]] for value in
-                      sorted(above, key=Decimal)],
-            "aboveCount": sum(above.values()),
-        })
-    return {"edges": rows}
+    within 1.0. This is the table that showed the empty (23.75, 39) band.
+
+    §4.5 makes X3 carry two further duties, and round 5's finding 9 is that it
+    carried neither:
+
+      * **the full distribution.** "X4's and X3's full distributions are what
+        catch an unanticipated one" — an arm E value arrived at by a route
+        nobody anticipated. A table of the values within 1.0 of THIS arm's edges
+        is not a full distribution: it is the anticipated neighbourhood, and it
+        is exactly where an unanticipated value is not. Two otherwise identical
+        arm E corpora scoring 12 and 13 produced identical census objects.
+        `values` is every distinct `riskScore` in the arm's accepted records
+        with its count, ascending — the distribution the sentinel list is not an
+        enumeration of;
+      * **arm D's old edges.** §4.5's registered expectation is that under D
+        "the near-edge tables at 40 and 70 empty out", and a table keyed to D's
+        own {44, 45, 72} publishes no such thing. `oldEdges` is the same row
+        computed at 40 and 70 for arm D and absent for every other arm, whose
+        own edges those already are.
+
+    Descriptive, like everything in §4.5: no §5 decision reads any of it, and a
+    mass at a value not in X6's list is reported as a finding in its own right
+    rather than adjudicated here.
+    """
+    rows = [_near_edge_row(vendors, edge, stated) for edge, stated in arm_edges]
+    distribution = collections.Counter(str(score(vendor))
+                                       for _slot, vendor in vendors)
+    block = {
+        "edges": rows,
+        "values": [[value, distribution[value]]
+                   for value in sorted(distribution, key=Decimal)],
+        "distinctValues": len(distribution),
+        "records": len(vendors),
+    }
+    if arm == X3_OLD_EDGE_ARM:
+        # Stated nowhere in this arm's policy text: 40 and 70 are the edges the
+        # OTHER four arms state, and D's registered expectation is about their
+        # emptying out.
+        block["oldEdges"] = [_near_edge_row(vendors, Decimal(edge), "unstated")
+                             for edge in X3_OLD_EDGES]
+    return block
 
 
 def _x4(slots: list, runs: dict, embargo: tuple, t_low, t_high) -> dict:
     """X4 — within-run and across-run redundancy: distinct profiles per run,
-    and the number of runs sharing a whole-run profile multiset."""
+    and the number of runs sharing a whole-run profile multiset.
+
+    Round 5, finding 9: the registered wording is "the number of runs sharing a
+    whole-run profile multiset", and §4.5 calls X4's a FULL distribution. Four
+    aggregates over the signatures — how many are distinct, how many runs are in
+    a group, the group sizes, how many are singletons — are not that
+    distribution: they say how the runs pile up without saying onto what, so two
+    corpora with different multisets and the same pile-up shape are one census
+    object. `groups` is every distinct whole-run multiset with the number of
+    runs carrying it, in a deterministic order (descending by that number, then
+    by the rendered multiset), and the multiset is rendered so a reader can see
+    WHICH question every run in a group asked.
+    """
     distinct_per_run = collections.Counter()
     redundant_per_run = collections.Counter()
     for slot in slots:
@@ -417,7 +509,17 @@ def _x4(slots: list, runs: dict, embargo: tuple, t_low, t_high) -> dict:
                                    if count > 1),
                 "groupSizes": groups,
                 "singletons": sum(1 for count in counted.values()
-                                  if count == 1)}
+                                  if count == 1),
+                # The distribution itself, not only its shape: every distinct
+                # multiset with the number of runs carrying it (round 5,
+                # finding 9). Sorted by that number and then by the rendering,
+                # so the order is a fact about the data and not about a hash.
+                "groups": [{"signature": show_signature(multiset),
+                            "runs": count}
+                           for multiset, count in
+                           sorted(counted.items(),
+                                  key=lambda item: (-item[1],
+                                                    show_signature(item[0])))]}
 
     return {
         "distinctProfilesPerRun": {str(value): count for value, count
@@ -589,6 +691,44 @@ def render_markdown(per_arm: list) -> str:
                          % (row["edge"], row["stated"],
                             _multiset(row["below"]), row["belowCount"], row["at"],
                             _multiset(row["above"]), row["aboveCount"]))
+        if block["x3"].get("oldEdges"):
+            lines += [
+                "",
+                "The OLD edges, stated in no text this arm's author saw, published "
+                "because §4.5",
+                "registers the expectation that under arm %s the near-edge tables at "
+                "%s empty out." % (X3_OLD_EDGE_ARM, " and ".join(X3_OLD_EDGES)),
+                "",
+                "| old edge | strictly below within 1.0 | n | exactly at | strictly "
+                "above within 1.0 | n |",
+                "|---|---|---|---|---|---|",
+            ]
+            for row in block["x3"]["oldEdges"]:
+                lines.append("| %s (%s in this arm) | %s | %d | %d | %s | %d |"
+                             % (row["edge"], row["stated"],
+                                _multiset(row["below"]), row["belowCount"],
+                                row["at"], _multiset(row["above"]),
+                                row["aboveCount"]))
+        lines += [
+            "",
+            "#### X3 — the full distribution: every distinct riskScore value",
+            "",
+            "Every value in the arm's accepted records, not only the ones near an "
+            "edge:",
+            "§4.5 registers X3's and X4's full distributions as what catch a value "
+            "arrived at",
+            "by a route X6's sentinel list does not anticipate.",
+            "",
+            "| exact riskScore | records |",
+            "|---|---|",
+        ]
+        for value, count in block["x3"]["values"]:
+            lines.append("| %s | %d |" % (value, count))
+        lines += [
+            "",
+            "%d distinct values over %d records."
+            % (block["x3"]["distinctValues"], block["x3"]["records"]),
+        ]
         x4 = block["x4"]
         lines += [
             "",
@@ -623,6 +763,19 @@ def render_markdown(per_arm: list) -> str:
             lines.append("| %s | %d | %d | %s |"
                          % (label, signature["distinct"], signature["runsSharing"],
                             sizes))
+        for label, key in (("profile multiset", "profile"),
+                           ("probe multiset (exact value + tuple)", "probe")):
+            lines += [
+                "",
+                "Every distinct %s, with the runs carrying it — the distribution "
+                "and not only" % label,
+                "its shape (§4.5 X4):",
+                "",
+                "| runs | whole-run %s |" % label,
+                "|---|---|",
+            ]
+            for group in x4["signatures"][key]["groups"]:
+                lines.append("| %d | %s |" % (group["runs"], group["signature"]))
         lines += [
             "",
             "### X5 — which clause decides each record",

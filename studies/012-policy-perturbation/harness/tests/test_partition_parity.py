@@ -26,6 +26,13 @@ collects the codes only from functions that walk reaches. A code returned from a
 function nothing calls is dead code, and a partition whose third leg counted it
 would certify a registered outcome that cannot happen, which is the first of the
 two failures the three-way diff exists to catch.
+
+Round 5, finding 7: reaching a FUNCTION was not enough — a return under `if
+False:` inside a reached function still counted. The walk now prunes the branch
+a literal-constant test can never take, and `_live_children()` says in full what
+that does and does not cover. Nothing subtler is attempted: this leg exists to
+refuse the claim "this code is reachable", so where reachability cannot be
+decided by reading the source it is not refused.
 """
 from __future__ import annotations
 import ast
@@ -78,16 +85,42 @@ def _defined_functions(tree) -> dict:
     return table
 
 
+def _live_children(node) -> list:
+    """`ast.iter_child_nodes`, minus the branch a CONSTANT test can never take
+    (round 5, finding 7).
+
+    PRUNED — and only this: an `if`/`while` whose test is a literal constant.
+    `if False:` and `while False:` drop their body, `if True:` and `while True:`
+    drop their `else`, and the constant is judged by Python's own truth test, so
+    `if 0:`, `if None:` and `if "":` prune too. The test node itself is kept: it
+    is a `Constant` and holds no call.
+
+    NOT pruned, and named so the walk's reach is not overstated: anything whose
+    falsity needs evaluating rather than reading — `if 1 > 2:`, `if DEBUG:` where
+    DEBUG is a name bound to False, a call that always raises; statements after a
+    `return`, `raise`, `break` or `continue`; an `except` clause for an exception
+    the body cannot raise; a conditional expression's untaken arm. A code in any
+    of those still counts as returnable, which is the conservative direction:
+    this walk exists to refuse the claim that a code is reachable, so where it
+    cannot decide statically it does not prune.
+    """
+    if isinstance(node, (ast.If, ast.While)) and isinstance(node.test, ast.Constant):
+        taken = node.body if node.test.value else node.orelse
+        return [node.test] + list(taken)
+    return list(ast.iter_child_nodes(node))
+
+
 def _own_body(node) -> list:
     """Every node in this function's body EXCEPT the bodies of the functions
-    defined inside it. A nested definition is reached by CALLING it, which is
-    the call graph's job; folding its body in here is exactly the conflation
-    that let dead code count as reachable."""
+    defined inside it, and except the branches `_live_children()` prunes. A
+    nested definition is reached by CALLING it, which is the call graph's job;
+    folding its body in here is exactly the conflation that let dead code count
+    as reachable."""
     stack, own = list(node.body), []
     while stack:
         current = stack.pop()
         own.append(current)
-        for child in ast.iter_child_nodes(current):
+        for child in _live_children(current):
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             stack.append(child)
@@ -133,16 +166,25 @@ def returnable_codes(source: str = None) -> set:
     return codes
 
 
-# A probe with a known answer, held to the walk above: `admit()` calls one
+# A probe with a known answer, held to the walk above. `admit()` calls one
 # helper and not the other, so `session-count` is reachable and `dead-code` is a
-# code no run can be given. The old harvest returned both.
+# code no run can be given — the old harvest returned both. Round 5, finding 7
+# adds the two branches no run can take from INSIDE a reached function: the body
+# of `if False:` and the `else` of `if True:`. The call to `_sessions()` sits in
+# the taken branch, so `session-count` in the answer is also the positive
+# control that a pruned `if` is still walked down the side that runs.
 REACHABILITY_PROBE = '''
 def admit(slot):
     if not _regular(slot):
         return "slot-shape", "missing", False
-    failure = _sessions(slot)
-    if failure is not None:
-        return failure
+    if False:
+        return "dead-branch", "a literal-false test guards it", False
+    if True:
+        failure = _sessions(slot)
+        if failure is not None:
+            return failure
+    else:
+        return "dead-else", "the taken branch is the other one", False
     return None, None, False
 
 
@@ -186,6 +228,35 @@ def test_the_reachability_walk_ignores_a_code_no_call_can_reach():
     # collecting nothing at all: the dead code is in the source and not the set.
     assert "dead-code" in REACHABILITY_PROBE
     assert "dead-code" not in returnable_codes(REACHABILITY_PROBE)
+
+
+def test_the_reachability_walk_ignores_a_branch_no_run_can_take():
+    """Round 5, finding 7: reaching the FUNCTION was not enough. A return under
+    `if False:` inside `admit()` itself counted as a code a run can be given, so
+    the third leg would have certified a registered outcome that cannot happen —
+    the failure the three-way diff exists to catch, one level further in.
+
+    The probe carries both shapes a literal-constant test makes dead, and the
+    call that produces `session-count` sits inside the TAKEN branch of an
+    `if True:`, so this fails in both directions: a walk that pruned nothing
+    would name the two dead codes, and a walk that pruned the whole `if` would
+    lose `session-count`.
+    """
+    codes = returnable_codes(REACHABILITY_PROBE)
+    assert codes == {"slot-shape", "session-count"}
+    for dead in ("dead-branch", "dead-else"):
+        assert dead in REACHABILITY_PROBE, dead
+        assert dead not in codes, dead
+    # The same walk over a probe whose ONLY route to a code is the pruned side:
+    # the answer is the empty set, and the code is still in the source.
+    pruned = '''
+def admit(slot):
+    if False:
+        return "unreachable-only", "nothing else returns a code", False
+    return None, None, False
+'''
+    assert returnable_codes(pruned) == set()
+    assert "unreachable-only" in pruned
 
 
 def test_the_codes_the_scorer_can_return_are_the_codes_it_registers(preregistration):

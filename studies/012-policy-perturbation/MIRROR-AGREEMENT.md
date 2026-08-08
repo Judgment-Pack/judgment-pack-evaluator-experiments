@@ -54,10 +54,13 @@ retained per attempt. The empty working directory and the fresh `CODEX_HOME`
 close the passive paths (nothing to list where it stood, no operator
 configuration reaching it); the active path is closed only by the evidence.
 
-Beyond the policy bytes the prompt supplied 706 bytes of fixed interface
-text — a 28-byte framing prefix ("Here is a policy document." and its blank
-line) and a 678-byte instruction suffix, measured from the retained prompts,
-which carry no final newline — the record shape (`sanctionsHit` bool,
+Beyond the policy the prompt supplied a fixed interface, stated as the
+equation the retained prompts satisfy so no single byte count can be argued
+about again: each prompt is a 28-byte framing prefix, then the arm's
+`POLICY.md` bytes **minus their final LF**, then a 678-byte instruction
+suffix whose first two bytes are LFs; measured against the **full** policy
+file that is equivalently a 677-byte suffix and 705 non-policy bytes. The
+prompts carry no final newline. The interface is the record shape (`sanctionsHit` bool,
 `registeredCountry` string, `handlesPersonalData` bool, `riskScore` decimal
 string), the three outcome tokens (`clear`, `manual-review`, `reject`), the
 no-imports/no-I/O rules, and the request for a consulted statement —
@@ -66,8 +69,11 @@ own three outcomes in the harness's spelling and carries no threshold, no
 class, and no study term; C10's clause 2 is amended to register exactly this
 suffix. 011's honesty clause carries over unchanged: isolation of an agent
 is a claim about a process, not a proof, and what rests on it here is
-bounded by the grid — 280 cells pin every inclusive/exclusive decision the
-predicates name, whatever the reader consulted.
+bounded by the grid at the verdict level — 280 cells pin every
+inclusive/exclusive decision that reaches a different final verdict,
+whatever the reader consulted; a clause boundary that never changes the
+outcome (P4's upper bound behind P3's earlier return) is invisible to it,
+as the closing section already concedes for finite grids generally.
 
 ## The commission prompt, verbatim
 
@@ -128,5 +134,5 @@ that syntactically, the pre-freeze cross-vendor review reads the five texts,
 and §7 and §9 record that no instrument closes it. The readers' speed and
 brevity are visible in the retained transcripts; a reader that agrees for a
 shallow reason is bounded by the same grid that catches a shallow
-disagreement — 280 cells pin every inclusive/exclusive decision every
-predicate names, and §2.4 records what no finite grid can pin.
+disagreement — at the verdict level, as above — and §2.4 records what no
+finite grid can pin.

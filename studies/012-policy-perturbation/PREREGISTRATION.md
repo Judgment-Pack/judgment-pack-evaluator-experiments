@@ -235,7 +235,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `08787974a322e061280d5a87fc61817f37a3af3708a79de706b61e6b4ce8e3e4` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `4ea1861855900ae23fd8f040465674ad2c87efeb3b319fb0196f87cf9f6ba1f8` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -268,12 +268,12 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | 010's lock | `5c631b7bd062e21564bec0edecdb558768638adff8ffcb33132c5ec32ec0bc5b` | **[D-14]** the two threshold comparisons read `T_low` and `T_high` from the arm's `ARM.json` instead of the literals 40 and 70; the module is otherwise line-for-line 010's, and the diff is published in `harness/PORTS.md`. **One module serves all five arms** — see below |
 | `arms/A/POLICY.md` | `e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f` | **010's lock directly** — 011 holds no separate policy copy, so there is no 011-side blob for this row | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` | exactly two registered deltas and nothing else: `PREAMBLE_DELTA` applied at its single occurrence and `CONVENTIONS_DELTA` appended at the registered position (§2.1, §2.6, Appendix A). Both are published verbatim; the assembled preamble and the conventions delta are each pinned by their own sha256 |
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
-| `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `a6f6ee5514e25f784f7853a821a8a31d41430ddd71bdcf7e16917bf7e30a1015` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt; no other check logic changes |
+| `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt; no other check logic changes |
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `bac41d3a960a82e32ec009f493d8153c280fa2591c6abd29e66deb3aa7fe1f04` | §2.7 |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `94b8062aaeb22aefa6efb78b5936c0b2628eb8a440b80a20b4405c15a6da170b` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `8cc55fb301375b518574302fc64a24baeb0a7900f50ff0f8bf6249680bef07b3` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `7f5df4b338205ddddfa5b53bcaf6cf9836c6bc7bfb50c8641930123bd830fe10` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
-| `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `6c4d19020a1a4ab16724c12eb87fa9993dfeee06665c73b79a26bb2b61efedad` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `5d9f37cc09fbb62c9e4b073a2f53d42a01c11a74c8ec27030aea7711b9e32277` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `7b00ecac41baef50047c9f9caeae45a558636638e25840238cbe651f93f92bf9` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `8bbd881aa054e773be0b9f28c4be0a5157e72b6219a48944280cf11de7abbc58` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `fdb8ac0967e0baec29e78ea27a1af4c18b3336fa8de929d218c91802e1110de7` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
 [D-20].** An earlier draft ordered the work review → port → freeze, which put
@@ -1113,14 +1113,28 @@ artifacts that ran" now means:
    excluded — it carries the attestation, and a manifest covering its own
    attestation record changes the moment the digest is written down — and
    `harness/PINS.json` is bound through its **normalized projection**: the
-   registry parsed, its three post-freeze members
-   (`freeze.treeManifestSha256`, `golden.sha256`,
-   `isolationNegative.assent`) set to null, canonically serialized, and
-   hashed into the manifest as its own entry. A covered-file edit paired
-   with a registry co-edit therefore fails the recomputation; the three
-   nulled members are bound elsewhere (the manifest member is the binding
+   registry parsed, its four post-freeze members
+   (`freeze.treeManifestSha256`, `freeze.preregistrationSha256`,
+   `golden.sha256`, `isolationNegative.assent`) set to null, canonically serialized, and
+   hashed into the manifest as its own entry. **What the binding
+   establishes is stated exactly, because round 5 demonstrated the wider
+   claim false**: the manifest detects every edit that leaves the
+   registry's pin or the final round's attestation standing; an edit that
+   updates the pin must also match the attestation line the final review
+   round wrote into `PREREG-REVIEW.md`, which `verify_tree()`
+   cross-checks, so defeating the binding requires rewriting the review
+   record itself — and THAT is forbidden by rule and visible to the
+   reviewer who holds the transcript, not prevented by a digest. The two
+   freeze pins refuse unless they land together, in both directions. The
+   four nulled members are bound elsewhere (the manifest member is the binding
    itself, the golden per slot by the `goldenSha256` stamp against the
-   committed capture, the assent a consent record). What remains outside
+   committed capture, the assent a consent record). **Compiled bytecode
+   beside a reviewed source loads even under `-B`** (round 5, finding 3),
+   so the verification gate validates every cache entry against the
+   source beside it — the running interpreter's magic number and the
+   header's own stamp or source hash — and refuses anything orphaned,
+   stale or foreign: a fresh cache of a reviewed source is that source
+   compiled, and admits; a cache the sources did not produce refuses. What remains outside
    any digest is `PREREG-REVIEW.md`'s own honesty, which is [D-20]'s
    stated residual; the externally signed attestation stays the stronger
    alternative. A frozen registry whose `preregistrationSha256` is filled
@@ -1908,7 +1922,7 @@ gates of the decision table below**:
 
 | pattern | reading | published as |
 | --- | --- | --- |
-| **PLACEMENT-COLLAPSE on ≥ 3 of 4** | R1 **confirmed for this instance** | CONFIRMED |
+| **PLACEMENT-COLLAPSE on ≥ 3 of 4, with arm E's S5 labels at the ceiling (§4.6)** | R1 **confirmed for this instance** | CONFIRMED |
 | E reads HIGH on the primary on **≥ 3 of 4** | the predicted collapse did not occur | **R1-UNSUPPORTED** |
 | COLLAPSE on ≥ 3 of 4 **without** placement collapse on ≥ 3 | the records are still at the boundary and the labels failed | **LABEL-COLLAPSE-ONLY** |
 | every other pattern | neither | **INDETERMINATE** |
@@ -2204,7 +2218,7 @@ E's four narrow numeric classes), and under independence layers 1–3:
 | --- | --- | --- | --- | --- |
 | per-class COLLAPSE | §5.2 | 0.5415 | 0.7619 | 0.8822 |
 | all four narrow COLLAPSE | — | 0.0860 | 0.3370 | 0.6056 |
-| **`nP ≥ 3` — the CONFIRMED pattern (row 5)** | §5.3 (i) | 0.3771 | 0.7583 | **0.9292** |
+| **`nP ≥ 3` — row 5's coverage pattern (S5 is outside this model)** | §5.3 (i) | 0.3771 | 0.7583 | **0.9292** |
 | **the B/C control gate (row 3 passes)** | §5.3 (iii) | 0.0557 | 0.4031 | **0.7658** |
 | all twelve TRACKING (`q¹⁸`) | §5.3 (iii) | 0.0040 | 0.0866 | 0.3235 |
 | **CONFIRMED *and* the gate holds — the coverage-side joint quantity** | table row 5 | 0.0364 | 0.3536 | **0.7359** |
@@ -2255,8 +2269,9 @@ Read plainly:
   precondition for interpreting arm E holds *when both control arms are
   behaving exactly as predicted*. This file's own criterion — "a dependency
   that usually fails is not a control" — condemns N = 25 by that number. At
-  N = 30 the gate passes 0.7658 of the time and the whole registered CONFIRMED
-  outcome lands 0.7359 of the time, against 0.3536 at N = 25. That is the
+  N = 30 the gate passes 0.7658 of the time and the coverage-side CONFIRMED
+  quantity — the upper bound §5.4 names, S5 unmodeled — lands 0.7359 of the
+  time, against 0.3536 at N = 25. That is the
   argument that moved [D-1]; it is not the marginal 0.8729 → 0.9392, which is
   the comparison an earlier draft made and which understates the difference
   because it does not compound.
@@ -3200,7 +3215,7 @@ D-24 and re-adjudicated D-1, D-4, D-5, D-7, D-9, D-10, D-13, D-16 and D-18.
 
 | # | decision | proposal | alternative, and what turns on it | opened |
 | --- | --- | --- | --- | --- |
-| **D-1** | N per arm (§2.8, §5.4) | **30** | **25** (the round-1 proposal, re-adjudicated in round 2). The decisive quantity is not the marginal P(HIGH \| p=0.95), which rises only 0.8729 → 0.9392, but the **registered B/C control gate of §5.3 (iii), which passes 0.4031 at N = 25 and 0.7658 at N = 30**, and the whole registered CONFIRMED outcome, 0.3536 against 0.7359. This file's own criterion — a dependency that usually fails is not a control — condemns N = 25 on its own numbers. N = 25 also costs the §2.8 schedule: **25 rounds do not tile the ten-sequence Williams block**, so its carryover-balanced order would have to be reconstructed and this file does not carry that construction. 20 is worse again (gate 0.0557). N = 30 costs +25 calls and ~17 minutes. Keep a multiple of 5 for position balance and of 10 for transition balance | draft; re-adjudicated round 2 |
+| **D-1** | N per arm (§2.8, §5.4) | **30** | **25** (the round-1 proposal, re-adjudicated in round 2). The decisive quantity is not the marginal P(HIGH \| p=0.95), which rises only 0.8729 → 0.9392, but the **registered B/C control gate of §5.3 (iii), which passes 0.4031 at N = 25 and 0.7658 at N = 30**, and the coverage-side CONFIRMED quantity (§5.4's upper bound; S5 unmodeled), 0.3536 against 0.7359. This file's own criterion — a dependency that usually fails is not a control — condemns N = 25 on its own numbers. N = 25 also costs the §2.8 schedule: **25 rounds do not tile the ten-sequence Williams block**, so its carryover-balanced order would have to be reconstructed and this file does not carry that construction. 20 is worse again (gate 0.0557). N = 30 costs +25 calls and ~17 minutes. Keep a multiple of 5 for position balance and of 10 for transition balance | draft; re-adjudicated round 2 |
 | **D-2** | The §5.1 level cuts | **`L ≥ 0.70` HIGH, `U ≤ 0.30` LOW** | Study 011's tier cuts 0.80/0.40. At N = 30 the 0.80 cut lands at `k ≥ 29` — one miss in thirty — and at N = 25 it needs a perfect arm, so a single stray miss in a control arm reads INDETERMINATE either way. Interacts with D-1 | draft |
 | **D-3** | Arm E's exact reference wording (§2.5, §4.5 X6, Appendix A) | the Appendix A text **as rewritten in round 1**: one denominator, no pronoun, §2.3's own threshold names — "The **review threshold** is seven tenths of that full range; the **personal-data threshold** is four tenths of that same full range." | any wording that keeps the clause-body digit census empty and the values exactly derivable. The round-1 draft's wording is **not** an option: its pronoun admitted 28 (two fifths of the review threshold), it called `T_low` the "clearance threshold" against §2.3's own key, and its two denominators made one derivation harder than the other. X6 registers the misderivation audit under either wording | draft; rewritten round 1 |
 | **D-4** | Arm B's exact paraphrase (Appendix A) | the Appendix A text **as rewritten in round 2**, plus the clause-by-clause A ↔ B substitution table the review adjudicates row by row. P4 now reads "**40 or more** but **below 70**", so every bound's cue sits on A's side with A's sense | any paraphrase preserving the clause-body digit census, the clause order, the semantics, **and §2.6's inclusivity-adjacency pattern**. The round-1 text is **not** an option: its "from **40** up to but not including 70" put P4's lower cue *before* the literal where A's is *after*, violating the very invariant round 1 added — round 2 found it, and the invariant is kept and the text changed rather than the reverse. Weakening the invariant is the alternative not taken, and it would cost §5.3 (iii)'s dependency its meaning | draft; invariant added round 1; text fixed round 2 |

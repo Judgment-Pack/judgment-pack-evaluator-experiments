@@ -221,6 +221,10 @@ class Batch(unittest.TestCase):
         §2.7's two new arguments, the arm id and the arm's own prompt path."""
         env = dict(os.environ)
         env["PYTHON_BIN"] = sys.executable
+        # The driver subprocess must not write bytecode beside the
+        # reviewed sources: the §2.10 gate refuses on a cache, and this
+        # child does not inherit pytest's environment (round 5, finding 3).
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
         env.update(environment or {})
         return subprocess.run(
             ["bash", WRAPPER, self.scratch, slot, pins_path or self.pins_path,
@@ -1265,6 +1269,16 @@ class IntervalScope(unittest.TestCase):
     say which blocks carry intervals. The assertion below is over every `ci95`
     occurrence in the arm's block, at every depth, and the registered eleven are
     all of them.
+
+    Round 5, finding 8, in two parts. First, a set of PATHS collapses a list to
+    one member — `classes[]` is one string however many rows the list holds — so
+    the shape check walked `classes[0]` and one compliant row certified all six.
+    `blocks_at()` returns every element of every list on a path and the shape is
+    asserted over each. Second, §4.3 registers the walk over `RESULTS.json`, not
+    over its arm blocks: the scope assertion now starts at the whole published
+    object, so every top-level member — `cell`, `schedule`, `seal`, `crossArm`,
+    `verdicts`, `census`, `runs` — is inside the claim and an interval published
+    anywhere outside the registered eleven fails it.
     """
 
     # Each path is a block that must carry `ci95`, written as it is reached from
@@ -1334,9 +1348,45 @@ class IntervalScope(unittest.TestCase):
         self.assertEqual(self.blocks_carrying_ci95(nested, ""),
                          {"outer", "outer.inner", "outer.rows[]"})
 
+    def blocks_at(self, node, path: str) -> list:
+        """Every node the path names, with EVERY element of every list on the
+        way (round 5, finding 8).
+
+        A `classes[]` step used to be read as `classes[0]`, so the shape check
+        below asked one of six rows and reported on all of them. The path is a
+        set member and cannot distinguish the rows; this returns them all, and
+        the caller asserts over each.
+        """
+        nodes = [node]
+        for token in path.split("."):
+            stepped = []
+            for current in nodes:
+                if token.endswith("[]"):
+                    stepped.extend(current[token[:-2]])
+                else:
+                    stepped.append(current[token])
+            nodes = stepped
+        return nodes
+
     def test_the_blocks_carrying_an_interval_are_exactly_the_registered_ones(self):
-        """Over ALL `ci95` occurrences per arm, at every depth: the registered
-        eleven are the whole set and not merely its outermost layer."""
+        """Over ALL `ci95` occurrences in the WHOLE published object, at every
+        depth: the registered eleven per arm are the whole set (round 5,
+        finding 8).
+
+        Walking the arm blocks and the census separately left every other
+        top-level member of `RESULTS.json` outside the claim §4.3 registers over
+        `RESULTS.json`. This starts at the root, so `crossArm`, `verdicts`,
+        `schedule`, `seal`, `cell` and `runs` are inside it too — and the arms
+        that carry the eleven are named rather than assumed, because a scoring
+        that published four arm blocks would otherwise pass.
+        """
+        expected = {"arms.%s.%s" % (arm, path)
+                    for arm in self.results["arms"]
+                    for path in self.REGISTERED_SCOPE}
+        self.assertEqual(set(self.results["arms"]), set("ABCDE"))
+        self.assertEqual(self.blocks_carrying_ci95(self.results, ""), expected)
+        # …and per arm, so a failure names the arm rather than the difference of
+        # two 55-member sets.
         for arm, block in self.results["arms"].items():
             self.assertEqual(self.blocks_carrying_ci95(block, ""),
                              self.REGISTERED_SCOPE, arm)
@@ -1355,20 +1405,64 @@ class IntervalScope(unittest.TestCase):
             self.assertEqual(self.blocks_carrying_ci95(
                 self.results["census"][arm], ""), set(), arm)
 
+    def interval_block_defects(self, block) -> list:
+        """[(path, index, what is wrong)] over every element of every list on
+        every registered path — the shape check as a value, so the walk itself
+        can be held to a known answer below (round 5, finding 8)."""
+        defects = []
+        for path in sorted(self.REGISTERED_SCOPE):
+            for index, node in enumerate(self.blocks_at(block, path)):
+                if sorted(node) != ["ci95", "count", "denominator", "rate",
+                                    "trials"]:
+                    defects.append((path, index, "members are %s" % sorted(node)))
+                elif node["denominator"] not in ("N", "V_X"):
+                    defects.append((path, index,
+                                    "denominator is %r" % node["denominator"]))
+        return defects
+
     def test_every_registered_block_publishes_the_integers_its_bound_is_over(self):
         """No rate without its denominator and no bound a reader cannot
-        recompute from the integers (§4.7)."""
-        for block in self.results["arms"].values():
-            for path in sorted(self.REGISTERED_SCOPE):
-                node = block
-                for token in path.split("."):
-                    if token.endswith("[]"):
-                        node = node[token[:-2]][0]
-                    else:
-                        node = node[token]
-                self.assertEqual(sorted(node),
-                                 ["ci95", "count", "denominator", "rate", "trials"])
-                self.assertIn(node["denominator"], ("N", "V_X"))
+        recompute from the integers (§4.7) — over EVERY class row and not the
+        first one (round 5, finding 8)."""
+        for arm, block in self.results["arms"].items():
+            self.assertEqual(self.interval_block_defects(block), [], arm)
+        # The six rows are actually visited: a path with `classes[]` in it
+        # yields six nodes, so the assertion above is over six and not over one.
+        self.assertEqual(len(self.blocks_at(self.results["arms"]["A"],
+                                            "classes[].primary")), 6)
+
+    def test_the_shape_walk_sees_past_element_zero(self):
+        """The walk on a known answer: element zero compliant, element three not
+        (round 5, finding 8).
+
+        The old walk read `classes[0]` and reported on `classes[]`, so one good
+        row certified all six — and this is the probe that would have caught it,
+        because a check that has never been shown to fire is prose.
+        """
+        good = {"ci95": [0.0, 1.0], "count": 1, "denominator": "N",
+                "rate": 1.0, "trials": 30}
+        rows = [dict(good) for _ in range(6)]
+        rows[3] = {key: value for key, value in good.items()
+                   if key != "denominator"}
+        block = {"population": {"pipelineInvalidRate": dict(good)},
+                 "coverageBreadth": {"allSix": dict(good)},
+                 "classes": [{"primary": row,
+                              "sensitivity": {"lower": dict(good),
+                                              "upper": dict(good)},
+                              "placement": dict(good),
+                              "rawIntersection": dict(good),
+                              "perProtocol": dict(good),
+                              "oldEdge": dict(good),
+                              "qIntersection": dict(good),
+                              "qOnlyIntersection": dict(good)}
+                             for row in rows]}
+        defects = self.interval_block_defects(block)
+        self.assertEqual([(path, index) for path, index, _why in defects],
+                         [("classes[].primary", 3)])
+        # And the same structure with the defect repaired passes, so the probe
+        # fails on the row and not on the shape it was built with.
+        block["classes"][3]["primary"] = dict(good)
+        self.assertEqual(self.interval_block_defects(block), [])
 
 
 if __name__ == "__main__":

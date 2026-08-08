@@ -177,6 +177,10 @@ STUDY = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import integrity  # noqa: E402
+# The ceremony's commands run with bytecode writing disabled (§2.10,
+# round 5 finding 3): set structurally, not left to the operator's
+# environment, before any harness module is imported.
+sys.dont_write_bytecode = True
 import score_rates  # noqa: E402  (one slot-naming rule and one JSON loader, not two)
 import transcript_check  # noqa: E402
 
@@ -715,6 +719,11 @@ def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
     environment["PROMPT_KIND"] = prompt_kind
     environment["ISOLATION"] = isolation
     environment["GOLDEN_SHA256"] = golden_sha256 or ""
+    # The helper interpreters the wrapper runs must not write bytecode
+    # beside the reviewed sources: an existing cache loads even under -B,
+    # and the verification gate refuses on one (§2.10, round 5 finding 3).
+    environment = dict(environment)
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
     completed = subprocess.run(argv, env=environment, capture_output=True, text=True)
     return (completed.returncode, WRAPPER_CODES.get(completed.returncode, "wrapper-error"),
             completed.stderr)
