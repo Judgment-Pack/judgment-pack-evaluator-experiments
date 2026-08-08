@@ -503,6 +503,16 @@ def verify_chain(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
     # rewritten after the review.
     if not os.path.isfile(pins_path):
         raise IntegrityError("no registry at %s" % pins_path)
+    # §7's sentence, made true verbatim: a `(port time)` placeholder surviving
+    # into either run-time file is an unfinished port, refused by name (the
+    # all-zero digest markers refuse too, through the mismatches below).
+    for path, name in ((ports_path, "harness/PORTS.md"),
+                       (pins_path, "harness/PINS.json")):
+        with open(path, "rb") as handle:
+            if b"(port time)" in handle.read():
+                raise IntegrityError(
+                    "%s still carries a `(port time)` placeholder: the port is "
+                    "not finished (§7)" % name)
     pins = load_json(pins_path)
     own_ports_pin = bare(pins.get("ownPorts", {}).get("sha256"))
     actual_ports = digest(ports_path)

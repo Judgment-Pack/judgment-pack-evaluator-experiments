@@ -265,15 +265,15 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 
 | ported with enumerated changes | source sha256 | source authority | destination sha256 | registered scope of the change |
 | --- | --- | --- | --- | --- |
-| `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | 010's lock | (port time) | **[D-14]** the two threshold comparisons read `T_low` and `T_high` from the arm's `ARM.json` instead of the literals 40 and 70; the module is otherwise line-for-line 010's, and the diff is published in `harness/PORTS.md`. **One module serves all five arms** — see below |
-| `arms/A/POLICY.md` | `e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f` | **010's lock directly** — 011 holds no separate policy copy, so there is no 011-side blob for this row | (port time) | exactly two registered deltas and nothing else: `PREAMBLE_DELTA` applied at its single occurrence and `CONVENTIONS_DELTA` appended at the registered position (§2.1, §2.6, Appendix A). Both are published verbatim; the assembled preamble and the conventions delta are each pinned by their own sha256 |
-| `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | (port time) | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
-| `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | (port time) | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt; no other check logic changes |
-| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | (port time) | §2.7 |
-| `harness/integrity.py` | (port time) | 011's commit only | (port time) | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | (port time) | 011's commit only | (port time) | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | (port time) | 011's commit only | (port time) | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
-| `harness/census.py` (from 011's `analysis/diversity.py`) | (port time) | 011's commit only | (port time) | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
+| `harness/policy_mirror.py` | `276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba` | 010's lock | `5c631b7bd062e21564bec0edecdb558768638adff8ffcb33132c5ec32ec0bc5b` | **[D-14]** the two threshold comparisons read `T_low` and `T_high` from the arm's `ARM.json` instead of the literals 40 and 70; the module is otherwise line-for-line 010's, and the diff is published in `harness/PORTS.md`. **One module serves all five arms** — see below |
+| `arms/A/POLICY.md` | `e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f` | **010's lock directly** — 011 holds no separate policy copy, so there is no 011-side blob for this row | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` | exactly two registered deltas and nothing else: `PREAMBLE_DELTA` applied at its single occurrence and `CONVENTIONS_DELTA` appended at the registered position (§2.1, §2.6, Appendix A). Both are published verbatim; the assembled preamble and the conventions delta are each pinned by their own sha256 |
+| `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
+| `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `a6f6ee5514e25f784f7853a821a8a31d41430ddd71bdcf7e16917bf7e30a1015` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt; no other check logic changes |
+| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `bac41d3a960a82e32ec009f493d8153c280fa2591c6abd29e66deb3aa7fe1f04` | §2.7 |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | (port time) | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | (port time) | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | (port time) | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | (port time) | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
 [D-20].** An earlier draft ordered the work review → port → freeze, which put
@@ -598,13 +598,13 @@ files, each pinned by sha256 in `harness/PINS.json` **before any call**:
 
 | arm | `POLICY.md` sha256 | `PROMPT.txt` sha256 | `FAMILY.json` sha256 | `ARM.json` sha256 |
 | --- | --- | --- | --- | --- |
-| A | (port time) | (port time) | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | (port time) |
-| B | (port time) | (port time) | (port time — equals A's) | (port time) |
-| C | (port time) | (port time) | (port time — equals A's) | (port time) |
-| D | (port time) | (port time) | (port time) | (port time) |
-| E | (port time) | (port time) | (port time — equals A's) | (port time) |
+| A | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` | `2a6f031e17735494646dd734ee04b4430027babf62b10e1ba9a57675f37de430` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | `3349ccd06e875c76eda19278a3ce8cae61a61e807fc3e43fb1d93adcb387b86d` |
+| B | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` | `9da426a75e42bb13909daa097e1dc32b1cfdec86330fa69555e6c40081ff2dde` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | `aeef4aa084cdc85e10510c57844709745b397f7c7651b0d4b743fc509fee3f4d` |
+| C | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` | `bff3e24751087815935b748041ae2db19df5f0408dea886219fe13e0531c053c` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | `e1572c0bfa03427726f062c0b42dcc74205a6a3d2da50d50bc23e41e42217cef` |
+| D | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` | `0d47c2b135736376744dc00c9c66965465357e6a98e2ccd750505d931e9606d1` | `20391068ad761d028b3b1a8fc2bc3a04f7aec61c7f365a0ef2db9b90f25c20fc` | `2b5b341b4a9794aa512098fdbec1a468f6d037082e06cddc8913f8dac25355f2` |
+| E | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` | `5bbb3a58dd16cd2ef2353e5cc137c74d467c5cb098e4896d2ccce8b165cf2b66` | `7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f` | `cd9d88d93c55a1069337e51d3fc70604bec232b4a7bb2b6e1b03dbcb2559e084` |
 
-Arm A's `POLICY.md` and `PROMPT.txt` are `(port time)` rather than filled from
+Arm A's `POLICY.md` and `PROMPT.txt` were `(port time)` at registration rather than filled from
 011's lock because of the two registered deltas (§2.1, [D-15], [D-16]); what
 is filled now, and checked, is the pair of authorities they are derived from —
 010's locked `policy/POLICY.md` at
