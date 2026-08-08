@@ -145,22 +145,19 @@ three registered differences:
    `s012-…`** (with the arm id in the name, so five arms' same-numbered runs
    cannot collide under one scratch parent).
 
-**The non-difference, recorded for the final review round.** §2.9 says "when
-the wrapper finishes a slot it writes `SLOT-MANIFEST.json`", and §2.7 says the
-permitted wrapper differences are "exactly these" three — the two sentences
-cannot both be read literally. This port resolves the tension on §2.7's side:
-the **driver** (`harness/batch.py`) seals every slot immediately after the
-wrapper returns, on every exit path including refusals, and chains the seal
-into the ledger. Two reasons, the second the stronger: sealing driver-side
-keeps the wrapper's diff at exactly the three registered items, and the
-wrapper is **not the last writer into a refused slot** — `REFUSAL.json` is
-the driver's — so a wrapper-side seal would cover every slot except exactly
-the ones whose retained bytes explain a failure, and the pipeline-invalid
-rate is an endpoint (§4.4). The seal is taken after the refusal record and
-the schedule stamps are written and before the ledger record is appended.
-The final cross-vendor review adjudicates the reading; if it lands the other
-way, the seal moves into the wrapper and this file and the wrapper's row
-above change together.
+**The non-difference, adjudicated.** An earlier §2.9 sentence had the wrapper
+write `SLOT-MANIFEST.json`, while §2.7 caps the wrapper's permitted
+differences at exactly three; round 3's review held the registration's letter
+over this file's rationalization (finding 5), and the maintainer's
+disposition amended the registration to the design with the stronger
+argument: the **driver** (`harness/batch.py`) seals every slot immediately
+after the wrapper returns, on every exit path including refusals, because
+the wrapper is **not the last writer into a refused slot** — `REFUSAL.json`
+and the schedule stamps are the driver's — and a wrapper-side seal would
+cover every slot except exactly the ones whose retained bytes explain a
+failure, while the pipeline-invalid rate is an endpoint (§4.4). §2.9 now
+says so in its own words; the seal is taken after the refusal record and the
+schedule stamps are written and before the ledger record is appended.
 
 ## The three 011-adapted files, taken as 011 left them
 

@@ -34,23 +34,37 @@ a fresh session with no memory of any other. The reader's vendor lineage
 the arm texts (Anthropic-model sessions), so a shared misreading cannot come
 from shared weights, whatever else it could come from.
 
-## The isolation, stated exactly
+## The isolation, stated exactly — corrected under round 3, finding 8
 
 Study 011's builder was an agent with file access under an instruction not to
-read anything but the policy. This study's isolation is **structural rather
-than behavioral**: each reader runs as one `codex exec` call in an empty
-scratch directory outside every worktree, under a read-only sandbox, with the
-arm's `POLICY.md` bytes inlined verbatim in the prompt — there is no study
-file within reach to consult, no second turn, and no tool surface that could
-fetch one. What the prompt supplies beyond the policy bytes is interface, not
-reading: the record shape (`sanctionsHit` bool, `registeredCountry` string,
-`handlesPersonalData` bool, `riskScore` decimal string) and the three outcome
-tokens (`clear`, `manual-review`, `reject`), which name the policy's own three
-outcomes in the harness's spelling. 011's honesty clause carries over
-unchanged: isolation of an agent is a claim about a process, not a proof —
-what rests on it here is bounded by the sandbox and the empty directory, and
-the full prompt text is published below so a reader can see exactly what the
-model was given.
+read anything but the policy. This study's readers ran closer to sealed, and
+the first version of this section overclaimed how close; what follows is what
+the retained bytes support, no more.
+
+Each reader ran as one `codex exec` call in an empty scratch directory
+outside every worktree, under `--ignore-user-config` with a fresh
+`CODEX_HOME`, with the arm's `POLICY.md` bytes inlined verbatim in the
+prompt. The sandbox was `read-only`, which restricts what the process may
+**write**, not what it may **read**: a reader that went looking could have
+opened study files, so non-consultation is **behavioral evidence, not a
+structural guarantee** — the retained transcripts show no tool call of any
+kind in any of the five sessions, and each reader's consulted statement is
+retained per attempt. The empty working directory and the fresh `CODEX_HOME`
+close the passive paths (nothing to list where it stood, no operator
+configuration reaching it); the active path is closed only by the evidence.
+
+Beyond the policy bytes the prompt supplied 706 bytes of fixed interface text
+— the framing line, the record shape (`sanctionsHit` bool,
+`registeredCountry` string, `handlesPersonalData` bool, `riskScore` decimal
+string), the three outcome tokens (`clear`, `manual-review`, `reject`), the
+no-imports/no-I/O rules, and the request for a consulted statement —
+identical for every arm and published verbatim below. It names the policy's
+own three outcomes in the harness's spelling and carries no threshold, no
+class, and no study term; C10's clause 2 is amended to register exactly this
+suffix. 011's honesty clause carries over unchanged: isolation of an agent
+is a claim about a process, not a proof, and what rests on it here is
+bounded by the grid — 280 cells pin every inclusive/exclusive decision the
+predicates name, whatever the reader consulted.
 
 ## The commission prompt, verbatim
 

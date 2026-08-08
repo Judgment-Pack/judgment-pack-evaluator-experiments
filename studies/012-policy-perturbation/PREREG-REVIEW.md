@@ -733,11 +733,29 @@ CODEX-012-R3-DONE
 
 ### Dispositions
 
-**PENDING — maintainer.** This round returned a BLOCKING verdict; under the
-registered order the port and the review repeat after the dispositions are
-implemented, and the freeze binds to the manifest of the round that ends
-clean. No finding has been accepted, rejected, or implemented as of this
-record.
+All twenty findings **ACCEPTED**, decided by the maintainer on a plain-language
+brief of each finding with the judgment calls put separately; the three that
+were judgment calls carry their reasoning:
+
+| # | disposition |
+| --- | --- |
+| 1 | **ACCEPTED.** The tree manifest's recipe excludes its two carrier files (`harness/PINS.json`, `PREREG-REVIEW.md`), which are bound by their own mechanisms — the registry by the per-run digest stamp every slot carries and the scorer recomputes, the review record by being the attestation itself. §2.10 is amended to say so, and the exclusion is in code, not convention |
+| 2 | **ACCEPTED.** The exclusion list is corrected to the paths the code writes (`arms/BATCH.json`, `arms/SHORTFALL.json`) and gains the capture and isolation-control artifact trees |
+| 3 | **ACCEPTED.** The driver's preflight reads the registry members that exist (`batch.n`, `batch.slots`, `batch.order.*`), aligned with the scorer; a parity test pins driver, scorer and registry to one spelling |
+| 4 | **ACCEPTED.** One member name: `isolationNegative.assent`, everywhere |
+| 5 | **ACCEPTED, resolved on the code's side by amending the registration.** §2.9's sentence now names the driver as the sealer, with the reason the review could not overrule: the wrapper is not the last writer into a refused slot, and the pipeline-invalid rate is an endpoint — a wrapper-side seal covers every slot except the ones whose bytes explain a failure. The alternative (move the seal into the wrapper, lose refused-slot coverage) is rejected with that cost stated |
+| 6 | **ACCEPTED.** C2 (pack-side coherence for the (40, 70) arms against Study 010's pack C at its pinned digest, with [D-6]'s registered treatment for arm D stated plainly) and C3 clause 1 (the ported compiler, mirror and class arithmetic over 010's retained completion, reproducing the published profile exactly) are implemented as registered controls in the suite |
+| 7 | **ACCEPTED.** C8's byte relations are checked as registered: A's bodies byte-identical to 010's, C's to A's, D's equal to A's under the literal substitution at byte level, E's P1/P2 to A's, E's appended sentence pinned by digest; and an assembler-parity test rebuilds the twenty arm files from Appendix A's rule and requires byte equality with the committed trees |
+| 8 | **ACCEPTED as a record correction; the five runs stand.** MIRROR-AGREEMENT.md's isolation claim is rewritten to what the retained bytes support: the sandbox restricted writes, not reads; the working directory was empty; non-consultation is evidenced behaviorally by the retained transcripts (no tool calls); and the 677-byte interface suffix is quoted as exactly what the prompt supplied beyond the policy bytes. C10's "and nothing else" is amended to name the published interface suffix. Re-commissioning under a stronger cage is rejected: the grid equality is the check with teeth, and it already ran |
+| 9 | **ACCEPTED.** The S5 cut and the comprehension-collapse outcome are implemented as §5.3 registers them, with fixtures exercising both branches |
+| 10 | **ACCEPTED.** Arm D's registered outcomes (including `OLD-EDGE-PREFERENCE`) are computed and tested |
+| 11 | **ACCEPTED; N = 30 is retained with the arithmetic stated honestly.** §5.4's labels confused marginal `P(nH >= 3)` with the joint probability of reaching decision row 4; the joint values are recomputed independently (not copied from the review), registered in §5.4, and pinned by an operating-characteristics test. The maintainer keeps N = 30 knowing the joint confirmatory power is materially lower than the mislabeled figure suggested — the descriptive surface publishes regardless, and [D-1]'s alternative carries the updated numbers — rather than raising N |
+| 12-19 | **ACCEPTED** as written: the CI job, the wrapper-driven batch tests, the `ci95` walk, the partition-reachability strengthening, `authoringEmpty` narrowed to the table's meaning with the wider count published under its own name, the S3 denominators made consistent, the shortfall's completed-rounds and last-slot-time edge cases, the ledger's file-order refusal, tier-1/2 checks opened against 011's own copies, the credential booleans type-checked, and the band stated as the open interval it is |
+| 20 | **ACCEPTED.** The registry's interpreter note is corrected and the driver docstring names the recorded port commit |
+
+Implementation follows this record; the port and the review then repeat
+(round 4), and the freeze binds to the manifest of the round that ends
+clean.
 
 ## Arm text digests, as reviewed in this round
 

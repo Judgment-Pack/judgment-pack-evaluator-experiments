@@ -603,6 +603,23 @@ def verify_chain(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
         raise IntegrityError("Study 011's transcription/PROMPT.txt does not "
                              "hash to 010's lock")
 
+    # Tier 1's "equal to 011's own copy where 011 holds one", and tier 2's
+    # source-byte binding, checked against 011's working files rather than
+    # only against digests this study carries (round 3, finding 17).
+    for eleven_path, expected, label in (
+            ("FAMILY.json", bare(locked["FAMILY.json"]),
+             "Study 011's FAMILY.json vs 010's lock"),
+            (os.path.join("harness", "policy_mirror.py"),
+             bare(locked["harness/policy_mirror.py"]),
+             "Study 011's policy_mirror.py vs 010's lock"),
+            (os.path.join("transcription", "PROBE-PROMPT.txt"),
+             bare(eleven_pins["probePrompt"]["sha256"]),
+             "Study 011's PROBE-PROMPT.txt vs 011's own registry")):
+        path = os.path.join(eleven, eleven_path)
+        if not os.path.isfile(path) or digest(path) != expected:
+            raise IntegrityError("%s: the copy does not hash to its pin"
+                                 % label)
+
     return {"pins": pins, "rows": rows, "lockedInputs": locked,
             "lockSha256": lock_digest}
 
@@ -701,7 +718,7 @@ def verify_arms(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
     if len(set(preambles.values())) != 1:
         raise IntegrityError("the preamble is not byte-identical across the "
                              "five arms")
-    ten_preamble, _, ten_conventions = parse_policy(ten_policy)
+    ten_preamble, ten_bodies, ten_conventions = parse_policy(ten_policy)
     if ten_preamble.count(PREAMBLE_DELTA[0]) != 1:
         raise IntegrityError("010's preamble does not carry %r exactly once; "
                              "PREAMBLE_DELTA has no single occurrence to apply "
@@ -734,6 +751,13 @@ def verify_arms(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
     if not e_suffix or re.search(r"[0-9]", e_suffix):
         raise IntegrityError("arm E's appended threshold-definition sentence "
                              "is missing or carries a digit")
+    suffix_pin = pins.get("thresholdDefinitionSentence", {})
+    suffix_digest = hashlib.sha256(e_suffix.encode("utf-8")).hexdigest()
+    if suffix_digest != bare(suffix_pin.get("sha256")):
+        raise IntegrityError("arm E's appended threshold-definition sentence "
+                             "does not hash to its registry pin (round 3, "
+                             "finding 7): shape is not the registered check, "
+                             "bytes are")
 
     # Clause 5 — censuses, cues, permutation, sigma, arm E's digit rules.
     bodies = {arm: parsed[arm][1] for arm in ARMS}
@@ -779,6 +803,27 @@ def verify_arms(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
             "threshold names, are %r" % (actual_e, expected_e))
 
     bodies_a = dict(bodies["A"])
+    # Clause 5's byte relations, as registered rather than as statistics
+    # (round 3, finding 7): A's bodies are 010's byte for byte and in order,
+    # D's are A's under the registered literal substitution, and E's P1 and
+    # P2 are A's. The censuses above remain as the shape checks; these are
+    # the equalities C8 promises.
+    if bodies["A"] != ten_bodies:
+        raise IntegrityError("arm A's clause bodies are not byte-identical "
+                             "to 010's, in order")
+    for (label_a, body_a), (label_d, body_d) in zip(bodies["A"], bodies["D"]):
+        expected_d = re.sub(r"[0-9]+",
+                            lambda match: mapping_d.get(match.group(0),
+                                                        match.group(0)),
+                            body_a)
+        if label_a != label_d or body_d != expected_d:
+            raise IntegrityError("arm D's %s body is not arm A's under the "
+                                 "registered literal substitution, byte for "
+                                 "byte" % label_d)
+    for label in ("P1", "P2"):
+        if dict(bodies["E"])[label] != bodies_a[label]:
+            raise IntegrityError("arm E's %s body is not byte-identical to "
+                                 "arm A's" % label)
     for arm in ("B",):
         if [label for label, _ in bodies[arm]] != ["P1", "P2", "P3", "P4", "P5"]:
             raise IntegrityError("arm B's clause order is not P1-P5")
@@ -904,14 +949,25 @@ def verify_mirror2(study: str = STUDY, pairs: dict = None) -> list:
 
 # --- the whole-tree manifest ([D-20], from round 3 on) -----------------------
 
+# The manifest's carrier files, excluded in code rather than by the registry's
+# list (§2.10, round 3 finding 1): PINS.json carries the manifest digest and is
+# edited at registered moments after the freeze, and PREREG-REVIEW.md carries
+# the attestation — a manifest covering its own carriers changes the moment the
+# digest is written down. Each is bound otherwise: the registry by the per-run
+# pinsSha256 stamp, the review record by being the attestation.
+MANIFEST_CARRIERS = ("harness/PINS.json", "PREREG-REVIEW.md")
+
+
 def tree_manifest(study: str = STUDY, excluded: tuple = ()) -> str:
     """The sorted (relative path, byte length, sha256) list over every tracked
-    regular file in the study directory, minus the registered exclusions, and
-    its sha256 — §2.10's binding of the reviewed bytes to the frozen ones."""
+    regular file in the study directory, minus the registered exclusions and
+    the two carrier files, and its sha256 — §2.10's binding of the reviewed
+    bytes to the frozen ones."""
     listing = subprocess.run(
         ["git", "ls-files", "-z", "--", "."],
         cwd=study, capture_output=True, check=True)
     entries = []
+    excluded = tuple(excluded) + MANIFEST_CARRIERS
     for name in listing.stdout.decode("utf-8").split("\0"):
         if not name:
             continue

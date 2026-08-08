@@ -25,7 +25,7 @@
   "python": {
     "implementation": "CPython",
     "series": "3.12",
-    "note": "Implementation and series enforced; patch level recorded, not required."
+    "note": "Implementation and series enforced; the running interpreter's full version is reported by integrity at run time, deliberately not pinned here (round 3, finding 20)."
   },
   "arms": {
     "A": {
@@ -162,16 +162,23 @@
       "CENSUS.md",
       "ANALYSIS.md",
       "DEVIATIONS.md",
-      "SHORTFALL.json",
-      "BATCH.json",
+      "arms/BATCH.json",
+      "arms/SHORTFALL.json",
       "transcription/GOLDEN-CONTEXT.json",
+      "controls/recapture/",
+      "controls/isolation-negative/",
       "arms/A/authoring/",
       "arms/B/authoring/",
       "arms/C/authoring/",
       "arms/D/authoring/",
       "arms/E/authoring/"
     ],
-    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set; it names three artifacts beyond §2.10's parenthetical (SHORTFALL.json, BATCH.json, the golden capture) on the same by-construction ground, for the final round to confirm."
+    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set, at the paths the code actually writes (round 3, findings 1-2, dispositioned); the manifest's two carrier files (harness/PINS.json, PREREG-REVIEW.md) are excluded in integrity.tree_manifest() itself."
   },
-  "registryOfRecord": "The committed harness/PINS.json is the registry of record: the wrapper stamps the digest of the registry it ran under, the scorer computes the committed file's digest itself, and any slot whose stamp differs is registry-mismatch. The scorer takes no registry argument at all (§2.10 [D-23])."
+  "registryOfRecord": "The committed harness/PINS.json is the registry of record: the wrapper stamps the digest of the registry it ran under, the scorer computes the committed file's digest itself, and any slot whose stamp differs is registry-mismatch. The scorer takes no registry argument at all (§2.10 [D-23]).",
+  "thresholdDefinitionSentence": {
+    "bytes": 133,
+    "sha256": "sha256:c2ca98b115035fcad8fc3f14978b96fbcd0a60a44f6ad33d8d8777be0061445d",
+    "note": "The one sentence arm E's conventions paragraph appends to the shared A-D paragraph (§2.6, [D-3]); pinned so C8 checks byte equality, not shape (round 3, finding 7)."
+  }
 }

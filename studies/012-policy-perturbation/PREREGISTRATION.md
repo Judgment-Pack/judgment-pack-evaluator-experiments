@@ -47,7 +47,7 @@ and the answer was uncomfortable: 410 of 784 records (52.3%) sit on one of the
 family's three edges or within 0.01 of one; **three** of the six classes (0, 2
 and 5) rest on two distinct probes each, and **four** of six (0, 1, 2 and 3)
 contain a probe that appears in every one of the 49 runs; the whole band
-[23.75, 39) below the **unstated** 39 edge is empty, while the two thresholds
+(23.75, 39) below the **unstated** 39 edge is empty, while the two thresholds
 the policy text names outright are hugged to two or three decimal places from
 both sides. The census's own summary was that "boundary placement follows the
 numbers the policy names, not an independent search for edges".
@@ -1033,12 +1033,18 @@ and `REFUSAL.json` when the wrapper's exit status was not 0. Nothing in that
 set is a judgment.
 
 **Each slot is sealed by a terminal manifest, and the manifest is chained into
-the ledger.** When the wrapper finishes a slot it writes `SLOT-MANIFEST.json`:
+the ledger.** When the wrapper returns from a slot — on every exit path, refusals
+included — the **driver** writes `SLOT-MANIFEST.json`:
 every regular file in the slot tree by relative path, its byte length, its
 sha256, and the sha256 of that sorted list. The ledger record for the slot
 carries that manifest digest **and the previous ledger record's digest**, so
 `BATCH.json` is a hash chain over the batch in schedule order rather than a
-list of independent lines. Round 2's finding is the reason this exists: a slot
+list of independent lines. The sealer is the driver and not the wrapper
+by round 3's finding 5, dispositioned: the wrapper is not the last writer
+into a refused slot — `REFUSAL.json` and the schedule stamps are the
+driver's — so a wrapper-side seal would cover every slot except exactly
+the ones whose retained bytes explain a failure, and the pipeline-invalid
+rate is an endpoint (§4.4). Round 2's finding is the reason the seal exists: a slot
 tree with retained bytes and no seal can be edited afterwards, and **one
 edited slot moves a verdict** — changing a single arm-A miss turns 22/25 MID
 into 22/24 HIGH, and changing a single arm-E hit turns 3/25 MID into 2/24 LOW.
@@ -1097,8 +1103,17 @@ artifacts that ran" now means:
    artifact of this study — `PREREGISTRATION.md`, `README.md`,
    `PREREG-REVIEW.md` as it stood entering that round, `CLAIM.md`, all twenty
    arm files, every `harness/` source and test, `harness/PORTS.md`,
-   `harness/PINS.json`, `analysis/mirror2_<arm>.py` for all five arms, and
-   `MIRROR-AGREEMENT.md`. The manifest is the sorted list of
+   `analysis/mirror2_<arm>.py` for all five arms, and `MIRROR-AGREEMENT.md`.
+   **The manifest's two carrier files are the registered exception**
+   (round 3, finding 1, dispositioned): `harness/PINS.json` carries the
+   manifest digest itself and is edited at registered moments after the
+   freeze (the golden fill), and `PREREG-REVIEW.md` carries the
+   attestation — a manifest that covers its own carriers changes the
+   moment the digest is written down. Both are bound otherwise: the
+   registry by the per-run `pinsSha256` stamp every slot carries and the
+   scorer recomputes, and the review record by being the attestation.
+   `integrity.tree_manifest()` excludes exactly these two, in code, in
+   addition to the registry's exclusion list. The manifest is the sorted list of
    `(relative path, byte length, sha256)` over every tracked regular file in
    the study directory, and its own sha256 is the **tree manifest digest**.
 2. **That digest is recorded in `PREREG-REVIEW.md` and pinned in
@@ -1607,7 +1622,7 @@ Registered census endpoints, per arm, all descriptive, all published:
   records in Study 011.
 - **X3 — the near-edge tables**, per edge: the exact values strictly below
   within 1.0, the count exactly at, and the exact values strictly above within
-  1.0. This is the table that showed the empty [23.75, 39) band.
+  1.0. This is the table that showed the empty (23.75, 39) band.
 - **X4 — within-run and across-run redundancy**: distinct profiles per run, and
   the number of runs sharing a whole-run profile multiset.
 - **X5 — per-clause deciding counts** and the outcome distribution.
@@ -2353,7 +2368,7 @@ control bounds what a *patch* can mean, not what a predicate can.
    retained valid slots and must reproduce that study's published headline
    exactly: 49 runs × 16 accepted records = 784, 0 dropped, distinct probes per
    class **(2, 6, 2, 24, 26, 2)**, 410 of 784 records on or within 0.01 of a
-   named threshold, and an empty [23.75, 39) approach band. The census is a
+   named threshold, and an empty (23.75, 39) approach band. The census is a
    registered secondary in this study, so its port is replication-controlled
    against the numbers `DIVERSITY.md` published rather than reviewed by eye.
 
@@ -2588,6 +2603,10 @@ Registered, per arm, before any call:
    invisible, and the arm most likely to need a second reader is arm E — the
    one arm whose derivability is the study's central question;
 2. an independent author receives **that arm's `POLICY.md` bytes and nothing
+   of the study's substance beyond the published interface suffix** — the
+   record shape and the three outcome tokens, published verbatim in
+   `MIRROR-AGREEMENT.md`, carrying no threshold, no class and no study term
+   (round 3, finding 8, dispositioned) — and otherwise nothing
    else** — not another arm, not the registered mirror, not `FAMILY.json`, not
    a record, not this file — and writes `analysis/mirror2_<arm>.py`;
 3. **every clean-room mirror must agree with that arm's registered mirror
