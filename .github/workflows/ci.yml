@@ -51,6 +51,33 @@ jobs:
         working-directory: studies/011-authorship-coverage-rates
         run: python -m pytest harness/tests analysis -q
 
+  study-012-harness:
+    name: Study 012 · deterministic harness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          # The interpreter is a registry pin (PREREGISTRATION.md §2.10): the
+          # harness, the wrapper and the scorer all refuse another
+          # implementation or version series, so the series is pinned here and
+          # the patch level is whatever the runner resolves.
+          python-version: "3.12"
+      - name: Install pytest
+        # The study's harness is stdlib-only; pytest is a test-time tool.
+        run: python -m pip install --disable-pip-version-check pytest
+      - name: Verify the ported bytes and the arm artifacts (§6 C1, C8, C9, C10)
+        working-directory: studies/012-policy-perturbation
+        run: python harness/integrity.py
+      - name: Run the harness, control and fixture suite
+        # The batch itself is API-dependent and never runs here; this suite is
+        # deterministic and offline, and drives the real wrapper against a
+        # stand-in CLI and a stand-in HOME.
+        working-directory: studies/012-policy-perturbation
+        run: python -m pytest harness/tests -q
+
   evidence-sufficiency:
     name: Evidence sufficiency · frozen case set
     runs-on: ubuntu-latest

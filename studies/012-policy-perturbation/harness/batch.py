@@ -5,11 +5,14 @@ and the §6 C7 isolation negative control.
 
 PORTED from Study 011's `harness/batch.py`
 (sha256 `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7`, at
-commit `e52925eccbdedaec294e5b43039e5d7e04147102`). Study 011 pins none of its
-own harness files, so that commit and that digest are the whole source-side
-binding — §2.2's port table says so in its own authority column, §6 C1 puts
-this file in no tier, and `harness/PORTS.md` carries the diff. The registered
-changes are exactly these:
+commit `3b93d3e7917e917516bd55cf4c7f5285c91fbc13` — the commit `harness/PORTS.md`
+and `harness/PINS.json` bind the port to; round 3 finding 20 found this header
+naming `e52925ec…` instead, a later commit at which the source blob is
+identical, so the digest was right and the provenance named two commits).
+Study 011 pins none of its own harness files, so that commit and that digest
+are the whole source-side binding — §2.2's port table says so in its own
+authority column, §6 C1 puts this file in no tier, and `harness/PORTS.md`
+carries the diff. The registered changes are exactly these:
 
 1. **§2.8's registered call order and its global index.** The batch is no
    longer N runs of one cell; it is the 150-slot first-order carryover-balanced
@@ -42,6 +45,36 @@ changes are exactly these:
    the last completed round, and the UTC wall clock of the last completed slot.
 9. **The population root is derived** from this file's own location, so no
    invocation can point the batch at a tree the scorer will not read.
+10. **Preflight reads the registry members that exist** (`batch.n`,
+   `batch.slots`, `batch.order.firstRow`, `batch.order.blocks`) and requires
+   the order the REGISTRY carries to expand to the order this file derives.
+   Round 3 finding 3: the preflight read `batch.runs` and a top-level
+   `schedule.williams`/`schedule.blocks`, none of which `harness/PINS.json`
+   registers, so every real batch would have refused once the stage-null pins
+   were filled — while `score_rates.py` read the registered spelling and agreed
+   with nobody. Driver, scorer and registry now name one set of members, and
+   `harness/tests/test_batch.py` runs this check against the COMMITTED registry
+   so a member-name split cannot survive a green suite again.
+11. **§6 C7's assent member is `isolationNegative.assent`**, the name the
+   registry registers. Round 3 finding 4: the driver read
+   `isolationNegative.operatorAssent`, so filling the registered member could
+   never authorize the control and filling the one the code read would have
+   authorized it without the registry recording anything.
+12. **The shortfall's `completedRounds` counts COMPLETED rounds** and its
+   `lastSlotEndedAt` names the slot it was read from. Round 3 finding 15: the
+   count was the LAST SLOT's round, so a prefix ending inside round 1 declared
+   one round completed when none was; and a tail whose wrapper refused before
+   writing `CALL.json` produced a bare `null` timestamp with nothing saying
+   why. The count is now derived from the prefix (zero when no round is whole),
+   the clock falls back to the last slot that HAS a `CALL.json`, and the
+   declaration's own note states the fallback.
+13. **`load_ledger()` refuses a physically reordered ledger** instead of
+   normalizing it. Round 3 finding 16: it sorted the records by `globalIndex`
+   before anything looked at them, so a file whose records had been moved
+   passed the prefix check and was rewritten in the order the driver preferred
+   — while `score_rates.py` reads the same file in file order and would refuse
+   it. File order IS schedule order (§2.9's chain is over the file), and it is
+   verified before the records are used for anything.
 
 Everything else is 011's, including every refusal it registered.
 
@@ -274,24 +307,32 @@ def _write_json(path: str, body: dict) -> None:
         handle.write((json.dumps(body, indent=2, sort_keys=True) + "\n").encode("utf-8"))
 
 
-def williams() -> dict:
+def williams(first_row=WILLIAMS_FIRST_ROW) -> dict:
     """§2.8's ten registered sequences W1…W10, derived.
 
     W1…W5 are the cyclic rows of the Williams first row `A, B, E, C, D` — each
     row the one before it with every arm advanced one step through A→B→C→D→E→A
     — and W6…W10 are those five rows reversed. Over the ten, each arm holds
     each of the five positions exactly twice and each of the twenty ordered
-    pairs X→Y is adjacent exactly twice."""
+    pairs X→Y is adjacent exactly twice.
+
+    `first_row` is an argument only so that the REGISTRY's own first row can be
+    expanded by this same construction and compared with the expansion this
+    file derives (`check_registry()`); every other caller takes the registered
+    default and the two are the same table or nothing runs."""
+    if sorted(first_row) != sorted(ARMS):
+        raise BatchError("§2.8's Williams first row is a permutation of %r; %r is not"
+                         % (list(ARMS), list(first_row)))
     rows = {}
     for step in range(POSITIONS):
         rows["W%d" % (step + 1)] = tuple(
-            ARMS[(ARMS.index(arm) + step) % POSITIONS] for arm in WILLIAMS_FIRST_ROW)
+            ARMS[(ARMS.index(arm) + step) % POSITIONS] for arm in first_row)
         rows["W%d" % (step + 1 + POSITIONS)] = tuple(
             reversed(rows["W%d" % (step + 1)]))
     return rows
 
 
-def schedule() -> list:
+def schedule(first_row=WILLIAMS_FIRST_ROW, blocks=BLOCK_ORDERS) -> list:
     """The 150 slots of §2.8's registered call order, expanded deterministically
     from the table above: `[(globalIndex, round, position, arm)]`, global index
     1…150, round 1…30, within-round position 1…5.
@@ -305,19 +346,26 @@ def schedule() -> list:
 
     The harness test re-derives the same expansion from §2.8's table and
     asserts this function equals it, so the driver cannot drift from the
-    registration while the published balance properties still pass."""
-    rows = williams()
+    registration while the published balance properties still pass.
+
+    `first_row` and `blocks` default to the registered table and are arguments
+    for one caller only: `check_registry()` expands `harness/PINS.json`'s own
+    `batch.order` through this same function and requires the result to equal
+    the default expansion, so the registry and the driver are one order rather
+    than two spellings that happen to agree."""
+    rows = williams(first_row)
     # Each registered block is the ten sequences in its own order — a
     # permutation of W1…W10 and not a selection from them. Checked here because
     # the per-arm counts below cannot see it: every sequence holds every arm
     # once, so a block that ran W4 twice and W3 never still gives 30 slots per
     # arm and destroys the transition balance §2.8 registers.
-    for number, block in enumerate(BLOCK_ORDERS, 1):
-        if sorted(block) != sorted(rows):
+    for number, block in enumerate(blocks, 1):
+        if not all(isinstance(name, str) for name in block) \
+                or sorted(block) != sorted(rows):
             raise BatchError("block %d of §2.8's registered order is %r, which is not "
                              "a permutation of W1…W%d" % (number, block, SEQUENCES))
     slots, seen, index, round_index = [], {arm: 0 for arm in ARMS}, 0, 0
-    for block in BLOCK_ORDERS:
+    for block in blocks:
         for sequence in block:
             round_index += 1
             for position, arm in enumerate(rows[sequence], 1):
@@ -380,6 +428,87 @@ def arm_prompt(pins: dict, arm: str) -> tuple:
             "harness/PINS.json registers no arms.%s.promptSha256: every arm's "
             "PROMPT.txt is pinned before any call (§2.10)" % arm)
     return os.path.join(STUDY, "arms", arm, "PROMPT.txt"), pinned
+
+
+def check_registry(pins: dict) -> None:
+    """§2.10's `batch` member and the five arm prompts, against §2.8's
+    expansion — every registry check the preflight makes that does not depend
+    on a stage-null pin, in one function so the harness can run the REAL ones
+    against the COMMITTED registry.
+
+    Round 3 finding 3 is why this exists as a function rather than as a block
+    of `preflight()`. The driver required `batch.runs` and a top-level
+    `schedule.williams`/`schedule.blocks`; the registry carries `batch.n`,
+    `batch.slots` and `batch.order.firstRow`/`.blocks`; and `score_rates.py`
+    read the registry's spelling. Nothing failed, because the only preflight
+    the suite ran was against stand-in registries built for the tests, and the
+    committed one is not reachable from a batch that cannot start until its
+    stage-null members are filled. So the checks are here, and
+    `harness/tests/test_batch.py` calls this with the committed file.
+
+    `batch.order.construction` is prose — a sentence naming the construction
+    for a reader — and is deliberately not checked as data: the construction
+    that governs is `williams()`, and `test_schedule.py` holds that against
+    §2.8's published table.
+    """
+    batch_pin = pins.get("batch")
+    if not isinstance(batch_pin, dict):
+        raise BatchError(
+            "harness/PINS.json registers no batch member: §2.8's call order, its N "
+            "and its slot count are registry members, and a batch is not run "
+            "against an order the registry does not carry")
+    order = batch_pin.get("order")
+    if not isinstance(order, dict):
+        raise BatchError(
+            "harness/PINS.json registers no batch.order: §2.8's call order is a "
+            "registry member (its first row and its three block orders), and this "
+            "batch will not run against an order the registry does not carry")
+    first_row = order.get("firstRow")
+    blocks = order.get("blocks")
+    if not isinstance(first_row, list) or not isinstance(blocks, list) \
+            or not all(isinstance(block, list) for block in blocks):
+        raise BatchError(
+            "harness/PINS.json's batch.order is %r: §2.8 registers firstRow as a "
+            "list of arms and blocks as a list of lists of sequence names"
+            % ({"firstRow": first_row, "blocks": blocks},))
+    # The registry's OWN order, expanded by the same construction this file
+    # runs the batch from. Comparing the two members elementwise would say the
+    # registry holds the same letters; expanding them says it holds the same
+    # ORDER, which is what the ledger, the resume and §6 C5 are checked against.
+    registered = schedule(tuple(first_row), tuple(tuple(block) for block in blocks))
+    derived = schedule()
+    if registered != derived:
+        first = next(offset for offset, (left, right)
+                     in enumerate(zip(registered, derived)) if left != right)
+        raise BatchError(
+            "harness/PINS.json's batch.order expands to a different call order than "
+            "§2.8's: at global index %d the registry's order gives %r and this "
+            "file's gives %r. The registry and the driver are one order, not two"
+            % (first + 1, registered[first], derived[first]))
+    # The registry states N and the slot count (§2.10) and the code expands the
+    # order; they agree or nothing runs. A registry naming a different N —
+    # [D-1]'s registered alternative of 25, say — is a different study, and it
+    # must not be possible to run the 30-round order under it. `score_rates.py`
+    # reads these same two members before it reads a slot.
+    if batch_pin.get("n") != RUNS_PER_ARM:
+        raise BatchError(
+            "harness/PINS.json registers batch.n = %r per arm and §2.8's order is %d "
+            "rounds of %d arms — N = %d slots per arm, %d in total [D-1]. The batch "
+            "size and the call order are fixed together before the batch, so a "
+            "registry that names another N refuses before a call is spent"
+            % (batch_pin.get("n"), ROUNDS, POSITIONS, RUNS_PER_ARM, REGISTERED_SLOTS))
+    if batch_pin.get("slots") != REGISTERED_SLOTS:
+        raise BatchError(
+            "harness/PINS.json registers batch.slots = %r and §2.8's call order "
+            "expands to %d" % (batch_pin.get("slots"), REGISTERED_SLOTS))
+    # Every arm's prompt, not one prompt: all five arms exist from round 1 under
+    # the interleaved order, so all five are checked before slot 1.
+    for arm in ARMS:
+        path, pinned = arm_prompt(pins, arm)
+        actual = _digest(path)
+        if not _matches(actual, pinned):
+            raise BatchError("arm %s's %s is %s, not the pinned %s"
+                             % (arm, os.path.relpath(path, STUDY), actual, pinned))
 
 
 def plan(runs: int, start: int, slots_dir: str, stem: str = "run") -> list:
@@ -446,44 +575,13 @@ def preflight(entries: list, slots: list, scratch_parent: str, pins_path: str,
                 "slots: no invocation may plan a slot past the registered order"
                 % (entries[0]["globalIndex"], entries[-1]["globalIndex"],
                    REGISTERED_SLOTS))
-        # The registry states N (§2.10) and the code expands the order; they
-        # agree or nothing runs. A registry naming a different N — [D-1]'s
-        # registered alternative of 25, say — is a different study, and it must
-        # not be possible to run the 30-round order under it.
-        registered = pins.get("batch", {}).get("runs")
-        if registered != RUNS_PER_ARM:
-            raise BatchError(
-                "harness/PINS.json registers batch.runs = %r per arm and §2.8's order "
-                "is %d rounds of %d arms — N = %d slots per arm, %d in total [D-1]. "
-                "The batch size and the call order are fixed together before the "
-                "batch, so a registry that names another N refuses before a call is "
-                "spent" % (registered, ROUNDS, POSITIONS, RUNS_PER_ARM,
-                           REGISTERED_SLOTS))
-        # §2.10: the call order is a registry member as well as an artifact of
-        # this file, and the two must be the same order. `score_rates.py` makes
-        # the same comparison over the same two members before it reads a slot;
-        # made here as well, because the driver is what spends the calls and an
-        # order the registry does not agree with is one no scoring will accept.
-        pinned_schedule = pins.get("schedule")
-        if not isinstance(pinned_schedule, dict):
-            raise BatchError(
-                "harness/PINS.json registers no schedule: §2.8's call order is a "
-                "registry member, and a batch is not run against an order the "
-                "registry does not carry")
-        rows = williams()
-        if pinned_schedule.get("williams") != {name: list(order)
-                                               for name, order in rows.items()}:
-            raise BatchError("harness/PINS.json's Williams sequences are not §2.8's")
-        if pinned_schedule.get("blocks") != [list(block) for block in BLOCK_ORDERS]:
-            raise BatchError("harness/PINS.json's block orders are not §2.8's")
-        # Every arm's prompt, not one prompt: all five arms exist from round 1
-        # under the interleaved order, so all five are checked before slot 1.
-        for arm in ARMS:
-            path, pinned = arm_prompt(pins, arm)
-            actual = _digest(path)
-            if not _matches(actual, pinned):
-                raise BatchError("arm %s's %s is %s, not the pinned %s"
-                                 % (arm, os.path.relpath(path, STUDY), actual, pinned))
+        # §2.10: N, the slot count, the call order and every arm's prompt, read
+        # at the member names the registry actually carries and compared with
+        # this file's expansion. `score_rates.py` makes the same comparison over
+        # the same members before it reads a slot; made here as well, because
+        # the driver is what spends the calls and an order the registry does not
+        # agree with is one no scoring will accept.
+        check_registry(pins)
     else:
         pinned = pins.get("probePrompt", {}).get("sha256")
         if not pinned:
@@ -845,11 +943,21 @@ def ledger_record(entry: dict, slot: str, status: int, code: str,
 
 
 def load_ledger() -> list:
-    """The per-slot records BATCH.json already holds. A resumed batch MERGES
-    into these rather than replacing them: §2.9 registers the wrapper's exit
-    status as retained per slot, and a slot that exited 0 carries it nowhere
-    else, so overwriting the ledger would delete the only record of runs the
-    resume did not make."""
+    """The per-slot records BATCH.json already holds, IN FILE ORDER. A resumed
+    batch MERGES into these rather than replacing them: §2.9 registers the
+    wrapper's exit status as retained per slot, and a slot that exited 0 carries
+    it nowhere else, so overwriting the ledger would delete the only record of
+    runs the resume did not make.
+
+    File order is schedule order, and that is verified here before the records
+    are used for anything. Round 3 finding 16: this function sorted the records
+    by `globalIndex` first, so a ledger whose records had been physically
+    reordered was silently normalized — the prefix check then passed over the
+    sorted list, the resume continued, and `write_ledger()` rewrote the file in
+    the order the driver preferred. `score_rates.py` reads the same file in file
+    order and refuses it, so the two modules disagreed about the same bytes. A
+    reordered ledger is a ledger someone edited; §2.9's chain is over the file,
+    and the driver refuses rather than repairing it."""
     path = os.path.join(ARMS_ROOT, LEDGER_NAME)
     if not os.path.isfile(path):
         return []
@@ -862,7 +970,23 @@ def load_ledger() -> list:
             % (path, ledger.get("batchVersion")))
     if not isinstance(records, list):
         raise BatchError("%s's records member is not a list" % path)
-    return sorted(records, key=lambda row: row.get("globalIndex"))
+    previous = None
+    for offset, record in enumerate(records):
+        index = record.get("globalIndex") if isinstance(record, dict) else None
+        if not isinstance(index, int) or isinstance(index, bool):
+            raise BatchError(
+                "%s's record %d carries globalIndex %r: every ledger record names its "
+                "place in §2.8's registered order, and a record that does not cannot "
+                "be checked against it" % (path, offset + 1, index))
+        if previous is not None and index <= previous:
+            raise BatchError(
+                "%s records global index %d after %d: the ledger is append-only in "
+                "§2.8's registered order and its FILE order is that order. A file "
+                "whose records have been moved is refused, not re-sorted — the driver "
+                "would otherwise rewrite it in an order the scorer never saw. Record "
+                "the cause in DEVIATIONS.md" % (path, index, previous))
+        previous = index
+    return records
 
 
 def verify_chain(records: list) -> None:
@@ -1294,12 +1418,18 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
     verify_ported_bytes()
     pins = _load_json(pins_path)
     require_freeze(pins)
-    assent = pins.get("isolationNegative", {}).get("operatorAssent")
+    # §6 C7's assent is `isolationNegative.assent` — the member the registry
+    # registers and the only one that can authorize this call. The driver read
+    # `isolationNegative.operatorAssent` until round 3 finding 4, so granting
+    # assent where the registry records it left the control refusing, and
+    # granting it where the code looked would have run the control with the
+    # registry recording nothing.
+    assent = pins.get("isolationNegative", {}).get("assent")
     if assent != "granted":
         raise BatchError(
-            "harness/PINS.json records operatorAssent %r: C7 is the one registered "
-            "step that exposes the operator's real environment to the pinned CLI and "
-            "it runs only with recorded assent (§6 C7)" % (assent,))
+            "harness/PINS.json records isolationNegative.assent %r: C7 is the one "
+            "registered step that exposes the operator's real environment to the "
+            "pinned CLI and it runs only with recorded assent (§6 C7)" % (assent,))
     if not os.path.isdir(scratch_parent):
         raise BatchError("scratch parent %s is not a directory" % scratch_parent)
     golden = require_golden(pins, golden_override)
@@ -1358,7 +1488,11 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
             "wrapperCode": code,
             "goldenSha256": _digest(golden),
             "deletedByCode": digests,
-            "operatorAssent": assent,
+            # The registry member this call was authorized by, under the
+            # registry's own name for it (§6 C7, `isolationNegative.assent`):
+            # one member name in the registry, in the driver and in the
+            # retained verdict.
+            "assent": assent,
             "retention": "This file and a stripped CALL.json are always retained, and "
                          "context.json whenever the call produced a comparable "
                          "context (outcome 'no-context' is the case where it did "
@@ -1392,6 +1526,49 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
     return 0
 
 
+def completed_rounds(records: list) -> int:
+    """§2.8's "last completed round *R*": the last round every one of whose
+    five slots the ledger holds, and **zero** when no round is whole.
+
+    Round 3 finding 15: the declaration used the LAST SLOT's round, so a batch
+    that died three slots into round 1 declared one round completed — and the
+    headline §2.8 registers ("R of 30 rounds completed") would have reported a
+    round that never finished. The count is derived from the prefix here, which
+    `verify_prefix()` has already checked against the registered order, so
+    "completed" means every slot of that round is on disk and in the chain.
+    """
+    counted = {}
+    for record in records:
+        counted[record.get("round")] = counted.get(record.get("round"), 0) + 1
+    whole = 0
+    while counted.get(whole + 1) == POSITIONS:
+        whole += 1
+    return whole
+
+
+def last_slot_clock(records: list) -> tuple:
+    """(§2.8's UTC wall clock of the last completed slot, the record it was read
+    from) — falling back through the prefix to the last slot that HAS a
+    `CALL.json`.
+
+    Round 3 finding 15's other half: the wrapper writes `CALL.json` after the
+    call returns, so a tail whose wrapper refused at preflight has no clock at
+    all, and the declaration recorded a bare `null` with nothing saying why. The
+    driver reads no clock of its own (§2.8 registers the timestamp as the
+    wrapper's stamp, not the declaration's), so the honest fallback is the last
+    slot that carries one — named in the declaration beside the value, so a
+    reader can see the timestamp is that slot's and not the tail's.
+    """
+    for record in reversed(records):
+        call_path = os.path.join(STUDY, record.get("path") or "", "CALL.json")
+        if not os.path.isfile(call_path):
+            continue
+        ended = _load_json(call_path).get("endedAt")
+        if ended:
+            return ended, record
+    return None, None
+
+
 def declare_shortfall(reason: str, pins_path: str) -> int:
     """§2.8: a batch that cannot finish declares the shortfall BEFORE anything
     is scored. The scorer refuses an incomplete batch without this file, so the
@@ -1410,7 +1587,11 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
     The clock is READ, not taken: the driver holds no clock, and the timestamp
     is the one the wrapper stamped into that slot's CALL.json when it ran. §2.8
     says plainly what it is worth — it does not make a stop involuntary, it
-    timestamps the stop against the append-only ledger.
+    timestamps the stop against the append-only ledger. `completed_rounds()` and
+    `last_slot_clock()` above are the two edge cases round 3 finding 15 found:
+    a prefix that ends mid-round completed the round BEFORE it, and a tail whose
+    wrapper refused before writing a CALL.json has no clock of its own, so the
+    declaration names the slot the clock it publishes came from.
 
     Declaring one costs the study its whole confirmatory surface: under §2.8's
     stopping rule [D-21] an incomplete batch, at any round and for any reason,
@@ -1448,16 +1629,16 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
             "%d slots are present and %d were registered: a shortfall declares a SHORT "
             "batch, and this one is not short" % (present, REGISTERED_SLOTS))
     last = records[-1] if records else None
-    stopped_at = None
-    if last is not None:
-        call_path = os.path.join(STUDY, last["path"], "CALL.json")
-        if os.path.isfile(call_path):
-            stopped_at = _load_json(call_path).get("endedAt")
+    whole_rounds = completed_rounds(records)
+    stopped_at, clock_record = last_slot_clock(records)
     _write_json(out_path, {
         "registeredRounds": ROUNDS,
         "registeredRunsPerArm": RUNS_PER_ARM,
         "registeredSlots": REGISTERED_SLOTS,
-        "completedRounds": last["round"] if last else 0,
+        # §2.8's "last completed round R", counted over WHOLE rounds: a prefix
+        # that ends inside a round declares the round before it, and zero when
+        # none is whole (the headline reports "R of 30 rounds completed").
+        "completedRounds": whole_rounds,
         # §2.8's "exact completed prefix of the registered schedule" is the
         # global index of the last completed slot. `score_rates.py`'s
         # check_population() reads exactly this member to check C5 rule 5 —
@@ -1469,19 +1650,30 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
         "completedSlots": present,
         "lastSlot": last["path"] if last else None,
         "lastSlotEndedAt": stopped_at,
+        # Which slot that clock is the clock OF. It is the last slot of the
+        # prefix whenever that slot has a CALL.json, and an earlier one when the
+        # tail's wrapper refused before writing one; a reader can tell the two
+        # apart by comparing it with lastSlot instead of guessing.
+        "lastSlotEndedAtFrom": clock_record["path"] if clock_record else None,
         "reason": reason,
         "note": "Declared before scoring. The completed prefix is the ledger's, "
                 "verified against §2.8's registered call order position by position; "
                 "the scorer requires it to equal the ledger's prefix slot for slot "
                 "and the slots actually present to be exactly that prefix (§6 C5). "
-                "lastSlotEndedAt is read from that slot's own CALL.json — the driver "
-                "reads no clock. The headline reports 'R of 30 rounds completed', and "
-                "an incomplete batch returns no verdict of any kind: every level "
-                "verdict is UNRESOLVED-BY-DESIGN and no contrast is computed "
-                "(§2.8 [D-21]).",
+                "completedRounds counts WHOLE rounds — a prefix ending inside a round "
+                "declares the round before it, and 0 when none is whole. "
+                "lastSlotEndedAt is read from a slot's own CALL.json — the driver "
+                "reads no clock — and falls back through the prefix to the last slot "
+                "that HAS one, because a wrapper that refused at preflight wrote no "
+                "CALL.json and therefore stamped no clock; lastSlotEndedAtFrom names "
+                "the slot it was read from, and both are null when no slot of the "
+                "prefix carries a timestamp at all. The headline reports 'R of 30 "
+                "rounds completed', and an incomplete batch returns no verdict of any "
+                "kind: every level verdict is UNRESOLVED-BY-DESIGN and no contrast is "
+                "computed (§2.8 [D-21]).",
     })
     print("shortfall declared: %d of %d rounds, %d of %d slots completed"
-          % (last["round"] if last else 0, ROUNDS, present, REGISTERED_SLOTS))
+          % (whole_rounds, ROUNDS, present, REGISTERED_SLOTS))
     return 0
 
 

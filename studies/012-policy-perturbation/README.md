@@ -220,7 +220,7 @@ PY=/home/onword/.pyenv/versions/3.12.11/bin/python3 && "$PY" -V
 "$PY" -m pytest harness/tests -q
 
 # 3. Freeze the preregistration: put its sha256 into harness/PINS.json
-#    preregistration.sha256 and COMMIT. Nothing below will make a call or
+#    freeze.preregistrationSha256 and COMMIT. Nothing below will make a call or
 #    compute a rate while that member is null.
 sha256sum PREREGISTRATION.md
 

@@ -2,11 +2,16 @@
 """Test wiring: the harness directory and this directory on sys.path, and the
 study's own PINS.json read once.
 
-The tests run offline and call no CLI: no fixture here invokes the wrapper, no
-model is reached, and the only bytes read from outside the throwaway roots are
+The tests run offline and no model is reached. The fixtures below and every
+in-process test build their slots without a wrapper or a CLI; `test_batch.py` is
+the exception and says so in its own header — it drives the REAL wrapper against
+a stand-in CLI and a stand-in `$HOME`, both of which it builds itself, and
+neither reaches a network. The bytes read from outside the throwaway roots are
 this study's own committed artifacts — the five arms' `ARM.json`, `FAMILY.json`,
 `POLICY.md` and `PROMPT.txt`, `harness/PINS.json`, and `PREREGISTRATION.md`,
-which the parity tests parse.
+which the parity tests parse — plus, in `test_controls.py`, the two predecessor
+artifacts §6 C2 and C3 are controls against: Study 010's locked pack and
+retained completion, and Study 011's registry. Those are read, never written.
 
 Nothing here writes into the committed tree. Every slot, ledger, seal and
 golden capture a test builds lives under a throwaway temporary root
