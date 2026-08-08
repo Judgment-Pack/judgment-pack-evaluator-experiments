@@ -1096,3 +1096,98 @@ Unchanged since round 2:
 | **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
 | **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
 | **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+
+## Round 7 — the fourth post-disposition review
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-08; drafting as recorded in rounds 1-6
+- Reviewed commit: `f6b431a`
+- Tree manifest, the reviewer's computation:
+  `8f523370bdad6caa32ceb61e465e78002991a52e5b42705e538f42273ddebe01`
+- Runs: one review run, completed; no run discarded
+- Reviewer's verification first: integrity exit 0; 193 passed; tracked
+  status clean. **Nine of round 6's twelve dispositions verified genuinely
+  implemented** (2-5, 7-10, 12); 1, 6, 11 partial. Everything else passes:
+  the wrapper's three differences, the schedule, ordinary ledger and
+  shortfall, the §3.3 partition, §4's endpoints, §5's executable tables, all
+  twenty arm artifacts with independent probes, CLAIM's quotation, mirror
+  provenance and the five agreements.
+
+### Prompt (verbatim)
+
+```
+You are performing the FINAL pre-freeze cross-vendor adversarial review (round 7) of Study 012 at commit f6b431a on branch study-012-perturbation, repository root <worktree root>. The study directory is <worktree root>/studies/012-policy-perturbation. Rounds 3-6 (records and dispositions tables at the end of PREREG-REVIEW.md) drove twenty, fourteen, thirteen and twelve accepted findings; all are implemented. Your first task: verify each of round 6's twelve findings is genuinely implemented. Two dispositions evolved during implementation, so judge the implemented rules: finding 1's bytecode gate decides 'provably compiles from the source beside it' by STRUCTURAL code equality (bytecode, names, consts with sets compared as sets, nested code recursed) under the cached object's own co_filename, with the mirror import deferred until after the gate and stray .pyc outside __pycache__ refusing — byte-equality of marshal is hash-seed-dependent for set constants, which is why; finding 6's crash recovery completes exactly one orphaned ledger record on --resume iff its seal verifies, refusing everything wider. Then a fresh sweep. This round reviews the COMPLETE post-disposition candidate tree — the preregistration as it now stands, every harness source and test, the twenty arm files, harness/PORTS.md, harness/PINS.json, CLAIM.md, MIRROR-AGREEMENT.md, and the five analysis/mirror2_<arm>.py clean-room mirrors — because PREREGISTRATION.md §2.2 [D-20] registers that the last review must see the bytes that run.
+
+Review format: READ-ONLY with respect to the repository — modify no tracked file. Your working directory is a scratch area outside the repo; write anything you need there. You may run the harness test suite and harness/integrity.py using the pinned interpreter at ~/.pyenv/versions/3.12.11/bin/python3 (run pytest with -p no:cacheprovider and PYTHONDONTWRITEBYTECODE=1 to avoid writing caches into the repo).
+
+Tasks, in order:
+1. Read PREREGISTRATION.md in full. It is the registration; everything else answers to it.
+2. Verify the port against its registered scopes: §2.2's three tables (tiers, digests, enumerated changes) against harness/PORTS.md and the actual files; §2.7 against transcription/authoring_call.sh (exactly three permitted differences — assess the driver-side seal reading PORTS.md records against §2.9's wrapper sentence); §2.8 against batch.py's schedule, resume and shortfall; §2.9 against the seal and ledger code; §2.10 against harness/PINS.json member by member; §3.3's partition against score_rates.py; §4 and §5 against the scorer's endpoints, intervals and verdict tables; §6 C1-C10 against integrity.py and the test suite.
+3. Verify the twenty arm artifacts satisfy §2.6 and Appendix A: run integrity.py yourself and check what it checks; probe at least two of its claims independently (for example, re-derive an arm's digit census or the C permutation by your own means).
+4. Read CLAIM.md and check its two quoted passages against the cited sources in this repository (studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md section (d)); flag any divergence between quote and source.
+5. Read MIRROR-AGREEMENT.md and the retained attempts under analysis/mirror2-attempts/; check the pre-assignment commit precedes the attempts (git log will show it), spot-check one extracted module against its raw transcript, and assess whether the isolation description matches what the retained prompt.txt files show was actually sent.
+6. Run the full test suite under the pinned interpreter and report its result.
+7. Compute the tree manifest yourself, exactly as §2.10 AS AMENDED registers it: over every git-tracked regular file under studies/012-policy-perturbation, excluding the paths in harness/PINS.json freeze.excluded AND the two carriers (harness/PINS.json, PREREG-REVIEW.md), build the sorted list of lines "<path> <bytes> <sha256>" (paths relative to the study directory); then append the registry's normalized-projection entry — PINS.json parsed, freeze.treeManifestSha256, freeze.preregistrationSha256, golden.sha256 and isolationNegative.assent set to null, serialized with json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":")) plus a newline, hashed and listed as "harness/PINS.json#normalized <bytes> <sha256>" — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Verify integrity.tree_manifest() implements the same recipe, and state the digest in your final message as your attestation of the bytes you reviewed.
+8. Look for what the port got wrong that nothing above names: a registered sentence no code makes true, a check that can never fire, a digest bound to the wrong authority, a test that asserts less than it appears to.
+
+Final message: a numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — followed by: an overall verdict line; the line "Reviewed commit: f6b431a"; the line "Tree manifest (my computation): <hex digest>"; then the single line CODEX-012-R7-DONE.
+```
+
+### Complete unedited final message
+
+1. [harness/integrity.py:1118](harness/integrity.py:1118): The round-6 disposition says cached payloads must structurally equal the adjacent source’s compilation and no grid module may load before this gate. `_code_equal()` compares nested tuple contents using Python equality, so `(0,1,2,5)` and `(False,True,2,5)` incorrectly compare equal. Independently, `batch.py:195-200` imports `score_rates`, which imports `policy_mirror` at `score_rates.py:316-320`, before the gates at `batch.py:601` or `score_rates.py:2504`. A poisoned-cache probe executed before the later refusal. **Severity: blocking.**
+
+2. [harness/integrity.py:997](harness/integrity.py:997): PREREGISTRATION.md:1101-1127 says the reviewed artifacts are the artifacts that run and every edit is detected. `tree_manifest()` considers only `git ls-files`, while `verify_bytecode()` rejects no untracked Python source. An untracked `harness/integrity/__init__.py` takes precedence over the reviewed `integrity.py` when `batch.py:191-200` imports it, bypassing every integrity gate without changing the manifest. This was reproduced in `/tmp` under the pinned interpreter. **Severity: blocking.**
+
+3. [harness/score_rates.py:1985](harness/score_rates.py:1985): PREREGISTRATION.md:1039-1060 says a post-seal alteration cannot buy a denominator change; a seal discrepancy must invalidate confirmatory scoring for the entire batch. Both manifest implementations omit symlinks and other non-regular entries. Adding a symlink after sealing leaves `verify_seal()` successful, after which admission assigns `slot-symlink`, changes `I_X`/`V_X`, and potentially changes verdicts while `sealed=True`. **Severity: blocking.**
+
+4. [harness/batch.py:1237](harness/batch.py:1237): Round-6 finding 6 requires `--resume` to complete exactly one verified orphan and refuse every wider disagreement. `reconcile_ledger()` scans only canonical future schedule paths at lines 1287-1288. An extra `run-099` is ignored and resume proceeds to spend calls; an empty ledger path also resolves to the existing study directory. Tests cover `run-099` only through shortfall, not resume. Malformed orphan-manifest JSON also escapes as an uncaught decoding exception. **Severity: should-fix.**
+
+5. [harness/score_rates.py:2192](harness/score_rates.py:2192): PREREGISTRATION.md:1390-1397 defines `session-reused` when raw `session.jsonl` bytes, session ID, or call identity are shared. `slot_identity()` computes the raw digest and parses JSON in one `try`; malformed session or call JSON returns `None` and discards the usable digest. Two byte-identical malformed sessions therefore become `transcript-refused`, not `session-reused`. The reuse fixture uses only parseable sessions. **Severity: should-fix.**
+
+6. [harness/score_rates.py:2629](harness/score_rates.py:2629): C5 says malformed population records refuse whole scoring through the registered path. Invalid or duplicate-key `BATCH.json` raises an uncaught `ValueError`; `SHORTFALL.json` containing `[]` reaches `.get()` at line 2796 and raises `AttributeError`. `main()` catches only `ScoreError`. Round-6’s typed-null-record fix works, but these malformed forms still produce bare tracebacks. **Severity: should-fix.**
+
+7. [PREREGISTRATION.md:271](PREREGISTRATION.md:271): The enumerated port scope says `transcript_check.py` changes only the arm-specific prompt gate and “no other check logic.” The actual port adds `CompletionUndecodable` at `transcript_check.py:99` and changes UTF-8 exception behavior at lines 359-367. `PORTS.md:41` candidly records this second change, but the governing §2.2 scope does not. **Severity: should-fix.**
+
+8. [harness/tests/test_batch.py:1453](harness/tests/test_batch.py:1453): PREREGISTRATION.md:1578-1588 promises a test that walks the complete published `RESULTS.json` and requires exactly the registered `ci95` scope. The test walks `fixtures.Population.score()`, a reduced object that omits production members including `cell`, `schedule`, and `crossArm`, and even gives `census` a different shape. Current production code contains no extra interval, but the asserted whole-object guard can miss one. **Severity: should-fix.**
+
+9. [README.md:79](README.md:79): The governing rule at PREREGISTRATION.md:2112 and scorer code require `nP ≥ 3` plus arm E’s S5 labels at the ceiling. README’s CONFIRMED summary omits S5, while the stale comment at `score_rates.py:3375-3387` incorrectly says §5.3 still omits it. The executable rule is correct, but two reviewed summaries state the superseded rule. **Severity: should-fix.**
+
+10. [README.md:228](README.md:228): The ceremony says PINS.json is never edited after registering the golden capture, then runs C7 without instructing the operator to change the currently null assent. `batch.py:1709-1714` requires the exact value `"granted"`, so following the published ceremony literally refuses at step 5. **Severity: should-fix.**
+
+11. [harness/integrity.py:536](harness/integrity.py:536): Round-6 finding 11 accepted validation of `pinnedFrom.pins`, `.ports`, their paths, and `pinnedFrom.commit`. The implementation validates only the two digests; changing both paths and the commit in PINS.json still passes `verify_chain()`. The current recorded paths, commit, and source bytes are independently correct. **Severity: nit.**
+
+Overall verdict: BLOCKING — Study 012 is not freeze-ready. Round-6 findings 2–5, 7–10, and 12 are genuinely implemented; findings 1, 6, and 11 remain partial. The wrapper’s three differences, registered schedule, ordinary ledger/shortfall paths, §3.3 partition, §4 endpoints, and §5 executable tables otherwise match. All twenty arm artifacts passed integrity and independent census/permutation probes. The Study 011 quotation is exact; mirror provenance, prompt isolation, extraction, and all five 280-cell agreements pass. Pinned integrity exited 0; the full pinned suite passed 193 tests in 148.52 seconds; tracked status remained clean.
+
+Reviewed commit: f6b431a  
+Tree manifest (my computation): 8f523370bdad6caa32ceb61e465e78002991a52e5b42705e538f42273ddebe01  
+CODEX-012-R7-DONE
+
+### Dispositions
+
+All eleven findings **ACCEPTED**. The three blockers close real holes the
+prior fixes left: the structural comparator compares container CONTENTS with
+type identity (a bool is not an int inside a tuple either), and the grid
+module import is deferred in the scorer as it already is in integrity, so no
+gate-guarded module loads before its gate; the gate refuses any untracked
+Python source under the study tree, closing the package-shadowing bypass the
+reviewer reproduced; and the slot seal records every entry by type — a
+non-regular entry breaking the seal rather than buying a denominator change
+— with §2.9's sentence amended from "every regular file" to say so.
+Findings 4-10 as written, including §2.2's scope sentence catching up to the
+round-5 decode split PORTS.md already records, the ceremony's assent step,
+and the README/comment stragglers. Finding 11 completes the provenance
+validation to the paths and the commit.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged since round 2:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 7 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |

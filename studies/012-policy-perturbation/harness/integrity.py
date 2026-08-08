@@ -534,13 +534,24 @@ def verify_chain(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
             "records for it" % (actual_ports, own_ports_pin))
 
     recorded = pins.get("pinnedFrom", {})
-    for member, expected in (("pins", ELEVEN_PINS_SHA256),
-                             ("ports", ELEVEN_PORTS_SHA256)):
-        stated = bare((recorded.get(member) or {}).get("sha256"))
+    for member, expected, path_expected in (
+            ("pins", ELEVEN_PINS_SHA256, "harness/PINS.json"),
+            ("ports", ELEVEN_PORTS_SHA256, "harness/PORTS.md")):
+        entry = recorded.get(member) or {}
+        stated = bare(entry.get("sha256"))
         if stated != expected:
             raise IntegrityError(
                 "the registry's pinnedFrom.%s digest (%s) is not the "
                 "review-bound %s" % (member, stated, expected))
+        if entry.get("path") != path_expected:
+            raise IntegrityError(
+                "the registry's pinnedFrom.%s path (%r) is not %r"
+                % (member, entry.get("path"), path_expected))
+    if recorded.get("study") != "studies/011-authorship-coverage-rates" or \
+            recorded.get("commit") != "3b93d3e7917e917516bd55cf4c7f5285c91fbc13":
+        raise IntegrityError(
+            "the registry's pinnedFrom study or commit is not the recorded "
+            "port provenance (round 7, finding 11)")
 
     rows = parse_ports(ports_path)
     destinations = set(row[2] for row in rows)
@@ -1116,17 +1127,37 @@ def _code_equal(left, right) -> bool:
     if len(left_consts) != len(right_consts):
         return False
     for a, b in zip(left_consts, right_consts):
-        if isinstance(a, code_type) or isinstance(b, code_type):
-            if not (isinstance(a, code_type) and isinstance(b, code_type)
-                    and _code_equal(a, b)):
-                return False
-        elif isinstance(a, (set, frozenset)) or isinstance(b, (set, frozenset)):
-            if type(a) is not type(b) or a != b:
-                return False
-        else:
-            if type(a) is not type(b) or a != b:
-                return False
+        if not _const_equal(a, b, code_type):
+            return False
     return True
+
+
+def _const_equal(a, b, code_type) -> bool:
+    """Type-strict, recursive constant equality: Python's == says
+    (0, 1) == (False, True) and 0.0 == 0, which is exactly the laundering a
+    poisoned cache would use (round 7, finding 1). Types must be identical at
+    every depth; tuples recurse; sets compare as sets but with type-identical
+    members; nested code recurses through _code_equal."""
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, code_type):
+        return _code_equal(a, b)
+    if isinstance(a, tuple):
+        return len(a) == len(b) and all(
+            _const_equal(x, y, code_type) for x, y in zip(a, b))
+    if isinstance(a, frozenset):
+        if len(a) != len(b):
+            return False
+        remaining = list(b)
+        for x in a:
+            for index, y in enumerate(remaining):
+                if _const_equal(x, y, code_type):
+                    del remaining[index]
+                    break
+            else:
+                return False
+        return True
+    return a == b
 
 
 def verify_bytecode(study: str = STUDY) -> None:
@@ -1142,6 +1173,22 @@ def verify_bytecode(study: str = STUDY) -> None:
     import marshal
     magic = importlib.util.MAGIC_NUMBER
     bad = []
+    # An UNTRACKED Python source shadows a reviewed one at import time — an
+    # untracked harness/integrity/__init__.py takes precedence over the
+    # reviewed integrity.py and bypasses every gate without touching the
+    # manifest (round 7, finding 2). The reviewed bytes are the bytes that
+    # run only if no unreviewed source can be imported at all.
+    tracked = set(subprocess.run(
+        ["git", "ls-files", "-z", "--", "."],
+        cwd=study, capture_output=True, check=True
+    ).stdout.decode("utf-8").split("\0"))
+    for base, directories, files in os.walk(study):
+        for name in files:
+            if not name.endswith(".py"):
+                continue
+            rel = os.path.relpath(os.path.join(base, name), study)
+            if rel.replace(os.sep, "/") not in tracked:
+                bad.append((rel, "untracked Python source"))
     for base, directories, files in os.walk(study):
         in_cache = os.path.basename(base) == "__pycache__"
         for name in files:

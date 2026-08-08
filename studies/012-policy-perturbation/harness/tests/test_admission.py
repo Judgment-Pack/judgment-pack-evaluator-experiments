@@ -58,6 +58,7 @@ Nothing here touches the committed tree, reaches a network or runs a CLI.
 """
 from __future__ import annotations
 import ast
+import hashlib
 import json
 import os
 import shutil
@@ -316,6 +317,66 @@ def test_two_slots_sharing_session_bytes_lose_the_LATER_one(scored):
     assert later["code"] == "session-reused"
     assert "share the retained transcript bytes" in later["detail"]
     assert earlier["globalIndex"] < later["globalIndex"]
+
+
+def test_two_slots_sharing_MALFORMED_session_bytes_lose_the_LATER_one(pins, study):
+    """Round 7, finding 5: the copy that used to stop being a copy by being
+    unreadable.
+
+    §3.3 defines `session-reused` on "the slot's `session.jsonl` BYTES, session
+    id, or the identifying members of its `CALL.json`" — and the bytes need no
+    parser. `slot_identity()` computed the digest and parsed the transcript
+    inside ONE `try`, so a session that is not JSON discarded the digest with
+    the parse, and two slots holding byte-identical malformed transcripts were
+    each refused `transcript-refused`: two copies of one call, both counted as
+    two separate failures, with nothing recording that they were the same bytes.
+
+    The precedence is §3.3's own table order, which `admit()` evaluates in:
+    `session-reused` sits above `transcript-refused` in it, and `admit()`
+    returns the reuse before it runs the transcript binding. So the later slot
+    is named a COPY even though its transcript would also refuse — the more
+    exact statement about why it is out of the denominator.
+
+    The mutation runs before the seal, so both slots are sealed over the bytes
+    they hold and the seal is not what this fixture is about.
+    """
+    malformed = b'{"type": "session_meta", "payload": {"id": "s-1"\n'
+
+    def break_session(slot: str) -> None:
+        with open(os.path.join(slot, "session.jsonl"), "wb") as handle:
+            handle.write(malformed)
+
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        # Registered call order, first round: B, C, A, D, E.
+        specs = [{} for _ in range(5)]
+        specs[0] = {"mutate": break_session}                # arm B, index 1
+        specs[4] = {"mutate": break_session}                # arm E, index 5
+        population.build(specs)
+        results = population.score_runs()
+        assert results["seal"]["verified"] is True
+        earlier = results["byKey"][("B", "run-001")]
+        later = results["byKey"][("E", "run-001")]
+        assert earlier["globalIndex"] < later["globalIndex"]
+        assert earlier["code"] == "transcript-refused"
+        assert later["code"] == "session-reused"
+        assert "share the retained transcript bytes" in later["detail"]
+        assert score_rates.CODE_PARTITION[later["code"]] == "pipeline-invalid"
+        # The identity itself: the digest survives the parse failure, and only
+        # the parsed members are null.
+        identity = score_rates.slot_identity(
+            os.path.join(population.arms_root, "B", "authoring", "run-001"))
+        assert identity["sessionSha256"] == \
+            "sha256:" + hashlib.sha256(malformed).hexdigest()
+        assert identity["sessionId"] is None
+        assert identity["callIdentity"] is not None
+        # The three slots that were left alone are still valid, so the fixture
+        # is about these two and not about a scoring that refused everything.
+        for key in (("C", "run-001"), ("A", "run-001"), ("D", "run-001")):
+            assert results["byKey"][key]["valid"], key
+    finally:
+        shutil.rmtree(root, True)
 
 
 def test_every_arm_has_an_admissible_slot_at_its_own_prompt_digest(scored):
@@ -614,6 +675,126 @@ def test_a_broken_seal_makes_the_whole_scoring_unresolved_with_no_contrast(score
     assert broken["decisionRow"]["publishedAs"] == score_rates.UNRESOLVED
     assert "manifest" in broken["decisionRow"]["why"]
     assert "manifest" in broken["unresolvedReason"]
+
+
+def test_a_symlink_added_after_the_seal_breaks_the_seal(pins, study):
+    """Round 7, finding 3: the entry that used to pass the seal and then buy a
+    denominator change.
+
+    Both manifest implementations listed regular files only, so a symlink
+    created after `seal_slot()` left the recomputed list identical, the three
+    bindings holding and `verify_seal()` returning None — and §3.3's lstat-first
+    rule then scored that slot `slot-symlink`, moving it out of `V_X` and into
+    `I_X` with `sealed` still true. §2.9 registers that exact outcome as the one
+    a seal exists to prevent: "It is *not* handled by moving the slot into
+    `V_X`'s complement, which would let an alteration buy exactly the
+    denominator change that produces the verdict."
+
+    The seal now covers every ENTRY, so the addition breaks it and §2.9's real
+    consequence follows — the WHOLE batch is unresolved, every level verdict is
+    `UNRESOLVED-BY-DESIGN` and no contrast is reported, so the alteration buys
+    no verdict at all. What it does NOT do is take the slot's own §3.3 code
+    away: the tree really does hold a symlink, `slot-symlink` is a registered
+    per-slot outcome, and §3.3's partition table (which
+    `test_partition_parity.py` diffs against the scorer's) is not this fixture's
+    to withdraw. The seal is what makes that code cost nothing.
+
+    The control is the same population without the symlink: it seals, and the
+    difference between the two scorings is the whole confirmatory surface.
+    """
+    def add_symlink(slot: str) -> None:
+        os.symlink("stdout.raw", os.path.join(slot, "stdout.link"))
+
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        specs = [{} for _ in range(5)]
+        specs[2] = {"break_seal": add_symlink}              # arm A's run-001
+        population.build(specs)
+        results = population.score()
+        assert results["seal"]["verified"] is False
+        assert results["seal"]["chainFailure"] is None, (
+            "the chain must still verify: this fixture is about the MANIFEST")
+        failures = results["seal"]["manifestFailures"]
+        assert [(entry["arm"], entry["slot"]) for entry in failures] \
+            == [("A", "run-001")]
+        assert "not the bytes it was sealed over" in failures[0]["detail"]
+        # The consequence is the WHOLE batch's, asserted with `complete` held
+        # true so the unresolved verdict is the SEAL's and not the stopping
+        # rule's — the same way the fixture above separates the two.
+        verdicts = score_rates.compute_verdicts(
+            results["arms"], results["trials"], True,
+            results["seal"]["verified"])
+        assert verdicts["resolved"] is False
+        assert verdicts["contrasts"] is None
+        for arm in fixtures.ARMS:
+            for endpoint in score_rates.LEVEL_ENDPOINTS:
+                assert set(verdicts["levels"][arm][endpoint]) == \
+                    {score_rates.UNRESOLVED}
+        assert verdicts["decisionRow"]["row"] == 1
+        assert "manifest" in verdicts["unresolvedReason"]
+        # The slot keeps its own §3.3 code, and the code buys nothing: with the
+        # batch unresolved there is no verdict for a denominator to produce.
+        assert results["byKey"][("A", "run-001")]["code"] == "slot-symlink"
+    finally:
+        shutil.rmtree(root, True)
+    # The control: the same population, no symlink, seals.
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(5)])
+        assert population.score_runs()["seal"]["verified"] is True
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_the_seal_records_every_entry_and_the_driver_and_scorer_agree():
+    """The seal's own shape, on a tree holding one of everything (round 7,
+    finding 3).
+
+    §2.9 as amended records EVERY directory entry: regular files by path, byte
+    length and sha256 as before, and every non-regular or non-file entry by path
+    and a type marker. Both halves are asserted here — that a symlink, a
+    directory and a FIFO each produce a typed row, and that the driver's
+    `slot_files()` and the scorer's `manifest_files()` produce the SAME rows,
+    because the study's guarantee is that the scorer recomputes what the driver
+    sealed rather than agreeing with it by construction.
+
+    An empty directory is in the list too. It carries no bytes, so nothing else
+    in the seal would notice it, and "any post-seal addition breaks the seal"
+    has to mean any.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        slot = os.path.join(root, "run-001")
+        os.makedirs(os.path.join(slot, "nested"))
+        os.makedirs(os.path.join(slot, "empty"))
+        with open(os.path.join(slot, "stdout.raw"), "wb") as handle:
+            handle.write(b"two bytes\n")
+        with open(os.path.join(slot, "nested", "inner.raw"), "wb") as handle:
+            handle.write(b"")
+        os.symlink("stdout.raw", os.path.join(slot, "stdout.link"))
+        os.symlink("nowhere", os.path.join(slot, "dangling.link"))
+        os.mkfifo(os.path.join(slot, "pipe"))
+        rows = batch.slot_files(slot)
+        assert rows == score_rates.manifest_files(slot)
+        assert batch.files_digest(rows) == score_rates.manifest_digest(rows)
+        by_path = {row[0]: row[1:] for row in rows}
+        assert by_path == {
+            "stdout.raw": [10, hashlib.sha256(b"two bytes\n").hexdigest()],
+            "nested": [-1, "type:directory"],
+            "nested/inner.raw": [0, hashlib.sha256(b"").hexdigest()],
+            "empty": [-1, "type:directory"],
+            "stdout.link": [-1, "type:symlink"],
+            "dangling.link": [-1, "type:symlink"],
+            "pipe": [-1, "type:fifo"],
+        }
+        # The FIFO was sealed and never opened: an `open()` on one blocks
+        # forever, and a seal that hung would be a worse failure than one that
+        # missed the entry.
+        assert batch.NON_FILE_LENGTH == score_rates.NON_FILE_LENGTH == -1
+    finally:
+        shutil.rmtree(root, True)
 
 
 # --- C4 fixture 8: every row of §5.3's decision table, at known integers -----
@@ -1544,6 +1725,86 @@ def test_a_malformed_ledger_record_refuses_the_whole_scoring(pins, study):
             # `main()` catches `ScoreError` and nothing else, so the TYPE of the
             # exception is what separates a refusal from a traceback.
             assert type(caught.value) is score_rates.ScoreError, needle
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_a_ledger_that_is_not_readable_json_refuses_the_whole_scoring(pins, study):
+    """Round 7, finding 6: the READ, not just the records.
+
+    Round 6 type-checked every record and left the file itself unguarded, so a
+    `BATCH.json` that is not JSON — or that shadows a member with a duplicate
+    key, which parses in a permissive reader and not in this one — raised the
+    loader's bare `ValueError` out of a `main()` that catches `ScoreError` and
+    nothing else. C5 registers a malformed ledger as a refusal of the whole
+    scoring through the registered path, and a traceback is not that path.
+
+    The honest ledger the same population wrote is the control, so a check that
+    refused everything could not pass this.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(5)])
+        path = os.path.join(population.arms_root, "BATCH.json")
+        with open(path) as handle:
+            honest = handle.read()
+        assert score_rates.load_ledger(population.arms_root)
+        for body, needle in ((honest[:len(honest) // 2], "JSON"),
+                             ("", "JSON"),
+                             ('{"records": [], "records": []}',
+                              "duplicate object keys")):
+            with open(path, "w") as handle:
+                handle.write(body)
+            with pytest.raises(score_rates.ScoreError) as caught:
+                score_rates.load_ledger(population.arms_root)
+            assert needle in str(caught.value), (needle, str(caught.value))
+            assert type(caught.value) is score_rates.ScoreError, needle
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_a_shortfall_declaration_that_is_not_an_object_refuses(pins, study):
+    """The other half of round 7's finding 6, on §2.8's declaration.
+
+    `SHORTFALL.json` was read with no guard at all: a file that is not JSON
+    raised the loader's `ValueError`, and one holding `[]` was not `None`, so
+    it passed every test in `terminality()` and reached `check_population()`'s
+    `shortfall.get(...)` as an `AttributeError`. Both are malformed population
+    records, both are C5 rule 5's, and both now refuse where the registration
+    says the scoring refuses.
+
+    A short batch with an honest declaration is the control: it is exactly the
+    population every other fixture in this file scores.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(5)])
+        slots = {arm: score_rates.collect_slots(
+            score_rates.slots_root(population.arms_root, arm))[0]
+            for arm in fixtures.ARMS}
+        total = len(population.schedule)
+        honest = score_rates.terminality(population.arms_root, slots, total)
+        assert isinstance(honest, dict)
+        path = os.path.join(population.arms_root, "SHORTFALL.json")
+        for body, needle in (("[]", "declaration object"),
+                             ('"a short batch"', "declaration object"),
+                             ("{not json", "JSON"),
+                             ('{"completedSlots": 5, "completedSlots": 5}',
+                              "duplicate object keys")):
+            with open(path, "w") as handle:
+                handle.write(body)
+            with pytest.raises(score_rates.ScoreError) as caught:
+                score_rates.terminality(population.arms_root, slots, total)
+            assert needle in str(caught.value), (needle, str(caught.value))
+            assert type(caught.value) is score_rates.ScoreError, needle
+        # …and the whole scoring refuses through the same path, which is where
+        # the `AttributeError` used to come out.
+        with open(path, "w") as handle:
+            handle.write("[]")
+        with pytest.raises(score_rates.ScoreError):
+            population.score_runs()
     finally:
         shutil.rmtree(root, True)
 

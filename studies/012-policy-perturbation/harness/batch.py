@@ -184,6 +184,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -217,6 +218,24 @@ RESULTS = os.path.join(STUDY, "RESULTS.json")
 LEDGER_NAME = "BATCH.json"
 SHORTFALL_NAME = "SHORTFALL.json"
 MANIFEST_NAME = "SLOT-MANIFEST.json"
+
+# §2.9 as amended (round 7, finding 3): the seal records EVERY entry in the
+# slot tree. A regular file is recorded as `[path, byte length, sha256]`; every
+# other entry — a symlink, a directory, a FIFO, a socket, a device — is
+# recorded as `[path, NON_FILE_LENGTH, "type:<marker>"]`, by path and type
+# alone, because it is not a byte range to hash. The two row shapes cannot
+# collide: no file has a negative length and no sha256 hex string begins with
+# `type:`. `score_rates.py` writes the same two shapes and the same markers.
+NON_FILE_LENGTH = -1
+TYPE_MARKERS = (
+    (stat.S_ISLNK, "symlink"),
+    (stat.S_ISDIR, "directory"),
+    (stat.S_ISFIFO, "fifo"),
+    (stat.S_ISSOCK, "socket"),
+    (stat.S_ISCHR, "char-device"),
+    (stat.S_ISBLK, "block-device"),
+    (stat.S_ISDOOR if hasattr(stat, "S_ISDOOR") else (lambda mode: False), "door"),
+)
 
 WRAPPER_CODES = {0: None, 1: "preflight-refused", 10: "call-nonzero-exit",
                  11: "session-count"}
@@ -888,32 +907,61 @@ def refuse_slot(slot: str, code: str, status: int, stderr: str) -> None:
     })
 
 
+def _entry_type(mode: int) -> str:
+    """The type marker a non-regular entry is sealed by. Every marker is a
+    fixed string, so the seal a driver writes and the list a scorer recomputes
+    name a FIFO the same way on both sides (round 7, finding 3)."""
+    for predicate, marker in TYPE_MARKERS:
+        if predicate(mode):
+            return marker
+    return "other"
+
+
 def slot_files(slot: str) -> list:
-    """§2.9's sorted list: `[relative path, byte length, bare sha256 hex]` for
-    every REGULAR file in the slot tree, in path order — the shape
-    `score_rates.py` recomputes and compares entry for entry.
+    """§2.9's sorted list, over EVERY entry in the slot tree, in path order —
+    the shape `score_rates.py` recomputes and compares entry for entry.
+
+    A regular file is `[relative path, byte length, bare sha256 hex]`. Every
+    other entry — a symlink, a directory, a FIFO, a socket, a device — is
+    `[relative path, NON_FILE_LENGTH, "type:<marker>"]`: named and typed, since
+    it is not a byte range to hash.
+
+    **Round 7, finding 3: every entry, not every regular file.** This listed
+    regular files only, so an entry ADDED after the seal — a symlink, most
+    of all — left the manifest recomputing exactly as written and
+    `verify_seal()` succeeding. §3.3's lstat-first rule then scored that slot
+    `slot-symlink`, which moves it out of `V_X` and into `I_X`: a post-seal
+    alteration buying precisely the denominator change §2.9 registers that it
+    must never buy. Recording every entry makes any post-seal addition a seal
+    discrepancy instead, which §2.9 makes the WHOLE batch's — every level
+    verdict `UNRESOLVED-BY-DESIGN`, no contrast — rather than one slot's.
+    §2.9's sentence was amended to say "every entry" for the same reason.
 
     `SLOT-MANIFEST.json` is excluded from its own list — a file cannot carry
     its own digest — and is sealed instead by the ledger, which records the
-    digest of the manifest file itself. Entries that are not regular files are
-    not manifested either: a symlink or a FIFO in a slot tree is not a byte
-    range to hash, and §3.3's lstat-first slot rule is what names it
-    (`slot-symlink`, `slot-irregular`) before anything in the tree is opened.
-    `os.walk` does not descend into symlinked directories, so a link cannot
-    smuggle a subtree into the seal either."""
+    digest of the manifest file itself. `os.walk` does not descend into
+    symlinked directories, so a link cannot smuggle a subtree into the seal:
+    the link itself is one typed row, and the tree it points at is not the
+    slot's. Every type is decided by `lstat`, and only regular files are
+    opened, so a FIFO in a slot tree is sealed rather than read (an `open()`
+    on one blocks forever)."""
     rows = []
     for base, directories, names in os.walk(slot):
         directories.sort()
-        for name in sorted(names):
+        for name in sorted(directories + names):
             path = os.path.join(base, name)
             relative = os.path.relpath(path, slot)
             if relative == MANIFEST_NAME:
                 continue
-            if os.path.islink(path) or not os.path.isfile(path):
-                continue
-            with open(path, "rb") as handle:
-                body = handle.read()
-            rows.append([relative, len(body), hashlib.sha256(body).hexdigest()])
+            mode = os.lstat(path).st_mode
+            if stat.S_ISREG(mode):
+                with open(path, "rb") as handle:
+                    body = handle.read()
+                rows.append([relative, len(body),
+                             hashlib.sha256(body).hexdigest()])
+            else:
+                rows.append([relative, NON_FILE_LENGTH,
+                             "type:%s" % _entry_type(mode)])
     return sorted(rows)
 
 
@@ -926,7 +974,13 @@ def files_digest(files: list) -> str:
     tree-manifest encoding line for line (§2.10), which `score_rates.py`'s
     `manifest_digest()` recomputes. One manifest convention for the study, and
     the harness test that seals a fixture and re-verifies it is what holds the
-    driver and the scorer together."""
+    driver and the scorer together.
+
+    A non-regular entry's row encodes in the same three fields (round 7,
+    finding 3): `<path> -1 type:<marker>`. §2.10's whole-tree manifest is over
+    git-tracked regular files and never produces one, so the encoding is
+    unchanged there; a slot tree can hold anything, and the seal has to be able
+    to say so."""
     listing = "\n".join("%s %d %s" % tuple(row) for row in sorted(files)) + "\n"
     return "sha256:" + hashlib.sha256(listing.encode("utf-8")).hexdigest()
 
@@ -974,9 +1028,14 @@ def seal_slot(slot: str, entry: dict) -> str:
         "globalIndex": entry["globalIndex"],
         "files": files,
         "filesSha256": files_digest(files),
-        "note": "The terminal seal of this slot (§2.9): every regular file in the "
-                "tree by relative path, byte length and sha256, sorted by path, and "
-                "the sha256 of that sorted list. This file is not a member of its own "
+        "note": "The terminal seal of this slot (§2.9): EVERY entry in the tree by "
+                "relative path — regular files by byte length and sha256, everything "
+                "else (symlinks, directories, FIFOs, sockets, devices) by a -1 length "
+                "and a type: marker — sorted by path, and the sha256 of that sorted "
+                "list. Every entry, so that an entry ADDED after the seal breaks it "
+                "rather than passing it and then buying that slot a pipeline-invalid "
+                "code and the denominator change it carries. "
+                "This file is not a member of its own "
                 "list — a file cannot carry its own digest — and is sealed instead by "
                 "the ledger, whose record for this slot carries the digest of THIS "
                 "FILE and the previous record's digest, so BATCH.json is a hash chain "
@@ -1156,9 +1215,9 @@ def write_ledger(records: list, pins: dict, cli_override: str) -> None:
 
 def verify_seal_of(slot: str, entry: dict) -> str:
     """The digest of a slot's `SLOT-MANIFEST.json` when that manifest is this
-    slot's — every regular file in the tree at the length and digest it records,
-    the sorted-list digest over them, and the slot, arm and global index it
-    names — or BatchError saying which of those failed.
+    slot's — every entry in the tree at the length, digest or type marker it
+    records, the sorted-list digest over them, and the slot, arm and global
+    index it names — or BatchError saying which of those failed.
 
     This is `seal_slot()` read backwards, over a slot the driver did not just
     make. It exists for the one case that needs it (`reconcile_ledger()` below)
@@ -1166,6 +1225,12 @@ def verify_seal_of(slot: str, entry: dict) -> str:
     exactly the evidence that a slot was interrupted mid-write or edited, and
     neither may be admitted to the ledger on the strength of the file that
     claims to seal it.
+
+    Round 7, finding 4: a manifest that is not readable JSON, or whose keys are
+    duplicated, is that same evidence and refuses through this registered path
+    rather than escaping `reconcile_ledger()` as a bare `ValueError` — the
+    operator gets a refusal naming the slot where the registration promises
+    one, and the batch is left exactly as it was found.
     """
     path = os.path.join(slot, MANIFEST_NAME)
     if os.path.islink(path) or not os.path.isfile(path):
@@ -1176,7 +1241,14 @@ def verify_seal_of(slot: str, entry: dict) -> str:
             "ledger record can be completed for it. Remove it by hand and record "
             "the cause in DEVIATIONS.md"
             % (os.path.relpath(slot, STUDY), MANIFEST_NAME))
-    manifest = _load_json(path)
+    try:
+        manifest = _load_json(path)
+    except (ValueError, OSError) as error:
+        raise BatchError(
+            "%s cannot be read as duplicate-free JSON (%s): a seal that cannot be "
+            "read is not a seal that verifies, and no ledger record is completed "
+            "from one. Remove the slot by hand and record the cause in "
+            "DEVIATIONS.md" % (os.path.relpath(path, STUDY), error))
     if not isinstance(manifest, dict):
         raise BatchError("%s is not a JSON object" % os.path.relpath(path, STUDY))
     named = (manifest.get("slot"), manifest.get("arm"), manifest.get("globalIndex"))
@@ -1234,6 +1306,27 @@ def slot_outcome(slot: str) -> tuple:
         "cause in DEVIATIONS.md" % relative)
 
 
+def slots_on_disk() -> list:
+    """Every slot present under every arm's `authoring/`, as sorted
+    study-relative paths, counted by the SCORER's own rule (round 7,
+    finding 4).
+
+    `score_rates.collect_slots()` names an entry `run-NNN` a slot whatever it
+    holds — a directory, a symlink, a FIFO, a regular file — because the NAME is
+    what claims the index. The driver counts the population the same way the
+    scoring will, so a reconciliation cannot pass over a slot the scorer will
+    then refuse to score.
+    """
+    present = []
+    for arm in ARMS:
+        root = os.path.join(ARMS_ROOT, arm, "authoring")
+        if not os.path.isdir(root):
+            continue
+        slots, _unexpected = score_rates.collect_slots(root)
+        present.extend(os.path.relpath(path, STUDY) for path in slots)
+    return sorted(present)
+
+
 def reconcile_ledger(records: list, entries: list) -> dict:
     """The ONE ledger record a crash between the seal and the ledger write can
     leave unwritten, completed from that slot's own seal — or None when the
@@ -1274,20 +1367,40 @@ def reconcile_ledger(records: list, entries: list) -> dict:
       * every recorded slot is still on disk — a ledger record whose slot is
         gone is the disagreement in the other direction, and the scorer refuses
         the whole scoring for it (C5 rule 2).
+
+    **Round 7, finding 4: the reconciliation is over every slot PRESENT, not
+    over the canonical paths §2.8 would name next.** This used to look only at
+    the future schedule's own paths, so a slot at an index the registered order
+    never assigns — `run-099` — was invisible to it: `--resume` planned the
+    remaining order and spent calls over a population the scoring would then
+    refuse under C5 rule 4, and the operator learned it after the calls. Every
+    slot on disk is now either recorded in the ledger at the path the record
+    names, or the single orphan at the next registered index, or the batch
+    refuses before any call is made.
     """
-    missing = [record for record in records
-               if not os.path.lexists(os.path.join(STUDY, record.get("path") or ""))]
+    for offset, record in enumerate(records):
+        path = record.get("path")
+        if not isinstance(path, str) or not path:
+            # An absent or empty `path` used to join to the study root itself,
+            # which exists, so a record naming no slot passed the check below
+            # as a slot that is present (round 7, finding 4).
+            raise BatchError(
+                "ledger record %d names no slot path (%r): §6 C5 clause 2 puts the "
+                "ledger and the slot set in bijection at the path the record names, "
+                "and a record that names none cannot be reconciled with anything. "
+                "Record the cause in DEVIATIONS.md" % (offset + 1, path))
+    recorded = [os.path.normpath(record["path"]) for record in records]
+    missing = [path for path in recorded
+               if not os.path.lexists(os.path.join(STUDY, path))]
     if missing:
         raise BatchError(
             "the ledger records %d slot(s) that are not on disk (%s): a ledger "
             "record with no slot is not a crash this driver can have caused, and "
             "the scorer refuses the whole scoring over it (§6 C5 rule 2). Record "
             "the cause in DEVIATIONS.md"
-            % (len(missing), ", ".join(str(record.get("path")) for record in missing)))
+            % (len(missing), ", ".join(missing)))
     orphans = [entry for entry in entries[len(records):]
                if os.path.lexists(slot_path(entry))]
-    if not orphans:
-        return None
     if len(orphans) > 1:
         raise BatchError(
             "%d slots past the ledger's last record exist on disk (global indices "
@@ -1295,6 +1408,20 @@ def reconcile_ledger(records: list, entries: list) -> dict:
             "can leave at most ONE, so this is not an interrupted append: no slot "
             "is admitted to the ledger from it, and the cause goes in DEVIATIONS.md"
             % (len(orphans), ", ".join(str(entry["globalIndex"]) for entry in orphans)))
+    permitted = set(recorded)
+    if orphans:
+        permitted.add(os.path.relpath(slot_path(orphans[0]), STUDY))
+    unaccounted = [path for path in slots_on_disk() if path not in permitted]
+    if unaccounted:
+        raise BatchError(
+            "%d slot(s) are on disk that the ledger does not record and §2.8's "
+            "registered order does not put next (%s): the seal-then-record window "
+            "leaves exactly ONE slot, at the next registered index, so this is not "
+            "that window. No call is made and no record is completed from it — the "
+            "slots go, or the cause goes in DEVIATIONS.md"
+            % (len(unaccounted), ", ".join(unaccounted)))
+    if not orphans:
+        return None
     entry = orphans[0]
     if entry["globalIndex"] != entries[len(records)]["globalIndex"]:
         raise BatchError(
@@ -1898,15 +2025,12 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
     entries = schedule_entries()
     records = load_ledger()
     verify_prefix(records, entries)
-    # The slots actually on disk, counted per arm by the SCORER's own rule, so
-    # the driver's count is not a second definition of the population.
-    present = 0
-    for arm in ARMS:
-        root = os.path.join(ARMS_ROOT, arm, "authoring")
-        if not os.path.isdir(root):
-            continue
-        slots, _ = score_rates.collect_slots(root)
-        present += len(slots)
+    # The slots actually on disk, counted by the SCORER's own rule, so the
+    # driver's count is not a second definition of the population — and by the
+    # same function the reconciliation below enumerates them with (round 7,
+    # finding 4), so the declaration and the reconciliation cannot be looking at
+    # two different populations.
+    present = len(slots_on_disk())
     if present >= REGISTERED_SLOTS:
         raise BatchError(
             "%d slots are present and %d were registered: a shortfall declares a SHORT "

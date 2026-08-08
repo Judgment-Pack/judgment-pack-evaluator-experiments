@@ -78,8 +78,9 @@ their falsification conditions written down (`PREREGISTRATION.md` §5), **as one
 ordered, exhaustive decision table** whose first matching row is the outcome and
 whose last row always matches. Over the four narrow numeric classes: **placement
 collapse** — arm E's *raw* records leaving the boundary, not merely its
-correctly-labelled ones — on ≥ 3 of 4, with the B/C control gate holding and
-class 4 not collapsing, is CONFIRMED; arm E reading HIGH on ≥ 3 of 4 is
+correctly-labelled ones — on ≥ 3 of 4, with arm E's S5 labels at the
+ceiling (§4.6), the B/C control gate holding and class 4 not collapsing, is
+CONFIRMED; arm E reading HIGH on ≥ 3 of 4 is
 R1-UNSUPPORTED; coverage collapsing while the raw records stay on the boundary
 is LABEL-COLLAPSE-ONLY; and every other pattern — including all-MID, which
 N = 30 makes the likely shape of any *partial* effect — is INDETERMINATE with R1
@@ -229,8 +230,12 @@ sha256sum PREREGISTRATION.md
 #    COMMIT both. From here on PINS.json is not edited: the batch stamps its
 #    digest into every slot, and a later edit refuses the scoring.
 
-# 5. The isolation negative control (§6 C7), ONCE, operator assent recorded
-#    in harness/PINS.json. One probe call with the real HOME, expected to
+# 5. The isolation negative control (§6 C7), ONCE. FIRST record the
+#    operator's assent: edit harness/PINS.json isolationNegative.assent from
+#    null to the exact string "granted" and COMMIT — this is one of the four
+#    registered post-freeze members, outside the manifest's normalized
+#    projection, so the freeze binding is untouched (§2.10); the command
+#    refuses while it is null. One probe call with the real HOME, expected to
 #    FAIL the golden match. Exits non-zero if it reached neither comparison.
 "$PY" harness/batch.py capture-isolation-negative --scratch-parent DIR
 

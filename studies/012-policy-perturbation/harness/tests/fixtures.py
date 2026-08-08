@@ -796,13 +796,25 @@ class Population:
                 "trials": n, "complete": complete,
                 "seal": {"verified": sealed, "manifestFailures": seal_failures,
                          "chainFailure": chain_failure},
+                # The population bookkeeping `score()`'s own document is
+                # assembled from (round 7, finding 8): `publish()` below builds
+                # the WHOLE published surface, and every one of these is a
+                # member of it that a fixture would otherwise have to invent.
+                "ledger": ledger, "prefix": prefix, "counts": counts,
+                "shortfall": shortfall,
                 "byKey": {(row["arm"], row["slot"]): row for row in rows}}
 
     def score(self) -> dict:
         """`score_runs()` plus §4's endpoints and §5's verdicts, by the same
         three calls `score_rates.score()` makes: one `score_arm()` per arm, the
         census lifted out of each arm block, and `compute_verdicts()` over the
-        integers those blocks just wrote."""
+        integers those blocks just wrote.
+
+        The census is keyed by arm here and is a LIST in `RESULTS.json`; the
+        two shapes are one computation either way, and `publish()` below is
+        where the published one is built. Fixtures that want the published
+        document ask for it there rather than reading this object as if it
+        were one (round 7, finding 8)."""
         results = self.score_runs()
         n = results["trials"]
         arm_blocks = {arm: score_rates.score_arm(
@@ -814,10 +826,67 @@ class Population:
         results.update({
             "arms": arm_blocks,
             "census": {block["arm"]: block for block in census_blocks},
+            "censusBlocks": census_blocks,
             "verdicts": score_rates.compute_verdicts(arm_blocks, n,
                                                      results["complete"],
                                                      results["seal"]["verified"])})
         return results
+
+    def preconditions(self) -> dict:
+        """The members `verify_preconditions()` returns, as far as a fixture
+        population can honestly have them (round 7, finding 8).
+
+        A fixture cannot run the real preconditions and must not pretend to:
+        they bind the study's own committed artifacts, and three of §2.10's
+        pins are null until the freeze and the golden capture arrive. So the
+        two digests this population really does have — the registered mirror
+        module and its own golden capture — are computed, and the three that
+        belong to a freeze this tree has not had are `None`. They reach the
+        `cell` block and nothing else; no rate, no interval and no verdict
+        reads one, and `publish()` marks the document unpublishable in the way
+        the scorer's own writer checks.
+        """
+        return {"portedFiles": {}, "study010LockSha256": None,
+                "mirrorSha256": score_rates.file_digest(
+                    score_rates.REGISTERED_MIRROR),
+                "goldenSha256": score_rates.file_digest(self.golden),
+                "preregistrationSha256": None,
+                "registeredN": self.pins["batch"]["n"],
+                "schedule": self.schedule,
+                "arms": self.definitions()}
+
+    def publish(self) -> dict:
+        """The WHOLE `RESULTS.json` document this population would publish,
+        built by `score_rates.results_document()` — the scorer's own writer
+        (round 7, finding 8).
+
+        §4.3 registers its interval-scope walk over `RESULTS.json`, and until
+        this existed the walk had to make do with `score()`'s object: no
+        `cell`, no `schedule`, no `crossArm`, and a census of another shape. A
+        member the writer emits and a fixture did not build was outside a test
+        whose whole purpose is to say which blocks may carry an interval.
+        Calling the writer is what makes the walked object the published shape
+        rather than a copy of it that has to be kept up to date by hand.
+
+        The document is a FIXTURE's: `registryOverride` carries the digest this
+        population supplied, which is exactly what that member is for, and
+        `_write_outputs()` refuses to publish a table whose cell carries a
+        non-null one (§2.10, §7). Nothing here can become a published rate.
+        """
+        results = self.score()
+        registry = _registry_of_record()
+        return score_rates.results_document(
+            pins=self.pins, preconditions=self.preconditions(),
+            registry_sha256=registry, override=registry,
+            arms=results["definitions"], schedule=self.schedule,
+            prefix=results["prefix"], ledger=results["ledger"],
+            counts=results["counts"], shortfall=results["shortfall"],
+            complete=results["complete"], n=results["trials"],
+            sealed=results["seal"]["verified"],
+            seal_failures=results["seal"]["manifestFailures"],
+            chain_failure=results["seal"]["chainFailure"],
+            arm_blocks=results["arms"], census_blocks=results["censusBlocks"],
+            rows=results["runs"], verdicts=results["verdicts"])
 
     def definitions(self) -> dict:
         """The five arm definitions, loaded and cross-keyed exactly as

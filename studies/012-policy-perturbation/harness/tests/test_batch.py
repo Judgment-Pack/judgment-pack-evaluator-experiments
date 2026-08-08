@@ -1202,6 +1202,70 @@ class Batch(unittest.TestCase):
         self.assertFalse(os.path.exists(self.slot(3)))
         self.assertEqual(self.calls_made(), spent)
 
+    def test_a_slot_at_an_index_the_order_never_assigns_refuses_the_resume(self):
+        """Round 7, finding 4: `--resume` reconciles against the slots PRESENT,
+        not against the canonical paths §2.8 would name next.
+
+        A `run-099` is not a path the registered order ever assigns, so the
+        reconciliation never looked at it: the resume planned the remaining
+        order and SPENT CALLS over a population C5 rule 4 would then refuse to
+        score, and the operator found out afterwards. The `shortfall` command
+        already refused it — the same disagreement, caught on one path and not
+        the other — and that asymmetry is what this closes.
+        """
+        self.recapture_then_batch(extra=["--runs", "2"])
+        before, spent = self.ledger(), self.calls_made()
+        stray = os.path.join(self.arms_root, ENTRIES[0]["arm"], "authoring",
+                             "run-099")
+        os.makedirs(stray)
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 1)
+        self.assertEqual(self.ledger(), before)
+        self.assertEqual(self.calls_made(), spent, "no call is spent")
+        self.assertFalse(os.path.exists(self.slot(2)))
+        # …and with it gone the same command runs, so the refusal is the stray
+        # slot's and not the command's.
+        os.rmdir(stray)
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 0)
+        self.assertEqual(len(self.ledger()["records"]), 3)
+        self.assertEqual(int(self.calls_made()), int(spent) + 1)
+
+    def test_an_orphan_whose_seal_is_not_readable_json_refuses(self):
+        """Round 7, finding 4, second half: a `SLOT-MANIFEST.json` that is not
+        readable JSON is a REFUSAL, not a decoding traceback.
+
+        The orphan's seal is loaded through the duplicate-key-rejecting loader,
+        whose `ValueError` used to escape `reconcile_ledger()` uncaught — so a
+        slot interrupted mid-seal-write ended the resume and the shortfall in a
+        traceback, where §2.9 makes an unverifiable seal a refusal that names
+        the slot. Both spellings are checked: a truncated file and a manifest
+        whose members are shadowed by a duplicate key, which is a file that
+        parses in one reader and not in another.
+        """
+        self.recapture_then_batch(extra=["--runs", "3"])
+        third = self.slot(2)
+        manifest = os.path.join(third, "SLOT-MANIFEST.json")
+        with open(manifest) as handle:
+            sealed = handle.read()
+        self.truncate_ledger(2)
+        before, spent = self.ledger(), self.calls_made()
+        for body in (sealed[:len(sealed) // 2],
+                     '{"slot": "run-003", "slot": "run-003"}'):
+            with open(manifest, "w") as handle:
+                handle.write(body)
+            captured = io.StringIO()
+            with contextlib.redirect_stderr(captured):
+                self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 1)
+            self.assertIn("refused: ", captured.getvalue())
+            self.assertIn("SLOT-MANIFEST.json", captured.getvalue())
+            self.assertEqual(self.ledger(), before)
+            self.assertEqual(self.calls_made(), spent)
+        # The seal put back, the same resume completes the record it names: the
+        # refusal was the unreadable file's, not the recovery's.
+        with open(manifest, "w") as handle:
+            handle.write(sealed)
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 0)
+        self.assertEqual(len(self.ledger()["records"]), 4)
+
     def test_a_shortfall_over_a_crash_window_reconciles_before_it_declares(self):
         """The declaration is a statement about the ledger and about the slots
         on disk at once (§6 C5 rule 5), and a batch killed in the seal-then-
@@ -1431,6 +1495,18 @@ class IntervalScope(unittest.TestCase):
     object, so every top-level member — `cell`, `schedule`, `seal`, `crossArm`,
     `verdicts`, `census`, `runs` — is inside the claim and an interval published
     anywhere outside the registered eleven fails it.
+
+    Round 7, finding 8: the object walked IS the published one. It was
+    `fixtures.Population.score()`, which builds the arm blocks, the verdicts and
+    a census keyed by arm — and no `cell`, no `schedule` and no `crossArm` at
+    all. So "starts at the whole published object" was true of a smaller object
+    than `RESULTS.json`, and an interval published in a member the fixture did
+    not build could not fail the walk. `Population.publish()` now calls
+    `score_rates.results_document()`, the scorer's own writer, and
+    `test_the_walk_covers_every_member_the_writer_publishes` holds the walked
+    object's top-level members against the writer's own — read out of the
+    source, not kept by hand here — so a member added to `RESULTS.json` is
+    inside this claim whether or not anyone remembers this file.
     """
 
     # Each path is a block that must carry `ci95`, written as it is reached from
@@ -1460,11 +1536,56 @@ class IntervalScope(unittest.TestCase):
         # The scope is a property of the published SHAPE, which is the same at
         # five slots as at a hundred and fifty.
         population.build([{} for _ in range(5)])
-        cls.results = population.score()
+        cls.results = population.publish()
 
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(cls.root, True)
+
+    @staticmethod
+    def published_members() -> list:
+        """The top-level members `score_rates.results_document()` writes, read
+        out of its own source (round 7, finding 8).
+
+        The writer's return is one dict literal, so its keys are the published
+        members and `ast` can say what they are without running a registered
+        scoring — which no test can run, because §2.10's freeze pin is null
+        until the freeze. A list kept by hand in this file would agree with the
+        writer only until someone changed one of them.
+        """
+        with open(score_rates.__file__) as handle:
+            tree = ast.parse(handle.read())
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.FunctionDef)
+                    and node.name == "results_document"):
+                continue
+            returns = [child for child in ast.walk(node)
+                       if isinstance(child, ast.Return)]
+            assert len(returns) == 1, "the writer returns in one place"
+            literal = returns[0].value
+            assert isinstance(literal, ast.Dict), "the writer returns a literal"
+            return [key.value for key in literal.keys]
+        raise AssertionError("score_rates.results_document() was not found")
+
+    def test_the_walk_covers_every_member_the_writer_publishes(self):
+        """The walked object carries exactly the top-level members the scorer's
+        own writer emits — the whole of `RESULTS.json` and no stand-in for it
+        (round 7, finding 8).
+
+        Asserted against the writer's source rather than against a list in this
+        file, and both ways round: a member the writer emits and the walked
+        object lacks would put that member outside §4.3's claim, and a member
+        the walked object carries and the writer does not would mean the walk is
+        over something other than what is published.
+        """
+        published = self.published_members()
+        self.assertEqual(sorted(published), sorted(set(published)),
+                         "the writer emits each member once")
+        self.assertEqual(set(self.results), set(published))
+        # Named as well as counted, so a writer that lost `crossArm` and a walk
+        # that lost it with it would still fail here.
+        self.assertLessEqual({"cell", "schedule", "seal", "arms", "crossArm",
+                              "verdicts", "census", "runs"}, set(published))
 
     def blocks_carrying_ci95(self, node, path: str) -> set:
         """Every path at which `ci95` appears, to the bottom of the structure.
@@ -1554,8 +1675,13 @@ class IntervalScope(unittest.TestCase):
                 self.assertNotIn("ci95", row)
             self.assertNotIn("ci95", block["labelAccuracy"], arm)
             self.assertNotIn("ci95", block["records"], arm)
-            self.assertEqual(self.blocks_carrying_ci95(
-                self.results["census"][arm], ""), set(), arm)
+        # §4.7 publishes the census as a LIST of per-arm blocks, which is what
+        # the writer emits and what `census.render_markdown()` reads (round 7,
+        # finding 8): the fixture's arm-keyed copy was a second shape.
+        census = {block["arm"]: block for block in self.results["census"]}
+        self.assertEqual(set(census), set("ABCDE"))
+        for arm, block in census.items():
+            self.assertEqual(self.blocks_carrying_ci95(block, ""), set(), arm)
 
     def interval_block_defects(self, block) -> list:
         """[(path, index, what is wrong)] over every element of every list on

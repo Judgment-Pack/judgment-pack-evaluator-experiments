@@ -315,7 +315,12 @@ sys.path.insert(0, HERE)
 
 import census  # noqa: E402
 import integrity  # noqa: E402
-import policy_mirror  # noqa: E402
+# The mirror is imported LAZILY (round 7, finding 1): the bytecode gate in
+# integrity.verify() must run before any grid module loads, and this module
+# is imported by batch.py before its preflight can call the gate.
+def _policy_mirror():
+    import policy_mirror  # noqa: E402
+    return policy_mirror
 import records_compile  # noqa: E402
 import transcript_check  # noqa: E402
 
@@ -360,6 +365,24 @@ LEDGER_RECORD_MEMBERS = (("globalIndex", int, "an integer"),
 # §2.9: every slot is sealed by a terminal manifest, and the manifest cannot
 # cover itself.
 MANIFEST_FILE = "SLOT-MANIFEST.json"
+# §2.9 as amended (round 7, finding 3): the seal covers EVERY entry in the slot
+# tree, so that an entry ADDED after it breaks it. A regular file is
+# `[path, byte length, sha256]`; every other entry is
+# `[path, NON_FILE_LENGTH, "type:<marker>"]`, by path and type alone, because it
+# is not a byte range to hash. The two row shapes cannot collide: no file has a
+# negative length and no sha256 hex string begins with `type:`. `batch.py` writes
+# the same two shapes and the same markers — the driver seals and the scorer
+# recomputes, and neither reads the other's list to find out what to write.
+NON_FILE_LENGTH = -1
+MANIFEST_TYPE_MARKERS = (
+    (stat.S_ISLNK, "symlink"),
+    (stat.S_ISDIR, "directory"),
+    (stat.S_ISFIFO, "fifo"),
+    (stat.S_ISSOCK, "socket"),
+    (stat.S_ISCHR, "char-device"),
+    (stat.S_ISBLK, "block-device"),
+    (stat.S_ISDOOR if hasattr(stat, "S_ISDOOR") else (lambda mode: False), "door"),
+)
 # The member every scoring carries: null when the registry digest was computed
 # from REGISTRY_OF_RECORD (the registered path), and the supplied digest when a
 # library caller overrode it. The module-private _write_outputs() refuses to
@@ -1404,7 +1427,7 @@ def split_records(accepted: dict, t_low, t_high) -> tuple:
     nothing refusing (§2.2 [D-14])."""
     high, quarantine = [], []
     for case_id, record in accepted.items():
-        if policy_mirror.verdict(record["vendor"], t_low, t_high) \
+        if _policy_mirror().verdict(record["vendor"], t_low, t_high) \
                 == record["decision"]["outcome"]:
             high.append(case_id)
         else:
@@ -1414,7 +1437,7 @@ def split_records(accepted: dict, t_low, t_high) -> tuple:
 
 def class_members(accepted: dict, ids: list, predicate: dict) -> list:
     return sorted(case_id for case_id in ids
-                  if policy_mirror.predicate_matches(predicate,
+                  if _policy_mirror().predicate_matches(predicate,
                                                      accepted[case_id]["vendor"]))
 
 
@@ -1982,18 +2005,41 @@ def admit(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
 
 # --- the seal: per-slot manifests and the chained ledger (§2.9) -------------
 
+def _entry_type(mode: int) -> str:
+    """The type marker a non-regular entry is sealed by — `batch.py`'s markers,
+    string for string, because the driver writes the seal this recomputes
+    (round 7, finding 3)."""
+    for predicate, marker in MANIFEST_TYPE_MARKERS:
+        if predicate(mode):
+            return marker
+    return "other"
+
+
 def manifest_files(slot: str) -> list:
-    """§2.9's sorted list, recomputed: `[relative path, byte length, bare sha256
-    hex]` for every REGULAR file in the slot tree.
+    """§2.9's sorted list, recomputed over EVERY entry in the slot tree: a
+    regular file as `[relative path, byte length, bare sha256 hex]`, and every
+    other entry — a symlink, a directory, a FIFO, a socket, a device — as
+    `[relative path, NON_FILE_LENGTH, "type:<marker>"]`.
+
+    **Round 7, finding 3: every entry, not every regular file.** Both manifest
+    implementations omitted non-regular entries, so a symlink ADDED after the
+    seal left this list recomputing exactly as written and `verify_seal()`
+    returning None — and then §3.3's lstat-first rule scored that slot
+    `slot-symlink`, moving it out of `V_X` into `I_X` with the batch still
+    `sealed`. That is exactly the denominator change §2.9 registers as the one
+    thing a post-seal alteration must not be able to buy: "It is *not* handled
+    by moving the slot into `V_X`'s complement". With every entry sealed, the
+    addition is a manifest discrepancy, and §2.9's consequence for one of those
+    is the WHOLE batch's — every level verdict `UNRESOLVED-BY-DESIGN`, no
+    contrast reported (C5 rule 6).
 
     `SLOT-MANIFEST.json` is excluded from its own list — a file cannot carry its
     own digest — and is sealed instead by the ledger, which records the digest of
-    the manifest FILE. Entries that are not regular files are not manifested
-    either: a symlink or a FIFO in a slot tree is not a byte range to hash, and
-    §3.3's lstat-first slot rule is what names it (`slot-symlink`,
-    `slot-irregular`) before anything in the tree is opened. `os.walk` does not
-    descend into symlinked directories, so a link cannot smuggle a subtree into
-    the seal either.
+    the manifest FILE. `os.walk` does not descend into symlinked directories, so
+    a link cannot smuggle a subtree into the seal: the link is one typed row and
+    the tree it points at is not the slot's. Every type is decided by `lstat` and
+    only regular files are opened, so a FIFO is sealed rather than read — an
+    `open()` on one would block the whole scoring.
 
     This is `batch.py`'s `slot_files()` recomputed rather than re-specified: the
     driver writes the seal and the scorer checks it, and the study has one
@@ -2002,16 +2048,20 @@ def manifest_files(slot: str) -> list:
     rows = []
     for base, directories, names in os.walk(slot):
         directories.sort()
-        for name in sorted(names):
+        for name in sorted(directories + names):
             path = os.path.join(base, name)
             relative = os.path.relpath(path, slot)
             if relative == MANIFEST_FILE:
                 continue
-            if os.path.islink(path) or not os.path.isfile(path):
-                continue
-            with open(path, "rb") as handle:
-                body = handle.read()
-            rows.append([relative, len(body), hashlib.sha256(body).hexdigest()])
+            mode = os.lstat(path).st_mode
+            if stat.S_ISREG(mode):
+                with open(path, "rb") as handle:
+                    body = handle.read()
+                rows.append([relative, len(body),
+                             hashlib.sha256(body).hexdigest()])
+            else:
+                rows.append([relative, NON_FILE_LENGTH,
+                             "type:%s" % _entry_type(mode)])
     return sorted(rows)
 
 
@@ -2020,7 +2070,12 @@ def manifest_digest(files: list) -> str:
     uses for a manifest: one `<path> <bytes> <sha256>` line per file, sorted,
     newline-terminated. That is `harness/integrity.py`'s tree-manifest line for
     line (§2.10's whole-tree manifest) and `batch.py`'s `files_digest()`, so a
-    reader who can recompute one can recompute the others."""
+    reader who can recompute one can recompute the others.
+
+    A non-regular entry's row encodes in the same three fields (round 7,
+    finding 3): `<path> -1 type:<marker>`. §2.10's whole-tree manifest is over
+    git-tracked regular files and never produces one; a slot tree can hold
+    anything, and the seal has to be able to say so."""
     listing = "\n".join("%s %d %s" % tuple(row) for row in sorted(files)) + "\n"
     return "sha256:" + hashlib.sha256(listing.encode("utf-8")).hexdigest()
 
@@ -2039,6 +2094,11 @@ def verify_seal(slot: str, ledger_record: dict) -> str:
     recompute to the manifest's list, the list must recompute to the manifest's
     own `filesSha256`, and the ledger's `manifestSha256` must be the digest of
     the manifest FILE — which is what carries the first two into the chain.
+
+    The recomputed list covers every ENTRY (round 7, finding 3), so an addition
+    to a sealed slot fails the first binding. Before that, a post-seal symlink
+    passed all three and then bought that slot a `slot-symlink` code and the
+    denominator change it carries, with `sealed` still true.
     """
     path = os.path.join(slot, MANIFEST_FILE)
     if not _regular(path):
@@ -2206,6 +2266,24 @@ def slot_identity(slot: str) -> dict:
     member produced, and `call_identity_defect()` no longer lets one through —
     so that fold is a branch no call can take, and a check that can never fire
     is removed rather than kept as decoration.
+
+    **Round 7, finding 5: the raw digest is computed FIRST and unconditionally,
+    and a parse failure nulls the parsed members alone.** The digest and the two
+    parses used to share one `try`, so a malformed `session.jsonl` — or a
+    `CALL.json` with duplicate keys — discarded the one member that needs no
+    parser at all, and two slots holding byte-identical malformed sessions were
+    each scored `transcript-refused` rather than the second one `session-reused`.
+    §3.3 registers the code on "the slot's `session.jsonl` BYTES, session id, or
+    the identifying members of its `CALL.json`", and bytes are readable whether
+    or not they are JSON.
+
+    The registered precedence is §3.3's own table order, which `admit()`
+    evaluates in: `session-reused` sits above `transcript-refused` in it, and
+    `admit()` returns `session-reused` before the transcript binding is run at
+    all. So a copied slot whose transcript would also refuse is named a copy —
+    the more exact statement about why it is out of the denominator, and the one
+    a reader can act on. A slot this cannot read far enough to identify is
+    already refused by an earlier code and is not additionally accused.
     """
     session = os.path.join(slot, "session.jsonl")
     call_path = os.path.join(slot, "CALL.json")
@@ -2213,12 +2291,23 @@ def slot_identity(slot: str) -> dict:
     if links or irregular or not _regular(call_path) or not _regular(session):
         return None
     try:
-        call = load_json(call_path)
         identity = {"sessionSha256": file_digest(session),
-                    "sessionId": session_identity(session),
-                    "callIdentity": None}
-    except (ValueError, OSError):
+                    "sessionId": None, "callIdentity": None}
+    except OSError:
+        # The bytes cannot be read at all, so this slot has no raw evidence to
+        # be compared with anyone's. `admit()` refuses it on its own account.
         return None
+    try:
+        identity["sessionId"] = session_identity(session)
+    except (ValueError, OSError):
+        # A transcript that is not parseable JSON has no session id to publish,
+        # and `admit()` refuses the slot `transcript-refused` on its own
+        # account. Its BYTES are still published above.
+        pass
+    try:
+        call = load_json(call_path)
+    except (ValueError, OSError):
+        call = None
     # A CALL.json that is not an object has no members at all, and `admit()`
     # already refuses it `call-unreadable`; reading `.get` off it here would
     # raise an AttributeError out of the same population-level pass.
@@ -2620,13 +2709,26 @@ def load_ledger(arms_root: str) -> list:
     ones §3.3 and C5 rules 2-4 compare a slot on; `path` and `slot` are checked
     against the registered order in `check_population()`, which can say what
     they should have been and is where their refusals belong.
+
+    Round 7, finding 6: the READ itself refuses too. A `BATCH.json` that is not
+    JSON, or that shadows a member with a duplicate key, raised the loader's
+    bare `ValueError` out of a `main()` that catches `ScoreError` and nothing
+    else — a traceback where C5 registers a refusal, and no way for a reader of
+    the exit status to tell a malformed ledger from a crashed scorer.
     """
     path = os.path.join(arms_root, LEDGER_FILE)
     if not os.path.isfile(path):
         raise ScoreError("no ledger at %s: the population is the registered "
                          "schedule and the ledger is the record of what ran (§2.9, "
                          "C5)" % path)
-    ledger = load_json(path)
+    try:
+        ledger = load_json(path)
+    except (ValueError, OSError) as error:
+        raise ScoreError(
+            "%s cannot be read as duplicate-free JSON (%s): the population is read "
+            "from this file before any slot, and a ledger that cannot be read "
+            "cannot be compared with §2.8's registered order at all, so the whole "
+            "scoring refuses (C5)" % (path, error))
     if not isinstance(ledger, dict) or not isinstance(ledger.get("records"), list):
         raise ScoreError("%s is not a ledger object with a records list" % path)
     for offset, record in enumerate(ledger["records"]):
@@ -2658,9 +2760,30 @@ def terminality(arms_root: str, slots: dict, registered_total: int) -> dict:
     prefix is the slots actually present. Both, or neither, refuses — a
     shortfall over a full batch is not a short batch, and an over-full batch is
     not a population this study contemplates. The declaration's agreement with
-    the ledger is C5 rule 5's, checked in `check_population()`."""
+    the ledger is C5 rule 5's, checked in `check_population()`.
+
+    Round 7, finding 6: the declaration is READ here and TYPE-CHECKED here. A
+    `SHORTFALL.json` that is not JSON raised the loader's bare `ValueError`, and
+    one holding `[]` — not `None`, so every test below passed it through —
+    reached `check_population()`'s `.get()` and raised `AttributeError`. C5
+    registers a malformed population record as a refusal of the whole scoring
+    through the registered path, and `main()` catches `ScoreError` alone, so
+    both used to end in a traceback instead."""
     path = os.path.join(arms_root, SHORTFALL_FILE)
-    shortfall = load_json(path) if os.path.isfile(path) else None
+    try:
+        shortfall = load_json(path) if os.path.isfile(path) else None
+    except (ValueError, OSError) as error:
+        raise ScoreError(
+            "%s cannot be read as duplicate-free JSON (%s): §2.8's declaration is "
+            "what makes a short batch terminal, and one that cannot be read "
+            "declares nothing — the whole scoring refuses (C5 rule 5)"
+            % (path, error))
+    if shortfall is not None and not isinstance(shortfall, dict):
+        raise ScoreError(
+            "%s is %r and §2.8 registers a declaration object: the scoring compares "
+            "its completed prefix with the ledger's slot for slot, and a "
+            "declaration with no members to compare is not a declaration (C5 rule "
+            "5)" % (path, shortfall))
     present = sum(len(paths) for paths in slots.values())
     complete = present == registered_total
     if complete and shortfall is not None:
@@ -2883,8 +3006,6 @@ def score(arms_root: str, pins_path: str, golden_path: str,
     # short of its 30 scheduled slots — is descriptive-only.
     complete = len(ledger) == len(schedule) and all(counts[arm] == n
                                                     for arm in ARMS)
-    rounds_registered = len(schedule) // len(ARMS)
-    rounds_completed = len(ledger) // len(ARMS)
 
     arm_blocks = {}
     for arm in ARMS:
@@ -2897,8 +3018,47 @@ def score(arms_root: str, pins_path: str, golden_path: str,
     census_blocks = [arm_blocks[arm].pop("census") for arm in ARMS]
 
     verdicts = compute_verdicts(arm_blocks, n, complete, sealed)
-    valid_counts = [arm_blocks[arm]["population"]["valid"] for arm in ARMS]
 
+    return results_document(
+        pins=pins, preconditions=preconditions, registry_sha256=registry_sha256,
+        override=override, arms=arms, schedule=schedule, prefix=prefix,
+        ledger=ledger, counts=counts, shortfall=shortfall, complete=complete,
+        n=n, sealed=sealed, seal_failures=seal_failures,
+        chain_failure=chain_failure, arm_blocks=arm_blocks,
+        census_blocks=census_blocks, rows=rows, verdicts=verdicts)
+
+
+def results_document(*, pins: dict, preconditions: dict, registry_sha256: str,
+                     override, arms: dict, schedule: list, prefix: list,
+                     ledger: list, counts: dict, shortfall, complete: bool,
+                     n: int, sealed: bool, seal_failures: list, chain_failure,
+                     arm_blocks: dict, census_blocks: list, rows: list,
+                     verdicts: dict) -> dict:
+    """`RESULTS.json` itself: every top-level member §4.7 publishes, assembled
+    from quantities that are already computed.
+
+    Round 7, finding 8. This was `score()`'s closing `return {…}`, and the only
+    way to obtain the published SHAPE was to run a whole registered scoring —
+    which no fixture can, because `verify_preconditions()` binds the study's own
+    committed artifacts and three of its pins are null until their registered
+    moments arrive (§2.10, §3.2). So §4.3's frozen-interval-scope test walked a
+    fixture's own reduced object instead: no `cell`, no `schedule`, no
+    `crossArm`, and a `census` of a different shape. The test that §4.3
+    registers over `RESULTS.json` was in fact over about half of it, and an
+    interval published in a member the fixture did not build would not have
+    failed it.
+
+    Splitting the writer out changes nothing about what is published — the
+    members, their order and their values are `score()`'s own — and gives the
+    harness a way to build the WHOLE published surface from a fixture
+    population. `harness/tests/fixtures.py`'s `Population.publish()` calls this
+    function, so the walk is over the shape production emits rather than over a
+    stand-in for it, and a member added here appears there without anyone
+    remembering to add it.
+    """
+    rounds_registered = len(schedule) // len(ARMS)
+    rounds_completed = len(ledger) // len(ARMS)
+    valid_counts = [arm_blocks[arm]["population"]["valid"] for arm in ARMS]
     return {
         "resultsVersion": "1",
         "study": "012-policy-perturbation",
@@ -3373,18 +3533,15 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     one would be a study with a preferred answer.
 
     **Row 5 reads §4.6's reading as well as `nP`** (round 3, finding 9). Two
-    registered sentences bear on the CONFIRMED outcome and this file will not
-    choose between them by omission: §5.3's table row 5 says `nP >= 3`, and
-    §4.6's table says a placement collapse whose labels are at the ceiling is
-    "the only thing that confirms" R1, with the degraded-label case published as
-    a comprehension collapse and R1 **not** confirmed. They differ only when arm
-    E's placement collapsed AND its labels degraded, and there the conservative
-    conjunction is taken — confirmation requires every registered condition, as
-    §5.3's own confirmation box says of its three — so that case falls through
-    to the last row, published as INDETERMINATE (neither confirmed nor
-    unsupported) with §4.6's comprehension-collapse reading beside it. The
-    registration would be cleaner if §5.3's row 5 named the S5 condition
-    outright; that is a preregistration amendment and not a scorer's to make.
+    registered statements of the CONFIRMED rule now agree (the round-3 and
+    round-6 amendments carried the S5 conjunct into §5.3's row 5, the [D-10]
+    box, the summary table and §5.5): confirmation requires the placement
+    pattern, arm E's S5 labels at the ceiling, the B/C gate and class 4 not
+    collapsing — the four-conjunct rule this function computes. A placement
+    collapse with degraded labels falls through to the last row, published as
+    INDETERMINATE with §4.6's comprehension-collapse reading beside it
+    (round 7, finding 9: an earlier version of this docstring described the
+    pre-amendment split as live, which was itself the stale statement).
     """
     def published(number: int, why: str) -> dict:
         entry = DECISION_TABLE[number - 1]
