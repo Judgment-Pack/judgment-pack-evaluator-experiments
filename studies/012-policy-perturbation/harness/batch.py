@@ -862,9 +862,10 @@ def seal_slot(slot: str, entry: dict) -> str:
     value the ledger record carries, which binds the list and its digest into
     the chain and is what `score_rates.py`'s `verify_seal()` recomputes.
 
-    **A deliberate port reading, flagged rather than buried.** §2.9's sentence
-    is "when the wrapper finishes a slot it writes `SLOT-MANIFEST.json`", and
-    the seal is written HERE instead, one statement after the wrapper returns.
+    **The sealer is the driver, by the amended registration.** §2.9 as
+    amended under round 3's dispositioned finding 5 names the driver as the
+    sealer; the seal is written HERE, one statement after the wrapper
+    returns.
     The reason is that the same section requires the seal to cover *the slot*
     and the wrapper is not the last writer into it: `REFUSAL.json` is this
     driver's (§2.5, Study 011's registered difference from Study 010, ported
@@ -876,8 +877,8 @@ def seal_slot(slot: str, entry: dict) -> str:
     every outcome including refusals; the wrapper's own header states the same
     division ("it does not seal the slot — SLOT-MANIFEST.json and the ledger
     chain of §2.9 are the driver's"), so the two artifacts agree rather than
-    each assuming the other did it, and `harness/PORTS.md` records the reading
-    for the final round to adjudicate.
+    each assuming the other did it. `harness/PORTS.md` carries the
+    adjudication record.
 
     What the seal establishes and what it does not is §2.9's own statement,
     repeated here so no caller reads more into it: the operator can recompute

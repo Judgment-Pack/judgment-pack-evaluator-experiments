@@ -22,6 +22,12 @@ and then the two cuts are located where §5.1 says they land — `k >= 27` and
 against itself. The §4.3 vectors close the loop: the frozen file, this suite's
 own transcription (`fixtures.REGISTERED_VECTORS`) and the scorer's data must
 agree, and the arithmetic must reproduce every one of them.
+
+§5.3 (ii)'s arm-D outcomes have no table in the preregistration, so they are
+held to the registered SENTENCE instead: round 4, finding 6 pins the first
+outcome's condition — new-keyed HIGH on three or more of the four narrow
+numeric classes, old-keyed not HIGH-patterned — as quoted text and as computed
+behaviour, because the scorer had substituted a stricter rule of its own.
 """
 from __future__ import annotations
 import re
@@ -414,12 +420,33 @@ def test_arm_ds_outcomes_are_the_ones_section_5_3_registers(preregistration):
         "Nothing in this study separates the two explanations")
     # The count §5.3 (ii) does not spell is §5.3 (i)'s own, not a new one.
     assert score_rates.D_NARROW_MINIMUM == score_rates.PATTERN_MINIMUM == 3
+    # Round 4, finding 6: the first outcome's condition is registered in this
+    # sentence, and the scorer's row 1 must be BOTH of its halves. The scorer
+    # required all six contrasts to read TRACKING and never consulted the
+    # old-keyed levels, which is neither half. The sentence is inside §5.3
+    # (ii)'s blockquote and spans three lines, so it is matched with the
+    # blockquote markers removed rather than against `flat`.
+    quoted = " ".join(" ".join(line.lstrip("> ")
+                               for line in preregistration.splitlines()).split())
+    assert ("published as **COVERAGE-FOLLOWS-THE-NUMBERS** (new-keyed HIGH on "
+            "three or more of the four narrow numeric classes, old-keyed not "
+            "HIGH-patterned)") in quoted
+    condition = score_rates.D_OUTCOME_TABLE[0]["condition"]
+    assert "new-keyed level verdicts are HIGH on 3 or more of the four narrow " \
+           "numeric classes" in condition
+    assert "old-keyed (S10) verdicts are not HIGH-patterned" in condition
+    assert "TRACKING" not in condition
 
 
 def test_arm_ds_outcome_is_computed_from_the_registered_levels():
     """The four rows at known level verdicts, over the six classes: the
     predicted tracking, the old-edge preference, the general degradation, and
-    the mixed case §5.3 (ii) names no outcome for."""
+    the cases §5.3 (ii) names no outcome for.
+
+    Round 4, finding 6: every row is driven by the LEVELS, because that is what
+    the registered conditions are stated on. The contrast argument is varied
+    under a fixed pair of level vectors to show it decides nothing.
+    """
     tracking = [{"index": index, "contrast": "TRACKING"} for index in range(6)]
     indeterminate = [{"index": index,
                       "contrast": "TRACKING" if index in (3, 4)
@@ -429,14 +456,21 @@ def test_arm_ds_outcome_is_computed_from_the_registered_levels():
     new_low = ["LOW", "LOW", "LOW", "HIGH", "HIGH", "LOW"]
     old_high = ["HIGH", "HIGH", "HIGH", "HIGH", "HIGH", "HIGH"]
     old_low = ["LOW", "LOW", "LOW", "HIGH", "HIGH", "LOW"]
-    assert score_rates.arm_d_outcome(high_six, old_low,
-                                     tracking)["publishedAs"] \
-        == "COVERAGE-FOLLOWS-THE-NUMBERS"
+    # New-keyed HIGH on the narrow classes, old-keyed not HIGH-patterned: the
+    # registered condition, and it holds whatever the contrasts read — the
+    # second call is the same levels with two contrasts INDETERMINATE, which the
+    # earlier all-six-TRACKING rule published as D-INDETERMINATE.
+    for rows in (tracking, indeterminate):
+        follows = score_rates.arm_d_outcome(high_six, old_low, rows)
+        assert follows["publishedAs"] == "COVERAGE-FOLLOWS-THE-NUMBERS"
+        assert follows["counts"]["newKeyedHigh"] == 4
+        assert follows["counts"]["oldKeyedHigh"] == 0
     preference = score_rates.arm_d_outcome(new_low, old_high, indeterminate)
     assert preference["publishedAs"] == "OLD-EDGE-PREFERENCE"
-    assert preference["counts"] == {"newKeyedLow": 4, "oldKeyedHigh": 4,
-                                    "oldKeyedLow": 0, "tracking": 2,
-                                    "narrowMinimum": 3, "classes": 6}
+    assert preference["counts"] == {"newKeyedHigh": 0, "newKeyedLow": 4,
+                                    "oldKeyedHigh": 4, "oldKeyedLow": 0,
+                                    "tracking": 2, "narrowMinimum": 3,
+                                    "classes": 6}
     assert len(preference["explanations"]) == 2 and preference["separates"]
     degradation = score_rates.arm_d_outcome(new_low, old_low, indeterminate)
     assert degradation["publishedAs"] == "GENERAL-DEGRADATION"
@@ -447,6 +481,16 @@ def test_arm_ds_outcome_is_computed_from_the_registered_levels():
     assert score_rates.arm_d_outcome(mixed, old_low,
                                      indeterminate)["publishedAs"] \
         == "D-INDETERMINATE"
+    # And the old-keyed exclusion, which the scorer never used to compute: the
+    # SAME new-keyed levels that read COVERAGE-FOLLOWS-THE-NUMBERS above, with
+    # the old edges held too, are not it — the records cover both threshold
+    # pairs, so the numbers separate nothing. TRACKING on all six contrasts does
+    # not rescue it, which is exactly what the earlier rule got wrong.
+    both = score_rates.arm_d_outcome(high_six, old_high, tracking)
+    assert both["publishedAs"] == "D-INDETERMINATE"
+    assert both["counts"] == {"newKeyedHigh": 4, "newKeyedLow": 0,
+                              "oldKeyedHigh": 4, "oldKeyedLow": 0,
+                              "tracking": 6, "narrowMinimum": 3, "classes": 6}
 
 
 # --- §5.4's operating characteristics ---------------------------------------

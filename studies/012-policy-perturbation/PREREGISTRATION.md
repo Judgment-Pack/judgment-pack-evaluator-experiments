@@ -235,7 +235,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `7f6d235b96964807db9b7676f07b1867ac93741876d94a43878d7e5ff5899529` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `08787974a322e061280d5a87fc61817f37a3af3708a79de706b61e6b4ce8e3e4` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -270,10 +270,10 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `a6f6ee5514e25f784f7853a821a8a31d41430ddd71bdcf7e16917bf7e30a1015` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt; no other check logic changes |
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `bac41d3a960a82e32ec009f493d8153c280fa2591c6abd29e66deb3aa7fe1f04` | §2.7 |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `8fcb225239e6eabcabb0cdec51beb6f30538220d857c48d892334696f7228eb8` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `684a5d6275ec11565c202ef7613c832878cfeeea739eb7ce19f82b8e8bca41e5` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `5ce8ccbd806a4dc5d33873bf7808e159b6588789b8b8b7f6d11337f1e5857bec` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
-| `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `354d47a1b91f8a096fe76e9ddcb7c0f49ed1fbe04f6a6e937aa837d9b579c0f8` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `94b8062aaeb22aefa6efb78b5936c0b2628eb8a440b80a20b4405c15a6da170b` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `8cc55fb301375b518574302fc64a24baeb0a7900f50ff0f8bf6249680bef07b3` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `7f5df4b338205ddddfa5b53bcaf6cf9836c6bc7bfb50c8641930123bd830fe10` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `6c4d19020a1a4ab16724c12eb87fa9993dfeee06665c73b79a26bb2b61efedad` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
 [D-20].** An earlier draft ordered the work review → port → freeze, which put
@@ -985,7 +985,11 @@ So the rule keys on **completeness, not on size**:
 **Shortfall declaration.** If the batch cannot complete, the driver writes
 `SHORTFALL.json` naming the reason, the last completed round *R*, **the exact
 completed prefix of the registered schedule** (§2.8's global index of the last
-completed slot), and **the UTC wall-clock time of that slot**, all **before
+completed slot), and **the UTC wall-clock time of the last completed slot
+that retains a `CALL.json`** — the declaration names which slot that was
+(`lastSlotEndedAtFrom`), a tail of clockless refusals falls back to the last
+slot that has one, and a prefix with no clock at all records both members
+null with the reason stated (round 4, finding 10) — all **before
 anything is scored**, and the headline reports "R of 30 rounds completed".
 `batch.py shortfall` refuses when the slots present are not fewer than the
 registered plan, and the scorer requires the declaration's prefix to match the
@@ -1104,16 +1108,24 @@ artifacts that ran" now means:
    `PREREG-REVIEW.md` as it stood entering that round, `CLAIM.md`, all twenty
    arm files, every `harness/` source and test, `harness/PORTS.md`,
    `analysis/mirror2_<arm>.py` for all five arms, and `MIRROR-AGREEMENT.md`.
-   **The manifest's two carrier files are the registered exception**
-   (round 3, finding 1, dispositioned): `harness/PINS.json` carries the
-   manifest digest itself and is edited at registered moments after the
-   freeze (the golden fill), and `PREREG-REVIEW.md` carries the
-   attestation — a manifest that covers its own carriers changes the
-   moment the digest is written down. Both are bound otherwise: the
-   registry by the per-run `pinsSha256` stamp every slot carries and the
-   scorer recomputes, and the review record by being the attestation.
-   `integrity.tree_manifest()` excludes exactly these two, in code, in
-   addition to the registry's exclusion list. The manifest is the sorted list of
+   **The manifest's carrier handling, registered exactly** (round 3
+   finding 1 and round 4 finding 2, dispositioned): `PREREG-REVIEW.md` is
+   excluded — it carries the attestation, and a manifest covering its own
+   attestation record changes the moment the digest is written down — and
+   `harness/PINS.json` is bound through its **normalized projection**: the
+   registry parsed, its three post-freeze members
+   (`freeze.treeManifestSha256`, `golden.sha256`,
+   `isolationNegative.assent`) set to null, canonically serialized, and
+   hashed into the manifest as its own entry. A covered-file edit paired
+   with a registry co-edit therefore fails the recomputation; the three
+   nulled members are bound elsewhere (the manifest member is the binding
+   itself, the golden per slot by the `goldenSha256` stamp against the
+   committed capture, the assent a consent record). What remains outside
+   any digest is `PREREG-REVIEW.md`'s own honesty, which is [D-20]'s
+   stated residual; the externally signed attestation stays the stronger
+   alternative. A frozen registry whose `preregistrationSha256` is filled
+   while `treeManifestSha256` is null **refuses** — the two freeze pins
+   land together or not at all (round 4, finding 1). The manifest is the sorted list of
    `(relative path, byte length, sha256)` over every tracked regular file in
    the study directory, and its own sha256 is the **tree manifest digest**.
 2. **That digest is recorded in `PREREG-REVIEW.md` and pinned in
@@ -1904,9 +1916,11 @@ gates of the decision table below**:
 > **Confirmation, registered [D-10]:** R1 is **confirmed for this instance** —
 > in the sense §5.5 and §9 bound: one denaming, one policy family, one model,
 > one day — iff **arm E's S1 placement level is LOW with arm A's HIGH on three
-> or more of the four narrow numeric classes**, **and** the B/C control gate of
-> (iii) holds, **and** class 4 does not collapse in arm E. Nothing less
-> confirms it, and the three conditions are conjunctive.
+> or more of the four narrow numeric classes**, **and** arm E's S5 labels are
+> at the ceiling (§4.6, round 3 finding 9 — |Q| = 0 among its accepted
+> records), **and** the B/C control gate of (iii) holds, **and** class 4 does
+> not collapse in arm E. Nothing less confirms it, and the four conditions
+> are conjunctive.
 
 > **Non-support, registered [D-10]:** if arm E's primary level verdict is
 > **HIGH for three or more of the four narrow numeric classes**, the collapse
@@ -2193,7 +2207,7 @@ E's four narrow numeric classes), and under independence layers 1–3:
 | **`nP ≥ 3` — the CONFIRMED pattern (row 5)** | §5.3 (i) | 0.3771 | 0.7583 | **0.9292** |
 | **the B/C control gate (row 3 passes)** | §5.3 (iii) | 0.0557 | 0.4031 | **0.7658** |
 | all twelve TRACKING (`q¹⁸`) | §5.3 (iii) | 0.0040 | 0.0866 | 0.3235 |
-| **CONFIRMED *and* the gate holds — the actual joint outcome** | table row 5 | 0.0364 | 0.3536 | **0.7359** |
+| **CONFIRMED *and* the gate holds — the coverage-side joint quantity** | table row 5 | 0.0364 | 0.3536 | **0.7359** |
 | `nH ≥ 3` when R1 is false and E truly sits at 0.95 — **the marginal pattern alone** | §5.3 (i) | 0.7142 | 0.9187 | **0.9796** |
 | **row 4 reached — `nH ≥ 3` *and* class 4 does not collapse *and* the B/C gate holds: the power to publish R1-UNSUPPORTED** | table row 4 | 0.0398 | 0.3704 | **0.7502** |
 
@@ -2219,6 +2233,15 @@ at N = 30): rows 1-3 produce no R1 verdict *in either direction*, and a study
 that could publish one adjudication through a failed control and not the other
 would be a study with a preferred answer. N = 30 is retained on that
 arithmetic, stated honestly, rather than raised.
+
+**Every CONFIRMED-side figure in this section is a coverage-side quantity**
+(round 4, finding 5, dispositioned): §5.4's model has no label-error term, and
+row 5's S5 conjunct — arm E's labels at the ceiling — is outside it. The
+figures are therefore exact for the coverage pattern and upper bounds for the
+confirmatory outcome; the actual probability of CONFIRMED is these numbers
+times an unmodeled P(no accepted arm-E record mislabelled), which this file
+declines to invent a distribution for. The R1-UNSUPPORTED row is not affected:
+row 4 reads coverage alone.
 
 `harness/score_rates.py::decision_operating_characteristics()` computes every
 figure in this section with this study's own interval and threshold code, and
@@ -3186,7 +3209,7 @@ D-24 and re-adjudicated D-1, D-4, D-5, D-7, D-9, D-10, D-13, D-16 and D-18.
 | **D-7** | The call order within the batch (§2.8) | **the registered first-order carryover-balanced order**: a Williams design for five treatments (ten sequences), three blocks, in the three registered block orders. Each arm holds each position 6 times; each ordered pair is adjacent exactly 6 times within rounds; every ordered pair occurs 7 or 8 times over all 149 transitions | cyclic rotation by round (the round-1 proposal) — balances position perfectly and predecessor not at all: under it **arm E follows D in 20 of 25 calls, C in 5, and A or B never**, so provider-side carryover from arm D's 45/72 prompt could manufacture arm E's predicted collapse. Round 2 found it and §7's claim that such state "could only blur a contrast" is withdrawn with it. Also available: fixed within-round order (confounds arm with position) or blocking by arm (confounds arm with time-of-day drift). Exact balance over 149 transitions is arithmetically impossible; max − min = 1 is the registered achievable | draft; replaced round 2 |
 | **D-8** | Golden recapture and C7, once or per arm (§3.2, §6 C7) | **once for the whole batch**, because both use the arm-independent probe prompt and the pre-prompt context does not depend on the prompt | per arm, which costs 10 extra probe calls and buys nothing this file can name | draft |
 | **D-9** | Who authors the arm texts (§7, §9) | the study team — **three of the five arms as substantive authored prose (B, D, E), which round 2 corrected from two** — with **C10's clean-room re-derivation under pre-assigned readers with every attempt published and a fresh reader after any re-authoring**, cross-vendor adversarial review of the complete post-port tree before the freeze, and the review record bound to that tree by manifest | cross-vendor *authorship* to a registered spec, which weakens the conflict in §9 and adds an uncontrolled authoring step of its own | draft; C10 and the digest binding added round 1; extent corrected and C10 hardened round 2 |
-| **D-10** | The E decision patterns (§5.3 i) | **CONFIRMED iff PLACEMENT-COLLAPSE (S1) on ≥ 3 of the 4 narrow numeric classes, *and* the B/C control gate holds, *and* class 4 does not collapse; R1-UNSUPPORTED iff E reads HIGH on the primary on ≥ 3 of 4; LABEL-COLLAPSE-ONLY iff COLLAPSE on ≥ 3 without placement collapse on ≥ 3; every other pattern INDETERMINATE**, all-MID explicitly included, with §5.3's ordered decision table making the whole rule total | ≥ 2 of 4 (more easily decided in both directions) or all 4 (harder in both); and confirmation on the *primary* rather than on S1 placement — the round-1 form, which round 2 found reads the wrong mechanism: because `H ⊆ raw`, an arm E that still places records on 40 and 70 but mislabels them loses H-coverage entirely and would have read CONFIRMED while the hugging R1 predicts would vanish was still there. The round-1 draft registered only the falsification half, which let a motivated analyst call 2 COLLAPSE + 2 MID a confirmation afterwards | draft; confirmation half added round 1; mechanism and totality fixed round 2 |
+| **D-10** | The E decision patterns (§5.3 i) | **CONFIRMED iff PLACEMENT-COLLAPSE (S1) on ≥ 3 of the 4 narrow numeric classes, *and* arm E's S5 labels are at the ceiling (§4.6), *and* the B/C control gate holds, *and* class 4 does not collapse; R1-UNSUPPORTED iff E reads HIGH on the primary on ≥ 3 of 4; LABEL-COLLAPSE-ONLY iff COLLAPSE on ≥ 3 without placement collapse on ≥ 3; every other pattern INDETERMINATE**, all-MID explicitly included, with §5.3's ordered decision table making the whole rule total | ≥ 2 of 4 (more easily decided in both directions) or all 4 (harder in both); and confirmation on the *primary* rather than on S1 placement — the round-1 form, which round 2 found reads the wrong mechanism: because `H ⊆ raw`, an arm E that still places records on 40 and 70 but mislabels them loses H-coverage entirely and would have read CONFIRMED while the hugging R1 predicts would vanish was still there. The round-1 draft registered only the falsification half, which let a motivated analyst call 2 COLLAPSE + 2 MID a confirmation afterwards | draft; confirmation half added round 1; mechanism and totality fixed round 2 |
 | **D-11** | Which classes the collapse prediction covers (§2.3, §5.3) | **0, 1, 2, 5 only**; classes 3 and 4 predicted TRACKING everywhere | include class 3, which a diffuse author covers by accident across a 30-wide band (27-wide in arm D) and which would therefore flatter the prediction | draft |
 | **D-12** | S10 old-edge cross-scoring status (§4.6, §5.3 ii) | **registered secondary with its own registered predicted pattern** | promote to primary (it is the sharper measure of the rename claim) or drop it (it is the only registered probe on contamination) | draft |
 | **D-13** | Unequal valid counts across arms (§2.8, §4.2) | **no truncation**; the primary endpoint's denominator is N for every arm (intent-to-treat), and the per-protocol secondary S11 uses each arm's own `V_X` with a caution if two arms differ by more than 2 | truncate every arm to the common minimum, at the cost of discarding admitted runs. Round 2's move of the primary to N makes this decision smaller than it was: unequal denominators now affect only the secondary | draft; scope narrowed round 2 |

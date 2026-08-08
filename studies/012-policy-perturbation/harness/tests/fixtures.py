@@ -22,6 +22,14 @@ at two pairs and a set of literals for (40, 70) would say nothing about arm D:
                         order (`DROP_HISTOGRAM`)
   `COMPLETION_EMPTY`  — §3.3's authoring-empty run: admissible evidence, no
                         parseable array, valid, covering nothing
+  `LABELLED_NO_CLASS` — one accepted, correctly labelled record satisfying no
+                        class predicate (round 4, finding 9): the covered-class
+                        set is empty and the run held H records anyway
+  `quarantined_only_records`
+                      — one accepted record, quarantined, whose predicates put
+                        it in classes 2 and 3 (round 4, finding 9): reached in
+                        the raw and Q senses, covered in neither
+                        (`QUARANTINED_ONLY_PROFILE`)
 
 The slot machinery uses the REAL driver's seal and ledger (`batch.seal_slot`,
 `batch.ledger_record`, `batch.record_digest`) rather than hand-written
@@ -255,6 +263,37 @@ DROP_HISTOGRAM = {"schema": 1, "decimal-form": 1, "country-form": 1,
                   "duplicate-id": 1}
 DROP_PROFILE = {"accepted": ["ridgeline-supplies"], "h": ["ridgeline-supplies"],
                 "q": [], "covered": [], "raw": [], "dropCodes": DROP_HISTOGRAM}
+
+# Round 4, finding 9's first case: ONE record, accepted and correctly labelled —
+# a score of 12 with no personal data and no sanctions hit is `clear` under the
+# mirror at every registered pair — that satisfies none of the six class
+# predicates. The run reached no class, so `coveredNothing` is true; the scorer
+# used to compute "did this run hold a correctly labelled record at all", which
+# published `coveredClasses: []` beside `coveredNothing: false`.
+LABELLED_NO_CLASS = [RIDGELINE]
+LABELLED_NO_CLASS_PROFILE = {"accepted": ["ridgeline-supplies"],
+                             "h": ["ridgeline-supplies"], "q": [],
+                             "covered": [], "raw": [], "qIntersection": [],
+                             "dropCodes": {}}
+
+
+def quarantined_only_records(t_low, t_high) -> list:
+    """Round 4, finding 9's second case: the one record of `partial_records()`
+    this arm's mirror quarantines, alone.
+
+    The array parses, the compiler accepts it, and the record's predicates put
+    it in classes 2 and 3 — so the run REACHES classes in the raw (S1) and Q
+    (S2) senses and covers none of them, because coverage is over H. Its
+    covered-class set is empty and `coveredNothing` is true.
+    """
+    return [record for record in partial_records(t_low, t_high)
+            if record["caseId"] == "mislabelled-at-low"]
+
+
+QUARANTINED_ONLY_PROFILE = {"accepted": ["mislabelled-at-low"], "h": [],
+                            "q": ["mislabelled-at-low"],
+                            "covered": [], "raw": [2, 3],
+                            "qIntersection": [2, 3], "dropCodes": {}}
 
 # The bracketed aside never parses as a JSON array, so the record array wins
 # extraction — the compiler's widest-span rule, exercised rather than assumed.

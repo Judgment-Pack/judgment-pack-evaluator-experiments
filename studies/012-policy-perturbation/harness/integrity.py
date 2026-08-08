@@ -949,13 +949,27 @@ def verify_mirror2(study: str = STUDY, pairs: dict = None) -> list:
 
 # --- the whole-tree manifest ([D-20], from round 3 on) -----------------------
 
-# The manifest's carrier files, excluded in code rather than by the registry's
-# list (§2.10, round 3 finding 1): PINS.json carries the manifest digest and is
-# edited at registered moments after the freeze, and PREREG-REVIEW.md carries
-# the attestation — a manifest covering its own carriers changes the moment the
-# digest is written down. Each is bound otherwise: the registry by the per-run
-# pinsSha256 stamp, the review record by being the attestation.
+# The manifest's carrier handling (§2.10, round 3 finding 1 and round 4
+# finding 2): PREREG-REVIEW.md is excluded — it carries the attestation —
+# and PINS.json is bound through its NORMALIZED PROJECTION: the registry
+# with its three post-freeze members nulled, serialized canonically, hashed
+# into the manifest as its own entry. A covered-file edit paired with a
+# registry co-edit therefore fails the recomputation.
 MANIFEST_CARRIERS = ("harness/PINS.json", "PREREG-REVIEW.md")
+POST_FREEZE_MEMBERS = (("freeze", "treeManifestSha256"),
+                       ("golden", "sha256"),
+                       ("isolationNegative", "assent"))
+
+
+def normalized_pins(pins: dict) -> bytes:
+    """The registry as the manifest binds it: the three members that are
+    edited at registered moments after the freeze set to null, everything
+    else byte-significant (§2.10)."""
+    clone = json.loads(json.dumps(pins))
+    for parent, member in POST_FREEZE_MEMBERS:
+        clone.setdefault(parent, {})[member] = None
+    return (json.dumps(clone, sort_keys=True, ensure_ascii=True,
+                       separators=(",", ":")) + "\n").encode("utf-8")
 
 
 def tree_manifest(study: str = STUDY, excluded: tuple = ()) -> str:
@@ -981,6 +995,14 @@ def tree_manifest(study: str = STUDY, excluded: tuple = ()) -> str:
             data = handle.read()
         entries.append("%s %d %s" % (name, len(data),
                                      hashlib.sha256(data).hexdigest()))
+    # The registry's normalized projection is a manifest entry of its own
+    # (round 4, finding 2): the tree binds PINS.json minus exactly the
+    # members the ceremony edits after the freeze.
+    pins_path = os.path.join(study, "harness", "PINS.json")
+    if os.path.isfile(pins_path):
+        data = normalized_pins(load_json(pins_path))
+        entries.append("harness/PINS.json#normalized %d %s"
+                       % (len(data), hashlib.sha256(data).hexdigest()))
     manifest = "\n".join(sorted(entries)) + "\n"
     return hashlib.sha256(manifest.encode("utf-8")).hexdigest()
 
@@ -991,7 +1013,15 @@ def verify_tree(study: str = STUDY, pins: dict = None) -> str:
     freeze = pins.get("freeze", {})
     pinned = freeze.get("treeManifestSha256")
     if pinned is None:
-        return "unbound (pre-final-round; §2.10 applies from round 3 onward)"
+        # The two freeze pins land together or not at all (round 4,
+        # finding 1): a frozen preregistration with no tree binding is the
+        # state [D-20] exists to prevent, not a stage.
+        if freeze.get("preregistrationSha256") is not None:
+            raise IntegrityError(
+                "the preregistration is frozen (preregistrationSha256 is "
+                "filled) and treeManifestSha256 is null: a frozen study "
+                "with no tree binding refuses (§2.10)")
+        return "unbound (pre-freeze; §2.10 binds the tree at the freeze)"
     actual = tree_manifest(study, tuple(freeze.get("excluded", ())))
     if actual != bare(pinned):
         raise IntegrityError(

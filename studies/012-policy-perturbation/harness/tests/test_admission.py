@@ -32,6 +32,17 @@ and a `pipeline-invalid` run at known `k` and `n`, a synthetic arm at (45, 72)
 reproducing the six classes at the shifted edges, and a synthetic arm covering
 the new-keyed classes and not the old-keyed ones (S10 at a known answer).
 
+Two round-4 dispositions land here:
+
+  * **finding 6** — §5.3 (ii)'s arm-D scenarios drive the REGISTERED condition
+    for `COVERAGE-FOLLOWS-THE-NUMBERS` (new-keyed HIGH on at least three of the
+    four narrow numeric classes, old-keyed not HIGH-patterned), including the
+    two cases that condition and the code's earlier all-six-TRACKING rule
+    disagree about;
+  * **finding 9** — `coveredNothing` is the empty covered-class set, and the two
+    runs the finding names are built and scored: a correctly labelled record
+    outside all six predicates, and an all-Q class-reaching run.
+
 Nothing here touches the committed tree, reaches a network or runs a CLI.
 """
 from __future__ import annotations
@@ -333,6 +344,9 @@ def test_the_drop_code_element_set_produces_the_registered_histogram(scored):
     assert row["dropCodes"] == fixtures.DROP_HISTOGRAM
     assert row["accepted"] == len(fixtures.DROP_PROFILE["accepted"])
     assert row["coveredClasses"] == fixtures.DROP_PROFILE["covered"]
+    # The one surviving element is correctly labelled and satisfies no class
+    # predicate, so this run reached no class (round 4, finding 9).
+    assert row["h"] == 1 and row["coveredNothing"] is True
 
 
 def test_the_mislabel_fixture_reaches_a_class_only_through_Q(scored):
@@ -804,36 +818,51 @@ def test_rows_four_and_five_cannot_both_hold(arm_blocks, pins):
 D_NARROW_COLLAPSE = [(0, 0), (0, 0), (0, 0), (30, 30), (30, 30), (0, 0)]
 D_OLD_EDGES_HELD = [30, 30, 30, 30, 30, 30]
 D_OLD_EDGES_GONE = [0, 0, 0, 30, 30, 0]
-# Two of the four narrow classes LOW and two MID: one short of the three §5.3
-# (i)'s pattern minimum registers, which is the mixed case §5.3 (ii) names no
-# outcome for.
-D_MIXED = [(0, 0), (0, 0), (15, 15), (30, 30), (30, 30), (15, 15)]
+# Round 4, finding 6: the registered condition for the first outcome is
+# new-keyed HIGH on the narrow numeric classes with the old-keyed levels NOT
+# HIGH-patterned — it says nothing about the non-narrow classes. Arm D HIGH on
+# all four narrow classes and MID on class 3 satisfies it, and reads TRACKING on
+# five contrasts rather than six, which the code's earlier all-six rule refused.
+D_NARROW_HELD_CLASS_THREE_MID = [(30, 30), (30, 30), (30, 30), (15, 15),
+                                 (30, 30), (30, 30)]
 
 D_SCENARIOS = (
-    {"why": "arm D tracks arm A on all six classes under its own family: the "
-            "prediction, and coverage follows the numbers",
-     "pattern": PERFECT, "oldEdge": D_OLD_EDGES_GONE,
+    {"why": "arm D's new-keyed verdicts are HIGH on all four narrow numeric "
+            "classes and its old-keyed ones are not HIGH-patterned: coverage "
+            "follows the numbers — and it still does with class 3's contrast "
+            "INDETERMINATE, which the registered condition says nothing about",
+     "pattern": D_NARROW_HELD_CLASS_THREE_MID, "oldEdge": D_OLD_EDGES_GONE,
      "publishedAs": "COVERAGE-FOLLOWS-THE-NUMBERS",
-     "counts": {"newKeyedLow": 0, "oldKeyedHigh": 0, "oldKeyedLow": 4,
-                "tracking": 6, "narrowMinimum": 3, "classes": 6}},
+     "counts": {"newKeyedHigh": 4, "newKeyedLow": 0, "oldKeyedHigh": 0,
+                "oldKeyedLow": 4, "tracking": 5, "narrowMinimum": 3,
+                "classes": 6}},
     {"why": "arm D's new-keyed verdicts are LOW on the narrow numeric classes "
             "while its old-keyed ones are HIGH: the model reproduced 40 and 70 "
             "against a text that says 45 and 72",
      "pattern": D_NARROW_COLLAPSE, "oldEdge": D_OLD_EDGES_HELD,
      "publishedAs": "OLD-EDGE-PREFERENCE",
-     "counts": {"newKeyedLow": 4, "oldKeyedHigh": 4, "oldKeyedLow": 0,
-                "tracking": 2, "narrowMinimum": 3, "classes": 6}},
+     "counts": {"newKeyedHigh": 0, "newKeyedLow": 4, "oldKeyedHigh": 4,
+                "oldKeyedLow": 0, "tracking": 2, "narrowMinimum": 3,
+                "classes": 6}},
     {"why": "neither threshold pair: a general degradation, published as one",
      "pattern": D_NARROW_COLLAPSE, "oldEdge": D_OLD_EDGES_GONE,
      "publishedAs": "GENERAL-DEGRADATION",
-     "counts": {"newKeyedLow": 4, "oldKeyedHigh": 0, "oldKeyedLow": 4,
-                "tracking": 2, "narrowMinimum": 3, "classes": 6}},
-    {"why": "two narrow classes LOW and two MID: the mixed case §5.3 (ii) "
-            "names no outcome for",
-     "pattern": D_MIXED, "oldEdge": D_OLD_EDGES_HELD,
+     "counts": {"newKeyedHigh": 0, "newKeyedLow": 4, "oldKeyedHigh": 0,
+                "oldKeyedLow": 4, "tracking": 2, "narrowMinimum": 3,
+                "classes": 6}},
+    # The case the old-keyed exclusion exists for, and the one the earlier code
+    # published as the first outcome: arm D tracks arm A on all six classes AND
+    # its records reach the old edges too, so both keyings read HIGH. That is
+    # not "coverage follows the numbers" — the numbers do not separate the two
+    # threshold pairs at all — and §5.3 (ii) names no outcome for it.
+    {"why": "new-keyed and old-keyed both HIGH-patterned: the records cover "
+            "both threshold pairs, which the registered exclusion refuses to "
+            "call coverage following D's numbers",
+     "pattern": PERFECT, "oldEdge": D_OLD_EDGES_HELD,
      "publishedAs": "D-INDETERMINATE",
-     "counts": {"newKeyedLow": 2, "oldKeyedHigh": 4, "oldKeyedLow": 0,
-                "tracking": 2, "narrowMinimum": 3, "classes": 6}},
+     "counts": {"newKeyedHigh": 4, "newKeyedLow": 0, "oldKeyedHigh": 4,
+                "oldKeyedLow": 0, "tracking": 6, "narrowMinimum": 3,
+                "classes": 6}},
 )
 
 
@@ -844,6 +873,13 @@ def test_arm_ds_registered_outcomes_all_fire_at_known_integers(scenario,
     """Round 3, finding 10: §5.3 (ii) registers three outcomes for arm D and
     the scorer computed none of them, publishing marginal old-edge levels and
     aggregating outcomes for arm E alone.
+
+    Round 4, finding 6: the scenarios drive the REGISTERED condition for the
+    first outcome — new-keyed HIGH on at least three of the four narrow numeric
+    classes with the old-keyed levels not HIGH-patterned — rather than the code's
+    stricter invention (all six contrasts TRACKING, the old-keyed levels never
+    consulted). The first and last scenarios are the two the two rules disagree
+    about, in opposite directions.
 
     Each row fires here from a synthetic population at known integers, and the
     counts the scorer derived are asserted beside the outcome so a row that
@@ -864,6 +900,17 @@ def test_arm_ds_registered_outcomes_all_fire_at_known_integers(scenario,
         assert outcome["separates"] == score_rates.D_OLD_EDGE_NOTE
     else:
         assert outcome["explanations"] == [] and outcome["separates"] is None
+    # The first scenario's point, stated rather than left to a count: a class
+    # OUTSIDE the four narrow numeric ones reads INDETERMINATE, and §5.3 (ii)'s
+    # condition — stated over the narrow classes and the old-keyed levels —
+    # holds anyway. The earlier all-six-TRACKING rule published D-INDETERMINATE
+    # here (round 4, finding 6).
+    if scenario["pattern"] is D_NARROW_HELD_CLASS_THREE_MID:
+        contrasts = {row["index"]: row["contrast"]
+                     for row in verdicts["contrasts"]["D"]}
+        assert contrasts[3] == "INDETERMINATE"
+        assert all(contrasts[index] == "TRACKING"
+                   for index in score_rates.NARROW_NUMERIC_CLASSES)
     # Arm D's outcome adjudicates nothing about R1: the decision-table row is
     # what it would have been without arm D in the batch at all.
     assert verdicts["decisionRow"]["row"] == 4        # arm E is PERFECT here
@@ -888,8 +935,7 @@ def _arm_d_shapes(population) -> list:
     # One accepted record, quarantined by the mirror: the array parses, the
     # compiler accepts it, and no class is reached in H.
     all_quarantined = fixtures.completion(
-        [record for record in fixtures.partial_records(low, high)
-         if record["caseId"] == "mislabelled-at-low"])
+        fixtures.quarantined_only_records(low, high))
     specs = [{} for _ in range(12)]
     specs[3] = {"answer": all_dropped}            # D/run-001
     specs[5] = {"answer": all_quarantined}        # D/run-002
@@ -937,6 +983,81 @@ def test_authoring_empty_is_the_partition_row_and_not_the_wider_quantity(
     assert quarantined["accepted"] == 1 and quarantined["h"] == 0 \
         and quarantined["q"] == 1
     assert empty["accepted"] == 0 and empty["dropped"] == 0
+
+
+def _covered_nothing_shapes(population) -> list:
+    """One round of the registered call order — B, C, A, D, E — carrying the two
+    shapes round 4's finding 9 names, in two different arms.
+
+    Arm A's slot holds a single accepted record its own mirror labels correctly
+    and no class predicate admits; arm E's holds a single accepted record its
+    own mirror quarantines whose predicates put it in classes 2 and 3. Both
+    reached no class. The first is the case the old formula got wrong; the
+    second is the case whose ANSWER is unchanged and whose REASON is not.
+    """
+    specs = [{} for _ in range(5)]
+    specs[2] = {"answer": fixtures.completion(fixtures.LABELLED_NO_CLASS)}
+    specs[4] = {"answer": fixtures.completion(fixtures.quarantined_only_records(
+        *fixtures.arm_pair(population.arms_root, "E")))}
+    return specs
+
+
+@pytest.fixture(scope="module")
+def covered_nothing_shapes(pins, study):
+    """The five-slot population above, built and scored once."""
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build(_covered_nothing_shapes(population))
+        yield population, population.score_runs()
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_covered_nothing_is_the_empty_covered_class_set(covered_nothing_shapes):
+    """Round 4, finding 9: the published surface defines `coveredNothing` as a
+    valid run that reached no class, and the scorer computed `empty or not
+    accepted or not high` — which asks whether the run held any correctly
+    labelled record, a different question with a different answer.
+
+    Arm A's slot is where the two questions disagree: one accepted record, in H,
+    satisfying no class predicate. Its covered-class set is empty and the old
+    formula called it a covering run.
+
+    Arm E's slot is the other case the finding names, and the registered surface
+    is what says what it is: coverage is over H — a class is reached when a
+    record this arm's mirror labelled CORRECTLY satisfies its predicate — so a
+    run whose only record is quarantined covers nothing even though it reaches
+    classes 2 and 3 in the raw (S1) and Q (S2) senses, which are published as
+    their own members beside it. `coveredNothing` is true there too.
+    """
+    _population, results = covered_nothing_shapes
+    labelled = results["byKey"][("A", "run-001")]
+    profile = fixtures.LABELLED_NO_CLASS_PROFILE
+    assert labelled["valid"] and labelled["code"] is None
+    assert labelled["accepted"] == len(profile["accepted"])
+    assert labelled["h"] == len(profile["h"]) == 1 and labelled["q"] == 0
+    assert labelled["coveredClasses"] == profile["covered"] == []
+    assert labelled["rawClasses"] == profile["raw"] == []
+    assert labelled["coveredNothing"] is True
+    # §3.3's own row is untouched by this: the array parsed (round 3, finding 13).
+    assert labelled["authoringEmpty"] is False and labelled["dropCodes"] == {}
+
+    quarantined = results["byKey"][("E", "run-001")]
+    q_profile = fixtures.QUARANTINED_ONLY_PROFILE
+    assert quarantined["valid"] and quarantined["accepted"] == 1
+    assert quarantined["h"] == 0 and quarantined["q"] == 1
+    assert quarantined["coveredClasses"] == q_profile["covered"] == []
+    assert quarantined["rawClasses"] == q_profile["raw"] == [2, 3]
+    assert quarantined["qClasses"] == q_profile["qIntersection"] == [2, 3]
+    assert quarantined["coveredNothing"] is True
+    assert quarantined["authoringEmpty"] is False
+
+    # And the identity the member now has, over every valid run in the batch:
+    # `coveredNothing` is the empty covered-class set and nothing else.
+    for row in results["runs"]:
+        if row["valid"]:
+            assert row["coveredNothing"] is (row["coveredClasses"] == []), row["slot"]
 
 
 def test_both_counts_are_published_over_the_same_valid_runs(authoring_shapes,
@@ -1029,6 +1150,12 @@ def test_the_rendered_tables_carry_the_surfaces_round_three_added(arm_blocks,
     """
     blocks = {arm: arm_blocks(arm, PERFECT) for arm in fixtures.ARMS}
     blocks["E"] = arm_blocks("E", PLACEMENT_COLLAPSE)
+    # Arm D at the shape §5.3 (ii) predicts: HIGH under its own family and its
+    # records NOT at the old edges. The default old-edge coverage is the arm's
+    # own, which is right for the four arms keyed at (40, 70) and wrong for D —
+    # and a D reading HIGH under both keyings is D-INDETERMINATE, not the first
+    # outcome (round 4, finding 6).
+    blocks["D"] = arm_blocks("D", PERFECT, (), D_OLD_EDGES_GONE)
     verdicts = score_rates.compute_verdicts(blocks, pins["batch"]["n"], True, True)
     page = score_rates.render_markdown(_renderable(blocks, verdicts, pins))
     assert "| arm | N | I_X | V_X | rho_X = I_X/N | 95% CI | authoring-empty | " \

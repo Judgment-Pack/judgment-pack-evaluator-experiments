@@ -7,7 +7,7 @@ C3 registers the census as a REPLICATION control rather than a reviewed one:
 and must reproduce that study's published headline exactly: 49 runs × 16
 accepted records = 784, 0 dropped, distinct probes per class (2, 6, 2, 24, 26,
 2), 410 of 784 records on or within 0.01 of a named threshold, and an empty
-[23.75, 39) approach band. The census is a registered secondary in this study,
+(23.75, 39) approach band. The census is a registered secondary in this study,
 so its port is replication-controlled against the numbers `DIVERSITY.md`
 published rather than reviewed by eye."
 
@@ -54,7 +54,7 @@ PUBLISHED = {
     # at, strictly above within 1.0).
     "nearEdge": {"39": (0, 0, 192), "40": (89, 103, 3), "70": (100, 78, 41)},
     # The nearest approach from below anywhere in the corpus, which is what
-    # leaves [23.75, 39) empty.
+    # leaves (23.75, 39) empty.
     "nearestBelow39": Decimal("23.75"),
 }
 
@@ -158,7 +158,7 @@ def test_the_hugging_count_is_410_of_784(replicated):
 def test_the_approach_band_below_39_is_empty(replicated, eleven):
     """X3's finding, and the one C3 names: nothing lies within 1.0 below the
     UNSTATED 39 edge, and the nearest approach from below anywhere in the
-    corpus is 23.75 — so the whole band [23.75, 39) is empty."""
+    corpus is 23.75 — so the whole open band (23.75, 39) is empty."""
     rows = {row["edge"]: row for row in replicated["x3"]["edges"]}
     assert sorted(rows) == ["39", "40", "70"]
     for edge, (below, at, above) in PUBLISHED["nearEdge"].items():

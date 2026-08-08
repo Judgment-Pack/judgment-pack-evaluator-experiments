@@ -10,7 +10,8 @@ target cannot drift after the data.
 **Venue:** Study 011's `MIRROR-AGREEMENT.md`, section "(d) Semantic and
 adversarial rewording — genuinely open", in the public repository
 `Judgment-Pack/judgment-pack-evaluator-experiments`; merged to `main` in
-PR #44 (merge commit `3b93d3e7917e917516bd55cf4c7f5285c91fbc13`) on
+PR #44 (its squash commit, `3b93d3e7917e917516bd55cf4c7f5285c91fbc13` —
+one parent, the platform's squash form of a merge) on
 2026-08-07, before this study's draft was committed later the same day.
 
 **URL (commit-pinned):**

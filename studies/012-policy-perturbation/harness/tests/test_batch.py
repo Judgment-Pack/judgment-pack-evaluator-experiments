@@ -1258,6 +1258,13 @@ class IntervalScope(unittest.TestCase):
     bounds are — because a block over an empty denominator carries `ci95: null`
     and is still inside the scope. §4.3's arithmetic is pinned separately, by
     `test_verdict_parity.py`'s registered vectors.
+
+    Round 4, finding 8: the walk is EXHAUSTIVE. It used to return at the first
+    block carrying `ci95`, so an interval published beneath one — a nested rate
+    block under `primary`, say — was invisible to a test whose whole job is to
+    say which blocks carry intervals. The assertion below is over every `ci95`
+    occurrence in the arm's block, at every depth, and the registered eleven are
+    all of them.
     """
 
     # Each path is a block that must carry `ci95`, written as it is reached from
@@ -1294,10 +1301,16 @@ class IntervalScope(unittest.TestCase):
         shutil.rmtree(cls.root, True)
 
     def blocks_carrying_ci95(self, node, path: str) -> set:
+        """Every path at which `ci95` appears, to the bottom of the structure.
+
+        A block that carries the member is recorded AND descended into (round 4,
+        finding 8): stopping there would hide any interval published under it,
+        which is the one thing this walk exists to see.
+        """
         found = set()
         if isinstance(node, dict):
             if "ci95" in node:
-                return {path}
+                found.add(path)
             for key, value in node.items():
                 found |= self.blocks_carrying_ci95(value, "%s.%s" % (path, key)
                                                    if path else key)
@@ -1306,7 +1319,24 @@ class IntervalScope(unittest.TestCase):
                 found |= self.blocks_carrying_ci95(value, path + "[]")
         return found
 
+    def test_the_walk_does_not_stop_at_the_first_interval(self):
+        """The walk itself, on a known answer (round 4, finding 8).
+
+        A block carrying `ci95` with interval-bearing blocks beneath it yields
+        every one of those paths. The old walk returned the outer path and
+        stopped, so the assertion below was over the outermost layer of the
+        published surface rather than over the surface — and a check that has
+        never been shown to fire is prose.
+        """
+        nested = {"outer": {"ci95": [0.0, 1.0], "count": 1,
+                            "inner": {"ci95": [0.0, 1.0], "rate": 1.0},
+                            "rows": [{"ci95": None}, {"rate": None}]}}
+        self.assertEqual(self.blocks_carrying_ci95(nested, ""),
+                         {"outer", "outer.inner", "outer.rows[]"})
+
     def test_the_blocks_carrying_an_interval_are_exactly_the_registered_ones(self):
+        """Over ALL `ci95` occurrences per arm, at every depth: the registered
+        eleven are the whole set and not merely its outermost layer."""
         for arm, block in self.results["arms"].items():
             self.assertEqual(self.blocks_carrying_ci95(block, ""),
                              self.REGISTERED_SCOPE, arm)

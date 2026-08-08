@@ -105,6 +105,20 @@ else:
      `check_environment()` type-checks `credentialCopied` and
      `credentialRemoved` rather than coercing them, because `bool("false")` is
      True and a string there would read a live credential as a removed one.
+ 17. **Arm D's first outcome is §5.3 (ii)'s registered condition, and not a
+     stricter one** (round 4, finding 6): COVERAGE-FOLLOWS-THE-NUMBERS is
+     new-keyed HIGH on at least `D_NARROW_MINIMUM` of the four narrow numeric
+     classes AND the old-keyed (S10) levels not HIGH-patterned. The earlier code
+     required all six D-vs-A contrasts to read TRACKING and never checked the
+     old-keyed exclusion at all, so it withheld the outcome from a D the
+     registration awards it to and published it for a D that reproduced BOTH
+     threshold pairs — the one shape the exclusion exists to catch.
+ 18. **`coveredNothing` is computed from the covered-class set** (round 4,
+     finding 9): the published surface defines it as a valid run that reached no
+     class, so the member is `coveredClasses == []` and nothing else. The earlier
+     `empty or not accepted or not high` asked whether the run held any correctly
+     labelled record, which called a run whose one correctly labelled record
+     satisfies no class predicate a covering run.
 
 The partition that decides every denominator (§3.3):
 
@@ -119,10 +133,13 @@ The partition that decides every denominator (§3.3):
   authoring-empty   admissible evidence and NO PARSEABLE ARRAY — §3.3's own
                     row, and exactly that row (round 3, finding 13): VALID,
                     counted, coverage zero in every class. The wider quantity —
-                    no array, or every element dropped, or no record this arm's
-                    mirror labelled correctly — is a real and reportable
-                    outcome, so it is published beside it as `coveredNothing`
-                    rather than folded into the partition's name
+                    a valid run whose covered-class set is EMPTY, for any
+                    reason: no array, every element dropped, no record this
+                    arm's mirror labelled correctly, or a correctly labelled
+                    record that satisfies no class predicate — is a real and
+                    reportable outcome, so it is published beside it as
+                    `coveredNothing` rather than folded into the partition's
+                    name (round 4, finding 9)
 
 Pipeline-invalid codes, in the order admission evaluates them (the same set
 CODE_PARTITION carries, which §3.3 enumerates member for member and the harness
@@ -461,13 +478,25 @@ READING_TABLE = (
 # `PATTERN_MINIMUM`, three or more of the four, rather than a new number; and
 # the mixed case, for which §5.3 (ii) names no outcome, is published as
 # D-INDETERMINATE rather than silently as one of the three. The first three rows
-# are mutually exclusive — a class reading LOW cannot read TRACKING, and no
-# class reads HIGH and LOW at once — so the order decides no case; it is stated
+# are mutually exclusive — a class reading LOW cannot read HIGH, and no class
+# reads HIGH and LOW at once — so the order decides no case; it is stated
 # anyway, for the reason §5.3's own table states its order.
+#
+# Round 4, finding 6: row 1's condition is §5.3 (ii)'s own, quoted — "new-keyed
+# HIGH on three or more of the four narrow numeric classes, old-keyed not
+# HIGH-patterned" — and BOTH halves are computed. The earlier row 1 asked for
+# TRACKING on all six contrasts and asked nothing about the old-keyed levels,
+# which is a different rule in both directions: it withheld the outcome from a D
+# that satisfies the registration but reads INDETERMINATE on a non-narrow class,
+# and it awarded the outcome to a D whose records reach the old edges too, which
+# is precisely what "old-keyed not HIGH-patterned" excludes.
 D_NARROW_MINIMUM = PATTERN_MINIMUM
 D_OUTCOME_TABLE = (
     {"row": 1,
-     "condition": "arm D reads TRACKING on all six classes under its own family",
+     "condition": "arm D's new-keyed level verdicts are HIGH on %d or more of "
+                  "the four narrow numeric classes and its old-keyed (S10) "
+                  "verdicts are not HIGH-patterned — HIGH on fewer than %d of "
+                  "them" % (D_NARROW_MINIMUM, D_NARROW_MINIMUM),
      "publishedAs": "COVERAGE-FOLLOWS-THE-NUMBERS",
      "gloss": "§5.3 (ii)'s prediction: coverage follows the numbers the policy "
               "names, and D's records moved to D's edges",
@@ -1027,17 +1056,32 @@ def arm_d_outcome(new_levels: list, old_levels: list, contrasts: list) -> dict:
     S10 old-edge rate — the same records keyed to arm A's family predicates,
     labels still D's own — and `contrasts` its §5.2 contrast verdicts against
     arm A. All three are indexed by class.
+
+    The conditions are stated on the LEVELS, class by class, because that is
+    what §5.3 (ii) states them on (round 4, finding 6). `contrasts` decides no
+    row: it carries §5.3 (ii)'s *prediction* — "TRACKING on all six classes
+    under D's own family" — and the count is published beside the outcome as the
+    context a reader wants, never as the condition. An earlier version made the
+    all-six TRACKING count the condition for row 1, which is neither half of the
+    registered sentence.
     """
     narrow = [index for index in NARROW_NUMERIC_CLASSES]
+    new_high = sum(1 for index in narrow if new_levels[index] == "HIGH")
     new_low = sum(1 for index in narrow if new_levels[index] == "LOW")
     old_high = sum(1 for index in narrow if old_levels[index] == "HIGH")
     old_low = sum(1 for index in narrow if old_levels[index] == "LOW")
     tracking = sum(1 for row in contrasts
                    if row["contrast"] == CONTRAST_TABLE[1][1])
-    if tracking == len(contrasts):
+    # "old-keyed not HIGH-patterned", at §5.3 (i)'s own pattern minimum: the
+    # exclusion that separates coverage following D's numbers from a D that
+    # covers both threshold pairs at once.
+    old_high_patterned = old_high >= D_NARROW_MINIMUM
+    if new_high >= D_NARROW_MINIMUM and not old_high_patterned:
         entry = D_OUTCOME_TABLE[0]
-        why = "arm D reads TRACKING on all %d classes under its own family" \
-              % len(contrasts)
+        why = ("new-keyed HIGH on %d of the four narrow numeric classes and "
+               "old-keyed HIGH on %d, which is short of the %d that would make "
+               "the old-keyed levels HIGH-patterned"
+               % (new_high, old_high, D_NARROW_MINIMUM))
     elif new_low >= D_NARROW_MINIMUM and old_high >= D_NARROW_MINIMUM:
         entry = D_OUTCOME_TABLE[1]
         why = ("new-keyed LOW on %d of the four narrow numeric classes and "
@@ -1048,22 +1092,26 @@ def arm_d_outcome(new_levels: list, old_levels: list, contrasts: list) -> dict:
                "old-keyed LOW on %d" % (new_low, old_low))
     else:
         entry = D_OUTCOME_TABLE[3]
-        why = ("new-keyed LOW on %d of the four narrow numeric classes, "
-               "old-keyed HIGH on %d and LOW on %d, TRACKING on %d of %d"
-               % (new_low, old_high, old_low, tracking, len(contrasts)))
+        why = ("new-keyed HIGH on %d of the four narrow numeric classes and LOW "
+               "on %d, old-keyed HIGH on %d and LOW on %d, TRACKING on %d of %d"
+               % (new_high, new_low, old_high, old_low, tracking, len(contrasts)))
     return {"row": entry["row"], "publishedAs": entry["publishedAs"],
             "condition": entry["condition"], "gloss": entry["gloss"],
             "explanations": list(entry["explanations"]),
             "separates": D_OLD_EDGE_NOTE if entry["explanations"] else None,
-            "counts": {"newKeyedLow": new_low, "oldKeyedHigh": old_high,
-                       "oldKeyedLow": old_low, "tracking": tracking,
+            "counts": {"newKeyedHigh": new_high, "newKeyedLow": new_low,
+                       "oldKeyedHigh": old_high, "oldKeyedLow": old_low,
+                       "tracking": tracking,
                        "narrowMinimum": D_NARROW_MINIMUM,
                        "classes": len(contrasts)},
             "why": why,
             "note": "§5.3 (ii): the new-keyed verdicts are arm D's own-family "
                     "primary levels and the old-keyed ones are S10's, under "
-                    "ARM A's predicates with D's own labels. This outcome "
-                    "adjudicates nothing about R1 and no §5.3 (i) row reads it."}
+                    "ARM A's predicates with D's own labels. The rows are "
+                    "decided by those levels; `tracking` is §5.3 (ii)'s "
+                    "prediction reported beside them and decides no row (round "
+                    "4, finding 6). This outcome adjudicates nothing about R1 "
+                    "and no §5.3 (i) row reads it."}
 
 
 def review_tier(coverage: dict, mislabel_share) -> dict:
@@ -2111,11 +2159,15 @@ def score_run(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
         "authoringEmpty": empty,
         "noParseableArray": empty,
         # The wider quantity the narrowed member used to carry, published under
-        # its own name so nothing is lost: the run produced no record that
-        # reached any class — no array, or every element dropped, or nothing
-        # this arm's mirror labelled correctly. It is a real authoring outcome
-        # and a reader wants it; it is not §3.3's partition row.
-        "coveredNothing": bool(empty or not accepted or not high),
+        # its own name so nothing is lost: this run reached NO class. Computed
+        # from the covered set this scoring just derived and from nothing else
+        # (round 4, finding 9) — `empty or not accepted or not high` asked
+        # whether the run held any correctly labelled record at all, so a run
+        # whose one correctly labelled record satisfies no class predicate
+        # published `coveredClasses: []` beside `coveredNothing: false`. It is a
+        # real authoring outcome and a reader wants it; it is not §3.3's
+        # partition row, which is `authoringEmpty` above.
+        "coveredNothing": not covered,
         "coveredClasses": covered,
         "rawClasses": raw_covered,
         "qClasses": q_reached,
@@ -2796,8 +2848,9 @@ def score_arm(arm: str, definition: dict, n: int, rows: list,
             "invalidCodes": codes,
             # §3.3's partition row: no code, no parseable array. Narrowed to the
             # table's meaning in round 3 (finding 13); `coveredNothing` beside
-            # it is the wider count — every valid run that reached no class at
-            # all, whatever the reason — so neither is read as the other.
+            # it is the wider count — every valid run whose `coveredClasses` is
+            # empty, whatever the reason — so neither is read as the other. The
+            # note below says exactly what each one counts (round 4, finding 9).
             "authoringEmpty": sum(1 for row in valid if row["authoringEmpty"]),
             "coveredNothing": sum(1 for row in valid if row["coveredNothing"]),
             "unexpectedEntries": unexpected,
@@ -2814,8 +2867,12 @@ def score_arm(arm: str, definition: dict, n: int, rows: list,
                     "secondary's denominator (S11) and the census's population. An "
                     "authoring-empty run is VALID and covers nothing. "
                     "`authoringEmpty` is §3.3's partition row — no code, no "
-                    "parseable array — and `coveredNothing` is the wider count "
-                    "of valid runs that reached no class at all." % (n, v),
+                    "parseable array — and `coveredNothing` is the wider count: "
+                    "valid runs whose `coveredClasses` is empty, meaning no "
+                    "class was reached by a record this arm's mirror labelled "
+                    "correctly, for any reason (no array, every element "
+                    "dropped, every record quarantined, or correctly labelled "
+                    "records that satisfy no class predicate)." % (n, v),
         },
         "classes": class_rows,
         "coverageBreadth": {
@@ -3214,7 +3271,8 @@ def render_markdown(results: dict) -> str:
         "The primary denominator is N (intent-to-treat, §4.2 [D-24]).",
         "",
         "`authoring-empty` is §3.3's partition row — no code, no parseable array;",
-        "`covered nothing` is the wider count of valid runs that reached no class.",
+        "`covered nothing` is the wider count: valid runs whose covered-class "
+        "set is empty, so no class was reached by a correctly labelled record.",
         "",
         "| arm | N | I_X | V_X | rho_X = I_X/N | 95% CI | authoring-empty | "
         "covered nothing | caution |",

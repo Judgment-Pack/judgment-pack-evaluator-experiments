@@ -18,6 +18,14 @@ registered partition, and §4.2's arithmetic would have nowhere to put it.
 The table is located by its SHAPE — the pipe table whose header is
 `| outcome | partition |` — so it is still found when the file is edited
 above it, and a line number never becomes part of the registration.
+
+Round 4, finding 7: the third leg is a REACHABILITY check and not a string
+harvest. It walks the scorer's admission call graph — `admit()` and
+`score_run()`, then every function in this module they call, transitively — and
+collects the codes only from functions that walk reaches. A code returned from a
+function nothing calls is dead code, and a partition whose third leg counted it
+would certify a registered outcome that cannot happen, which is the first of the
+two failures the three-way diff exists to catch.
 """
 from __future__ import annotations
 import ast
@@ -53,18 +61,69 @@ def partition_table(body: str) -> tuple:
                          "preregistration: the partition is not registered")
 
 
-def returnable_codes() -> set:
-    """Every code `admit()` and `score_run()` can name, read off the source
-    rather than off a comment: the first member of every tuple they return or
-    assign to the `(code, detail, empty)` triple."""
-    with open(score_rates.__file__.replace(".pyc", ".py"), "rb") as handle:
-        tree = ast.parse(handle.read().decode("utf-8"))
-    codes = set()
+ADMISSION_ROOTS = ("admit", "score_run")
+
+
+def _defined_functions(tree) -> dict:
+    """{name: node} for every function the module defines, nested ones included
+    — a call graph blind to a nested helper would be a call graph with a hole in
+    it. Two definitions of one name would make the map ambiguous, so that is a
+    failure here rather than a silent overwrite."""
+    table: dict = {}
     for node in ast.walk(tree):
-        if not (isinstance(node, ast.FunctionDef)
-                and node.name in ("admit", "score_run")):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            assert node.name not in table, (
+                "%s is defined twice: this walk resolves a call by name" % node.name)
+            table[node.name] = node
+    return table
+
+
+def _own_body(node) -> list:
+    """Every node in this function's body EXCEPT the bodies of the functions
+    defined inside it. A nested definition is reached by CALLING it, which is
+    the call graph's job; folding its body in here is exactly the conflation
+    that let dead code count as reachable."""
+    stack, own = list(node.body), []
+    while stack:
+        current = stack.pop()
+        own.append(current)
+        for child in ast.iter_child_nodes(current):
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            stack.append(child)
+    return own
+
+
+def returnable_codes(source: str = None) -> set:
+    """Every code the admission path can actually name, read off the source
+    rather than off a comment: the first member of every tuple returned or
+    assigned to the `(code, detail, empty)` triple, collected from `admit()`,
+    `score_run()`, and every function in the module those two REACH by calling
+    it — transitively, by a bare-name call.
+
+    `source` defaults to the scorer's own bytes; the parameter exists so a test
+    can hold this walk to a probe whose reachable and dead codes are known,
+    because a reachability check nobody has run on a known answer is a claim
+    about a walk rather than a walk.
+
+    Calls through a module attribute (`records_compile.compile_records`) leave
+    this module and are not followed: a code is this scorer's outcome only where
+    this scorer names it, which is what `CODE_PARTITION` is a list of.
+    """
+    if source is None:
+        with open(score_rates.__file__.replace(".pyc", ".py"), "rb") as handle:
+            source = handle.read().decode("utf-8")
+    tree = ast.parse(source)
+    defined = _defined_functions(tree)
+    codes, reached, queue = set(), set(), list(ADMISSION_ROOTS)
+    while queue:
+        name = queue.pop()
+        if name in reached or name not in defined:
             continue
-        for inner in ast.walk(node):
+        reached.add(name)
+        for inner in _own_body(defined[name]):
+            if isinstance(inner, ast.Call) and isinstance(inner.func, ast.Name):
+                queue.append(inner.func.id)
             value = getattr(inner, "value", None) if isinstance(
                 inner, (ast.Return, ast.Assign)) else None
             if isinstance(value, ast.Tuple) and value.elts:
@@ -72,6 +131,32 @@ def returnable_codes() -> set:
                 if isinstance(first, ast.Constant) and isinstance(first.value, str):
                     codes.add(first.value)
     return codes
+
+
+# A probe with a known answer, held to the walk above: `admit()` calls one
+# helper and not the other, so `session-count` is reachable and `dead-code` is a
+# code no run can be given. The old harvest returned both.
+REACHABILITY_PROBE = '''
+def admit(slot):
+    if not _regular(slot):
+        return "slot-shape", "missing", False
+    failure = _sessions(slot)
+    if failure is not None:
+        return failure
+    return None, None, False
+
+
+def _regular(path):
+    return True
+
+
+def _sessions(slot):
+    return "session-count", "not the integer 1", False
+
+
+def never_called(slot):
+    return "dead-code", "no caller reaches this", False
+'''
 
 
 def test_the_registered_partition_is_the_scorers_partition(preregistration):
@@ -90,7 +175,26 @@ def test_the_partition_is_exhaustive_over_one_class(preregistration):
     assert set(score_rates.CODE_PARTITION.values()) == {"pipeline-invalid"}
 
 
+def test_the_reachability_walk_ignores_a_code_no_call_can_reach():
+    """Round 4, finding 7: the promised reachability check was a string harvest,
+    so a code placed in a function nothing calls read as an outcome a run can be
+    given. The walk is held to a probe with a known answer — one helper called
+    and one not — because a check that has never been shown to fire is prose.
+    """
+    assert returnable_codes(REACHABILITY_PROBE) == {"slot-shape", "session-count"}
+    # Named the other way round as well, so the assertion above cannot pass by
+    # collecting nothing at all: the dead code is in the source and not the set.
+    assert "dead-code" in REACHABILITY_PROBE
+    assert "dead-code" not in returnable_codes(REACHABILITY_PROBE)
+
+
 def test_the_codes_the_scorer_can_return_are_the_codes_it_registers(preregistration):
+    """The third leg of the three-way diff: what the admission path can name.
+
+    `returnable_codes()` reaches the codes through the call graph (round 4,
+    finding 7), so this is a statement about the codes a run can be given and
+    not about the string literals the file contains.
+    """
     registered, _valid = partition_table(preregistration)
     returnable = returnable_codes()
     assert returnable == set(score_rates.CODE_PARTITION), (

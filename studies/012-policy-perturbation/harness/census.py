@@ -363,7 +363,7 @@ def _x2(vendors: list, edge_values: list) -> dict:
 def _x3(vendors: list, arm_edges: tuple) -> dict:
     """X3 — the near-edge tables, per edge: the exact values strictly below
     within 1.0, the count exactly at, and the exact values strictly above
-    within 1.0. This is the table that showed the empty [23.75, 39) band."""
+    within 1.0. This is the table that showed the empty (23.75, 39) band."""
     rows = []
     for edge, stated in arm_edges:
         below, above, at = collections.Counter(), collections.Counter(), 0

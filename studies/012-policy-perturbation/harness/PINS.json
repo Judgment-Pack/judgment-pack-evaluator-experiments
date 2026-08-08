@@ -15,7 +15,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:7f6d235b96964807db9b7676f07b1867ac93741876d94a43878d7e5ff5899529"
+    "sha256": "sha256:08787974a322e061280d5a87fc61817f37a3af3708a79de706b61e6b4ce8e3e4"
   },
   "codex": {
     "model": "gpt-5.6-sol",
@@ -84,7 +84,7 @@
   },
   "claim": {
     "path": "CLAIM.md",
-    "sha256": "sha256:5a5bf538b1482e4c4a5bd5da97a23a312644ae608dc3cab423f4fd213aae367b",
+    "sha256": "sha256:7bdf694688b6c963b5a79bf88d26d62d470c4cf342452f4e698a4d1323ddec1e",
     "note": "The verbatim published wording of R1, its venues, URLs and retrieval date (§1). Two records: 011's MIRROR-AGREEMENT.md §(d) at the commit-pinned URL (the pre-stated directional prediction), and issue #45 (the restatement carrying both halves)."
   },
   "probePrompt": {

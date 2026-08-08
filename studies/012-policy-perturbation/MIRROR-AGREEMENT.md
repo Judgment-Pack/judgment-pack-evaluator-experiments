@@ -54,8 +54,10 @@ retained per attempt. The empty working directory and the fresh `CODEX_HOME`
 close the passive paths (nothing to list where it stood, no operator
 configuration reaching it); the active path is closed only by the evidence.
 
-Beyond the policy bytes the prompt supplied 706 bytes of fixed interface text
-— the framing line, the record shape (`sanctionsHit` bool,
+Beyond the policy bytes the prompt supplied 706 bytes of fixed interface
+text — a 28-byte framing prefix ("Here is a policy document." and its blank
+line) and a 678-byte instruction suffix, measured from the retained prompts,
+which carry no final newline — the record shape (`sanctionsHit` bool,
 `registeredCountry` string, `handlesPersonalData` bool, `riskScore` decimal
 string), the three outcome tokens (`clear`, `manual-review`, `reject`), the
 no-imports/no-I/O rules, and the request for a consulted statement —

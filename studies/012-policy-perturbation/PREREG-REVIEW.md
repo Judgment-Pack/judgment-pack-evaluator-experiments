@@ -770,3 +770,113 @@ already bind:
 | **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
 | **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
 | **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+
+## Round 4 — the post-disposition review
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-08; drafting as recorded in rounds 1-3
+- Reviewed commit: `1bb6d34`
+- Manifest attestations, stated exactly because the recipes diverged: the
+  commissioning prompt still carried round 3's recipe (the registry exclusions
+  only), under which the reviewer computed `eabb95b2…` over 97 files; the
+  amended §2.10 recipe (carriers excluded in code) computes `21c18994…` at the
+  same commit. The divergence is the commissioning script's error, recorded
+  here rather than hidden, and finding 2 below supersedes both recipes anyway.
+- Runs: one review run, completed; no run discarded
+- Reviewer's own verification first: integrity exit 0, 166 passed under the
+  pinned interpreter, independent censuses, permutation and all five mirror
+  agreements re-derived; CLAIM.md's quotation exact; pre-assignment precedes
+  every retained attempt. **Twelve of round 3's twenty dispositions verified
+  complete** (2-7, 11's row-4 correction, 14, 16-18, 20); the rest partial,
+  as the findings state.
+
+### Prompt (verbatim)
+
+```
+You are performing the FINAL pre-freeze cross-vendor adversarial review (round 4) of Study 012 at commit 1bb6d34 on branch study-012-perturbation, repository root <worktree root>. The study directory is <worktree root>/studies/012-policy-perturbation. Round 3 reviewed the complete post-port tree at 4489d69 and returned BLOCKING with twenty findings; all twenty were dispositioned ACCEPTED (the dispositions table is in PREREG-REVIEW.md's round-3 section) and implemented. This round re-reviews the COMPLETE candidate tree after those dispositions. Your first task, before the general sweep: take each of the twenty round-3 findings in order and verify its disposition is actually implemented — the fix real, complete, and not merely papered over in prose. Then re-review the whole tree fresh, including every byte the dispositions changed (the §2.9, §2.10, §4.6, §5.3, §5.4 and C10 amendments; the manifest carrier exclusion; the new controls and test files). This round reviews the COMPLETE post-disposition candidate tree — the preregistration as it now stands, every harness source and test, the twenty arm files, harness/PORTS.md, harness/PINS.json, CLAIM.md, MIRROR-AGREEMENT.md, and the five analysis/mirror2_<arm>.py clean-room mirrors — because PREREGISTRATION.md §2.2 [D-20] registers that the last review must see the bytes that run.
+
+Review format: READ-ONLY with respect to the repository — modify no tracked file. Your working directory is a scratch area outside the repo; write anything you need there. You may run the harness test suite and harness/integrity.py using the pinned interpreter at ~/.pyenv/versions/3.12.11/bin/python3 (run pytest with -p no:cacheprovider and PYTHONDONTWRITEBYTECODE=1 to avoid writing caches into the repo).
+
+Tasks, in order:
+1. Read PREREGISTRATION.md in full. It is the registration; everything else answers to it.
+2. Verify the port against its registered scopes: §2.2's three tables (tiers, digests, enumerated changes) against harness/PORTS.md and the actual files; §2.7 against transcription/authoring_call.sh (exactly three permitted differences — assess the driver-side seal reading PORTS.md records against §2.9's wrapper sentence); §2.8 against batch.py's schedule, resume and shortfall; §2.9 against the seal and ledger code; §2.10 against harness/PINS.json member by member; §3.3's partition against score_rates.py; §4 and §5 against the scorer's endpoints, intervals and verdict tables; §6 C1-C10 against integrity.py and the test suite.
+3. Verify the twenty arm artifacts satisfy §2.6 and Appendix A: run integrity.py yourself and check what it checks; probe at least two of its claims independently (for example, re-derive an arm's digit census or the C permutation by your own means).
+4. Read CLAIM.md and check its two quoted passages against the cited sources in this repository (studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md section (d)); flag any divergence between quote and source.
+5. Read MIRROR-AGREEMENT.md and the retained attempts under analysis/mirror2-attempts/; check the pre-assignment commit precedes the attempts (git log will show it), spot-check one extracted module against its raw transcript, and assess whether the isolation description matches what the retained prompt.txt files show was actually sent.
+6. Run the full test suite under the pinned interpreter and report its result.
+7. Compute the tree manifest yourself, exactly as §2.10 registers it: over every git-tracked regular file under studies/012-policy-perturbation, excluding only the paths listed in harness/PINS.json freeze.excluded, build the sorted list of lines "<path> <bytes> <sha256>" (path relative to the study directory, one line each, joined with newlines, with a trailing newline), and take the sha256 of that text. State the digest in your final message as your attestation of the bytes you reviewed.
+8. Look for what the port got wrong that nothing above names: a registered sentence no code makes true, a check that can never fire, a digest bound to the wrong authority, a test that asserts less than it appears to.
+
+Final message: a numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — followed by: an overall verdict line; the line "Reviewed commit: 1bb6d34"; the line "Tree manifest (my computation): <hex digest>"; then the single line CODEX-012-R4-DONE.
+```
+
+### Complete unedited final message
+
+Pinned verification: `integrity.py` exited 0 but reported the tree manifest as **unbound**. The full suite passed: **166 passed in 134.42s** under CPython 3.12.11 with bytecode disabled and pytest’s cache provider disabled. Independent digit-census, arm-C permutation, and five 280-cell mirror checks matched. The Study 011 quotation in `CLAIM.md` is exact; pre-assignment precedes all retained mirror attempts, whose raw, extracted, and final modules agree.
+
+Round-3 dispositions 2–7, 11’s original row-4 correction, 14, 16–18, and 20 are complete. Dispositions 1, 8–10, 12, 13, 15, and 19 remain partial or incorrect as detailed below.
+
+1. [PREREGISTRATION.md:1119](PREREGISTRATION.md:1119>), [integrity.py:988](harness/integrity.py:988>), [batch.py:622](harness/batch.py:622>): The record requires the final manifest digest to be pinned and recomputed before calls or scoring. `verify_tree()` instead accepts a null `treeManifestSha256` as “unbound”; batch and scorer require only `preregistrationSha256`. A frozen preregistration can therefore run and score with no tree binding. **Severity: blocking.**
+
+2. [PREREGISTRATION.md:1107](PREREGISTRATION.md:1107>), [PINS.json:159](harness/PINS.json:159>), [integrity.py:952](harness/integrity.py:952>): The record says the excluded carriers are otherwise bound and any reviewed-byte change requires another round. Code excludes `PINS.json` and `PREREG-REVIEW.md`, then trusts the mutable manifest value in PINS without comparing it to the reviewer’s attestation. Changing covered files and updating PINS therefore passes; per-slot stamps prove only consistency with the newly edited registry. The prompt-prescribed 97-file manifest is `eabb95b2…`; the harness’s additional carrier exclusions produce `21c18994…`. **Severity: blocking.**
+
+3. [integrity.py:917](harness/integrity.py:917>), [integrity.py:1028](harness/integrity.py:1028>), [PINS.json:159](harness/PINS.json:159>): The manifest is supposed to bind every included tracked byte. Five tracked `analysis/__pycache__/mirror2_*.cpython-312.pyc` files are included, but `verify()` imports their sources before checking the manifest. On a fresh archive this rewrote all five caches, changing the harness-recipe digest from `21c18994…` to `f1fc5b03…`. Normal README and CI invocations do not disable bytecode, so a populated pin would reject a fresh checkout—or bind unreviewed rewritten cache bytes. **Severity: blocking.**
+
+4. [PREREGISTRATION.md:1737](PREREGISTRATION.md:1737>), [PREREGISTRATION.md:1897](PREREGISTRATION.md:1897>), [score_rates.py:3074](harness/score_rates.py:3074>): §4.6 and decision row 5 require S5 labels at ceiling for confirmation. The adjacent confirmation table, its registered “iff” box, and D-10 still omit S5 and say the other three conjuncts suffice. The scorer chose the stricter four-conjunct rule. The preregistration therefore contains incompatible confirmatory rules. **Severity: blocking.**
+
+5. [PREREGISTRATION.md:1742](PREREGISTRATION.md:1742>), [PREREGISTRATION.md:2196](PREREGISTRATION.md:2196>), [score_rates.py:876](harness/score_rates.py:876>): The record admits §5.4 does not model S5, yet calls `0.7359` the “actual joint” confirmation probability and uses it to justify N=30. The code models only coverage and the B/C/class-4 gates. With no label-error model, `0.7359` is at most the coverage-side upper bound; actual confirmatory power is unidentified and can range down to zero. **Severity: blocking.**
+
+6. [PREREGISTRATION.md:1998](PREREGISTRATION.md:1998>), [score_rates.py:1020](harness/score_rates.py:1020>): Arm D’s registered `COVERAGE-FOLLOWS-THE-NUMBERS` condition is new-keyed HIGH on at least three narrow classes with no old-keyed HIGH pattern. Code instead requires all six D-vs-A contrasts to be TRACKING and never checks the old-keyed exclusion. Tests assert the code’s table, not the registered condition. **Severity: blocking.**
+
+7. [PREREGISTRATION.md:1314](PREREGISTRATION.md:1314>), [test_partition_parity.py:56](harness/tests/test_partition_parity.py:56>): The accepted disposition promised reachability checks for every refusal code. The test still harvests string literals from AST return/assignment tuples; a code placed solely in dead code counts as reachable. **Severity: should-fix.**
+
+8. [PREREGISTRATION.md:1552](PREREGISTRATION.md:1552>), [test_batch.py:1296](harness/tests/test_batch.py:1296>): The record claims an exact recursive walk of blocks carrying `ci95`. The walker returns immediately upon finding a parent `ci95`, so nested interval-bearing structures beneath that block are invisible. **Severity: should-fix.**
+
+9. [score_rates.py:2113](harness/score_rates.py:2113>), [score_rates.py:2813](harness/score_rates.py:2813>): The published surface defines `coveredNothing` as valid runs that reached no class. Code computes `empty or not accepted or not high`, which asks whether any correctly labelled record exists, not whether a class was reached. A correctly labelled record outside all six predicates produces `coveredClasses=[]` but `coveredNothing=false`; an all-Q class-reaching run creates the opposite semantic mismatch. **Severity: should-fix.**
+
+10. [PREREGISTRATION.md:985](PREREGISTRATION.md:985>), [batch.py:1549](harness/batch.py:1549>), [test_batch.py:1152](harness/tests/test_batch.py:1152>): Shortfall must record the UTC time of the last completed slot. For a tail refusal without `CALL.json`, code substitutes an earlier slot’s timestamp—or null—and tests enshrine that fallback. Naming its source is honest but does not implement the registered field. **Severity: should-fix.**
+
+11. [README.md:35](README.md:35>), [census.py:363](harness/census.py:363>), [test_census.py:158](harness/tests/test_census.py:158>): The preregistration now correctly says `(23.75, 39)`, but these files still call `[23.75, 39)` empty even though a score of 23.75 exists. The actual assertion silently uses strict inequalities. **Severity: should-fix.**
+
+12. [README.md:337](README.md:337>), [MIRROR-AGREEMENT.md:57](MIRROR-AGREEMENT.md:57>): The corrected C10 record permits a published interface suffix, but README still says each reader received policy bytes “and nothing else.” MIRROR-AGREEMENT says 706 non-policy bytes; retained prompts contain a 28-byte framing prefix plus a 677-byte suffix—705 bytes total—with no final newline. The behavioral isolation account otherwise matches the transcripts. **Severity: should-fix.**
+
+13. [CLAIM.md:12](CLAIM.md:12>): The cited `3b93d3e…` object has one parent, so it is a squash/PR result rather than a Git merge commit. The quoted Study 011 passage itself is exact. **Severity: nit.**
+
+14. [PREREGISTRATION.md:1035](PREREGISTRATION.md:1035>), [batch.py:865](harness/batch.py:865>): §2.9 and the operational code now correctly make the driver the sealer, but `seal_slot()`’s docstring still quotes the obsolete wrapper-sealer sentence as current and says the final round has yet to adjudicate it. **Severity: nit.**
+
+Overall verdict: BLOCKING — Study 012 is not freeze-ready.
+
+Reviewed commit: 1bb6d34
+
+Tree manifest (my computation): eabb95b248b6b172ca381cea88eeb817cb85a6f5edb166eaf017469e4d73acdd
+
+CODEX-012-R4-DONE
+
+### Dispositions
+
+All fourteen findings **ACCEPTED**, continuing the round-3 direction the
+maintainer adopted; none reopens a settled judgment call. The blockers are
+completions: the freeze pins become required together and the manifest binds
+a normalized registry projection (1, 2 — with the residual §2.10 already
+concedes restated, not narrowed); the committed bytecode caches leave the
+tree (3); the S5 conjunct reaches every statement of the confirmation rule
+(4); §5.4's joint figures are renamed the coverage-side quantities they are
+(5); arm D's registered condition replaces the scorer's stricter invention
+(6); and the should-fixes and nits as written (7-14), including the byte-count
+re-measurement against the retained prompts, which are the authority: a
+28-byte framing prefix plus a 678-byte instruction suffix, 706 bytes in
+all with no final newline — the review's 705/677 is the off-by-one, and
+the record now states the structure rather than one number.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged from rounds 2 and 3:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 4 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |

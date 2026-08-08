@@ -23,7 +23,7 @@ The port was taken at commit
 commit 3b93d3e7917e917516bd55cf4c7f5285c91fbc13
 ```
 
-which is Study 011's own final merge — the four files taken from 011's *own*
+which is the squash commit that landed Study 011's final PR (#44) — the four files taken from 011's *own*
 harness (tier "none" below) are bound to that commit and to nothing older,
 because 011 pinned none of them; §6 C1 states what that costs and what covers
 it (cross-vendor review of the diffs, and C3's two replication controls
@@ -40,10 +40,10 @@ against published numbers).
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — taken unchanged; the output-root parameter 011 added already suffices (§2.2) |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | `harness/transcript_check.py` | `a6f6ee5514e25f784f7853a821a8a31d41430ddd71bdcf7e16917bf7e30a1015` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt, and an `arm` label travels with the call so a refusal names the arm and the scorer can say `arm-mismatch`; no other check logic changes |
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | `transcription/authoring_call.sh` | `bac41d3a960a82e32ec009f493d8153c280fa2591c6abd29e66deb3aa7fe1f04` | §2.7's three permitted differences and nothing else — see below |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | `harness/integrity.py` | `8fcb225239e6eabcabb0cdec51beb6f30538220d857c48d892334696f7228eb8` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9; the C10 gate; the [D-20] tree manifest |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | `harness/batch.py` | `684a5d6275ec11565c202ef7613c832878cfeeea739eb7ce19f82b8e8bca41e5` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps; the chained ledger and per-slot manifests of §2.9; resume by global index [D-22]; the shortfall surface [D-23] |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | `harness/score_rates.py` | `5ce8ccbd806a4dc5d33873bf7808e159b6588789b8b8b7f6d11337f1e5857bec` | per-arm scoring against that arm's mirror instantiation and family; the §5 level and contrast verdicts; the §4.5 census; the §4.6 old-edge cross-scoring; the §3.3 partition with `arm-mismatch` and `schedule-mismatch`; the [D-21] stopping rule |
-| `analysis/diversity.py` | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | `harness/census.py` | `354d47a1b91f8a096fe76e9ddcb7c0f49ed1fbe04f6a6e937aa837d9b579c0f8` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | `harness/integrity.py` | `94b8062aaeb22aefa6efb78b5936c0b2628eb8a440b80a20b4405c15a6da170b` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9; the C10 gate; the [D-20] tree manifest |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | `harness/batch.py` | `8cc55fb301375b518574302fc64a24baeb0a7900f50ff0f8bf6249680bef07b3` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps; the chained ledger and per-slot manifests of §2.9; resume by global index [D-22]; the shortfall surface [D-23] |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | `harness/score_rates.py` | `7f5df4b338205ddddfa5b53bcaf6cf9836c6bc7bfb50c8641930123bd830fe10` | per-arm scoring against that arm's mirror instantiation and family; the §5 level and contrast verdicts; the §4.5 census; the §4.6 old-edge cross-scoring; the §3.3 partition with `arm-mismatch` and `schedule-mismatch`; the [D-21] stopping rule |
+| `analysis/diversity.py` | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | `harness/census.py` | `6c4d19020a1a4ab16724c12eb87fa9993dfeee06665c73b79a26bb2b61efedad` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness |
 
 **This table is machine-read, and its columns answer to different
 authorities.** This file is editable in *this* study, so it cannot be the

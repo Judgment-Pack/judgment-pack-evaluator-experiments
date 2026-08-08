@@ -32,7 +32,7 @@ boundary classes in 49 of 49 valid runs. Its post-hoc census
 policy text names**: 52.3% of records sit on one of the family's three edges or
 within 0.01 of one, **three** of six classes rest on two distinct probes each
 and **four** of six contain a probe that appears in every one of the 49 runs,
-and the whole approach band below the unstated 39 edge — [23.75, 39) — is
+and the whole approach band below the unstated 39 edge — (23.75, 39) — is
 empty.
 
 That is a reading, and it was published with a prediction attached. This study
@@ -335,7 +335,8 @@ outright rather than merely narrowing it.
    they are what the preregistration says they are is a judgment no digest can
    make for you.
 6. `MIRROR-AGREEMENT.md` — C10's five clean-room mirrors, each written from one
-   arm's `POLICY.md` bytes and nothing else, with the pre-assigned reader
+   arm's `POLICY.md` bytes plus the published 706-byte interface suffix and
+   nothing else, with the pre-assigned reader
    roster, **every attempt including every failed one**, and the per-arm
    280-cell agreement table. Read it beside `arms/` — it is the one pre-data
    check that can tell "denamed" from "written to be hard".
