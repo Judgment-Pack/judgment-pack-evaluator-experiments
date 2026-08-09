@@ -83,7 +83,49 @@ def main():
          "byte-frozen pack re-declared under 0.1.0-draft; the pinned evaluator must "
          "refuse it at preflight (spec-version exactness)")
 
-    print("wrote 7 mutated packs to", OUT)
+    count = 7 + derive_holdouts()
+    print("wrote {} mutated packs to {}".format(count, OUT))
+
+
+def resolve_pointer(doc, pointer):
+    """Minimal RFC 6901 walk to the PARENT of the pointed member."""
+    parts = [p.replace("~1", "/").replace("~0", "~") for p in pointer.split("/")[1:]]
+    node = doc
+    for part in parts[:-1]:
+        node = node[int(part)] if isinstance(node, list) else node[part]
+    return node, parts[-1]
+
+
+def derive_holdouts():
+    """Apply the reviewer-authored holdout specs (MATRIX-HOLDOUT.json) verbatim.
+
+    Data-driven on purpose: the only semantic edit per fixture is the single
+    JSON-pointer replacement the reviewer registered; the maintainer authors
+    no holdout content. Deriving fixture bytes is static generation — the
+    holdouts must not be EXECUTED (evaluator, packs test, Forge, gate) before
+    the preregistration freeze.
+    """
+    holdout_path = STUDY / "scenarios" / "mutations" / "MATRIX-HOLDOUT.json"
+    if not holdout_path.exists():
+        return 0
+    holdout = json.loads(holdout_path.read_text())
+    for name, spec in sorted(holdout["mutations"].items()):
+        ms = spec["mutation_spec"]
+        pack = load(ms["source_pack"])
+        parent, key = resolve_pointer(pack, ms["json_pointer"])
+        current = parent[int(key)] if isinstance(parent, list) else parent[key]
+        if current != ms["from"]:
+            raise SystemExit("holdout {} 'from' mismatch at {}: found {!r}".format(
+                name, ms["json_pointer"], current))
+        if isinstance(parent, list):
+            parent[int(key)] = ms["to"]
+        else:
+            parent[key] = ms["to"]
+        dump(spec["fixture"], pack,
+             "reviewer-authored holdout {}: {} {} -> {}".format(
+                 name, ms["json_pointer"], json.dumps(ms["from"]),
+                 json.dumps(ms["to"])))
+    return len(holdout["mutations"])
 
 
 if __name__ == "__main__":

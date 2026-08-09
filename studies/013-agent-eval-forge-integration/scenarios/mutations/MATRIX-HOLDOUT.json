@@ -1,0 +1,118 @@
+{
+  "author": "OpenAI Codex (gpt-5.6-sol), Study 013 round-2 cross-vendor reviewer",
+  "authoredAt": "2026-08-09",
+  "comment": "Independent prospective holdouts. Do not execute before the preregistration freeze; their first execution is the primary post-freeze registered run. Each fixture is a deep copy of source_pack. mutate_packs.py may add its existing documentary defective-fixture description prefix, but the listed JSON-pointer replacement is the only semantic edit.",
+  "mutations": {
+    "h01": {
+      "kind": "judgment-semantic",
+      "agent_module": "mut_h01",
+      "tags": "pack-direct",
+      "fixture": "h01-direct-exception-escalation.json",
+      "summary": "Direct-escalation exception predicate miswired from flagged to ready.",
+      "mutation_spec": {
+        "source_pack": "direct-exception-escalation.json",
+        "operation": "replace",
+        "json_pointer": "/exceptions/0/when/path",
+        "from": "/request/flagged",
+        "to": "/request/ready"
+      },
+      "cases": {
+        "d01-approve": {
+          "change": "outcome approve/none -> unresolved exception-escalation/requested; execute_decision release-request -> open_review target unspecified",
+          "J": true,
+          "F": true,
+          "G": true
+        },
+        "d02-flagged-escalation": {
+          "change": "unchanged",
+          "J": false,
+          "F": false,
+          "G": false
+        },
+        "d03-hold": {
+          "change": "unchanged",
+          "J": false,
+          "F": false,
+          "G": false
+        }
+      },
+      "rationale": "A plausible source-path miswire makes ordinary readiness invoke direct escalation while the flagged-ready case remains superficially correct."
+    },
+    "h02": {
+      "kind": "judgment-semantic",
+      "agent_module": "mut_h02",
+      "tags": "pack-partial",
+      "fixture": "h02-partial-trigger-conflict.json",
+      "summary": "Configured handoff destination name corrupted while trigger and disposition remain intact.",
+      "mutation_spec": {
+        "source_pack": "partial-trigger-conflict.json",
+        "operation": "replace",
+        "json_pointer": "/escalation/target/name",
+        "from": "Routing coordinator",
+        "to": "Routing coordinator — WRONG HOLDOUT TARGET"
+      },
+      "cases": {
+        "p01-conflict-routed": {
+          "change": "unresolved conflict/requested remains; handoffTarget.name and open_review target become Routing coordinator — WRONG HOLDOUT TARGET",
+          "J": false,
+          "F": true,
+          "G": true
+        },
+        "p02-unknown-unrouted": {
+          "change": "unchanged",
+          "J": false,
+          "F": false,
+          "G": false
+        }
+      },
+      "rationale": "This adversarially tests the layer boundary: the J instance matrix omits the top-level handoff target, while Forge arguments and G project it."
+    },
+    "h03": {
+      "kind": "judgment-semantic",
+      "agent_module": "mut_h03",
+      "tags": "pack-xforce",
+      "fixture": "h03-exception-force-outcome.json",
+      "summary": "Unconditional force-rejection exception disabled by a flipped literal.",
+      "mutation_spec": {
+        "source_pack": "exception-force-outcome.json",
+        "operation": "replace",
+        "json_pointer": "/exceptions/0/when/value",
+        "from": true,
+        "to": false
+      },
+      "cases": {
+        "x01-forced-reject": {
+          "change": "outcome reject/record_decision -> outcome accept/execute_decision accept-item",
+          "J": true,
+          "F": true,
+          "G": true,
+          "F_requires_blocking": true
+        }
+      },
+      "rationale": "The single boolean exposes the base accept rule and creates a protected false approval on a pack absent from the pilot mutation set."
+    },
+    "h04": {
+      "kind": "judgment-semantic-negative-control",
+      "agent_module": "mut_h04",
+      "tags": "pack-xsuppress",
+      "fixture": "h04-exception-suppress-rule.json",
+      "summary": "Outcome of an unconditionally suppressed rule changed to another declared outcome.",
+      "mutation_spec": {
+        "source_pack": "exception-suppress-rule.json",
+        "operation": "replace",
+        "json_pointer": "/rules/0/outcome",
+        "from": "accept",
+        "to": "reject"
+      },
+      "cases": {
+        "x02-suppressed-no-match": {
+          "change": "unchanged: the base rule remains not-evaluated and suppressed; disposition stays unresolved no-match and action stays record_decision",
+          "J": false,
+          "F": false,
+          "G": false
+        }
+      },
+      "rationale": "This negative control probes whether any layer incorrectly treats valid but unreachable authored bytes as an observed decision change."
+    }
+  }
+}

@@ -1,11 +1,17 @@
-"""Deterministic-repeatability check: N fresh Arm B runs must agree byte-for-byte.
+"""Deterministic-repeatability check: exactly 3 fresh Arm B runs, byte-identical.
 
-Compares, per case and across runs: the raw jpack evaluation bytes retained in
-the trajectory note (the envelope carries no timestamps, so the pinned binary
-must reproduce them exactly) and the structured action. Writes REPEAT.json.
+The registered cardinality (3) is enforced here AND validated by the gate from
+REPEAT.json's content (review round 2, finding R2-1): any other value refuses.
+Each run must contain the exact 21 scheduled case ids, every artifact
+completed, an acceptable driver exit, and zero scorer errors before it is
+digested — N failed runs can never count as "identical" (round 1, finding 1).
 
-Stdlib only. Env: FORGE_VENV_PY, JPACK_BIN.
-Run: python3 harness/repeat_check.py --pilot-root <dir> [--repeats 3]
+Per case and across runs, the raw jpack evaluation bytes retained in the
+trajectory note (the envelope carries no timestamps) and the structured action
+must agree exactly.
+
+Stdlib only. Env: FORGE_VENV_PY, JPACK_BIN, STUDY_DIR.
+Run: python3 harness/repeat_check.py --pilot-root <dir> --repeats 3
 """
 
 import argparse
@@ -16,6 +22,7 @@ import subprocess
 from pathlib import Path
 
 STUDY = Path(__file__).resolve().parent.parent
+REPEATS = 3
 
 
 def run_arm_b(pilot_root, name):
@@ -25,22 +32,25 @@ def run_arm_b(pilot_root, name):
            "--agent-module", "arm_b", "--agents-dir", str(STUDY / "agents"),
            "--out", str(out), "--run-id", "run-001", "--tags", "cohort2"]
     env = dict(os.environ, STUDY_DIR=str(STUDY))
-    subprocess.run(cmd, capture_output=True, env=env, check=False)
-    return out
+    proc = subprocess.run(cmd, capture_output=True, env=env)
+    return out, proc.returncode
 
 
-def digest_run(out, expected_count):
-    """Digest a run — refusing empty or incomplete runs so that N failed runs
-    can never count as 'identical' (review round 1, finding 1)."""
-    paths = sorted((Path(out) / "runs" / "run-001" / "artifacts").glob("*.json"))
-    if len(paths) != expected_count:
-        raise SystemExit("repeat run has {} artifacts, expected {}".format(
-            len(paths), expected_count))
+def inspect_run(out, name, driver_exit, expected_ids):
+    """Validate one repeat run and return (detail, digests)."""
+    run_dir = Path(out) / "runs" / "run-001"
+    paths = sorted((run_dir / "artifacts").glob("*.json"))
+    case_ids = [p.stem for p in paths]
+    if sorted(case_ids) != sorted(expected_ids):
+        raise SystemExit("repeat run {} case ids differ from schedule".format(name))
+    scores = json.loads((run_dir / "scores.json").read_text())
+    scorer_errors = (scores.get("study") or {}).get("scorer_errors") or []
     digests = {}
     for path in paths:
         artifact = json.loads(path.read_text())
         if artifact.get("status") != "completed":
-            raise SystemExit("repeat run artifact not completed: " + path.stem)
+            raise SystemExit("repeat run {} artifact not completed: {}".format(
+                name, path.stem))
         note = next((s.get("content") for s in artifact.get("trajectory") or []
                      if s.get("type") == "note"), "")
         action = json.dumps(((artifact.get("output") or {}).get("structured") or {})
@@ -49,28 +59,35 @@ def digest_run(out, expected_count):
             "evaluation_sha256": hashlib.sha256(note.encode()).hexdigest(),
             "action_sha256": hashlib.sha256(action.encode()).hexdigest(),
         }
-    return digests
+    detail = {"name": name, "case_ids": case_ids, "driver_exit": driver_exit,
+              "scorer_errors": len(scorer_errors)}
+    return detail, digests
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pilot-root", required=True)
-    parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--repeats", type=int, default=REPEATS)
     args = parser.parse_args()
-    registry = json.loads(
-        (STUDY / "scenarios" / "jps" / "cases.json").read_text())
-    expected_count = len(registry["cases"])
-    all_digests = []
-    for i in range(args.repeats):
-        out = run_arm_b(args.pilot_root, "repeat-{:02d}".format(i + 1))
-        all_digests.append(digest_run(out, expected_count))
+    if args.repeats != REPEATS:
+        raise SystemExit("the registered repeat cardinality is exactly {}".format(REPEATS))
+    expected_ids = [c["id"] for c in json.loads(
+        (STUDY / "scenarios" / "jps" / "cases.json").read_text())["cases"]]
+    details, all_digests = [], []
+    for i in range(REPEATS):
+        name = "repeat-{:02d}".format(i + 1)
+        out, driver_exit = run_arm_b(args.pilot_root, name)
+        detail, digests = inspect_run(out, name, driver_exit, expected_ids)
+        details.append(detail)
+        all_digests.append(digests)
     identical = all(d == all_digests[0] for d in all_digests[1:])
-    report = {"repeats": args.repeats, "identical": identical, "digests": all_digests[0]}
+    report = {"repeats": REPEATS, "identical": identical, "runs": details,
+              "digests": all_digests[0]}
     if not identical:
         report["all"] = all_digests
-    path = Path(args.pilot_root) / "REPEAT.json"
-    path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
-    print("repeatability:", "identical across {} runs".format(args.repeats)
+    (Path(args.pilot_root) / "REPEAT.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n")
+    print("repeatability:", "identical across {} runs".format(REPEATS)
           if identical else "DRIFT DETECTED")
     return 0 if identical else 1
 

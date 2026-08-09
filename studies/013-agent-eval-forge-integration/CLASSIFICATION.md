@@ -24,7 +24,7 @@ Category definitions used:
 | 2 | launch-01-system-status | Single tool call + schema output | No | integration_only | Yes | Pure retrieval/format |
 | 3 | launch-02-cross-source | Two-tool synthesis (judge-scored rubric) | No | not_applicable | Yes | Open-ended synthesis quality; no decision with an expected disposition |
 | 4 | launch-02-incident-context | Multi-tool correlation (judge rubric) | No | not_applicable | Yes | Same |
-| 5 | launch-03-incident-extraction | Free-text → structured JSON | No | integration_only | Yes | No judgment, but structurally identical to Arm B's facts-normalization stage; a mis-extraction here is exactly mutation class "wrong fact mapped" |
+| 5 | launch-03-incident-extraction | Free-text → structured JSON | No | integration_only | Yes | No judgment; extraction into structured fields is the same KIND of concern as the facts-wiring that Arm B's mutations M7/M8 corrupt (this study's shell itself does direct fixture retrieval and has no extraction stage) |
 | 6 | launch-03-config-extraction | Doc → structured JSON | No | integration_only | Yes | Same |
 | 7 | launch-04-deploy-args | Tool argument precision (deterministic trace) | No | integration_only | Yes | Canonical integration test (user's own example) |
 | 8 | launch-04-time-range-args | Argument construction from relative language | No | integration_only | Yes | Same |
@@ -51,4 +51,4 @@ Category definitions used:
 
 Tally: 0 applicable / 12 integration_only / 14 not_applicable / 2 uncertain.
 
-Headline (expected, per study mindset): none of the 28 upstream scenarios contains a JPS-shaped judgment question. The upstream suite's value to Study 013 is (a) validating the integration substrate both arms share, and (b) demonstrating the applicability boundary empirically. The judgment layer is only exercised by Cohort 2 (JPS decision scenarios expressed in Forge format).
+Headline (expected, per study mindset): none of the 28 upstream scenarios contains a JPS-shaped judgment question. The upstream suite's value to Study 013 is (a) a load/run/artifact/score smoke test of the pinned Forge substrate, and (b) recording the applicability boundary as a pre-specified author judgment. The judgment layer is only exercised by Cohort 2 (JPS decision scenarios expressed in Forge format).

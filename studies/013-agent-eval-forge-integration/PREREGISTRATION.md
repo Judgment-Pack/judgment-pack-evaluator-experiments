@@ -10,28 +10,50 @@ pinned state and the first post-freeze attempt is primary even if it crashes.
 
 ## 1. Research questions and the retractable proposition
 
-**RQ1 (primary, deterministic).** For each registered fault in
-`scenarios/mutations/MATRIX.json` — six judgment-semantic pack mutations, nine
-integration mutations, one version-staleness mutation — which detection layers
-catch it: **J** (the judgment layer's own tooling: `jpack packs test` on the
-study's 21-row instance matrix, or a pinned-evaluator refusal), **F** (Agent
-Eval Forge's deterministic scorers at commit `8925cac`, reached through the
-study driver, detection counted at metric level), **G** (the study gate:
-disposition-vs-golden diff, action-vs-expectation diff, integrity refusals)?
+**RQ1 (primary, deterministic).** For each registered fault — the sixteen
+maintainer-authored cells in `scenarios/mutations/MATRIX.json` (six
+judgment-semantic pack mutations, nine integration mutations, one
+version-staleness mutation) plus the four reviewer-authored holdout cells in
+`scenarios/mutations/MATRIX-HOLDOUT.json` — which detection layers catch it:
+**J** (the judgment layer's own tooling: `jpack packs test` on the study's
+21-row instance matrix, or a pinned-evaluator refusal recorded in the
+artifact), **F** (Agent Eval Forge's deterministic scorers at commit
+`8925cac`, reached through the study driver, detection counted at metric
+level, blocking-filtered where registered), **G** (the study gate:
+disposition-vs-golden diff and action-vs-expectation diff on completed
+artifacts — integrity and completeness are a separate global validity
+channel, never a G detection)?
 
-**R1 — the registered proposition, stated to be retractable:** the observed
-detected-by sets match the registered expectations in MATRIX.json exactly —
-in particular, (a) every judgment-semantic mutation is caught by J without any
-integration machinery involved; (b) no integration mutation is caught by J;
-(c) every mutation that lets a protected action fire against a non-actionable
-disposition is caught by F through a BLOCKING scorer, adjudicated by the
-blocking flag on the failed metric (cells marked `F_requires_blocking` in
-MATRIX.json), not by any failed metric; and (d) the three cells registered as
-masked under the disposition/action projection (m02/f01, m08/t04, m08/t08)
-stay masked — their raw evaluator traces differ from the golden traces and
-are retained; the masking is a property of the registered projection, not a
-blind spot of the artifacts. Any divergence in any direction falsifies R1 as
-stated and is reported as the result.
+**Two epistemic strata, reported separately under one validity result:**
+the sixteen original cells are a **locked replication** (piloted pre-freeze;
+see "Epistemic status" below); the four holdout cells (h01–h04) are
+**prospective**: authored by the round-2 cross-vendor reviewer with the
+reviewer's own registered expectations, committed verbatim with attribution,
+never executed before the freeze (the gate mechanically refuses
+`--include-holdout` while this document is a DRAFT), and first executed in
+the post-freeze registered run.
+
+**R1 — the registered proposition, stated to be retractable:** for every
+adjudicated cell, the observed detected-by set equals the per-cell registered
+expectation in MATRIX.json and MATRIX-HOLDOUT.json. **The per-cell
+registrations govern; the tendencies below are descriptive summaries only and
+are deliberately NOT universal claims** — the reviewer-authored h02
+(judgment-semantic, registered J-false because the instance matrix does not
+project the handoff target) and h04 (negative control: unreachable authored
+bytes, registered undetected everywhere) are registered exceptions that the
+blanket forms would misstate. Descriptive tendencies: (a) judgment-semantic
+mutations are typically caught by J with no integration machinery involved;
+(b) no integration mutation is caught by J; (c) every cell where a protected
+action fires against a non-actionable disposition is caught by F through a
+BLOCKING scorer, adjudicated by the blocking flag on the failed metric
+(`F_requires_blocking` cells) with both the unfiltered and counted metric
+lists retained; (d) the three cells registered as masked under the
+disposition/action projection (m02/f01, m08/t04, m08/t08) stay masked — their
+raw evaluator traces differ from the golden traces and are retained; the
+masking is a property of the registered projection, not a blind spot of the
+artifacts. Any divergence from any per-cell registration, in any direction,
+falsifies R1 as stated and is reported as the result; holdout divergences are
+additionally reported in their own stratum.
 
 **Epistemic status of the post-freeze run (registered honestly):** this exact
 deterministic endpoint has already been observed in pre-freeze pilots on this
@@ -62,12 +84,14 @@ correct-handoff counts per arm. This phase runs only after the freeze AND
 explicit maintainer approval of the spend, with its own registered analysis
 added by amendment BEFORE any model call. The amendment MUST pin: the model
 and provider, the rendered policy-prose fixtures (by digest), sampling
-parameters, SDK and retry policy, and the failure-handling rule. The model
-decider receives only the sanitized public case view (id, pack, caseType),
-the fetched facts and evidence availability, and the action map — never the
-registered expectation or any golden; this boundary is enforced in
-agents/shell.py, and the scripted oracle (which reads the registry by design)
-is a disclosed tautological positive control, never a model stand-in. Until
+parameters, SDK and retry policy, and the failure-handling rule — and it MUST
+define an opaque-identifier mapping: the model decider receives an opaque,
+non-answer-bearing case handle (never ids like `d01-approve` or caseType
+labels like `9-exception-overrides-rule`, which are answer proxies), the
+fetched facts and evidence availability, and the action map — never the
+registered expectation or any golden. The expectation boundary is enforced in
+agents/shell.py; the scripted oracle (which reads the registry by design) is
+a disclosed tautological positive control, never a model stand-in. Until
 the amendment lands, this study makes no claim in RQ3's direction, and the
 scripted-decider pilots must not be quoted as evidence about models.
 
@@ -127,21 +151,37 @@ independent action oracle, and no claim in this study treats it as one.
   (MIT), vendored scenario/fixture bytes under `upstream/`. Upstream code is
   never modified; the driver (`harness/run_forge.py`) uses its library layers
   and owns exit codes, completeness assertions, and scorer-error refusals.
+- Reviewer-authored holdouts: `scenarios/mutations/MATRIX-HOLDOUT.json`,
+  committed verbatim with attribution (round-2 cross-vendor reviewer);
+  fixture bytes derive mechanically from the registered `mutation_spec`
+  pointer edits (`harness/mutate_packs.py`), which is static generation —
+  no evaluator, packs-test, Forge, or gate execution of h01–h04 may occur
+  before the freeze, and `pilots/` must contain no h-cell artifact.
 - Full pin registry: `harness/PINS.json`. Both pilot-phase caveats recorded in
-  pilot-01 are resolved in pilot-02: the evaluator is the released v0.16.0
+  pilot-01 are resolved since pilot-02: the evaluator is the released v0.16.0
   linux_amd64 binary, archive verified against the release `checksums.txt` —
   and a local build from the tag reproduced the identical binary digest, which
   is recorded as evidence the build is reproducible; harness scripts run under
-  CPython 3.12.11 (Study 011's interpreter). Pilot-01 is retained under its
-  original toolchain; both pilot batches produced identical endpoints.
+  CPython 3.12.11 (Study 011's interpreter). Three pilot batches are retained:
+  pilot-01 (original toolchain), pilot-02 (final toolchain, pre-rework
+  harness), pilot-03 (first batch under the round-1-reworked harness); all
+  three produced identical endpoints on the sixteen original cells.
 
 ## 4. Procedure (deterministic phase — one orchestrated `gate.py` invocation)
 
-`gate.py --pilot-root <fresh dir>` runs the entire batch and refuses a
-non-empty root: attempt directories are immutable, and a rerun never reuses or
-overwrites an earlier attempt's output.
+`gate.py --pilot-root <nonexistent dir>` runs the entire batch and refuses a
+pre-existing root: attempt directories are immutable, a rerun never reuses or
+overwrites an earlier attempt's output, ATTEMPT.json marks the root before
+anything else runs, and there is no partial-rerun mode. The three
+protocol-facing verdict literals are defined once in gate.py and quoted
+exactly in §5.
 
-1. `integrity.py` — refuse on any pin drift: pack and upstream manifests,
+1. `integrity.py` — the FIRST recorded validity row (an integrity failure
+   produces a terminal, recorded, pipeline-invalid adjudication — never a
+   pre-record crash). It refuses on any pin drift: pack and upstream
+   manifests, mandatory `JPACK_BIN` / `FORGE_VENV_PY` / `FORGE_CLONE`
+   identities (binary digest; venv freeze byte-for-byte with its interpreter
+   version; checkout at the pinned commit with a clean tree),
    jpack binary digest, Forge venv freeze (bytes retained in
    `harness/forge-freeze.txt`; the freeze line pins the editable install's
    commit), harness interpreter series, mutated packs byte-equal to a fresh
@@ -159,21 +199,34 @@ overwrites an earlier attempt's output.
    an artifact-recorded evaluator refusal is the second J source.
 5. Cohort 1: both upstream packs, unchanged, under `upstream_baseline`. The
    endpoint is a **Forge load/run/artifact/score smoke test**, nothing wider:
-   the artifact set must equal the exact upstream scenario id sets (20 + 8),
-   every artifact completed, zero deterministic scorer errors; judge-scored
-   metrics are EXPECTED to be unscored offline ("judge not configured") and
-   are enumerated as such, and scenario pass rates are not an endpoint.
-6. Repeat check: three fresh Arm B runs, each required to contain all 21
-   completed artifacts before digesting; retained evaluator output bytes and
-   structured actions must be identical across runs.
+   the artifact AND score sets must equal the exact upstream scenario id sets
+   (20 + 8), every artifact completed, and the errored (scenario, metric)
+   pairs must be exactly the declared judge metrics (the registered
+   `JUDGE_METRICS` set in gate.py, including the two offline-dead hybrids)
+   with the "judge not configured" error — zero deterministic scorer errors,
+   zero silently unscored judge metrics, and scenario pass rates are not an
+   endpoint.
+6. Repeat check: EXACTLY three fresh Arm B runs (the cardinality is enforced
+   in both repeat_check.py and the gate's validation of REPEAT.json), each
+   required to contain the exact 21 scheduled, completed artifacts with an
+   acceptable driver exit and zero scorer errors before digesting; retained
+   evaluator output bytes and structured actions must be identical across
+   runs.
 7. Adjudication writes `ADJUDICATION.json` with two separated channels: a
    global VALIDITY section (per-run scheduled-set equality, completeness,
    scorer errors, driver-exit consistency — exit 4 iff safety violations,
    exits 3/5 always invalid — plus the pristine-Arm-B-clean-per-case
    precondition and the pristine packs test) and the per-mutation DETECTION
-   section. Detection is adjudicated only against completed artifacts;
-   completeness failures live in the validity channel, never as G detections.
-   Every scheduled case appears; nothing is silently excluded.
+   section. Detection is adjudicated only against completed artifacts; a cell
+   whose artifact is missing or incomplete is recorded NOT-ADJUDICATED —
+   never a true or false detection — and completeness failures live in the
+   validity channel, never as G detections. On `F_requires_blocking` cells
+   the adjudication retains both the unfiltered failed-metric list and the
+   blocking-counted list with each metric's {name, passed, blocking}, so the
+   filter is auditable from the record. The attempt's provenance (evaluator
+   digest, Forge commit, freeze digest, interpreter, PINS and manifest
+   digests) is stamped into ADJUDICATION.json. Every scheduled case appears;
+   nothing is silently excluded.
 
 ## 5. Decision rule for R1 (ordered, exhaustive)
 
@@ -199,8 +252,11 @@ claim about Agent Eval Forge's overall quality beyond the properties actually
 measured (UPSTREAM.md). No independent corroboration from F+G agreement (§2
 disclosure: shared-source concordance). No caller obligation under JPS Core
 (I1 is study-defined). No statistical independence of upstream scenarios
-(single-author, single-drop provenance recorded). No generalization beyond:
-these six packs, these 21 cases, this mutation family, one machine, one Forge
+(single-author, single-drop provenance recorded). No probe-diversity or
+detection-power claim may ever be synthesized from the shared Study 009/010
+defect-family lineage (standing non-claim, adopted from the round-1 review).
+No generalization beyond: these six packs, these 21 cases, this mutation
+family plus the four reviewer-authored holdout cells, one machine, one Forge
 commit, one evaluator build.
 
 ## 7. Deviations

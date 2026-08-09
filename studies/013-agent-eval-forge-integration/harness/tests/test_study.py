@@ -139,10 +139,64 @@ class TestScenarios(unittest.TestCase):
     def test_mutated_packs_exist_and_are_labeled(self):
         packs_dir = STUDY / "scenarios" / "mutations" / "packs"
         names = sorted(p.name for p in packs_dir.glob("*.json"))
-        self.assertEqual(len(names), 7)
+        self.assertEqual(len(names), 11)  # 7 maintainer cells + 4 holdouts
         for path in packs_dir.glob("*.json"):
             doc = json.loads(path.read_text())
             self.assertIn("STUDY 013 MUTATED FIXTURE", doc["description"], path.name)
+
+
+class TestHoldouts(unittest.TestCase):
+    """Static checks only — the holdouts must never EXECUTE before the freeze."""
+
+    def holdout(self):
+        return json.loads(
+            (STUDY / "scenarios" / "mutations" / "MATRIX-HOLDOUT.json").read_text())
+
+    def test_holdout_structure_and_schedule(self):
+        reg = registry()
+        ids = {c["id"] for c in reg["cases"]}
+        tags = {c["id"]: "pack-" + SHORT[c["pack"]] for c in reg["cases"]}
+        doc = self.holdout()
+        self.assertIn("author", doc)
+        self.assertEqual(sorted(doc["mutations"]), ["h01", "h02", "h03", "h04"])
+        for name, spec in doc["mutations"].items():
+            selected = set(spec["tags"].split(","))
+            scheduled = {cid for cid, tag in tags.items() if tag in selected}
+            self.assertEqual(set(spec["cases"]), scheduled, name)
+            self.assertTrue(
+                (STUDY / "agents" / (spec["agent_module"] + ".py")).exists(), name)
+            fixture = STUDY / "scenarios" / "mutations" / "packs" / spec["fixture"]
+            self.assertTrue(fixture.exists(), name)
+            for cid, cell in spec["cases"].items():
+                self.assertIn(cid, ids, name)
+                for layer in "JFG":
+                    self.assertIn(layer, cell, (name, cid))
+
+    def test_holdout_fixture_matches_registered_spec(self):
+        for name, spec in self.holdout()["mutations"].items():
+            ms = spec["mutation_spec"]
+            fixture = json.loads(
+                (STUDY / "scenarios" / "mutations" / "packs" / spec["fixture"]).read_text())
+            node = fixture
+            parts = [p.replace("~1", "/").replace("~0", "~")
+                     for p in ms["json_pointer"].split("/")[1:]]
+            for part in parts[:-1]:
+                node = node[int(part)] if isinstance(node, list) else node[part]
+            value = node[int(parts[-1])] if isinstance(node, list) else node[parts[-1]]
+            self.assertEqual(value, ms["to"], name)
+
+    def test_no_holdout_execution_artifacts(self):
+        self.assertEqual(sorted((STUDY / "pilots").glob("*/h0*")), [])
+        self.assertEqual(sorted((STUDY / "goldens").glob("h0*")), [])
+
+
+class TestVerdictLiterals(unittest.TestCase):
+    def test_prereg_quotes_gate_literals(self):
+        import gate
+        text = (STUDY / "PREREGISTRATION.md").read_text()
+        for literal in (gate.VERDICT_INVALID, gate.VERDICT_HOLDS,
+                        gate.VERDICT_FALSIFIED):
+            self.assertIn(literal, text, literal)
 
 
 if __name__ == "__main__":

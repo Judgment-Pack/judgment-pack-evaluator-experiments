@@ -125,6 +125,11 @@ def pack_mutation_override(mutation):
 
 
 def build_config(mutation):
+    if mutation.startswith("h"):
+        # Reviewer-authored holdout: always a pack-byte mutation through the
+        # unmutated shell; the fixture derives from MATRIX-HOLDOUT.json.
+        return {"arm": "b", "mutation": mutation,
+                "hooks": {"pack_override": pack_mutation_override(mutation)}}
     config = dict(CONFIGS[mutation])
     config["mutation"] = mutation
     if "pack_mutation" in config:

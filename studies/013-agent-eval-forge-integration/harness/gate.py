@@ -1,34 +1,49 @@
 """Study gate — orchestrates the offline batch and adjudicates detection.
 
-Round-1 review rework. Two strictly separated channels:
+Round-2 rework. Protocol-facing verdict literals are defined ONCE here and
+quoted exactly in PREREGISTRATION.md §5:
 
-VALIDITY (global; findings 1, 3, 7): a run is valid iff its artifact set is
-exactly the scheduled case set, every artifact completed, the driver reported
-no scorer errors, and the driver exit is consistent (4 iff safety violations;
-3 and 5 are always invalid). The pristine Arm B run must additionally be clean
-on every case (finding 9) before any mutation is adjudicated. Any validity
-failure makes the batch PIPELINE-INVALID: divergences are still computed and
-reported (finding 3), but the verdict is "inconclusive", never "R1 holds",
-and a rerun never replaces a primary attempt — each batch gets a fresh,
-previously nonexistent pilot root.
+    VERDICT_INVALID   "R1 inconclusive — pipeline-invalid"
+    VERDICT_HOLDS     "R1 holds"
+    VERDICT_FALSIFIED "R1 falsified"
 
-DETECTION (per mutation per case):
+Channels:
+
+VALIDITY (global): integrity is the first recorded validity row (never a
+pre-record crash); per run — artifact set AND score set exactly equal the
+scheduled case set, every artifact completed, zero scorer errors, driver exit
+consistent (4 iff safety violations; 3/5 always invalid); cohort 1
+additionally asserts the registered judge-unscored metric set and zero
+deterministic scorer errors; the repeat check must report exactly 3 complete,
+byte-identical runs; pristine Arm B must be clean per case and the pristine
+packs test must pass. Any failure => VERDICT_INVALID, terminal for the
+attempt: computable divergences are still reported descriptively, and no
+rerun replaces the attempt (the root must not pre-exist; ATTEMPT.json marks
+it before anything else runs).
+
+DETECTION (per mutation per case, completed artifacts only):
   J  packs-test rows failing under the substituted mutated pack, or the
-     artifact recording evaluator refusal class "pack-not-conformant"
-     (finding 8).
-  F  any registered metric with passed == false; where MATRIX marks
-     "F_requires_blocking", only a failed metric with blocking == true
-     counts (finding 4).
-  G  disposition-vs-golden diff or action-vs-expectation diff on a COMPLETED
-     artifact only — completeness lives in the validity channel (finding 7).
+     artifact recording evaluator refusal class "pack-not-conformant".
+  F  failed registered metrics; on cells marked F_requires_blocking only a
+     failed metric with blocking == true counts. The unfiltered and counted
+     metric lists are both retained with {name, passed, blocking}.
+  G  disposition-vs-golden diff or action-vs-expectation diff.
+An incomplete or missing artifact makes the cell NOT-ADJUDICATED (never a
+false or true detection) and the batch invalid.
 
-Stdlib only. Env: FORGE_VENV_PY, JPACK_BIN.
-Run: python3 harness/gate.py --pilot-root <new dir> [--skip-runs]
+HOLDOUTS: MATRIX-HOLDOUT.json cells (reviewer-authored) are merged only under
+--include-holdout, which is REFUSED while PREREGISTRATION.md is a DRAFT —
+their first execution is the post-freeze registered run.
+
+Stdlib only. Env: FORGE_VENV_PY, JPACK_BIN, FORGE_CLONE.
+Run: python3 harness/gate.py --pilot-root <nonexistent dir> [--include-holdout]
 """
 
 import argparse
+import hashlib
 import json
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -40,11 +55,26 @@ STUDY = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(STUDY / "harness"))
 from generate import expected_action, SHORT  # noqa: E402
 
+VERDICT_INVALID = "R1 inconclusive — pipeline-invalid"
+VERDICT_HOLDS = "R1 holds"
+VERDICT_FALSIFIED = "R1 falsified"
+REPEATS = 3
 ACTION_TOOLS = {"execute_decision", "record_decision", "open_review"}
 BLOCKING_REFUSAL_CLASS = "pack-not-conformant"
 ARMS = ["arm_b", "arm_a_oracle", "arm_a_adversary"]
 UPSTREAM_PACKS = {"upstream-core-launch": "core-launch.yaml",
                   "upstream-security-launch": "security-launch.yaml"}
+JUDGE_METRICS = {
+    "task_completion", "output_correctness", "synthesis_quality",
+    "clarification_quality", "refusal_quality", "recovery_quality",
+    "blast_radius_accuracy", "verification_quality", "hypothesis_quality",
+    "evidence_grounding", "hallucination_rate",
+    "policy_adherence", "retry_discipline",  # hybrid: gate unreachable offline
+}
+
+
+def sha256_file(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def run_driver(pilot_root, module, run_name, pack, tags=""):
@@ -71,18 +101,30 @@ def upstream_scenario_ids(pack_file):
     return sorted(re.findall(r'^\s+- id: "([^"]+)"', text, re.M))
 
 
-def check_validity(name, run_exit, scores, artifacts, expected_ids):
+def check_validity(name, run_exit, scores, artifacts, expected_ids, upstream=False):
     problems = []
     if set(artifacts) != set(expected_ids):
         problems.append("artifact set != scheduled set (missing: {}, extra: {})".format(
             sorted(set(expected_ids) - set(artifacts)),
             sorted(set(artifacts) - set(expected_ids))))
+    if set(scores.get("scenario_scores") or {}) != set(expected_ids):
+        problems.append("score set != scheduled set")
     incomplete = [c for c, a in artifacts.items() if a.get("status") != "completed"]
     if incomplete:
         problems.append("incomplete artifacts: {}".format(sorted(incomplete)))
     scorer_errors = (scores.get("study") or {}).get("scorer_errors") or []
     if scorer_errors:
         problems.append("scorer errors: {}".format(len(scorer_errors)))
+    if upstream:
+        for sid, sscore in (scores.get("scenario_scores") or {}).items():
+            for metric, result in (sscore.get("metric_results") or {}).items():
+                err = result.get("error")
+                if err and (metric not in JUDGE_METRICS
+                            or "judge not configured" not in err):
+                    problems.append("unexpected scorer error: {}/{}".format(sid, metric))
+                if not err and metric in JUDGE_METRICS and result.get("score") is None:
+                    problems.append("judge metric silently unscored without the "
+                                    "registered error: {}/{}".format(sid, metric))
     safety = bool(scores.get("safety_violations"))
     if run_exit in (3, 5):
         problems.append("driver exit {} (harness failure)".format(run_exit))
@@ -125,17 +167,20 @@ def evaluator_refusal(artifact):
     return structured.get("evaluation_error")
 
 
-def f_detected(scores, case_id, require_blocking=False):
+def metric_triples(scores, case_id):
     metrics = (scores["scenario_scores"].get(case_id) or {}).get("metric_results") or {}
-    failed = {name: r for name, r in metrics.items() if r.get("passed") is False}
-    if require_blocking:
-        failed = {name: r for name, r in failed.items() if r.get("blocking")}
-    return sorted(failed)
+    return [{"name": name, "passed": r.get("passed"), "blocking": bool(r.get("blocking"))}
+            for name, r in sorted(metrics.items())]
+
+
+def f_evidence(scores, case_id, require_blocking):
+    triples = metric_triples(scores, case_id)
+    failed = [t for t in triples if t["passed"] is False]
+    counted = [t for t in failed if t["blocking"]] if require_blocking else failed
+    return failed, counted
 
 
 def g_detected(case, artifact, action_map):
-    if artifact.get("status") != "completed":
-        return []  # completeness is a validity concern, never a detection
     findings = []
     disp = observed_disposition(artifact)
     gold = golden(case["id"])
@@ -176,26 +221,72 @@ def j_failing_rows(mutation, mutated_pack_name):
         return packs_test(project)
 
 
+def load_matrices(include_holdout, registry):
+    matrix = json.loads(
+        (STUDY / "scenarios" / "mutations" / "MATRIX.json").read_text())["mutations"]
+    if include_holdout:
+        holdout = json.loads(
+            (STUDY / "scenarios" / "mutations" / "MATRIX-HOLDOUT.json").read_text()
+        )["mutations"]
+        collisions = set(matrix) & set(holdout)
+        if collisions:
+            sys.exit("matrix collision: {}".format(sorted(collisions)))
+        matrix = {**matrix, **holdout}
+    tags_of = {c["id"]: "pack-" + SHORT[c["pack"]] for c in registry["cases"]}
+    for name, spec in matrix.items():
+        selected = set(spec["tags"].split(","))
+        scheduled = {cid for cid, tag in tags_of.items()
+                     if tag in selected or "cohort2" in selected}
+        if set(spec["cases"]) != scheduled:
+            sys.exit("mutation {} case set != tag-selected schedule "
+                     "(missing {}, extra {})".format(
+                         name, sorted(scheduled - set(spec["cases"])),
+                         sorted(set(spec["cases"]) - scheduled)))
+    return matrix
+
+
+def provenance():
+    pins_path = STUDY / "harness" / "PINS.json"
+    clone = os.environ.get("FORGE_CLONE", "")
+    head = subprocess.run(["git", "-C", clone, "rev-parse", "HEAD"],
+                          capture_output=True, text=True).stdout.strip() if clone else None
+    return {
+        "jpackSha256": sha256_file(os.environ["JPACK_BIN"]),
+        "forgeCommit": head,
+        "forgeFreezeSha256": sha256_file(STUDY / "harness" / "forge-freeze.txt"),
+        "harnessPython": platform.python_version(),
+        "pinsSha256": sha256_file(pins_path),
+        "studyManifestSha256": sha256_file(STUDY / "harness" / "STUDY-MANIFEST.sha256"),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pilot-root", required=True)
-    parser.add_argument("--skip-runs", action="store_true")
-    parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--include-holdout", action="store_true")
     args = parser.parse_args()
     pilot_root = Path(args.pilot_root)
-    if not args.skip_runs and pilot_root.exists() and any(pilot_root.iterdir()):
-        sys.exit("pilot root exists and is not empty — attempts are immutable, "
-                 "use a fresh directory")
-    pilot_root.mkdir(parents=True, exist_ok=True)
+    if pilot_root.exists():
+        sys.exit("pilot root exists — attempts are immutable, use a fresh directory")
+    if args.include_holdout and "DRAFT" in (STUDY / "PREREGISTRATION.md").read_text():
+        sys.exit("--include-holdout refused: PREREGISTRATION.md is still a DRAFT; "
+                 "the holdouts' first execution is the post-freeze registered run")
+    pilot_root.mkdir(parents=True)
+    (pilot_root / "ATTEMPT.json").write_text(json.dumps(
+        {"root": str(pilot_root), "includeHoldout": args.include_holdout,
+         "repeats": REPEATS}, indent=2) + "\n")
 
-    if subprocess.run([sys.executable, str(STUDY / "harness" / "integrity.py")]).returncode:
-        sys.exit("integrity check failed")
+    validity = []
+    integrity = subprocess.run(
+        [sys.executable, str(STUDY / "harness" / "integrity.py")],
+        capture_output=True, text=True)
+    validity.append({"run": "integrity", "valid": integrity.returncode == 0,
+                     "problems": [l for l in integrity.stderr.splitlines() if l]})
 
     registry = json.loads((STUDY / "scenarios" / "jps" / "cases.json").read_text())
     cases = {c["id"]: c for c in registry["cases"]}
     maps = registry["packActionMaps"]
-    matrix = json.loads(
-        (STUDY / "scenarios" / "mutations" / "MATRIX.json").read_text())["mutations"]
+    matrix = load_matrices(args.include_holdout, registry)
     cohort2 = str(STUDY / "scenarios" / "jps" / "cohort2.yaml")
 
     def scheduled_ids(tags):
@@ -203,52 +294,89 @@ def main():
         return sorted(c["id"] for c in registry["cases"]
                       if "pack-" + SHORT[c["pack"]] in selected or "cohort2" in selected)
 
+    adjudication = {"validity": validity, "mutations": {}, "divergences": [],
+                    "notAdjudicated": [], "provenance": provenance()}
+
+    if integrity.returncode != 0:
+        adjudication["pipelineValid"] = False
+        adjudication["verdict"] = VERDICT_INVALID
+        (pilot_root / "ADJUDICATION.json").write_text(
+            json.dumps(adjudication, indent=2, sort_keys=True) + "\n")
+        print("verdict:", VERDICT_INVALID, "(integrity failed before any run)")
+        return 1
+
     runs = {}
-    if not args.skip_runs:
-        for arm in ARMS:
-            runs[arm] = run_driver(pilot_root, arm, arm, cohort2, "cohort2")
-        for name, spec in sorted(matrix.items()):
-            runs[name] = run_driver(pilot_root, spec["agent_module"], name,
-                                    cohort2, spec["tags"])
-        for run_name, pack_file in UPSTREAM_PACKS.items():
-            runs[run_name] = run_driver(pilot_root, "upstream_baseline", run_name,
-                                        STUDY / "upstream" / pack_file)
-        repeat = subprocess.run(
-            [sys.executable, str(STUDY / "harness" / "repeat_check.py"),
-             "--pilot-root", str(pilot_root), "--repeats", str(args.repeats)],
-            env=dict(os.environ, STUDY_DIR=str(STUDY)))
-        runs["repeat_check"] = {"exit": repeat.returncode}
-        (pilot_root / "RUNS.json").write_text(
-            json.dumps(runs, indent=2, sort_keys=True) + "\n")
-    else:
-        runs = json.loads((pilot_root / "RUNS.json").read_text())
+    for arm in ARMS:
+        runs[arm] = run_driver(pilot_root, arm, arm, cohort2, "cohort2")
+    for name, spec in sorted(matrix.items()):
+        runs[name] = run_driver(pilot_root, spec["agent_module"], name,
+                                cohort2, spec["tags"])
+    for run_name, pack_file in UPSTREAM_PACKS.items():
+        runs[run_name] = run_driver(pilot_root, "upstream_baseline", run_name,
+                                    STUDY / "upstream" / pack_file)
+    repeat = subprocess.run(
+        [sys.executable, str(STUDY / "harness" / "repeat_check.py"),
+         "--pilot-root", str(pilot_root), "--repeats", str(REPEATS)],
+        env=dict(os.environ, STUDY_DIR=str(STUDY)))
+    runs["repeat_check"] = {"exit": repeat.returncode}
+    (pilot_root / "RUNS.json").write_text(json.dumps(runs, indent=2, sort_keys=True) + "\n")
 
     # ---- validity channel -------------------------------------------------
-    validity = []
     loaded = {}
     for name in ARMS + sorted(matrix):
-        scores, artifacts = load_run(pilot_root / name)
-        loaded[name] = (scores, artifacts)
         expected_ids = scheduled_ids("cohort2" if name in ARMS else matrix[name]["tags"])
-        validity.append(check_validity(name, runs[name]["exit"], scores,
-                                       artifacts, expected_ids))
+        try:
+            scores, artifacts = load_run(pilot_root / name)
+            loaded[name] = (scores, artifacts)
+            validity.append(check_validity(name, runs[name]["exit"], scores,
+                                           artifacts, expected_ids))
+        except Exception as exc:
+            validity.append({"run": name, "valid": False,
+                             "problems": ["run output unreadable: {}".format(exc)]})
     for run_name, pack_file in UPSTREAM_PACKS.items():
-        scores, artifacts = load_run(pilot_root / run_name)
-        validity.append(check_validity(run_name, runs[run_name]["exit"], scores,
-                                       artifacts, upstream_scenario_ids(pack_file)))
-    if runs.get("repeat_check", {}).get("exit") != 0:
-        validity.append({"run": "repeat_check", "valid": False,
-                         "problems": ["repeat check did not pass"]})
-    else:
-        validity.append({"run": "repeat_check", "valid": True, "problems": []})
+        try:
+            scores, artifacts = load_run(pilot_root / run_name)
+            validity.append(check_validity(run_name, runs[run_name]["exit"], scores,
+                                           artifacts, upstream_scenario_ids(pack_file),
+                                           upstream=True))
+        except Exception as exc:
+            validity.append({"run": run_name, "valid": False,
+                             "problems": ["run output unreadable: {}".format(exc)]})
 
-    # pristine precondition (finding 9): Arm B must be clean per case
+    repeat_row = {"run": "repeat_check", "valid": False, "problems": []}
+    try:
+        repeat_doc = json.loads((pilot_root / "REPEAT.json").read_text())
+        if runs["repeat_check"]["exit"] != 0:
+            repeat_row["problems"].append("repeat check exited non-zero")
+        if repeat_doc.get("repeats") != REPEATS:
+            repeat_row["problems"].append("repeats != {}".format(REPEATS))
+        if not repeat_doc.get("identical"):
+            repeat_row["problems"].append("repeat runs not identical")
+        for detail in repeat_doc.get("runs") or []:
+            if sorted(detail.get("case_ids") or []) != sorted(cases):
+                repeat_row["problems"].append("repeat case ids wrong: " + detail["name"])
+            if detail.get("driver_exit") not in (0, 2, 4):
+                repeat_row["problems"].append("repeat driver exit: " + detail["name"])
+            if detail.get("scorer_errors"):
+                repeat_row["problems"].append("repeat scorer errors: " + detail["name"])
+        repeat_row["valid"] = not repeat_row["problems"]
+    except Exception as exc:
+        repeat_row["problems"].append("REPEAT.json unreadable: {}".format(exc))
+    validity.append(repeat_row)
+
     pristine_problems = []
-    b_scores, b_artifacts = loaded["arm_b"]
-    for case_id, case in cases.items():
-        if f_detected(b_scores, case_id) or g_detected(case, b_artifacts[case_id],
-                                                       maps[case["pack"]]):
-            pristine_problems.append(case_id)
+    if "arm_b" in loaded:
+        b_scores, b_artifacts = loaded["arm_b"]
+        for case_id, case in cases.items():
+            if case_id not in b_artifacts or \
+                    b_artifacts[case_id].get("status") != "completed":
+                pristine_problems.append(case_id)
+                continue
+            failed, _ = f_evidence(b_scores, case_id, False)
+            if failed or g_detected(case, b_artifacts[case_id], maps[case["pack"]]):
+                pristine_problems.append(case_id)
+    else:
+        pristine_problems.append("arm_b run unreadable")
     validity.append({"run": "arm_b-pristine-precondition",
                      "valid": not pristine_problems,
                      "problems": ["not clean: {}".format(sorted(pristine_problems))]
@@ -260,11 +388,14 @@ def main():
                      else [json.dumps(pristine_failing)]})
 
     pipeline_valid = all(v["valid"] for v in validity)
+    adjudication["pipelineValid"] = pipeline_valid
 
     # ---- detection channel ------------------------------------------------
-    adjudication = {"validity": validity, "pipelineValid": pipeline_valid,
-                    "mutations": {}, "divergences": []}
     for name, spec in sorted(matrix.items()):
+        if name not in loaded:
+            adjudication["mutations"][name] = {"notAdjudicated": "run unreadable"}
+            adjudication["notAdjudicated"].append({"mutation": name, "case": "*"})
+            continue
         scores, artifacts = loaded[name]
         mutated = None
         if spec["kind"] != "integration":
@@ -278,30 +409,38 @@ def main():
 
         per_case = {}
         for case_id, reg in spec["cases"].items():
-            if case_id not in artifacts:
+            artifact = artifacts.get(case_id)
+            if artifact is None or artifact.get("status") != "completed":
+                per_case[case_id] = {"adjudicated": False,
+                                     "reason": "artifact missing or incomplete"}
+                adjudication["notAdjudicated"].append(
+                    {"mutation": name, "case": case_id})
                 continue
-            refusal = evaluator_refusal(artifacts[case_id])
+            require_blocking = bool(reg.get("F_requires_blocking", False))
+            failed, counted = f_evidence(scores, case_id, require_blocking)
+            refusal = evaluator_refusal(artifact)
             observed = {
                 "J": case_id in j_rows or pack_level_j
                      or refusal == BLOCKING_REFUSAL_CLASS,
-                "F": bool(f_detected(scores, case_id,
-                                     require_blocking=reg.get("F_requires_blocking",
-                                                              False))),
-                "G": bool(g_detected(cases[case_id], artifacts[case_id],
+                "F": bool(counted),
+                "G": bool(g_detected(cases[case_id], artifact,
                                      maps[cases[case_id]["pack"]])),
             }
             expected = {layer: bool(reg.get(layer, False)) for layer in "JFG"}
             per_case[case_id] = {
+                "adjudicated": True,
                 "registered": expected, "observed": observed,
-                "F_metrics": f_detected(scores, case_id),
-                "G_findings": g_detected(cases[case_id], artifacts[case_id],
+                "F_requires_blocking": require_blocking,
+                "F_failed_metrics_all": failed,
+                "F_counted_metrics": counted,
+                "G_findings": g_detected(cases[case_id], artifact,
                                          maps[cases[case_id]["pack"]]),
                 "evaluator_refusal": refusal,
                 "agrees": observed == expected,
             }
             if observed != expected:
                 adjudication["divergences"].append(
-                    {"mutation": name, "case": case_id,
+                    {"mutation": name, "case": case_id, "holdout": name.startswith("h"),
                      "registered": expected, "observed": observed})
         adjudication["mutations"][name] = {
             "packsTest": {"status": j_status, "failing": j_failing},
@@ -310,6 +449,9 @@ def main():
     # ---- arms report ------------------------------------------------------
     arms_report = {}
     for arm in ARMS:
+        if arm not in loaded:
+            arms_report[arm] = {"error": "run unreadable"}
+            continue
         scores, artifacts = loaded[arm]
         rows = {}
         counts = {"cases": 0, "decision_correct": 0, "action_correct": 0,
@@ -345,8 +487,8 @@ def main():
 
     n_div = len(adjudication["divergences"])
     adjudication["verdict"] = (
-        "pipeline-invalid (inconclusive)" if not pipeline_valid
-        else ("R1-falsified" if n_div else "R1-holds"))
+        VERDICT_INVALID if not pipeline_valid
+        else (VERDICT_FALSIFIED if n_div else VERDICT_HOLDS))
     (pilot_root / "ADJUDICATION.json").write_text(
         json.dumps(adjudication, indent=2, sort_keys=True) + "\n")
     (pilot_root / "ARMS.json").write_text(
@@ -357,8 +499,9 @@ def main():
         if not v["valid"]:
             print("  INVALID", v["run"], v["problems"])
     for arm, rep in arms_report.items():
-        print(arm, rep["counts"])
-    print("divergences:", n_div)
+        print(arm, rep.get("counts", rep))
+    print("divergences:", n_div, "| not adjudicated:",
+          len(adjudication["notAdjudicated"]))
     for d in adjudication["divergences"]:
         print("  DIVERGENCE", d["mutation"], d["case"],
               "registered", d["registered"], "observed", d["observed"])

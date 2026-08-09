@@ -21,15 +21,16 @@ one at a time, through an independently developed agent-regression harness —
   matrix, and the pinned evaluator's refusals;
 - **F** — the external harness's deterministic scorers (tool trace, arguments,
   blocked tools), reached through a study driver;
-- **G** — the study gate: disposition-vs-golden diffs, action-vs-expectation
-  diffs, pin and completeness integrity.
+- **G** — the study gate: disposition-vs-golden and action-vs-expectation
+  diffs on completed artifacts (pins and completeness are a separate global
+  validity channel, not a detection layer).
 
 A second, deliberately unforced question: how much of the upstream harness's own
 scenario suite contains a judgment question at all. The registered answer from
 classification (CLASSIFICATION.md): **none of the 28 upstream scenarios does** —
 12 test integration machinery, 14 test capabilities orthogonal to both, 2 are
-deferral-shaped but conversational. That is a result about applicability, not a
-failure of either system.
+deferral-shaped but conversational. That is an author-judgment census about applicability, not an adjudicated
+empirical endpoint, and not a failure of either system.
 
 ## What this study is not
 
@@ -61,9 +62,11 @@ failure of either system.
 - `scenarios/jps/` — `cases.json` (the registry: 21 cases, all 10 required case
   types) and generated cohort-2 artifacts
 - `scenarios/mutations/` — `MATRIX.json` (registered detection expectations),
-  7 mutated packs (M1–M6, M15a), labeled defective
-- `agents/` — the shared shell (one integration contract for every arm), 
-  deciders, 16 mutant entries, cohort-1 baseline
+  `MATRIX-HOLDOUT.json` (four reviewer-authored prospective cells, verbatim,
+  never executed pre-freeze), 11 mutated packs (M1–M6, M15a, h01–h04), all
+  labeled defective
+- `agents/` — the shared shell (one integration contract for every arm),
+  deciders, 20 mutant entries, cohort-1 baseline
 - `harness/` — `PINS.json`, `integrity.py`, `generate.py`, `mutate_packs.py`,
   `make_goldens.py`, `run_forge.py` (driver inside the Forge venv), `gate.py`
   (orchestrator + adjudicator), `repeat_check.py`, `tests/`
@@ -91,7 +94,11 @@ The Forge venv is CPython 3.11.13 with the pinned clone installed editable;
 the harness runs under CPython 3.12.11; the evaluator is the released v0.16.0
 binary verified against the release `checksums.txt` (a tag build reproduces
 its exact digest — the build is reproducible). `harness/PINS.json` records
-every digest. Two pilot batches are retained: pilot-01 (original toolchain)
-and pilot-02 (final toolchain), with identical endpoints.
+every digest. Three pilot batches are retained: pilot-01 (original toolchain), pilot-02
+(final toolchain, pre-rework harness), pilot-03 (first batch under the
+round-1-reworked harness) — identical endpoints on the sixteen original
+cells. The four reviewer-authored holdout cells (MATRIX-HOLDOUT.json) are
+never executed pre-freeze; the gate refuses --include-holdout while the
+preregistration is a DRAFT.
 
 Nothing in this repository claims any JPS conformance.

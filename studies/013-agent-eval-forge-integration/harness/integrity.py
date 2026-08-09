@@ -116,15 +116,23 @@ def check_python(pins):
     if platform.python_implementation() != wanted["implementation"]:
         return ["interpreter is {} not {}".format(
             platform.python_implementation(), wanted["implementation"])]
-    if not running.startswith(wanted["series"] + "."):
-        return ["python {} is outside pinned series {}".format(running, wanted["series"])]
+    if running != wanted["version"]:
+        return ["python {} is not the pinned {}".format(running, wanted["version"])]
     return []
 
 
 def check_forge_venv(pins):
     venv_python = os.environ.get("FORGE_VENV_PY")
     if not venv_python:
-        return []
+        return ["FORGE_VENV_PY is not set (mandatory: the venv is a pinned identity)"]
+    proc = subprocess.run(
+        [venv_python, "-c", "import platform; print(platform.python_version())"],
+        capture_output=True, text=True)
+    if proc.returncode != 0:
+        return ["Forge venv python did not run"]
+    if proc.stdout.strip() != pins["forge"]["venvPython"]:
+        return ["Forge venv python {} is not the pinned {}".format(
+            proc.stdout.strip(), pins["forge"]["venvPython"])]
     proc = subprocess.run([venv_python, "-m", "pip", "freeze"], capture_output=True)
     if proc.returncode != 0:
         return ["pip freeze failed in the Forge venv"]
@@ -153,8 +161,27 @@ def main():
         if sha256(pack) != sha256(STUDY / "packs" / pack.name):
             errors.append("jpack-project copy drifted: {}".format(pack.name))
     jpack = os.environ.get("JPACK_BIN")
-    if jpack and sha256(jpack) != pins["jpack"]["binarySha256"]:
+    if not jpack:
+        errors.append("JPACK_BIN is not set (mandatory: the evaluator is a pinned identity)")
+    elif sha256(jpack) != pins["jpack"]["binarySha256"]:
         errors.append("JPACK_BIN digest does not match jpack.binarySha256")
+    clone = os.environ.get("FORGE_CLONE")
+    if not clone:
+        errors.append("FORGE_CLONE is not set (mandatory: the editable checkout is "
+                      "a pinned identity)")
+    else:
+        head = subprocess.run(["git", "-C", clone, "rev-parse", "HEAD"],
+                              capture_output=True, text=True)
+        dirty = subprocess.run(["git", "-C", clone, "status", "--porcelain"],
+                               capture_output=True, text=True)
+        if head.returncode != 0:
+            errors.append("FORGE_CLONE is not a git checkout")
+        else:
+            if head.stdout.strip() != pins["forge"]["commit"]:
+                errors.append("FORGE_CLONE HEAD {} is not the pinned commit".format(
+                    head.stdout.strip()[:12]))
+            if dirty.stdout.strip():
+                errors.append("FORGE_CLONE working tree is dirty")
     errors += check_mutated_packs()
     check = STUDY / "goldens" / "EXPECT-CHECK.json"
     if not check.exists():

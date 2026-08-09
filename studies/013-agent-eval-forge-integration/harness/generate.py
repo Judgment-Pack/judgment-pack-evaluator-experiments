@@ -114,7 +114,11 @@ def write_entries(registry):
     import sys
     sys.path.insert(0, str(agents))
     spec.loader.exec_module(mutants)
-    for mutation in sorted(mutants.CONFIGS):
+    mutations = sorted(mutants.CONFIGS)
+    holdout_path = STUDY / "scenarios" / "mutations" / "MATRIX-HOLDOUT.json"
+    if holdout_path.exists():
+        mutations += sorted(json.loads(holdout_path.read_text())["mutations"])
+    for mutation in mutations:
         (agents / ("mut_{}.py".format(mutation))).write_text(ENTRY.format(
             imports="import mutants\nimport shell",
             config='mutants.build_config("{}")'.format(mutation)))

@@ -1,8 +1,9 @@
 """Deterministic Arm A deciders for the offline phase.
 
 Neither is a model. The oracle proves the plumbing scores a correct decider as
-correct; the adversary proves the harness discriminates — every registered
-metric that should catch a wrong decision must catch the adversary. A real
+correct; the adversary is the negative control: its registered wrong decisions must
+produce the registered failing signals on these fixed cells (no wider
+discrimination claim). A real
 model decider (policy prose + facts) is the gated paid phase and is absent
 from the offline pilots by design.
 
