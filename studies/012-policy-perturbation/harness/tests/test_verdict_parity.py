@@ -55,6 +55,19 @@ recomputes the alternative §5.4 names — the two patterns independent — from
 same call, so the three published figures are the code's and not a second
 transcription of it.
 
+Round 10, finding 4 adds the containment companion and the first parser for
+§5.4's SIX-column joint tables, which no test read for nine rounds. §2.3
+registers that class 0 nests in class 1 and class 2 in class 3; correctness is a
+property of the record, so those coverage indicators are ordered pathwise and
+§5.4's first independence layer is unavailable between them at any nondegenerate
+marginals. The five rules that carry N are therefore published twice — the
+independence figures unchanged, as the incoherent approximation they are, beside
+a containment-respecting companion — and this file diffs both sets against the
+scorer's two functions, parses the independence joint table and its companion
+cell by cell, and asserts the infeasibility (`q**6 < 4q - 3`, `q**4 < 3q - 2` at
+N = 25 and N = 30) and the direction facts, including the N = 20 reversal, from
+the exact rationals rather than transcribing them.
+
 Round 9, finding 12 adds the diff §5.4's own opening sentence already claimed.
 The MARGINAL level table — P(HIGH), P(LOW), P(MID) against a true p — is
 parsed by its header and recomputed cell by cell, and the note beneath it is
@@ -271,7 +284,8 @@ def test_the_pattern_thresholds_and_the_gate_are_the_registered_counts(preregist
     numeric classes, "three or more of the four" is 3, the control gate is
     "five of six" over arms B and C, class 4 is the embargo-membership class
     whose collapse overrides every other reading of arm E, and class 3 is the
-    interior review band row 5's fifth conjunct reads (round 9, finding 2)."""
+    interior review band row 5's fifth conjunct reads (round 9, finding 2) —
+    as a LEVEL verdict on arm E since round 10, finding 3."""
     assert score_rates.NARROW_NUMERIC_CLASSES == (0, 1, 2, 5)
     assert score_rates.EMBARGO_CLASS == 4
     assert score_rates.INTERIOR_CLASS == 3
@@ -399,9 +413,23 @@ def test_the_s5_cut_is_the_ceiling_the_file_names(preregistration):
     # One mislabelled record in an arm of thirty runs is below the ceiling, and
     # the cut is on the ceiling and not near it.
     assert degraded["branch"] == "degraded"
-    # No accepted record is no evidence the author could apply the values, and
-    # the conservative direction of an absent measurement does not confirm.
+    # Round 10, finding 8: an arm with no accepted record has no accuracy to
+    # read, and §4.6 registers that — the cut is "at least one accepted record
+    # AND |Q| = 0", so `rate is not None` implements the first conjunct instead
+    # of supplying an unregistered one of the scorer's own.
     assert silent["branch"] == "degraded" and silent["rate"] is None
+    plain = fixtures.plain(preregistration)
+    assert ("at the ceiling iff it has at least one accepted record and "
+            "|Q| = 0 among them") in plain
+    assert "An arm with no accepted record at all has no accuracy to read" in plain
+    # …and the reading that arm reaches must be true of it. Round 9 made row 2's
+    # cell concrete, which is what made this corner visible: "at least one
+    # accepted record was mislabelled" was a flat counterfactual about records
+    # that do not exist.
+    reading = score_rates.reading_verdict({"nP": 4, "nC": 4, "nH": 0},
+                                          silent["branch"])
+    assert reading["publishedAs"] == "comprehension collapse"
+    assert "no accepted record at all" in reading["reading"]
     flat = " ".join(preregistration.split())
     assert "the one-step escalation at mislabel share ≥ 0.20" in flat
     assert score_rates.MISLABEL_ESCALATION not in (score_rates.S5_CEILING,)
@@ -411,13 +439,22 @@ def test_the_s5_cut_is_the_ceiling_the_file_names(preregistration):
 # `fixtures.plain()` leaves it: emphasis off, whitespace collapsed. Prose and
 # lint are one string so the weakening cannot drift back a word at a time.
 CEILING_LIMIT = ("CONFIRMED therefore means the placement pattern with clean "
-                 "labels, an intact class 4 and class 3 not collapsed; it does "
-                 "not mean the author understood the thresholds, and this file "
-                 "does not claim it does.")
+                 "labels, an intact class 4 and arm E not reading LOW on class "
+                 "3; it does not mean the author understood the thresholds, and "
+                 "this file does not claim it does.")
 # The two mental-state readings round 9 finding 2 withdrew. A reading cell says
 # what the integers show; neither of these is something a set of correct labels
 # can pin down.
 WITHDRAWN_READINGS = ("understood the thresholds", "could not derive")
+# The two PLACEMENT universals round 10 finding 2 withdrew, kept in their own
+# tuple because `WITHDRAWN_READINGS` is round 9's record about mental states and
+# these are a different round's record about a bound. A LOW S1 verdict is
+# `k <= 3` at n = 30, not `k = 0`, so a cell saying no record was placed at the
+# boundary is false of every arm the row fires on with one to three reaching
+# runs — and false arm-wide besides, because `nP >= 3` publishes the sentence
+# while the fourth narrow class may read HIGH.
+WITHDRAWN_PLACEMENT_CLAIMS = ("none was placed at the boundary",
+                              "the records are not at the boundary")
 
 
 def test_the_reading_cells_claim_no_mental_state(preregistration):
@@ -448,6 +485,42 @@ def test_the_reading_cells_claim_no_mental_state(preregistration):
         for cell in row:
             for withdrawn in WITHDRAWN_READINGS:
                 assert withdrawn not in cell, (cell, withdrawn)
+
+
+def test_the_reading_cells_bound_placement_rather_than_zeroing_it(preregistration):
+    """Round 10, finding 2. §4.6's row-1 cells said "none was placed at the
+    boundary" and "the records are not at the boundary" of a LOW S1 verdict,
+    which §5.1 registers as `k <= 3` at n = 30 — up to three of thirty runs
+    placing an accepted record in the class, per class, and the sentence is
+    published arm-wide at `nP >= 3` while a fourth narrow class may read HIGH.
+
+    `reading_verdict()` carries that cell into `verdicts` and `RESULTS.json`, so
+    it is a published sentence and not a table gloss. The parity diff cannot
+    catch it — it asks only that the two sides agree — so the withdrawn
+    universals are linted out of both, and the surviving cell is tied to the cut
+    the scorer computes rather than to a number transcribed beside it.
+    """
+    for entry in score_rates.READING_TABLE:
+        for member in ("reading", "publishedAs", "gloss", "labels",
+                       "placementGloss"):
+            cell = entry[member]
+            for withdrawn in WITHDRAWN_PLACEMENT_CLAIMS:
+                assert withdrawn not in cell, (
+                    "READING_TABLE's %r cell says %r: a LOW S1 verdict bounds "
+                    "placement at %d of 30 and does not zero it (round 10, "
+                    "finding 2)"
+                    % (member, cell, score_rates.low_threshold(30)))
+    for row in reading_rows(preregistration):
+        for cell in row:
+            for withdrawn in WITHDRAWN_PLACEMENT_CLAIMS:
+                assert withdrawn not in cell, (cell, withdrawn)
+    # The positive half: the row that confirms names §5.1's own cut, computed.
+    cut = "at most %d times of 30" % score_rates.low_threshold(30)
+    assert cut in score_rates.READING_TABLE[0]["reading"]
+    assert cut in score_rates.READING_TABLE[0]["placementGloss"]
+    # …in §5.1's own words, so no second number entered the file.
+    assert ("the arm reached the class at most %d times of 30"
+            % score_rates.low_threshold(30)) in fixtures.plain(preregistration)
 
 
 def test_a_near_ceiling_accuracy_with_one_mislabelled_record_is_degraded():
@@ -621,6 +694,29 @@ REGISTERED_MARGINAL_NH = {20: 0.7142, 25: 0.9187, 30: 0.9796}
 # this study's own interval code; the amendment §5.4 needs must carry these.
 REGISTERED_JOINT_ROW4 = {20: 0.03978409, 25: 0.3703584, 30: 0.7501924}
 REGISTERED_JOINT_ROW5 = {20: 0.0364, 25: 0.3536, 30: 0.7359}
+# Round 10, finding 4: the same five rules with §5.4's layer 1 repaired on the
+# two nested class pairs. Pinned the way the joint rows above are — to the
+# places §5.4 publishes them — so the companion cannot drift back out of the
+# registration, and read off `containment_operating_characteristics()` rather
+# than off its sibling.
+REGISTERED_CONTAINMENT = {
+    "nP": {20: 0.4276, 25: 0.7188, 30: 0.8699},
+    "gate": {20: 0.1078, 25: 0.4010, 30: 0.6702},
+    "row5": {20: 0.0714, 25: 0.3408, 30: 0.6253},
+    "nH": {20: 0.6845, 25: 0.8588, 30: 0.9358},
+    "row4": {20: 0.0738, 25: 0.3444, 30: 0.6272},
+}
+# The §5.4 row each of those is published in, by the row label's own prefix.
+# The prefixes are deliberately disjoint from the independence rows' — a
+# companion row beginning "the B/C control gate" would make the prefix match
+# above ambiguous, which is the parser telling the file how to name its rows.
+CONTAINMENT_ROWS = {
+    "under containment — nP >= 3": "nP",
+    "under containment — the B/C control gate": "gate",
+    "under containment — the coverage-side CONFIRMED-and-gate quantity": "row5",
+    "under containment — nH >= 3": "nH",
+    "under containment — row 4 reached": "row4",
+}
 
 
 def operating_characteristics(body: str) -> dict:
@@ -703,12 +799,14 @@ def test_the_power_to_reach_row_four_is_not_the_marginal(trials):
     assert round(characteristics["joint"]["row5"], 4) \
         == REGISTERED_JOINT_ROW5[trials]
     # Round 9, finding 2: row 5 gained a fifth conjunct — arm E does not read
-    # COLLAPSE on class 3 — and it enters this model in the class-4 term's own
-    # shape, `1 - P(A HIGH) * P(E class 3 LOW)`, with E's class 3 sitting at
-    # p = 0.95 in §5.4's registered scenario just as its class 4 does. All the
-    # term can subtract from `row5` is bounded by `pLowIntact`, so every printed
-    # §5.4 figure stands — the bound and the figure are asserted separately,
-    # because deriving one from the other would check nothing.
+    # LOW on class 3 — and it enters this model as `1 - P(E class 3 LOW)`, in
+    # EVERY arm-A pattern rather than in the class-4 term's shape, because round
+    # 10 finding 3 made it a level verdict on arm E and it therefore reads arm A
+    # not at all. E's class 3 sits at p = 0.95 in §5.4's registered scenario
+    # just as its class 4 does. All the term can subtract from `row5` is bounded
+    # by `pLowIntact`, so every printed §5.4 figure stands — the bound and the
+    # figure are asserted separately, because deriving one from the other would
+    # check nothing.
     assert characteristics["pLowIntact"] < 5e-5 / 2
     assert abs(characteristics["joint"]["row5"]
                - REGISTERED_JOINT_ROW5[trials]) < 5e-5
@@ -744,6 +842,220 @@ def test_the_joint_row_four_figures_are_checked_against_the_file_when_it_carries
             assert abs(computed - registered[rule][trials]) < 5e-5, (
                 "§5.4's joint row 4 prints %s at N = %d; this file computes %.7f"
                 % (registered[rule][trials], trials, computed))
+
+
+# --- §5.4's containment companion (round 10, finding 4) ---------------------
+
+# §5.4's two SIX-COLUMN joint-figure tables, which no test read until round 10:
+# the independence one it has published since round 2, and the
+# containment-respecting companion beside it. Identified by their headers like
+# every other table here, and the headers differ in exactly the cell whose
+# meaning differs — a loose floor computed for six free events against the sharp
+# one four indicators imply.
+JOINT_HEADER = ["true p", "P(HIGH), one class", "P(all four narrow HIGH)",
+                "P(all six HIGH)", "Fréchet lower bound on all six",
+                "P(all twelve TRACKING, B and C)"]
+CONTAINMENT_JOINT_HEADER = (JOINT_HEADER[:4]
+                            + ["sharp Fréchet floor on all six",
+                               JOINT_HEADER[5]])
+JOINT_TRIALS = 30                      # both joint tables are §5.4's at N = 30
+
+
+def containment_values(characteristics: dict) -> dict:
+    """The five companion quantities, keyed as `CONTAINMENT_ROWS` keys them."""
+    return {"nP": characteristics["marginal"]["nP"],
+            "gate": characteristics["gate"],
+            "row5": characteristics["joint"]["row5"],
+            "nH": characteristics["marginal"]["nH"],
+            "row4": characteristics["joint"]["row4"]}
+
+
+@pytest.mark.parametrize("trials", TRIALS)
+def test_the_containment_companion_rows_are_reproduced(trials, preregistration):
+    """Round 10, finding 4. §5.4's layer 1 treats the six per-class indicators of
+    an arm as independent, and §2.3's class 0 nests in class 1 and class 2 in
+    class 3 — so those indicators are ordered pathwise and independence between
+    them is available at no nondegenerate marginals. The five rules that carry N
+    are therefore published twice, and this is the diff for the second set.
+
+    The sibling's figures are NOT recomputed here and must not move: they stay
+    published as the incoherent approximation they are, and
+    `test_the_power_to_reach_row_four_is_not_the_marginal` still pins them.
+    """
+    characteristics = score_rates.containment_operating_characteristics(trials)
+    computed = containment_values(characteristics)
+    registered = operating_characteristics(preregistration)
+    for prefix, key in sorted(CONTAINMENT_ROWS.items()):
+        matched = [rule for rule in registered if rule.startswith(prefix)]
+        assert len(matched) == 1, (
+            "§5.4 holds %d rules beginning %r" % (len(matched), prefix))
+        assert round(computed[key], 4) == REGISTERED_CONTAINMENT[key][trials]
+        printed = registered[matched[0]][trials]
+        assert abs(computed[key] - printed) < 5e-5, (
+            "§5.4 prints %s for %r at N = %d; this file computes %.6f"
+            % (printed, matched[0], trials, computed[key]))
+    # The companion stands on the SAME two marginals as its sibling — it repairs
+    # the joint model and nothing else — and on the groups §2.3's nesting
+    # leaves, which `test_mirror.py` asserts over the landmark grid.
+    sibling = score_rates.decision_operating_characteristics(trials)
+    assert characteristics["pHigh"] == sibling["pHigh"]
+    assert characteristics["pLowCollapsed"] == sibling["pLowCollapsed"]
+    assert characteristics["pLowIntact"] == sibling["pLowIntact"]
+    assert characteristics["groups"] == [[0, 1], [2, 3], [4], [5]]
+    # The three rules §5.4 companions in PROSE rather than in a row of its own.
+    section = "\n".join(section_5_4(preregistration))
+    for key in ("perClassCollapse", "allFourNarrowCollapse"):
+        assert "%.4f" % characteristics[key] in section, key
+    assert "%.4f" % characteristics["conjunctions"]["allTwelveTracking"] in section
+    # …and per-class COLLAPSE is a MARGINAL, so the containment leaves it where
+    # it was: the row §5.4 says does not move must not move. The two sides are
+    # the same exact rational rounded at different points, so the comparison is
+    # to the double's own epsilon and not to a tolerance.
+    assert abs(characteristics["perClassCollapse"]
+               - sibling["pHigh"] * sibling["pLowCollapsed"]) < 1e-15
+
+
+def test_the_nested_pairs_make_layer_one_unavailable(preregistration):
+    """The arithmetic §5.4's new sentences stand on, asserted rather than
+    transcribed (round 10, finding 4).
+
+    Two claims. FIRST, that two of the independence table's cells are not merely
+    modelled wrongly but attainable by no population with these marginals: with
+    the nestings respected the six classes are four indicators, so the sharp
+    Fréchet floor on the all-six conjunction is `max(0, 4q - 3)` and not the
+    printed `max(0, 6q - 5)`, and `q**6` falls below it at N = 25 and N = 30.
+    Exact rationals throughout — whether a cell is inside the feasible set is
+    not a question a double should answer.
+
+    SECOND, the DIRECTION, which is what §5.4's withdrawn sentence had wrong:
+    conjunctions rise under containment at every N, tolerances fall at the two
+    N's [D-1] compares, and at N = 20 four of the five tolerance rules rise
+    instead because at `q = 0.7358` five-of-six is in practice a conjunction.
+    The non-uniformity is asserted, not smoothed over: a test that only checked
+    "smaller" would be pinning a claim the file does not make.
+    """
+    scenario = Fraction(19, 20)
+    for trials in (25, 30):
+        q = score_rates.probability_at_least(
+            score_rates.high_threshold(trials), trials, scenario)
+        assert q ** 6 < 4 * q - 3, trials
+        assert q ** 4 < 3 * q - 2, trials
+        # …and the cell that is NOT infeasible, so the claim stays the narrow one
+        assert q ** 18 > 12 * q - 11, trials
+    twenty = score_rates.probability_at_least(
+        score_rates.high_threshold(20), 20, scenario)
+    assert 4 * twenty - 3 < 0 and twenty ** 6 > 0
+    assert twenty ** 4 > 3 * twenty - 2
+    # A degenerate arm is the one place the conjunction meets its floor.
+    perfect = score_rates.probability_at_least(
+        score_rates.high_threshold(30), 30, Fraction(1))
+    assert perfect ** 6 == 4 * perfect - 3 == 1
+
+    for trials in TRIALS:
+        q = score_rates.probability_at_least(
+            score_rates.high_threshold(trials), trials, scenario)
+        indep = score_rates.decision_operating_characteristics(trials)
+        containment = score_rates.containment_operating_characteristics(trials)
+        # Conjunctions: fewer indicators, so a larger product, at every N.
+        assert q ** 4 > q ** 6 and q ** 3 > q ** 4 and q ** 12 > q ** 18
+        conjunctions = containment["conjunctions"]
+        assert conjunctions["allSix"] == float(q ** 4)
+        assert conjunctions["allFourNarrow"] == float(q ** 3)
+        assert conjunctions["allTwelveTracking"] == float(q ** 12)
+        # Tolerances: down at 25 and 30, up at 20 — except `nH >= 3`, which is
+        # down at all three.
+        falls = trials in (25, 30)
+        for key, value in sorted(containment_values(containment).items()):
+            sibling = {"nP": indep["marginal"]["nP"], "gate": indep["gate"],
+                       "row5": indep["joint"]["row5"],
+                       "nH": indep["marginal"]["nH"],
+                       "row4": indep["joint"]["row4"]}[key]
+            assert (value < sibling) is (falls or key == "nH"), (trials, key)
+        # …and the companion is a SCENARIO, not a bound: one coherent coupling
+        # in the other direction puts the gate well above it.
+        assert containment["comonotoneGate"] > containment["gate"]
+
+    # Every corrected floor, cap and conjunction §5.4 and §2.1 print in PROSE
+    # rather than in a table cell, so none of them is a transcription either.
+    section = "\n".join(section_5_4(preregistration))
+    for trials in (25, 30):
+        figures = score_rates.containment_joint_figures(trials, scenario)
+        for key in ("frechetAllSix", "frechetAllFourNarrow", "cap", "allSix",
+                    "allFourNarrow"):
+            assert "%.4f" % figures[key] in preregistration, (trials, key)
+        # …and the two "runs in ten" halves, which §5.4's baseline bullet used
+        # to pair across two different quantities at two different N.
+        assert "%.4f" % (1 - figures["allSix"]) in section, trials
+    for p_text in ("0.98", "0.95"):
+        assert "%.4f" % score_rates.containment_joint_figures(
+            30, Fraction(p_text))["frechetAllTwelve"] in section, p_text
+    twenty_figures = score_rates.containment_joint_figures(20, scenario)
+    assert "%.4f" % twenty_figures["frechetAllFourNarrow"] in section
+    assert "%.4f" % float(twenty) in section
+    assert "%.4f" % score_rates.containment_operating_characteristics(
+        30)["comonotoneGate"] in section
+    # §2.1's registered DRIFT rule quotes its own false-positive rate, and the
+    # containment moves that one by more than an order of magnitude because the
+    # rule counts CLASSES and a nested pair carries two of them at once.
+    for trials in (25, 30):
+        drift = score_rates.containment_operating_characteristics(
+            trials)["driftSuspected"]
+        assert "%.4f" % drift in preregistration, trials
+
+
+def test_the_joint_figures_tables_are_the_scorers_arithmetic(preregistration):
+    """§5.4's six-column joint tables, cell by cell.
+
+    Round 10, finding 4's second half: the independence table — the source of
+    `q⁶`, `q¹⁸` and the Fréchet column — was parsed by NO test through nine
+    review rounds, so every one of its cells was a transcription. It is parsed
+    here beside its containment-respecting companion, both against this study's
+    own arithmetic, and the infeasibility that separates them is asserted from
+    the exact rationals rather than from the printed four places.
+    """
+    independence = table(preregistration, JOINT_HEADER)
+    containment = table(preregistration, CONTAINMENT_JOINT_HEADER)
+    assert [row[0] for row in independence] == [row[0] for row in containment]
+    assert [row[0] for row in independence] == ["1.00", "0.98", "0.95"]
+
+    for p_text, one, four, six, floor, twelve in independence:
+        q = score_rates.probability_at_least(
+            score_rates.high_threshold(JOINT_TRIALS), JOINT_TRIALS,
+            Fraction(p_text))
+        for column, printed, value in (
+                ("P(HIGH)", one, q),
+                ("all four narrow", four, q ** 4),
+                ("all six", six, q ** 6),
+                ("Fréchet", floor, max(Fraction(0), 6 * q - 5)),
+                ("all twelve", twelve, q ** 18)):
+            assert "%.4f" % float(value) == printed, (
+                "§5.4's joint table prints %s for %s at p = %s; this file "
+                "computes %.6f" % (printed, column, p_text, float(value)))
+
+    for p_text, one, four, six, floor, twelve in containment:
+        figures = score_rates.containment_joint_figures(
+            JOINT_TRIALS, Fraction(p_text))
+        for key, printed in (("q", one), ("allFourNarrow", four),
+                             ("allSix", six), ("frechetAllSix", floor),
+                             ("allTwelveTracking", twelve)):
+            assert "%.4f" % figures[key] == printed, (
+                "§5.4's containment table prints %s for %s at p = %s; this "
+                "file computes %.6f" % (printed, key, p_text, figures[key]))
+        # A containment-respecting figure is by construction inside the feasible
+        # set its own floor draws; if it were not, the companion would be as
+        # unreachable as the table it corrects.
+        assert figures["allSix"] >= figures["frechetAllSix"]
+        assert figures["allFourNarrow"] >= figures["frechetAllFourNarrow"]
+        assert figures["allSix"] <= figures["cap"]
+
+    # The two cells §5.4 names as reachable by no population, at BOTH nondegenerate
+    # p rows the table prints — and the degenerate row, where the floor is met.
+    for p_text in ("0.98", "0.95"):
+        q = score_rates.probability_at_least(
+            score_rates.high_threshold(JOINT_TRIALS), JOINT_TRIALS,
+            Fraction(p_text))
+        assert q ** 6 < max(Fraction(0), 4 * q - 3), p_text
+        assert q ** 4 < max(Fraction(0), 3 * q - 2), p_text
 
 
 # --- §5.4's MARGINAL level table (round 9, finding 12) ----------------------

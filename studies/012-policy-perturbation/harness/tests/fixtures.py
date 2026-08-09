@@ -218,6 +218,46 @@ PARTIAL_PROFILE = {
     "unreached": [0, 5],           # reached by no record at all
 }
 
+def old_labelled_records(t_low, t_high) -> list:
+    """Round 10, finding 7's corpus: three records placed at the BASELINE's
+    edges and labelled by the BASELINE's rule, for a slot of an arm whose own
+    pair is somewhere else.
+
+    The pair is passed in — arm A's, taken from arm A's own `ARM.json` — so the
+    fixture cannot drift from the edges S10 cross-scores against. In arm D, at
+    (45, 72), every one of the first two is QUARANTINED: D's mirror clears a 70
+    with no personal data and clears a 40 that handles it, and the records say
+    `manual-review` because the old rule did. That is the shape §5.3 (ii)'s
+    second outcome names — the model reproduced 40 and 70 in the face of a text
+    that says 45 and 72 — and while S10 intersected with H it was the shape S10
+    could not see.
+    """
+    low, high = Decimal(str(t_low)), Decimal(str(t_high))
+    return [
+        # baseline classes 0 (== T_high) and 1 ([T_high, T_high+1)), labelled by
+        # the OLD P3. No personal data, so the only route into these classes
+        # under a shifted mirror would be the personal-data branch.
+        _record("old-edge-exact-high", high, outcome="manual-review",
+                by="reviewer-1", at="2026-06-02T09:00:00Z"),
+        # baseline classes 2 (P ∧ [T_low, T_low+1)) and 3 ([T_low, T_high)),
+        # labelled by the OLD P4.
+        _record("old-edge-personal-at-low", low, country="DE", personal=True,
+                outcome="manual-review", by="reviewer-3",
+                at="2026-06-04T14:15:00Z"),
+        # baseline class 5 (P ∧ [T_low-1, T_low)): `clear` under both pairs, so
+        # this one is H wherever it is scored and was S10's only visible record.
+        _record("old-edge-personal-below-low", low - Decimal("0.5"),
+                country="PT", personal=True, outcome="clear", by="reviewer-6",
+                at="2026-06-07T10:00:00Z"),
+    ]
+
+
+# What the corpus above reaches in ARM A's coordinate system (S10) and what it
+# reached before round 10 finding 7, scored in ARM D: the whole point is the
+# difference. Class 4 is the embargo class, which no record here is in.
+OLD_LABELLED_FROM_D = [0, 1, 2, 3, 5]
+OLD_LABELLED_FROM_D_UNDER_THE_H_FILTER = [5]
+
 RIDGELINE = {
     "caseId": "ridgeline-supplies",
     "vendor": {"legalName": "Ridgeline Supplies", "sanctionsHit": False,
@@ -454,7 +494,8 @@ def throwaway_root(prefix: str = "s012-tests-") -> str:
     return root
 
 
-def standin_study(root: str, wrapper: str, harness: str) -> str:
+def standin_study(root: str, wrapper: str, harness: str, *,
+                  git: bool = True) -> str:
     """A stand-in study whose OWN path is what the wrapper resolves as
     `$STUDY`: the committed wrapper reached through a symlink (the bytes that
     run are the committed bytes; `$STUDY` follows the invocation path, not the
@@ -478,6 +519,13 @@ def standin_study(root: str, wrapper: str, harness: str) -> str:
         root first would falsify the driver tests that read the root's absence
         as "no slot was created".
 
+    `git=False` skips the `git init` and is the ONE case that wants the
+    degraded shape: the wrapper refuses a study it cannot find a worktree for
+    (round 10, finding 6 registers that refusal in `harness/PORTS.md`), and a
+    fixture whose stand-in is always a repository is exactly why no test
+    reached that line for two rounds. Every other caller wants production's
+    shape and takes the default.
+
     `PYTHONDONTWRITEBYTECODE` must be set for every interpreter that reaches
     the symlinked harness: it is the committed directory, and the §2.10 gate
     refuses on a cache beside the reviewed sources.
@@ -487,7 +535,8 @@ def standin_study(root: str, wrapper: str, harness: str) -> str:
     os.symlink(wrapper, os.path.join(study, "transcription",
                                      os.path.basename(wrapper)))
     os.symlink(harness, os.path.join(study, "harness"))
-    subprocess.run(["git", "init", "-q", study], check=True)
+    if git:
+        subprocess.run(["git", "init", "-q", study], check=True)
     return study
 
 
@@ -825,8 +874,13 @@ class Population:
         their registered moments arrive (§2.10, §3.2, §6 C7), so no fixture
         population can satisfy them and none should be able to.
         `test_admission.py::test_the_scoring_refuses_before_it_reads_a_slot`
-        asserts that the gate refuses, which is the half of it a fixture can
-        test; everything below it is the real thing, function for function and
+        asserts that the gate refuses on the FIRST of them the committed tree
+        fails — the golden capture is not a file yet — which is what that case
+        proves and all it proves (round 10, finding 5: it used to be cited here
+        as §6 C7's coverage, and it never reached §6 C7).
+        `test_the_scorer_refuses_a_control_record_that_is_not_this_studys` is
+        the C7 gate's own negative case, over a population that gets past this
+        line; everything below it is the real thing, function for function and
         in `score()`'s own order.
 
         The endpoints are computed separately by `score()` because every rate
@@ -1085,7 +1139,11 @@ def synthetic_row(arm: str, entry: dict, *, covered=(), raw=None, q=(),
         "globalIndex": entry["globalIndex"], "round": entry["round"],
         "position": entry["position"], "valid": True,
         "code": None, "detail": None, "batchCode": None,
-        "wallClockSeconds": 42,
+        # Both stamp-derived members, so the two row builders stay in step: a
+        # synthetic row reaches `score_arm()` and never `results_document()`,
+        # but a row shape that agrees with `score_run()`'s only by accident is
+        # one a later reader has to check (round 10, finding 9).
+        "wallClockSeconds": 42, "utcDates": ["2026-08-07"],
         "accepted": accepted, "dropped": 0, "dropCodes": {},
         "h": accepted, "q": len(q),
         # A synthetic row always carries a parseable array — the array is what

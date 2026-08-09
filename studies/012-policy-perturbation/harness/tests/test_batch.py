@@ -231,15 +231,29 @@ class Batch(unittest.TestCase):
         control's own behaviour is tested against the real command below, and
         `stand_in_registry()` deliberately does not grant the assent — the
         control's own refusal test builds its null case from there.
+
+        Round 10, finding 5: written with the members the REAL writer writes.
+        The earlier five-member record was one `batch.capture_isolation_negative`
+        could never have produced, so every case standing on this fixture
+        admitted a record no run could leave — and a gate reading a member the
+        writer had stopped writing would have stayed invisible here.
         """
         pins = json.loads(json.dumps(self.pins))
         pins["isolationNegative"]["assent"] = "granted"
         self.write_pins(pins)
         verdict = {"control": "C7 — the isolation gate's power",
+                   "registeredExpectation": "the golden match FAILS",
+                   "registeredOutcomes": list(batch.C7_OUTCOMES),
                    "outcome": "refused",
-                   "assent": "granted",
+                   "message": "the golden pre-prompt context was not reproduced",
+                   "wrapperExit": 0,
+                   "wrapperCode": None,
                    "goldenSha256": batch._digest(self.golden),
-                   "registeredOutcomes": list(batch.C7_OUTCOMES)}
+                   "deletedByCode": {"session.jsonl": "sha256:" + "0" * 64},
+                   "assent": "granted",
+                   "retention": "This file and a stripped CALL.json are always "
+                                "retained, and context.json whenever the call "
+                                "produced a comparable context."}
         verdict.update(edits)
         os.makedirs(batch.DEFAULT_NEGATIVE, exist_ok=True)
         path = os.path.join(batch.DEFAULT_NEGATIVE, "VERDICT.json")
@@ -273,9 +287,13 @@ class Batch(unittest.TestCase):
                            "--golden", self.golden, "--cli-override", self.cli])
 
     def wrapper(self, slot: str, arm: str, pins_path: str = None,
-                cli: str = None, environment: dict = None):
+                cli: str = None, environment: dict = None, script: str = None):
         """One call of the real wrapper, by hand, as an operator would — with
-        §2.7's two new arguments, the arm id and the arm's own prompt path."""
+        §2.7's two new arguments, the arm id and the arm's own prompt path.
+
+        `script` names another stand-in study's copy of the same committed
+        bytes, for the one case whose subject is the study the wrapper resolves
+        for itself rather than the slot it is handed."""
         env = dict(os.environ)
         env["PYTHON_BIN"] = sys.executable
         # The driver subprocess must not write bytecode beside the
@@ -284,7 +302,7 @@ class Batch(unittest.TestCase):
         env["PYTHONDONTWRITEBYTECODE"] = "1"
         env.update(environment or {})
         return subprocess.run(
-            ["bash", self.wrapper_path, self.scratch, slot,
+            ["bash", script or self.wrapper_path, self.scratch, slot,
              pins_path or self.pins_path,
              arm, os.path.join(STUDY, "arms", arm, "PROMPT.txt"),
              cli or self.cli],
@@ -669,8 +687,12 @@ class Batch(unittest.TestCase):
         # A REPLACED component, which no comparison of the path's own text can
         # see: `arms/E/authoring` is a symlink out of the stand-in study, so
         # the anchor spells right and resolves elsewhere. This is a fixture
-        # layout, not an exploit — the wrapper resolves the anchor physically
-        # after creating it and before creating anything in it.
+        # layout, not an exploit — the wrapper resolves each component of the
+        # anchor physically before it makes the next. This case's link sits at
+        # the LAST of the three, onto a directory that already exists, so
+        # nothing had to be made under it either way; the earlier components,
+        # where the ordering is what decides, are round 10 finding 6's
+        # `test_a_replaced_ancestor_is_refused_before_anything_is_created`.
         elsewhere = os.path.join(self.root, "elsewhere")
         os.makedirs(elsewhere)
         os.makedirs(os.path.join(self.arms_root, "E"))
@@ -687,6 +709,102 @@ class Batch(unittest.TestCase):
         completed = self.wrapper(canonical, ENTRIES[0]["arm"])
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertTrue(os.path.isfile(os.path.join(canonical, "CALL.json")))
+
+    def test_a_replaced_ancestor_is_refused_before_anything_is_created(self):
+        """Round 10, finding 6: resolved BEFORE created, component by component.
+
+        The registered branch named one path and made it with a single
+        `mkdir -p`, and `mkdir -p` FOLLOWS a replaced component — so with
+        `arms` a symlink out of the study it created the two missing
+        descendants under the foreign target, and only then did the physical
+        comparison refuse. The wrapper's own comment said the block "creates
+        nothing outside the study", which was false of exactly the case the
+        comparison exists for. The three components below `$STUDY` are the
+        whole of the exposure, and this walks the two the round-9 case cannot
+        reach: its link sits at `authoring`, onto a directory that already
+        exists, where `mkdir -p` makes nothing whatever the ordering is.
+
+        The assertion that fails against the old ordering and passes against
+        this one is `os.listdir(elsewhere) == []`; against the old bytes it
+        finds `["E"]` for the first case and `["authoring"]` for the second.
+        """
+        elsewhere = os.path.join(self.root, "elsewhere-ancestor")
+        os.makedirs(elsewhere)
+        slot = os.path.join(self.arms_root, "E", "authoring", "run-001")
+        # `arms` itself replaced: two directories used to be made out there.
+        os.symlink(elsewhere, self.arms_root)
+        completed = self.wrapper(slot, "E")
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        self.assertIn("outside this study's tree", completed.stderr)
+        self.assertEqual(os.listdir(elsewhere), [])
+        self.assertIn("at arms,", completed.stderr)
+        self.assertFalse(os.path.exists(slot))
+        os.unlink(self.arms_root)
+        # …and the arm's own component replaced: one directory, one level down.
+        os.makedirs(self.arms_root)
+        os.symlink(elsewhere, os.path.join(self.arms_root, "E"))
+        completed = self.wrapper(slot, "E")
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        self.assertIn("outside this study's tree", completed.stderr)
+        self.assertEqual(os.listdir(elsewhere), [])
+        self.assertIn("at E,", completed.stderr)
+        self.assertFalse(os.path.exists(slot))
+        shutil.rmtree(self.arms_root, ignore_errors=True)
+        # A DANGLING link at the last component: absent to `-e` and present to
+        # `mkdir`, so the old branch died in `mkdir -p` under `set -e` with no
+        # refusal line at all. It is refused by name now, like the slot path
+        # one level down.
+        os.makedirs(os.path.join(self.arms_root, "E"))
+        os.symlink(os.path.join(elsewhere, "gone"),
+                   os.path.join(self.arms_root, "E", "authoring"))
+        completed = self.wrapper(slot, "E")
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        self.assertIn("refused:", completed.stderr)
+        self.assertIn("resolves to nothing at authoring,", completed.stderr)
+        self.assertEqual(os.listdir(elsewhere), [])
+        self.assertEqual(self.calls_made(), "0")
+        # The control, so the descent is not refusing everything: the canonical
+        # slot for the arm the driver would name still runs to a completed
+        # call, and the descent is what MAKES its three components.
+        shutil.rmtree(self.arms_root, ignore_errors=True)
+        canonical = self.slot(0)
+        completed = self.wrapper(canonical, ENTRIES[0]["arm"])
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertTrue(os.path.isfile(os.path.join(canonical, "CALL.json")))
+
+    def test_a_study_outside_a_worktree_refuses_rather_than_degrading(self):
+        """The one repair `harness/PORTS.md` registers, asserted rather than
+        only written there (round 10, finding 6).
+
+        Study 011 read the repository root with the `rev-parse` nested inside
+        the `cd`: a failed one left the substitution empty, `cd ""` succeeded,
+        and `GIT_ROOT` silently became the CALLER's directory — so the scratch
+        check compared against a directory nobody chose. This study reads the
+        toplevel first and refuses an empty one. Production is always in a
+        worktree and `standin_study()` runs `git init` for the same reason, so
+        this is the only case in the suite that wants the degraded shape, and
+        its absence is why this line went two rounds with no test on it.
+        """
+        outside = fixtures.standin_study(
+            os.path.join(self.root, "no-worktree"), WRAPPER,
+            os.path.join(STUDY, "harness"), git=False)
+        found = subprocess.run(["git", "-C", outside, "rev-parse",
+                                "--show-toplevel"],
+                               capture_output=True, text=True)
+        if found.returncode == 0:
+            self.skipTest("this machine's temporary directory is itself inside "
+                          "a git worktree (%s), so the shape under test cannot "
+                          "be built here" % found.stdout.strip())
+        entry = ENTRIES[0]
+        slot = os.path.join(outside, "arms", entry["arm"], "authoring",
+                            "run-%03d" % entry["slotIndex"])
+        completed = self.wrapper(slot, entry["arm"],
+                                 script=os.path.join(outside, "transcription",
+                                                     "authoring_call.sh"))
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        self.assertIn("is not inside a git worktree", completed.stderr)
+        self.assertFalse(os.path.exists(os.path.join(outside, "arms")))
+        self.assertEqual(self.calls_made(), "0")
 
     def test_an_unregistered_interpreter_never_reaches_a_call(self):
         # §2.10 registers the interpreter and the wrapper reads that member
@@ -1130,7 +1248,10 @@ class Batch(unittest.TestCase):
         """What the gate reads, case by case: the record must be there, be
         readable as duplicate-free JSON, be an object, carry one of §6 C7's
         THREE registered outcomes, name the assent the registry now records,
-        and name the golden capture THIS batch runs behind.
+        and name the golden capture THIS batch runs behind — and, since round
+        10 finding 5, have the SHAPE the writer produces: the registered
+        outcome list it was judged against, a name-to-digest `deletedByCode`,
+        and an integer `wrapperExit`.
 
         The last three rows are the point of the second half: `matched` and
         `no-context` ADMIT the batch. `matched` is a registered limitation and
@@ -1164,19 +1285,37 @@ class Batch(unittest.TestCase):
                  lambda: self.record_negative_control(assent="withheld")),
                 ("another golden",
                  lambda: self.record_negative_control(
-                     goldenSha256=batch._digest(other)))):
+                     goldenSha256=batch._digest(other))),
+                # Round 10, finding 5: three members the writer always writes,
+                # so a record that carries them in another shape is not one the
+                # driver produced.
+                ("another registration",
+                 lambda: self.record_negative_control(
+                     registeredOutcomes=["refused", "matched"])),
+                ("deletions that are not an object",
+                 lambda: self.record_negative_control(
+                     deletedByCode=["session.jsonl"])),
+                ("a boolean exit status",
+                 lambda: self.record_negative_control(wrapperExit=True))):
             damage()
             self.assertEqual(self.run_batch(["--runs", "1"]), 1, name)
             self.assertFalse(os.path.exists(self.arms_root), name)
             self.assertEqual(self.calls_made(), spent, name)
-        for outcome in ("matched", "no-context"):
+        for outcome, shape in (
+                ("matched", {}),
+                # …and the no-context record deletes NOTHING, because the
+                # wrapper died before it wrote a transcript to digest. That is
+                # why the shape check requires `deletedByCode` present and an
+                # object and never non-empty: this row is what holds the
+                # registered outcome reachable (round 10, finding 5).
+                ("no-context", {"deletedByCode": {}})):
             shutil.rmtree(self.arms_root, ignore_errors=True)
             # One plan entry, rewritten rather than counted on: the stand-in
             # CLI clamps to its last step, so slot 1 gets its own arm's
             # completion however many entries the cases above consumed.
             fixtures.write_plan(self.cli_dir,
                                 [{"completion": arm_completion(ENTRIES[0]["arm"])}])
-            self.record_negative_control(outcome=outcome)
+            self.record_negative_control(outcome=outcome, **shape)
             self.assertEqual(self.run_batch(["--runs", "1"]), 0, outcome)
             self.assertTrue(os.path.isdir(self.slot(0)), outcome)
 
@@ -1933,9 +2072,19 @@ class EntryFileOrdering(unittest.TestCase):
     """The untracked-source tripwire runs before the FIRST study-local import,
     not merely before most of them (round 8, finding 2; round 9, finding 1).
     `ImportDiscipline` above asks WHAT an import pulls in; this asks WHEN the
-    scan happens relative to the first one."""
+    scan happens relative to the first one.
+
+    Round 10, finding 1: there is one thing no in-file ordering can reach — the
+    entry file's OWN head imports, which resolve from the directory the file was
+    invoked from before a byte of it runs. `-P`/`PYTHONSAFEPATH=1` is the
+    closure, the three entry files refuse without it, and the last case below is
+    the refusal's own test."""
 
     ENTRIES = ("batch.py", "score_rates.py")
+    # README step 1 invokes a third entry by path, and the safe-path refusal is
+    # in all three: `integrity.py` has no tripwire of its own, but it does
+    # `sys.path.insert(0, HERE)` at module scope with no scan before it.
+    PATH_INVOKED = ENTRIES + ("integrity.py",)
 
     def _sandbox(self, entry):
         """A throwaway git repo holding ONLY the reviewed entry file, so a scan
@@ -1949,9 +2098,15 @@ class EntryFileOrdering(unittest.TestCase):
         subprocess.run(["git", "add", "harness/" + entry], cwd=root, check=True)
         return root, harness            # `git add` is enough: ls-files reads the index
 
-    def _run(self, root, harness, entry, *argv):
-        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+    def _run(self, root, harness, entry, *argv, safe_path=True):
+        """The ceremony's own invocation shape: the file by path, under the
+        safe import path README step 0 exports. `safe_path=False` is the
+        operator who forgot, which the entries refuse."""
+        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
+                           PYTHONSAFEPATH="1")
         environment.pop("PYTHONPATH", None)
+        if not safe_path:
+            environment.pop("PYTHONSAFEPATH")
         return subprocess.run([sys.executable, os.path.join(harness, entry)] + list(argv),
                               capture_output=True, text=True, cwd=root, env=environment)
 
@@ -1980,6 +2135,18 @@ class EntryFileOrdering(unittest.TestCase):
                 self.assertNotEqual(done.returncode, 2, done.stderr)
                 self.assertIn("ModuleNotFoundError", done.stderr)
 
+    def _local_import_lines(self, tree, local):
+        """The module-scope lines importing one of `local`, in BOTH import
+        forms (round 10, finding 1). `import integrity` and `from integrity
+        import verify` put the same module on the same path at the same moment,
+        and a scan that counted only the first form was a guard against one
+        spelling of the thing it exists to order."""
+        return [node.lineno for node in tree.body
+                if (isinstance(node, ast.Import)
+                    and any(alias.name in local for alias in node.names))
+                or (isinstance(node, ast.ImportFrom)
+                    and node.level == 0 and node.module in local)]
+
     def test_bytecode_writing_is_disabled_before_the_first_harness_import(self):
         """No clean runtime probe exists for the flag (the cache write it
         prevents happens inside the import machinery), so this one is over the
@@ -1993,11 +2160,12 @@ class EntryFileOrdering(unittest.TestCase):
             with self.subTest(entry=entry):
                 with open(os.path.join(harness_dir, entry)) as handle:
                     tree = ast.parse(handle.read())
-                first_local = min(
-                    node.lineno for node in tree.body
-                    if isinstance(node, ast.Import)
-                    and any(alias.name in modules - {entry[:-3]}
-                            for alias in node.names))
+                # `min()` over an empty sequence raises, which is the right
+                # behaviour: an entry file that imports no harness module at
+                # module scope has changed shape and this case must say so
+                # rather than pass over nothing.
+                first_local = min(self._local_import_lines(
+                    tree, modules - {entry[:-3]}))
                 flag = [node.lineno for node in tree.body
                         if isinstance(node, ast.Assign)
                         and ast.unparse(node) == "sys.dont_write_bytecode = True"]
@@ -2012,7 +2180,12 @@ class EntryFileOrdering(unittest.TestCase):
     def test_the_third_path_invoked_entry_gates_before_it_loads_anything(self):
         """README step 1 runs `integrity.py` by path. It carries no tripwire of
         its own because it needs none: its head imports nothing study-local, and
-        its scan is the first statement of `verify()`."""
+        its scan is the first statement of `verify()`.
+
+        The emptiness assertion is the one that had to grow both import forms
+        (round 10, finding 1): an emptiness assertion is satisfied by anything
+        it cannot see, so `from policy_mirror import ...` at module scope here
+        would have left this passing with a grid module loaded above the gate."""
         with open(os.path.join(STUDY, "harness", "integrity.py")) as handle:
             tree = ast.parse(handle.read())
         verify = next(node for node in tree.body
@@ -2020,9 +2193,37 @@ class EntryFileOrdering(unittest.TestCase):
         self.assertEqual(ast.unparse(verify.body[1]), "verify_bytecode(study)")   # body[0] is the docstring
         modules = {name[:-3] for name in os.listdir(os.path.join(STUDY, "harness"))
                    if name.endswith(".py")} - {"integrity"}
-        self.assertEqual([], [node.lineno for node in tree.body
-                              if isinstance(node, ast.Import)
-                              and any(alias.name in modules for alias in node.names)])
+        self.assertEqual([], self._local_import_lines(tree, modules))
+
+    def test_every_path_invoked_entry_refuses_without_the_safe_import_path(self):
+        """Round 10, finding 1: the residual the tripwire cannot reach.
+
+        Invoking a script by path makes its own directory `sys.path[0]`, so the
+        entry file's head imports — `subprocess`, which the scan asks git what
+        is tracked with, among them — resolve from the directory the scan
+        polices before any of the file runs. `-P`/`PYTHONSAFEPATH=1` is the
+        closure and README step 0 exports it; each entry refuses without it,
+        BEFORE its own scan, which is what the planted file proves: the flag is
+        named and the untracked source is not, because the process stopped
+        above it.
+
+        This is a discipline check against operator error and not a gate
+        against a hostile tree — it runs after the head imports it is about —
+        and the code says so where it lives.
+        """
+        for entry in self.PATH_INVOKED:
+            with self.subTest(entry=entry):
+                root, harness = self._sandbox(entry)
+                with open(os.path.join(harness, "planted.py"), "w") as handle:
+                    handle.write("VALUE = 1\n")
+                done = self._run(root, harness, entry, "run", safe_path=False)
+                self.assertEqual(done.returncode, 2, done.stderr)
+                self.assertIn("PYTHONSAFEPATH", done.stderr)
+                self.assertNotIn("untracked Python source", done.stderr)
+                # …and the control: with the flag the refusal does not fire, so
+                # this case cannot pass on an entry that refuses everything.
+                done = self._run(root, harness, entry, "run")
+                self.assertNotIn("PYTHONSAFEPATH", done.stderr)
 
 
 class IntervalScope(unittest.TestCase):
@@ -2149,6 +2350,33 @@ class IntervalScope(unittest.TestCase):
         # that lost it with it would still fail here.
         self.assertLessEqual({"cell", "schedule", "seal", "arms", "crossArm",
                               "verdicts", "census", "runs"}, set(published))
+
+    def test_the_published_schedule_carries_the_computed_utc_day(self):
+        """Round 10, finding 9: §2.8 registers that all 150 slots are begun and
+        completed within one UTC calendar day, and nothing computed it.
+
+        `RESULTS.json`'s own `cell` note said "one model, one day" while the
+        document carried no member a reader could check it against — and the
+        same conjunct is in [D-10]'s confirmation sentence and §9's bounds. The
+        date set is published under `schedule.utcDay` now, computed from the
+        calendar parts of each slot's own retained stamps.
+
+        Asserted on the WRITER's document rather than on a second scoring, so
+        the wiring is what is checked: the fixture population's slots are all
+        stamped on one date, and the block says so and establishes it. It
+        carries no `ci95` and no rate, which is why §4.3's registered scope
+        above is unchanged by it — this is a date, not a measurement.
+        """
+        block = self.results["schedule"]["utcDay"]
+        self.assertEqual(block, score_rates.utc_day(self.results["runs"]))
+        self.assertEqual(block["dates"], ["2026-08-07"])
+        self.assertEqual(block["slotsWithoutReadableStamps"], 0)
+        self.assertIs(block["crossedMidnight"], False)
+        self.assertIs(block["oneDayEstablished"], True)
+        self.assertIn("rather than a stopping rule", block["note"])
+        # Nested inside `schedule`, so the top-level walk above is untouched;
+        # named here so a writer that moved it to the root is caught.
+        self.assertNotIn("utcDay", set(self.results))
 
     def blocks_carrying_ci95(self, node, path: str) -> set:
         """Every path at which `ci95` appears, to the bottom of the structure.

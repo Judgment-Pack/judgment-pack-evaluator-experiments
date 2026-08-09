@@ -239,10 +239,42 @@ def _refuse_untracked_python_sources():
                 raise SystemExit(2)
 
 
+def _refuse_unsafe_import_path():
+    """Round 10, finding 1: the scan above cannot precede the head imports of
+    the file it lives in. Running a script BY PATH puts that script's own
+    directory first on `sys.path`, and every module the head imports resolves
+    from it before a single byte of this file runs — `subprocess` included,
+    which is the module the tripwire asks git what is tracked with. The scan's
+    own instrument is therefore resolvable from the directory the scan exists
+    to police, and no assignment inside the file can close that: `sys.path[0]`
+    is populated before the file is read, unlike `sys.dont_write_bytecode`,
+    which is consulted later.
+
+    `-P` / `PYTHONSAFEPATH=1` is the closure, and README step 0 exports it.
+    What this refusal establishes is that the operator applied it — a discipline
+    check against operator error, NOT a gate against a hostile tree, because it
+    executes after the head imports it is about. The only fully structural form
+    would be a re-exec guard written above every shadowable import; it is larger
+    than this residual warrants and is declined here by name rather than left
+    unmentioned."""
+    if not sys.flags.safe_path:
+        print("refused: run this file with -P, or with PYTHONSAFEPATH=1 in the "
+              "environment as README step 0 exports it; invoking a script by "
+              "path puts its own directory first on sys.path, so this file's "
+              "head imports — `subprocess`, which the untracked-source scan "
+              "above runs on, among them — resolve from the very directory the "
+              "scan exists to police (§2.10, round 10 finding 1)",
+              file=sys.stderr)
+        raise SystemExit(2)
+
+
 if __name__ == "__main__":
+    _refuse_unsafe_import_path()
     _refuse_untracked_python_sources()
 
-# Nothing is put on the import path until the tree has been scanned.
+# Nothing is put on the import path until the tree has been scanned — and,
+# under the safe path the refusal above requires, nothing was on it before
+# either, which is what makes this comment true of the whole file.
 sys.path.insert(0, HERE)
 import integrity  # noqa: E402
 import score_rates  # noqa: E402  (one slot-naming rule and one JSON loader, not two)
@@ -848,11 +880,13 @@ def require_isolation_negative(pins: dict, golden_path: str) -> dict:
     §6 C7's THREE registered outcomes; it names the same assent the registry
     now records; and it was compared against the golden capture THIS batch runs
     behind, which is the capture whose gate C7 demonstrates the power of (§3.2,
-    §6 C7). All three outcomes admit the batch — a `no-context` verdict already
-    exits non-zero and is reported as undemonstrated, and refusing it here
-    would make that registered sentence unreachable, because the command
-    refuses to rewrite a record that exists. What is refused is a control that
-    never ran.
+    §6 C7). Round 10, finding 5 adds the last of it: the record has the SHAPE
+    the writer produces, in `score_rates.c7_record_shape_problems()`, which
+    names what is checked and what is deliberately not. All three outcomes
+    admit the batch — a `no-context` verdict already exits non-zero and is
+    reported as undemonstrated, and refusing it here would make that registered
+    sentence unreachable, because the command refuses to rewrite a record that
+    exists. What is refused is a control that never ran.
 
     The path is structural, `controls/isolation-negative/`, and `--out` is not
     consulted: [D-23]'s rule that a derived canonical location is not an
@@ -902,6 +936,10 @@ def require_isolation_negative(pins: dict, golden_path: str) -> dict:
                          "and this batch runs against %s: C7 demonstrates the "
                          "power of the gate THIS batch runs behind (§3.2, §6 C7)"
                          % (relative, recorded, actual))
+    shape = score_rates.c7_record_shape_problems(verdict)
+    if shape:
+        raise BatchError("%s: %s — the record is not one this driver wrote"
+                         % (relative, "; ".join(shape)))
     return verdict
 
 
@@ -2062,9 +2100,14 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
             except transcript_check.TranscriptError as error:
                 outcome, message = "refused", str(error)
         else:
+            # Round 10, finding 5: "neither registered outcome occurred" was
+            # plainly false — `no-context` IS one of §6 C7's three registered
+            # outcomes, and this string is the one that reports it. What did
+            # not happen is a COMPARISON, which is the word §6 C7 itself,
+            # README step 5 and both neighbours below already use.
             outcome, message = "no-context", (
                 "the control produced no comparable context (wrapper exit %d, code %r): "
-                "neither registered outcome occurred and the gate's power is "
+                "neither registered comparison happened and the gate's power is "
                 "undemonstrated" % (status, code))
         digests = {}
         for name in ("session.jsonl", "stdout.raw", "stderr.raw", "completion.txt"):

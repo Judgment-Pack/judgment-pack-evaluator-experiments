@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # One authoring call, ported from Study 011's wrapper, itself a port of Study
 # 010's registered wrapper (harness/PORTS.md records both source digests and
-# every change). Every element of the isolation invocation is 011's, unchanged:
+# every change). Every element of the isolation invocation is 011's, unchanged
+# but for the one repair harness/PORTS.md registers (the worktree line below):
 # a fresh HOME and a fresh CODEX_HOME beneath it (skills load from $HOME/.agents
 # and DO reach the model — --ignore-user-config alone does not stop them), an
 # explicit model, --ignore-user-config, an env -i scrubbed environment with PATH
@@ -85,12 +86,16 @@ if [ "$#" -lt 5 ] || [ "$#" -gt 6 ]; then
 fi
 
 STUDY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-# Round 9, incidental to finding 6: read the toplevel first and refuse an empty
-# one. Nested in the `cd` below, a failed `rev-parse` left the substitution
-# empty, `cd ""` succeeded, and GIT_ROOT silently became the caller's cwd — so
-# the scratch check at the bottom of this block compared against a directory
-# nobody chose. Production is always in a worktree; this refuses rather than
-# degrades when it is not.
+# The one repair harness/PORTS.md registers, and the only line of 011's
+# isolation invocation not carried byte-for-byte: read the toplevel first and
+# refuse an empty one. Nested in the `cd` 011 wrote, a failed `rev-parse` left
+# the substitution empty, `cd ""` succeeded, and GIT_ROOT silently became the
+# caller's cwd — so the scratch check at the bottom of this block compared
+# against a directory nobody chose. Production is always in a worktree; this
+# refuses rather than degrades when it is not. It is none of §2.7's three
+# differences — it changes no argument, no stamp and no name, and no run this
+# study can make reaches it (round 9, incidental to finding 6; registered as a
+# repair in round 10, so a later round reads it as recorded and not as drift).
 GIT_ROOT="$(git -C "$STUDY" rev-parse --show-toplevel 2>/dev/null || true)"
 [ -n "$GIT_ROOT" ] || { echo "refused: $STUDY is not inside a git worktree" >&2; exit 1; }
 GIT_ROOT="$(cd "$GIT_ROOT" && pwd -P)"
@@ -259,16 +264,35 @@ if [ "$PROMPT_KIND" = "registered" ]; then
   # nowhere else — the anchor the guard above pinned is the only tree this
   # branch may make, which is what keeps this file's own exit-1 promise
   # ("nothing was called, no slot was left behind") true of a foreign path too.
-  mkdir -p "$ARMS_ANCHOR"
+  #
   # …and the textual anchor cannot see a REPLACED component: `arms` or
-  # `authoring` may be a symlink pointing out of the study, and until this the
-  # first physical resolution of the slot came after it had been created. Still
-  # pre-call, and it creates nothing outside the study.
-  ANCHOR_PHYS="$(cd "$ARMS_ANCHOR" && pwd -P)"
-  if [ "$ANCHOR_PHYS" != "$ARMS_ANCHOR" ]; then
-    echo "refused: arms/$ARM/authoring resolves to $ANCHOR_PHYS, outside this study's tree" >&2
-    exit 1
-  fi
+  # `authoring` may be a symlink pointing out of the study, which no comparison
+  # of the path's own text can see.
+  #
+  # Round 10, finding 6: resolved BEFORE created, component by component. This
+  # was one `mkdir -p` and then a physical check, and `mkdir -p` FOLLOWS a
+  # replaced component — so a symlinked `arms` had it create the two missing
+  # descendants outside the study and only then be refused, under a comment
+  # asserting it created nothing outside the study. The descent below makes
+  # each component only after the one above it has resolved to itself, so
+  # nothing is ever made beneath a component that resolves elsewhere. Still
+  # pre-call. $STUDY is this script's own physically resolved location, so the
+  # three components below it are the whole of what a replacement can reach.
+  ANCHOR_PHYS="$STUDY"
+  for COMPONENT in arms "$ARM" authoring; do
+    # -e OR -L, as at the slot path below: a DANGLING symlink is absent to `-e`
+    # and present to `mkdir`, so the mkdir is skipped, the `cd` fails, and the
+    # refusal below says so rather than `set -e` killing the run silently.
+    if [ ! -e "$ANCHOR_PHYS/$COMPONENT" ] && [ ! -L "$ANCHOR_PHYS/$COMPONENT" ]; then
+      mkdir "$ANCHOR_PHYS/$COMPONENT"
+    fi
+    NEXT="$(cd "$ANCHOR_PHYS/$COMPONENT" 2>/dev/null && pwd -P || true)"
+    if [ "$NEXT" != "$ANCHOR_PHYS/$COMPONENT" ]; then
+      echo "refused: arms/$ARM/authoring resolves to ${NEXT:-nothing} at $COMPONENT, outside this study's tree" >&2
+      exit 1
+    fi
+    ANCHOR_PHYS="$NEXT"
+  done
 else
   # The probe calls (§3.2's recapture and §6 C7) are made under no arm and have
   # no anchor: their slot is the capture directory the driver names.

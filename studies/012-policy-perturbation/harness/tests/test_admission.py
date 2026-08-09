@@ -210,12 +210,20 @@ EXPECTED_PLACEMENT_K = {
 # its old-edge k is its own; arm D's records sit at 45 and 72 and reach NONE of
 # arm A's four narrow numeric classes. Class 3 is A's 30-wide [40, 70) band,
 # which D's 45 and 60 fall inside, and class 4 names no number at all.
+#
+# S10 is RAW (round 10, finding 7) — label irrelevant, exactly as S1 is — so for
+# arms A, B, C and E, which all carry arm A's own FAMILY.json, this table is
+# EXPECTED_PLACEMENT_K above and not EXPECTED_PRIMARY_K. Arm E's class 2 is where
+# that shows: the mislabelled record placed inside the class counts here. Arm D's
+# row is unchanged and so are the other three columns, because those corpora
+# quarantine nothing (q = 0 in EXPECTED_CENSUS below), and where Q is empty the
+# raw and the label-filtered answers coincide.
 EXPECTED_OLD_EDGE_K = {
     "A": [1, 1, 1, 1, 1, 1],
     "B": [2, 2, 2, 2, 2, 2],
     "C": [2, 2, 2, 2, 2, 2],
     "D": [0, 0, 0, 2, 2, 0],
-    "E": [0, 1, 0, 1, 1, 0],
+    "E": [0, 1, 1, 1, 1, 0],
 }
 # §4.5's census over each arm's VALID runs: the records it saw and the distinct
 # probes per class over the H records (X1).
@@ -517,6 +525,11 @@ def test_the_shifted_edge_arm_covers_none_of_the_old_narrow_classes(scored):
     §5.3 (ii) predicts exactly this shape and says why it is not a falsifier:
     arm A's class 3 is a 30-wide band that most of D's own band lies inside,
     and class 4 names no numeric boundary at all.
+
+    S10 is raw here as everywhere (round 10, finding 7), and this fixture's
+    answer does not depend on that: arm D's corpora quarantine no record, so
+    the raw and the label-filtered readings coincide. The reading that DOES
+    depend on it is the next test's.
     """
     _population, _specs, results = scored
     row = results["byKey"][("D", "run-001")]
@@ -526,6 +539,63 @@ def test_the_shifted_edge_arm_covers_none_of_the_old_narrow_classes(scored):
             == EXPECTED_OLD_EDGE_K[arm], arm
     for index in score_rates.NARROW_NUMERIC_CLASSES:
         assert results["arms"]["D"]["classes"][index]["oldEdge"]["count"] == 0
+
+
+def test_old_edge_cross_scoring_sees_a_record_the_arms_own_mirror_quarantines(
+        pins, study):
+    """Round 10, finding 7: S10 is placement, so it is LABEL IRRELEVANT.
+
+    The scorer intersected arm A's predicates with H — the records this arm's
+    own mirror labels correctly — which made the one shape §5.3 (ii)'s second
+    outcome names invisible to the only endpoint registered to see it. An arm D
+    that reproduced 40 and 70 *and labelled by them* has every such record
+    quarantined under its own (45, 72) mirror: old class 2 was unreachable that
+    way altogether and old classes 0 and 1 reachable only through records that
+    handle personal data, a nuisance variable this study never registered.
+
+    The corpus below is exactly that arm D: three records at the baseline's
+    edges, labelled by the baseline's rule. Raw, it reaches five of arm A's six
+    classes; under the H filter it reached one, and that one only because
+    `clear` at 39.5 is `clear` under both pairs. It runs through `score_run()`
+    and not through the synthetic-row helper, because the helper takes an
+    old-edge class list directly and would exercise no filter at all.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        # Registered call order, first round: B, C, A, D, E.
+        specs = [{} for _ in range(5)]
+        specs[3] = {"answer": fixtures.completion(fixtures.old_labelled_records(
+            *fixtures.arm_pair(population.arms_root, "A")))}
+        population.build(specs)
+        results = population.score_runs()
+        row = results["byKey"][("D", "run-001")]
+        assert row["valid"] and row["accepted"] == 3
+        # Two of the three are Q under D's own mirror — the placed-and-old-
+        # labelled records — and the fixture is worthless if they are not.
+        assert row["h"] == 1 and row["q"] == 2
+        assert row["oldEdgeClasses"] == fixtures.OLD_LABELLED_FROM_D \
+            == [0, 1, 2, 3, 5]
+        # The finding itself, frozen: the same corpus under the pre-fix
+        # expression — arm A's predicates intersected with H — published class
+        # 5 alone, and four of the five were lost. Recomputed here with the
+        # scorer's own two functions rather than asserted from memory, so the
+        # counterfactual is a computation and not a claim about an old commit.
+        accepted = {record["caseId"]: record
+                    for record in results["recordsByArm"]["D"]["run-001"]}
+        definition = population.definitions()["D"]
+        high, _quarantine = score_rates.split_records(accepted,
+                                                      definition["tLow"],
+                                                      definition["tHigh"])
+        assert [entry["index"] for entry in definition["oldEdgeClasses"]
+                if score_rates.class_members(accepted, high,
+                                             entry["predicate"])] \
+            == fixtures.OLD_LABELLED_FROM_D_UNDER_THE_H_FILTER == [5]
+        # And the arm's OWN family is untouched by any of this: at (45, 72)
+        # only the 70 lands in a class of D's, and it is quarantined there.
+        assert row["coveredClasses"] == [] and row["rawClasses"] == [3]
+    finally:
+        shutil.rmtree(root, True)
 
 
 def test_the_census_counts_are_the_registered_ones(scored):
@@ -905,6 +975,14 @@ GATE_SHORT = [(15, 15), (15, 15)] + [(30, 30)] * 4
 # Arm E's four narrow numeric classes go to zero on BOTH endpoints: the
 # placement collapse §5.3 (i) predicts, and the only pattern that confirms R1.
 PLACEMENT_COLLAPSE = [(0, 0), (0, 0), (0, 0), (30, 30), (30, 30), (0, 0)]
+# The same collapse AT §5.1's cut rather than under it (round 10, finding 2):
+# `low_threshold(30) == 3`, so an arm that reached each narrow class in three of
+# its thirty runs still reads LOW and still confirms. Every other confirming
+# fixture uses k = 0, which is why no test ever contradicted §4.6's old row-1
+# cell — "none was placed at the boundary" — and why the cell survived nine
+# rounds. LOW bounds placement at three of thirty; it does not zero it.
+PLACEMENT_COLLAPSE_AT_THE_CUT = [(3, 3), (3, 3), (3, 3), (30, 30), (30, 30),
+                                 (3, 3)]
 # The same records, still at the boundary, with the labels gone: the primary
 # collapses and the placement does not (§4.6's *label collapse*).
 LABEL_COLLAPSE = [(0, 30), (0, 30), (0, 30), (30, 30), (30, 30), (0, 30)]
@@ -916,8 +994,19 @@ CLASS4_COLLAPSE = [(30, 30)] * 4 + [(0, 0)] + [(30, 30)]
 # ceiling, class 4 intact — and class 3, the interior review band, gone with the
 # four narrow classes. Every accepted record is then an embargo case the mirror
 # labels before it reads the score, so the arm exercised neither threshold, and
-# row 5's fifth conjunct is what stops it confirming.
+# row 5's fifth conjunct is what stops it confirming: arm E reads LOW on class 3
+# (round 10, finding 3 — the conjunct is a level verdict on arm E, so it refuses
+# this arm whatever arm A did on that class).
 INTERIOR_COLLAPSE = [(0, 0), (0, 0), (0, 0), (0, 0), (30, 30), (0, 0)]
+# Arm A, HIGH on five classes and NOT on class 3 (round 10, finding 3). The
+# round-9 conjunct was a CONTRAST, and a contrast against a baseline that is not
+# HIGH is INDETERMINATE and never COLLAPSE — so this arm A plus the degenerate
+# arm E above satisfied the conjunct VACUOUSLY and published row 5 CONFIRMED,
+# with a `why` asserting arm E "does not read COLLAPSE on class 3" about an arm
+# that covered class 3 in none of its thirty runs. Arms B and C still reach
+# TRACKING on five of six, because a class arm A is not HIGH on can never be
+# TRACKING and five is the gate — so nothing upstream catches it.
+A_NO_INTERIOR = [(30, 30), (30, 30), (30, 30), (0, 0), (30, 30), (30, 30)]
 
 # Each scenario: the pattern per arm, whether the batch is complete and sealed,
 # the registered pattern counts, and the row §5.3's table must return.
@@ -947,6 +1036,20 @@ DECISION_SCENARIOS = (
      "row": 5, "publishedAs": "CONFIRMED",
      "counts": {"nP": 4, "nC": 4, "nH": 0},
      "reading": "PLACEMENT collapse", "labels": "at the ceiling"},
+    # Round 10, finding 2: the same confirming outcome AT §5.1's LOW cut rather
+    # than under it. Three of thirty runs place an accepted record in each
+    # narrow class, the level is still LOW, the placement contrast is still
+    # PLACEMENT-COLLAPSE and `|Q| = 0` still holds — so row 5 fires with
+    # boundary records demonstrably present, which is the concrete fact §4.6's
+    # old row-1 cell denied when it said none was placed at the boundary.
+    {"why": "arm E placement-collapses on all four at the LOW cut itself — "
+            "three of thirty runs per class — with its labels at the ceiling: "
+            "the CONFIRMED pattern, with boundary records present",
+     "arms": {"E": PLACEMENT_COLLAPSE_AT_THE_CUT},
+     "complete": True, "sealed": True,
+     "row": 5, "publishedAs": "CONFIRMED",
+     "counts": {"nP": 4, "nC": 4, "nH": 0},
+     "reading": "PLACEMENT collapse", "labels": "at the ceiling"},
     # Round 9, finding 2: the same pattern with class 3 gone too. §4.6 still
     # reads a PLACEMENT collapse at the ceiling — `|Q| = 0` cannot see whether
     # any accepted record exercised a threshold — and row 5's fifth conjunct
@@ -961,7 +1064,24 @@ DECISION_SCENARIOS = (
      "row": 7, "publishedAs": "INDETERMINATE",
      "counts": {"nP": 4, "nC": 4, "nH": 0},
      "reading": "PLACEMENT collapse", "labels": "at the ceiling",
-     "confirmsR1": True, "interiorCollapse": True},
+     "confirmsR1": True, "interiorLow": True},
+    # Round 10, finding 3: the SAME degenerate arm E, with arm A not HIGH on
+    # class 3. Under round 9's contrast form the class-3 contrast was
+    # INDETERMINATE rather than COLLAPSE, the conjunct passed vacuously and this
+    # scenario published row 5 CONFIRMED — verified on the pre-fix bytes, with
+    # arms B and C left at PERFECT and the gate passing at five of six. The
+    # conjunct is a level verdict on arm E now, so it refuses the arm whatever
+    # arm A did, and the pair above and below this line is a test of that.
+    {"why": "the degenerate arm E again, with arm A not HIGH on class 3: the "
+            "round-9 contrast was INDETERMINATE and the conjunct passed "
+            "vacuously, and arm E's own level refuses it",
+     "arms": {"A": A_NO_INTERIOR, "E": INTERIOR_COLLAPSE},
+     "complete": True, "sealed": True,
+     "row": 7, "publishedAs": "INDETERMINATE",
+     "counts": {"nP": 4, "nC": 4, "nH": 0},
+     "reading": "PLACEMENT collapse", "labels": "at the ceiling",
+     "confirmsR1": True, "interiorLow": True,
+     "interiorContrast": "INDETERMINATE"},
     # The same placement collapse with the labels gone: §4.6's SECOND row, the
     # one round 3 found unreachable. "At least one accepted record was
     # mislabelled" is a comprehension collapse, it is published as one, and it
@@ -1082,14 +1202,22 @@ def test_the_decision_table_rows_all_fire_at_known_integers(scenario, arm_blocks
         # than letting `confirmsR1` be read off the row.
         assert verdicts["reading"]["confirmsR1"] is scenario.get(
             "confirmsR1", scenario["row"] == 5)
-    if scenario.get("interiorCollapse"):
-        # The conjunct fired for its own reason: class 3 really did collapse,
-        # and the published `why` says which conjunct refused the row.
-        interior = {entry["index"]: entry for entry in
-                    verdicts["contrasts"]["E"]}[score_rates.INTERIOR_CLASS]
-        assert interior["contrast"] == "COLLAPSE"
-        assert "reads COLLAPSE on class %d" % score_rates.INTERIOR_CLASS \
+    if scenario.get("interiorLow"):
+        # The conjunct fired for its own reason, and the reason is arm E's own
+        # LEVEL (round 10, finding 3) — not the contrast against arm A, which
+        # is INDETERMINATE rather than COLLAPSE in the scenario where arm A is
+        # not HIGH on class 3 and which therefore refused nothing there. The
+        # published `why` says which conjunct refused the row.
+        assert verdicts["levels"]["E"]["primary"][score_rates.INTERIOR_CLASS] \
+            == "LOW"
+        assert "reads LOW on class %d" % score_rates.INTERIOR_CLASS \
             in row["why"]
+        if "interiorContrast" in scenario:
+            # …and the contrast the round-9 form read is named, so the vacuity
+            # is a stated fact of the fixture rather than a claim in a comment.
+            interior = {entry["index"]: entry for entry in
+                        verdicts["contrasts"]["E"]}[score_rates.INTERIOR_CLASS]
+            assert interior["contrast"] == scenario["interiorContrast"]
     if "gate" in scenario:
         assert verdicts["gate"]["arms"] == scenario["gate"]
         assert verdicts["gate"]["passed"] is False
@@ -1113,6 +1241,36 @@ def test_the_decision_table_rows_all_fire_at_known_integers(scenario, arm_blocks
         # §5.3 (iv): every other reading of arm E is withdrawn in favour of the
         # class-4 collapse — published with that fact attached, not deleted.
         assert verdicts["reading"]["withdrawn"] is True
+
+
+def test_decision_row_refuses_contrasts_without_the_levels_row_five_reads(
+        arm_blocks, pins):
+    """Round 10, finding 3: row 5's fifth conjunct is a LEVEL verdict on arm E,
+    so `decision_row()` needs the levels as well as the contrasts.
+
+    A caller that supplied one and not the other would silently lose the
+    conjunct — which is exactly how the round-9 contrast form lost it, by
+    reading a class-3 verdict that goes INDETERMINATE whenever arm A is not
+    HIGH. Refused rather than downgraded, in the same shape as the §4.6 reading
+    guard beside it: a caller error is not a data condition.
+    """
+    blocks = {arm: arm_blocks(arm, PERFECT if arm != "E" else PLACEMENT_COLLAPSE)
+              for arm in fixtures.ARMS}
+    verdicts = score_rates.compute_verdicts(blocks, pins["batch"]["n"], True,
+                                            True)
+    arguments = (True, True, verdicts["contrasts"], verdicts["gate"],
+                 verdicts["patternCounts"])
+    # The whole call is what confirms; each half alone refuses.
+    assert score_rates.decision_row(*arguments, verdicts["reading"],
+                                    verdicts["levels"])["row"] == 5
+    with pytest.raises(score_rates.ScoreError) as caught:
+        score_rates.decision_row(*arguments, verdicts["reading"])
+    assert type(caught.value) is score_rates.ScoreError
+    assert "no §5.1 levels" in str(caught.value)
+    assert "class %d" % score_rates.INTERIOR_CLASS in str(caught.value)
+    with pytest.raises(score_rates.ScoreError) as caught:
+        score_rates.decision_row(*arguments, None, verdicts["levels"])
+    assert "no §4.6 reading" in str(caught.value)
 
 
 def test_rows_four_and_five_cannot_both_hold(arm_blocks, pins):
@@ -1533,6 +1691,89 @@ def test_a_string_credential_flag_is_isolation_unproven(pins, study):
         # admitted, so the check refuses a shape and not the fixture.
         assert results["byKey"][("B", "run-001")]["valid"]
         assert results["byKey"][("C", "run-001")]["valid"]
+    finally:
+        shutil.rmtree(root, True)
+
+
+# --- §2.8's one UTC calendar day, computed (round 10, finding 9) -------------
+#
+# The rule is registered — "all 150 slots are begun and completed within one UTC
+# calendar day; spilling past midnight is a `DEVIATIONS.md` entry, not a
+# stopping rule" — and nothing computed it, while `RESULTS.json`'s `cell` note
+# published "one model, one day" and [D-10]'s confirmation sentence rested on
+# the same conjunct. The two tests below are the two ways the property fails,
+# and NEITHER refuses: a refusal would convert a registered non-stopping
+# deviation into a stopping condition. The published block on an honest
+# population is asserted on the writer's own document in
+# `test_batch.py::test_the_published_schedule_carries_the_computed_utc_day`.
+
+
+def test_a_batch_that_crosses_midnight_is_published_and_not_refused(pins, study):
+    """A slot begun at 23:59:30 and ended at 00:00:12 the next day.
+
+    Both dates are published, `crossedMidnight` is true, one day is NOT
+    established — and the slot is a VALID run in its arm's denominator, with
+    its coverage counted, which is the point of the test. §2.8 makes this a
+    `DEVIATIONS.md` entry and not a stopping rule, so a scorer that refused it
+    would destroy a complete batch over a recorded deviation.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        # Registered call order, first round: B, C, A, D, E.
+        specs = [{} for _ in range(5)]
+        specs[3] = {"call": {"startedAt": "2026-08-07T23:59:30Z",
+                             "endedAt": "2026-08-08T00:00:12Z"}}
+        population.build(specs)
+        results = population.score_runs()
+        row = results["byKey"][("D", "run-001")]
+        assert row["utcDates"] == ["2026-08-07", "2026-08-08"]
+        # Not refused, not moved out of anything, and still S8's duration.
+        assert row["valid"] and row["code"] is None
+        assert row["coveredClasses"] == [0, 1, 2, 3, 4, 5]
+        assert row["wallClockSeconds"] == 42
+        block = score_rates.utc_day(results["runs"])
+        assert block["dates"] == ["2026-08-07", "2026-08-08"]
+        assert block["slotsWithoutReadableStamps"] == 0
+        assert block["crossedMidnight"] is True
+        assert block["oneDayEstablished"] is False
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_a_slot_that_stamped_no_clock_withholds_the_one_day_property(pins,
+                                                                     study):
+    """The other failure, and why the block carries three members and not one
+    flag: a slot whose stamps the scorer cannot read.
+
+    `call_identity_defect()` owns `startedAt`, the working directory and the
+    isolated home, so a missing `endedAt` is not a refusal — the slot is valid
+    and counted, and the wrapper writes `CALL.json` after the call returns, so a
+    tail whose wrapper refused at preflight stamps no clock at all. Under a
+    single `crossedMidnight` boolean that reads False and looks like compliance.
+    Here the dates are published as computed, the undated slot is COUNTED, and
+    one day is reported as not established — §2.8's own idiom for a truncated
+    batch's transition census.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        specs = [{} for _ in range(5)]
+        specs[3] = {"call": {"endedAt": None}}
+        population.build(specs)
+        results = population.score_runs()
+        row = results["byKey"][("D", "run-001")]
+        assert row["valid"] and row["code"] is None
+        assert row["utcDates"] == [] and row["wallClockSeconds"] is None
+        for slot in (("B", "run-001"), ("C", "run-001"), ("A", "run-001")):
+            assert results["byKey"][slot]["utcDates"] == ["2026-08-07"], slot
+        block = score_rates.utc_day(results["runs"])
+        assert block["dates"] == ["2026-08-07"]
+        assert block["slotsWithoutReadableStamps"] == 1
+        # The establishable positive stays False; the withheld negative is what
+        # moves. One boolean could not say both.
+        assert block["crossedMidnight"] is False
+        assert block["oneDayEstablished"] is False
     finally:
         shutil.rmtree(root, True)
 
@@ -1968,19 +2209,25 @@ def test_the_registered_command_reports_a_refusal_and_not_a_traceback(monkeypatc
 
 def test_the_scoring_refuses_before_it_reads_a_slot(pins_path, study):
     """§6 C5 / §2.10: the preconditions bind the study's own committed
-    artifacts — the ported bytes, the registered interpreter, the golden pin,
-    the freeze digest and §6 C7's recorded control — and three of those are
-    `null` in the registry until their registered moments arrive (§3.2, §2.10
-    [D-20], §6 C7's assent).
+    artifacts — the ported bytes, the registered interpreter, the golden pin
+    and the freeze digest — and they are not satisfied in the committed tree
+    until their registered moments arrive (§3.2, §2.10 [D-20]).
 
     So no population, fixture or real, can be scored through the registered
-    interface until the capture is taken, the control has run and the freeze is
-    recorded, and the fixtures above enter `score()`'s sequence at the line
-    after this gate.
+    interface until the capture is taken and the freeze is recorded, and the
+    fixtures above enter `score()`'s sequence at the line after this gate.
+
+    Round 10, finding 5: the refusal is NAMED, because an unnamed one was read
+    as coverage of something it never reached. What actually stops the scoring
+    here is the FIRST precondition the committed tree fails — the golden
+    capture is not a file in the tree yet — which is many checks above §6 C7's
+    recorded control. The scorer's C7 gate has its own case below, over a
+    population that gets past this line.
     """
-    with pytest.raises(score_rates.ScoreError):
+    with pytest.raises(score_rates.ScoreError) as caught:
         score_rates.verify_preconditions(pins_path, score_rates.REGISTERED_ARMS,
                                          score_rates.REGISTERED_GOLDEN)
+    assert "no golden context" in str(caught.value)
 
 
 def test_the_population_root_and_the_registry_are_derived_not_supplied():
@@ -2110,7 +2357,7 @@ def _stand_in_registry(root: str, golden: str) -> str:
     return path
 
 
-def _record_negative_control(root: str, golden: str) -> str:
+def _record_negative_control(root: str, golden: str, **edits) -> str:
     """§6 C7's retained verdict, at a throwaway stand-in for its canonical path.
 
     WRITTEN rather than run, exactly as `test_batch.py`'s
@@ -2119,15 +2366,30 @@ def _record_negative_control(root: str, golden: str) -> str:
     before it reads a slot (round 9, finding 3), so a population that reaches
     `score()` has to carry one, and the canonical path is [D-23]'s: the
     constant moves, no flag supplies it.
+
+    Round 10, finding 5: the members are the REAL writer's eleven, not the five
+    an earlier draft wrote, so a fixture population is scored over a record
+    `batch.capture_isolation_negative()` could actually have left. `edits`
+    replaces members whole, which is how the damage rows below are built.
     """
     out = os.path.join(root, "controls-isolation-negative")
     os.makedirs(out, exist_ok=True)
+    verdict = {"control": "C7 — the isolation gate's power",
+               "registeredExpectation": "the golden match FAILS",
+               "registeredOutcomes": list(score_rates.C7_OUTCOMES),
+               "outcome": "refused",
+               "message": "the golden pre-prompt context was not reproduced",
+               "wrapperExit": 0,
+               "wrapperCode": None,
+               "goldenSha256": score_rates.file_digest(golden),
+               "deletedByCode": {"session.jsonl": "sha256:" + "0" * 64},
+               "assent": "granted",
+               "retention": "This file and a stripped CALL.json are always "
+                            "retained, and context.json whenever the call "
+                            "produced a comparable context."}
+    verdict.update(edits)
     with open(os.path.join(out, "VERDICT.json"), "w") as handle:
-        json.dump({"control": "C7 — the isolation gate's power",
-                   "outcome": "refused", "assent": "granted",
-                   "goldenSha256": score_rates.file_digest(golden),
-                   "registeredOutcomes": list(score_rates.C7_OUTCOMES)},
-                  handle, indent=2)
+        json.dump(verdict, handle, indent=2)
     return out
 
 
@@ -2168,6 +2430,13 @@ def test_every_prefix_of_round_one_publishes_the_descriptive_surface(prefix, pin
     The tree is asserted to be the one the DRIVER leaves before it is scored,
     because that is the whole defect: a fixture that made the five roots in
     advance passed every prefix here and proved nothing.
+
+    What "publishes" reaches, and its ceiling (round 10, finding 12): the three
+    BODIES the writer writes are all rendered here — the `RESULTS.json`
+    serialization, the `RATES.md` page and the `CENSUS.md` page — but the
+    WRITER is asserted to REFUSE this document rather than to publish it. A
+    fixture's scoring carries the library override, so nothing built here may
+    publish, and a test named for publication must not appear to.
     """
     root = fixtures.throwaway_root()
     try:
@@ -2197,8 +2466,108 @@ def test_every_prefix_of_round_one_publishes_the_descriptive_surface(prefix, pin
         assert results["verdicts"]["contrasts"] is None
         assert results["verdicts"]["resolved"] is False
         # …and the headline names the round count rather than implying a batch.
-        assert "**%d of 30 rounds completed.**" % (prefix // 5) \
-            in score_rates.render_markdown(results)
+        page = score_rates.render_markdown(results)
+        assert "**%d of 30 rounds completed.**" % (prefix // 5) in page
+
+        # §2.8 promises the batch is "published as slots, rates, intervals and
+        # census — the whole descriptive surface", and the writer publishes it
+        # as three BODIES, not as an object: `json.dumps(…, sort_keys=True)`,
+        # `render_markdown()` and `census.render_markdown()`. Only the second
+        # was reached here, so a prefix that scored and would not serialise —
+        # or a census renderer that assumed a non-empty population, which the
+        # zero prefix is for all five arms — was outside the test that names
+        # publication (round 10, finding 12).
+        assert json.loads(
+            json.dumps(results, indent=2, sort_keys=True)) == results
+        census_page = score_rates._census().render_markdown(results["census"])
+        if prefix == 0:
+            assert "Record set: 0 valid runs, 0 accepted records" in census_page
+        for body in (page, census_page):
+            for header, rows in fixtures.markdown_tables(body):
+                for row in rows:
+                    if any("\\" in cell for cell in row):
+                        continue
+                    assert len(row) == len(header), (header, row)
+
+        # The writer itself stays out of a fixture's reach, and that is the
+        # point rather than a gap: this population's cell carries the library
+        # override (§2.10, §7), so the one thing that publishes refuses it.
+        # `STUDY` is moved FIRST, so the refusal is asserted with no path into
+        # the committed tree even if the writer's checks were ever reordered.
+        monkeypatch.setattr(score_rates, "STUDY", root)
+        with pytest.raises(score_rates.ScoreError) as caught:
+            score_rates._write_outputs(results, population.arms_root)
+        assert "as an override" in str(caught.value)
+        assert not os.path.exists(os.path.join(root, "RESULTS.json"))
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_the_scorer_refuses_a_control_record_that_is_not_this_studys(pins, study,
+                                                                    monkeypatch):
+    """§6 C7's gate on the SCORER's side, over a population that reaches it.
+
+    Round 10, finding 5: the scorer's C7 block had no negative coverage at all.
+    The test cited for it — `test_the_scoring_refuses_before_it_reads_a_slot`,
+    named as that coverage in its own docstring and in `fixtures.py` — refuses
+    on the golden capture being absent from the committed tree, which is many
+    checks above C7, so the block below `if not os.path.isfile(c7_path)` had
+    never been executed by anything but the happy path.
+
+    `_score_prefix()`'s machinery is what makes this reachable: a stand-in
+    registry supplies the golden pin, the freeze digest and the assent, and
+    `REGISTERED_ISOLATION_NEGATIVE` moves to a written record. The first
+    assertion is the half that proves the rest arrives — an undamaged record
+    scores — and every row after it is a record this study's driver could not
+    have left, refused by the same rule `test_batch.py` puts on the driver.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(5)])
+        registry = _stand_in_registry(root, population.golden)
+        monkeypatch.setattr(score_rates, "REGISTERED_ISOLATION_NEGATIVE",
+                            _record_negative_control(root, population.golden))
+        record = os.path.join(score_rates.REGISTERED_ISOLATION_NEGATIVE,
+                              "VERDICT.json")
+
+        def score():
+            return score_rates.score(
+                population.arms_root, registry, population.golden,
+                registry_sha256=score_rates.file_digest(
+                    score_rates.REGISTRY_OF_RECORD))
+
+        def write(body: str) -> None:
+            with open(record, "w") as handle:
+                handle.write(body)
+
+        def rewrite(**edits):
+            _record_negative_control(root, population.golden, **edits)
+
+        assert score()["schedule"]["ledgerRecords"] == 5
+
+        for name, damage in (
+                ("absent", lambda: os.unlink(record)),
+                ("unreadable", lambda: write("{\n")),
+                ("duplicate keys",
+                 lambda: write('{"outcome": "refused", "outcome": "matched"}')),
+                ("not an object", lambda: write('["refused"]')),
+                ("unregistered outcome", lambda: rewrite(outcome="skipped")),
+                ("another assent", lambda: rewrite(assent="withheld")),
+                ("another golden",
+                 lambda: rewrite(goldenSha256="sha256:" + "1" * 64)),
+                # …and the three shape members, so the driver's gate and this
+                # one refuse the same records (round 10, finding 5).
+                ("another registration",
+                 lambda: rewrite(registeredOutcomes=["refused", "matched"])),
+                ("deletions that are not an object",
+                 lambda: rewrite(deletedByCode=["session.jsonl"])),
+                ("a boolean exit status", lambda: rewrite(wrapperExit=True))):
+            damage()
+            with pytest.raises(score_rates.ScoreError) as caught:
+                score()
+            assert "VERDICT.json" in str(caught.value), name
+            assert type(caught.value) is score_rates.ScoreError, name
     finally:
         shutil.rmtree(root, True)
 

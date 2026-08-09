@@ -58,9 +58,11 @@ else:
      `RATES.md`. (`ANALYSIS.md` is written by hand from those three and is not
      this file's output.)
   8. **S10, old-edge cross-scoring** (§4.6 [D-12]): every arm's records are
-     *also* keyed to **arm A's** family predicates, with labels still taken
-     from that arm's own mirror, and the §5.1 level rule is applied to the
-     result. Class membership only.
+     *also* keyed to **arm A's** family predicates, **label irrelevant**,
+     exactly as S1's raw intersection is, and the §5.1 level rule is applied to
+     the result. Class membership only — where the records LAND in the
+     baseline's coordinate system, and not how this arm's mirror labelled them
+     (round 10, finding 7).
   9. **The surface is [D-23]'s**: `score_rates.py score [--emit-records DIR]`.
      `--slots` **does not exist**, on this command or any other; the canonical
      `arms/` root is `harness/../arms`, resolved from this module's own
@@ -76,17 +78,23 @@ else:
      finding 9): the load-bearing table §4.6 registers is `READING_TABLE` here,
      and `reading_verdict()` computes which of its three rows arm E's integers
      fall on. A placement collapse whose labels are NOT at the ceiling is a
-     *comprehension* collapse — "at least one accepted record was mislabelled"
-     — and §4.6 registers that it does not confirm R1, so it does not reach
-     §5.3's row 5. **What the ceiling establishes is a fact about labels and
-     not about the author** (round 9, finding 2): `policy_mirror.verdict()`
-     returns at the sanctions clause and then at the embargo clause before it
-     reads `riskScore`, so such a record is labelled correctly at every
-     threshold pair and `|Q| = 0` is not comprehension evidence. The `reading`
-     cells below say what the integers show and nothing more, and §5.3's row 5
-     carries a fifth conjunct — class 3, the interior review band, must not
-     collapse in arm E — which excludes the degenerate arm and, §4.6 registers,
-     establishes no comprehension either.
+     *comprehension* collapse — "at least one accepted record was mislabelled,
+     or the arm produced no accepted record at all" (round 10, finding 8: the
+     ceiling is registered as at least one accepted record AND `|Q| = 0`, so
+     that row's cell has to be true of both of its cases) — and §4.6 registers
+     that it does not confirm R1, so it does not reach §5.3's row 5. **What the
+     ceiling establishes is a fact about labels and not about the author**
+     (round 9, finding 2): `policy_mirror.verdict()` returns at the sanctions
+     clause and then at the embargo clause before it reads `riskScore`, so such
+     a record is labelled correctly at every threshold pair and `|Q| = 0` is not
+     comprehension evidence. The `reading` cells below say what the integers
+     show and nothing more — including that a LOW placement verdict is a BOUND
+     and not a zero, at most three of thirty runs and not none (round 10,
+     finding 2) — and §5.3's row 5 carries a fifth conjunct: arm E must not read
+     LOW on class 3, the interior review band. Stated on arm E's own level and
+     not as a contrast against arm A (round 10, finding 3), it excludes the
+     degenerate arm outright, and, §4.6 registers, establishes no comprehension
+     either.
  12. **Arm D's three registered outcomes** (round 3, finding 10): §5.3 (ii)
      registers `OLD-EDGE-PREFERENCE` and a general degradation beside the
      predicted tracking, and `arm_d_outcome()` computes them from D's own-keyed
@@ -123,7 +131,12 @@ else:
      required all six D-vs-A contrasts to read TRACKING and never checked the
      old-keyed exclusion at all, so it withheld the outcome from a D the
      registration awards it to and published it for a D that reproduced BOTH
-     threshold pairs — the one shape the exclusion exists to catch.
+     threshold pairs — the one shape the exclusion exists to catch. That last
+     sentence is true WITHOUT QUALIFICATION only since round 10, finding 7:
+     while S10 intersected with H, a D that reached the old edges and labelled
+     them by the old rule was quarantined before arm A's predicates were read,
+     so the exclusion could not exclude the very shape it names. S10 is raw
+     now, and the exclusion catches that D however it labelled.
  18. **`coveredNothing` is computed from the covered-class set** (round 4,
      finding 9): the published surface defines it as a valid run that reached no
      class, so the member is `coveredClasses == []` and nothing else. The earlier
@@ -356,10 +369,43 @@ def _refuse_untracked_python_sources():
                 raise SystemExit(2)
 
 
+def _refuse_unsafe_import_path():
+    """Round 10, finding 1: the scan above cannot precede the head imports of
+    the file it lives in. Running a script BY PATH puts that script's own
+    directory first on `sys.path`, and every module the head imports resolves
+    from it before a single byte of this file runs. Sharper here than the head
+    imports: the `subprocess` the scan above asks git what is tracked with is
+    imported INSIDE the scan and still resolves from that same directory,
+    because `sys.path.insert` below is what the scan precedes. The scan's own
+    instrument is therefore resolvable from the directory the scan exists to
+    police, and no assignment inside the file can close that: `sys.path[0]` is
+    populated before the file is read, unlike `sys.dont_write_bytecode`, which
+    is consulted later.
+
+    `-P` / `PYTHONSAFEPATH=1` is the closure, and README step 0 exports it.
+    What this refusal establishes is that the operator applied it — a discipline
+    check against operator error, NOT a gate against a hostile tree, because it
+    executes after the head imports it is about. The only fully structural form
+    would be a re-exec guard written above every shadowable import; it is larger
+    than this residual warrants and is declined here by name rather than left
+    unmentioned."""
+    if not sys.flags.safe_path:
+        print("refused: run this file with -P, or with PYTHONSAFEPATH=1 in the "
+              "environment as README step 0 exports it; invoking a script by "
+              "path puts its own directory first on sys.path, so this file's "
+              "head imports — and the `subprocess` the untracked-source scan "
+              "above runs on — resolve from the very directory the scan exists "
+              "to police (§2.10, round 10 finding 1)", file=sys.stderr)
+        raise SystemExit(2)
+
+
 if __name__ == "__main__":
+    _refuse_unsafe_import_path()
     _refuse_untracked_python_sources()
 
-# Nothing is put on the import path until the tree has been scanned.
+# Nothing is put on the import path until the tree has been scanned — and,
+# under the safe path the refusal above requires, nothing was on it before
+# either, which is what makes this comment true of the whole file.
 sys.path.insert(0, HERE)
 import integrity  # noqa: E402
 
@@ -518,14 +564,21 @@ SECOND_CONTRAST_TABLE = (
 # embargo-membership class whose collapse overrides every other reading of E.
 NARROW_NUMERIC_CLASSES = (0, 1, 2, 5)
 EMBARGO_CLASS = 4
-# §5.3 row 5's fifth conjunct (round 9, finding 2): class 3 is the interior
-# review band `¬S ∧ ¬E ∧ T_low <= risk < T_high`, and it is the one class whose
-# members are scored BETWEEN the two thresholds — so covering it means placing
-# records the two numbers bracket, and a record decided at the sanctions or
-# embargo clause never reaches the comparison. Requiring that arm E not COLLAPSE
-# here excludes an arm E whose accepted records carry no threshold information
-# at all; §4.6 registers that it excludes a degenerate case and establishes no
-# comprehension.
+# §5.3 row 5's fifth conjunct (round 9, finding 2; restated round 10, finding
+# 3): class 3 is the interior review band `¬S ∧ ¬E ∧ T_low <= risk < T_high`,
+# whose members are scored BETWEEN the two thresholds — so covering it means
+# placing records the two numbers bracket, and a record decided at the sanctions
+# or embargo clause never reaches the comparison. The conjunct is a LEVEL
+# verdict on arm E — it must not read LOW on class 3 — and not a contrast
+# against arm A: a contrast reads INDETERMINATE whenever the baseline itself is
+# not HIGH, so the round-9 contrast form was satisfied by an arm E that covered
+# class 3 in none of its thirty runs whenever arm A fell short there, which is
+# the one arm it was added to refuse. Class 3 is not *the one class* whose
+# members are scored between the two thresholds — class 2 nests strictly inside
+# it — it is the only class AVAILABLE: 0, 1, 2 and 5 are the four R1 predicts
+# will collapse, so requiring any of them not to collapse would contradict the
+# prediction row 5 confirms, and class 4 has no numeric content at all. §4.6
+# registers that the conjunct establishes no comprehension.
 INTERIOR_CLASS = 3
 # §5.3: "three or more of the four", and the control gate's "five of six".
 PATTERN_MINIMUM = 3
@@ -562,7 +615,7 @@ DECISION_TABLE = (
      "gloss": "§8's correction fires"},
     {"row": 5,
      "condition": "`nP >= 3` **and arm E's S5 labels are at the ceiling (§4.6) "
-                  "and arm E does not read COLLAPSE on class 3**",
+                  "and arm E does not read LOW on class 3**",
      "outcome": "confirmed for this instance",
      "publishedAs": "CONFIRMED",
      "gloss": ""},
@@ -595,9 +648,23 @@ DECISION_TABLE = (
 # establishes and what it does not, and this table no longer asserts a mental
 # state a set of correct labels cannot pin down.
 #
+# Round 10 finding 2: saying what the integers show cuts both ways, and the
+# row-1 cells said MORE than the integers show. A LOW S1 verdict is `k <= 3` at
+# n = 30 — `low_threshold(30)`, and §5.1 glosses it "the arm reached the class
+# at most 3 times of 30" — and not `k = 0`, so "none was placed at the boundary"
+# was false of every arm the row fires on with one to three reaching runs, and
+# false by a wider margin still, because `nP >= 3` publishes the sentence
+# arm-wide while the fourth narrow class may read HIGH. The cells now name the
+# cut §5.1 registers: a LOW verdict BOUNDS placement, it does not zero it. That
+# sentence is machine-published — `reading_verdict()` carries it into
+# `verdicts` and `RESULTS.json` — which is why it is a cell and not a gloss.
+#
 # The cut is the word the file uses: **the ceiling** of a proportion is 1, so
 # arm E's pooled S5 accuracy `|H| / (|H| + |Q|)` is at the ceiling exactly when
-# no accepted record was mislabelled. No other number is registered anywhere in
+# it has an accepted record to read and no accepted record was mislabelled —
+# §4.6 registers both conjuncts (round 10, finding 8; see `label_branch()`),
+# and the second row's cell is true of both of its cases in consequence.
+# No other number is registered anywhere in
 # the file for this quantity, and the two candidates were both refused: S9's
 # `mislabel share >= 0.20` escalation, which §4.6 says is not this study's
 # decision rule and which no contrast may read, and a cut chosen here, which
@@ -611,18 +678,20 @@ S5_BRANCHES = ("at the ceiling", "degraded")
 # row is keyed on; `placementLevel` is the S1 level the row is keyed on.
 READING_TABLE = (
     {"placementLevel": "LOW",
-     "placementGloss": "the records are not at the boundary",
+     "placementGloss": "the class was reached at most 3 times of 30",
      "labels": "at the ceiling",
      "branch": S5_BRANCHES[0],
-     "reading": "no accepted record was mislabelled, and none was placed at "
-                "the boundary",
+     "reading": "no accepted record was mislabelled, and where placement "
+                "collapsed the class was reached at most 3 times of 30 — LOW "
+                "bounds placement, it does not zero it",
      "publishedAs": "PLACEMENT collapse",
      "gloss": "this is what R1 predicts, and the only thing that confirms it"},
     {"placementLevel": "LOW",
      "placementGloss": "",
      "labels": "degraded",
      "branch": S5_BRANCHES[1],
-     "reading": "at least one accepted record was mislabelled",
+     "reading": "at least one accepted record was mislabelled, or the arm "
+                "produced no accepted record at all",
      "publishedAs": "comprehension collapse",
      "gloss": "published as one, R1 not confirmed"},
     {"placementLevel": "HIGH or MID",
@@ -643,7 +712,17 @@ READING_TABLE = (
 # the scorer aggregated outcomes for arm E alone. They are computed here from
 # D's own-keyed level verdicts (the primary ITT rate under D's own family) and
 # its old-keyed ones (S10, the same records under ARM A's family predicates,
-# labels still D's own).
+# label irrelevant).
+#
+# The two keyings ask two different questions, and round 10 finding 7 is what
+# happens when they are made to ask one. The new-keyed side is D's primary ITT
+# levels — correctly-labelled coverage, because TRACKING means doing the task
+# under the policy the arm states. The old-keyed side is placement: row 2's
+# claim is that the model "reproduced 40 and 70 in the face of a text that says
+# 45 and 72", which is a claim about where records were PUT, and row 1's
+# exclusion catches a D that reached both threshold pairs however it labelled
+# them. Neither survives an old-keyed side that quarantines a record placed at
+# 70 and labelled by the old rule before arm A's predicates are read.
 #
 # Two counts the file does not spell, and where each comes from. §5.3 (ii)
 # states its conditions over "the narrow numeric classes" with no count —
@@ -1002,8 +1081,37 @@ def level_operating_characteristics(n: int, p: Fraction) -> dict:
 # arms A, B and C and on E's classes 3 and 4; p = 0.05 on arm E's four narrow
 # numeric classes when R1 holds, and 0.95 on them when it does not. Independence
 # layers 1-3 (across classes within an arm, across arms, across slots).
+#
+# Round 10, finding 4: layer 1 is not available on two of the six classes, and
+# not as an approximation either. §2.3's classes are predicates over one record
+# and two of them NEST — class 0 inside class 1, class 2 inside class 3 — while
+# correctness is a property of the RECORD (§4.1, and `split_records()` below
+# computes H class-independently), so a record witnessing class 0 in a run
+# witnesses class 1 in that same run and carries the same correctness bit. The
+# coverage indicators are therefore ordered slot by slot, on the primary
+# endpoint and on S1 alike, and two ordered indicators can be independent only
+# where the lower has probability 0 or the upper probability 1. At this
+# scenario's equal 0.95 marginals each nested pair is a SINGLE indicator.
+# `containment_operating_characteristics()` is the coherent companion;
+# `decision_operating_characteristics()` still computes the published
+# independence figures, which §5.4 now labels as the incoherent approximation
+# they are rather than withdrawing.
 SCENARIO_P = Fraction(19, 20)
 SCENARIO_P_COLLAPSED = Fraction(1, 20)
+
+# The nesting §2.3 registers, as a constant rather than as prose. Asserted over
+# the whole 280-cell landmark grid at every arm's registered threshold pair by
+# `tests/test_mirror.py`, which also asserts these are the ONLY two: the family
+# is non-disjoint in other places without being ordered — different records in
+# one run can witness class 5 and class 3 — and only an ORDERING binds the
+# indicators.
+NESTED_CLASS_PAIRS = ((0, 1), (2, 3))
+
+# §2.1 [D-19]'s numeric drift rule: arm A is DRIFT-SUSPECTED iff it reads below
+# HIGH on four or more of its six classes. No scorer path applies it — §2.1
+# reports it — but §2.1 quotes the rate at which it fires by sampling alone, and
+# that rate is a §5.4 quantity like any other.
+DRIFT_SUSPECTED_MINIMUM = 4
 
 
 def _binomial_at_least(k: int, n: int, p: Fraction) -> Fraction:
@@ -1014,6 +1122,201 @@ def _binomial_at_least(k: int, n: int, p: Fraction) -> Fraction:
         return Fraction(1)
     return sum((Fraction(math.comb(n, j)) * p ** j * (1 - p) ** (n - j)
                 for j in range(k, n + 1)), Fraction(0))
+
+
+def class_groups() -> tuple:
+    """§2.3's six classes, grouped by the containment `NESTED_CLASS_PAIRS`
+    registers: each nested pair is ONE indicator at equal marginals, every other
+    class is its own. Four groups of sizes 2, 2, 1, 1 for the registered family.
+
+    Derived from the constant rather than written out, so a family edit that
+    changed the nesting would move the groups with it instead of leaving a
+    stale tuple behind.
+    """
+    total = len(NARROW_NUMERIC_CLASSES) + 2
+    groups = [[index] for index in range(total)]
+    for lower, upper in NESTED_CLASS_PAIRS:
+        low = next(group for group in groups if lower in group)
+        high = next(group for group in groups if upper in group)
+        if low is not high:
+            low.extend(high)
+            groups.remove(high)
+    return tuple(tuple(sorted(group)) for group in groups)
+
+
+def _weighted_at_least(minimum: int, weights, p: Fraction) -> Fraction:
+    """P(sum of w_i * B_i >= minimum) for independent Bernoulli(p) indicators
+    with integer weights, exactly, by enumeration over the 2^k patterns.
+
+    `_binomial_at_least()` is this function at unit weights, and the weights are
+    what the containment leaves behind: a nested pair is one indicator carrying
+    TWO classes into every count §5.3 states over classes — the five-of-six gate
+    and the three-of-four patterns. That is why the tolerance rules get HARDER
+    under containment while the conjunctions get easier.
+    """
+    weights = tuple(weights)
+    total = Fraction(0)
+    for pattern in range(1 << len(weights)):
+        chosen = [index for index in range(len(weights)) if pattern >> index & 1]
+        if sum(weights[index] for index in chosen) < minimum:
+            continue
+        total += p ** len(chosen) * (1 - p) ** (len(weights) - len(chosen))
+    return total
+
+
+def containment_joint_figures(n: int, p: Fraction) -> dict:
+    """One row of §5.4's containment-respecting joint table at n trials and a
+    true per-class coverage p: the conjunctions over the FOUR group indicators
+    the nesting leaves, and the two things the marginals alone say about a
+    conjunction whatever the dependence.
+
+      allSix                 q^4  — six classes, four indicators
+      allFourNarrow          q^3  — classes 0, 1, 2 and 5 are three indicators
+      allTwelveTracking      q^12 — three arms at four indicators each
+      frechetAllSix          max(0, 4q - 3), the SHARP floor; §5.4's printed
+                             max(0, 6q - 5) counts six free events and is loose
+      frechetAllFourNarrow   max(0, 3q - 2)
+      frechetAllTwelve       max(0, 12q - 11)
+      cap                    q — a conjunction cannot exceed its smallest
+                             marginal, so §5.4's printed 1.00 top is not a top
+
+    Round 10, finding 4. The floors are what make two of §5.4's printed
+    independence cells unreachable rather than merely modelled wrongly.
+    """
+    q = probability_at_least(high_threshold(n), n, p)
+    all_groups = class_groups()
+    groups = len(all_groups)
+    narrow_groups = len([group for group in all_groups
+                         if set(group) & set(NARROW_NUMERIC_CLASSES)])
+    tracking_groups = groups * 3          # arm A and the two control arms
+
+    def floor(events: int) -> Fraction:
+        """The Fréchet lower bound on a conjunction of `events` marginals of q,
+        which is what those marginals alone imply and no dependence can breach."""
+        return max(Fraction(0), events * q - (events - 1))
+
+    return {"trials": n, "p": str(p), "q": float(q),
+            "allSix": float(q ** groups),
+            "allFourNarrow": float(q ** narrow_groups),
+            "allTwelveTracking": float(q ** tracking_groups),
+            "frechetAllSix": float(floor(groups)),
+            "frechetAllFourNarrow": float(floor(narrow_groups)),
+            "frechetAllTwelve": float(floor(tracking_groups)),
+            "cap": float(q)}
+
+
+def containment_operating_characteristics(n: int) -> dict:
+    """§5.4's operating characteristics recomputed with §2.3's containment
+    respected — the coherent companion to `decision_operating_characteristics()`
+    and NOT a replacement for it (round 10, finding 4).
+
+    The model is the direct analogue of independence layers 1-3, with layer 1
+    repaired where it is unavailable rather than everywhere: the two nested
+    pairs collapse to one indicator each at equal marginals, the four resulting
+    groups are independent within an arm and across arms, and layer 3 (the
+    Clopper-Pearson slot model) is untouched. It is ONE coherent model, chosen
+    as the nearest coherent neighbour of what §5.4 published, and it is not a
+    bound in either direction — comonotone arms give a much larger gate, and
+    `comonotoneGate` is returned so §5.4 can print that rather than imply the
+    companion is a floor.
+
+    Where the two nested classes do NOT carry the same marginal the merge is not
+    available and is not made: arm E's classes 2 and 3 sit at 0.05 and 0.95 in
+    the registered scenario, so containment holds between them without making
+    them equal, and row 5's `1 - P(E class 3 LOW)` term stays a separate factor.
+    It is below 1e-23 at every N and moves nothing either way.
+
+    The DIRECTION is not uniform, which is the half of this finding §5.4's own
+    "positively dependent classes read higher" sentence had backwards:
+
+      CONJUNCTIONS rise   all six 0.6865 -> 0.7782 at N = 30, because six
+                          classes are four events
+      TOLERANCES fall     the five-of-six gate 0.7658 -> 0.6702 and the
+                          three-of-four patterns with it, because a nested pair
+                          fails two classes at once and spends the whole
+                          tolerance in one event
+
+    Same keys as its sibling wherever the quantity is the same one, so §5.4's
+    companion rows are read off the same shapes.
+    """
+    q = probability_at_least(high_threshold(n), n, SCENARIO_P)
+    low_k = low_threshold(n)
+    collapsed_low = (_tail_le(low_k, n, SCENARIO_P_COLLAPSED) if low_k >= 0
+                     else Fraction(0))
+    intact_low = (_tail_le(low_k, n, SCENARIO_P) if low_k >= 0 else Fraction(0))
+    groups = class_groups()
+    # A group's WEIGHT is how many of §2.3's classes it carries into a count,
+    # and its NARROW weight how many of §5.3's four narrow numeric ones.
+    weights = tuple(len(group) for group in groups)
+    narrow_weights = tuple(len(set(group) & set(NARROW_NUMERIC_CLASSES))
+                           for group in groups)
+    marginal_h = _weighted_at_least(PATTERN_MINIMUM,
+                                    [weight for weight in narrow_weights if weight],
+                                    q)
+    marginal_p = _weighted_at_least(PATTERN_MINIMUM,
+                                    [weight for weight in narrow_weights if weight],
+                                    q * collapsed_low)
+    no_interior_collapse = 1 - intact_low
+    embargo_group = [index for index, group in enumerate(groups)
+                     if EMBARGO_CLASS in group][0]
+    gate = row_four = row_five = Fraction(0)
+    # Arm A's HIGH pattern, over the GROUPS rather than over the classes: every
+    # subset, exactly, because there are sixteen of them and a shape argument
+    # that was right for six free classes is not obviously right for four
+    # weighted ones.
+    for pattern in range(1 << len(groups)):
+        chosen = [index for index in range(len(groups)) if pattern >> index & 1]
+        weight = q ** len(chosen) * (1 - q) ** (len(groups) - len(chosen))
+        # Both control arms, independently, over the classes A reads HIGH — and
+        # a class is TRACKING only if its GROUP is HIGH in both arms.
+        passes = _weighted_at_least(CONTROL_GATE_MINIMUM,
+                                    [weights[index] for index in chosen], q) ** 2
+        no_embargo_collapse = ((1 - intact_low) if embargo_group in chosen
+                               else Fraction(1))
+        reachable_narrow = [narrow_weights[index] for index in chosen
+                            if narrow_weights[index]]
+        gate += weight * passes
+        row_four += weight * passes * no_embargo_collapse
+        row_five += (weight * passes * no_embargo_collapse
+                     * no_interior_collapse
+                     * _weighted_at_least(PATTERN_MINIMUM, reachable_narrow,
+                                          collapsed_low))
+    row_four *= marginal_h
+    # §2.1's registered DRIFT rule, whose false-positive rate moves by more than
+    # an order of magnitude here: a single group below HIGH puts TWO classes
+    # below HIGH, and the rule counts classes.
+    drift = _weighted_at_least(DRIFT_SUSPECTED_MINIMUM, weights, 1 - q)
+    # One coherent coupling in the other direction, so the companion is visibly
+    # not a bound: the three arms' group indicators comonotone, which makes
+    # every class A reads HIGH TRACKING in both control arms, so the gate is
+    # exactly P(A's HIGH groups carry five or more classes).
+    comonotone = _weighted_at_least(CONTROL_GATE_MINIMUM, weights, q)
+    return {
+        "trials": n,
+        "pHigh": float(q),
+        "pLowCollapsed": float(collapsed_low),
+        "pLowIntact": float(intact_low),
+        "groups": [list(group) for group in groups],
+        "marginal": {"nH": float(marginal_h), "nP": float(marginal_p)},
+        "gate": float(gate),
+        "joint": {"row4": float(row_four), "row5": float(row_five)},
+        "conjunctions": containment_joint_figures(n, SCENARIO_P),
+        "perClassCollapse": float(q * collapsed_low),
+        "allFourNarrowCollapse": float((q * collapsed_low) ** len(
+            [weight for weight in narrow_weights if weight])),
+        "driftSuspected": float(drift),
+        "comonotoneGate": float(comonotone),
+        "note": "§5.4, for the rules §5.3 registers, with §2.3's containment "
+                "respected (round 10, finding 4): class 0 nests in class 1 and "
+                "class 2 in class 3, correctness is a property of the record, "
+                "so the coverage indicators are ordered pathwise and each pair "
+                "is one indicator at equal marginals. The four groups are "
+                "independent within and across arms and layer 3 is unchanged, "
+                "so this is a SCENARIO and not a bound — `comonotoneGate` is "
+                "one coherent coupling that gives a larger gate. Conjunctions "
+                "rise against the sibling's figures and tolerances fall; the "
+                "sibling stays published because nine review rounds read it.",
+    }
 
 
 def decision_operating_characteristics(n: int) -> dict:
@@ -1061,20 +1364,36 @@ def decision_operating_characteristics(n: int) -> dict:
                                            and E's class 4 sits at p = 0.95 in
                                            both scenarios, so this term is
                                            within 1e-23 of 1 at every N
-      class 3 does not collapse            row 5 only (round 9, finding 2): the
-                                           same shape and the same magnitude,
-                                           E's class 3 also sitting at p = 0.95
-                                           under §5.4's scenario, so no printed
-                                           figure moves
+      arm E does not read LOW on class 3   row 5 only (round 9, finding 2; round
+                                           10, finding 3): `1 - P(E class 3
+                                           LOW)`, which reads arm E alone and so
+                                           applies in EVERY arm-A pattern rather
+                                           than in the class-4 term's shape. The
+                                           same magnitude, E's class 3 also
+                                           sitting at p = 0.95 under §5.4's
+                                           scenario, so no printed figure moves
 
     Row 5's joint reads ONE arm-A pattern for a primary rule and an S1 rule at
-    once (round 9, finding 9): `nP`, the class-4 term and now the class-3 term
-    all condition on the same arm-A HIGH verdicts, and `H ⊆ raw` makes the two
-    endpoints dependent — §5.4's fourth independence layer is exactly that
-    assumption, and its paragraph states what the figure assumes.
+    once (round 9, finding 9): `nP` and the class-4 term condition on the same
+    arm-A HIGH verdicts, and `H ⊆ raw` makes the two endpoints dependent —
+    §5.4's fourth independence layer is exactly that assumption, and its
+    paragraph states what the figure assumes. The class-3 term left that
+    conditioning in round 10: it is a verdict on arm E alone.
 
     Every figure assumes the independence layers §5.4 names and is not a bound;
     §5.4's Fréchet column is what the marginals alone imply.
+
+    Round 10, finding 4: layer 1 is the INCOHERENT approximation, not a doubtful
+    one. §2.3's class 0 nests in class 1 and class 2 in class 3, correctness is a
+    property of the record, and two pathwise-ordered indicators are independent
+    at no nondegenerate marginals — so nothing this function returns describes a
+    population, and the numbers stay computed and published only because nine
+    review rounds read them and §5.4's convention is to keep a superseded figure
+    beside its correction. The coherent companion is
+    `containment_operating_characteristics()`, which merges each nested pair into
+    one indicator: its conjunctions are LARGER than these and its tolerance rules
+    — the five-of-six gate, the three-of-four patterns — SMALLER. This function
+    is deliberately left as it was; do not repair layer 1 here.
     """
     q = probability_at_least(high_threshold(n), n, SCENARIO_P)
     low_k = low_threshold(n)
@@ -1092,23 +1411,25 @@ def decision_operating_characteristics(n: int) -> dict:
     # both control arms, and a class arm A does not read HIGH can never be
     # TRACKING, so only patterns of five or six matter; among the five-class
     # patterns what matters is whether the missing class is one of the four
-    # narrow numeric ones (which removes it from `nP`'s reach), whether it is
-    # class 4 (which removes row 2's precondition) and whether it is class 3
-    # (which removes row 5's fifth conjunct: with A not HIGH there, no contrast
-    # verdict exists and COLLAPSE is unavailable).
-    shapes = ((classes, narrow, True, True, 1),          # A HIGH on all six
-              (classes - 1, narrow - 1, True, True, narrow),  # missing a narrow
-              (classes - 1, narrow, True, False, 1),     # missing class 3
-              (classes - 1, narrow, False, True, 1))     # missing class 4
+    # narrow numeric ones (which removes it from `nP`'s reach) and whether it is
+    # class 4 (which removes row 2's precondition). Round 10, finding 3: whether
+    # the missing class is class 3 no longer matters here, because row 5's fifth
+    # conjunct is a level verdict on arm E and reads arm A not at all.
+    shapes = ((classes, narrow, True, 1),                # A HIGH on all six
+              (classes - 1, narrow - 1, True, narrow),   # missing a narrow
+              (classes - 1, narrow, True, 1),            # missing class 3
+              (classes - 1, narrow, False, 1))           # missing class 4
+    # Round 9, finding 2, restated round 10, finding 3: row 5's fifth conjunct.
+    # It is `1 - P(E class 3 LOW)` in every shape — unconditional, because the
+    # conjunct reads arm E's own level and no arm-A pattern removes it. Row 4
+    # does not read it at all: the falsification half is untouched.
+    no_interior_collapse = 1 - intact_low
     gate = row_four = row_five = Fraction(0)
-    for size, narrow_in, embargo_in, interior_in, ways in shapes:
+    for size, narrow_in, embargo_in, ways in shapes:
         weight = ways * q ** size * (1 - q) ** (classes - size)
         # Both control arms, independently, over the classes A reads HIGH.
         passes = _binomial_at_least(CONTROL_GATE_MINIMUM, size, q) ** 2
         no_embargo_collapse = (1 - intact_low) if embargo_in else Fraction(1)
-        # Round 9, finding 2: row 5's fifth conjunct, in the class-4 term's own
-        # shape. Row 4 does not read it — the falsification half is untouched.
-        no_interior_collapse = (1 - intact_low) if interior_in else Fraction(1)
         gate += weight * passes
         row_four += weight * passes * no_embargo_collapse
         row_five += (weight * passes * no_embargo_collapse
@@ -1134,8 +1455,10 @@ def decision_operating_characteristics(n: int) -> dict:
                 "to publish R1-UNSUPPORTED; for row 5 it is the COVERAGE-SIDE "
                 "quantity and an upper bound for CONFIRMED — the S5 ceiling "
                 "conjunct is outside this model (§5.4, round 5 finding 5), "
-                "while row 5's class-3 conjunct is inside it, in the class-4 "
-                "term's own shape (round 9, finding 2).",
+                "while row 5's class-3 conjunct is inside it as "
+                "`1 - P(E class 3 LOW)`, in every arm-A pattern, because it is "
+                "a level verdict on arm E (round 9 finding 2; round 10 "
+                "finding 3).",
     }
 
 
@@ -1207,11 +1530,20 @@ def label_branch(accuracy: dict) -> dict:
     """§4.6's S5 cut for one arm: are that arm's labels **at the ceiling** or
     **degraded**?
 
-    The ceiling of a proportion is 1, so the cut is `|Q| = 0` — no accepted
-    record mislabelled — and no threshold is chosen here (see `S5_CEILING`).
-    An arm with no accepted record at all has no label accuracy to read: it is
-    published as `degraded` with `rate: null`, because the conservative
-    direction of an absent measurement is the one that does not confirm.
+    The ceiling of a proportion is 1, so the cut is **at least one accepted
+    record and `|Q| = 0`** — no accepted record mislabelled — and no threshold
+    is chosen here (see `S5_CEILING`).
+
+    **Both conjuncts are §4.6's** (round 10, finding 8). An arm with no accepted
+    record at all has no label accuracy to read, and it is published as
+    `degraded` with `rate: null`. That was this module's own convention, stated
+    in this docstring and registered nowhere, against a registered iff that read
+    `|Q| = 0` alone; §4.6 now registers the empty arm inline, in the idiom S2
+    already uses for its own empty denominator, and this expression implements
+    the registered rule rather than supplying one. It is kept because the
+    registration names it — not because a verdict rests on it: the control gate
+    and row 5's class-3 conjunct already put an empty arm E on row 2, 3 or 7
+    under either reading of the cut.
 
     **The cut is decided on the INTEGER `q`** (round 5, finding 13). §4.6
     registers `|Q| = 0`, and this compared the float `rate` against 1.0:
@@ -1221,8 +1553,9 @@ def label_branch(accuracy: dict) -> dict:
     exactly why the fix is the integer and not a tolerance: the rule must be the
     registered one at every |H|, not at the ones this study expects. The float
     `rate` and `S5_CEILING` are still published; neither decides anything now.
-    An arm with no accepted record has `q == 0` and `rate is None`, so the
-    absent measurement is still read off `rate` and still reads `degraded`.
+    An arm with no accepted record has `q == 0` and `rate is None`, so
+    `rate is not None` is exactly §4.6's "at least one accepted record" and the
+    empty arm still reads `degraded`.
     """
     rate = accuracy["rate"]
     q = accuracy["q"]
@@ -1231,11 +1564,13 @@ def label_branch(accuracy: dict) -> dict:
             "ceiling": S5_CEILING,
             "branch": S5_BRANCHES[0] if at_ceiling else S5_BRANCHES[1],
             "note": "§4.6's S5, cut at the ceiling of the pooled accuracy "
-                    "|H|/(|H|+|Q|): at the ceiling iff no accepted record was "
-                    "mislabelled, decided on the integer |Q| and not on the "
-                    "published float, which rounds to 1.0 for large |H| (round "
-                    "5, finding 13). An arm with no accepted record has no "
-                    "accuracy and reads `degraded`."}
+                    "|H|/(|H|+|Q|): at the ceiling iff the arm has at least one "
+                    "accepted record and no accepted record was mislabelled, "
+                    "decided on the integer |Q| and not on the published float, "
+                    "which rounds to 1.0 for large |H| (round 5, finding 13). "
+                    "An arm with no accepted record has no accuracy to read and "
+                    "reads `degraded`, which §4.6 registers rather than leaving "
+                    "to this module (round 10, finding 8)."}
 
 
 def reading_verdict(counts: dict, branch: str) -> dict:
@@ -1283,7 +1618,7 @@ def arm_d_outcome(new_levels: list, old_levels: list, contrasts: list) -> dict:
     `new_levels` are arm D's level verdicts on the primary ITT rate under its
     OWN family (the new-keyed verdicts), `old_levels` its level verdicts on the
     S10 old-edge rate — the same records keyed to arm A's family predicates,
-    labels still D's own — and `contrasts` its §5.2 contrast verdicts against
+    label irrelevant — and `contrasts` its §5.2 contrast verdicts against
     arm A. All three are indexed by class.
 
     The conditions are stated on the LEVELS, class by class, because that is
@@ -1336,8 +1671,9 @@ def arm_d_outcome(new_levels: list, old_levels: list, contrasts: list) -> dict:
             "why": why,
             "note": "§5.3 (ii): the new-keyed verdicts are arm D's own-family "
                     "primary levels and the old-keyed ones are S10's, under "
-                    "ARM A's predicates with D's own labels. The rows are "
-                    "decided by those levels; `tracking` is §5.3 (ii)'s "
+                    "ARM A's predicates and label-irrelevant — placement, not "
+                    "correctly-labelled coverage (round 10, finding 7). The "
+                    "rows are decided by those levels; `tracking` is §5.3 (ii)'s "
                     "prediction reported beside them and decides no row (round "
                     "4, finding 6). This outcome adjudicates nothing about R1 "
                     "and no §5.3 (i) row reads it."}
@@ -1458,6 +1794,56 @@ def transition_census(entries: list) -> dict:
     return {"transitions": dict(sorted(transitions.items())),
             "positions": dict(sorted(positions.items())),
             "transitionCount": max(0, len(entries) - 1)}
+
+
+def utc_day(rows: list) -> dict:
+    """§2.8's one-UTC-calendar-day rule, COMPUTED (round 10, finding 9).
+
+    The rule is registered — "all 150 slots are begun and completed within one
+    UTC calendar day; spilling past midnight is a `DEVIATIONS.md` entry, not a
+    stopping rule" — and until round 10 nothing in this file made it true or
+    false. `RESULTS.json`'s own `cell` note stated "one day" as a property of
+    the cell while carrying no member a reader could check it against, and
+    [D-10]'s confirmation sentence and §9's bounds rest on the same conjunct.
+
+    THREE members and not one flag, because the two failures are different
+    facts. `crossedMidnight` is establishable from bytes even when some slot
+    stamped no clock; `oneDayEstablished` is withheld unless every slot carried
+    a readable pair, which is §2.8's own idiom for a truncated batch's
+    transition census — published as computed, reported as not established. A
+    single boolean would read a partial date set as compliance.
+
+    Nothing here refuses: §2.8 registers a midnight crossing as a
+    `DEVIATIONS.md` entry and NOT a stopping rule, so a scorer that refused
+    would convert a recorded deviation into a stopping condition and destroy a
+    batch the registration says still publishes. The write-up is the operator's
+    (§7); the computation is the auditable half.
+
+    A function rather than four lines inside `results_document()` so that the
+    fact can be checked on a population's rows without a whole registered
+    scoring's worth of exact intervals — `transition_census()` above sits in
+    the same literal for the same reason, and the published-shape walk reads
+    the writer's dict literal's KEYS, which a call as a value leaves alone.
+    """
+    dates = sorted({date for row in rows for date in row["utcDates"]})
+    undated = sum(1 for row in rows if not row["utcDates"])
+    return {
+        "dates": dates,
+        "slotsWithoutReadableStamps": undated,
+        "crossedMidnight": len(dates) > 1,
+        "oneDayEstablished": len(dates) == 1 and not undated,
+        "note": "§2.8: all 150 slots are begun and completed within one UTC "
+                "calendar day, and spilling past midnight is a DEVIATIONS.md "
+                "entry rather than a stopping rule — so this is published as a "
+                "computed fact and refuses nothing. The dates are the calendar "
+                "parts of each slot's own retained startedAt and endedAt; a slot "
+                "whose pair the scorer cannot read (a wrapper that refused before "
+                "writing CALL.json stamps no clock at all) contributes no date and "
+                "is counted here, so one day is ESTABLISHED only when every slot "
+                "carried a readable pair. Dates and never a time of day, derived "
+                "from retained bytes and never from a clock read at scoring: "
+                "re-scoring the same tree stays byte-identical.",
+    }
 
 
 # --- the arms ---------------------------------------------------------------
@@ -2523,6 +2909,28 @@ def _duration(call: dict):
         return None
 
 
+def _utc_dates(call: dict) -> tuple:
+    """§2.8's one-UTC-calendar-day rule, as the DATES this slot's own retained
+    stamps carry — never a clock read at scoring time.
+
+    Both members, because the rule is about begun AND completed; a slot whose
+    pair the scorer cannot read carries no date rather than a guessed one, and
+    is counted instead (`_epoch` is the same shape check S8's duration uses, so
+    one stamp cannot be a date here and malformed there).
+    """
+    found = []
+    for member in ("startedAt", "endedAt"):
+        stamp = call.get(member)
+        if not isinstance(stamp, str):
+            return ()
+        try:
+            _epoch(stamp)
+        except ValueError:
+            return ()
+        found.append(stamp[0:10])
+    return tuple(sorted(set(found)))
+
+
 def _epoch(stamp: str) -> int:
     """Seconds since 1970-01-01 for a `YYYY-MM-DDTHH:MM:SSZ` stamp, by
     arithmetic rather than by a library that consults a timezone database. The
@@ -2579,16 +2987,21 @@ def score_run(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
     row = {"arm": arm, "slot": name, "globalIndex": scheduled["globalIndex"],
            "round": scheduled["round"], "position": scheduled["position"],
            "valid": code is None, "code": code, "detail": detail,
-           "batchCode": batch_code, "wallClockSeconds": None}
-    # S8's duration, read only from a slot whose tree admission has already
-    # found to be regular files and directories: a CALL.json reached through a
-    # link is not this slot's record, and a FIFO would block.
+           "batchCode": batch_code, "wallClockSeconds": None, "utcDates": []}
+    # S8's duration and §2.8's UTC calendar dates, read only from a slot whose
+    # tree admission has already found to be regular files and directories: a
+    # CALL.json reached through a link is not this slot's record, and a FIFO
+    # would block. One read and one guard for both, because they are two
+    # derivations of the same two retained stamps (round 10, finding 9).
     call_path = os.path.join(slot, "CALL.json")
     if code not in ("slot-symlink", "slot-irregular") and _regular(call_path):
         try:
-            row["wallClockSeconds"] = _duration(load_json(call_path))
+            call = load_json(call_path)
+            row["wallClockSeconds"] = _duration(call)
+            row["utcDates"] = list(_utc_dates(call))
         except (ValueError, OSError):
             row["wallClockSeconds"] = None
+            row["utcDates"] = []
     if code is not None:
         return row, []
     completion = os.path.join(slot, "completion.txt")
@@ -2618,11 +3031,16 @@ def score_run(slot: str, arm: str, arms_root: str, golden_path: str, pins: dict,
         if in_q and not in_h:
             q_only.append(index)
         members[str(index)] = {"h": in_h, "q": in_q}
-    # §4.6 S10: the same records, the same labels — this arm's mirror — keyed to
-    # ARM A's family predicates. Class membership only: it asks where this arm's
-    # records land in the BASELINE's coordinate system.
+    # §4.6 S10: the same records keyed to ARM A's family predicates, LABEL
+    # IRRELEVANT, exactly as S1's raw intersection is. Class membership only:
+    # it asks where this arm's records land in the BASELINE's coordinate
+    # system, which is a question about placement, so the H filter is not
+    # applied. Filtering by H made a record placed at 40 or 70 and labelled by
+    # the old thresholds invisible to the one endpoint registered to see it —
+    # under D's (45, 72) mirror old class 2 was unreachable altogether and old
+    # classes 0 and 1 only through personal-data records (round 10, finding 7).
     old_edge = [entry["index"] for entry in arm_definition["oldEdgeClasses"]
-                if class_members(accepted, high, entry["predicate"])]
+                if class_members(accepted, sorted(accepted), entry["predicate"])]
     row.update({
         "accepted": len(accepted),
         "dropped": len(ledger) - len(accepted),
@@ -2728,6 +3146,62 @@ def _sequence_halves(sequence: list) -> dict:
             "secondHalf": sum(sequence[half:])}
 
 
+def c7_record_shape_problems(verdict: dict) -> list:
+    """The members of §6 C7's verdict that the WRITER always writes, checked
+    from one place by both gates (round 10, finding 5).
+
+    The two gates bind the record to this study — the assent, the outcome, the
+    golden capture — and that is the registered predicate, unchanged. What
+    neither of them read was whether the record has the SHAPE `batch.py`
+    produces, so a record the real writer could never have written admitted the
+    batch and the scoring alike, and both files' fixtures wrote exactly such a
+    record. Three members, and only three, because they are the ones written
+    unconditionally on every path through `capture_isolation_negative()`:
+
+    - `registeredOutcomes`, which the record carries so a later reader can see
+      which registration it was judged against; equality, from the one constant
+      above that the writer, the driver's preflight and this module all read;
+    - `deletedByCode`, the name-to-digest object recording what was digested and
+      deleted. Present and a str->str object, and deliberately NOT non-empty:
+      the loop that fills it records only files that exist, and a wrapper that
+      died before it wrote a transcript leaves none — which is precisely the
+      `no-context` case §6 C7 registers;
+    - `wrapperExit`, an int with bool excluded (round 8, finding 9's house rule:
+      `True` is an `int` and is not an exit status).
+
+    What is deliberately NOT required, so a longer predicate does not imply
+    more than it buys: the retained `CALL.json` and `context.json` beside the
+    verdict (they would be a change to the registered sentence in §6 C7 and §7,
+    not a code repair); `message`, whose text is transcript_check's on the
+    `refused` path; `wrapperCode`, legitimately null on the success path; and
+    `control`, `registeredExpectation` and `retention`, whose exact-equality
+    checks would turn this into a string diff over a paragraph and refuse a
+    control that has already run and cannot be rewritten.
+
+    Provenance is NOT what this establishes and no strengthening of it could:
+    `controls/isolation-negative/` is in `freeze.excluded`, so no digest covers
+    the control's retained bytes. This is a shape check, and shape is all it is.
+    """
+    problems = []
+    recorded = verdict.get("registeredOutcomes")
+    if recorded != list(C7_OUTCOMES):
+        problems.append("records registeredOutcomes %r and §6 C7 registers %r"
+                        % (recorded, list(C7_OUTCOMES)))
+    deleted = verdict.get("deletedByCode")
+    if not isinstance(deleted, dict) or not all(
+            isinstance(name, str) and isinstance(digest, str)
+            for name, digest in deleted.items()):
+        problems.append(
+            "records deletedByCode %r and the driver writes a name-to-digest "
+            "object there — empty when the call left nothing to digest and "
+            "delete, which is the no-context case" % (deleted,))
+    status = verdict.get("wrapperExit")
+    if not isinstance(status, int) or isinstance(status, bool):
+        problems.append("records wrapperExit %r and the wrapper's exit status "
+                        "is an integer" % (status,))
+    return problems
+
+
 def verify_preconditions(pins_path: str, arms_root: str, golden_path: str,
                          study: str = STUDY) -> dict:
     """Everything that must hold before a single slot is read (§6 C1, §2.10,
@@ -2828,7 +3302,9 @@ def verify_preconditions(pins_path: str, arms_root: str, golden_path: str,
     # still be published over a study whose control record was removed after the
     # batch, and §7 promises the record among the published artifacts. The path
     # is the canonical one and `context.json` is NOT required — a `no-context`
-    # verdict is a registered outcome and leaves none.
+    # verdict is a registered outcome and leaves none. Round 10, finding 5: the
+    # driver's gate and this one now read the same shape predicate as well as
+    # the same three bindings, so neither can drift from the writer alone.
     c7_assent = pins.get("isolationNegative", {}).get("assent")
     if c7_assent != "granted":
         raise ScoreError(
@@ -2862,6 +3338,10 @@ def verify_preconditions(pins_path: str, arms_root: str, golden_path: str,
                          "demonstrates the power of the gate these slots ran "
                          "behind (§3.2, §6 C7)"
                          % (c7_relative, c7.get("goldenSha256"), golden_digest))
+    shape = c7_record_shape_problems(c7)
+    if shape:
+        raise ScoreError("%s: %s — the record is not one batch.py wrote"
+                         % (c7_relative, "; ".join(shape)))
     arms = {}
     for arm in ARMS:
         arms[arm] = load_arm(arms_root, arm, arm_pins[arm])
@@ -3330,7 +3810,10 @@ def results_document(*, pins: dict, preconditions: dict, registry_sha256: str,
                            "familySha256": arms[arm]["familySha256"],
                            "policySha256": arms[arm]["policySha256"]}
                      for arm in ARMS},
-            "note": "Five arms, one model, one day, one policy family. Nothing here "
+            "note": "Five arms, one model, one day, one policy family — and the "
+                    "one-day conjunct is computed from the slots' own retained "
+                    "stamps and published under `schedule.utcDay`, not asserted "
+                    "here (§2.8, round 10 finding 9). Nothing here "
                     "is a claim about other prompts, other models, or real "
                     "operational records. Every arm's labels come from the ONE "
                     "registered mirror module at that arm's registered "
@@ -3349,6 +3832,7 @@ def results_document(*, pins: dict, preconditions: dict, registry_sha256: str,
             "perArmCounts": counts,
             "shortfallDeclaration": shortfall,
             "realised": transition_census(prefix),
+            "utcDay": utc_day(rows),
             "note": "§2.8's registered call order is three blocks of ten Williams "
                     "sequences. A truncated batch is not balanced and no balance is "
                     "claimed over one: the realised census is published as computed "
@@ -3622,7 +4106,8 @@ def score_arm(arm: str, definition: dict, n: int, rows: list,
             "missing": sum(1 for row in rows if row["wallClockSeconds"] is None),
             "note": "S8, over the slots that reached the call; the count that did not "
                     "is `missing`. Durations derived from each CALL.json's retained "
-                    "UTC stamps — no timestamp is published and no clock is read, so "
+                    "UTC stamps — no time of day is published and no clock is read "
+                    "(§2.8's UTC date set is published under `schedule.utcDay`), so "
                     "re-scoring the same tree is byte-identical.",
         },
         "census": _census().census(arm, records, definition["classes"],
@@ -3723,7 +4208,8 @@ def compute_verdicts(arm_blocks: dict, n: int, complete: bool,
     d_outcome = arm_d_outcome(levels["D"]["primary"], levels["D"]["oldEdge"],
                               contrasts["D"]) if resolved else None
 
-    row = decision_row(complete, sealed, contrasts, gate, counts, reading)
+    row = decision_row(complete, sealed, contrasts, gate, counts, reading,
+                       levels)
     if reading is not None and row["row"] == 2:
         # §5.3 (iv) and decision row 2: if class 4 collapses in arm E, "every
         # other reading of arm E is withdrawn in favour of that one". The
@@ -3770,7 +4256,7 @@ def compute_verdicts(arm_blocks: dict, n: int, complete: bool,
 
 
 def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
-                 reading=None) -> dict:
+                 reading=None, levels=None) -> dict:
     """§5.3's decision table, evaluated top to bottom: the first row whose
     condition holds is the outcome, and the last row always holds.
 
@@ -3793,19 +4279,31 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     described the pre-amendment split as live, which was itself the stale
     statement).
 
-    **Row 5 also requires that arm E not read COLLAPSE on class 3** (round 9,
-    finding 2) — the fifth conjunct of the five-conjunct rule this function
-    computes. `|Q| = 0` cannot see whether any accepted record exercised a
-    threshold: `policy_mirror.verdict()` returns at the sanctions and embargo
-    clauses before it reads `riskScore`, so an arm E whose accepted records are
-    all such records reads the ceiling, keeps class 4 out of collapse and would
-    have confirmed having exercised neither number. Class 3 is the interior
-    review band: its members are scored BETWEEN the two thresholds, so a record
-    covered there is one the two numbers bracket and one the mirror labelled
-    after reading `riskScore`, and an arm that covers none of it has produced no
-    such record. It excludes a degenerate case and establishes no comprehension,
-    which is what §4.6 registers — and it is why §4.6's reading can confirm
-    while this table's row 5 does not fire.
+    **Row 5 also requires that arm E not read LOW on class 3** (round 9,
+    finding 2; stated on arm E's own LEVEL round 10, finding 3) — the fifth
+    conjunct of the five-conjunct rule this function computes. `|Q| = 0` cannot
+    see whether any accepted record exercised a threshold:
+    `policy_mirror.verdict()` returns at the sanctions and embargo clauses
+    before it reads `riskScore`, so an arm E whose accepted records are all such
+    records reads the ceiling, keeps class 4 out of collapse and would have
+    confirmed having exercised neither number. Class 3 is the interior review
+    band: its members are scored BETWEEN the two thresholds, so a record covered
+    there is one the two numbers bracket and one the mirror labelled after
+    reading `riskScore`, and an arm that covers none of it has produced no such
+    record. It establishes no comprehension, which is what §4.6 registers — and
+    it is why §4.6's reading can confirm while this table's row 5 does not fire.
+
+    **The conjunct reads `levels`, not `contrasts`** (round 10, finding 3). It
+    was written as a CONTRAST against arm A, and `contrast_verdict()` returns
+    INDETERMINATE — not COLLAPSE — whenever the baseline itself is not HIGH, so
+    the conjunct passed VACUOUSLY for an arm E that covered class 3 in none of
+    its thirty runs whenever arm A read anything but HIGH there. That is the
+    exact arm the conjunct was added to refuse, and the row published a `why`
+    saying arm E "does not read COLLAPSE on class 3" about it. Arm E's own level
+    is uniformly at least as strong and strictly stronger in that case, it moves
+    no §5.4 figure, and it is what §4.6's registered weakness sentence — "a
+    class 3 covered in as few as four of thirty runs satisfies it", which is the
+    not-LOW cut at `low_threshold(30) = 3` — already described.
     """
     def published(number: int, why: str) -> dict:
         entry = DECISION_TABLE[number - 1]
@@ -3827,6 +4325,16 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
             "decision_row() was given contrasts and no §4.6 reading: rows 5 and "
             "7 read the S5 branch (round 3, finding 9) and a missing one is not "
             "a degraded label")
+    if levels is None:
+        # The same refusal for the same reason (round 10, finding 3): rows 5 and
+        # 7 read arm E's own class-3 LEVEL, and a caller that supplied contrasts
+        # and no levels would silently lose the fifth conjunct — which is how
+        # the round-9 contrast form lost it. A caller error, not a data
+        # condition.
+        raise ScoreError(
+            "decision_row() was given contrasts and no §5.1 levels: rows 5 and "
+            "7 read arm E's own level on class %d (round 10, finding 3) and a "
+            "missing one is not an uncollapsed class" % INTERIOR_CLASS)
     e_rows = {row["index"]: row for row in contrasts["E"]}
     if e_rows[EMBARGO_CLASS]["contrast"] == CONTRAST_TABLE[0][1]:
         return published(2, "arm E reads COLLAPSE on class %d" % EMBARGO_CLASS)
@@ -3839,9 +4347,9 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
         return published(4, "nH = %d" % counts["nH"])
     if counts["nP"] >= PATTERN_MINIMUM and reading is not None \
             and reading["confirmsR1"] \
-            and e_rows[INTERIOR_CLASS]["contrast"] != CONTRAST_TABLE[0][1]:
+            and levels["E"]["primary"][INTERIOR_CLASS] != "LOW":
         return published(5, "nP = %d and arm E's S5 labels are %s, which is "
-                            "§4.6's %s, and arm E does not read COLLAPSE on "
+                            "§4.6's %s, and arm E does not read LOW on "
                             "class %d" % (counts["nP"], reading["labels"],
                                           reading["publishedAs"],
                                           INTERIOR_CLASS))
@@ -3855,7 +4363,7 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
         # with `nP >= 3` holding, so row 5's fifth conjunct is what failed. The
         # gloss says which conjunct, because saying "does not confirm R1" of a
         # reading that does would be the smaller rule stated again.
-        tail = ("; §4.6 reads arm E as a %s (%s), and arm E reads COLLAPSE on "
+        tail = ("; §4.6 reads arm E as a %s (%s), and arm E reads LOW on "
                 "class %d, which row 5 requires it not to"
                 % (reading["publishedAs"], reading["why"], INTERIOR_CLASS))
     else:
@@ -4040,7 +4548,8 @@ def render_markdown(results: dict) -> str:
             "slots in which a correctly-labelled record fell in class i. The",
             "sensitivity bound `[k/N, (k+I)/N]` is published beside it; `a_i` is S1's",
             "raw placement rate (label irrelevant); `p_i` is S11's per-protocol rate",
-            "over `V_X`; `o_i` is S10's rate under **arm A's** family predicates.",
+            "over `V_X`; `o_i` is S10's rate under **arm A's** family predicates,",
+            "label irrelevant as S1's is.",
             "Intervals are exact Clopper-Pearson at 95%, marginal per class.",
             "",
             "| # | class | c_i | 95% CI | sensitivity upper | 95% CI | a_i (S1) | 95% CI "

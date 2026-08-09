@@ -1362,5 +1362,36 @@ def main(argv: list) -> int:
     return 0
 
 
+def _refuse_unsafe_import_path():
+    """Round 10, finding 1, for the THIRD path-invoked entry (README step 1).
+
+    This file carries no untracked-source tripwire of its own — the tree-wide
+    scan it needs is the first thing `verify()` does, inside `verify_bytecode()`
+    — and round 9 called its head "clean" on the narrower ground that it imports
+    nothing study-local at module scope. That property is real and unchanged,
+    but it is not the whole of it: running a script BY PATH puts that script's
+    own directory first on `sys.path`, so the head imports above — `subprocess`,
+    which `verify_bytecode()` asks git what is tracked with, among them —
+    resolve from the study's own harness directory before any byte of this file
+    runs, and `sys.path.insert(0, HERE)` at module scope has no scan before it.
+    Nothing inside the file can close that: `sys.path[0]` is populated before
+    the file is read.
+
+    `-P` / `PYTHONSAFEPATH=1` is the closure, and README step 0 exports it. This
+    refusal only establishes that the operator applied it — a discipline check
+    against operator error, not a gate against a hostile tree, because it
+    executes after the head imports it is about."""
+    if not sys.flags.safe_path:
+        print("refused: run this file with -P, or with PYTHONSAFEPATH=1 in the "
+              "environment as README step 0 exports it; invoking a script by "
+              "path puts its own directory first on sys.path, so this file's "
+              "head imports — `subprocess`, which the tree-wide untracked "
+              "source scan in verify_bytecode() runs on, among them — resolve "
+              "from the harness directory that scan exists to police (§2.10, "
+              "round 10 finding 1)", file=sys.stderr)
+        raise SystemExit(2)
+
+
 if __name__ == "__main__":
+    _refuse_unsafe_import_path()
     raise SystemExit(main(sys.argv))

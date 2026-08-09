@@ -39,10 +39,10 @@ against published numbers).
 | `transcription/PROBE-PROMPT.txt` | `128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7` | `transcription/PROBE-PROMPT.txt` | `128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7` | no — byte-identical; the authority is **011's `PINS.json`** (011 introduced this file; it is in no lockedInputs of 010) |
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — taken unchanged; the output-root parameter 011 added already suffices (§2.2) |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | `harness/transcript_check.py` | `64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt, and an `arm` label travels with the call so a refusal names the arm and the scorer can say `arm-mismatch`; no other check logic changes. Round 5 finding 7: a completion that does not decode raises its own `CompletionUndecodable` so the scorer can say `completion-unreadable` — the checks themselves are unchanged |
-| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | `transcription/authoring_call.sh` | `bf2f6b1c811365ce77d7034e6549c0e87a13228e0fb85389d466fc5b4dcf0f33` | §2.7's three permitted differences and nothing else — see below |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | `harness/integrity.py` | `e8b65e0ea9b730b50d89e46f878982e949233c2bc4fddd87cc472d909db3b9d5` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9; the C10 gate; the [D-20] tree manifest, whose exclusion list `manifest_excluded()` matches as §2.10 item 2 states it — an entry ending `/` is a tree and takes everything beneath it, every other entry is exactly one path (round 9, finding 5) |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | `harness/batch.py` | `c33581ddcf4fc27da6545a4fcd024f2f38836c395649ac25108bf80c4bd291d9` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps; the chained ledger and per-slot manifests of §2.9; resume by global index [D-22]; the shortfall surface [D-23]; §6 C7 as a batch precondition |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | `harness/score_rates.py` | `3576edcc350211e1fac8cef71c1e50696f3ec13bd5498a041536774644c823f1` | per-arm scoring against that arm's mirror instantiation and family; the §5 level and contrast verdicts; the §4.5 census; the §4.6 old-edge cross-scoring; the §3.3 partition with `arm-mismatch` and `schedule-mismatch`; the [D-21] stopping rule; §6 C7 as a batch precondition; and [D-21] over the short prefixes §2.8 leaves — an arm the prefix has not reached has no `authoring/` root and is an empty population under the declaration, the empty prefix carries no ledger, and both are admitted only against a declaration that records them. Round 9 finding 2: §5.3's row 5 carries a **fifth** conjunct, `INTERIOR_CLASS` — arm E must not read COLLAPSE on class 3 — so an arm whose accepted records were all decided before the score is read no longer confirms; §4.6's two reading cells state what the integers show and no longer a mental state |
+| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | `transcription/authoring_call.sh` | `d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee` | §2.7's three permitted differences, plus the one repair §2.7 and this file register — 011's nested `rev-parse` refuses instead of silently meaning the caller's directory — and nothing else. Round 10, finding 6: the registered branch RESOLVES each component of its anchor before creating the next, so a replaced `arms` or `<ARM>` is refused with nothing made outside the study, where `mkdir -p` used to make it first — see below |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | `harness/integrity.py` | `c092a1fe301c0aafe35d24ee8eab632045440aee9df5b763c003d07d1fdeae9d` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9; the C10 gate; the [D-20] tree manifest, whose exclusion list `manifest_excluded()` matches as §2.10 item 2 states it — an entry ending `/` is a tree and takes everything beneath it, every other entry is exactly one path (round 9, finding 5). Round 10 finding 1: this file is README step 1's path-invoked entry and it now REFUSES unless the interpreter is running with the safe import path (`-P`, or the `PYTHONSAFEPATH=1` README step 0 exports). Invoking a script by path makes that script's own directory `sys.path[0]`, so the head imports here — `subprocess`, which `verify_bytecode()`'s tree-wide untracked-source scan runs on, among them — resolve from the harness directory before any byte of the file runs, and the module-scope `sys.path.insert(0, HERE)` has no scan before it. The flag is the closure; the in-file refusal only establishes that the operator applied it, and the docstring says so rather than claiming a gate against a hostile tree |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | `harness/batch.py` | `a6c948951567caebdddb211161c89235ec08d113e63dec89c8a2e168908a7211` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps; the chained ledger and per-slot manifests of §2.9; resume by global index [D-22]; the shortfall surface [D-23]; §6 C7 as a batch precondition. Round 10 finding 1: the same safe-import-path refusal as `integrity.py`, first inside the `__main__` guard and above the untracked-source tripwire — the tripwire cannot precede this file's own head imports, and `subprocess`, the module it asks git what is tracked with, is one of them. Round 10 finding 5: the `no-context` message says "neither registered comparison happened" — `no-context` IS one of the three registered outcomes, so the old wording was false about the registration it was reporting — and `require_isolation_negative()` reads the record's SHAPE as well as its bindings, through the one predicate `score_rates.c7_record_shape_problems()` both gates share |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | `harness/score_rates.py` | `4f52035fbf9ff9451f49f9f173874f3d523f122f8e7e0eb9c623203760c0a81f` | per-arm scoring against that arm's mirror instantiation and family; the §5 level and contrast verdicts; the §4.5 census; the §4.6 old-edge cross-scoring; the §3.3 partition with `arm-mismatch` and `schedule-mismatch`; the [D-21] stopping rule; §6 C7 as a batch precondition; and [D-21] over the short prefixes §2.8 leaves — an arm the prefix has not reached has no `authoring/` root and is an empty population under the declaration, the empty prefix carries no ledger, and both are admitted only against a declaration that records them. Round 9 finding 2: §5.3's row 5 carries a **fifth** conjunct, `INTERIOR_CLASS` — so an arm whose accepted records were all decided before the score is read no longer confirms; §4.6's two reading cells state what the integers show and no longer a mental state. Round 10 finding 3: that conjunct is **arm E must not read LOW on class 3**, a §5.1 level verdict on arm E and not the §5.2 contrast round 9 wrote — a contrast is INDETERMINATE whenever arm A is not HIGH on the class, so the round-9 form passed vacuously for exactly the degenerate arm it was added to refuse, and `decision_row()` takes the levels to say so; no §5.4 figure moves. Round 10 finding 2: a LOW placement verdict BOUNDS placement at three of thirty and does not zero it, and the row-1 cells say so. Round 10 finding 8: the S5 ceiling is registered as at least one accepted record **and** `|Q| = 0`, so the row-2 cell is true of the empty arm as well. Round 10 finding 4: §5.4's first independence layer is unavailable between two of the six classes — §2.3's class 0 nests in class 1 and class 2 in class 3, correctness is a property of the record, so those coverage indicators are ordered pathwise and independence between them holds at no nondegenerate marginals — so the module gains `NESTED_CLASS_PAIRS`, `class_groups()`, `containment_joint_figures()` and `containment_operating_characteristics()`, the coherent companion whose figures §5.4 publishes beside the independence ones. `decision_operating_characteristics()` is deliberately NOT rewritten: its numbers stay published as the incoherent approximation they are, and its docstring says so. Round 10 finding 7: **S10 is raw — label irrelevant, exactly as S1 is**. The old-edge intersection took the H side of this arm's own mirror, which quarantined a record placed at 40 or 70 and labelled by the old thresholds before arm A's predicates were read — under arm D's (45, 72) mirror old class 2 was unreachable that way altogether and old classes 0 and 1 only through personal-data records — so §5.3 (ii)'s second outcome was blind to the very shape it names and its first outcome's exclusion could not exclude a D that reached both threshold pairs. One expression; the level-endpoint set, the verdict-surface count, §4.3's interval scope, `RESULTS.json`'s shape and `ANALYSIS.md`'s columns are all unchanged. Round 10 finding 9: §2.8's one-UTC-calendar-day rule is **computed rather than asserted** — `utc_day()` publishes, under `schedule.utcDay`, the date set the slots' own retained stamps carry, the count of slots that carried no readable pair, `crossedMidnight` and `oneDayEstablished`, from the same stamp parser S8's duration uses. Nothing refuses on it: §2.8 registers a crossing as a `DEVIATIONS.md` entry and not a stopping rule. No cut, threshold, verdict, decision-table row, endpoint, class or N moves. Round 10 finding 1: the same safe-import-path refusal as the other two path-invoked entries, first inside the `__main__` guard and above the untracked-source tripwire — sharper here than the head imports, because the `subprocess` the scan itself runs on is imported INSIDE the scan and still resolves from the directory the scan polices. Round 10 finding 5: `c7_record_shape_problems()` is added and both gates read it, so the driver's preflight and the scorer's precondition enforce one rule about the members `batch.py` always writes — `registeredOutcomes` equal to the registered three, `deletedByCode` a name-to-digest object (present, never required non-empty: the `no-context` case legitimately deletes nothing), `wrapperExit` an int with bool excluded. The retained SET — the stripped `CALL.json`, `context.json` — is deliberately NOT required, because that would be a change to §6 C7's and §7's registered sentences rather than a code repair; and no predicate here speaks to provenance, since `controls/isolation-negative/` is in `freeze.excluded` and no digest covers those bytes |
 | `analysis/diversity.py` | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | `harness/census.py` | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness. Round 5 finding 9: X3 publishes the full distinct-value distribution and arm D's old-edge table at the unstated 40/70, X4 publishes the signature groups |
 
 **This table is machine-read, and its columns answer to different
@@ -124,10 +124,12 @@ and everything else is docstring. `harness/tests/test_mirror.py` asserts the
 registered agreement with 010's locked module at (40, 70) over the full grid,
 and §2.4's negative control besides.
 
-## The wrapper: §2.7's three differences, and one deliberate non-difference
+## The wrapper: §2.7's three differences, one registered repair, and one deliberate non-difference
 
 `transcription/authoring_call.sh` is Study 011's wrapper with exactly the
-three registered differences:
+three registered differences — plus the one repair registered at the end of
+this section, which is a line of 011's made to mean what 011 meant by it and
+none of the three:
 
 1. **the arm id and the arm's prompt path are arguments** —
    `authoring_call.sh <scratch-parent> <slot-dir> <pins-json> <arm-id>
@@ -145,8 +147,8 @@ three registered differences:
    `s012-…`** (with the arm id in the name, so five arms' same-numbered runs
    cannot collide under one scratch parent).
 
-Rounds 8 and 9, finding 6 both strengthen the first difference's guard rather
-than adding one. Round 8 replaced a comparison of the parent and grandparent
+Rounds 8, 9 and 10, finding 6 all strengthen the first difference's guard
+rather than adding one. Round 8 replaced a comparison of the parent and grandparent
 basenames with the whole of §2.7's trailing shape, so `/tmp/C/authoring/run-001`
 for arm C and an unrestricted slot name both refuse before anything is called.
 Round 9 finished the job: a suffix is not a location, and four trailing
@@ -155,13 +157,64 @@ absolute root — something §2.7's sentence does not say and [D-23]'s driver
 never produces. `$SLOT` must now EQUAL
 `$STUDY/arms/<ARM>/authoring/run-NNN`, for the `$STUDY` this script already
 resolves from its own location before it does anything else. Equality subsumes
-the absoluteness test and refuses embedded traversal; the registered branch's
-`mkdir -p` creates that anchor and nothing else, so a refused path leaves no
-directory behind outside the study; and a `pwd -P` comparison immediately
-after it refuses an `arms` or `authoring` component that is a symlink out of
-the study, which no comparison of the path's own text can see. This takes **no
-new argument and no new environment member**: §2.7's three differences are
-unchanged and `batch.py`'s environment contract stays 011's four.
+the absoluteness test and refuses embedded traversal; and a `pwd -P`
+comparison refuses an `arms`, `<ARM>` or `authoring` component that is a
+symlink out of the study, which no comparison of the path's own text can see.
+This takes **no new argument and no new environment member**: §2.7's three
+differences are unchanged and `batch.py`'s environment contract stays 011's
+four.
+
+Round 10 finished *that* job. The physical comparison ran after a single
+`mkdir -p "$STUDY/arms/<ARM>/authoring"`, and `mkdir -p` **follows** a replaced
+component: with `arms` a symlink out of the study it created two directories
+under the foreign target and only then was refused — beneath a comment
+asserting that the block "creates nothing outside the study", on precisely the
+case the comparison exists for. The registered branch now **resolves before it
+creates**, descending the three components below `$STUDY` and making each only
+after the one above it has resolved to itself, so a refused path leaves no
+directory behind outside the study and that sentence is true of a replaced
+component rather than only of the textual refusals. The refusal names the
+component it stopped at. A DANGLING symlink at any of the three is refused by
+name too, where `mkdir -p` used to fail and `set -e` kill the run with no
+`refused:` line — the same `-e` OR `-L` reading the file already applies one
+level down at the slot path. The descent is racy in principle — a component
+could be swapped between its `cd` and the next `mkdir` — and that is
+deliberately not chased: §7 and §9 decline a concurrent adversary on the
+operator's own machine, and this is a guard against a tree that is not the
+shape §2.7 says it is, not against a process racing this one. The probe
+branch's `mkdir -p "$(dirname "$SLOT")"`
+is 011's line for the capture directory the driver names and is deliberately
+**not** changed: the claim registered here is about the registered branch, and
+widening it would be a new claim rather than a repair. Asserted by
+`harness/tests/test_batch.py`'s
+`test_a_replaced_ancestor_is_refused_before_anything_is_created`, over both
+earlier components and the dangling one; round 9's case plants its symlink at
+the FINAL component, where `mkdir -p` onto an existing directory creates
+nothing, so it could not see this and its assertions are unchanged.
+
+**The one repair, registered here rather than carried.** Study 011's wrapper
+reads the repository root as `GIT_ROOT="$(cd "$(git -C "$STUDY" rev-parse
+--show-toplevel)" && pwd -P)"` — one line, with the `rev-parse` nested inside
+the `cd`. A failed `rev-parse` yields the empty string, `cd ""` succeeds, and
+the outer substitution returns `pwd -P`: the CALLER's directory, with status 0,
+which the scratch check below then compares against. This study reads the
+toplevel first and refuses an empty one. It is the only line of the isolation
+invocation that is not 011's byte-for-byte, and it is **not a fourth §2.7
+difference**: §2.7's differences are this study's arguments, stamps and naming
+— the ways its cell differs from 011's — and a refusal on a study that is not
+in a worktree is none of those. Nor is it reachable: the study is a git-tracked
+directory in this repository, and `fixtures.standin_study()` runs `git init` so
+the suite's stand-in has production's shape, so over every input the README
+procedure or the harness suite can supply, 011's wrapper and this one behave
+identically. Round 9 made the repair while proving the anchor and recorded it
+in `PREREG-REVIEW.md`; round 10, finding 6 found that **this** file — the diff
+carrier §2.7 designates — did not carry it, and that is what this paragraph
+fixes. The count of permitted differences stays **three**, and §2.7 says the
+same in its own words. Asserted by `harness/tests/test_batch.py`'s
+`test_a_study_outside_a_worktree_refuses_rather_than_degrading`, which runs the
+wrapper from a stand-in study with no worktree and requires the refusal before
+any call: until round 10 this was the one refusal line in the wrapper that no
+test anywhere reached.
 
 Round 8's rationale for the weaker anchor named [D-23]'s patched population
 root as forcing it — the harness tests move that root to drive the real

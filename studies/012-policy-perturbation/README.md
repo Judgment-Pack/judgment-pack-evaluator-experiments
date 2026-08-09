@@ -9,10 +9,10 @@ The preregistration is a draft until it is frozen by merge after the final
 cross-vendor review round ends clean; it governs thereafter, and
 `DEVIATIONS.md` records every departure from it.
 
-**Review status: eight rounds recorded, rounds 2-8 cross-vendor.**
+**Review status: ten rounds recorded, rounds 2-10 cross-vendor.**
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md) records them all — round 1 internal;
 round 2 the first cross-vendor round over the specification and arm texts;
-rounds 3-8 over the complete post-port candidate tree, each with every
+rounds 3-10 over the complete post-port candidate tree, each with every
 finding dispositioned by the maintainer and the dispositions implemented
 before the next round. The final round has not yet ended clean; the freeze
 binds to the manifest of the round that does.
@@ -108,12 +108,16 @@ comparison arm**; every registered contrast is within this batch.
 
 **What N = 30 cannot do, said here rather than only in §9.** At a true
 per-class coverage of 0.95 — inside Study 011's own published interval — arm A
-reads HIGH on all six classes 68.7% of the time under an explicit independence
-scenario (and at least 63.5% by the Fréchet bound, which is what the six
-marginals alone imply). So roughly three runs of this study in ten would find at
+reads HIGH on all six classes 77.8% of the time under the scenario that respects
+§2.3's class nesting, and at least 75.7% by the sharp Fréchet floor (68.7% and
+63.5% under the independence layer §5.4 published for nine rounds, which counts
+six classes as six free events and cannot happen — round 10, finding 4). So
+roughly two runs of this study in ten would find at
 least one falsifier-relevant class with no contrast verdict available, from
-sampling alone. The design's own control gate passes 76.6% of the time under the
-same scenario, so about one run in four adjudicates R1 in neither direction. And
+sampling alone. The design's own control gate passes 67.0% of the time under the
+coherent scenario (76.6% under the independence layer, which overstates it: a
+five-of-six tolerance gets harder, not easier, when classes move together), so
+about one run in three adjudicates R1 in neither direction. And
 any anchoring effect that leaves coverage above roughly one run in five is
 invisible: a drop from 1.00 to 0.30 reads MID 99% of the time. Every figure is
 computed before the data and asserted by a harness test.
@@ -121,7 +125,9 @@ computed before the data and asserted by a harness test.
 **N was 25 in the round-1 draft, and the cross-vendor round moved it.** The
 argument was not the marginal per-class figure, which rises only 0.8729 →
 0.9392; it was the registered B/C control gate, which passes **0.4031 at N = 25
-and 0.7658 at N = 30**. A precondition that fails three times in five when both
+and 0.7658 at N = 30** — **0.4010 and 0.6702** once the class nesting is
+respected, which is the reading that counts and returns the same decision. A
+precondition that fails three times in five when both
 control arms behave exactly as predicted is not a control. `PREREGISTRATION.md`
 §5.4 and §10 [D-1] carry the whole re-adjudication, with N = 25 registered as
 the alternative and its cost stated.
@@ -185,7 +191,11 @@ CLI.
 **The interpreter is a pin, not a detail**, as in Study 011: the registry names
 CPython 3.12, and `integrity.py`, `batch.py`, `score_rates.py` and the wrapper
 all refuse under another implementation or version series. Every command below
-names it explicitly through `$PY`, by absolute path.
+names it explicitly through `$PY`, by absolute path. The three path-invoked
+entries also refuse unless that interpreter is running with the **safe import
+path** — `-P`, or the `PYTHONSAFEPATH=1` step 0 exports — because a file
+invoked by path makes its own directory `sys.path[0]`, and its head imports
+resolve from there before any scan inside it can run (round 10, finding 1).
 
 `DIR` is a scratch parent that resolves **outside every git worktree** and
 carries no leak token (a path containing `jpack`, for instance, is refused).
@@ -195,6 +205,13 @@ cd studies/012-policy-perturbation
 
 # 0. The registered interpreter, BY ABSOLUTE PATH.
 PY=/home/onword/.pyenv/versions/3.12.11/bin/python3 && "$PY" -V
+#    …and the SAFE IMPORT PATH, for every command below. Running a file by
+#    path puts that file's own directory first on sys.path, so an entry
+#    file's head imports — `subprocess` among them, which is what the
+#    untracked-source scans ask git what is tracked with — resolve from the
+#    very directory those scans exist to police, before a byte of them runs.
+#    All three entry files REFUSE without it (§2.10, round 10 finding 1).
+export PYTHONSAFEPATH=1
 
 # 1. Ported bytes (§6 C1), the three-tier authority chain plus 011's PINS
 #    AND PORTS and this study's own PORTS at their pinned digests, the five
@@ -279,7 +296,10 @@ sha256sum PREREGISTRATION.md
 #    and CENSUS.md to the study root.
 "$PY" harness/score_rates.py score --emit-records records
 
-# 8. ANALYSIS.md, then post-run cross-vendor adversarial review.
+# 8. Read RESULTS.json's schedule.utcDay. If crossedMidnight is true, write the
+#    DEVIATIONS.md entry §2.8 requires — the crossing stops nothing and the
+#    scorer refuses nothing on it, so the entry is the operator's to write.
+#    Then ANALYSIS.md, then post-run cross-vendor adversarial review.
 ```
 
 Ordering rules, per `PREREGISTRATION.md` §2.8, §2.10 and §3.2.
@@ -299,7 +319,11 @@ registered order; no two slots may share session evidence (`session-reused`);
 every slot is sealed by a manifest chained into the ledger, and an alteration
 makes the whole batch `UNRESOLVED-BY-DESIGN` rather than moving one slot out of
 a denominator; a shortfall may not be declared over a batch that is not short;
-and the scorer refuses unless the batch is terminal.
+and the scorer refuses unless the batch is terminal. **Computed and published
+rather than enforced**: the UTC calendar dates the slots' own stamps carry, the
+count of slots that carried no readable pair, and a crossed-midnight flag
+(`schedule.utcDay`) — §2.8 makes a crossing a `DEVIATIONS.md` entry and not a
+stopping rule, so nothing refuses on it.
 
 **Ledger discipline, recorded and not checked**: that the golden capture, the
 registry and the five arm artifacts were *committed* before round 1. This study
@@ -334,9 +358,12 @@ outright rather than merely narrowing it.
    disposition, **the sha256 of each of the five arm texts as that round
    reviewed them**, and — from the first post-port round on — **that round's
    whole-tree manifest digest**. `integrity.py` refuses unless the manifest it
-   recomputes over the frozen tree equals the final round's, so *everything*
-   that was reviewed is what ran: the texts, the harness, the scorer and this
-   file. Round 2 found the previous binding was self-authenticating.
+   recomputes over the frozen tree equals the final round's, so everything the
+   manifest covers is what ran: the texts, the harness, the scorer, the
+   preregistration and this README. `PREREG-REVIEW.md` is the exception — it
+   carries the attestation the freeze pin must equal, so it sits outside the
+   manifest and its own honesty is [D-20]'s stated residual (§2.10). Round 2
+   found the previous binding was self-authenticating.
 4. `harness/PORTS.md` — what each ported file changed, at which digest, and to
    which authority each row is bound. Written at port time.
 5. `arms/A…E/` — the five registered artifacts, authored and pinned at port

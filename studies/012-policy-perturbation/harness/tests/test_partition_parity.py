@@ -41,7 +41,7 @@ import fixtures
 import score_rates
 
 # §3.3: "Three codes are new to this study", each closing a route round 1 or
-# round 2 found open. They are the reason C4 registers three extra fixtures,
+# round 2 found open. They are the reason C4 registers its extra fixtures,
 # and the reason this file checks the table rather than trusting it.
 NEW_CODES = ("arm-mismatch", "schedule-mismatch", "session-reused")
 # §3.3's two valid outcomes, which carry no code: the row for a completion with

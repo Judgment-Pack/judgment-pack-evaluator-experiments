@@ -12,12 +12,13 @@ or a threshold chosen before any data exists. When the batch runs, results go
 to `RESULTS.json`, `RATES.md`, `CENSUS.md` and `ANALYSIS.md`; departures from
 this file go to `DEVIATIONS.md`. After the freeze this file is never edited.
 
-**The harness does not exist yet, and this file specifies it rather than
-describing it.** Study 012 is built by porting Study 011's harness by digest
-after this preregistration is reviewed. Every port table below carries
-`(port time)` where a digest will go; those cells are filled once, when the
-port is taken, and committed before the freeze. A `(port time)` cell surviving
-into the frozen file is a defect, and `harness/integrity.py` refuses on it.
+**This file specifies the harness rather than describing it: it was written
+before the harness existed.** Study 012 is built by porting Study 011's harness
+by digest after this preregistration is reviewed. Every port table below carried
+`(port time)` where a digest goes; those cells are filled once, when the port is
+taken, and committed before the freeze — the port is taken and every cell is
+filled (§2.2 [D-20] step 2). A `(port time)` cell surviving into the frozen file
+is a defect, and `harness/integrity.py` refuses on it.
 
 **§10 is a register of the parameters this draft does not settle.** Where the
 design has a genuinely open choice, this file states a proposal, states the
@@ -185,7 +186,15 @@ interval, whose lower bound is 0.9275 — the probability that arm A reads HIGH
 on **all six** classes is **0.6865** under the registered conditional-
 independence scenario, and on all four narrow numeric classes **0.7782** (at
 the N = 25 the round-2 review re-adjudicated away from, the same figures were
-0.4424 and 0.5806). So a single arm-A class below HIGH is **reported as an
+0.4424 and 0.5806). **Both assume an independence across classes that §2.3's
+own nesting makes unavailable** (round 10, finding 4): class 0 nests in class 1
+and class 2 in class 3, so the six classes are four indicators, a conjunction
+gets *easier* rather than harder, and under the containment-respecting companion
+§5.4 publishes beside those figures the all-six probability is **0.7782** — the
+same digits as the independence all-four-narrow cell, a different quantity — and
+the all-four-narrow probability **0.8285**, with 0.5806 and 0.6651 at N = 25.
+The consequence below is stated on the *smaller* of each pair, so it is not
+weakened by the correction. So a single arm-A class below HIGH is **reported as an
 unresolved baseline for that class, not as a drift finding**, every §5
 contrast involving that class is INDETERMINATE by §5.2's own rule, and the
 drift report of §4.7 stands beside it without a verdict.
@@ -204,9 +213,14 @@ is now a count and a bound, both fixed here:
 > quantity outside this rule may be cited as evidence of drift.
 
 Under the scenario above, P(four or more of six below HIGH) is **0.0002** at
-N = 30 and **0.0032** at N = 25, so the rule fires by sampling alone about
-twice in ten thousand runs of this study at the registered N (three in a
-thousand at the alternative). Even when it fires it is
+N = 30 and **0.0032** at N = 25 under the independence layer, and **0.0041** and
+**0.0197** under the containment-respecting companion (round 10, finding 4) —
+the rule counts *classes* and a single group below HIGH puts two classes below
+HIGH at once, which is why this rate multiplies by more than twenty where the
+gate merely falls by a tenth. **The larger figure is the one to quote:** the
+rule fires by sampling alone about **four times in a thousand** runs of this
+study at the registered N, and about two in a hundred at the alternative. Even
+when it fires it is
 reported as **a finding about the contemporaneous baseline, not as a
 measurement of drift**, which this design cannot make: there is no second
 snapshot to compare against.
@@ -235,7 +249,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `b4369c305f633d553019f2217c685f944f06b1256cfdba8ffce2f9fee73d5ee7` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `e00b4476bc383d541068ad4e671975f6ad090676762a8aaf55676361ff5b0f08` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -269,10 +283,10 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `arms/A/POLICY.md` | `e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f` | **010's lock directly** — 011 holds no separate policy copy, so there is no 011-side blob for this row | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` | exactly two registered deltas and nothing else: `PREAMBLE_DELTA` applied at its single occurrence and `CONVENTIONS_DELTA` appended at the registered position (§2.1, §2.6, Appendix A). Both are published verbatim; the assembled preamble and the conventions delta are each pinned by their own sha256 |
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt, and (round 5, finding 7) a completion that does not decode raises its own exception class so the scorer can name `completion-unreadable`; no other check logic changes |
-| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `bf2f6b1c811365ce77d7034e6549c0e87a13228e0fb85389d466fc5b4dcf0f33` | §2.7 |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `e8b65e0ea9b730b50d89e46f878982e949233c2bc4fddd87cc472d909db3b9d5` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `c33581ddcf4fc27da6545a4fcd024f2f38836c395649ac25108bf80c4bd291d9` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `3576edcc350211e1fac8cef71c1e50696f3ec13bd5498a041536774644c823f1` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee` | §2.7 |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `c092a1fe301c0aafe35d24ee8eab632045440aee9df5b763c003d07d1fdeae9d` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `a6c948951567caebdddb211161c89235ec08d113e63dec89c8a2e168908a7211` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `4f52035fbf9ff9451f49f9f173874f3d523f122f8e7e0eb9c623203760c0a81f` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -370,6 +384,18 @@ Three properties of the classes carry over from 011 unchanged: they are **not
 disjoint** (0 nests in 1, 2 nests in 3, 5 is adjacent to 3), coverage is
 non-emptiness per predicate rather than a partition, and the six intervals are
 marginal rather than a simultaneous region.
+
+**The two nestings are load-bearing, not a curiosity** (round 10, finding 4).
+Adjacency imposes nothing — different records in one run can witness class 5 and
+class 3 — but *containment* does: correctness is a property of the record
+(§4.1), so a record witnessing class 0 in a run witnesses class 1 in that run
+and carries the same correctness bit, and the two classes' coverage indicators
+are ordered slot by slot. §5.4 registers what that costs its joint arithmetic
+and publishes the corrected figures. The two pairs are `NESTED_CLASS_PAIRS` in
+`harness/score_rates.py`, and `harness/tests/test_mirror.py` asserts over the
+280-cell landmark grid at every arm's registered threshold pair that they are
+**exactly** the ordered pairs of classes whose members are contained in one
+another — a registered fact that until round 10 lived only in this sentence.
 
 ### 2.4 Arm D's threshold substitution, and how "semantics constant" is checked
 
@@ -841,15 +867,25 @@ differs" is arithmetic on bytes and not an assurance, and arm A's relation to
 ### 2.7 The wrapper is an adaptation of an adaptation
 
 `transcription/authoring_call.sh` is Study 011's wrapper, whose whole isolation
-invocation is unchanged: fresh `HOME` and `CODEX_HOME`, `env -i` with `PATH`
+invocation is unchanged but for the one line named below: fresh `HOME` and
+`CODEX_HOME`, `env -i` with `PATH`
 and `TMPDIR` constructed rather than inherited, exclusive leak-token-free
 scratch outside every git worktree, `--ignore-user-config`, explicit model,
 binary digest and CLI version checked **before** the call, byte-exact prompt,
 stdin closed, credential copied and deleted on the seal path and on `EXIT`,
 `INT`, `TERM` and `HUP`, recursive pre-call inventory of the isolated home,
 new-session identification by set difference, registry and golden digests
-stamped per run. The permitted differences are exactly these, and
-`harness/PORTS.md` carries the diff:
+stamped per run. **One line of that invocation is repaired rather than
+carried**, and `harness/PORTS.md` names it: 011 read the repository root with
+the `git rev-parse` nested inside a `cd`, so a failed one left the root
+silently equal to the caller's directory and the scratch check compared against
+a directory nobody chose; here the toplevel is read first and an empty one
+refuses. It is not a fourth permitted difference — the differences below are
+this study's arguments, stamps and naming, and a defensive refusal on a study
+that is not inside a worktree is none of those — and no run this study can make
+reaches it, because the study is a git-tracked directory of this repository.
+The permitted differences are exactly these, and `harness/PORTS.md` carries the
+diff:
 
 1. it takes the **arm id** and the **arm's prompt path** as arguments, and
    writes into `arms/<ARM>/authoring/run-NNN/`;
@@ -871,7 +907,10 @@ reasoning and round 2 re-adjudicated it against the *actual* registered rules
 rather than a stricter proxy; the short version is that the study's binding
 quantity is not the marginal per-class figure but **the joint probability that
 the B and C control gate of §5.3 (iii) passes at all**, and that gate stands at
-**0.4031 at N = 25 and 0.7658 at N = 30** under the registered scenario. A
+**0.4031 at N = 25 and 0.7658 at N = 30** under the registered scenario —
+**0.4010 and 0.6702** under the containment-respecting companion §5.4 publishes
+beside it (round 10, finding 4), which is the coherent reading and returns the
+same decision. A
 control that fails three times in five under a *true null effect in both
 control arms* is not a control, which is this file's own criterion, applied to
 itself. N = 25 is registered as the alternative under [D-1] with that cost
@@ -965,7 +1004,16 @@ published as computed and every registered balance property is reported as
 stopping rule below), so nothing reads a balance the prefix does not have.
 
 All 150 slots are begun and completed within **one UTC calendar day**;
-spilling past midnight is a `DEVIATIONS.md` entry, not a stopping rule.
+spilling past midnight is a `DEVIATIONS.md` entry, not a stopping rule. **The
+rule is computed, not asserted** (round 10, finding 9): the scorer publishes
+the UTC calendar dates the retained stamps carry, the count of slots that
+carried no readable pair, and whether the batch crossed midnight, under
+`schedule.utcDay` (§4.7). Crossing it is published as a fact and written up in
+`DEVIATIONS.md`, and it stops nothing. The dates are the calendar parts of each
+slot's own `startedAt` and `endedAt`; a slot whose pair the scorer cannot read
+contributes no date and is counted instead, so **one day is established only
+when every slot carried a readable pair** — the same "published as computed,
+reported as not established" rule the transition census above is under.
 
 **Denominators.** Let N = 30 be the slots executed per arm, `I_X` the
 pipeline-invalid runs in arm X, and `V_X = N − I_X` its valid runs. **The
@@ -1794,10 +1842,18 @@ removes the textual pointer, not the corpus.
   quantity the previous study registered; it is **not** the §5 decision rule of
   this study and no contrast reads it.
 - **S10 — old-edge cross-scoring [D-12].** Every arm's records are *also*
-  scored against **arm A's** family predicates, with labels still taken from
-  that arm's own mirror. This is class membership only: it asks where each arm's
-  records land in *the baseline's* coordinate system. It is the direct measure
-  of the rename prediction and its registered pattern is in §5.3.
+  scored against **arm A's** family predicates, **label irrelevant, exactly as
+  S1 is**: an S10 hit is an accepted record that falls in one of the baseline's
+  classes, whether or not its own outcome matches this arm's mirror. This is
+  class membership only: it asks where each arm's records land in *the
+  baseline's* coordinate system, and that is a question about placement, so the
+  label filter is not applied. An earlier draft took the H/Q split from the
+  arm's own mirror, which made a record placed at 40 or 70 and labelled by the
+  old thresholds invisible to the one endpoint registered to see it — under
+  arm D's (45, 72) mirror old class 2 (P ∧ [40, 41)) was then unreachable
+  altogether and old classes 0 and 1 reachable only through records that handle
+  personal data (round 10, finding 7). It is the direct measure of the rename
+  prediction and its registered pattern is in §5.3.
 - **S11 — the per-protocol coverage rate**, per class per arm: §4.2's `k/V_X`,
   the quantity an earlier draft made primary, with its own §4.3 intervals and
   its own §5.1 level verdicts. Published beside the primary, never substituted
@@ -1818,17 +1874,22 @@ readings of a collapse in arm D or E, and an earlier draft called them
 load-bearing while giving them no cut and letting no decision read them:
 
 **"At the ceiling" is a cut, not a word** (round 3, finding 9,
-dispositioned): arm E's S5 labels are at the ceiling iff |Q| = 0 among its
-accepted records — no accepted record mislabelled across the arm's valid
-runs. The literal ceiling is chosen over a tolerance because §4.6's third
+dispositioned): arm E's S5 labels are at the ceiling iff it has **at least
+one accepted record** and |Q| = 0 among them — no accepted record
+mislabelled across the arm's valid runs. **An arm with no accepted record at
+all has no accuracy to read** (round 10, finding 8), exactly as S2's
+mislabel share has no denominator to read: its pooled rate is published as
+`null` and its labels read **degraded**, the direction that does not
+confirm, and this file registers that here rather than leaving it to the
+scorer. The literal ceiling is chosen over a tolerance because §4.6's third
 row is exact under it, and any tolerance would be a number this file never
 registered; §5.4's operating characteristics model coverage only and do not
 describe this conjunct, which is stated here rather than discovered.
 
 | S1 (raw placement) | S5 / S2 (labels) | the reading | what §5.3 (i) does with it |
 | --- | --- | --- | --- |
-| **LOW** — the records are not at the boundary | at the ceiling | no accepted record was mislabelled, and none was placed at the boundary | **PLACEMENT collapse** — this is what R1 predicts, and the only thing that confirms it |
-| **LOW** | degraded | at least one accepted record was mislabelled | **comprehension collapse** — published as one, R1 not confirmed |
+| **LOW** — the class was reached at most 3 times of 30 | at the ceiling | no accepted record was mislabelled, and where placement collapsed the class was reached at most 3 times of 30 — LOW bounds placement, it does not zero it | **PLACEMENT collapse** — this is what R1 predicts, and the only thing that confirms it |
+| **LOW** | degraded | at least one accepted record was mislabelled, or the arm produced no accepted record at all | **comprehension collapse** — published as one, R1 not confirmed |
 | **HIGH or MID** — the records *are* at the boundary | degraded, so H-coverage falls | the author placed records at the boundary and labelled them wrong | **label collapse** — the hugging did **not** go away; R1 is not confirmed and saying otherwise would be reading a labelling failure as an anchoring result |
 
 **What the ceiling establishes, and what it does not** (round 9, finding 2).
@@ -1841,29 +1902,51 @@ threshold pair, and a record far below both thresholds is labelled correctly at
 every pair above it. Class 4's predicate is exactly the first kind, so an arm E
 whose accepted records are all sanctions or embargo cases reads `|Q| = 0`,
 keeps class 4 out of collapse, places nothing in classes 0, 1, 2, 3 and 5, and
-would reach §5.3's row 5 having exercised neither number. That degenerate arm is
-what row 5's **fifth conjunct** excludes: **arm E does not read COLLAPSE on
+would reach §5.3's row 5 having exercised neither number. Row 5's **fifth
+conjunct** is stated on that arm's own records: **arm E does not read LOW on
 class 3**, the interior review band `¬S ∧ ¬E ∧ T_low ≤ risk < T_high`, whose
 members are by definition scored *between* the two thresholds and are labelled
 by a mirror that has passed the sanctions and embargo clauses and read
 `riskScore` — so covering it at all means placing records the two numbers
-bracket. The conjunct is registered as **excluding a degenerate case, not as
-establishing comprehension**, and its weakness is registered with it: *not
-COLLAPSE* is not *HIGH*, so a class 3 covered in as few as four of thirty runs
-satisfies it, it is satisfied vacuously if arm A does not read HIGH on class 3,
-and it tolerates a wrong-but-nearby derivation — which is what §4.5's X6 census
-is for. **No conjunct available to this design could
-establish comprehension**: the set of threshold pairs consistent with a set of
-correct labels is an *interval*, and pinning it from both sides needs records on
-*both* sides of a threshold, which is precisely the boundary-testing the
-confirming row's own premise says arm E did not do. The two readings above are
-therefore named for the explanations they make available, not for propositions
-this rule establishes; §4.5's X6 is registered against the anticipated
-misderivations for exactly this reason — "diagnosed rather than assumed away by
-S5" (§4.5) — and no §5 decision reads it. **CONFIRMED therefore means the
-placement pattern with clean labels, an intact class 4 and class 3 not
-collapsed; it does not mean the author understood the thresholds, and this file
-does not claim it does.**
+bracket.
+
+**The conjunct is a level verdict on arm E and not a contrast against arm A**
+(round 10, finding 3). Round 9 registered it as a contrast — arm E not reading
+COLLAPSE on class 3 — and a contrast is INDETERMINATE, never COLLAPSE, whenever
+the baseline itself is not HIGH (§5.2), so that form was satisfied *vacuously*
+by an arm E that covered class 3 in none of its thirty runs whenever arm A fell
+short there: the one arm the conjunct was added to refuse. Read on arm E's own
+level the conjunct is uniformly at least as strong, strictly stronger in exactly
+that case, and it moves no figure §5.4 publishes. Class 3 is **not** the one
+class whose members are scored between the two thresholds — class 2 nests
+strictly inside it — it is the only class *available*: 0, 1, 2 and 5 are the
+four the prediction says will collapse, so requiring any of them not to collapse
+would contradict the proposition row 5 confirms, and class 4 has no numeric
+content at all.
+
+The conjunct is registered as **excluding a degenerate case, not as
+establishing comprehension**, and its weakness is registered with it: *not LOW*
+is not *HIGH*, so a class 3 covered in as few as four of thirty runs satisfies
+it, and it tolerates a wrong-but-nearby derivation — which is what §4.5's X6
+census is for. **No conjunct available to this design could establish
+comprehension**: the set of threshold pairs consistent with a set of correct
+labels is an *interval* and never a point, and a record on each side of a
+threshold bounds that interval only to the gap between the two records — so a
+straddle conjunct would have to register a straddle **width**, and a straddle of
+width 2 already avoids all four of §2.3's one-wide bands (classes 0, 1, 2 and 5)
+and is therefore compatible with the LOW verdicts row 5 requires. Round 10
+considered exactly that conjunct, **conceded** that a correctly-labelled
+straddle of both thresholds would establish real threshold-sensitivity and is
+satisfiable by the arm R1 predicts, and **declined** it: it needs a cut this
+file never registered, it has no §5.4 model, and it would make a §5 decision
+read the record-level values §4.5 registers as descriptive and gating nothing.
+The two readings above are therefore named for the explanations they make
+available, not for propositions this rule establishes; §4.5's X6 is registered
+against the anticipated misderivations for exactly this reason — "diagnosed
+rather than assumed away by S5" (§4.5) — and no §5 decision reads it.
+**CONFIRMED therefore means the placement pattern with clean labels, an intact
+class 4 and arm E not reading LOW on class 3; it does not mean the author
+understood the thresholds, and this file does not claim it does.**
 
 That third row is why §5.3 (i)'s confirmation rule reads S1 and not only the
 primary: **H ⊆ raw by construction**, so a class can lose H-coverage entirely
@@ -1878,7 +1961,12 @@ published decimal is recomputable from integers. It carries the ITT primary and
 its sensitivity bound, the S1 placement rate and the S11 per-protocol rate side
 by side for every arm and class, each labelled by which denominator it is over,
 and it carries **the §5.3 decision-table row number and name** as a first-class
-member rather than as prose. `RATES.md` is the scorer's rendering of the rate
+member rather than as prose. It also carries, under `schedule.utcDay`, §2.8's
+one-UTC-calendar-day property as **computed** from the slots' own retained
+stamps: the observed date set, the count of slots that carried no readable
+pair, and the two flags `crossedMidnight` and `oneDayEstablished`. No rate, no
+interval, no level and no decision-table row reads any of them.
+`RATES.md` is the scorer's rendering of the rate
 tables; `CENSUS.md` is the scorer's rendering of §4.5; `ANALYSIS.md` leads with
 the five arms' per-class rates, the five `rho_X`, the §5 verdict table and the
 decision-table row, and applies §5's rules without adjusting them.
@@ -2013,7 +2101,7 @@ gates of the decision table below**:
 
 | pattern | reading | published as |
 | --- | --- | --- |
-| **PLACEMENT-COLLAPSE on ≥ 3 of 4, with arm E's S5 labels at the ceiling (§4.6) and arm E not reading COLLAPSE on class 3** | R1 **confirmed for this instance** | CONFIRMED |
+| **PLACEMENT-COLLAPSE on ≥ 3 of 4, with arm E's S5 labels at the ceiling (§4.6) and arm E not reading LOW on class 3** | R1 **confirmed for this instance** | CONFIRMED |
 | E reads HIGH on the primary on **≥ 3 of 4** | the predicted collapse did not occur | **R1-UNSUPPORTED** |
 | COLLAPSE on ≥ 3 of 4 **without** placement collapse on ≥ 3 | the records are still at the boundary and the labels failed | **LABEL-COLLAPSE-ONLY** |
 | every other pattern | neither | **INDETERMINATE** |
@@ -2024,13 +2112,15 @@ gates of the decision table below**:
 > or more of the four narrow numeric classes**, **and** arm E's S5 labels are
 > at the ceiling (§4.6, round 3 finding 9 — |Q| = 0 among its accepted
 > records), **and** the B/C control gate of (iii) holds, **and** class 4 does
-> not collapse in arm E, **and** class 3 does not collapse in arm E (round 9,
-> finding 2 — the interior review band, the one class whose members are scored
-> between the two thresholds and so cannot be covered by a record the mirror
-> decides before it reads `riskScore`; it excludes an arm E whose accepted
-> records carry no threshold information, and §4.6 registers that it establishes
-> no comprehension). Nothing less confirms it, and the five conditions are
-> conjunctive.
+> not collapse in arm E, **and** arm E does not read **LOW** on class 3 (round
+> 9, finding 2; stated on arm E's own level rather than on a contrast against
+> arm A, round 10, finding 3 — the interior review band, whose members are
+> scored between the two thresholds and so cannot be covered by a record the
+> mirror decides before it reads `riskScore`, and the only class this conjunct
+> could be stated on, since 0, 1, 2 and 5 are the four the prediction says will
+> collapse and class 4 has no numeric content; §4.6 registers that it
+> establishes no comprehension). Nothing less confirms it, and the five
+> conditions are conjunctive.
 
 > **Non-support, registered [D-10]:** if arm E's primary level verdict is
 > **HIGH for three or more of the four narrow numeric classes**, the collapse
@@ -2097,6 +2187,23 @@ against arm A's family:
 | 3 ([40, 70)) | **HIGH — not a falsifier** | arm A's 30-wide band. Most of D's `[45, 72)` band lies inside it, so a diffuse D covers it easily — but **not "by construction"**: the sub-band `[70, 72)` is inside D's class 3 and outside A's, so a D that placed every record there would read LOW here. The earlier draft's "by construction" is withdrawn |
 | 4 (SY) | **HIGH — not a falsifier** | no numeric content |
 | 5 (P ∧ [39, 40)) | LOW | D's below-threshold hugs are at 44 |
+
+**The two keyings ask two different questions, and the asymmetry is
+registered rather than left to be noticed.** D's new-keyed levels are its
+primary ITT levels — correctly-labelled coverage under its own (45, 72)
+family, because TRACKING means doing the task under the policy the arm states.
+Its old-keyed levels are S10's, and S10 is placement: class membership under
+arm A's predicates with no label filter. The second outcome's claim is that
+the model "reproduced 40 and 70 in the face of a text that says 45 and 72",
+which is a claim about where records were placed and not about how they were
+labelled; and the first outcome's exclusion — old-keyed not HIGH-patterned —
+exists to catch a D that reached **both** threshold pairs, which it cannot do
+if a record placed at 70 and labelled by the old rule is quarantined before
+arm A's predicates are read. Under D's mirror that quarantine is not
+hypothetical: an author labelling by (40, 70) mislabels every record in old
+class 2 and every non-personal-data record at 70, so a label-filtered S10 was
+blind in exactly the case the second outcome names and blind in exactly the
+case the first outcome's exclusion names.
 
 **Three outcomes are registered for arm D, not two.**
 
@@ -2174,6 +2281,15 @@ effect in both control arms*, and a dependency that usually fails is not a
 control. That the five-of-six form *itself* fails three times in five at N = 25
 is the round-2 argument that moved [D-1] to N = 30.
 
+Round 10, finding 4: those two gate figures assume an independence across
+classes that §2.3's own nesting makes unavailable, and at these N a
+**tolerance** rule is the kind that gets *harder* when classes move together —
+a nested pair going below HIGH spends two of the six at once. Under the
+containment-respecting companion §5.4 now publishes beside them, the gate is
+**0.6702** at N = 30 and **0.4010** at N = 25. The argument is unchanged in both
+halves: 0.4010 still fails more often than it passes, 0.6702 still does not, and
+the all-twelve form is worse again.
+
 **(iv) Class 4, the embargo-membership class, in every arm.** Predicted:
 **TRACKING in all four contrasts.** It is the only class whose predicate names
 no numeric boundary, and Study 011's census found it the best-witnessed class
@@ -2208,7 +2324,7 @@ B TRACKING on ≥ 5 of 6 **and** arm C TRACKING on ≥ 5 of 6.
 | 2 | arm E reads COLLAPSE on **class 4** | not adjudicated | **E-DEGRADED-GENERALLY** — the denamed text degraded authoring generally; every other reading of arm E is withdrawn |
 | 3 | `gate` is false | not adjudicated | **CONTROLS-FAILED** — arm E's verdicts published in full, with the weaker reading named: paraphrase-driven if B fell short, order-driven if C |
 | 4 | `nH ≥ 3` | **unsupported** | **R1-UNSUPPORTED** — §8's correction fires |
-| 5 | `nP ≥ 3` **and arm E's S5 labels are at the ceiling (§4.6) and arm E does not read COLLAPSE on class 3** | **confirmed for this instance** | **CONFIRMED** |
+| 5 | `nP ≥ 3` **and arm E's S5 labels are at the ceiling (§4.6) and arm E does not read LOW on class 3** | **confirmed for this instance** | **CONFIRMED** |
 | 6 | `nC ≥ 3` and `nP < 3` | not adjudicated | **LABEL-COLLAPSE-ONLY** — the records are still at the boundary; the labels are not |
 | 7 | *(else)* | neither confirmed nor unsupported | **INDETERMINATE** |
 
@@ -2221,10 +2337,15 @@ Registered notes on the table, so its edges are not left to be discovered:
   ambiguity is still a decision table with an ambiguity.
 - **Row 5 is a conjunction and §4.6's reading is not** (round 9, finding 2). A
   placement collapse whose labels are at the ceiling reads §4.6's *first* row —
-  the reading that confirms — and still falls through to row 7 if class 3
-  collapsed in arm E. The reading is published beside the row as it always is,
+  the reading that confirms — and still falls through to row 7 if arm E reads
+  LOW on class 3. The reading is published beside the row as it always is,
   and row 7 records **which conjunct refused**, because a gloss saying the
   reading did not confirm would state a rule smaller than the one that ran.
+- **The fifth conjunct reads a §5.1 level and not a §5.2 contrast** (round 10,
+  finding 3). The class-3 condition is a verdict on arm E alone, so it holds
+  arm E to its own coverage whatever arm A did on that class; the round-9
+  contrast form was satisfied vacuously whenever arm A was not HIGH there,
+  which is the case §4.6 registers it to refuse.
 - **Rows 1–3 are gates and produce no R1 verdict of any kind**, in either
   direction. A study that would publish CONFIRMED through a failed control but
   not R1-UNSUPPORTED through one would be a study with a preferred answer.
@@ -2279,14 +2400,48 @@ bounds" and independence "the worst case".** Both claims were wrong:
 independence is neither an upper nor a lower bound on a joint probability, and
 for positively dependent classes — which is what Study 011's corpus suggests,
 since its runs covered all six classes together in every valid run — the true
-joint probability is *higher* than the independence product, not lower. The
-Fréchet lower bound is what an actual worst case looks like, and it is given
-below beside each product so the gap is visible.
+joint probability of a **conjunction** is *higher* than the independence
+product, not lower. **That direction is a property of the conjunctions and not
+of this section, and an earlier form of this sentence claimed it for both kinds
+of rule (round 10, finding 4).** It holds for "all six HIGH", "all four narrow
+HIGH", "all twelve TRACKING" and "all four narrow COLLAPSE". It is **false for
+the five-of-six control gate and for the three-of-four patterns `nP ≥ 3` and
+`nH ≥ 3`**, where dependence makes a *tolerance* harder rather than easier:
+classes that move together fail together, and one nested pair going below HIGH
+spends two of the six at once — the whole of what five-of-six allows. Under the
+containment-respecting companion below, the gate falls from 0.7658 to **0.6702**
+at N = 30 and row 5's coverage-side quantity from 0.7359 to **0.6253**, while
+all six HIGH *rises* from 0.6865 to 0.7782. **The direction is a property of a
+rule at a `q`, not of a rule**: at N = 20, where `q` is 0.7358 and five-of-six
+is in practice a conjunction — only an all-four-group pattern, or one missing a
+one-class group, can reach five — the gate *rises* instead, 0.0557 to 0.1078.
+The falls are at N = 25 and N = 30, which are the two N's [D-1] compares, and
+`nH ≥ 3` falls at all three. The Fréchet lower bound is what an
+actual worst case looks like, and it is given below beside each product so the
+gap is visible.
 
 **Every independence layer used, named:**
 
 1. **across classes within an arm** — the six per-class indicators of one arm
-   are treated as independent. Study 011's corpus contradicts this directly;
+   are treated as independent. Study 011's corpus contradicts this directly,
+   and on two of the six classes it is not contradicted but **unavailable**
+   (round 10, finding 4). §2.3 registers that the classes are **not disjoint**:
+   *class 0 nests in class 1 and class 2 nests in class 3*, as predicates over
+   one record. Correctness is a property of the **record** and not of the class
+   (§4.1 defines `H(r)` per record; §4.2 reads a class through it), so a record
+   that witnesses class 0 in a run witnesses class 1 in that same run and
+   carries the same correctness bit. `Y₀ ≤ Y₁` and `Y₂ ≤ Y₃` slot by slot, on
+   the primary endpoint and on S1 alike. Independence across such a pair would
+   need `P(Y₀ = 1, Y₁ = 0) = p₀(1 − p₁) = 0`, so `p₀ = 0` or `p₁ = 1`: **there
+   are no nondegenerate marginals at which it is available**, and no choice of
+   `p` rescues it. And **two indicators with the same mean, one never exceeding
+   the other, are equal almost surely** — layer 4's sentence, which holds here
+   for the same reason and which this file applied to `H ⊆ raw` for nine rounds
+   without noticing it also applies to `class 0 ⊆ class 1`. At this scenario's
+   equal `0.95` marginals, therefore, each nested pair is a *single* indicator
+   and arms A, B and C have **four** free class indicators, not six. Every
+   figure computed under this layer is published below beside a
+   containment-respecting companion and labelled as the approximation it is;
 2. **across arms** — arm A's, B's, C's and E's class indicators are treated as
    independent of one another. The interleaved schedule and any provider-side
    state (§7) work against it;
@@ -2305,17 +2460,70 @@ Under layers 1–3, at `q = P(HIGH | p)` from the table above:
 | 0.98 | 0.9971 | 0.9885 | 0.9828 | 0.9826 | 0.9492 |
 | 0.95 | 0.9392 | 0.7782 | 0.6865 | 0.6354 | 0.3235 |
 
-The Fréchet column is `max(0, 6q − 5)`: it is what the six marginals alone
-imply, with no dependence assumption at all. At p = 0.95 and N = 30 the honest
-statement is therefore **"between 0.64 and 1.00, and 0.69 under independence"**,
-not "0.69". At N = 25 the same three numbers are **0.2374, 0.4424 and 1.00** —
-the independence figure the earlier draft published as a worst case was nearly
-twice its actual floor.
+**The same three rows with layer 1 repaired**, since the layer as stated is not
+available: each nested pair is one indicator, the four groups `{0,1}`, `{2,3}`,
+`{4}` and `{5}` are independent within an arm and across arms, and layer 3 is
+untouched. This is a **scenario and not a bound** exactly as the table above is
+— the residual independence among the four groups is still an assumption, and
+one coherent coupling in the other direction, the three arms' groups
+comonotone, puts the control gate at 0.8789 rather than 0.6702 at N = 30:
+
+| true p | P(HIGH), one class | P(all **four** narrow HIGH) | P(all **six** HIGH) | sharp Fréchet floor on all six | P(all **twelve** TRACKING, B and C) |
+| --- | --- | --- | --- | --- | --- |
+| 1.00 | 1.0000 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| 0.98 | 0.9971 | 0.9913 | 0.9885 | 0.9884 | 0.9658 |
+| 0.95 | 0.9392 | 0.8285 | 0.7782 | 0.7569 | 0.4713 |
+
+The exponents are the count of *indicators*, not of classes: all six HIGH is
+`q⁴`, all four narrow HIGH is `q³` — classes 0, 1, 2 and 5 are the groups
+`{0,1}`, `{2,3}` and `{5}` — and all twelve TRACKING is `q¹²`, three arms at
+four groups each. **`q⁴ = 0.7782` therefore appears in both tables meaning two
+different things**: the independence reading of all four narrow classes above,
+and the containment-respecting reading of all six here.
+
+**The first table's Fréchet column counts the wrong number of events, and its
+1.00 top is not a top (round 10, finding 4).** `max(0, 6q − 5)` is what *six
+free* marginals imply; six classes are four indicators, so the sharp floor on
+the all-six conjunction is **`max(0, 4q − 3)` = 0.7569** at N = 30 and **0.4916**
+at N = 25, against the 0.6354 the table above prints and the 0.2374 the
+withdrawn N = 25 sentence gave beside it, and the floor on the
+all-four-narrow conjunction is `max(0, 3q − 2)` = **0.8177** and **0.6187**. The
+top is capped by the marginals alone at `min_i q_i = q` — **0.9392** at N = 30
+and **0.8729** at N = 25 — because no conjunction exceeds its smallest
+marginal, whatever the dependence. So the honest statement at p = 0.95 and
+N = 30 is **"between 0.757 and 0.939, and 0.778 under the containment-respecting
+scenario"**, and at N = 25 **"between 0.492 and 0.873, and 0.581"**; the
+withdrawn form read "between 0.64 and 1.00, and 0.69 under independence" and
+both of its ends were loose.
+
+**Cells of the first table lie below their own floors and are attainable by no
+population with these marginals — two of them in the `p = 0.95` row and three in
+the `p = 0.98` row.** At p = 0.95, `q⁶ = 0.6865` sits under
+0.7569 and `q⁴ = 0.7782` under 0.8177 (at N = 25, 0.4424 under 0.4916 and
+0.5806 under 0.6187); in the p = 0.98 row the same two cells, 0.9828 and
+0.9885, sit under 0.9884 and 0.9913, and there the all-twelve cell 0.9492 sits
+under its own `max(0, 12q − 11)` = 0.9653 as well. At p = 0.95 the all-twelve
+cell does **not**: `q¹⁸ = 0.3235` is above its 0.2707 floor. At N = 20 and
+p = 0.95 the floors are 0 and 0.2075 and every cell is feasible. **The model is
+unavailable everywhere; the numbers are impossible only where this paragraph
+says they are**, which is the whole of the claim and more than a reader could
+have got from "these are scenarios". Nothing in §5.3 reads an infeasible cell,
+and they stay printed because §5.4's convention is to keep a superseded figure
+beside its correction rather than to replace it silently.
 
 **P(all twelve TRACKING) is `q¹⁸`, not `q¹²`.** A TRACKING verdict requires
 arm A HIGH on that class as well as the control arm, so all twelve TRACKING is
 eighteen level verdicts, not twelve. `q¹²` at p = 0.95 is 0.4713 at N = 30 and
 0.1957 at N = 25; the correct `q¹⁸` figures are **0.3235** and **0.0866**.
+
+**The companion table's all-twelve cell is `q¹²` again, and it is not that
+`q¹²`.** The earlier draft reached twelve by dropping arm A's six verdicts from
+the eighteen; the companion reaches twelve by collapsing each of the three
+arms' six classes to four indicators, arm A's included. The two agree to every
+digit — 0.4713 at N = 30, 0.1957 at N = 25 — and are different quantities. That
+`18 − 6` and `3 × 4` are both twelve is an accident of these numbers and not a
+shared derivation, and this paragraph exists so a later reader does not read the
+companion as the rejected draft returning.
 
 #### Operating characteristics for the rules this file actually registers
 
@@ -2325,7 +2533,9 @@ rule says three-of-four, `q¹²` where the gate says five-of-six over eighteen
 verdicts — and then reasoned about N from those numbers. Recomputed for the
 registered rules, under the scenario the prediction describes (`p = 0.95` on
 every class of arms A, B and C and on E's classes 3 and 4; `p = 0.05` on arm
-E's four narrow numeric classes), and under independence layers 1–3:
+E's four narrow numeric classes). The first eight rows are under independence
+layers 1–3 as published; the five `under containment` rows below them are the
+same rules with layer 1 repaired on the two nested pairs (round 10, finding 4):
 
 | registered rule | where | N = 20 | **N = 25** | **N = 30** |
 | --- | --- | --- | --- | --- |
@@ -2337,6 +2547,31 @@ E's four narrow numeric classes), and under independence layers 1–3:
 | **CONFIRMED *and* the gate holds — the coverage-side joint quantity** | table row 5 | 0.0364 | 0.3536 | **0.7359** |
 | `nH ≥ 3` when R1 is false and E truly sits at 0.95 — **the marginal pattern alone** | §5.3 (i) | 0.7142 | 0.9187 | **0.9796** |
 | **row 4 reached — `nH ≥ 3` *and* class 4 does not collapse *and* the B/C gate holds: the power to publish R1-UNSUPPORTED** | table row 4 | 0.0398 | 0.3704 | **0.7502** |
+| under containment — `nP ≥ 3`, row 5's coverage pattern | §5.3 (i) | 0.4276 | 0.7188 | **0.8699** |
+| under containment — the B/C control gate | §5.3 (iii) | 0.1078 | 0.4010 | **0.6702** |
+| under containment — the coverage-side CONFIRMED-and-gate quantity | table row 5 | 0.0714 | 0.3408 | **0.6253** |
+| under containment — `nH ≥ 3`, the marginal pattern alone | §5.3 (i) | 0.6845 | 0.8588 | **0.9358** |
+| under containment — row 4 reached, the power to publish R1-UNSUPPORTED | table row 4 | 0.0738 | 0.3444 | **0.6272** |
+
+**The five `under containment` rows are the same five rules under the repaired
+layer 1** (round 10, finding 4), and they are the rows that carry N: every one
+of them is a *tolerance* — five of six, three of four — and at **N = 25 and
+N = 30** every one of them **falls**, by 0.04 to 0.12 at N = 30. At N = 20 four
+of the five rise instead, because at `q = 0.7358` a five-of-six or three-of-four
+tolerance is reached almost only by the pattern that satisfies it entirely, and
+a conjunction is what containment makes *easier*; `nH ≥ 3` falls at all three N.
+The two N's [D-1] compares are the two where the correction costs power. These
+rows are a scenario and not a bound, as
+the rows above them are. The three rules with no companion row here are the two
+conjunctions and the one marginal, which move the other way or not at all:
+`per-class COLLAPSE` is one class's marginal and is **unchanged** at
+0.5415 / 0.7619 / 0.8822, `all four narrow COLLAPSE` rises to
+0.1587 / 0.4424 / **0.6865**, and `all twelve TRACKING` rises to the companion
+table's `q¹²`, 0.0252 / 0.1957 / **0.4713**. That the corrected all-four-narrow
+COLLAPSE figures are digit-for-digit the *independence* all-six HIGH figures is
+arithmetic and not a transcription: under §5.1's cuts `P(LOW | p = 0.05)` and
+`P(HIGH | p = 0.95)` are the same number exactly, so the corrected quantity is
+`(q·l)³ = q⁶`.
 
 The CONFIRMED-and-gate row and the row-4 row are both computed **jointly over
 arm A's six-class pattern** rather than as products of marginals, because the
@@ -2358,7 +2593,15 @@ an identity rather than as an independence — there is no joint freedom left fo
 a separate model to describe. It is not a free assumption. A scenario carrying
 a label tax (§4.6's `a_i − c_i > 0`) separates the two endpoints, and the other
 extreme — arm A's two HIGH patterns independent of one another — turns
-`0.0364 / 0.3536 / 0.7359` into **0.0210 / 0.3057 / 0.7116**. Nor is the
+`0.0364 / 0.3536 / 0.7359` into **0.0210 / 0.3057 / 0.7116**. **That extreme is
+itself unreachable and is printed to bound the premise's materiality, not as a
+candidate model** (round 10, finding 4): `H ⊆ raw` makes the two patterns
+pathwise ordered, and independence between pathwise-ordered indicators is
+available at no nondegenerate marginals — the same sentence that puts layer 1
+beyond reach on the nested class pairs, stated once in layer 1 above and
+applying wherever one registered indicator implies another. What the figure
+shows is how far row 5 can move if the endpoints separate at all, which is the
+only work it is asked to do. Nor is the
 substitution one-sided once the endpoints do separate: for arm A it under-reads
 the S1 HIGH set, because primary HIGH implies S1 HIGH pointwise, while for arm
 E a label tax puts P(E reads S1 LOW) *below* the `P(LOW | p = 0.05)` the
@@ -2382,17 +2625,24 @@ to publish R1-UNSUPPORTED is **0.0397841 at N = 20, 0.3703584 at N = 25 and
 0.7501924 at N = 30** — the marginal times the gate's 0.0557 / 0.4031 / 0.7658,
 the class-4 term being `1 − P(LOW | p = 0.95)` and below 10⁻²³ at every N. The
 table's row-5 figure carries that term **twice** (round 9, finding 2): §5.3's
-row 5 requires class 3 not to collapse as well as class 4, arm E's class 3 sits
-at `p = 0.95` in the scenario above exactly as its class 4 does, so the second
-term has the same shape and the same magnitude and no figure in the table moves.
-Row 4 does not read it: the falsification half is untouched.
+row 5 requires arm E not to read LOW on class 3 as well as class 4 not
+collapsing, arm E's class 3 sits at `p = 0.95` in the scenario above exactly as
+its class 4 does, so the second term has the same magnitude and no figure in the
+table moves. It does **not** have the same shape (round 10, finding 3): the
+class-3 conjunct is a level verdict on arm E, so it enters as `1 − P(E class 3
+LOW)` in *every* arm-A pattern, where the class-4 term is
+`1 − P(A HIGH) · P(E class 4 LOW)` and drops out of the pattern in which arm A
+is not HIGH on class 4. Row 4 reads neither: the falsification half is
+untouched.
 
 **The consequence is registered rather than left to be noticed.** The control
 gate binds R1-UNSUPPORTED exactly as it binds CONFIRMED (0.7502 against 0.7359
-at N = 30): rows 1-3 produce no R1 verdict *in either direction*, and a study
-that could publish one adjudication through a failed control and not the other
-would be a study with a preferred answer. N = 30 is retained on that
-arithmetic, stated honestly, rather than raised.
+at N = 30, and 0.6272 against 0.6253 under containment): rows 1-3 produce no R1
+verdict *in either direction*, and a study that could publish one adjudication
+through a failed control and not the other would be a study with a preferred
+answer. N = 30 is retained on that arithmetic — on **both** readings of it, and
+the corrected one is the reading that counts — stated honestly, rather than
+raised.
 
 **Every CONFIRMED-side figure in this section is a coverage-side quantity**
 (round 4, finding 5, dispositioned): §5.4's model has no label-error term, and
@@ -2401,16 +2651,27 @@ figures are therefore exact for the coverage pattern and upper bounds for the
 confirmatory outcome; the actual probability of CONFIRMED is these numbers
 times an unmodeled P(no accepted arm-E record mislabelled), which this file
 declines to invent a distribution for. The R1-UNSUPPORTED row is not affected:
-row 4 reads coverage alone. Row 5's **fifth** conjunct — class 3 not collapsing
-(round 9, finding 2) — is by contrast *inside* this model, entered as
-`1 − P(A HIGH) · P(E class 3 LOW)` in the class-4 term's own shape; it is
-carried in the arithmetic, it moves no printed figure, and it does not narrow
-the gap between these quantities and the confirmatory one, which remains S5.
+row 4 reads coverage alone. Row 5's **fifth** conjunct — arm E not reading LOW
+on class 3 (round 9, finding 2; restated on arm E's own level round 10,
+finding 3) — is by contrast *inside* this model, entered as
+`1 − P(E class 3 LOW)`, which reads arm E alone and therefore applies in every
+arm-A pattern rather than in the class-4 term's shape; it is carried in the
+arithmetic, it moves no printed figure, and it does not narrow the gap between
+these quantities and the confirmatory one, which remains S5.
 
 `harness/score_rates.py::decision_operating_characteristics()` computes every
-figure in this section with this study's own interval and threshold code, and
-`harness/tests/test_verdict_parity.py` diffs the table above against it row by
-row and pins both sets of numbers.
+independence figure in this section with this study's own interval and threshold
+code, and `harness/score_rates.py::containment_operating_characteristics()` —
+its sibling, not its replacement — computes every `under containment` one from
+the same primitives and the registered `NESTED_CLASS_PAIRS`.
+`harness/tests/test_verdict_parity.py` diffs the tables above against both, row
+by row, pins both sets of numbers, and asserts the infeasibility arithmetic
+(`q⁶ < 4q − 3` and `q⁴ < 3q − 2` at N = 25 and N = 30) and the direction facts
+rather than transcribing them.
+`harness/tests/test_mirror.py` turns §2.3's nesting itself into a computed fact:
+over the 280-cell landmark grid, at **every** arm's registered threshold pair,
+the ordered pairs of classes whose members are contained in one another are
+exactly `{(0,1), (2,3)}`.
 
 Read plainly:
 
@@ -2424,16 +2685,32 @@ Read plainly:
   time, against 0.3536 at N = 25. That is the
   argument that moved [D-1]; it is not the marginal 0.8729 → 0.9392, which is
   the comparison an earlier draft made and which understates the difference
-  because it does not compound.
+  because it does not compound. **Both readings return the same answer, and the
+  answer is registered on the corrected one (round 10, finding 4).** Under
+  containment the gate is **0.4010** at N = 25 against **0.6702** at N = 30, and
+  the coverage-side quantity **0.3408** against **0.6253**: the tolerance rules
+  lose about a tenth at N = 30, so the criterion is applied to a smaller number
+  than the one that moved [D-1] — and it returns the same verdict, because
+  0.4010 still fails more often than it passes and 0.6702 still does not. The
+  0.5 line falls between the two N's on either arithmetic. **N = 30 is retained
+  on arithmetic that a population can produce**, which is what the incoherent
+  layer could not offer.
 - **The baseline is comfortable marginally and less comfortable jointly.** At a
   true p of 0.95 — *inside* 011's own published interval, lower bound 0.9275 —
   arm A reads HIGH on all six classes 68.7% of the time under independence and
-  at least 63.5% by the Fréchet bound. Since §5.2 makes `level(A) = HIGH` a
-  precondition of any COLLAPSE, roughly three runs of this study in ten would
-  find at least one falsifier-relevant class with no contrast verdict
-  available, **from sampling alone, under zero drift** — against roughly
-  *four in ten* at N = 25. §2.1 registers the consequence: such a class is
-  reported as an unresolved baseline, not as drift.
+  at least 63.5% by the Fréchet bound as that bound was printed. Under the
+  containment-respecting reading, which is the coherent one, it is **77.8%**,
+  with a sharp floor of 75.7% and a cap of 93.9%. Since §5.2 makes
+  `level(A) = HIGH` a precondition of any COLLAPSE, **roughly two runs of this
+  study in ten** would find at least one falsifier-relevant class with no
+  contrast verdict available, **from sampling alone, under zero drift** —
+  against roughly *four in ten* at N = 25, where the same quantity is 0.5806.
+  Round 10, finding 4 repaired the pairing as well as the model: the withdrawn
+  form read "three in ten" against "four in ten" and its two halves were
+  different quantities at different N — `1 − q⁶` at N = 30 against `1 − q⁴` at
+  N = 25 — where 0.2218 and 0.4194 are one quantity read twice. §2.1 registers
+  the consequence: such a class is reported as an unresolved baseline, not as
+  drift.
 - **A real collapse is caught.** At a true p of 0.05 the rule says LOW 93.9% of
   the time, and at 0.02, 99.7%. The prediction is that E's numeric classes go
   to roughly zero, and that is the regime the rule resolves.
@@ -2486,9 +2763,14 @@ three hours" for N = 50 omitted them too.
 **[D-1] N = 30 is the proposal**, on the control gate (0.7658 against 0.4031)
 and the coverage-side row-5 quantity (0.7359 against 0.3536 — §5.4's upper
 bound for CONFIRMED; S5 unmodeled), at a 20% larger
-budget and 17 more minutes. **N = 25 is registered as the alternative** with
+budget and 17 more minutes. **Both pairs are carried, and the decision is the
+same on either** (round 10, finding 4): with §2.3's containment respected the
+same two comparisons read **0.6702 against 0.4010** and **0.6253 against
+0.3408**, the registered criterion — "a dependency that usually fails is not a
+control" — condemns 25 and retains 30 on both, and the corrected pair is the one
+a population can produce. **N = 25 is registered as the alternative** with
 its cost attached in full: the control gate fails three times in five under a
-true null in both control arms, the coverage-side CONFIRMED bound lands about one time in
+true null in both control arms on either reading, the coverage-side CONFIRMED bound lands about one time in
 three, and — a second cost, found while constructing §2.8's schedule — **25
 rounds do not tile the ten-sequence Williams block**, so the registered
 carryover-balanced order would have to be reconstructed for 25 and this file
@@ -2511,13 +2793,13 @@ instance of its perturbation type; that is the design's central limitation and
 R1-UNSUPPORTED row does not license its negation.** CONFIRMED means one
 denaming, of one policy family, at one model snapshot, on one day, produced a
 placement collapse on at least three of four narrow classes with arm E's S5
-labels at the ceiling, class 4 not collapsing, class 3 not collapsing, and both
-controls holding — the full [D-10] conjunction, restated whole so no summary of
-it states a smaller rule (round 6, finding 3). It does **not** establish that
-the author derived either threshold: §4.6 registers why `|Q| = 0` is not
-comprehension evidence, the class-3 conjunct excludes a degenerate arm rather
-than establishing comprehension, and §4.5's X6 is descriptive and gates nothing
-(round 9, finding 2). R1-UNSUPPORTED means that collapse did not happen, and is compatible
+labels at the ceiling, class 4 not collapsing, arm E not reading LOW on class 3,
+and both controls holding — the full [D-10] conjunction, restated whole so no
+summary of it states a smaller rule (round 6, finding 3). It does **not**
+establish that the author derived either threshold: §4.6 registers why
+`|Q| = 0` is not comprehension evidence, the class-3 conjunct establishes no
+comprehension either, and §4.5's X6 is descriptive and gates nothing (round 9,
+finding 2; round 10, finding 3). R1-UNSUPPORTED means that collapse did not happen, and is compatible
 with a snapshot that has seen this policy family before (§5.3 (i), §7, §9).
 Neither row is a measurement of "anchoring" as a property of models.
 
@@ -2630,14 +2912,15 @@ assumed; **a synthetic arm whose records cover the new-keyed classes and not the
 old-keyed ones**, so S10's cross-scoring is exercised at a known answer; and the
 §4.3 registered test vectors at n = 25 and n = 50.
 
-**Three fixtures for the one new admission code and the one changed admission
-check**, registered because `arm-mismatch` is the only code this study
-introduces and the arm-specific terminal-prompt gate is the only check it
-changes — and because in this study **five** prompts first meet that gate on a
-real slot, under an interleaved order where an off-by-one in the driver's arm
-sequence would place slots in the wrong tree silently. 011 could note that its one
-registered prompt first met the ported gate on batch slot 1; that consolation
-is not available here. So C4 additionally requires:
+**Further fixtures for the three new admission codes and the one changed
+admission check**, registered because `arm-mismatch`, `schedule-mismatch` and
+`session-reused` are the codes this study introduces (§3.3) and the
+arm-specific terminal-prompt gate is the only check it changes — and because in
+this study **five** prompts first meet that gate on a real slot, under an
+interleaved order where an off-by-one in the driver's arm sequence would place
+slots in the wrong tree silently. 011 could note that its one registered prompt
+first met the ported gate on batch slot 1; that consolation is not available
+here. So C4 additionally requires:
 
 1. **a synthetic slot whose transcript carries arm B's prompt bytes inside arm
    A's tree**, required to score exactly `arm-mismatch` — not
@@ -3042,6 +3325,15 @@ digest chain above, ledger discipline, and re-runnability.
   could recompute the whole of it. There is no external timestamp and no
   transparency log in this study, and the chain is a bound against later
   alteration rather than a proof of contemporaneous recording;
+- **that a midnight crossing was written up.** §2.8's one-UTC-calendar-day
+  property is *computed* and published under `schedule.utcDay` — the date set
+  the retained stamps carry, the undated-slot count and the two flags — so a
+  reader can check the premise this file's §9 bounds and [D-10]'s confirmation
+  sentence rest on, rather than taking "one day" on the document's word. What
+  the flag cannot establish is that the `DEVIATIONS.md` entry §2.8 requires was
+  written: the same operator holds every input, which is this section's
+  standing position on the ledger chain. The publication is the auditable half
+  and the write-up is the operator's;
 - that the retained slots are ALL the invocations that occurred — an off-ledger
   call leaves no slot;
 - that `CALL.json`'s self-reported fields describe the process that ran; only
@@ -3252,10 +3544,15 @@ Beyond that:
   the sha256 of each of the five arm texts as that round reviewed them** and,
   **from round 3 onward, that round's whole-tree manifest digest** (§2.10
   [D-20]). `harness/integrity.py` refuses unless the manifest it recomputes
-  over the frozen tree equals the one the final round recorded, so nothing this
-  study ships can change between the last review and the freeze — not a clause
-  of arm E with Appendix A updated to match, not the scorer, not this file, and
-  not the review record's own digest table;
+  over the frozen tree equals the one the final round recorded, so nothing the
+  manifest covers can change between the last review and the freeze — not a
+  clause of arm E with Appendix A updated to match, not the scorer, not this
+  file. **The review record itself is outside the manifest**, because it
+  carries the attestation (§2.10): what stands in a digest's place there is the
+  cross-check that the freeze pin equal the **last** attestation digest
+  recorded in it, so defeating the binding requires rewriting the review record
+  — forbidden by rule and visible to the reviewer who holds the transcript, not
+  prevented by a digest;
 - the pre-freeze cross-vendor adversarial review of **the complete post-port
   tree**, and the post-run cross-vendor review, both with per-finding
   dispositions, both recorded in `PREREG-REVIEW.md`.
@@ -3288,30 +3585,44 @@ be excluded, and if it exists both halves of that condition fail. The phrase
 "exact interval" in this file always means "exact under that model", never
 "assumption-free".
 
-**The joint figures are scenarios, not bounds.** Every "P(all six)" in this
-file is computed under an explicit independence assumption across classes and
-across arms that Study 011's own corpus contradicts — its runs covered all six
-classes together in every valid run. Independence is not a worst case: for
-positively dependent classes the true joint probability is *higher*. Where a
-worst case is wanted, §5.4 gives the Fréchet lower bound beside each product,
-and the honest form of the headline joint figure at p = 0.95 and N = 30 is
-**"at least 0.6354, and 0.6865 under independence"**.
+**The joint figures are scenarios, not bounds, and the independence one is not
+even available.** Every "P(all six)" in this file was computed under an explicit
+independence assumption across classes and across arms that Study 011's own
+corpus contradicts — its runs covered all six classes together in every valid
+run — and on two of the six classes that assumption is **arithmetically
+unavailable** rather than doubtful: §2.3's class 0 nests in class 1 and class 2
+in class 3, correctness is a property of the record, and two pathwise-ordered
+indicators are independent at no nondegenerate marginals (round 10, finding 4).
+Independence is not a worst case either, and not in one direction: for
+positively dependent classes a **conjunction** reads *higher*, while a
+**tolerance** — the five-of-six control gate, the three-of-four patterns — reads
+*lower* at the two N's this study weighed. §5.4 publishes a
+containment-respecting companion beside every affected figure, with the sharp
+Fréchet floor and the cap the marginals imply, and the honest form of the
+headline joint figure at p = 0.95 and N = 30 is **"at least 0.757, and 0.778
+under the containment-respecting scenario"** — the withdrawn form, "at least
+0.6354, and 0.6865 under independence", named a floor computed for six free
+events and a figure below that floor.
 
 **The baseline is not fully comfortable jointly.** At a true per-class coverage
 of 0.95, inside Study 011's own published interval, arm A reads HIGH on all six
-classes 68.7% of the time under independence. So roughly three runs of this
+classes 77.8% of the time under the containment-respecting scenario (68.7%
+under the independence layer, which understates it). So roughly two runs of this
 study in ten would find at least one falsifier-relevant class with no contrast
-verdict available, from sampling alone and with nothing wrong. That is a bound
+verdict available, from sampling alone and with nothing wrong — four in ten at
+the N = 25 this study nearly registered. That is a bound
 on what this design can return, not a prediction about the model, and §2.1
 registers that such a class is reported as an unresolved baseline rather than
 as drift.
 
 **And the design's own precondition can fail.** §5.3 (iii)'s control gate — B
 and C each TRACKING on five of six classes — passes 76.6% of the time at N = 30
-under the same scenario, so about one run of this study in four returns
+under the independence layer and **67.0%** under the containment-respecting
+companion, which is the coherent reading and the smaller one, so about one run
+of this study in three returns
 `CONTROLS-FAILED` and adjudicates R1 in neither direction, with both control
 arms behaving exactly as predicted. At the N = 25 this study nearly registered
-it would have been three runs in five.
+it would have been three runs in five on either reading.
 
 **An incomplete batch returns nothing.** §2.8's stopping rule is a real cost
 and not a formality: a batch that dies at round 29 for reasons nobody chose
@@ -3405,7 +3716,7 @@ D-24 and re-adjudicated D-1, D-4, D-5, D-7, D-9, D-10, D-13, D-16 and D-18.
 
 | # | decision | proposal | alternative, and what turns on it | opened |
 | --- | --- | --- | --- | --- |
-| **D-1** | N per arm (§2.8, §5.4) | **30** | **25** (the round-1 proposal, re-adjudicated in round 2). The decisive quantity is not the marginal P(HIGH \| p=0.95), which rises only 0.8729 → 0.9392, but the **registered B/C control gate of §5.3 (iii), which passes 0.4031 at N = 25 and 0.7658 at N = 30**, and the coverage-side CONFIRMED quantity (§5.4's upper bound; S5 unmodeled), 0.3536 against 0.7359. This file's own criterion — a dependency that usually fails is not a control — condemns N = 25 on its own numbers. N = 25 also costs the §2.8 schedule: **25 rounds do not tile the ten-sequence Williams block**, so its carryover-balanced order would have to be reconstructed and this file does not carry that construction. 20 is worse again (gate 0.0557). N = 30 costs +25 calls and ~17 minutes. Keep a multiple of 5 for position balance and of 10 for transition balance | draft; re-adjudicated round 2 |
+| **D-1** | N per arm (§2.8, §5.4) | **30** | **25** (the round-1 proposal, re-adjudicated in round 2). The decisive quantity is not the marginal P(HIGH \| p=0.95), which rises only 0.8729 → 0.9392, but the **registered B/C control gate of §5.3 (iii), which passes 0.4031 at N = 25 and 0.7658 at N = 30**, and the coverage-side CONFIRMED quantity (§5.4's upper bound; S5 unmodeled), 0.3536 against 0.7359. Round 10, finding 4: both pairs are read under an independence across classes that §2.3's nesting makes unavailable, and the containment-respecting companion §5.4 now publishes puts the same comparisons at **0.4010 against 0.6702** and 0.3408 against 0.6253 — at these two N a tolerance rule gets harder, not easier, when classes move together. This file's own criterion — a dependency that usually fails is not a control — condemns N = 25 on its own numbers, on either reading. N = 25 also costs the §2.8 schedule: **25 rounds do not tile the ten-sequence Williams block**, so its carryover-balanced order would have to be reconstructed and this file does not carry that construction. 20 is worse again (gate 0.0557). N = 30 costs +25 calls and ~17 minutes. Keep a multiple of 5 for position balance and of 10 for transition balance | draft; re-adjudicated round 2 |
 | **D-2** | The §5.1 level cuts | **`L ≥ 0.70` HIGH, `U ≤ 0.30` LOW** | Study 011's tier cuts 0.80/0.40. At N = 30 the 0.80 cut lands at `k ≥ 29` — one miss in thirty — and at N = 25 it needs a perfect arm, so a single stray miss in a control arm reads INDETERMINATE either way. Interacts with D-1 | draft |
 | **D-3** | Arm E's exact reference wording (§2.5, §4.5 X6, Appendix A) | the Appendix A text **as rewritten in round 1**: one denominator, no pronoun, §2.3's own threshold names — "The **review threshold** is seven tenths of that full range; the **personal-data threshold** is four tenths of that same full range." | any wording that keeps the clause-body digit census empty and the values exactly derivable. The round-1 draft's wording is **not** an option: its pronoun admitted 28 (two fifths of the review threshold), it called `T_low` the "clearance threshold" against §2.3's own key, and its two denominators made one derivation harder than the other. X6 registers the misderivation audit under either wording | draft; rewritten round 1 |
 | **D-4** | Arm B's exact paraphrase (Appendix A) | the Appendix A text **as rewritten in round 2**, plus the clause-by-clause A ↔ B substitution table the review adjudicates row by row. P4 now reads "**40 or more** but **below 70**", so every bound's cue sits on A's side with A's sense | any paraphrase preserving the clause-body digit census, the clause order, the semantics, **and §2.6's inclusivity-adjacency pattern**. The round-1 text is **not** an option: its "from **40** up to but not including 70" put P4's lower cue *before* the literal where A's is *after*, violating the very invariant round 1 added — round 2 found it, and the invariant is kept and the text changed rather than the reverse. Weakening the invariant is the alternative not taken, and it would cost §5.3 (iii)'s dependency its meaning | draft; invariant added round 1; text fixed round 2 |
@@ -3414,7 +3725,7 @@ D-24 and re-adjudicated D-1, D-4, D-5, D-7, D-9, D-10, D-13, D-16 and D-18.
 | **D-7** | The call order within the batch (§2.8) | **the registered first-order carryover-balanced order**: a Williams design for five treatments (ten sequences), three blocks, in the three registered block orders. Each arm holds each position 6 times; each ordered pair is adjacent exactly 6 times within rounds; every ordered pair occurs 7 or 8 times over all 149 transitions | cyclic rotation by round (the round-1 proposal) — balances position perfectly and predecessor not at all: under it **arm E follows D in 20 of 25 calls, C in 5, and A or B never**, so provider-side carryover from arm D's 45/72 prompt could manufacture arm E's predicted collapse. Round 2 found it and §7's claim that such state "could only blur a contrast" is withdrawn with it. Also available: fixed within-round order (confounds arm with position) or blocking by arm (confounds arm with time-of-day drift). Exact balance over 149 transitions is arithmetically impossible; max − min = 1 is the registered achievable | draft; replaced round 2 |
 | **D-8** | Golden recapture and C7, once or per arm (§3.2, §6 C7) | **once for the whole batch**, because both use the arm-independent probe prompt and the pre-prompt context does not depend on the prompt | per arm, which costs 10 extra probe calls and buys nothing this file can name | draft |
 | **D-9** | Who authors the arm texts (§7, §9) | the study team — **three of the five arms as substantive authored prose (B, D, E), which round 2 corrected from two** — with **C10's clean-room re-derivation under pre-assigned readers with every attempt published and a fresh reader after any re-authoring**, cross-vendor adversarial review of the complete post-port tree before the freeze, and the review record bound to that tree by manifest | cross-vendor *authorship* to a registered spec, which weakens the conflict in §9 and adds an uncontrolled authoring step of its own | draft; C10 and the digest binding added round 1; extent corrected and C10 hardened round 2 |
-| **D-10** | The E decision patterns (§5.3 i) | **CONFIRMED iff PLACEMENT-COLLAPSE (S1) on ≥ 3 of the 4 narrow numeric classes, *and* arm E's S5 labels are at the ceiling (§4.6), *and* the B/C control gate holds, *and* class 4 does not collapse, *and* class 3 does not collapse (round 9, finding 2 — it excludes an arm E whose accepted records carry no threshold information; it establishes no comprehension, and §4.6 registers that no conjunct here could); R1-UNSUPPORTED iff E reads HIGH on the primary on ≥ 3 of 4; LABEL-COLLAPSE-ONLY iff COLLAPSE on ≥ 3 without placement collapse on ≥ 3; every other pattern INDETERMINATE**, all-MID explicitly included, with §5.3's ordered decision table making the whole rule total | ≥ 2 of 4 (more easily decided in both directions) or all 4 (harder in both); and confirmation on the *primary* rather than on S1 placement — the round-1 form, which round 2 found reads the wrong mechanism: because `H ⊆ raw`, an arm E that still places records on 40 and 70 but mislabels them loses H-coverage entirely and would have read CONFIRMED while the hugging R1 predicts would vanish was still there. The round-1 draft registered only the falsification half, which let a motivated analyst call 2 COLLAPSE + 2 MID a confirmation afterwards | draft; confirmation half added round 1; mechanism and totality fixed round 2 |
+| **D-10** | The E decision patterns (§5.3 i) | **CONFIRMED iff PLACEMENT-COLLAPSE (S1) on ≥ 3 of the 4 narrow numeric classes, *and* arm E's S5 labels are at the ceiling (§4.6), *and* the B/C control gate holds, *and* class 4 does not collapse, *and* arm E does not read LOW on class 3 (round 9, finding 2, stated on arm E's own level rather than on a contrast against arm A in round 10, finding 3 — a contrast is INDETERMINATE whenever arm A is not HIGH on the class, so the round-9 form passed vacuously for the very arm it was added to refuse; it establishes no comprehension, and §4.6 registers that no conjunct here could); R1-UNSUPPORTED iff E reads HIGH on the primary on ≥ 3 of 4; LABEL-COLLAPSE-ONLY iff COLLAPSE on ≥ 3 without placement collapse on ≥ 3; every other pattern INDETERMINATE**, all-MID explicitly included, with §5.3's ordered decision table making the whole rule total | ≥ 2 of 4 (more easily decided in both directions) or all 4 (harder in both); and confirmation on the *primary* rather than on S1 placement — the round-1 form, which round 2 found reads the wrong mechanism: because `H ⊆ raw`, an arm E that still places records on 40 and 70 but mislabels them loses H-coverage entirely and would have read CONFIRMED while the hugging R1 predicts would vanish was still there. The round-1 draft registered only the falsification half, which let a motivated analyst call 2 COLLAPSE + 2 MID a confirmation afterwards | draft; confirmation half added round 1; mechanism and totality fixed round 2 |
 | **D-11** | Which classes the collapse prediction covers (§2.3, §5.3) | **0, 1, 2, 5 only**; classes 3 and 4 predicted TRACKING everywhere | include class 3, which a diffuse author covers by accident across a 30-wide band (27-wide in arm D) and which would therefore flatter the prediction | draft |
 | **D-12** | S10 old-edge cross-scoring status (§4.6, §5.3 ii) | **registered secondary with its own registered predicted pattern** | promote to primary (it is the sharper measure of the rename claim) or drop it (it is the only registered probe on contamination) | draft |
 | **D-13** | Unequal valid counts across arms (§2.8, §4.2) | **no truncation**; the primary endpoint's denominator is N for every arm (intent-to-treat), and the per-protocol secondary S11 uses each arm's own `V_X` with a caution if two arms differ by more than 2 | truncate every arm to the common minimum, at the cost of discarding admitted runs. Round 2's move of the primary to N makes this decision smaller than it was: unequal denominators now affect only the secondary | draft; scope narrowed round 2 |
@@ -3423,7 +3734,7 @@ D-24 and re-adjudicated D-1, D-4, D-5, D-7, D-9, D-10, D-13, D-16 and D-18.
 | **D-16** | The preamble's study reference (§2.1, §2.5, §2.6, §5.3 i) | **replace `Study 010` with `this study` in all five arms**, as the registered `PREAMBLE_DELTA` at its single occurrence in 010's locked bytes, with the assembled preamble pinned by its own sha256. This removes the one textual hook by which any arm points at a public text stating 40 and 70 | **keep the preamble byte-identical to 010's** (the round-1 proposal) and register the recall channel it leaves open. Round 2's finding: with the name in place, an arm E that maintained coverage was being labelled an unconditional falsification of R1 while the text handed the author a pointer to the answer — recall does not falsify a causal proposition about denaming. The adopted option costs **a second registered delta from 010's locked text**, on top of D-15's, and it buys strictly less than it appears to: it removes the *pointer*, not residual memorization of a corpus public since 2026-08-06, which is why §5.3 (i) publishes maintained coverage as **contamination-compatible** rather than as a clean falsification | round 1; adopted round 2 |
 | **D-17** | The contrast rule (§5.2) | **the level-gated rule, plus COLLAPSE-DISJOINT (`U_X < L_A`) reported beside it and never substituted for it**, and the same level-gated rule computed on S1 as the **PLACEMENT contrast**. All computable from the same integers; none needs a distribution for a difference of proportions, so the estimation-first posture is preserved | **the level-gated rule alone**, accepting that a class where E reads LOW and A reads MID is published as INDETERMINATE despite widely disjoint intervals in the predicted direction. Round 1's finding: the contrast rule is the study's second-most consequential registered choice after the level cuts, and the draft registered thirteen decisions without it | round 1; placement contrast added round 2 |
 | **D-18** | Arm D's threshold pair (§2.4, §5.3 ii, §9) | **(45, 72)** — no single **additive shift** explains it, which is the confound this pair was chosen to exclude. Round 2 corrected the claim's wording: unequal moves exclude a translation, **not** an affine map (`0.9x + 9` sends 40 → 45 and 70 → 72), and the wider claim is withdrawn | **(50, 80)** — salience-matched (both decade-round, as 40 and 70 are) and width-preserving (class 3 stays 30 wide, where (45, 72) narrows it to 27), at the cost of being exactly a +10 additive shift of (40, 70). The two candidates trade one confound against the other and the review picks which one this study would rather not be able to rule out. Under either, §5.3 (ii)'s second outcome is published as **OLD-EDGE-PREFERENCE** with contamination *and* round-number salience as two explanations this study cannot separate, and the third — new-keyed LOW *and* old-keyed LOW, a general degradation — stays registered | round 1; terminology and outcome name fixed round 2 |
-| **D-19** | How drift is classified (§2.1) | **numeric: arm A is DRIFT-SUSPECTED iff it reads below HIGH on four or more of its six classes, or LOW on any one.** Everything else, including three classes below HIGH, is an unresolved baseline on those classes and nothing more | **remove the drift classification entirely** and report only unresolved baselines, which costs the study its one registered way of naming a baseline that has plainly moved. The round-1 wording — "several classes at once, or a class far below the cut" — is **not** an option: it is an unregistered rule wearing a registered one's clothes, since "several" and "far below" are the analyst's to set after the data. Round 2's finding. Under the registered scenario the numeric rule fires by sampling alone with probability 0.0002 at N = 30 | round 2 |
+| **D-19** | How drift is classified (§2.1) | **numeric: arm A is DRIFT-SUSPECTED iff it reads below HIGH on four or more of its six classes, or LOW on any one.** Everything else, including three classes below HIGH, is an unresolved baseline on those classes and nothing more | **remove the drift classification entirely** and report only unresolved baselines, which costs the study its one registered way of naming a baseline that has plainly moved. The round-1 wording — "several classes at once, or a class far below the cut" — is **not** an option: it is an unregistered rule wearing a registered one's clothes, since "several" and "far below" are the analyst's to set after the data. Round 2's finding. Under the registered scenario the numeric rule fires by sampling alone with probability 0.0002 at N = 30 — **0.0041 under the containment-respecting companion** (round 10, finding 4), the larger figure and the one §2.1 quotes, because a nested pair below HIGH puts two of the six classes below HIGH at once | round 2 |
 | **D-20** | Review-to-freeze binding and the port ordering (§2.2, §2.10, §7, §8) | **the final cross-vendor round reviews the complete post-port candidate tree and attests an exact commit and tree manifest**; the manifest digest is pinned and recomputed at the freeze; any byte change requires a new round; the port therefore happens **before** the final review, not after it | **an externally signed attestation** — the reviewer signing the manifest digest with a key this repository does not hold — which is strictly stronger and is not available in this environment. The round-1 binding is **not** an option: it covered only the five arm texts and was self-authenticating, since `PREREG-REVIEW.md`, Appendix A, the policies and `PINS.json` could all move together in one commit and every specified equality would still pass. Cost of the adopted option: the final round is a much larger review, and any finding that changes a byte repeats both the port and the round | round 2 |
 | **D-21** | What an incomplete batch may return (§2.8, §7, §9) | **nothing: descriptive-only, every verdict `UNRESOLVED-BY-DESIGN`, no contrast, at any round, for any reason** | **verdicts above a floor** — the round-1 rule, no verdict below eleven valid runs plus a recorded wall clock. Round 2's finding: a floor does not remove optional stopping, it relocates it to round 11, and an operator holding a directional prediction can read arm E in process (§7) and stop when the picture is favourable. A timestamp is not a pre-commitment. Cost of the adopted option, paid in advance: a batch that dies at round 29 for reasons nobody chose publishes a full descriptive surface and no conclusion | round 2 |
 | **D-22** | How a crashed batch resumes (§2.8, §6 C5) | **by global schedule index**: `--resume` continues at the ledger's next index after verifying the recorded prefix against §2.8's registered order, slot for slot | `--start-round K`, the round-1 form, which is **not** an option: it cannot resume a partly completed round without either overlapping recorded slots or silently omitting the rest of that round, and a round number alone makes neither detectable afterwards | round 2 |
@@ -3441,8 +3752,12 @@ below, so this appendix cannot drift from the artifact after the freeze — the
 same registered-illustration discipline Study 011 applied to its own prose.
 **That check alone is not enough**, because a clause and its illustration can
 move together between the last review round and the freeze and still satisfy
-it; what closes that is §8's and §10's binding of `PREREG-REVIEW.md`'s
-per-round arm digests to the frozen bytes.
+it; what closes that is §2.10's whole-tree manifest, which covers this file and
+`arms/` in the same digest, so a co-moving edit moves the manifest and the
+freeze refuses. `PREREG-REVIEW.md`'s per-round arm digests are the record of
+what each round read, not a check — no code reads them — and the residual §2.10
+registers is a rewritten review record, forbidden by rule rather than prevented
+by a digest.
 
 **The preamble, byte-identical in all five arms** — inherited from Study 010
 with the registered `PREAMBLE_DELTA` **[D-16]** applied, so that no arm hands

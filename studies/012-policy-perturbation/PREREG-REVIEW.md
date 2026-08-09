@@ -7,7 +7,7 @@ verbatim where one exists, every finding faithfully summarized, and what was
 done about each one. Nothing is discarded. It follows Study 011's per-round,
 per-finding disposition format.
 
-**Status: OPEN. Nine rounds complete, rounds 2 through 9 cross-vendor. Nothing
+**Status: OPEN. Ten rounds complete, rounds 2 through 10 cross-vendor. Nothing
 is frozen and nothing has run.** (This line said "two rounds" through round 9,
 having been written in round 2 and never advanced; a status line that stops
 tracking its own subject is the defect this file exists to catch, so it is
@@ -20,9 +20,13 @@ digests, then the freeze — but between the last review round and the freeze a
 clause of arm E could change with Appendix A updated to match, and the
 registered-illustration check (Appendix A bytes == `POLICY.md` bytes) would
 pass either way, because both would have moved together. So **every round below
-records the sha256 of each of the five arm texts as that round reviewed them**,
-and `harness/integrity.py` refuses unless each frozen `arms/<X>/POLICY.md`
-digest equals the digest recorded in the **final** round.
+records the sha256 of each of the five arm texts as that round reviewed them**.
+Round 2 superseded that binding (next paragraph) and no code reads these tables:
+they stay as the record of the bytes each round read. What `harness/integrity.py`
+enforces is the whole-tree manifest; the frozen arm digests answer to
+`harness/PINS.json` through `integrity.verify_arms()`, not to this file, and the
+one line of this file the code does read is the **last** tree-manifest
+attestation, which the freeze pin must equal.
 
 **Round 2 found that binding insufficient, and it was right.** It covered only
 the five policy texts, and it was *self-authenticating*: this file, Appendix A,
@@ -1624,6 +1628,306 @@ Unchanged since round 2, and unchanged by every disposition above — no
 disposition in this round touches a file under `arms/`:
 
 | arm | bytes | sha256 of the arm text as reviewed in round 9 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+## Round 10 — the seventh post-disposition review
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-09; drafting as recorded in rounds 1-9
+- Reviewed commit: `14725fb`
+- Tree manifest, the reviewer's computation:
+  `4c677eba037a75bae242c42ceb4d5ed57363ccbefd55d42a99773e4e79f339df` — 85
+  entries, identical to the maintainer's own computation recorded in round 9's
+  dispositions
+- Runs: one review run, completed; no run discarded, and no classifier refusal
+  (the one refusal signature in the transcript is the reviewer *reading* round
+  9's discarded-run record). Run as round 9's second commissioning was, with
+  the same deviation recorded there
+- Reviewer's verification first: integrity exit 0; 253 passed in 275.47s;
+  worktree clean. **Round 9's dispositions 4, 5, 7, 8, 10 and 12 fully
+  implemented**; 9's central implementation present; 11's artifact and prose
+  correction right but its named test weaker than claimed. Independent
+  re-derivations all matched: artifact assembly, all twenty arm hashes, digit
+  censuses, arm-C enumeration, the 280-cell grids, the five schedule balances,
+  interval vectors, cuts and table encodings, `CLAIM.md` against its Study 011
+  source, and all five retained C10 attempts
+
+### Prompt (verbatim)
+
+```
+You are performing a verification review — round 10 — of Study 012, a preregistered research study in a repository we own and maintain. This is documentation-and-code auditing of our own work before we freeze it and run it. Prior rounds' records, findings and maintainer dispositions are in `PREREG-REVIEW.md` in the study directory.
+
+Repository root: <worktree root>
+Study directory: <worktree root>/studies/012-policy-perturbation
+Reviewed commit: 14725fb on branch study-012-perturbation
+
+## How to work
+
+Read the files and reason about them. Run the study's own test suite and its own verification command. You may write small scratch scripts **outside** the repository (under your working directory) to recompute a digest, re-derive a table, or check arithmetic independently.
+
+**Do not write, generate, or run code that imitates hostile software** — no files designed to defeat a check, no code that hides its own presence, no simulated attacker tooling. If you judge that a check is incomplete, **say so in prose**: name the file and line, state what the check currently establishes, state what it does not, and state what a complete check would have to do. A described gap is the deliverable; a working demonstration of one is not, and is out of scope for this review.
+
+Environment notes: modify no tracked file in the repository. Run the suite with the pinned interpreter `~/.pyenv/versions/3.12.11/bin/python3`, with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider` so no cache is written into the tree.
+
+## Scope, in order
+
+**1. Verify round 9's twelve dispositions.** `PREREG-REVIEW.md`'s round-9 section lists twelve findings and, beneath them, the maintainer's dispositions. For each: is the disposition genuinely implemented in the bytes at this commit? Report any that is partial, mis-implemented, or implemented only in prose.
+
+Round 9's blocking finding 2 was answered in two halves, and both are yours to judge:
+
+- **The weakening.** §4.6's two reading cells no longer name a mental state, a new registered paragraph states what `|Q| = 0` establishes and what it does not, and §5.3 and §5.5 follow. Does the registration now claim only what its rules see? Is there any remaining sentence — in `PREREGISTRATION.md`, `README.md`, `harness/score_rates.py`'s docstrings, or `CLAIM.md` — that still reads the ceiling as comprehension evidence?
+- **The strengthening.** [D-10] gained a fifth conjunct: arm E must not read COLLAPSE on class 3. The registered argument is that class 3 is the only class whose members are scored *between* the thresholds, so it cannot be covered by a record the mirror decides before it reads `riskScore`; the conjunct is registered as excluding a degenerate case and explicitly **not** as establishing comprehension, on the ground that no conjunct available to this design could. Judge both claims. Is the class-3 argument sound on the family's own predicates? Is the impossibility argument sound, or is there a conjunct this design could carry that would establish more? Is the conjunct's own registered weakness stated fully enough?
+
+Two further dispositions took a position the maintainer flagged for your judgment:
+
+- **Finding 3.** The C7 gate admits all three registered outcomes — `refused`, `matched` and `no-context` — rather than only a "completed" one, because §6 C7 registers `no-context` as reported-but-undemonstrated and the control refuses to rewrite an existing record. Is that reading of §6 C7 right, and does the implemented gate refuse everything it should?
+- **Finding 6.** The wrapper now anchors the slot to this study's own `arms/<ARM>/authoring/run-NNN` rather than to a four-component suffix, and the harness tests reach it through a stand-in study rather than by weakening the wrapper. §2.7 still registers exactly three permitted differences. Does the implemented form add a fourth, and does the anchor hold for the commands the README's procedure actually runs?
+
+**2. The registered content — a fresh sweep.** Round 9's first duty was the study rather than the harness, and it found its blocking result there. Keep that priority.
+
+- `PREREGISTRATION.md` in full. It is the registration; everything else answers to it. Round 9's dispositions edited §2.4, §2.6, §2.8, §2.10, §4.6, §5.3, §5.4, §5.5, §6 C7/C8/C9/C10, §7 and §10 — read the amended sections against what they now govern, and read the untouched ones as if for the first time.
+- §2.3's six semantic classes, §2.4's arm-D substitution and 280-cell landmark grid, §2.6's document structure and the prompt equation, Appendix A's assembly rule against the twenty committed arm artifacts. Re-derive at least two of these independently (a digit census, arm C's permutation by enumeration, the HEADER byte arithmetic).
+- §2.8's schedule and its five balance properties; §3.3's partition; §4's endpoints and the §4.3 interval vectors; §5's level, contrast and decision tables against `harness/score_rates.py`'s encodings; §6's controls C1-C10 against `harness/integrity.py` and the test suite.
+- `CLAIM.md` against its cited source in `studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md`; `MIRROR-AGREEMENT.md` against the retained attempts under `analysis/mirror2-attempts/`.
+- Ask the question no checklist covers: **is there a registered sentence that no code makes true, a control that cannot fail, a test that asserts less than it appears to, or a claim in the records that the artifacts do not support?**
+
+**3. The forty-five new tests.** Round 9's dispositions grew the suite from 208 to 253. New coverage is where a study is most likely to assert more than it checks. Read the added tests — `EntryFileOrdering` in `test_batch.py`, the C7 gate tests, the prefix-0-through-5 scoring tests, all of `test_manifest.py`, the `FAMILY.json` member tests in `test_controls.py`, the landmark straddle test in `test_mirror.py`, and the new §5.4 lints and table diffs in `test_verdict_parity.py` — and ask of each: would it fail if the thing it names stopped being true? Name any that would not.
+
+**4. Run the suite and the verification command**, and report both results.
+
+**5. Compute the tree manifest yourself**, as §2.10 registers it: over every git-tracked regular file under the study directory, excluding the paths in `harness/PINS.json` `freeze.excluded` and the two carriers (`harness/PINS.json`, `PREREG-REVIEW.md`), build the sorted list of lines `<path> <bytes> <sha256>` with paths relative to the study directory; then append the registry's normalized-projection entry — `PINS.json` parsed, `freeze.treeManifestSha256`, `freeze.preregistrationSha256`, `golden.sha256` and `isolationNegative.assent` set to null, serialized with `json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":"))` plus a newline, hashed and listed as `harness/PINS.json#normalized <bytes> <sha256>` — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Confirm `integrity.tree_manifest()` implements the same recipe, including its amended exact-path-versus-tree exclusion rule.
+
+## Final message
+
+A numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — then:
+
+- an overall verdict line;
+- the line `Reviewed commit: 14725fb`;
+- the line `Tree manifest (my computation): <hex digest>`;
+- then the single line `CODEX-012-R10-DONE`.
+
+If you find nothing blocking, say so plainly — a clean verdict is a real outcome and this study is ready to be frozen when it earns one.
+```
+
+### Complete unedited final message
+
+(The reviewer's own `## Findings` heading is demoted to keep this record's
+section structure; no other byte of the message is altered, and the absolute
+paths its markdown links carried are rendered as the `file:line` anchors they
+point at.)
+
+#### Findings
+
+1. **Round-9 disposition 1 remains incomplete. Severity: blocking.** The disposition says the untracked-source tripwire precedes the first study-local import (PREREG-REVIEW.md:1474). In fact, batch.py:194, score_rates.py:309, and integrity.py:63 import standard-library names before their scans. Path invocation puts `harness/` on Python’s import path, so an adjacent untracked source colliding with one of those names can load before the check. The check establishes that ordinary untracked sources are rejected once reached; it does not establish that nothing adjacent loaded first. `EntryFileOrdering` plants only a generic `planted.py`, and its AST checks cover `ast.Import`, not `ImportFrom` (test_batch.py:1932). A complete closure needs `-P`/`PYTHONSAFEPATH` in the registered commands or an external pre-import bootstrap.
+
+2. **Round-9 disposition 2’s weakening still overclaims. Severity: blocking.** The amended table says S1 LOW means “none was placed at the boundary” (PREREGISTRATION.md:1828); score_rates.py:612 publishes the same statement. But LOW permits `k≤3` at N=30 (PREREGISTRATION.md:1913), so one to three slots may contain boundary records. The LOW-plus-degraded branch also remains categorically published as “comprehension collapse,” although the later disclaimer says it names only an available explanation. The new lint rejects only two former phrases and explicitly accepts that label (test_verdict_parity.py:423). Positively, I found no remaining sentence in the requested four files treating the ceiling itself as comprehension evidence; §5.3 and §5.5 correctly disclaim that inference.
+
+3. **Round-9 disposition 2’s strengthening does not reliably exclude the degenerate arm it names. Severity: blocking.** The record says E not reading COLLAPSE on class 3 excludes an arm containing only sanctions/embargo cases (PREREGISTRATION.md:1841). The code checks only that the class-3 contrast is not `COLLAPSE`. If A is not HIGH on class 3, that contrast is unavailable/indeterminate and the conjunct passes vacuously; A may still be HIGH on the other five classes, the B/C gate may pass, and an E with clean embargo records and no numeric coverage can reach row 5. The operating-characteristic code explicitly models the missing-class-3 case this way (score_rates.py:1091). The record admits vacuity at PREREGISTRATION.md:1851, but does not acknowledge that vacuity defeats the claimed exclusion.
+
+   The supporting argument is also unsound: class 2 nests inside class 3 and is likewise between the thresholds (PREREGISTRATION.md:347); a non-personal class-3 record may exercise only the high comparison. Finally, “no conjunct available” is too broad: LOW permits up to three covering slots, so the design could require actual correctly labelled straddles around both thresholds while remaining LOW. Such evidence would establish threshold-sensitive behavior, though still not an internal mental state or freedom from memorization.
+
+4. **§5.4’s joint operating-characteristic model is logically incompatible with the registered classes. Severity: blocking.** The registration states `0` nests in `1` and `2` nests in `3` (PREREGISTRATION.md:369), but then assigns equal nondegenerate `p=.95` to all A/B/C classes and treats the six indicators as independent (PREREGISTRATION.md:2286, score_rates.py:1001). Containment plus equal marginals forces each nested pair’s indicators to be equal almost surely, so the independence scenario cannot arise from these endpoints. Consequently `q⁶`, `q¹⁸`, 0.7658 gate power, and 0.7359 row-5 coverage do not describe a possible study population, yet those quantities justify N at PREREGISTRATION.md:2417. Round-9 disposition 9’s printed “independent primary/S1” alternative is similarly impossible because primary HIGH implies S1 HIGH. The new tests reproduce the algebra but never test model coherence (test_verdict_parity.py:971). The joint model and N justification need recomputation under a distribution respecting deterministic containment, or valid dependence bounds.
+
+5. **The C7 outcome interpretation is right, but the implemented gate validates only a truncated marker. Severity: should-fix.** The amended C7 expressly permits `refused`, `matched`, and `no-context`; admitting all three is therefore correct, including reporting `no-context` as undemonstrated (PREREGISTRATION.md:2715). However, batch.py:837 and score_rates.py:2825 require only an object, registered outcome, matching assent, and matching golden digest. They do not validate the writer-produced members, stripped `CALL.json`, deletion evidence, or context presence consistent with outcome (batch.py:2083). The C7 damage tests mirror that smaller schema (test_batch.py:1129); the scorer test merely expects some `ScoreError` while several earlier preconditions are null (test_admission.py:1969). Also, the `no-context` writer says “neither registered outcome occurred,” although `no-context` is itself registered.
+
+6. **The wrapper anchor works for the README procedure, but disposition 6 is still partial. Severity: should-fix.** The exact lexical anchor to this study’s `arms/<ARM>/authoring/run-NNN` is implemented and is naturally part of §2.7 difference 1; the README’s batch command supplies that canonical path. Nevertheless, the wrapper now also adds a new explicit `git rev-parse` failure behavior at authoring_call.sh:88, which is a fourth behavioral difference from Study 011 not among §2.7’s exact three (PREREGISTRATION.md:841).
+
+   In addition, the physical-anchor guard calls `mkdir -p` before resolving the anchor (authoring_call.sh:257). A replaced earlier component can therefore cause missing descendants to be created outside the physical study before refusal, contrary to PORTS.md:155. The new test uses an already-existing target at the final `authoring` component and cannot see that earlier-component write gap (test_batch.py:669).
+
+7. **S10 is registered as a placement measure but implemented as correctly-labelled coverage. Severity: should-fix.** S10 says “Every arm’s records,” “class membership only,” and asks where records land in the baseline coordinate system (PREREGISTRATION.md:1796). The scorer intersects the old-edge predicates only with `high`, excluding Q (score_rates.py:2621). Thus D records placed at 40/70 but labelled according to remembered old thresholds can be invisible to `OLD-EDGE-PREFERENCE`. Add a raw old-edge endpoint for the placement claim, or narrow the registration and outcome language to correctly-labelled old-edge coverage.
+
+8. **S5’s empty-denominator case contradicts the registered iff and can emit a false sentence. Severity: should-fix.** The registration defines “at the ceiling iff `|Q|=0`” (PREREGISTRATION.md:1820). score_rates.py:1206 adds a nonempty-denominator condition and classifies `H=Q=0` as degraded. `reading_verdict()` can then publish “at least one accepted record was mislabelled” when there were none. Register and implement an undefined/no-accepted-records branch, or explicitly define the ceiling as `H+Q>0 and Q=0`.
+
+9. **The one-UTC-calendar-day rule is not operationalized. Severity: should-fix.** The registration requires all 150 slots to begin and finish on one UTC date and makes crossing midnight a deviation (PREREGISTRATION.md:967). No scorer or batch check compares retained timestamps’ UTC dates, and the README run procedure gives no explicit manual check. The scorer should at least publish the observed date set/deviation flag, or the procedure must require and verify the manual review.
+
+10. **The manifest implementation is correct, but §8 and Appendix A still overstate what it binds. Severity: should-fix.** Section 2.10 correctly says `PREREG-REVIEW.md` is excluded and its honesty remains external (PREREGISTRATION.md:1165). Yet §8 says `integrity.py` prevents even “the review record’s own digest table” from changing (PREREGISTRATION.md:3250), and Appendix A credits per-round arm digests with closing co-moving edits (PREREGISTRATION.md:3437). The code excludes that carrier and checks only the last attestation digest (integrity.py:1003, integrity.py:1092). Those two passages should adopt §2.10’s narrower, accurate residual.
+
+11. **The new landmark-straddle test can pass after the family stops straddling the 40 edge. Severity: should-fix.** test_mirror.py:137 combines the mirror verdict and family-class tuple, and accepts a change in either as proof that the family predicates changed. At 40, the mirror alone can supply the difference; the later explicit family assertions omit that edge. Compare family-class columns separately for every named edge. The current committed family does straddle correctly; this is a test-coverage defect.
+
+12. **The prefix-0-through-5 test does not exercise publication despite its name. Severity: nit.** test_admission.py:2153 thoroughly checks `score()`’s in-memory descriptive result and rendered headline, but never invokes `score_registered()` or `_write_outputs()`. It would remain green if incomplete-prefix `RESULTS.json`/`RATES.md`/`CENSUS.md` publication failed. The underlying prefix-scoring disposition itself is implemented.
+
+13. **Several status/control sentences are stale. Severity: nit.** PREREGISTRATION.md:15 says the harness does not yet exist; README.md:12 says eight rounds are recorded although round 9 is present; and C4 says `arm-mismatch` is the only new admission code (PREREGISTRATION.md:2633), whereas §3.3 correctly registers three new codes.
+
+Round-9 dispositions 4, 5, 7, 8, 10, and 12 are fully implemented. The central implementation in 9 is present, but its added alternative is impossible; disposition 11’s artifact/prose correction is right but its named test is weaker than claimed.
+
+Verification results:
+
+- Pinned suite: `253 passed, 6 subtests passed`, 49,268 deprecation warnings, exit 0 in 275.47 seconds.
+- Pinned `harness/integrity.py`: exit 0; 11 ported files, five correct threshold pairs, HEADER 948 bytes, all five clean-room mirrors, and expected pre-freeze “tree manifest unbound.”
+- Independent artifact assembly, all twenty arm hashes, digit censuses, arm-C enumeration, 280-cell grids, five schedule balances, interval vectors, cuts, and table encodings otherwise matched.
+- `CLAIM.md` matches its cited Study-011 source; all five retained C10 attempts, extracted mirrors, prompt equations, and 280-cell agreements match their record.
+- My manifest contained 85 sorted entries including the 6,653-byte normalized registry projection. Its digest matches `integrity.tree_manifest()`, whose amended exact-file versus trailing-slash-tree exclusion rule implements the registered recipe.
+- Reviewed commit/branch were correct and the worktree remained clean.
+
+Overall verdict: BLOCKING — Study 012 is not freeze-ready; round-9 dispositions 1 and 2 remain materially incomplete, and §5.4’s sample-size rationale uses an impossible joint model.
+
+Reviewed commit: 14725fb
+
+Tree manifest (my computation): 4c677eba037a75bae242c42ceb4d5ed57363ccbefd55d42a99773e4e79f339df
+
+CODEX-012-R10-DONE
+
+### Dispositions
+
+All thirteen findings **ACCEPTED**. Three were verified as only partly right and
+are dispositioned on corrected grounds. As in round 9, every finding was
+independently re-verified against the bytes at `14725fb` before a disposition
+was written — each claim checked, each anchor confirmed or corrected, each
+proposed remedy priced. That verification refuted one of the reviewer's
+prescriptions outright and sharpened three others, and it found two places where
+**round 9's own record overclaimed**. Those are corrected here rather than
+quietly narrowed.
+
+**Finding 3 is the round's most serious result, and it is a defect in round 9's
+own work.** The fifth [D-10] conjunct was written as a *contrast* — arm A versus
+arm E on class 3 — and a contrast does not exist when arm A is not HIGH there.
+So the conjunct passes **vacuously** in exactly the case it was added to catch.
+Demonstrated end to end with the scorer's own API on the real arms: an arm E
+that covered class 3 in **zero** of thirty runs published row 5 CONFIRMED, under
+a `why` string asserting "arm E does not read COLLAPSE on class 3". §5.4's own
+scenario puts 3.16% of row-5 mass at N = 30 through that door, and no test could
+see it because every decision fixture leaves unnamed arms perfect. Round 9's
+record stated the exclusion **unconditionally in five places** and named the
+vacuity six lines later without ever noticing the two are the same case — a
+self-contradicting record, not an incomplete one. The conjunct now reads arm E's
+**own level**: `arm E does not read LOW on class 3`. It is uniformly at least as
+strong, strictly stronger exactly in the vacuity case, and **moves no published
+figure at all** — row 5 stays 0.0364 / 0.3536 / 0.7359 to full double precision,
+so `REGISTERED_JOINT_ROW5` and the §5.4 lint stand untouched. The registered
+weakness sentence — "a class 3 covered in as few as four of thirty runs
+satisfies it" — was already written as an arm-E level; the contrast form was the
+implementation slip, and the code now says what the registration always said.
+Two further round-9 claims go with it. The uniqueness claim ("the one class
+whose members are scored between the two thresholds") is **false** — class 2
+nests strictly inside class 3 — and the true reason class 3 is the only
+*available* class is that 0, 1, 2 and 5 are the four the prediction says will
+collapse and class 4 has no numeric content. And the impossibility argument is
+narrowed: correct labels bound the threshold pair to an interval and never to a
+point, but the reviewer is right that a **straddle** conjunct is satisfiable by
+the arm R1 predicts, so "no conjunct available" was too broad. The straddle is
+**conceded as logic and declined as a fix**, with the reason registered: it
+needs a straddle *width* this file never registered (a straddle of two or more
+evades all four one-wide bands), it has no §5.4 model, and it would make a §5
+decision read record-level values §4.5 registers as gating nothing.
+
+**Finding 4 is new, it is mathematical, and its own remedy is refuted by
+computation.** Class 0 nests in class 1 and class 2 in class 3 as predicates —
+verified over all 280 cells at both threshold pairs — and correctness is a
+property of the *record*, so the coverage indicators are ordered pathwise on
+both endpoints. Independence across a nested pair is therefore unavailable at
+**any** nondegenerate marginals, not merely doubtful: §5.4's layer 1 is
+arithmetically impossible. This is the same argument round 9 registered for
+layer 4; nobody noticed it also demolishes layer 1. But the reviewer's
+prescription — recompute N — is wrong, because **the direction is not uniform**.
+Collapsing the nested pairs makes conjunctions *more* likely and tolerances
+*less* likely: all-six rises 0.6865 → 0.7782 while the control gate falls
+0.7658 → 0.6702 and row 5 falls 0.7359 → 0.6253 at N = 30. So the quantities
+that carry N move the unfavourable way — and **N = 30 still stands on its own
+registered criterion**, "a dependency that usually fails is not a control":
+0.6702 against N = 25's 0.4010, with the half-way line still between them. §5.4
+now registers the containment as a named impossibility, corrects its direction
+sentence (which asserted the opposite and is false for the gate), sharpens the
+Fréchet floor to max(0, 4q − 3) and caps the top at min q, names the cells that
+fall below their floors, publishes the containment-respecting figures beside the
+independence ones rather than replacing them, and retains N = 30 on arithmetic
+that can actually occur. The independence figures stay published, now labelled
+as the incoherent approximation they are. Three things the verification found
+that the reviewer did not: the infeasibility is worse in the p = 0.98 row
+(three cells, not two); the tolerance direction **reverses at N = 20**, where
+five-of-six is effectively a conjunction; and §2.1's DRIFT-SUSPECTED
+false-positive rate moves twenty-fold, 0.0002 → 0.0041, because the rule counts
+classes and one group now carries two. All three are registered rather than
+smoothed. The nesting itself — asserted in §2.3 and checked nowhere for ten
+rounds — is now a computed fact over the grid.
+
+**Finding 1 is downgraded to should-fix, and the closure round 9 declined is
+taken anyway.** BLOCKING is not warranted: round 9 recorded this residual and
+declined its closure *by name*, the reviewer neither quotes nor rebuts that
+decline, and a second tree-wide untracked-source refusal runs inside every
+ceremony command's preflight. But the finding names a mechanism sharper than
+what was conceded — the tripwire's own `subprocess` is resolvable from the very
+directory the tripwire exists to police — and declining twice in the same words
+would be the wrong answer to a reviewer who found a better argument. The
+ceremony now runs under `PYTHONSAFEPATH=1` and every path-invoked entry file
+refuses without it. The `ImportFrom` hole in round 9's own ordering test is
+closed too: it was an emptiness assertion a `from policy_mirror import …` would
+have satisfied silently, and it is now live — verified by planting one.
+
+**Findings 2 and 8 are both consequences of round 9's own weakening, which is
+the honest thing to record about them.** Round 9 replaced a vague reading cell
+with a concrete one, and concreteness made two falsehoods visible. "None was
+placed at the boundary" is false under a LOW verdict, which permits the class to
+be reached up to three times in thirty; the cell now says what LOW means —
+**LOW bounds placement, it does not zero it** — reusing §5.1's own registered
+gloss so no new number enters the file. And "at least one accepted record was
+mislabelled" would be published for an arm with **no accepted records at all**,
+because the code adds a non-empty-denominator condition the registered `iff`
+never had. The ceiling is now registered as the conjunction the code implements
+— at least one accepted record, and `|Q| = 0` — in §4.6's own S2 idiom, and the
+row-2 cell is true in both of its sub-cases. No decision-table row moves either
+way, which is stated so the disposition is not read as fixing a verdict bug.
+
+**Findings 5, 6, 7, 9, 10, 11, 12 and 13, each on the narrower ground the
+verification established.** The C7 gate keeps all three registered outcomes and
+gains only the shape checks that cannot make it brittle; what was genuinely
+wrong is that its scorer-side test refused on a missing golden file and never
+reached its own subject while two places cited it as that gate's coverage —
+proved by deleting the gate and watching the old test still pass. The wrapper's
+`mkdir -p` followed a replaced component and could create directories **outside**
+the physical study before refusing, under a comment asserting it created
+nothing outside; it now descends component by component, resolving before
+creating, and the sentence is true. The round-9 `GIT_ROOT` repair is
+**registered rather than reverted** — a defensive refusal that fires only when
+the study is not in a worktree is outside §2.7's subject matter, which
+enumerates arguments, stamps and naming — and the diff against Study 011's
+wrapper is recorded so round 11 need not re-derive it. S10 is registered as
+placement and was implemented as correctly-labelled coverage, losing sensitivity
+in **both** directions at once and making the outcome depend on an unregistered
+nuisance variable; it is now raw, as §4.6 always said, and a record placed at an
+old edge but labelled by the old thresholds is visible to it for the first time.
+The one-UTC-day rule is asserted in [D-10]'s confirmation sentence, §9's bounds
+and `RESULTS.json`'s own cell note, and nothing computed it; the observed date
+set and a crossing flag are now published per batch, and **nothing refuses** —
+§2.8 registers a midnight crossing as a recorded deviation, not a stop. §8,
+Appendix A and this file's own header asserted that the manifest binds the
+review record, which round 5 refuted; all three now quote §2.10's accurate
+residual. Round 9's straddle test folded the mirror verdict into the class
+column, so at two of its five edges the verdict alone supplied the difference
+and the class fact was vacuous — split, and verified to fail on a family that
+stops straddling. The prefix test now exercises all three published bodies.
+§2's "the harness does not exist yet" is re-tensed before it can be frozen into
+a file that is never edited after the freeze, and C4 stops contradicting §3.3's
+three admission codes.
+
+**What this round did not do.** `verify_mirror2()` still has no direct unit
+test; `verify_tree()` and `normalized_pins()` remain uncovered; `_write_outputs()`
+is pinned only at its override gate. One residual is named rather than closed:
+§5.3 (ii) row 3's gloss is still false for an arm D that placed correctly at its
+own pair and mislabelled, because the new-keyed side of rows 2 and 3 reads the
+labelled primary — whether it should read S1 placement is a separate registered
+question, named here so round 11 does not rediscover it rather than inherit it.
+
+Verification after the dispositions: `harness/integrity.py` exit 0 (tree
+manifest unbound, pre-freeze); the pinned suite **271 passed** (253 at the
+reviewed commit, plus 18 added by these dispositions), run the way README step 0
+now specifies; tracked status clean; `arms/`, `analysis/` and `CLAIM.md`
+untouched by every disposition above. The post-disposition tree manifest, the
+maintainer's computation, is
+`f000000d67ac9fd2ce080834276160305a2c10f55827c464a31f4ad04a17470a` — round 11
+attests it independently, and under §2.10 rule 3 that round is required, because
+these dispositions changed bytes.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged since round 2, and unchanged by every disposition above — no
+disposition in this round touches a file under `arms/`:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 10 |
 |---|---|---|
 | **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
 | **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |

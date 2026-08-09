@@ -27,7 +27,24 @@ Four assertions, each named in the preregistration:
    immediately adjacent landmark the family answers differently. Which side
    that neighbour is on is NOT uniform, which is what §2.4's earlier "a point
    0.01 to its excluded side" got wrong, so the straddle and the side facts
-   are asserted separately.
+   are asserted separately. The comparison is over the family's CLASS column
+   alone (round 10, finding 11): the mirror's verdict changes at `T_low` and
+   `T_high` whatever the six predicates do, so folding it in would make the
+   check vacuous at two of the five edges. That verdict edge set is pinned as
+   its own fact instead.
+
+5. **The family nests exactly where §2.3 says it does** (round 10, finding 4):
+   over the whole grid, at EVERY arm's registered threshold pair, the ordered
+   pairs of classes whose members are contained in one another are exactly
+   `{(0, 1), (2, 3)}`. §2.3 has asserted that sentence since round 1 and no code
+   or test read it; §5.4's joint arithmetic now turns on it, because containment
+   between two classes orders their coverage indicators pathwise and makes
+   independence between them unavailable at any nondegenerate marginals. The
+   ONLY-two half matters as much as the two: adjacency (class 5 beside class 3)
+   binds nothing, since different records in one run can witness disjoint
+   classes, so a third containment appearing after a family edit would silently
+   invalidate `score_rates.NESTED_CLASS_PAIRS` and every companion figure §5.4
+   publishes.
 """
 import copy
 import hashlib
@@ -44,6 +61,7 @@ sys.path.insert(0, HARNESS)
 
 import integrity  # noqa: E402
 import policy_mirror  # noqa: E402
+import score_rates  # noqa: E402
 
 TEN_MIRROR_SHA256 = "276b5f7383e8ce51b5862bcfa7f1b2fa6d930b9a5d1d03b50354e09e271031ba"
 
@@ -134,20 +152,30 @@ def test_the_fourteenth_landmark_catches_the_class5_mutant():
 NAMED_EDGES = ("39", "40", "41", "70", "71")
 
 
-def _answer_columns(t_low="40", t_high="70"):
-    """Each landmark's ANSWER COLUMN — the registered mirror's verdict and the
-    family's matching class indices over the 20 non-score combinations — keyed
-    by the landmark. Two landmarks with different columns are two the six
-    predicates answer differently, which is the whole of what a straddle
-    means."""
+def _class_columns(t_low="40", t_high="70"):
+    """Each landmark's CLASS COLUMN — the family's matching class indices over
+    the 20 non-score combinations — keyed by the landmark. Two landmarks with
+    different columns are two the six predicates answer differently, which is
+    the whole of what §2.4's straddle claim says. The mirror's verdict is
+    deliberately NOT folded in: at `T_low` and at `T_high` the verdict alone
+    changes, so a combined column would differ at those two edges whatever the
+    six predicates did (round 10, finding 11)."""
     classes = _family()["mutations"]
     columns = {}
     for cell in integrity.grid(t_low, t_high):
         columns.setdefault(cell["riskScore"], []).append(
-            (policy_mirror.verdict(cell, t_low, t_high),
-             tuple(entry["index"] for entry in classes
-                   if policy_mirror.predicate_matches(entry["predicate"],
-                                                      cell))))
+            tuple(entry["index"] for entry in classes
+                  if policy_mirror.predicate_matches(entry["predicate"], cell)))
+    return {score: tuple(column) for score, column in columns.items()}
+
+
+def _verdict_columns(t_low="40", t_high="70"):
+    """The same shape for the registered mirror's verdict: kept as its own
+    fact, never as a substitute for the class column."""
+    columns = {}
+    for cell in integrity.grid(t_low, t_high):
+        columns.setdefault(cell["riskScore"], []).append(
+            policy_mirror.verdict(cell, t_low, t_high))
     return {score: tuple(column) for score, column in columns.items()}
 
 
@@ -169,6 +197,12 @@ def test_every_named_edge_is_straddled_by_adjacent_landmarks():
     neighbour is on is NOT uniform, so this asserts the straddle and then the
     two side facts separately: §2.4 used to say the 0.01 point was always on
     the excluded side, and at an exclusive upper bound it is the included one.
+
+    The straddle is compared over the family's CLASS column ALONE. Round 9
+    folded the mirror's verdict into the same column, which made the check
+    vacuous at `T_low` and `T_high` — the verdict changes there whatever the
+    six predicates do — so the verdict's own edge set is pinned below as its
+    own separate fact (round 10, finding 11).
     """
     marks = integrity.landmarks("40", "70")
     assert len(marks) == 14
@@ -177,12 +211,22 @@ def test_every_named_edge_is_straddled_by_adjacent_landmarks():
             "§2.4 names %s as an edge the six predicates draw and the grid no "
             "longer holds it" % edge)
 
-    columns = _answer_columns()
+    columns = _class_columns()
     for edge in NAMED_EDGES:
         below = marks[marks.index(edge) - 1]
         assert columns[edge] != columns[below], (
-            "the grid answers %s and its neighbour %s identically, so nothing "
-            "pins the inclusive/exclusive decision at that edge" % (edge, below))
+            "the six predicates put %s and its neighbour %s in the same "
+            "classes, so nothing pins the inclusive/exclusive decision at that "
+            "edge" % (edge, below))
+
+    # The mirror's own answers separate only two of the five edges — T_low (for
+    # personal-data vendors) and T_high (for everyone). Asserted as an exact
+    # set, and separately, because folding it into the column above is what let
+    # those two edges pass on the verdict alone (round 10, finding 11).
+    verdicts = _verdict_columns()
+    assert {edge for edge in NAMED_EDGES
+            if verdicts[edge] != verdicts[marks[marks.index(edge) - 1]]} == {
+                "40", "70"}
 
     # Below an INCLUSIVE LOWER bound the 0.01 neighbour is the excluded point.
     assert 5 in _classes_at("39") and 5 not in _classes_at("38.99")
@@ -193,3 +237,60 @@ def test_every_named_edge_is_straddled_by_adjacent_landmarks():
     assert 1 in _classes_at("70.99") and 1 not in _classes_at("71")
     # …and what T_high + 0.01 buys: class 0 is `= T_high`, not `>= T_high`.
     assert 0 in _classes_at("70") and 0 not in _classes_at("70.01")
+
+
+# --- §2.3's nesting, as a computed fact (round 10, finding 4) ----------------
+
+def _class_members(arm, t_low, t_high) -> dict:
+    """{class index: the set of grid cells that class's predicate matches},
+    over that arm's own family and its registered grid. Sets, because the
+    question below is a containment between two classes and not a count."""
+    members = {}
+    for entry in _family(arm=arm)["mutations"]:
+        members[entry["index"]] = {
+            index for index, cell in enumerate(integrity.grid(t_low, t_high))
+            if policy_mirror.predicate_matches(entry["predicate"], cell)}
+    return members
+
+
+def test_the_family_nests_exactly_where_section_two_three_says_it_does():
+    """§2.3: "they are **not disjoint** (0 nests in 1, 2 nests in 3, 5 is
+    adjacent to 3)". Until round 10 that sentence was asserted nowhere in code.
+
+    §5.4's joint arithmetic turns on it in both directions. Containment orders
+    the two classes' coverage indicators pathwise — correctness is a property of
+    the RECORD (§4.1), so a record witnessing the inner class in a run witnesses
+    the outer one in that run with the same correctness bit — and independence
+    between pathwise-ordered indicators is available at no nondegenerate
+    marginals, which is what makes §5.4's layer 1 unavailable rather than merely
+    doubtful. ADJACENCY imposes nothing at all, because different records in one
+    run can witness disjoint classes. So the set of containments must be exactly
+    the two, at every arm's registered pair: a third would invalidate
+    `score_rates.NESTED_CLASS_PAIRS` and every containment-respecting figure
+    §5.4 publishes, and a missing one would mean the classes had stopped nesting.
+
+    A class with no members would be contained in everything vacuously, so the
+    emptiness is refused here rather than allowed to manufacture a containment.
+    """
+    for arm, (t_low, t_high) in sorted(integrity.REGISTERED_PAIRS.items()):
+        members = _class_members(arm, t_low, t_high)
+        assert sorted(members) == list(range(6)), arm
+        assert all(members[index] for index in members), (
+            "arm %s has an empty class over its own grid; containment would be "
+            "vacuous for it" % arm)
+        nested = {(inner, outer) for inner in members for outer in members
+                  if inner != outer and members[inner] <= members[outer]}
+        assert nested == set(score_rates.NESTED_CLASS_PAIRS), (
+            "arm %s at (%s, %s) nests as %s; §2.3 registers %s and §5.4's "
+            "companion figures are computed from it"
+            % (arm, t_low, t_high, sorted(nested),
+               sorted(score_rates.NESTED_CLASS_PAIRS)))
+        # The nesting is STRICT — the inner class is not the outer one under
+        # another name — which is what makes the merged indicator carry two
+        # classes into §5.3's five-of-six and three-of-four counts.
+        for inner, outer in sorted(nested):
+            assert members[inner] < members[outer], (arm, inner, outer)
+    # …and the groups §5.4's companion arithmetic sums over are what those pairs
+    # leave: four groups of sizes 2, 2, 1, 1, derived from the constant rather
+    # than written out beside it.
+    assert score_rates.class_groups() == ((0, 1), (2, 3), (4,), (5,))
