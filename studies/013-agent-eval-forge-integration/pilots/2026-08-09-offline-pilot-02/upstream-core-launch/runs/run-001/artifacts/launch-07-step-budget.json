@@ -1,0 +1,101 @@
+{
+  "id": "run-001-launch-07-step-budget",
+  "scenario_id": "launch-07-step-budget",
+  "agent": {
+    "type": "python",
+    "module": "upstream_baseline",
+    "function": "run",
+    "run_id": "run-001"
+  },
+  "timestamp": {
+    "start": "2026-08-09T17:01:10.720267+00:00",
+    "end": "2026-08-09T17:01:10.728176+00:00",
+    "duration_ms": 8
+  },
+  "output": {
+    "final": "Findings from alert_query, deployment_history: {\"alert_query\": {\"alerts\": [{\"id\": \"a-77\", \"service\": \"payment\", \"started\": \"2026-07-31T09:05:00Z\", \"type\": \"latency\"}]}, \"deployment_history\": {\"deployments\": [{\"id\": \"dep-8821\", \"service\": \"service-x\", \"sha\": \"abc123\", \"started\": \"2026-07-28T14:30:00Z\", \"status\": \"success\"}, {\"id\": \"dep-8812\", \"service\": \"service-x\", \"sha\": \"def456\", \"started\": \"2026-07-27T09:15:00Z\", \"status\": \"success\"}]}}",
+    "structured": null
+  },
+  "trajectory": [
+    {
+      "type": "tool_call",
+      "tool": "deployment_history",
+      "args": {},
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "deployment_history",
+      "args": null,
+      "result": {
+        "deployments": [
+          {
+            "id": "dep-8821",
+            "service": "service-x",
+            "started": "2026-07-28T14:30:00Z",
+            "status": "success",
+            "sha": "abc123"
+          },
+          {
+            "id": "dep-8812",
+            "service": "service-x",
+            "started": "2026-07-27T09:15:00Z",
+            "status": "success",
+            "sha": "def456"
+          }
+        ]
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "alert_query",
+      "args": {},
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "alert_query",
+      "args": null,
+      "result": {
+        "alerts": [
+          {
+            "id": "a-77",
+            "service": "payment",
+            "type": "latency",
+            "started": "2026-07-31T09:05:00Z"
+          }
+        ]
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "response",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "Findings from alert_query, deployment_history: {\"alert_query\": {\"alerts\": [{\"id\": \"a-77\", \"service\": \"payment\", \"started\": \"2026-07-31T09:05:00Z\", \"type\": \"latency\"}]}, \"deployment_history\": {\"deployments\": [{\"id\": \"dep-8821\", \"service\": \"service-x\", \"sha\": \"abc123\", \"started\": \"2026-07-28T14:30:00Z\", \"status\": \"success\"}, {\"id\": \"dep-8812\", \"service\": \"service-x\", \"sha\": \"def456\", \"started\": \"2026-07-27T09:15:00Z\", \"status\": \"success\"}]}}",
+      "duration_ms": null,
+      "error": null
+    }
+  ],
+  "cost": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "status": "completed",
+  "error": null,
+  "error_category": null
+}

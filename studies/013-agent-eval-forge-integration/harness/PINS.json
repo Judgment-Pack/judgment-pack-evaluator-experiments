@@ -1,5 +1,5 @@
 {
-  "comment": "Pin registry, 011-convention. It is a pin, not an attestation. Values recorded during the pilot phase; the preregistration freeze re-verifies every member and any change lands in DEVIATIONS.md. PILOT-PHASE CAVEATS the freeze must resolve: (1) the jpack binary is a local build from the v0.16.0 tag with the goreleaser ldflags, not the released checksums.txt artifact; (2) pilot harness scripts ran under CPython 3.8.20 (the machine default), not the 3.12 series used by studies 011/012.",
+  "comment": "Pin registry, 011-convention. It is a pin, not an attestation. Both pilot-phase caveats recorded in pilot-01 are RESOLVED as of pilot-02: (1) the evaluator is the released v0.16.0 linux_amd64 binary, archive verified against the release checksums.txt — and its sha256 is byte-identical to the local tag build, which is direct evidence the build is reproducible; (2) harness scripts run under CPython 3.12.11, the same interpreter series-and-patch Study 011 pinned. pilots/2026-08-09-offline-pilot-01 (old toolchain) is retained unchanged.",
   "forge": {
     "repo": "https://github.com/deghosal-2026/agent-eval-forge",
     "commit": "8925cacc2abb26198e3cd74de3d1e916a719811e",
@@ -11,18 +11,21 @@
   },
   "jpack": {
     "version": "0.16.0",
-    "builtFromTag": "v0.16.0",
-    "builtFromCommit": "8fc375de09044c040baac0d94bc853dd6e5813ca",
+    "releaseTag": "v0.16.0",
+    "releaseCommit": "8fc375de09044c040baac0d94bc853dd6e5813ca",
+    "releaseAsset": "judgment-pack_0.16.0_linux_amd64.tar.gz",
+    "archiveSha256": "1a12503ca96061da3a8d5657528cea643668ef53a00a9b336e94755e2437ed59",
+    "archiveVerified": "matches checksums.txt from the same release",
     "binarySha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "reproducibleBuild": "a local build from the v0.16.0 tag (go1.26.5, CGO_ENABLED=0, -trimpath, goreleaser ldflags) produced this exact binary digest",
     "evaluatorSpecVersion": "0.2.0-draft",
-    "env": "JPACK_BIN",
-    "note": "Local tag build (go1.26.5, CGO_ENABLED=0, goreleaser ldflags). Registered runs should pin the released binary verified against the release checksums.txt, per docs/building-with-packs.md replay discipline."
+    "env": "JPACK_BIN"
   },
   "packs": {
     "manifest": "packs/MANIFEST.sha256",
     "note": "Byte-pinned copies from judgment-pack-runtime v0.16.0 (evaluation corpus packs + two valid-document exception examples). jpack-project/packs/ must stay byte-identical; scenarios/mutations/packs/ must equal a fresh mutate_packs.py derivation."
   },
   "upstream": {"manifest": "upstream/MANIFEST.sha256"},
-  "harnessPython": {"pilotVersion": "3.8.20", "targetSeries": "3.12", "note": "stdlib-only"},
+  "harnessPython": {"implementation": "CPython", "series": "3.12", "version": "3.12.11", "note": "stdlib-only; pilot-01 ran under 3.8.20 (recorded), pilot-02 onward under 3.12.11"},
   "cases": {"path": "scenarios/jps/cases.json", "note": "goldens/EXPECT-CHECK.json must record zero disagreements against the pinned evaluator"}
 }

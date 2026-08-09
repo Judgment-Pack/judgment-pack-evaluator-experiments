@@ -1,0 +1,70 @@
+{
+  "run_id": "run-001",
+  "pack": {
+    "name": "study-013-cohort2",
+    "version": "0.1.0",
+    "description": "JPS decision cases expressed as Agent Eval Forge scenarios (generated from cases.json)",
+    "min_evalforge": null
+  },
+  "trust": "local",
+  "pack_hash": "de203cb1ba5237db",
+  "agent": {
+    "type": "python",
+    "module": "arm_b",
+    "function": "run"
+  },
+  "selected_tags": [
+    "cohort2"
+  ],
+  "timestamps": {
+    "start": "2026-08-09T17:00:55.769434+00:00",
+    "end": "2026-08-09T17:00:56.266765+00:00",
+    "duration_ms": 497
+  },
+  "scenario_ids": [
+    "t01-proceed",
+    "t02-hard-stop",
+    "t03-evidence-absent",
+    "t04-evidence-unknown",
+    "t05-embargo-exception",
+    "t06-not-applicable",
+    "t07-clarify",
+    "t08-fact-unknown",
+    "t09-sponsor-absent",
+    "f01-exact-threshold",
+    "f02-boundary-scale",
+    "f03-just-below",
+    "f04-just-above",
+    "f05-number-amount",
+    "d01-approve",
+    "d02-flagged-escalation",
+    "d03-hold",
+    "p01-conflict-routed",
+    "p02-unknown-unrouted",
+    "x01-forced-reject",
+    "x02-suppressed-no-match"
+  ],
+  "artifacts": {
+    "t01-proceed": "artifacts/t01-proceed.json",
+    "t02-hard-stop": "artifacts/t02-hard-stop.json",
+    "t03-evidence-absent": "artifacts/t03-evidence-absent.json",
+    "t04-evidence-unknown": "artifacts/t04-evidence-unknown.json",
+    "t05-embargo-exception": "artifacts/t05-embargo-exception.json",
+    "t06-not-applicable": "artifacts/t06-not-applicable.json",
+    "t07-clarify": "artifacts/t07-clarify.json",
+    "t08-fact-unknown": "artifacts/t08-fact-unknown.json",
+    "t09-sponsor-absent": "artifacts/t09-sponsor-absent.json",
+    "f01-exact-threshold": "artifacts/f01-exact-threshold.json",
+    "f02-boundary-scale": "artifacts/f02-boundary-scale.json",
+    "f03-just-below": "artifacts/f03-just-below.json",
+    "f04-just-above": "artifacts/f04-just-above.json",
+    "f05-number-amount": "artifacts/f05-number-amount.json",
+    "d01-approve": "artifacts/d01-approve.json",
+    "d02-flagged-escalation": "artifacts/d02-flagged-escalation.json",
+    "d03-hold": "artifacts/d03-hold.json",
+    "p01-conflict-routed": "artifacts/p01-conflict-routed.json",
+    "p02-unknown-unrouted": "artifacts/p02-unknown-unrouted.json",
+    "x01-forced-reject": "artifacts/x01-forced-reject.json",
+    "x02-suppressed-no-match": "artifacts/x02-suppressed-no-match.json"
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "id": "run-001-t07-clarify",
+  "scenario_id": "t07-clarify",
+  "agent": {
+    "type": "python",
+    "module": "arm_a_adversary",
+    "function": "run",
+    "run_id": "run-001"
+  },
+  "timestamp": {
+    "start": "2026-08-09T17:00:57.296491+00:00",
+    "end": "2026-08-09T17:00:57.304933+00:00",
+    "duration_ms": 8
+  },
+  "output": {
+    "final": "case t07-clarify: execute_decision via a-adversary",
+    "structured": {
+      "case_id": "t07-clarify",
+      "arm": "a-adversary",
+      "mutation": null,
+      "disposition": {
+        "kind": "outcome",
+        "outcomeId": "proceed",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "handoff_target": null,
+      "tool_version": null,
+      "action": {
+        "tool": "execute_decision",
+        "args": {
+          "case_id": "t07-clarify",
+          "action": "accept-request",
+          "outcome": "proceed"
+        }
+      }
+    }
+  },
+  "trajectory": [
+    {
+      "type": "tool_call",
+      "tool": "fetch_case_facts",
+      "args": {
+        "case_id": "t07-clarify"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_case_facts",
+      "args": null,
+      "result": {
+        "request": {
+          "appropriateness": "pending",
+          "completeness": "incomplete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "pipeline-change"
+        }
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "fetch_evidence_availability",
+      "args": {
+        "case_id": "t07-clarify"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_evidence_availability",
+      "args": null,
+      "result": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "execute_decision",
+      "args": {
+        "case_id": "t07-clarify",
+        "action": "accept-request",
+        "outcome": "proceed"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "execute_decision",
+      "args": null,
+      "result": {
+        "status": "recorded"
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "response",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "case t07-clarify: execute_decision via a-adversary",
+      "duration_ms": null,
+      "error": null
+    }
+  ],
+  "cost": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "status": "completed",
+  "error": null,
+  "error_category": null
+}

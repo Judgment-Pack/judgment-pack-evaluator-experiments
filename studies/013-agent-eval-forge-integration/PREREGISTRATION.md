@@ -90,11 +90,13 @@ dispositions whose map says record, an override is caught by
   (MIT), vendored scenario/fixture bytes under `upstream/`. Upstream code is
   never modified; the driver (`harness/run_forge.py`) uses its library layers
   and owns exit codes, completeness assertions, and scorer-error refusals.
-- Full pin registry: `harness/PINS.json`. Pilot-phase caveats to be resolved at
-  freeze: the evaluator binary must be the released artifact verified against
-  the release `checksums.txt` (pilots used a local tag build, digest recorded),
-  and harness scripts must run under the pinned Python series (pilots ran on
-  CPython 3.8.20).
+- Full pin registry: `harness/PINS.json`. Both pilot-phase caveats recorded in
+  pilot-01 are resolved in pilot-02: the evaluator is the released v0.16.0
+  linux_amd64 binary, archive verified against the release `checksums.txt` —
+  and a local build from the tag reproduced the identical binary digest, which
+  is recorded as evidence the build is reproducible; harness scripts run under
+  CPython 3.12.11 (Study 011's interpreter). Pilot-01 is retained under its
+  original toolchain; both pilot batches produced identical endpoints.
 
 ## 4. Procedure (deterministic phase)
 

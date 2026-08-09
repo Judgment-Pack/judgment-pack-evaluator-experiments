@@ -1,0 +1,70 @@
+{
+  "id": "run-001-launch-09-diff-review",
+  "scenario_id": "launch-09-diff-review",
+  "agent": {
+    "type": "python",
+    "module": "upstream_baseline",
+    "function": "run",
+    "run_id": "run-001"
+  },
+  "timestamp": {
+    "start": "2026-08-09T17:01:10.750967+00:00",
+    "end": "2026-08-09T17:01:10.758118+00:00",
+    "duration_ms": 8
+  },
+  "output": {
+    "final": "Findings from code_search: {\"code_search\": {\"matches\": [{\"file\": \"auth/middleware.py\", \"line\": 12, \"text\": \"import redis\"}, {\"file\": \"auth/rate_limiter.py\", \"line\": 3, \"text\": \"REDIS_URL\"}]}}",
+    "structured": null
+  },
+  "trajectory": [
+    {
+      "type": "tool_call",
+      "tool": "code_search",
+      "args": {},
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "code_search",
+      "args": null,
+      "result": {
+        "matches": [
+          {
+            "file": "auth/middleware.py",
+            "line": 12,
+            "text": "import redis"
+          },
+          {
+            "file": "auth/rate_limiter.py",
+            "line": 3,
+            "text": "REDIS_URL"
+          }
+        ]
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "response",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "Findings from code_search: {\"code_search\": {\"matches\": [{\"file\": \"auth/middleware.py\", \"line\": 12, \"text\": \"import redis\"}, {\"file\": \"auth/rate_limiter.py\", \"line\": 3, \"text\": \"REDIS_URL\"}]}}",
+      "duration_ms": null,
+      "error": null
+    }
+  ],
+  "cost": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "status": "completed",
+  "error": null,
+  "error_category": null
+}

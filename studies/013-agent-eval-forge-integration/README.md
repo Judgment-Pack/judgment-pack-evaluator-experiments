@@ -83,8 +83,10 @@ FORGE_VENV_PY=<venv>/bin/python JPACK_BIN=<pinned jpack> \
 ```
 
 The Forge venv is CPython 3.11.13 with the pinned clone installed editable;
-`harness/PINS.json` records every digest, plus two pilot-phase caveats the
-freeze must resolve (locally built evaluator binary; harness scripts ran under
-the machine's CPython 3.8.20).
+the harness runs under CPython 3.12.11; the evaluator is the released v0.16.0
+binary verified against the release `checksums.txt` (a tag build reproduces
+its exact digest — the build is reproducible). `harness/PINS.json` records
+every digest. Two pilot batches are retained: pilot-01 (original toolchain)
+and pilot-02 (final toolchain), with identical endpoints.
 
 Nothing in this repository claims any JPS conformance.
