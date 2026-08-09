@@ -39,11 +39,11 @@ against published numbers).
 | `transcription/PROBE-PROMPT.txt` | `128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7` | `transcription/PROBE-PROMPT.txt` | `128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7` | no — byte-identical; the authority is **011's `PINS.json`** (011 introduced this file; it is in no lockedInputs of 010) |
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — taken unchanged; the output-root parameter 011 added already suffices (§2.2) |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | `harness/transcript_check.py` | `64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt, and an `arm` label travels with the call so a refusal names the arm and the scorer can say `arm-mismatch`; no other check logic changes. Round 5 finding 7: a completion that does not decode raises its own `CompletionUndecodable` so the scorer can say `completion-unreadable` — the checks themselves are unchanged |
-| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | `transcription/authoring_call.sh` | `bac41d3a960a82e32ec009f493d8153c280fa2591c6abd29e66deb3aa7fe1f04` | §2.7's three permitted differences and nothing else — see below |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | `harness/integrity.py` | `64276474fdf8a3cca211e7582252747ef2992b0b1855c5080e187ed0ea65e4fe` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9; the C10 gate; the [D-20] tree manifest |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | `harness/batch.py` | `c8ae72647304eab6af058f70d22238367c9db4a909ccc2cd18706fb01f0d0bc0` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps; the chained ledger and per-slot manifests of §2.9; resume by global index [D-22]; the shortfall surface [D-23] |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | `harness/score_rates.py` | `5a9f70bebdded7f0c37041cd1946f5f3a3a5016a5aa680b09b097840705e17c8` | per-arm scoring against that arm's mirror instantiation and family; the §5 level and contrast verdicts; the §4.5 census; the §4.6 old-edge cross-scoring; the §3.3 partition with `arm-mismatch` and `schedule-mismatch`; the [D-21] stopping rule |
-| `analysis/diversity.py` | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | `harness/census.py` | `fdb8ac0967e0baec29e78ea27a1af4c18b3336fa8de929d218c91802e1110de7` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness. Round 5 finding 9: X3 publishes the full distinct-value distribution and arm D's old-edge table at the unstated 40/70, X4 publishes the signature groups |
+| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | `transcription/authoring_call.sh` | `1befd5e7ea8dc635c7de3b7eece8902ccf375dd3c106c3fbf84b4117bcc4ce0d` | §2.7's three permitted differences and nothing else — see below |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | `harness/integrity.py` | `0c271492d475f09892c10f5dc68639ad03f57c79856f200d88888dfce95872da` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9; the C10 gate; the [D-20] tree manifest |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | `harness/batch.py` | `bef07a1b1acf959c929362c182b3e11701d53784e97e8770107b6d53254953d2` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps; the chained ledger and per-slot manifests of §2.9; resume by global index [D-22]; the shortfall surface [D-23] |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | `harness/score_rates.py` | `c454972d64fc787c5a01e108b8038b3b03d9be8fa9f35647eebd630d8fba9ba2` | per-arm scoring against that arm's mirror instantiation and family; the §5 level and contrast verdicts; the §4.5 census; the §4.6 old-edge cross-scoring; the §3.3 partition with `arm-mismatch` and `schedule-mismatch`; the [D-21] stopping rule |
+| `analysis/diversity.py` | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | `harness/census.py` | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness. Round 5 finding 9: X3 publishes the full distinct-value distribution and arm D's old-edge table at the unstated 40/70, X4 publishes the signature groups |
 
 **This table is machine-read, and its columns answer to different
 authorities.** This file is editable in *this* study, so it cannot be the
@@ -144,6 +144,16 @@ three registered differences:
 3. **its scratch, isolated home and per-run binary directory are named
    `s012-…`** (with the arm id in the name, so five arms' same-numbered runs
    cannot collide under one scratch parent).
+
+Round 8, finding 6 strengthens the first difference's guard rather than
+adding one: the wrapper no longer compares the parent and grandparent
+basenames but requires `$SLOT` to be an absolute path whose last four
+components are `arms/<ARM>/authoring/run-NNN`, so `/tmp/C/authoring/run-001`
+for arm C and an unrestricted slot name both refuse before anything is
+called — the anchor is §2.7's own relative shape rather than the wrapper's
+`$STUDY/arms`, because [D-23]'s derived population root is what the harness
+tests patch to drive the real wrapper against a stand-in tree, and an
+absolute anchor would refuse every test slot instead of any real defect.
 
 **The non-difference, adjudicated.** An earlier §2.9 sentence had the wrapper
 write `SLOT-MANIFEST.json`, while §2.7 caps the wrapper's permitted

@@ -141,10 +141,25 @@ case "$PROMPT_KIND" in
     # here so that sentence is true of the wrapper itself, not only of the
     # driver's bookkeeping. An off-by-one in the driver's arm sequence would
     # otherwise place a slot in the wrong tree silently.
-    SLOT_ARM="$(basename "$(dirname "$(dirname "$SLOT")")")"
+    #
+    # Round 8, finding 6: the WHOLE of §2.7's shape, not two basenames. This
+    # compared only the parent and grandparent names, so /tmp/C/authoring/run-001
+    # passed for arm C — the slot was not in an arms tree at all — and the slot
+    # NAME was unrestricted, so anything the scorer would later collect as a
+    # run could be written by hand under a correct-looking parent. All four
+    # trailing components are checked now, the leaf against run-NNN, and the
+    # path must be absolute: the driver derives every slot path from its own
+    # ARMS_ROOT ([D-23]) and never passes a relative one.
+    SLOT_NAME_GUARD="$(basename "$SLOT")"
     SLOT_KIND="$(basename "$(dirname "$SLOT")")"
-    if [ "$SLOT_ARM" != "$ARM" ] || [ "$SLOT_KIND" != "authoring" ]; then
-      echo "refused: slot $SLOT is not under arms/$ARM/authoring/" >&2
+    SLOT_ARM="$(basename "$(dirname "$(dirname "$SLOT")")")"
+    SLOT_TREE="$(basename "$(dirname "$(dirname "$(dirname "$SLOT")")")")"
+    SLOT_SHAPE=ok
+    case "$SLOT" in /*) ;; *) SLOT_SHAPE=bad;; esac
+    case "$SLOT_NAME_GUARD" in run-[0-9][0-9][0-9]) ;; *) SLOT_SHAPE=bad;; esac
+    if [ "$SLOT_TREE" != "arms" ] || [ "$SLOT_ARM" != "$ARM" ] \
+       || [ "$SLOT_KIND" != "authoring" ] || [ "$SLOT_SHAPE" != "ok" ]; then
+      echo "refused: slot $SLOT is not under arms/$ARM/authoring/ as an absolute arms/$ARM/authoring/run-NNN path" >&2
       exit 1
     fi;;
   probe)

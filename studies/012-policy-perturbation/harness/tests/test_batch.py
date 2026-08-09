@@ -558,12 +558,43 @@ class Batch(unittest.TestCase):
     def test_the_wrapper_refuses_a_slot_that_is_not_the_arms_own_tree(self):
         """§2.7's arm-keyed slot rule, checked by the wrapper itself: an
         off-by-one in the driver's arm sequence would otherwise put a slot in
-        another arm's tree silently, and every per-slot check would pass."""
-        stray = os.path.join(self.arms_root, "B", "authoring", "run-001")
-        completed = self.wrapper(stray, "C")
-        self.assertEqual(completed.returncode, 1)
-        self.assertIn("not under arms/C/authoring/", completed.stderr)
-        self.assertFalse(os.path.exists(stray))
+        another arm's tree silently, and every per-slot check would pass.
+
+        Round 8, finding 6: the guard compared the parent and grandparent
+        BASENAMES only, so `<anywhere>/C/authoring/run-001` satisfied it for arm
+        C — the slot was not in an arms tree at all — and the slot name was
+        unrestricted, so any name the scorer would later collect as a run, or
+        one it would not collect at all, could be written under a
+        correct-looking parent. All four trailing components answer for
+        themselves now, and the path must be absolute, because the driver
+        derives every slot path from its own `ARMS_ROOT` ([D-23]) and never
+        passes a relative one.
+        """
+        cases = (
+            # The original: the right shape, the wrong arm.
+            (os.path.join(self.arms_root, "B", "authoring", "run-001"), "C"),
+            # The reviewer's case: right arm, right `authoring`, no arms tree.
+            (os.path.join(self.root, "C", "authoring", "run-001"), "C"),
+            # …and one level further out, where `arms` is the arm's own parent.
+            (os.path.join(self.root, "arms", "authoring", "run-001"), "C"),
+            # The unrestricted slot name, in the arm's real tree.
+            (os.path.join(self.arms_root, "C", "authoring", "scratch"), "C"),
+            (os.path.join(self.arms_root, "C", "authoring", "run-1"), "C"),
+            (os.path.join(self.arms_root, "C", "authoring", "run-0001"), "C"),
+        )
+        for stray, arm in cases:
+            completed = self.wrapper(stray, arm)
+            self.assertEqual(completed.returncode, 1, stray)
+            self.assertIn("not under arms/%s/authoring/" % arm,
+                          completed.stderr, stray)
+            self.assertFalse(os.path.exists(stray), stray)
+        self.assertEqual(self.calls_made(), "0")
+        # The control, so the guard is not refusing everything: the canonical
+        # slot for the arm the driver would name runs to a completed call.
+        canonical = self.slot(0)
+        completed = self.wrapper(canonical, ENTRIES[0]["arm"])
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertTrue(os.path.isfile(os.path.join(canonical, "CALL.json")))
 
     def test_an_unregistered_interpreter_never_reaches_a_call(self):
         # §2.10 registers the interpreter and the wrapper reads that member
@@ -1103,6 +1134,90 @@ class Batch(unittest.TestCase):
         with open(path, "rb") as handle:
             self.assertEqual(json.loads(handle.read().decode("utf-8")), reordered)
 
+    def write_ledger_file(self, body) -> str:
+        """`BATCH.json` written by hand, whatever shape `body` is — the state a
+        hand-edited or truncated ledger leaves, which the driver has to refuse
+        through its own registered path rather than through a traceback."""
+        os.makedirs(self.arms_root, exist_ok=True)
+        path = os.path.join(self.arms_root, "BATCH.json")
+        with open(path, "w") as handle:
+            json.dump(body, handle, indent=2)
+        return path
+
+    def test_a_ledger_record_naming_another_path_is_not_the_registered_prefix(self):
+        """Round 8, finding 5. The prefix check compared §2.8's schedule keys
+        and nothing else, and `reconcile_ledger()` asked only that each record's
+        `path` be a nonempty string naming something that exists — so a first
+        record carrying the registered keys for global index 1 and the path
+        `README.md` verified as the prefix, reconciled against a tree in which
+        `run-001` was absent, and let `--resume` continue at index 2. The slot at
+        index 1 was never made and nothing said so.
+
+        §6 C5 clause 2 puts the ledger and the slot set in bijection "at the path
+        the record names", so the path a record names must be the path §2.8
+        assigns its (arm, slot index) — derived here from `slot_path()`, the
+        function the driver plans and seals with, not matched against a shape.
+        """
+        entry = ENTRIES[0]
+        record = {key: entry[key] for key in batch.SCHEDULE_KEYS}
+        record.update({
+            "slot": "run-%03d" % entry["slotIndex"],
+            "path": "README.md",
+            "wrapperExit": 0, "code": None,
+            "manifestSha256": batch._digest(os.path.join(STUDY, "README.md")),
+            "previousSha256": None,
+        })
+        self.write_ledger_file({"batchVersion": "3", "records": [record]})
+        # Everything the old check looked at is in order: the schedule keys ARE
+        # §2.8's for global index 1, the chain verifies over a single record
+        # linking to null, and the named path exists in the study tree.
+        self.assertEqual({key: record[key] for key in batch.SCHEDULE_KEYS},
+                         {key: entry[key] for key in batch.SCHEDULE_KEYS})
+        self.assertTrue(os.path.isfile(os.path.join(STUDY, record["path"])))
+        self.assertEqual(batch.load_ledger(), [record])
+        self.assertFalse(os.path.exists(self.slot(0)))
+        with self.assertRaises(batch.BatchError) as caught:
+            batch.verify_prefix(batch.load_ledger(), ENTRIES)
+        self.assertIn("registered call order", str(caught.exception))
+        self.assertIn("README.md", str(caught.exception))
+        # …through the registered commands, which spend nothing and make no slot
+        # at either index.
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 1)
+        self.assertEqual(self.shortfall(), 1)
+        self.assertEqual(self.calls_made(), "0")
+        self.assertFalse(os.path.exists(self.slot(0)))
+        self.assertFalse(os.path.exists(self.slot(1)))
+        # The control: the canonical path for the same (arm, slot index) is the
+        # one the driver derives, and the same ledger verifies with it — so the
+        # refusal is the PATH's and not the record's.
+        record["path"] = os.path.relpath(batch.slot_path(entry), batch.STUDY)
+        self.write_ledger_file({"batchVersion": "3", "records": [record]})
+        batch.verify_prefix(batch.load_ledger(), ENTRIES)
+
+    def test_a_malformed_ledger_refuses_through_the_registered_path(self):
+        """Round 8, finding 9. `load_ledger()` assumed the decoded top level was
+        an object, so a `BATCH.json` holding `[]` reached `.get` on a list and
+        raised an `AttributeError` — outside `main()`'s catch, and so a traceback
+        where §2.8's resume rule promises malformed population state refuses
+        through the driver's own registered path. The top level and the
+        `records` member are both type-checked now, and the message names what
+        the file actually holds."""
+        for body, fragment in (([], "decodes to a JSON list"),
+                               ({"records": {}}, "records member is a JSON dict")):
+            self.write_ledger_file(body)
+            with self.assertRaises(batch.BatchError) as caught:
+                batch.load_ledger()
+            self.assertIn(fragment, str(caught.exception), repr(body))
+            # …and through both registered commands, neither of which writes.
+            self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 1,
+                             repr(body))
+            self.assertEqual(self.shortfall(), 1, repr(body))
+            self.assertEqual(self.calls_made(), "0", repr(body))
+            self.assertFalse(os.path.exists(self.slot(0)), repr(body))
+            self.assertFalse(os.path.exists(os.path.join(self.arms_root,
+                                                         "SHORTFALL.json")),
+                             repr(body))
+
     def test_the_withdrawn_flags_refuse_rather_than_being_ignored(self):
         """[D-22] and [D-23] removed `--start`, `--start-round` and `--slots`. A
         command line that still carries one means something else now, and must
@@ -1460,6 +1575,105 @@ class Batch(unittest.TestCase):
                          ledger[-1]["globalIndex"])
         self.assertEqual(declared["lastSlot"], ledger[-1]["path"])
         self.assertEqual(declared["completedSlots"], len(ledger))
+
+
+class ImportDiscipline(unittest.TestCase):
+    """The gate runs before the grid loads — probed in a fresh interpreter
+    (round 7, finding 1; round 8, finding 1).
+
+    §2.10's bytecode gate inspects the compiled cache of every ported source
+    before the harness relies on it, and a module already imported is a module
+    whose cache has already executed: the gate would be reading bytes that had
+    had their turn. Round 7 deferred `score_rates.py`'s own `import
+    policy_mirror` for that reason — and left `import census` eager one line
+    above it, while `census.py` imported the mirror at its top. `import batch`
+    therefore still executed the mirror before any gate ran, and the lazy
+    wrapper closed nothing. Round 8, finding 4 of the same shape: a chain of
+    imports is only as deferred as its eagerest link.
+
+    Nothing in the running test process can say what an import DOES, because the
+    modules are already imported here — `conftest.py` puts the harness on
+    `sys.path` and this file imports `batch` at its top. Every case below
+    therefore runs a FRESH interpreter and reads `sys.modules` inside it.
+    """
+
+    HARNESS = os.path.join(STUDY, "harness")
+
+    def probe(self, body: str):
+        """One fresh interpreter, running `body` with the harness importable and
+        no bytecode written beside the reviewed sources (§2.10 refuses on a
+        cache), returning the JSON its last line printed."""
+        source = "import json, sys\nsys.path.insert(0, %r)\n%s" % (self.HARNESS,
+                                                                   body)
+        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+        environment.pop("PYTHONPATH", None)
+        completed = subprocess.run([sys.executable, "-c", source],
+                                   capture_output=True, text=True,
+                                   env=environment, cwd=STUDY)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        return json.loads(completed.stdout)
+
+    def test_importing_the_driver_does_not_import_the_mirror_or_the_census(self):
+        loaded = self.probe(
+            "import batch\n"
+            "print(json.dumps({name: name in sys.modules for name in "
+            "('integrity', 'score_rates', 'census', 'policy_mirror')}))\n")
+        # The gate's own module IS loaded: the point is the ORDER, not that
+        # importing the driver imports nothing.
+        self.assertTrue(loaded["integrity"])
+        self.assertTrue(loaded["score_rates"])
+        self.assertFalse(loaded["census"], "census loaded before the gate")
+        self.assertFalse(loaded["policy_mirror"],
+                         "the mirror loaded before the gate")
+
+    def test_importing_the_census_does_not_import_the_mirror(self):
+        """The link round 7 left eager. `census.py` is a grid module that used
+        `policy_mirror` at its top, so every importer of it — the scorer, and
+        the driver through the scorer — pulled the mirror in with it."""
+        loaded = self.probe(
+            "import census\n"
+            "print(json.dumps({name: name in sys.modules for name in "
+            "('census', 'policy_mirror')}))\n")
+        self.assertTrue(loaded["census"])
+        self.assertFalse(loaded["policy_mirror"])
+
+    def test_the_mirror_is_still_absent_when_the_gate_itself_runs(self):
+        """The registered claim is about a MOMENT, so the probe reads
+        `sys.modules` at that moment: `batch.verify_ported_bytes()` is where
+        `integrity.verify()` is called, one statement into `preflight()`. The
+        gate is stubbed to refuse, so the probe spends nothing and leaves no
+        slot — what is asserted is what was loaded when it was entered."""
+        loaded = self.probe(
+            "import batch\n"
+            "seen = {}\n"
+            "def recording(*args, **kwargs):\n"
+            "    seen['atGate'] = sorted(name for name in ('census', 'policy_mirror')\n"
+            "                            if name in sys.modules)\n"
+            "    raise batch.integrity.IntegrityError('probe')\n"
+            "batch.integrity.verify = recording\n"
+            "try:\n"
+            "    batch.verify_ported_bytes()\n"
+            "except batch.BatchError:\n"
+            "    pass\n"
+            "print(json.dumps(seen))\n")
+        self.assertEqual(loaded, {"atGate": []})
+
+    def test_the_deferral_is_a_deferral_and_not_a_removal(self):
+        """Both modules still load, through the wrappers that defer them: a
+        `_census()` that had stopped resolving would make every case above pass
+        and the census disappear from `RESULTS.json`."""
+        loaded = self.probe(
+            "import score_rates\n"
+            "before = sorted(name for name in ('census', 'policy_mirror')\n"
+            "                if name in sys.modules)\n"
+            "names = [score_rates._census().__name__,\n"
+            "         score_rates._policy_mirror().__name__]\n"
+            "after = sorted(name for name in ('census', 'policy_mirror')\n"
+            "               if name in sys.modules)\n"
+            "print(json.dumps({'before': before, 'names': names, 'after': after}))\n")
+        self.assertEqual(loaded, {"before": [],
+                                  "names": ["census", "policy_mirror"],
+                                  "after": ["census", "policy_mirror"]})
 
 
 class IntervalScope(unittest.TestCase):

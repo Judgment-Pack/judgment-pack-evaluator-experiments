@@ -884,6 +884,14 @@ def verify_arms(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
     in_body_refs = Counter(
         ref for _, body in bodies["E"]
         for ref in re.findall(r"\bP([1-5])\b", flat(body)))
+    # The count is REGISTERED at exactly one (§2.6: "five plus one"); deriving
+    # the expectation from the body let an added reference self-authorize
+    # (round 8, finding 7).
+    if sum(in_body_refs.values()) != 1:
+        raise IntegrityError(
+            "arm E's clause bodies carry %d in-body clause-label references; "
+            "the registration counts exactly one"
+            % sum(in_body_refs.values()))
     expected_whole = Counter({"1": 1, "2": 1, "3": 1, "4": 1, "5": 1})
     expected_whole.update(in_body_refs)
     expected_whole.update({"3166": 1, "1": 1, "2": 1})
@@ -910,9 +918,12 @@ def verify_arms(study: str = STUDY, eleven: str = ELEVEN, ten: str = TEN,
                 "arm %s's mirror verdict vector over its own 280-cell grid is "
                 "not elementwise equal to arm A's" % arm)
         mutations = families[arm]["mutations"]
-        if [entry["index"] for entry in mutations] != list(range(6)):
-            raise IntegrityError("arm %s's family indices are not contiguous "
-                                 "0-5" % arm)
+        indices = [entry["index"] for entry in mutations]
+        if indices != list(range(6)) or any(
+                type(index) is not int for index in indices):
+            raise IntegrityError("arm %s's family indices are not the "
+                                 "contiguous INTEGERS 0-5 (a JSON false is "
+                                 "not an index; round 8, finding 8)" % arm)
         if class_vector(mutations, *pairs[arm]) != class_a:
             raise IntegrityError(
                 "arm %s's family class vector over its own grid is not "
@@ -1118,7 +1129,8 @@ def _code_equal(left, right) -> bool:
                "co_nlocals", "co_stacksize", "co_flags", "co_code",
                "co_names", "co_varnames", "co_freevars", "co_cellvars",
                "co_filename", "co_name", "co_qualname",
-               "co_exceptiontable")
+               "co_exceptiontable", "co_firstlineno", "co_linetable",
+               "co_lnotab")
     for member in members:
         if getattr(left, member, None) != getattr(right, member, None):
             return False
@@ -1145,6 +1157,16 @@ def _const_equal(a, b, code_type) -> bool:
     if isinstance(a, tuple):
         return len(a) == len(b) and all(
             _const_equal(x, y, code_type) for x, y in zip(a, b))
+    if isinstance(a, float):
+        # Python equality says 0.0 == -0.0 and would launder a sign flip a
+        # cache carries into "the same constant" (round 8, finding 3): a
+        # float is its bits.
+        import struct
+        return struct.pack("<d", a) == struct.pack("<d", b)
+    if isinstance(a, complex):
+        import struct
+        return struct.pack("<dd", a.real, a.imag) == struct.pack(
+            "<dd", b.real, b.imag)
     if isinstance(a, frozenset):
         if len(a) != len(b):
             return False

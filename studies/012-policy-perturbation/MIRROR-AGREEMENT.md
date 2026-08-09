@@ -29,8 +29,12 @@ arm E, the one arm whose derivability is the study's central question.
 | D | OpenAI | `gpt-5.6-sol` | same | 4 |
 | E | OpenAI | `gpt-5.6-sol` | same | 5 |
 
-One reader identity serves all five arms, as in Study 011; each arm's read is
-a fresh session with no memory of any other. The reader's vendor lineage
+One reader identity serves all five arms, as in Study 011; each arm's read
+is a fresh session, and the retained bytes show no session-side carryover —
+what no retained byte can show is provider-side cross-session state, which
+the preregistration's own limits concede (§7), and arm E ran last, after
+sessions whose prompts stated 40 and 70; the categorical claim is therefore
+not made (round 8, finding 10). The reader's vendor lineage
 (OpenAI) is distinct from the lineage that drafted the registered mirror and
 the arm texts (Anthropic-model sessions), so a shared misreading cannot come
 from shared weights, whatever else it could come from.

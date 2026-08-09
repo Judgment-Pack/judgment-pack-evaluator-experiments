@@ -313,14 +313,50 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
-import census  # noqa: E402
 import integrity  # noqa: E402
+def _refuse_untracked_python_sources():
+    """Round 8, finding 2: an untracked package can shadow a reviewed module
+    at import time — including the module carrying the untracked-source scan
+    itself, which is why THIS tripwire lives in the entry file the ceremony
+    names by path, before any harness import. Import resolution cannot shadow
+    a script invoked as a file."""
+    import subprocess as _subprocess
+    study = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    tracked = set(_subprocess.run(
+        ["git", "ls-files", "-z", "--", "."],
+        cwd=study, capture_output=True, check=True
+    ).stdout.decode("utf-8").split("\0"))
+    for base, _dirs, files in os.walk(study):
+        for name in files:
+            if not name.endswith(".py"):
+                continue
+            rel = os.path.relpath(os.path.join(base, name), study)
+            if rel.replace(os.sep, "/") not in tracked:
+                print("refused: untracked Python source %s sits in the study "
+                      "tree; the reviewed bytes are the bytes that run "
+                      "(§2.10, round 8 finding 2)" % rel, file=sys.stderr)
+                raise SystemExit(2)
+
+
+if __name__ == "__main__":
+    _refuse_untracked_python_sources()
+
+
 # The mirror is imported LAZILY (round 7, finding 1): the bytecode gate in
 # integrity.verify() must run before any grid module loads, and this module
 # is imported by batch.py before its preflight can call the gate.
 def _policy_mirror():
     import policy_mirror  # noqa: E402
     return policy_mirror
+# The census is imported lazily for the SAME reason, and it had to be (round 8,
+# finding 1): `census.py` imports the mirror, so an eager `import census` here
+# executed the mirror before the gate however deferred this module's own mirror
+# import was — the lazy wrapper above closed one path into the grid and left the
+# other open. `census.py`'s mirror import is deferred too, and
+# `test_batch.py::ImportDiscipline` probes a fresh interpreter for both.
+def _census():
+    import census  # noqa: E402
+    return census
 import records_compile  # noqa: E402
 import transcript_check  # noqa: E402
 
@@ -374,6 +410,10 @@ MANIFEST_FILE = "SLOT-MANIFEST.json"
 # the same two shapes and the same markers — the driver seals and the scorer
 # recomputes, and neither reads the other's list to find out what to write.
 NON_FILE_LENGTH = -1
+# Round 8, finding 4: the slot ROOT is an entry of its own list, at the one
+# relative path no entry beneath it can take — `os.path.relpath(child, slot)`
+# is never `.`. `batch.py`'s `SLOT_ROOT_ENTRY` is the same string.
+SLOT_ROOT_ENTRY = "."
 MANIFEST_TYPE_MARKERS = (
     (stat.S_ISLNK, "symlink"),
     (stat.S_ISDIR, "directory"),
@@ -2016,10 +2056,24 @@ def _entry_type(mode: int) -> str:
 
 
 def manifest_files(slot: str) -> list:
-    """§2.9's sorted list, recomputed over EVERY entry in the slot tree: a
-    regular file as `[relative path, byte length, bare sha256 hex]`, and every
-    other entry — a symlink, a directory, a FIFO, a socket, a device — as
+    """§2.9's sorted list, recomputed over the slot ROOT and EVERY entry beneath
+    it: a regular file as `[relative path, byte length, bare sha256 hex]`, and
+    every other entry — a symlink, a directory, a FIFO, a socket, a device — as
     `[relative path, NON_FILE_LENGTH, "type:<marker>"]`.
+
+    **Round 8, finding 4: the root is an entry too, at path `.`.** Round 7's fix
+    walked only what lay BENEATH the slot, and the `run-NNN` directory itself
+    was never `lstat`ed — so the whole of it could be evaded one level up.
+    Renaming a sealed slot and planting a symlink at its old path leaves every
+    entry this list covers byte-identical through the link: `verify_seal()`
+    returned None, and §3.3's lstat-first rule then scored the slot
+    `slot-symlink` and moved it out of `V_X` into `I_X` with `sealed` still
+    true. That is the denominator change §2.9 registers as the one thing a
+    post-seal alteration must not buy, taken at the one path round 7 left
+    unsealed. The root's own `lstat` type is now a row of the list, so the move
+    is a manifest discrepancy and the consequence is the WHOLE batch's (C5 rule
+    6). No entry beneath the root can forge that row: `os.path.relpath` of a
+    child is never `.`.
 
     **Round 7, finding 3: every entry, not every regular file.** Both manifest
     implementations omitted non-regular entries, so a symlink ADDED after the
@@ -2045,7 +2099,8 @@ def manifest_files(slot: str) -> list:
     driver writes the seal and the scorer checks it, and the study has one
     manifest convention rather than two that happen to agree.
     """
-    rows = []
+    rows = [[SLOT_ROOT_ENTRY, NON_FILE_LENGTH,
+             "type:%s" % _entry_type(os.lstat(slot).st_mode)]]
     for base, directories, names in os.walk(slot):
         directories.sort()
         for name in sorted(directories + names):
@@ -2095,9 +2150,11 @@ def verify_seal(slot: str, ledger_record: dict) -> str:
     own `filesSha256`, and the ledger's `manifestSha256` must be the digest of
     the manifest FILE — which is what carries the first two into the chain.
 
-    The recomputed list covers every ENTRY (round 7, finding 3), so an addition
-    to a sealed slot fails the first binding. Before that, a post-seal symlink
-    passed all three and then bought that slot a `slot-symlink` code and the
+    The recomputed list covers the slot ROOT (round 8, finding 4) and every
+    ENTRY beneath it (round 7, finding 3), so an addition to a sealed slot —
+    or a rename of the slot with a symlink planted at its old path — fails the
+    first binding. Before those two, each of them in turn passed all three
+    bindings and then bought that slot a `slot-symlink` code and the
     denominator change it carries, with `sealed` still true.
     """
     path = os.path.join(slot, MANIFEST_FILE)
@@ -3375,9 +3432,9 @@ def score_arm(arm: str, definition: dict, n: int, rows: list,
                     "UTC stamps — no timestamp is published and no clock is read, so "
                     "re-scoring the same tree is byte-identical.",
         },
-        "census": census.census(arm, records, definition["classes"],
-                                definition["embargo"], definition["tLow"],
-                                definition["tHigh"]),
+        "census": _census().census(arm, records, definition["classes"],
+                                   definition["embargo"], definition["tLow"],
+                                   definition["tHigh"]),
     }
 
 
@@ -4194,7 +4251,7 @@ def _write_outputs(results: dict, arms_root: str) -> None:
     with open(os.path.join(STUDY, "RATES.md"), "wb") as handle:
         handle.write(render_markdown(results).encode("utf-8"))
     with open(os.path.join(STUDY, "CENSUS.md"), "wb") as handle:
-        handle.write(census.render_markdown(results["census"]).encode("utf-8"))
+        handle.write(_census().render_markdown(results["census"]).encode("utf-8"))
 
 
 # The registered command's whole argument surface (§2.10 [D-23]).

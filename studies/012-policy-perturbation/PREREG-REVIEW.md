@@ -1191,3 +1191,103 @@ Unchanged since round 2:
 | **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
 | **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
 | **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+
+## Round 8 — the fifth post-disposition review
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-08; drafting as recorded in rounds 1-7
+- Reviewed commit: `2607031`
+- Tree manifest, the reviewer's computation:
+  `d3fdbd313bfd185786427dc341a240a002303ad4fdcb3e8190890bce0b511ab8`
+- Runs: one review run, completed; no run discarded
+- Reviewer's verification first: integrity exit 0; 201 passed; tracked status
+  clean. **Round 7's findings 5-9 and 11 fully verified; 1-4 and 10 partial.**
+  The reviewer ACCEPTED round 7 finding 3's adjudicated reading in its own
+  words: retaining `slot-symlink` while a broken seal forces whole-batch
+  unresolved "genuinely buys no denominator or verdict change". Everything
+  else passes: port tables and digests, registry members, the wrapper's
+  permitted diff otherwise, seal sequencing, schedule, ordinary shortfall,
+  the partition, the endpoints and tables, all twenty arm artifacts with
+  independent probes, mirror chronology, the CLAIM quotation.
+
+### Prompt (verbatim)
+
+```
+You are performing the FINAL pre-freeze cross-vendor adversarial review (round 8) of Study 012 at commit 2607031 on branch study-012-perturbation, repository root <worktree root>. The study directory is <worktree root>/studies/012-policy-perturbation. Rounds 3-7 (records and dispositions at the end of PREREG-REVIEW.md) drove 20, 14, 13, 12 and 11 accepted findings; all are implemented. Your first task: verify each of round 7's eleven findings. One adjudication is explicitly yours: finding 3's disposition could not suppress slot-symlink without violating §3.3's registered partition, so the implemented rule publishes the code while a broken seal forces whole-batch UNRESOLVED-BY-DESIGN (the code provably buys no denominator change) — judge that reading. Also judge the implemented forms: the type-strict structural comparator, the untracked-Python-source refusal, both lazy mirror imports, the every-entry seal (§2.9 as amended), resume's whole-population reconciliation, the raw-digest-first session identity. Then a fresh sweep. Then a fresh sweep. This round reviews the COMPLETE post-disposition candidate tree — the preregistration as it now stands, every harness source and test, the twenty arm files, harness/PORTS.md, harness/PINS.json, CLAIM.md, MIRROR-AGREEMENT.md, and the five analysis/mirror2_<arm>.py clean-room mirrors — because PREREGISTRATION.md §2.2 [D-20] registers that the last review must see the bytes that run.
+
+Review format: READ-ONLY with respect to the repository — modify no tracked file. Your working directory is a scratch area outside the repo; write anything you need there. You may run the harness test suite and harness/integrity.py using the pinned interpreter at ~/.pyenv/versions/3.12.11/bin/python3 (run pytest with -p no:cacheprovider and PYTHONDONTWRITEBYTECODE=1 to avoid writing caches into the repo).
+
+Tasks, in order:
+1. Read PREREGISTRATION.md in full. It is the registration; everything else answers to it.
+2. Verify the port against its registered scopes: §2.2's three tables (tiers, digests, enumerated changes) against harness/PORTS.md and the actual files; §2.7 against transcription/authoring_call.sh (exactly three permitted differences — assess the driver-side seal reading PORTS.md records against §2.9's wrapper sentence); §2.8 against batch.py's schedule, resume and shortfall; §2.9 against the seal and ledger code; §2.10 against harness/PINS.json member by member; §3.3's partition against score_rates.py; §4 and §5 against the scorer's endpoints, intervals and verdict tables; §6 C1-C10 against integrity.py and the test suite.
+3. Verify the twenty arm artifacts satisfy §2.6 and Appendix A: run integrity.py yourself and check what it checks; probe at least two of its claims independently (for example, re-derive an arm's digit census or the C permutation by your own means).
+4. Read CLAIM.md and check its two quoted passages against the cited sources in this repository (studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md section (d)); flag any divergence between quote and source.
+5. Read MIRROR-AGREEMENT.md and the retained attempts under analysis/mirror2-attempts/; check the pre-assignment commit precedes the attempts (git log will show it), spot-check one extracted module against its raw transcript, and assess whether the isolation description matches what the retained prompt.txt files show was actually sent.
+6. Run the full test suite under the pinned interpreter and report its result.
+7. Compute the tree manifest yourself, exactly as §2.10 AS AMENDED registers it: over every git-tracked regular file under studies/012-policy-perturbation, excluding the paths in harness/PINS.json freeze.excluded AND the two carriers (harness/PINS.json, PREREG-REVIEW.md), build the sorted list of lines "<path> <bytes> <sha256>" (paths relative to the study directory); then append the registry's normalized-projection entry — PINS.json parsed, freeze.treeManifestSha256, freeze.preregistrationSha256, golden.sha256 and isolationNegative.assent set to null, serialized with json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":")) plus a newline, hashed and listed as "harness/PINS.json#normalized <bytes> <sha256>" — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Verify integrity.tree_manifest() implements the same recipe, and state the digest in your final message as your attestation of the bytes you reviewed.
+8. Look for what the port got wrong that nothing above names: a registered sentence no code makes true, a check that can never fire, a digest bound to the wrong authority, a test that asserts less than it appears to.
+
+Final message: a numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — followed by: an overall verdict line; the line "Reviewed commit: 2607031"; the line "Tree manifest (my computation): <hex digest>"; then the single line CODEX-012-R8-DONE.
+```
+
+### Complete unedited final message
+
+1. [harness/score_rates.py:316](harness/score_rates.py:316), [harness/census.py:79](harness/census.py:79) — The round-7 record requires all grid imports to be deferred until after bytecode verification. `score_rates` eagerly imports `census`, which eagerly imports `policy_mirror`; importing `batch` therefore executes the mirror before `integrity.verify()`. The apparent lazy wrapper at `score_rates.py:321` does not close the original bypass. Severity: **blocking**.
+
+2. [harness/batch.py:196](harness/batch.py:196), [harness/integrity.py:1176](harness/integrity.py:1176) — The record requires refusal of any untracked Python source. That refusal is inside `integrity.py`, but Python resolves an untracked `harness/integrity/__init__.py` package before the adjacent module. Thus the package can replace the gate containing the check. The exact round-7 shadow-package bypass remains reproducible. Severity: **blocking**.
+
+3. [harness/integrity.py:1109](harness/integrity.py:1109), [harness/integrity.py:1135](harness/integrity.py:1135) — The record says structural equality establishes that the cached payload is the adjacent source compiled. The scalar fallback uses ordinary equality, admitting `0.0` versus `-0.0`; a pinned-interpreter probe returned equality even though execution preserved the observable negative zero. It also ignores `co_firstlineno` and `co_linetable` despite claiming every code attribute. Severity: **blocking**.
+
+4. [harness/score_rates.py:2049](harness/score_rates.py:2049), [harness/batch.py:949](harness/batch.py:949) — I accept finding 3’s adjudicated reading: retaining `slot-symlink` while a detected broken seal forces whole-batch unresolved genuinely buys no denominator or verdict change. The implementation, however, walks only entries beneath the slot and never seals or `lstat`s the `run-NNN` root. Renaming a sealed directory and replacing its original path with a symlink to that directory left the seal verified while admission emitted `slot-symlink` and changed valid/invalid membership. The test at [test_admission.py:680](harness/tests/test_admission.py:680) only adds a symlink inside the root. Severity: **blocking**.
+
+5. [harness/batch.py:1381](harness/batch.py:1381) — The record requires resume to reconcile the whole population and verify the exact registered prefix before spending calls. Recorded paths need only be nonempty and exist; they need not equal their scheduled canonical slot paths. A valid first schedule record naming existing `README.md`, with `run-001` absent, passed both prefix verification and reconciliation, allowing resume to skip index 1 and continue. Severity: **should-fix**.
+
+6. [transcription/authoring_call.sh:140](transcription/authoring_call.sh:140), [harness/PORTS.md:132](harness/PORTS.md:132) — The port record says the wrapper itself enforces `arms/<ARM>/authoring/run-NNN/`. It checks only the parent and grandparent basenames, so `/tmp/C/authoring/run-001` passes for arm C, and the slot name is unrestricted. The canonical driver remains safe, but [test_batch.py:558](harness/tests/test_batch.py:558) tests only the wrong arm within a proper arms tree. Severity: **should-fix**.
+
+7. [harness/integrity.py:883](harness/integrity.py:883) — C8 fixes E’s whole-file census at five clause labels, exactly one in-body `P<n>` reference, and three ISO digit runs. The expected counter is derived from however many references the actual body contains, so an added `P1` self-authorizes and cannot trip this check. The frozen E artifact itself is correct and pinned. Severity: **should-fix**.
+
+8. [harness/integrity.py:913](harness/integrity.py:913) — C9 requires contiguous integer indices 0–5 and structural schema equality. Ordinary Python equality accepts JSON `false` as index 0; `[False,1,2,3,4,5]` also survives the class-vector comparison. Current family bytes carry proper integers, but the advertised structural control is not type-strict. Severity: **should-fix**.
+
+9. [harness/batch.py:1098](harness/batch.py:1098) — The resume/shortfall record promises malformed population state is refused through the driver’s registered path. `load_ledger()` assumes the decoded top level is an object; `BATCH.json` containing `[]` raises an uncaught `AttributeError`, outside the catch at `batch.py:2203`. The corresponding scorer-side round-7 fix does pass. Severity: **should-fix**.
+
+10. [MIRROR-AGREEMENT.md:32](MIRROR-AGREEMENT.md:32) — The record says each fresh reader session had “no memory of any other” and that E’s values were derived from E’s bytes alone. The retained prompts are clean, sessions and local `CODEX_HOME`s are distinct, and no tool calls occurred, but this cannot exclude provider-side cross-session state; [PREREGISTRATION.md:2946](PREREGISTRATION.md:2946) expressly concedes that limitation. Because E ran last after prompts exposing 40/70, the categorical wording overstates the evidence. Severity: **should-fix**.
+
+11. [README.md:229](README.md:229) — Round-7 finding 10 required an explicit assent edit. The edit is now documented, but the ceremony first says PINS is never edited again and immediately instructs editing `isolationNegative.assent` at line 234. It remains internally contradictory. Severity: **should-fix**.
+
+12. [README.md:12](README.md:12) — The status says six rounds, with post-port rounds 3–6, while `PREREG-REVIEW.md` contains round 7 and this candidate implements its dispositions. Severity: **nit**.
+
+Overall verdict: BLOCKING — Study 012 is not freeze-ready. Round-7 findings 5–9 and 11 are fully verified; 1–4 and 10 remain partial. The port tables and digests, PINS members, permitted wrapper diff otherwise, driver-side seal sequencing, schedule and ordinary shortfall, §3.3 partition, §4/§5 endpoints and tables, all twenty arm artifacts, independent E digit census and C permutation, mirror chronology/extraction/prompt equation, and the repository-backed CLAIM quotation otherwise pass. Pinned integrity exited 0; the full pinned suite passed 201 tests in 184.55 seconds; tracked status remained clean.
+
+Reviewed commit: 2607031  
+Tree manifest (my computation): d3fdbd313bfd185786427dc341a240a002303ad4fdcb3e8190890bce0b511ab8  
+CODEX-012-R8-DONE
+
+### Dispositions
+
+All twelve findings **ACCEPTED**. The instructive one is finding 2: the
+untracked-source refusal lived inside the module the shadow package
+replaces, so the module could never defend itself — the tripwire moves into
+the entry files the ceremony names by path (`batch.py`, `score_rates.py`),
+which the import system cannot shadow, before any harness import; the
+registered reasoning goes with it. Finding 1 completes the lazy-import
+discipline through the census chain. Finding 3 makes the scalar fallback
+distinguish what Python equality will not (a float compares by its bits) and
+extends the member list to the line attributes it claimed. Finding 4 seals
+the slot ROOT itself — the root's own lstat type is an entry, so replacing
+the directory with a symlink to it breaks the seal. Findings 5-9 as written.
+Finding 10 softens MIRROR-AGREEMENT's categorical no-memory sentence to what
+the retained bytes support, deferring to the provider-side-state concession
+the preregistration already carries. Findings 11-12 as written.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged since round 2:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 8 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |

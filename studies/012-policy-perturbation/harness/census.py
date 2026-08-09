@@ -76,7 +76,19 @@ from decimal import Decimal
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-import policy_mirror as pm  # noqa: E402
+# The ONE registered mirror module (§2.2 [D-14]) is imported LAZILY, through
+# this function rather than at the top of the file (round 8, finding 1). The
+# bytecode gate in `integrity.verify()` has to run before any grid module
+# loads, and round 7's finding 1 deferred `score_rates.py`'s own mirror import
+# for exactly that reason — but `score_rates.py` imported THIS module eagerly
+# and this module imported the mirror eagerly, so importing `batch.py` still
+# executed the mirror before the gate could look at its cache. A chain of
+# imports is only as deferred as its eagerest link, so both links are deferred
+# now and `test_batch.py` probes a fresh interpreter to say so.
+def _policy_mirror():
+    import policy_mirror  # noqa: E402
+    return policy_mirror
+
 
 # §4.5's three edges, per arm. `T_low − 1` is the unstated lower edge of class
 # 5's window: it is named by the arm's FAMILY.json and by nothing the model was
@@ -276,8 +288,8 @@ def census(arm: str, runs: dict, classes: list, embargo: tuple,
     edge_values = [value for value, _stated in arm_edges]
 
     def concordant(record: dict) -> bool:
-        return record["decision"]["outcome"] == pm.verdict(record["vendor"],
-                                                           t_low, t_high)
+        return record["decision"]["outcome"] == _policy_mirror().verdict(
+            record["vendor"], t_low, t_high)
 
     per_run_sizes = [len(runs[slot]) for slot in slots]
     n_h = sum(1 for _slot, record in records if concordant(record))
@@ -320,7 +332,8 @@ def _x1(records: list, classes: list, embargo: tuple, n_runs: int,
     rows = []
     for entry in classes:
         members = [(slot, record["vendor"]) for slot, record in records
-                   if pm.predicate_matches(entry["predicate"], record["vendor"])
+                   if _policy_mirror().predicate_matches(entry["predicate"],
+                                                         record["vendor"])
                    and concordant(record)]
         probe_runs: dict = collections.defaultdict(set)
         for slot, vendor in members:

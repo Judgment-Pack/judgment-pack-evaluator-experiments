@@ -198,6 +198,33 @@ import integrity  # noqa: E402
 # round 5 finding 3): set structurally, not left to the operator's
 # environment, before any harness module is imported.
 sys.dont_write_bytecode = True
+
+def _refuse_untracked_python_sources():
+    """Round 8, finding 2: an untracked package can shadow a reviewed module
+    at import time — including the module carrying the untracked-source scan
+    itself, which is why THIS tripwire lives in the entry file the ceremony
+    names by path, before any harness import. Import resolution cannot shadow
+    a script invoked as a file."""
+    import subprocess as _subprocess
+    study = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    tracked = set(_subprocess.run(
+        ["git", "ls-files", "-z", "--", "."],
+        cwd=study, capture_output=True, check=True
+    ).stdout.decode("utf-8").split("\0"))
+    for base, _dirs, files in os.walk(study):
+        for name in files:
+            if not name.endswith(".py"):
+                continue
+            rel = os.path.relpath(os.path.join(base, name), study)
+            if rel.replace(os.sep, "/") not in tracked:
+                print("refused: untracked Python source %s sits in the study "
+                      "tree; the reviewed bytes are the bytes that run "
+                      "(§2.10, round 8 finding 2)" % rel, file=sys.stderr)
+                raise SystemExit(2)
+
+
+if __name__ == "__main__":
+    _refuse_untracked_python_sources()
 import score_rates  # noqa: E402  (one slot-naming rule and one JSON loader, not two)
 import transcript_check  # noqa: E402
 
@@ -227,6 +254,10 @@ MANIFEST_NAME = "SLOT-MANIFEST.json"
 # collide: no file has a negative length and no sha256 hex string begins with
 # `type:`. `score_rates.py` writes the same two shapes and the same markers.
 NON_FILE_LENGTH = -1
+# Round 8, finding 4: the slot ROOT is an entry of its own list, at the one
+# relative path no entry beneath it can take. `os.path.relpath(child, slot)` is
+# never `.`, so the root's row cannot be forged by planting a file in the tree.
+SLOT_ROOT_ENTRY = "."
 TYPE_MARKERS = (
     (stat.S_ISLNK, "symlink"),
     (stat.S_ISDIR, "directory"),
@@ -918,13 +949,29 @@ def _entry_type(mode: int) -> str:
 
 
 def slot_files(slot: str) -> list:
-    """§2.9's sorted list, over EVERY entry in the slot tree, in path order —
-    the shape `score_rates.py` recomputes and compares entry for entry.
+    """§2.9's sorted list, over the slot ROOT and EVERY entry beneath it, in
+    path order — the shape `score_rates.py` recomputes and compares entry for
+    entry.
 
     A regular file is `[relative path, byte length, bare sha256 hex]`. Every
     other entry — a symlink, a directory, a FIFO, a socket, a device — is
     `[relative path, NON_FILE_LENGTH, "type:<marker>"]`: named and typed, since
     it is not a byte range to hash.
+
+    **Round 8, finding 4: the root is an entry too, at path `.`.** Round 7's
+    fix walked only what lay BENEATH the slot and never `lstat`ed `run-NNN`
+    itself, so the whole of round 7 could be evaded one level up: rename the
+    sealed directory and plant a symlink at its old path, and every entry the
+    list covers is byte-identical through the link — `verify_seal()` returned
+    None while §3.3's lstat-first rule scored the slot `slot-symlink` and moved
+    it out of `V_X` into `I_X` with `sealed` still true. That is the same
+    denominator change round 7 closed, bought at the one path round 7 did not
+    seal. The root's own `lstat` type is now the row `. -1 type:directory`, so
+    a root replaced by a link to itself is a manifest discrepancy and §2.9's
+    consequence is the WHOLE batch's — every level verdict
+    `UNRESOLVED-BY-DESIGN`, no contrast — rather than one slot's. No entry
+    beneath the root can collide with it: `os.path.relpath` of a child is never
+    `.`.
 
     **Round 7, finding 3: every entry, not every regular file.** This listed
     regular files only, so an entry ADDED after the seal — a symlink, most
@@ -945,7 +992,8 @@ def slot_files(slot: str) -> list:
     slot's. Every type is decided by `lstat`, and only regular files are
     opened, so a FIFO in a slot tree is sealed rather than read (an `open()`
     on one blocks forever)."""
-    rows = []
+    rows = [[SLOT_ROOT_ENTRY, NON_FILE_LENGTH,
+             "type:%s" % _entry_type(os.lstat(slot).st_mode)]]
     for base, directories, names in os.walk(slot):
         directories.sort()
         for name in sorted(directories + names):
@@ -1028,13 +1076,16 @@ def seal_slot(slot: str, entry: dict) -> str:
         "globalIndex": entry["globalIndex"],
         "files": files,
         "filesSha256": files_digest(files),
-        "note": "The terminal seal of this slot (§2.9): EVERY entry in the tree by "
-                "relative path — regular files by byte length and sha256, everything "
+        "note": "The terminal seal of this slot (§2.9): the slot ROOT itself, at the "
+                "relative path `.`, and EVERY entry beneath it by relative path — "
+                "regular files by byte length and sha256, everything "
                 "else (symlinks, directories, FIFOs, sockets, devices) by a -1 length "
                 "and a type: marker — sorted by path, and the sha256 of that sorted "
                 "list. Every entry, so that an entry ADDED after the seal breaks it "
                 "rather than passing it and then buying that slot a pipeline-invalid "
-                "code and the denominator change it carries. "
+                "code and the denominator change it carries; and the root, so that "
+                "renaming this directory and planting a symlink at its old path "
+                "breaks it for the same reason. "
                 "This file is not a member of its own "
                 "list — a file cannot carry its own digest — and is sealed instead by "
                 "the ledger, whose record for this slot carries the digest of THIS "
@@ -1091,11 +1142,27 @@ def load_ledger() -> list:
     the order the driver preferred. `score_rates.py` reads the same file in file
     order and refuses it, so the two modules disagreed about the same bytes. A
     reordered ledger is a ledger someone edited; §2.9's chain is over the file,
-    and the driver refuses rather than repairing it."""
+    and the driver refuses rather than repairing it.
+
+    Round 8, finding 9: the decoded top level and the `records` member are both
+    TYPE-CHECKED here. `BATCH.json` holding `[]` used to reach `.get` on a list
+    and raise an `AttributeError`, which is not one of `main()`'s registered
+    refusals — the operator got a traceback where §2.8's resume rule promises a
+    refusal naming the file."""
     path = os.path.join(ARMS_ROOT, LEDGER_NAME)
     if not os.path.isfile(path):
         return []
     ledger = _load_json(path)
+    if not isinstance(ledger, dict):
+        # Round 8, finding 9: `[]` decodes fine and then `.get` raised an
+        # AttributeError outside `main()`'s catch — a traceback where §2.8's
+        # resume rule promises malformed population state refuses through the
+        # driver's own registered path.
+        raise BatchError(
+            "%s decodes to a JSON %s and a ledger is an object carrying a records "
+            "list: a file that is not one is not this batch's ledger, whatever it "
+            "holds. Move it aside and record why in DEVIATIONS.md"
+            % (path, type(ledger).__name__))
     records = ledger.get("records")
     if records is None:
         raise BatchError(
@@ -1103,7 +1170,11 @@ def load_ledger() -> list:
             "move it aside and record why in DEVIATIONS.md"
             % (path, ledger.get("batchVersion")))
     if not isinstance(records, list):
-        raise BatchError("%s's records member is not a list" % path)
+        raise BatchError(
+            "%s's records member is a JSON %s and §2.9 registers it as the list of "
+            "per-slot records in schedule order: a ledger whose records are not a "
+            "list has no prefix to check and no chain to verify. Move it aside and "
+            "record why in DEVIATIONS.md" % (path, type(records).__name__))
     previous = None
     for offset, record in enumerate(records):
         index = record.get("globalIndex") if isinstance(record, dict) else None
@@ -1151,7 +1222,19 @@ def verify_prefix(records: list, entries: list) -> None:
     was not: a round number cannot say whether the rest of its round ran, and
     an overlap or an omission inside a round is undetectable after the fact
     from one. A prefix of the registered order is checkable against the order
-    itself, at every position, before a call is spent."""
+    itself, at every position, before a call is spent.
+
+    **Round 8, finding 5: the record's `path` is one of the compared members,
+    and it is DERIVED.** Nothing here read it, and `reconcile_ledger()` asked
+    only that it be a nonempty string naming something that exists — so a first
+    record carrying §2.8's schedule keys for global index 1 and the path
+    `README.md` verified as the registered prefix, reconciled against a study
+    tree in which `run-001` was absent, and let `--resume` continue at index 2.
+    The slot at index 1 was never made and nothing said so. §6 C5 clause 2 puts
+    the ledger and the slot set in bijection "at the path the record names", so
+    the path a record names has to be the path §2.8 assigns its (arm, slot
+    index) — recomputed here from `slot_path()`, the same function the driver
+    plans and seals with, rather than compared against a shape."""
     if len(records) > len(entries):
         raise BatchError(
             "%s records %d slots and §2.8 registers %d: a ledger longer than the "
@@ -1159,7 +1242,12 @@ def verify_prefix(records: list, entries: list) -> None:
             % (os.path.join(ARMS_ROOT, LEDGER_NAME), len(records), len(entries)))
     for offset, record in enumerate(records):
         expected = {key: entries[offset][key] for key in SCHEDULE_KEYS}
+        # The canonical slot path for THIS position, derived from the schedule
+        # entry by the function that plans it, exactly as `ledger_record()`
+        # writes it (round 8, finding 5).
+        expected["path"] = os.path.relpath(slot_path(entries[offset]), STUDY)
         actual = {key: record.get(key) for key in SCHEDULE_KEYS}
+        actual["path"] = record.get("path")
         if actual != expected:
             raise BatchError(
                 "the ledger diverges from §2.8's registered call order at position "
@@ -1215,9 +1303,10 @@ def write_ledger(records: list, pins: dict, cli_override: str) -> None:
 
 def verify_seal_of(slot: str, entry: dict) -> str:
     """The digest of a slot's `SLOT-MANIFEST.json` when that manifest is this
-    slot's — every entry in the tree at the length, digest or type marker it
-    records, the sorted-list digest over them, and the slot, arm and global
-    index it names — or BatchError saying which of those failed.
+    slot's — the slot root and every entry beneath it at the length, digest or
+    type marker it records (round 8, finding 4), the sorted-list digest over
+    them, and the slot, arm and global index it names — or BatchError saying
+    which of those failed.
 
     This is `seal_slot()` read backwards, over a slot the driver did not just
     make. It exists for the one case that needs it (`reconcile_ledger()` below)

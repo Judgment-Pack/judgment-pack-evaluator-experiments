@@ -9,10 +9,10 @@ The preregistration is a draft until it is frozen by merge after the final
 cross-vendor review round ends clean; it governs thereafter, and
 `DEVIATIONS.md` records every departure from it.
 
-**Review status: six rounds recorded, rounds 2-6 cross-vendor.**
+**Review status: eight rounds recorded, rounds 2-8 cross-vendor.**
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md) records them all — round 1 internal;
 round 2 the first cross-vendor round over the specification and arm texts;
-rounds 3-6 over the complete post-port candidate tree, each with every
+rounds 3-8 over the complete post-port candidate tree, each with every
 finding dispositioned by the maintainer and the dispositions implemented
 before the next round. The final round has not yet ended clean; the freeze
 binds to the manifest of the round that does.
@@ -228,7 +228,12 @@ sha256sum PREREGISTRATION.md
 "$PY" harness/batch.py capture --scratch-parent DIR
 #    Then put the printed digest into harness/PINS.json golden.sha256 and
 #    COMMIT both. From here on PINS.json is not edited: the batch stamps its
-#    digest into every slot, and a later edit refuses the scoring.
+#    digest into every slot, and a later edit refuses the scoring. (That
+#    rule is §2.10's, and it is scoped: the registry is never edited BETWEEN
+#    THE BATCH AND THE SCORING; the assent edit in step 5 happens before the
+#    batch and touches one of the four registered post-freeze members, which
+#    the manifest's normalized projection nulls — no contradiction, and
+#    round 8 finding 11 is why this parenthesis exists.)
 
 # 5. The isolation negative control (§6 C7), ONCE. FIRST record the
 #    operator's assent: edit harness/PINS.json isolationNegative.assent from

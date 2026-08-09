@@ -748,6 +748,92 @@ def test_a_symlink_added_after_the_seal_breaks_the_seal(pins, study):
         shutil.rmtree(root, True)
 
 
+def test_renaming_the_sealed_slot_and_linking_to_it_breaks_the_seal(pins, study):
+    """Round 8, finding 4: the move that survived round 7's every-entry seal.
+
+    Round 7 sealed every entry BENEATH the slot and never `lstat`ed the
+    `run-NNN` directory itself, so the whole of it could be evaded one level up.
+    Rename the sealed slot, plant a symlink at its old path, and every entry the
+    manifest lists is byte-identical through the link — the recomputed list
+    matched, the list digest matched, the ledger's manifest digest matched, and
+    `verify_seal()` returned None. §3.3's lstat-first rule then scored the slot
+    `slot-symlink`, moving it out of `V_X` into `I_X` with the batch still
+    `sealed`: the denominator change §2.9 registers as the one thing a post-seal
+    alteration must never buy, taken at the one path round 7 left unsealed.
+
+    Three assertions, and they are the three §2.9 makes. The seal BREAKS, and
+    breaks at the altered slot alone. The population is unchanged — the slot is
+    still on disk, still recorded, still counted, and the ledger's chain still
+    verifies — so what the move bought is not a smaller denominator but an
+    unresolved batch: every level verdict `UNRESOLVED-BY-DESIGN` and no
+    contrast, which is a verdict no alteration can aim at. And the honest
+    population is the control: undo the move and the same tree seals again, so
+    the refusal is the move's and not the fixture's.
+
+    The renamed directory is placed OUTSIDE the arms tree, because a sibling
+    inside `authoring/` would be an unexpected entry and the assertion here is
+    about the seal rather than about `collect_slots()`.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(5)])
+        honest = population.score_runs()
+        assert honest["seal"]["verified"] is True
+
+        slot = population.slots[2]                          # arm A's run-001
+        moved = os.path.join(root, "renamed-run-001")
+        os.rename(slot, moved)
+        os.symlink(moved, slot)
+        assert os.path.islink(slot)
+        assert os.path.isfile(os.path.join(slot, "CALL.json")), (
+            "the link must resolve: the point is that every entry BENEATH the "
+            "slot is unchanged through it")
+
+        broken = population.score()
+        assert broken["seal"]["verified"] is False
+        assert broken["seal"]["chainFailure"] is None, (
+            "the chain must still verify: this fixture is about the MANIFEST")
+        failures = broken["seal"]["manifestFailures"]
+        assert [(entry["arm"], entry["slot"]) for entry in failures] \
+            == [("A", "run-001")]
+        assert "not the bytes it was sealed over" in failures[0]["detail"]
+        # No denominator moved: the slot is present, recorded and counted
+        # exactly as it was, and the ledger is the one the driver wrote.
+        assert broken["counts"] == honest["counts"]
+        assert broken["prefix"] == honest["prefix"]
+        assert broken["ledger"] == honest["ledger"]
+        assert set(broken["byKey"]) == set(honest["byKey"])
+        assert broken["unexpected"] == honest["unexpected"]
+        # What it bought instead: the WHOLE batch, with `complete` held true so
+        # the unresolved verdict is the SEAL's and not the stopping rule's.
+        verdicts = score_rates.compute_verdicts(
+            broken["arms"], broken["trials"], True, broken["seal"]["verified"])
+        assert verdicts["resolved"] is False
+        assert verdicts["contrasts"] is None
+        for arm in fixtures.ARMS:
+            for endpoint in score_rates.LEVEL_ENDPOINTS:
+                assert set(verdicts["levels"][arm][endpoint]) == \
+                    {score_rates.UNRESOLVED}
+        assert "manifest" in verdicts["unresolvedReason"]
+        # The slot keeps its own §3.3 code — the entry at that path really is a
+        # symlink — and the code buys nothing, because there is no verdict for a
+        # denominator to produce.
+        assert broken["byKey"][("A", "run-001")]["code"] == "slot-symlink"
+
+        # The control is the same bytes: remove the link, put the directory
+        # back, and the honest population scores.
+        os.unlink(slot)
+        os.rename(moved, slot)
+        restored = population.score_runs()
+        assert restored["seal"]["verified"] is True
+        assert restored["seal"]["manifestFailures"] == []
+        assert restored["counts"] == honest["counts"]
+        assert restored["byKey"][("A", "run-001")]["valid"] is True
+    finally:
+        shutil.rmtree(root, True)
+
+
 def test_the_seal_records_every_entry_and_the_driver_and_scorer_agree():
     """The seal's own shape, on a tree holding one of everything (round 7,
     finding 3).
@@ -763,6 +849,11 @@ def test_the_seal_records_every_entry_and_the_driver_and_scorer_agree():
     An empty directory is in the list too. It carries no bytes, so nothing else
     in the seal would notice it, and "any post-seal addition breaks the seal"
     has to mean any.
+
+    Round 8, finding 4 adds the row for the slot ROOT at path `.`, on both
+    sides. The exhaustive `by_path` comparison below is what holds the two
+    implementations to the same list: a root row on one side only would fail
+    the equality above it as well.
     """
     root = fixtures.throwaway_root()
     try:
@@ -781,6 +872,9 @@ def test_the_seal_records_every_entry_and_the_driver_and_scorer_agree():
         assert batch.files_digest(rows) == score_rates.manifest_digest(rows)
         by_path = {row[0]: row[1:] for row in rows}
         assert by_path == {
+            # The slot ROOT, at the one relative path no entry beneath it can
+            # take (round 8, finding 4).
+            ".": [-1, "type:directory"],
             "stdout.raw": [10, hashlib.sha256(b"two bytes\n").hexdigest()],
             "nested": [-1, "type:directory"],
             "nested/inner.raw": [0, hashlib.sha256(b"").hexdigest()],
