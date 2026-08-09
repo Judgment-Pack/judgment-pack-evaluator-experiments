@@ -107,5 +107,5 @@
     }
   ],
   "disagreements": 0,
-  "jpack": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/aa6c2e1b-6627-4273-9ea2-6377a9b17a60/scratchpad/release/jpack"
+  "jpackSha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325"
 }

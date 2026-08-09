@@ -29,10 +29,18 @@ def run_arm_b(pilot_root, name):
     return out
 
 
-def digest_run(out):
+def digest_run(out, expected_count):
+    """Digest a run — refusing empty or incomplete runs so that N failed runs
+    can never count as 'identical' (review round 1, finding 1)."""
+    paths = sorted((Path(out) / "runs" / "run-001" / "artifacts").glob("*.json"))
+    if len(paths) != expected_count:
+        raise SystemExit("repeat run has {} artifacts, expected {}".format(
+            len(paths), expected_count))
     digests = {}
-    for path in sorted((Path(out) / "runs" / "run-001" / "artifacts").glob("*.json")):
+    for path in paths:
         artifact = json.loads(path.read_text())
+        if artifact.get("status") != "completed":
+            raise SystemExit("repeat run artifact not completed: " + path.stem)
         note = next((s.get("content") for s in artifact.get("trajectory") or []
                      if s.get("type") == "note"), "")
         action = json.dumps(((artifact.get("output") or {}).get("structured") or {})
@@ -49,10 +57,13 @@ def main():
     parser.add_argument("--pilot-root", required=True)
     parser.add_argument("--repeats", type=int, default=3)
     args = parser.parse_args()
+    registry = json.loads(
+        (STUDY / "scenarios" / "jps" / "cases.json").read_text())
+    expected_count = len(registry["cases"])
     all_digests = []
     for i in range(args.repeats):
         out = run_arm_b(args.pilot_root, "repeat-{:02d}".format(i + 1))
-        all_digests.append(digest_run(out))
+        all_digests.append(digest_run(out, expected_count))
     identical = all(d == all_digests[0] for d in all_digests[1:])
     report = {"repeats": args.repeats, "identical": identical, "digests": all_digests[0]}
     if not identical:

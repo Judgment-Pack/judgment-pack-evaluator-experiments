@@ -5,7 +5,22 @@ correct; the adversary proves the harness discriminates — every registered
 metric that should catch a wrong decision must catch the adversary. A real
 model decider (policy prose + facts) is the gated paid phase and is absent
 from the offline pilots by design.
+
+Deciders receive only the PUBLIC case view (id, pack, caseType) plus facts,
+evidence, and the action map — never the registered expectation. The oracle
+loads the expectation registry itself: it is a disclosed tautological positive
+control, and this is the one place the answer key is allowed to be read.
 """
+
+import json
+import os
+
+
+def _expect(case_id):
+    study = os.environ["STUDY_DIR"]
+    with open(os.path.join(study, "scenarios", "jps", "cases.json")) as f:
+        registry = json.load(f)
+    return next(c for c in registry["cases"] if c["id"] == case_id)["expect"]
 
 
 def _to_disposition(expect):
@@ -23,9 +38,10 @@ def _to_disposition(expect):
 
 def oracle(case, facts, evidence, action_map):
     """Emits the registered expected disposition for the case (harness validation only)."""
+    expect = _expect(case["id"])
     return {
-        "disposition": _to_disposition(case["expect"]),
-        "handoffTarget": case["expect"].get("handoffTarget"),
+        "disposition": _to_disposition(expect),
+        "handoffTarget": expect.get("handoffTarget"),
     }
 
 

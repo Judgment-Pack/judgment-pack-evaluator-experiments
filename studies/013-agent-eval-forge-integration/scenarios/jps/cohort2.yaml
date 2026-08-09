@@ -533,7 +533,7 @@
         "cohort2",
         "pack-triage"
       ],
-      "title": "t08-fact-unknown (6-evidence-unknown)"
+      "title": "t08-fact-unknown (6b-fact-unknown)"
     },
     {
       "allowed_tools": [
@@ -852,7 +852,7 @@
         "cohort2",
         "pack-fee"
       ],
-      "title": "f04-just-above (4-just-below-threshold)"
+      "title": "f04-just-above (4b-just-above-threshold)"
     },
     {
       "allowed_tools": [
@@ -919,7 +919,7 @@
         "cohort2",
         "pack-fee"
       ],
-      "title": "f05-number-amount (6-evidence-unknown)"
+      "title": "f05-number-amount (6c-number-not-decimal-string)"
     },
     {
       "allowed_tools": [

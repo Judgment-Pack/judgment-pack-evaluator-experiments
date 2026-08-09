@@ -114,7 +114,7 @@ def evaluate_with_jpack(pack_path, facts, evidence):
     if proc.returncode == 0:
         return json.loads(proc.stdout), None, proc.stdout
     try:
-        error_class = json.loads(proc.stdout or proc.stderr)["error"]["class"]
+        error_class = json.loads(proc.stdout or proc.stderr)["evaluationError"]["class"]
     except Exception:
         error_class = "exit-" + str(proc.returncode)
     return None, error_class, proc.stdout or proc.stderr
@@ -127,6 +127,11 @@ def run_with(payload, config):
     registry = _load_cases()
     case = next(c for c in registry["cases"] if c["id"] == case_id)
     action_map = registry["packActionMaps"][case["pack"]]
+    # Deciders and hooks receive only the public view of a case. The registered
+    # expectation never crosses this boundary: a model decider must not be able
+    # to read the answer key. (The scripted oracle loads expectations itself,
+    # by design, as a disclosed tautological positive control.)
+    case_public = {k: case[k] for k in ("id", "pack", "caseType")}
     steps = []
 
     facts = _fixture(payload, "fetch_case_facts")[case_id]
@@ -141,16 +146,17 @@ def run_with(payload, config):
         evidence = None
 
     if "pre_facts" in hooks:
-        facts = hooks["pre_facts"](case, facts)
+        facts = hooks["pre_facts"](case_public, facts)
     if "pre_evidence" in hooks:
-        evidence = hooks["pre_evidence"](case, evidence)
+        evidence = hooks["pre_evidence"](case_public, evidence)
 
     disposition = None
     evaluation = None
+    error_class = None
     if config["arm"] == "b":
         pack_path = os.path.join(_study_dir(), "packs", case["pack"])
         if "pack_override" in hooks:
-            pack_path = hooks["pack_override"](case, pack_path)
+            pack_path = hooks["pack_override"](case_public, pack_path)
         evaluation, error_class, raw = evaluate_with_jpack(pack_path, facts, evidence)
         steps.append(
             {
@@ -166,7 +172,7 @@ def run_with(payload, config):
                 case_id, disposition, evaluation.get("handoffTarget"), action_map
             )
     else:
-        decision = config["decider"](case, facts, evidence, action_map)
+        decision = config["decider"](case_public, facts, evidence, action_map)
         disposition = decision["disposition"]
         decider_target = decision.get("handoffTarget")
         action = map_disposition_to_action(
@@ -174,7 +180,7 @@ def run_with(payload, config):
         )
 
     if "post_action" in hooks:
-        action = hooks["post_action"](case, disposition, action, action_map)
+        action = hooks["post_action"](case_public, disposition, action, action_map)
 
     steps.append({"type": "tool_call", "tool": action["tool"], "args": action["args"]})
     steps.append(
@@ -187,6 +193,7 @@ def run_with(payload, config):
         "case_id": case_id,
         "arm": config["arm"],
         "mutation": config.get("mutation"),
+        "evaluation_error": error_class,
         "disposition": disposition,
         "handoff_target": (evaluation.get("handoffTarget") if evaluation
                            else (decider_target if config["arm"] != "b" else None)),

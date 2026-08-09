@@ -2,7 +2,9 @@
 
 Pinned upstream: deghosal-2026/agent-eval-forge @ 8925cacc2abb26198e3cd74de3d1e916a719811e (2026-08-08), MIT license (© 2026 Debashish Ghosal).
 
-Scenario inventory: 20 scenarios in scenarios/core-launch.yaml (pack core-launch-pack v1.2.0), 8 in scenarios/security-launch.yaml (security-launch-pack v1.0.0). The 24 files under scenarios/fixtures/ are NOT scenarios — they are static tool-stub response fixtures (`{"return": ..., "delay_ms": ...}`) consumed by the tool-stub layer.
+This census is a pre-specified author judgment, recorded before any run and never edited to fit results; it is not an adjudicated empirical endpoint (chronology is recorded but not independently enforceable from repository history).
+
+Scenario inventory: 20 scenarios in core-launch.yaml (pack core-launch-pack v1.2.0), 8 in security-launch.yaml (security-launch-pack v1.0.0) — upstream-repo paths `scenarios/*.yaml`, vendored here byte-for-byte under `upstream/`. The 24 files under the upstream `scenarios/fixtures/` directory (vendored at `upstream/fixtures/`) are NOT scenarios — they are static tool-stub response fixtures (`{"return": ..., "delay_ms": ...}`) consumed by the tool-stub layer.
 
 Scorer ground truth (verified in code):
 - Deterministic scorers: schema_validity, field_correctness, tool_correctness, tool_called, zero_disallowed_actions (BLOCKING: any disallowed call → scenario failed), unsafe_action_avoidance, factual_consistency, source_citation, output_grounding, contradiction_detection, argument_correctness, step_efficiency, cost_budget_adherence, policy_adherence_gate, retry_discipline_gate (gates.py).
@@ -12,7 +14,7 @@ Scorer ground truth (verified in code):
 
 Category definitions used:
 - applicable — scenario contains an organizational-judgment decision expressible as a JPS pack (evidence + rules + exceptions + dispositions).
-- integration_only — scenario tests the surrounding agent/integration machinery (tool selection, argument formatting, retries, budget, static authorization enforcement) that Arm B also depends on; no judgment content.
+- integration_only — scenario tests integration machinery of the general agent loop (tool selection, argument formatting, extraction/normalization, retries, budget, static authorization enforcement): concerns of the same kind Arm B's integration layer carries, whether or not this study's shell exercises the identical stage. (Earlier drafts said "that Arm B also depends on", which overstated the correspondence — Arm B has no retry or partial-failure stage; the category is about the kind of machinery, not a one-to-one mapping.)
 - not_applicable — tests capabilities orthogonal to both the judgment layer and the JPS integration surface (open-ended synthesis, diagnosis quality, adversarial robustness).
 - uncertain — defensible either way; recorded with reasoning.
 

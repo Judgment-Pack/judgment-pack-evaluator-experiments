@@ -222,7 +222,7 @@
     {
       "id": "t08-fact-unknown",
       "pack": "data-request-intake-triage.json",
-      "caseType": "6-evidence-unknown",
+      "caseType": "6b-fact-unknown",
       "facts": {
         "request": {
           "type": "data-access",
@@ -344,7 +344,7 @@
     {
       "id": "f04-just-above",
       "pack": "decimal-threshold-fee.json",
-      "caseType": "4-just-below-threshold",
+      "caseType": "4b-just-above-threshold",
       "facts": {
         "request": {
           "amount": "1000.01"
@@ -363,7 +363,7 @@
     {
       "id": "f05-number-amount",
       "pack": "decimal-threshold-fee.json",
-      "caseType": "6-evidence-unknown",
+      "caseType": "6c-number-not-decimal-string",
       "facts": {
         "request": {
           "amount": 1000

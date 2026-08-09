@@ -13,8 +13,10 @@ module, subprocess, http, langgraph, pydantic-ai); pydantic run artifacts with
 lossless JSON round-trip; 30 registered scorers (15 deterministic + 4
 deterministic security pattern-matchers + 11 LLM-judge; a MockJudge exists);
 baseline/comparison machinery; 687 passing tests. The pack loader, runner,
-payload builder, artifact recording, and deterministic scorers are genuinely
-good and are the layers this study builds on.
+payload builder, artifact recording, and deterministic scorers are the layers
+this study builds on — chosen on measured properties (clean install, passing
+suite, structurally enforced payload whitelisting, lossless artifact
+round-trip), not on endorsement.
 
 ## Confirmed defects the study routes around (none patched upstream)
 

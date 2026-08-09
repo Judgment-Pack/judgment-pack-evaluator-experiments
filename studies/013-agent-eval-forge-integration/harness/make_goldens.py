@@ -12,6 +12,7 @@ Exit 1 on any disagreement or evaluation error so drift is loud.
 Stdlib only. Run: JPACK_BIN=... python3 harness/make_goldens.py
 """
 
+import hashlib
 import json
 import os
 import subprocess
@@ -83,8 +84,9 @@ def main():
             entry["observed"] = observed
             failures += 1
         report.append(entry)
+    jpack_sha = hashlib.sha256(Path(jpack).read_bytes()).hexdigest()
     (goldens / "EXPECT-CHECK.json").write_text(json.dumps(
-        {"jpack": jpack, "disagreements": failures, "cases": report},
+        {"jpackSha256": jpack_sha, "disagreements": failures, "cases": report},
         indent=2, sort_keys=True) + "\n")
     print("goldens: {} cases, {} disagreements".format(len(report), failures))
     return 1 if failures else 0

@@ -8,6 +8,7 @@ reused here as an integration probe, not as a re-run of the authorship studies.
 Stdlib only. Run: python3 harness/mutate_packs.py
 """
 
+import argparse
 import copy
 import json
 from pathlib import Path
@@ -32,6 +33,12 @@ def rule(pack, rule_id):
 
 
 def main():
+    global OUT
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--out", default=str(OUT),
+                        help="output directory (integrity.py re-derives into a temp dir)")
+    OUT = Path(parser.parse_args().out)
+
     fee = load("decimal-threshold-fee.json")
     triage = load("data-request-intake-triage.json")
 

@@ -33,12 +33,14 @@ failure of either system.
 
 ## What this study is not
 
-- Not an efficacy study. Study 001's negative result on the answerable-only
-  endpoint stands untouched; nothing here re-litigates it. The Arm A deciders in
-  the offline phase are scripted stand-ins (an oracle and a registered
-  adversary) that validate the harness's ability to discriminate — they say
-  nothing about model behavior. A model-mediated Arm A is a gated, paid phase
-  that runs only after the freeze and explicit approval.
+- No model or operational efficacy claim. Study 001's negative result on the
+  answerable-only endpoint stands untouched; nothing here re-litigates it. The
+  Arm A deciders in the offline phase are scripted stand-ins (an oracle and a
+  registered adversary) used as positive and negative harness controls — they
+  say nothing about model behavior, and the pilot numbers are fixed-cell
+  concordance on the registered mutation set, not detection rates. A
+  model-mediated Arm A is a gated, paid phase that runs only after the freeze
+  and explicit approval.
 - Not a conformance claim, under §3.4 or otherwise, and not an endorsement of
   Agent Eval Forge as a release gate — UPSTREAM.md records four confirmed
   defects (never-nonzero exit codes, status-blind scoring, status-flip-only
@@ -75,12 +77,15 @@ failure of either system.
 ## Reproduce the pilot
 
 ```sh
-python3 -m unittest discover -s harness/tests          # offline invariants
-python3 harness/integrity.py                            # pin verification
-JPACK_BIN=<pinned jpack> python3 harness/make_goldens.py
+python3.12 -m unittest discover -s harness/tests        # offline invariants
 FORGE_VENV_PY=<venv>/bin/python JPACK_BIN=<pinned jpack> \
-  python3 harness/gate.py --pilot-root pilots/<new-dir>
+  python3.12 harness/gate.py --pilot-root pilots/<fresh-dir>
 ```
+
+One gate invocation orchestrates everything: integrity refusal, the three
+arms, all 16 mutations, both upstream packs, the three-run repeat check, and
+the two-channel adjudication (validity + detection) with its verdict. The
+pilot root must be a fresh directory — attempts are immutable.
 
 The Forge venv is CPython 3.11.13 with the pinned clone installed editable;
 the harness runs under CPython 3.12.11; the evaluator is the released v0.16.0
