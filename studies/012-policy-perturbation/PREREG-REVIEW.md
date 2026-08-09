@@ -7,8 +7,11 @@ verbatim where one exists, every finding faithfully summarized, and what was
 done about each one. Nothing is discarded. It follows Study 011's per-round,
 per-finding disposition format.
 
-**Status: OPEN. Two rounds complete, the second cross-vendor. Nothing is
-frozen and nothing has run.**
+**Status: OPEN. Nine rounds complete, rounds 2 through 9 cross-vendor. Nothing
+is frozen and nothing has run.** (This line said "two rounds" through round 9,
+having been written in round 2 and never advanced; a status line that stops
+tracking its own subject is the defect this file exists to catch, so it is
+corrected here and carried forward with each round.)
 
 **Why this file also carries digests.** Round 1 found that nothing bound the
 arm texts a review round saw to the arm texts that get pinned: the sequencing
@@ -1292,7 +1295,27 @@ Unchanged since round 2:
 | **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
 | **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
 
-## Round 9 — a discarded run, recorded
+## Round 9 — the sixth post-disposition review
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-08; drafting as recorded in rounds 1-8
+- Reviewed commit: `993c66c`. Its parent `f5ab566` carries identical reviewed
+  bytes — the only change between them is `PREREG-REVIEW.md`, which §2.10
+  excludes from the manifest as a carrier
+- Tree manifest, the reviewer's computation:
+  `a2eef66bcae730dcc0d831a9d2f21ad7672832ca4155b9f75cfeb9e3cf0b6456`
+- Runs: **two commissionings, the first discarded** (recorded immediately
+  below, with the scope correction it forced); the second completed
+- Reviewer's verification first: integrity exit 0 (tree manifest unbound,
+  pre-freeze); 208 passed in 197.39s; tracked status clean; the reviewer's own
+  84-entry manifest matched `integrity.tree_manifest()`. **Ten of round 8's
+  twelve dispositions fully verified**, disposition 11 substantively
+  implemented, disposition 2 partial (finding 1 below). Independent re-derivations
+  all matched: digit census, arm C's permutation by enumeration, HEADER and
+  prompt arithmetic, artifact assembly, schedule balances, partition, interval
+  vectors, verdict tables, `CLAIM.md` provenance, retained C10 attempts.
+
+### The first commissioning, discarded
 
 The first commissioning of round 9, over `f5ab566`, produced no findings and
 no attestation. It ran to roughly 590,000 tokens and then the reviewing
@@ -1326,3 +1349,284 @@ perform is the one this section will be completed from.
 
 Nothing from the discarded run is used, and no finding it may have been
 forming is known to this record.
+
+### How the second commissioning was run
+
+The rescoped brief and the script that runs it were handed to the maintainer
+rather than commissioned from inside the drafting session. The script refuses
+unless the worktree is at the commit the brief names and the study directory is
+clean — a review attests a commit, not a worktree — and both preconditions were
+checked and held before the run. The session's own permission layer then refused
+to execute the script itself, so its parts were run directly and faithfully:
+the same prompt substitution, the same `codex exec --ignore-user-config
+-m gpt-5.6-sol -c model_reasoning_effort=ultra --sandbox workspace-write`, a
+scratch working directory outside the repository, and the same
+`prompt.txt`/`stdout.raw`/`stderr.raw`/`exit-status` output set. **One
+deviation, recorded because a deviation not written down is a deviation
+claimed:** the run used Codex's default `CODEX_HOME` under
+`--ignore-user-config` rather than the script's isolated home with a copied
+credential — strictly less credential movement, and user config still excluded.
+Exit 0, roughly 448,000 tokens, completion marker present, no classifier
+refusal. The tree was unchanged by the review: `993c66c`, status clean.
+
+The maintainer independently recomputed the tree manifest with
+`integrity.tree_manifest()` and obtained the digest the reviewer attested.
+
+### Prompt (verbatim)
+
+```
+You are performing a verification review — round 9 — of Study 012, a preregistered research study in a repository we own and maintain. This is documentation-and-code auditing of our own work before we freeze it and run it. Prior rounds' records, findings and maintainer dispositions are in `PREREG-REVIEW.md` in the study directory.
+
+Repository root: <worktree root>
+Study directory: <repo>/studies/012-policy-perturbation
+Reviewed commit: 993c66c on branch study-012-perturbation (its parent f5ab566 carried the same reviewed bytes; the only change is PREREG-REVIEW.md, which §2.10 excludes from the manifest as a carrier)
+
+## How to work
+
+Read the files and reason about them. Run the study's own test suite and its own verification command. You may write small scratch scripts **outside** the repository (under your working directory) to recompute a digest, re-derive a table, or check arithmetic independently.
+
+**Do not write, generate, or run code that imitates hostile software** — no files designed to defeat a check, no code that hides its own presence, no simulated attacker tooling. If you judge that a check is incomplete, **say so in prose**: name the file and line, state what the check currently establishes, state what it does not, and state what a complete check would have to do. A described gap is the deliverable; a working demonstration of one is not, and is out of scope for this review.
+
+Environment notes: modify no tracked file in the repository. Run the suite with the pinned interpreter `~/.pyenv/versions/3.12.11/bin/python3`, with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider` so no cache is written into the tree.
+
+## Scope, in order
+
+**1. Verify round 8's twelve dispositions.** `PREREG-REVIEW.md`'s round-8 section lists twelve findings and, beneath them, the maintainer's dispositions. For each: is the disposition genuinely implemented in the bytes at this commit? Report any that is partial, mis-implemented, or implemented only in prose.
+
+Two of those implementations were placement decisions the maintainer flagged for your judgment. Assess them **by reading**:
+
+- The check that refuses untracked Python sources under the study tree was moved from inside `harness/integrity.py` to the top of the two entry files the operating procedure invokes by path (`harness/batch.py`, `harness/score_rates.py`), guarded by `if __name__ == "__main__"`. The reasoning recorded is that a check living inside a module cannot establish anything about that module being the module that loaded. Does that placement establish what §2.10 claims, for the commands the README's procedure actually runs? What does it still not establish?
+- The wrapper's slot-path check (`transcription/authoring_call.sh`) verifies the last four path components rather than anchoring to an absolute study root. `harness/PORTS.md` records why an absolute anchor was not taken (it would require a fourth permitted wrapper difference under §2.7, which is a registration change). Is that reasoning sound, and is the implemented form the strongest available within the registered shape?
+
+**2. The registered content — a fresh sweep, and the priority of this round.** Rounds 6-8 concentrated on the harness's tamper-resistance mechanisms. This round's first duty is the study itself: the thing it measures, claims, and will publish.
+
+- `PREREGISTRATION.md` in full. It is the registration; everything else answers to it.
+- §2.3's six semantic classes, §2.4's arm-D substitution and 280-cell landmark grid, §2.6's document structure and the prompt equation, Appendix A's assembly rule against the twenty committed arm artifacts. Re-derive at least two of these independently (a digit census, arm C's permutation by enumeration, the HEADER byte arithmetic).
+- §2.8's schedule and its five balance properties; §3.3's partition; §4's endpoints and the §4.3 interval vectors; §5's level, contrast and decision tables against `harness/score_rates.py`'s encodings; §6's controls C1-C10 against `harness/integrity.py` and the test suite.
+- `CLAIM.md` against its cited source in `studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md`; `MIRROR-AGREEMENT.md` against the retained attempts under `analysis/mirror2-attempts/`.
+- Ask the question no checklist covers: **is there a registered sentence that no code makes true, a control that cannot fail, a test that asserts less than it appears to, or a claim in the records that the artifacts do not support?**
+
+**3. Run the suite and the verification command**, and report both results.
+
+**4. Compute the tree manifest yourself**, as §2.10 registers it: over every git-tracked regular file under the study directory, excluding the paths in `harness/PINS.json` `freeze.excluded` and the two carriers (`harness/PINS.json`, `PREREG-REVIEW.md`), build the sorted list of lines `<path> <bytes> <sha256>` with paths relative to the study directory; then append the registry's normalized-projection entry — `PINS.json` parsed, `freeze.treeManifestSha256`, `freeze.preregistrationSha256`, `golden.sha256` and `isolationNegative.assent` set to null, serialized with `json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":"))` plus a newline, hashed and listed as `harness/PINS.json#normalized <bytes> <sha256>` — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Confirm `integrity.tree_manifest()` implements the same recipe.
+
+## Final message
+
+A numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — then:
+
+- an overall verdict line;
+- the line `Reviewed commit: 993c66c`;
+- the line `Tree manifest (my computation): <hex digest>`;
+- then the single line `CODEX-012-R9-DONE`.
+
+If you find nothing blocking, say so plainly — a clean verdict is a real outcome and this study is ready to be frozen when it earns one.
+```
+
+### Complete unedited final message
+
+1. **The round-8 untracked-source disposition is only partially implemented.** PREREG-REVIEW.md:1268 says the tripwire runs before any harness import. Both entry files instead import `integrity` first—batch.py:196 and score_rates.py:316—before their scans at lines 202 and 317. For README's path-invoked commands, this selects the reviewed entry file and rejects ordinary untracked `.py` files before later harness imports, but it cannot establish that the loaded `integrity` was reviewed. Moving the scan earlier is the minimum fix; a complete assurance would externally validate resolved import targets, symlinked package directories, caches, and other importable artifacts before any study-local import. **Severity: blocking.**
+
+2. **The `CONFIRMED` rule does not establish threshold comprehension.** PREREGISTRATION.md:1767 and PREREGISTRATION.md:1927 interpret arm-E `|Q|=0` as showing that the author understood the thresholds but chose not to test them. score_rates.py:1132 checks only that some accepted record exists and none is mislabelled; score_rates.py:3633 can then select row 5. Correctly labelled records decided entirely by sanctions or embargo membership can keep class 4 tracking and make `nP ≥ 3` without any accepted record exercising either numeric threshold. The tests at test_verdict_parity.py:340 prove aggregate-rule parity, not the comprehension gloss. Confirmation needs registered threshold-dependent comprehension evidence, or the inference must be weakened. **Severity: blocking.**
+
+3. **C7 is ordered before the batch in prose but is not a batch precondition.** PREREGISTRATION.md:2565 and README.md:238 require the isolation-negative probe first. Its standalone command is sound, but registered-run preflight at batch.py:656 checks neither assent nor the canonical retained verdict. All 150 calls can therefore run with assent null and no C7 record. Preflight and scoring should validate the canonical control's shape, bindings, and acceptable completed outcome. **Severity: should-fix.**
+
+4. **Early declared shortfalls cannot be scored.** Section 2.8 promises descriptive publication for any incomplete prefix (PREREGISTRATION.md:939); batch.py:2070 permits such declarations, including zero slots. Scoring unconditionally calls collect_slots() at score_rates.py:2585, which rejects an arm whose `authoring/` directory has not yet been created. Prefixes 0–4 therefore fail before terminality; the zero prefix also lacks the ledger required at score_rates.py:2753. Missing roots and an absent ledger should mean an empty population only under a strictly validated matching shortfall, with an end-to-end test. **Severity: should-fix.**
+
+5. **The manifest exclusion predicate is broader than the registered list.** The registry distinguishes exact output files from trailing-slash output trees at PINS.json:159. integrity.py:1032 treats every member as a subtree prefix, so an unlisted tracked descendant such as `RESULTS.json/...` would also be omitted. This does not affect the current digest, which matched independently, but it is not the exact-path recipe stated. Prefix exclusion should apply only to entries ending `/`. **Severity: should-fix.**
+
+6. **The wrapper suffix guard is safe in the README procedure, but neither the rationale nor "strongest available" claim holds.** authoring_call.sh:145 checks only the final four components. The actual procedure is safe because batch.py:231 derives the canonical root and passes its own constructed slot. The wrapper alone still accepts the registered suffix beneath another absolute root and does not resolve parent symlinks or verify the scheduled index. Contrary to PORTS.md:148, the wrapper already resolves `$STUDY` at line 87, so an exact `$STUDY/arms` anchor needs no new production argument; only preserving the present patched-root fixture through an override would add a fourth difference. **Severity: should-fix.**
+
+7. **C10 is not model-call-free.** PREREGISTRATION.md:2673 calls it a "pre-data, model-call-free check." MIRROR-AGREEMENT.md:24 and lines 49–118 document five GPT/Codex sessions. Only the final comparator at integrity.py:960 is model-call-free. The retained evidence and 280-cell agreements otherwise check out. **Severity: should-fix.**
+
+8. **Every `FAMILY.json` carries false inherited metadata.** For example, arms/A/FAMILY.json:3 names a nonexistent pack and says a drand draw in §5 selects a mutation applied to packs C and D. This study performs none of those operations; score_rates.py:1399 deliberately reads only the class schema and says patches are not read. Because arm A's bytes are inherited and locked, the registration should identify these members as inert legacy metadata. **Severity: should-fix.**
+
+9. **The row-5 operating-characteristic joint law is under-specified.** PREREGISTRATION.md:2187 identifies primary/S1 dependence, while lines 2217–2259 say the reported figures use only independence layers 1–3 and are exact for the coverage pattern. score_rates.py:1025 effectively reuses arm A's primary-HIGH pattern as its placement-HIGH pattern. The figures are exact only if the scenario assigns equal marginals to both endpoints, which together with `H ⊆ raw` identifies their indicators; that assumption should be stated or replaced by an explicit joint model. **Severity: should-fix.**
+
+10. **The inclusivity invariant accidentally includes arm E.** PREREGISTRATION.md:688 says every arm at `(40,70)` places inclusivity words beside numeric literals, although E deliberately has no threshold literals. integrity.py:813 correctly applies literal adjacency only to A/B/D and checks E's named bound senses separately. **Severity: nit.**
+
+11. **The landmark-grid explanation overstates its points.** PREREGISTRATION.md:425 says every non-0/100 landmark is an edge and describes an excluded-side point for every edge. Several are offset probes, and for an exclusive upper edge the `−0.01` point is on the included side. The actual grid at integrity.py:221 is correct. **Severity: nit.**
+
+12. **The §5.4 zero-probability note is false.** PREREGISTRATION.md:2159 says every printed `0.0000` is nonzero, despite exact zeros in the `p=0` and `p=1` rows; it also gives approximately `4×10⁻¹¹` for `P(HIGH|p=.30,N=30)`, while score_rates.py:929 correctly computes approximately `1.112149×10⁻¹¹`. No decision reads these figures. **Severity: nit.**
+
+Overall verdict: BLOCKING — Study 012 is not freeze-ready because round-8 disposition 2 remains partial and the registered confirmation rule does not rule out comprehension failure. The other ten round-8 dispositions are fully implemented and disposition 11 is substantively implemented. The pinned integrity command exited 0 (`tree manifest unbound`, as expected pre-freeze); the pinned suite passed 208 tests in 197.39 seconds with 59,200 `co_lnotab` deprecation warnings; tracked status remained clean. My 84-entry manifest matched `integrity.tree_manifest()` on the present tree, subject to finding 5. Independent digit census, arm-C enumeration, HEADER/prompt arithmetic, artifact assembly, schedule balances, partition, interval vectors, verdict tables, CLAIM provenance, and retained C10 attempts otherwise matched.
+
+Reviewed commit: 993c66c
+Tree manifest (my computation): a2eef66bcae730dcc0d831a9d2f21ad7672832ca4155b9f75cfeb9e3cf0b6456
+CODEX-012-R9-DONE
+
+### Dispositions
+
+All twelve findings **ACCEPTED**. Two were verified as only partly right and are
+dispositioned on corrected grounds, recorded below rather than silently
+narrowed. Before writing these dispositions each finding was independently
+re-verified against the bytes at `993c66c` — every load-bearing claim checked,
+every line anchor confirmed or corrected, every proposed remedy priced against
+what §2.7, §2.10 and the locked arm bytes actually permit.
+
+**Finding 1 is worse than "cannot establish", and the record was the thing at
+fault.** Round 8's disposition said the tripwire runs "before any harness
+import" and it did not: `import integrity` stood above it in both entry files.
+The one module that escaped was the gate module — precisely the module round 8
+finding 2 named, and a regular package directory outbids an adjacent module in
+import resolution — so the bypass class was reachable rather than merely
+unproven. `sys.dont_write_bytecode` sat one import too late for the same
+reason, and its comment claimed "the ceremony's commands" plural while only one
+command set it at all. The scan and the flag now precede the first study-local
+import in both entry files, `sys.path.insert` follows the scan, `score_rates.py`
+and `integrity.py` set the flag too, and a new `EntryFileOrdering` class gives
+both scans their first test coverage — the suite exercised neither before, which
+is why the regression was invisible twice. **A third path-invoked entry was
+checked and is clean:** `integrity.py` imports nothing study-local at module
+scope and makes `verify_bytecode` the first statement of `verify()`. What the
+tripwire still does not establish is stated rather than closed: it refuses
+untracked *sources* before the first import; it does not establish that the
+cache `integrity` loads from is that source compiled — §2.10 registers a
+validate-not-ban gate and the gate cannot precede itself — and `os.walk` does
+not descend symlinked directories. The `-P`/`PYTHONSAFEPATH` closure is
+available and is **declined this round** as a larger change than the finding
+requires.
+
+**Finding 2 is the round's real result, and the reviewer's framing understated
+it.** The verification found the registration already conceding the gap and then
+contradicting itself: §4.5 registers X6 so a comprehension failure is
+"diagnosed rather than assumed away by S5", while §4.6 said S5 is what
+distinguishes it. Both halves of the fix are taken. **The inference is
+weakened** — the two reading cells now say what the rule sees (`no accepted
+record was mislabelled, and none was placed at the boundary`; `at least one
+accepted record was mislabelled`), a new registered paragraph records what the
+ceiling establishes and what it does not, and §5.3 and §5.5 follow. **And the
+rule is strengthened** — [D-10] gains a fifth conjunct: class 3, the interior
+review band, must not collapse in arm E. Class 3 is the one class whose members
+are scored *between* the thresholds, so it cannot be covered by a record the
+mirror decides before it reads `riskScore`; the conjunct therefore excludes the
+degenerate arm E whose accepted records are all sanctions or embargo cases —
+records correct at every threshold pair, which is how CONFIRMED could have
+fired on what §4.6 calls a comprehension collapse. It is registered as excluding
+a degenerate case and **not** as establishing comprehension, because nothing
+available to this design can: a set of correct labels pins the threshold pair
+only to an interval, and pinning it from both sides needs records on both sides
+of a threshold — the boundary-testing CONFIRMED's own premise says arm E did not
+do. The conjunct's weakness is registered with it ("does not COLLAPSE" is not
+HIGH; it is satisfied vacuously if arm A is not HIGH on class 3). Taken in the
+"does not COLLAPSE" form deliberately: the term matches the class-4 term's shape
+and ~10⁻²³ magnitude, so **no published §5.4 figure moves** — verified to
+0.000e+00 at every N. Row 7's why-string was rewritten, because the fifth
+conjunct makes INDETERMINATE newly reachable with a *confirming* §4.6 reading
+and the old gloss asserted otherwise. `CLAIM.md` is untouched: §8's publication
+commitment fires on row 4, not row 5.
+
+**Finding 3, on the narrower predicate.** C7 is now a precondition of the batch
+and of the scorer, not only of its own command — assent, the canonical retained
+verdict, its shape, and its binding to the same assent and the same golden
+capture this batch runs behind. The reviewer's stricter "acceptable completed
+outcome" is **rejected**: §6 C7 registers `no-context` as a third outcome
+"reported as undemonstrated", and because the control refuses to rewrite an
+existing record, a strict gate would make that registered sentence unreachable
+except by hand-deleting a control record. All three registered outcomes admit
+the batch; what the batch now refuses is a control that never ran. Recorded
+consequence: `run --dry-run` also refuses until the record exists, matching
+README's step 5 → 6 order and the golden gate's existing behaviour.
+
+**Finding 4's root cause was in the fixtures, not the scorer.** The scorer
+refused prefixes 0–4 because an arm the registered prefix has not reached has no
+`authoring/` root — and no test could see it, because `build_arms_root` created
+all five roots up front. The fixture now builds the tree a real batch leaves,
+the scorer distinguishes an absent root from one that is present and not a
+directory, and an absent ledger is admitted only for a declaration recording
+zero rounds, zero slots and no last slot (bool-excluding, per round 8 finding 9).
+A parameterised end-to-end test drives `score()` itself over prefixes 0 through
+5, including the zero prefix with no `BATCH.json` at all, and five negative
+cases pin the relaxation's edges. §2.8 gains one sentence naming the boundary.
+Confined to round 1 by construction: every prefix of length ≥ 5 has touched all
+five arms.
+
+**Findings 5, 7, 9, 11 and 12 as verified, each with the check the study's own
+convention asks for.** The manifest exclusion becomes a named predicate —
+trailing-slash entries exclude subtrees, every other entry exactly one path,
+carriers included — with the rule registered in §2.10 rather than living only in
+code, and `test_manifest.py` gives `tree_manifest()` its first test coverage
+anywhere. C10's "model-call-free" is withdrawn and replaced by what is true:
+the *instrument* is five published model sessions, the *verdict* is a code
+comparator, and "pre-data" is defined as the batch's authoring calls, of which
+C10 makes none. The phrase entered this file from round 1 finding 5's own
+wording, which is recorded here and **not** retro-edited at its source.
+§5.4 gains the layer-4 statement its own "any such figure is marked" promise
+required — the scenario assigns `p` to both endpoints and `H ⊆ raw` holds
+pathwise, so the two indicators are equal almost surely and the marginal
+assignment *is* the joint model; the reviewer's "explicit joint model"
+alternative is a false alternative, since no joint freedom remains. The
+alternative extreme's figures are printed and pinned, and the substitution is
+explicitly **not** claimed conservative. §2.4's grid explanation is replaced by a
+census — five edges, seven probes, two sentinels — naming which side each 0.01
+neighbour falls on and admitting that `T_low + 0.01` is carried for symmetry
+with `T_high + 0.01` rather than for an answer it alone changes; the same false
+sentence in `landmarks()`'s docstring goes with it. §5.4's zero note is corrected
+to `1.1 × 10⁻¹¹`, names the four exact cells and the file's other exact zeros,
+and — the part that matters — the marginal level table is now diffed against the
+scorer, which makes §5.4's own "asserted by a harness test" sentence true for
+the table it introduces. That claim had been unbacked through eight rounds,
+which is how an invented magnitude survived them.
+
+**Findings 6 and 8 are ACCEPTED on corrected grounds; the corrections are the
+record.** Finding 6 argued "contrary to `PORTS.md`", but `PORTS.md` itself names
+`$STUDY/arms` as the alternative it rejected, gives a fixture reason rather than
+a missing-argument reason, and the quoted phrase "strongest available" appears
+nowhere in the tree. The *substance* nonetheless lands, and it lands harder than
+the finding claimed: the fixture reason is not forced. A stand-in study reached
+through a symlinked wrapper resolves `$STUDY` into the test tree, so the exact
+anchor needs no fourth §2.7 difference and no new environment member. The
+wrapper now requires `$SLOT` to equal this study's own
+`arms/<ARM>/authoring/run-NNN`, plus a physical-anchor check that catches a
+replaced `arms` or `authoring` component, and the tests move `$STUDY` instead of
+weakening the wrapper. Two things are recorded as scope, not defect: the
+scheduled index deliberately does not travel to the wrapper (§2.7 caps its
+differences at three), and a checkout reached through a symlinked path now
+fail-closes, because the driver resolves logically and the wrapper physically.
+One incidental defect found while proving the layout is fixed with it: a failed
+`git rev-parse` left `GIT_ROOT` silently equal to the caller's directory instead
+of refusing. Finding 8's premise that the patches are inert is **rejected on the
+bytes**: §6 C2 reads `mutations[].patch` against Study 010's locked pack C for
+arms A, B, C and E, and [D-6] reads arm D's to demonstrate that indices 1, 2 and
+5 are unavailable there. The pack is not nonexistent either — it is 010's file at
+the digest 010's own lock carries; what is true is that the path resolves in
+010's tree. And arm D's `FAMILY.json` is not inherited: it is generated at
+(45, 72) as the σ-image of arm A's. The genuine gap is real and fresh: §2.6
+described a twenty-file artifact set in one table cell while a reviewer must
+attest every byte. §2.6 now registers `FAMILY.json`'s whole member list, split
+into what this study reads and the six members that are inert, with the reason
+they are retained rather than removed — arm A's bytes are 010's lock and one
+generator produces all five, so editing them would break the byte equality the
+class schema is anchored to. Finding 10's quantifier was wrong at **both** ends,
+which the finding named only half of: "every arm at (40, 70)" is this study's
+own fixed name for {A, B, C, E}, while the literal-adjacency invariant holds of
+{A, B, C, D} — the arms that state their thresholds as literals. Corrected at
+both sites, with arm C's status stated (its tuple sequence is A's by byte
+identity, not by a second comparison) and arm E's named form pointed to. No code
+change: adding C to the comparison would be a provable no-op.
+
+**What this round did not do.** `verify_mirror2()` still has no direct unit
+test — its two refusal paths are exercised only transitively — and
+`verify_tree()` and `normalized_pins()` remain untested beyond what
+`test_manifest.py` now covers for `tree_manifest()`. Both are recorded here as
+open rather than folded into a disposition they do not belong to.
+
+Verification after the dispositions: `harness/integrity.py` exit 0 (tree
+manifest unbound, pre-freeze); the pinned suite **253 passed** (208 at the
+reviewed commit, plus 45 added by these dispositions); tracked status clean.
+The post-disposition tree manifest, the maintainer's computation, is
+`4c677eba037a75bae242c42ceb4d5ed57363ccbefd55d42a99773e4e79f339df` — round 10
+attests it independently, and under §2.10 rule 3 that round is required, because
+these dispositions changed bytes.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged since round 2, and unchanged by every disposition above — no
+disposition in this round touches a file under `arms/`:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 9 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |

@@ -8,9 +8,11 @@ HOME and CODEX_HOME per run, the same binary-digest and CLI-version gates (the
 stand-in's digest is pinned in a test registry, so the check passes because it
 was satisfied and not because it was skipped), the same arm-keyed slot rule,
 the same slot retention, and the real §3.2 recapture with the probe prompt.
-Only the binary and the operator's home are stand-ins, and neither reaches a
-network or a model. `$HOME` is redirected to a throwaway directory for every
-case, so the operator's real credential is never copied anywhere by the suite.
+Only the binary, the operator's home and the directory the wrapper resolves as
+its own study are stand-ins — the wrapper's bytes are the committed ones,
+reached through a symlink — and none of them reaches a network or a model.
+`$HOME` is redirected to a throwaway directory for every case, so the
+operator's real credential is never copied anywhere by the suite.
 
 What this proves that a unit test cannot: that a failing run terminates its own
 slot with a refusal record and the batch CONTINUES (§2.5's ported difference
@@ -30,7 +32,15 @@ deliberately does NOT do:
   * **the population root is derived**, so there is no `--slots` to point at a
     throwaway tree — `batch.ARMS_ROOT` and `batch.RESULTS` are patched to this
     test's own root instead, exactly as Study 011's file already patched
-    `RESULTS`, and every refusal line under test is the registered one;
+    `RESULTS`, and every refusal line under test is the registered one. Round
+    9, finding 6 adds a THIRD patched constant, `batch.SCRIPT`, for the same
+    reason and not a new one: the wrapper's own slot guard is now anchored at
+    the `$STUDY` it resolves from its own location, so a tree the wrapper will
+    write into has to BE a study. `fixtures.standin_study()` builds one — the
+    committed wrapper reached through a symlink, so the bytes that run are the
+    committed bytes and only the path they are invoked by moves — and the test
+    therefore moves `$STUDY` rather than giving the wrapper a new input or
+    weakening the guard under test;
   * **the scorer takes no registry argument**, so a batch made under a stand-in
     registry cannot be scored: every slot would name a registry that is not the
     committed one and score `registry-mismatch`, which is the guarantee working
@@ -62,6 +72,9 @@ import score_rates
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(os.path.dirname(HERE))
+# The committed wrapper — the bytes every case in this file runs. Each case
+# reaches them through the stand-in study's symlink, so what moves is the path
+# the wrapper is invoked by and never the bytes (round 9, finding 6).
 WRAPPER = os.path.join(STUDY, "transcription", "authoring_call.sh")
 REGISTRY = os.path.join(STUDY, "harness", "PINS.json")
 
@@ -138,11 +151,28 @@ class Batch(unittest.TestCase):
         # test that must not write into the committed arms/ tree points the
         # derived constant at its own root. The refusal lines under test are the
         # registered ones; only the root moves.
-        self.arms_root = os.path.join(self.root, "arms")
+        #
+        # Round 9, finding 6: the root the wrapper accepts is its OWN
+        # `$STUDY/arms`, so the root that moves has to be a study's. The
+        # stand-in study runs the committed wrapper through a symlink, and
+        # `self.scratch` above stays a SIBLING of it — a scratch inside the
+        # study's worktree is refused, by the same registered line.
+        self.study = fixtures.standin_study(
+            self.root, WRAPPER, os.path.join(STUDY, "harness"))
+        self.wrapper_path = os.path.join(self.study, "transcription",
+                                         "authoring_call.sh")
+        self.patch_constant("SCRIPT", self.wrapper_path)
+        self.arms_root = os.path.join(self.study, "arms")
         self.patch_constant("ARMS_ROOT", self.arms_root)
         # The no-new-slots marker is the STUDY's own RESULTS.json (§2.8),
         # pointed at this test's root for the same reason.
         self.patch_constant("RESULTS", os.path.join(self.root, "RESULTS.json"))
+        # §6 C7's record is a batch precondition (round 9, finding 3) and its
+        # path is canonical, so the constant moves here for the same reason
+        # ARMS_ROOT does: no case may write into — or read — the committed
+        # controls/ tree.
+        self.patch_constant("DEFAULT_NEGATIVE",
+                            os.path.join(self.root, "controls-isolation-negative"))
         self.cli_dir = os.path.join(self.root, "cli")
         self.cli = fixtures.write_fake_cli(self.cli_dir, PLAN, sys.executable, HERE)
         self.pins_path = os.path.join(self.root, "PINS.json")
@@ -193,6 +223,30 @@ class Batch(unittest.TestCase):
         self.write_pins(pins)
         return pins["golden"]["sha256"]
 
+    def record_negative_control(self, **edits) -> str:
+        """§6 C7's step-5 record and its assent, as the ceremony leaves them.
+
+        WRITTEN rather than run: running the real control would consume a
+        stand-in-CLI plan entry and shift every other case's PLAN. The
+        control's own behaviour is tested against the real command below, and
+        `stand_in_registry()` deliberately does not grant the assent — the
+        control's own refusal test builds its null case from there.
+        """
+        pins = json.loads(json.dumps(self.pins))
+        pins["isolationNegative"]["assent"] = "granted"
+        self.write_pins(pins)
+        verdict = {"control": "C7 — the isolation gate's power",
+                   "outcome": "refused",
+                   "assent": "granted",
+                   "goldenSha256": batch._digest(self.golden),
+                   "registeredOutcomes": list(batch.C7_OUTCOMES)}
+        verdict.update(edits)
+        os.makedirs(batch.DEFAULT_NEGATIVE, exist_ok=True)
+        path = os.path.join(batch.DEFAULT_NEGATIVE, "VERDICT.json")
+        with open(path, "w") as handle:
+            json.dump(verdict, handle, indent=2)
+        return path
+
     # -- the registered commands, as an operator would give them -------------
 
     def run_batch(self, extra=(), pins_path: str = None):
@@ -230,16 +284,18 @@ class Batch(unittest.TestCase):
         env["PYTHONDONTWRITEBYTECODE"] = "1"
         env.update(environment or {})
         return subprocess.run(
-            ["bash", WRAPPER, self.scratch, slot, pins_path or self.pins_path,
+            ["bash", self.wrapper_path, self.scratch, slot,
+             pins_path or self.pins_path,
              arm, os.path.join(STUDY, "arms", arm, "PROMPT.txt"),
              cli or self.cli],
             capture_output=True, text=True, env=env)
 
     def recapture_then_batch(self, extra=("--runs", str(BATCH_RUNS))):
-        """The registered order: capture, agree, register the digest, then the
-        batch."""
+        """The registered order: capture, agree, register the digest, record §6
+        C7's control, then the batch."""
         self.assertEqual(self.capture(), 0)
         self.register_golden()
+        self.record_negative_control()
         self.assertEqual(self.run_batch(list(extra)), 0)
 
     # -- reading what the batch left -----------------------------------------
@@ -296,7 +352,12 @@ class Batch(unittest.TestCase):
         `preflight()`'s registry reading except the three members that are null
         until their registered moments (`freeze.preregistrationSha256`,
         `golden.sha256`, `isolationNegative.assent`), each of which has its own
-        refusal test below.
+        refusal test below —
+        `test_a_batch_never_starts_against_an_unfrozen_preregistration`,
+        `test_no_slot_is_created_before_the_golden_capture_is_registered`, and
+        `test_a_batch_refuses_while_the_registry_records_no_assent`, which is
+        the preflight's own refusal on the third and not only the C7 command's
+        (round 9, finding 3).
         """
         with open(REGISTRY) as handle:
             committed = json.load(handle)
@@ -418,6 +479,7 @@ class Batch(unittest.TestCase):
         self.assertEqual(self.run_batch(["--runs", "1"]), 1)   # …unpinned
         self.assertFalse(os.path.exists(self.arms_root))
         self.register_golden()
+        self.record_negative_control()
         self.assertEqual(self.run_batch(["--runs", "1"]), 0)
         self.assertTrue(os.path.isdir(self.slot(0)))
 
@@ -515,6 +577,10 @@ class Batch(unittest.TestCase):
     def test_a_dry_run_creates_nothing(self):
         self.assertEqual(self.capture(), 0)
         self.register_golden()
+        # Round 9, finding 3: preflight precedes the dry-run branch, so
+        # `--dry-run` refuses until §6 C7's record exists — as it already did
+        # for the golden gate.
+        self.record_negative_control()
         spent = self.calls_made()
         self.assertEqual(self.dry_run_plan(["--runs", "3"]),
                          [os.path.relpath(self.slot(offset), STUDY)
@@ -565,10 +631,15 @@ class Batch(unittest.TestCase):
         C — the slot was not in an arms tree at all — and the slot name was
         unrestricted, so any name the scorer would later collect as a run, or
         one it would not collect at all, could be written under a
-        correct-looking parent. All four trailing components answer for
-        themselves now, and the path must be absolute, because the driver
-        derives every slot path from its own `ARMS_ROOT` ([D-23]) and never
-        passes a relative one.
+        correct-looking parent.
+
+        Round 9, finding 6: four trailing components are a suffix, not a
+        location, so `<anywhere>/arms/C/authoring/run-001` passed too. The slot
+        must now EQUAL `$STUDY/arms/<ARM>/authoring/run-NNN` for the `$STUDY`
+        the wrapper resolves from its own location — which is why these cases
+        run under a stand-in study rather than under a bare throwaway root, and
+        why `self.root` is now a FOREIGN root: outside the tree the wrapper is
+        anchored in, whatever it is spelled like.
         """
         cases = (
             # The original: the right shape, the wrong arm.
@@ -577,6 +648,13 @@ class Batch(unittest.TestCase):
             (os.path.join(self.root, "C", "authoring", "run-001"), "C"),
             # …and one level further out, where `arms` is the arm's own parent.
             (os.path.join(self.root, "arms", "authoring", "run-001"), "C"),
+            # Round 9's case: every registered component, in the registered
+            # order, under a root that is not this study's.
+            (os.path.join(self.root, "arms", "C", "authoring", "run-001"), "C"),
+            # Traversal embedded in an otherwise perfect path: it starts at the
+            # anchor and leaves it, and equality is what sees that.
+            (os.path.join(self.study, "arms", "C", "authoring", "..", "..",
+                          "B", "authoring", "run-001"), "C"),
             # The unrestricted slot name, in the arm's real tree.
             (os.path.join(self.arms_root, "C", "authoring", "scratch"), "C"),
             (os.path.join(self.arms_root, "C", "authoring", "run-1"), "C"),
@@ -588,6 +666,20 @@ class Batch(unittest.TestCase):
             self.assertIn("not under arms/%s/authoring/" % arm,
                           completed.stderr, stray)
             self.assertFalse(os.path.exists(stray), stray)
+        # A REPLACED component, which no comparison of the path's own text can
+        # see: `arms/E/authoring` is a symlink out of the stand-in study, so
+        # the anchor spells right and resolves elsewhere. This is a fixture
+        # layout, not an exploit — the wrapper resolves the anchor physically
+        # after creating it and before creating anything in it.
+        elsewhere = os.path.join(self.root, "elsewhere")
+        os.makedirs(elsewhere)
+        os.makedirs(os.path.join(self.arms_root, "E"))
+        os.symlink(elsewhere, os.path.join(self.arms_root, "E", "authoring"))
+        stray = os.path.join(self.arms_root, "E", "authoring", "run-001")
+        completed = self.wrapper(stray, "E")
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        self.assertIn("outside this study's tree", completed.stderr)
+        self.assertEqual(os.listdir(elsewhere), [])
         self.assertEqual(self.calls_made(), "0")
         # The control, so the guard is not refusing everything: the canonical
         # slot for the arm the driver would name runs to a completed call.
@@ -706,6 +798,7 @@ class Batch(unittest.TestCase):
                               "no_assistant": True}])
         self.assertEqual(self.capture(), 0)
         self.register_golden()
+        self.record_negative_control()
         self.run_batch(["--runs", "1"])   # the run fails; the credential is the
         # outcome under test, not the exit path.
         leftovers = [os.path.join(base, name)
@@ -735,7 +828,7 @@ class Batch(unittest.TestCase):
         environment = dict(os.environ)
         environment["PYTHON_BIN"] = sys.executable
         process = subprocess.Popen(
-            ["bash", WRAPPER, self.scratch, slot, self.pins_path,
+            ["bash", self.wrapper_path, self.scratch, slot, self.pins_path,
              ENTRIES[0]["arm"],
              os.path.join(STUDY, "arms", ENTRIES[0]["arm"], "PROMPT.txt"),
              self.cli],
@@ -991,6 +1084,102 @@ class Batch(unittest.TestCase):
         self.assertEqual(self.negative_control(
             out, pins_path=self.assenting_registry()), 0)
 
+    def test_no_slot_is_created_before_the_isolation_negative_control_has_run(self):
+        """Round 9, finding 3: §6 C7 and README step 5 order the control BEFORE
+        the batch, and until now that ordering was ceremony — the assent gated
+        the control's own command and nothing on the batch path read it or the
+        record, so all 150 calls could be spent on a study whose §7 publication
+        list promises a control record that was never made.
+
+        Both halves, so this cannot pass for the wrong reason: refused with the
+        golden registered and no control, admitted once the control's record is
+        on disk."""
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        spent = self.calls_made()
+        self.assertEqual(self.run_batch(["--runs", "1"]), 1)
+        self.assertFalse(os.path.exists(self.arms_root))
+        self.assertEqual(self.calls_made(), spent)
+        self.record_negative_control()
+        self.assertEqual(self.run_batch(["--runs", "1"]), 0)
+        self.assertTrue(os.path.isdir(self.slot(0)))
+
+    def test_a_batch_refuses_while_the_registry_records_no_assent(self):
+        """The record without the registry is not the registered step: §6 C7's
+        assent is what authorizes the control, and a verdict on disk under a
+        registry that grants nothing — or grants it under the pre-round-three
+        spelling — leaves the batch refusing, before a call is spent."""
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        self.record_negative_control()
+        spent = self.calls_made()
+        granted = self.pins["isolationNegative"]
+        for name, member in (("PINS-batch-null.json", {"assent": None}),
+                             ("PINS-batch-withheld.json", {"assent": "withheld"}),
+                             ("PINS-batch-old-name.json",
+                              {"assent": None, "operatorAssent": "granted"})):
+            path = self.alternate_registry(
+                name, isolationNegative=dict(granted, **member))
+            self.assertEqual(self.run_batch(["--runs", "1"], pins_path=path),
+                             1, name)
+            self.assertFalse(os.path.exists(self.arms_root), name)
+            self.assertEqual(self.calls_made(), spent, name)
+        self.assertEqual(self.run_batch(["--runs", "1"]), 0)
+
+    def test_a_control_record_that_is_not_this_batchs_refuses(self):
+        """What the gate reads, case by case: the record must be there, be
+        readable as duplicate-free JSON, be an object, carry one of §6 C7's
+        THREE registered outcomes, name the assent the registry now records,
+        and name the golden capture THIS batch runs behind.
+
+        The last three rows are the point of the second half: `matched` and
+        `no-context` ADMIT the batch. `matched` is a registered limitation and
+        `no-context` is a control that reached neither comparison and is
+        reported as undemonstrated — refusing either here would make that
+        registered sentence unreachable, because the command refuses to rewrite
+        a record that exists."""
+        self.assertEqual(self.capture(), 0)
+        self.register_golden()
+        self.record_negative_control()
+        record = os.path.join(batch.DEFAULT_NEGATIVE, "VERDICT.json")
+        other = os.path.join(self.root, "another-golden.json")
+        with open(other, "w") as handle:
+            handle.write("{}\n")
+        spent = self.calls_made()
+
+        def write(body: str) -> None:
+            with open(record, "w") as handle:
+                handle.write(body)
+
+        for name, damage in (
+                ("absent", lambda: os.unlink(record)),
+                ("unreadable", lambda: write("{\n")),
+                ("duplicate keys",
+                 lambda: write('{"outcome": "refused", "outcome": "matched"}')),
+                ("not an object", lambda: write('["refused"]')),
+                ("no outcome", lambda: write('{"assent": "granted"}')),
+                ("unregistered outcome",
+                 lambda: self.record_negative_control(outcome="skipped")),
+                ("another assent",
+                 lambda: self.record_negative_control(assent="withheld")),
+                ("another golden",
+                 lambda: self.record_negative_control(
+                     goldenSha256=batch._digest(other)))):
+            damage()
+            self.assertEqual(self.run_batch(["--runs", "1"]), 1, name)
+            self.assertFalse(os.path.exists(self.arms_root), name)
+            self.assertEqual(self.calls_made(), spent, name)
+        for outcome in ("matched", "no-context"):
+            shutil.rmtree(self.arms_root, ignore_errors=True)
+            # One plan entry, rewritten rather than counted on: the stand-in
+            # CLI clamps to its last step, so slot 1 gets its own arm's
+            # completion however many entries the cases above consumed.
+            fixtures.write_plan(self.cli_dir,
+                                [{"completion": arm_completion(ENTRIES[0]["arm"])}])
+            self.record_negative_control(outcome=outcome)
+            self.assertEqual(self.run_batch(["--runs", "1"]), 0, outcome)
+            self.assertTrue(os.path.isdir(self.slot(0)), outcome)
+
     # --- the ledger and the resume [D-22] -----------------------------------
 
     def test_a_failing_run_is_refused_and_the_batch_continues(self):
@@ -1016,6 +1205,7 @@ class Batch(unittest.TestCase):
     def test_a_resumed_batch_merges_the_ledger_rather_than_replacing_it(self):
         self.assertEqual(self.capture(), 0)
         self.register_golden()
+        self.record_negative_control()
         self.assertEqual(self.run_batch(["--runs", "2"]), 0)
         first = self.ledger()["records"]
         self.assertEqual(self.run_batch(["--runs", "2", "--resume"]), 0)
@@ -1029,6 +1219,7 @@ class Batch(unittest.TestCase):
     def test_a_batch_is_continued_with_resume_and_never_restarted(self):
         self.assertEqual(self.capture(), 0)
         self.register_golden()
+        self.record_negative_control()
         # A resume with nothing to resume at: the first invocation of a batch is
         # `run` without it.
         self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 1)
@@ -1520,6 +1711,7 @@ class Batch(unittest.TestCase):
         batch that needs one."""
         self.assertEqual(self.capture(), 0)
         self.register_golden()
+        self.record_negative_control()
         fixtures.write_cli_version(self.cli_dir, "codex-cli 0.145.0-drifted")
         self.assertEqual(self.run_batch(["--runs", "1"]), 0)
         self.assertFalse(os.path.exists(os.path.join(self.slot(0), "CALL.json")))
@@ -1560,6 +1752,67 @@ class Batch(unittest.TestCase):
         self.assertEqual(self.declaration()["reason"],
                          "the operator stopped the batch")
         self.assertEqual(self.shortfall(), 1)
+
+    def test_a_batch_that_never_reached_a_slot_declares_the_empty_prefix(self):
+        """§2.8 [D-21] over the ZERO prefix (round 9, finding 4): "any
+        incomplete batch, at any round, for any reason, is descriptive-only",
+        and a batch that died before its first slot finished is one.
+
+        The tree that leaves is the one this case asserts: no authoring root
+        anywhere, because the driver makes an arm's root with that arm's first
+        slot, and no `BATCH.json`, because the driver writes the ledger inside
+        the run loop. The scorer used to refuse both, so the likeliest place
+        for a batch to die had no registered way to publish.
+
+        `arms/` is made here rather than in `declare_shortfall`: in the real
+        tree it is tracked and always exists, and this class's population root
+        is created by `run`. The driver is left alone.
+        """
+        os.makedirs(self.arms_root)
+        self.assertEqual(self.shortfall("the operator stopped the batch before "
+                                        "its first slot returned"), 0)
+        declared = self.declaration()
+        self.assertEqual(declared["completedRounds"], 0)
+        self.assertEqual(declared["completedThroughGlobalIndex"], 0)
+        self.assertEqual(declared["completedSlots"], 0)
+        self.assertIsNone(declared["lastSlot"])
+        self.assertIsNone(declared["lastSlotEndedAt"])
+        self.assertIsNone(declared["lastSlotEndedAtFrom"])
+        self.assertFalse(os.path.exists(os.path.join(self.arms_root, "BATCH.json")))
+        for arm in score_rates.ARMS:
+            self.assertFalse(os.path.exists(
+                score_rates.slots_root(self.arms_root, arm)), arm)
+        # …and the scorer's own reader admits exactly this declaration, so the
+        # driver's bytes and the relaxation are held together rather than each
+        # being asserted against a hand-written copy of the other.
+        self.assertTrue(score_rates._declares_no_slot_ran(declared))
+        self.assertEqual(score_rates.load_ledger(self.arms_root, declared, 0), [])
+
+    def test_a_prefix_inside_round_one_leaves_the_unreached_arms_no_root(self):
+        """The other half of finding 4, driver-side: a prefix that stops inside
+        round 1 leaves the arms it never called with no `authoring/` root at
+        all, and the declaration it writes is the one the scorer reads over
+        that tree.
+
+        Round 1 is B, C, A, D, E, so three runs reach B, C and A and leave D
+        and E untouched. `collect_slots()` reads those two as empty populations
+        and C5 rule 4 validates them against this declaration's prefix.
+        """
+        self.recapture_then_batch(extra=["--runs", "3"])
+        self.assertEqual(self.shortfall(), 0)
+        declared = self.declaration()
+        self.assertEqual(declared["completedRounds"], 0)
+        self.assertEqual(declared["completedThroughGlobalIndex"], 3)
+        self.assertEqual(declared["completedSlots"], 3)
+        self.assertEqual(declared["lastSlot"],
+                         os.path.relpath(self.slot(2), STUDY))
+        reached = {entry["arm"] for entry in ENTRIES[:3]}
+        self.assertEqual(reached, {"A", "B", "C"})
+        for arm in score_rates.ARMS:
+            root = score_rates.slots_root(self.arms_root, arm)
+            self.assertEqual(os.path.isdir(root), arm in reached, arm)
+            if arm not in reached:
+                self.assertEqual(score_rates.collect_slots(root), ([], []))
 
     def test_the_declaration_the_driver_writes_carries_the_members_it_registers(self):
         """The parity `test_admission.py` states over the SOURCE, stated here
@@ -1674,6 +1927,102 @@ class ImportDiscipline(unittest.TestCase):
         self.assertEqual(loaded, {"before": [],
                                   "names": ["census", "policy_mirror"],
                                   "after": ["census", "policy_mirror"]})
+
+
+class EntryFileOrdering(unittest.TestCase):
+    """The untracked-source tripwire runs before the FIRST study-local import,
+    not merely before most of them (round 8, finding 2; round 9, finding 1).
+    `ImportDiscipline` above asks WHAT an import pulls in; this asks WHEN the
+    scan happens relative to the first one."""
+
+    ENTRIES = ("batch.py", "score_rates.py")
+
+    def _sandbox(self, entry):
+        """A throwaway git repo holding ONLY the reviewed entry file, so a scan
+        that runs late dies on the absent `integrity` instead."""
+        root = fixtures.throwaway_root()
+        self.addCleanup(shutil.rmtree, root, True)
+        harness = os.path.join(root, "harness")
+        os.makedirs(harness)
+        shutil.copy(os.path.join(STUDY, "harness", entry), harness)
+        subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+        subprocess.run(["git", "add", "harness/" + entry], cwd=root, check=True)
+        return root, harness            # `git add` is enough: ls-files reads the index
+
+    def _run(self, root, harness, entry, *argv):
+        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+        environment.pop("PYTHONPATH", None)
+        return subprocess.run([sys.executable, os.path.join(harness, entry)] + list(argv),
+                              capture_output=True, text=True, cwd=root, env=environment)
+
+    def test_an_untracked_source_is_refused_before_the_first_harness_import(self):
+        for entry in self.ENTRIES:
+            with self.subTest(entry=entry):
+                root, harness = self._sandbox(entry)
+                with open(os.path.join(harness, "planted.py"), "w") as handle:
+                    handle.write("VALUE = 1\n")
+                done = self._run(root, harness, entry, "run")
+                self.assertEqual(done.returncode, 2, done.stderr)
+                self.assertIn("untracked Python source", done.stderr)
+                self.assertIn("planted.py", done.stderr)
+                # The sandbox has no integrity.py: a scan that ran after the
+                # import would have died here instead of refusing.
+                self.assertNotIn("ModuleNotFoundError", done.stderr)
+
+    def test_the_clean_tree_gets_past_the_scan(self):
+        """The control: without the planted file the scan must NOT refuse — the
+        process goes on to fail on the module the sandbox omits, which is how we
+        know case one refused for the reason it names."""
+        for entry in self.ENTRIES:
+            with self.subTest(entry=entry):
+                root, harness = self._sandbox(entry)
+                done = self._run(root, harness, entry, "run")
+                self.assertNotEqual(done.returncode, 2, done.stderr)
+                self.assertIn("ModuleNotFoundError", done.stderr)
+
+    def test_bytecode_writing_is_disabled_before_the_first_harness_import(self):
+        """No clean runtime probe exists for the flag (the cache write it
+        prevents happens inside the import machinery), so this one is over the
+        source: the assignment and the guarded scan both precede every
+        module-level import of a harness module, and the harness module set is
+        derived from the directory so a new module is covered on sight."""
+        harness_dir = os.path.join(STUDY, "harness")
+        modules = {name[:-3] for name in os.listdir(harness_dir)
+                   if name.endswith(".py")}
+        for entry in self.ENTRIES:
+            with self.subTest(entry=entry):
+                with open(os.path.join(harness_dir, entry)) as handle:
+                    tree = ast.parse(handle.read())
+                first_local = min(
+                    node.lineno for node in tree.body
+                    if isinstance(node, ast.Import)
+                    and any(alias.name in modules - {entry[:-3]}
+                            for alias in node.names))
+                flag = [node.lineno for node in tree.body
+                        if isinstance(node, ast.Assign)
+                        and ast.unparse(node) == "sys.dont_write_bytecode = True"]
+                guard = [node.lineno for node in tree.body
+                         if isinstance(node, ast.If)
+                         and "_refuse_untracked_python_sources()" in ast.unparse(node)]
+                self.assertTrue(flag, "%s disables no bytecode writing" % entry)
+                self.assertLess(flag[0], first_local, entry)
+                self.assertTrue(guard, "%s runs no scan as a script" % entry)
+                self.assertLess(guard[0], first_local, entry)
+
+    def test_the_third_path_invoked_entry_gates_before_it_loads_anything(self):
+        """README step 1 runs `integrity.py` by path. It carries no tripwire of
+        its own because it needs none: its head imports nothing study-local, and
+        its scan is the first statement of `verify()`."""
+        with open(os.path.join(STUDY, "harness", "integrity.py")) as handle:
+            tree = ast.parse(handle.read())
+        verify = next(node for node in tree.body
+                      if isinstance(node, ast.FunctionDef) and node.name == "verify")
+        self.assertEqual(ast.unparse(verify.body[1]), "verify_bytecode(study)")   # body[0] is the docstring
+        modules = {name[:-3] for name in os.listdir(os.path.join(STUDY, "harness"))
+                   if name.endswith(".py")} - {"integrity"}
+        self.assertEqual([], [node.lineno for node in tree.body
+                              if isinstance(node, ast.Import)
+                              and any(alias.name in modules for alias in node.names)])
 
 
 class IntervalScope(unittest.TestCase):

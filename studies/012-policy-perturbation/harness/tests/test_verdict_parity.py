@@ -35,9 +35,38 @@ row LABELS, and the withdrawn names for `0.7359`/`0.3536` survived in the text
 beside them — so the section is parsed by heading, its tables dropped, and what
 is left must name the CONFIRMED-side figure coverage-side wherever it discusses
 it and must not carry any of the three names §5.4's own paragraph withdraws.
+
+A third phrase lint holds §4.6 (round 9, finding 2). Its two reading cells
+asserted what the author understood, on a cut that reads labels and cannot see
+whether any accepted record exercised a threshold; they now say what the
+integers show, §4.6 registers the limit in its own paragraph, and the lint
+asserts that paragraph's final sentence and refuses either withdrawn reading in
+any cell — of the file's table or the scorer's. A parity diff cannot catch this
+one, because it asks only that the two sides agree.
+
+A fourth holds §5.4's endpoint assumption (round 9, finding 9). Row 5 is the
+one figure combining the primary and the S1 placement endpoint, and §5.4's own
+fourth independence layer promises that any such figure is marked: the section
+must say that the scenario assigns its `p` to both endpoints and that `H ⊆ raw`
+pathwise then leaves the two per-slot indicators equal almost surely, which is
+what makes reading one arm-A pattern for both rules exact under this scenario.
+The lint is held to a known answer as round 6's is, and a numeric pin
+recomputes the alternative §5.4 names — the two patterns independent — from the
+same call, so the three published figures are the code's and not a second
+transcription of it.
+
+Round 9, finding 12 adds the diff §5.4's own opening sentence already claimed.
+The MARGINAL level table — P(HIGH), P(LOW), P(MID) against a true p — is
+parsed by its header and recomputed cell by cell, and the note beneath it is
+held to the same arithmetic: it called every `0.0000` in the FILE rounded when
+four of that table's cells are exact, and gave a magnitude for P(HIGH | p =
+0.30) that no tail of this distribution reproduces. The exact cells are pinned
+as a set and the magnitude is regenerated from the code, so neither half can
+drift back into a transcription.
 """
 from __future__ import annotations
 import re
+from fractions import Fraction
 
 import pytest
 
@@ -240,10 +269,16 @@ def test_the_decision_table_is_ordered_exhaustive_and_total(preregistration):
 def test_the_pattern_thresholds_and_the_gate_are_the_registered_counts(preregistration):
     """§5.3's notation, in code: `nP`, `nC` and `nH` count over the four narrow
     numeric classes, "three or more of the four" is 3, the control gate is
-    "five of six" over arms B and C, and class 4 is the embargo-membership
-    class whose collapse overrides every other reading of arm E."""
+    "five of six" over arms B and C, class 4 is the embargo-membership class
+    whose collapse overrides every other reading of arm E, and class 3 is the
+    interior review band row 5's fifth conjunct reads (round 9, finding 2)."""
     assert score_rates.NARROW_NUMERIC_CLASSES == (0, 1, 2, 5)
     assert score_rates.EMBARGO_CLASS == 4
+    assert score_rates.INTERIOR_CLASS == 3
+    # The two class-level conjuncts of row 5 are different classes, and neither
+    # is one of the four the pattern counts run over.
+    assert score_rates.INTERIOR_CLASS != score_rates.EMBARGO_CLASS
+    assert score_rates.INTERIOR_CLASS not in score_rates.NARROW_NUMERIC_CLASSES
     assert score_rates.PATTERN_MINIMUM == 3
     assert score_rates.CONTROL_GATE_MINIMUM == 5
     assert score_rates.CONTROL_ARMS == ("B", "C")
@@ -370,6 +405,49 @@ def test_the_s5_cut_is_the_ceiling_the_file_names(preregistration):
     flat = " ".join(preregistration.split())
     assert "the one-step escalation at mislabel share ≥ 0.20" in flat
     assert score_rates.MISLABEL_ESCALATION not in (score_rates.S5_CEILING,)
+
+
+# The sentence §4.6 registers about what the ceiling establishes, in the form
+# `fixtures.plain()` leaves it: emphasis off, whitespace collapsed. Prose and
+# lint are one string so the weakening cannot drift back a word at a time.
+CEILING_LIMIT = ("CONFIRMED therefore means the placement pattern with clean "
+                 "labels, an intact class 4 and class 3 not collapsed; it does "
+                 "not mean the author understood the thresholds, and this file "
+                 "does not claim it does.")
+# The two mental-state readings round 9 finding 2 withdrew. A reading cell says
+# what the integers show; neither of these is something a set of correct labels
+# can pin down.
+WITHDRAWN_READINGS = ("understood the thresholds", "could not derive")
+
+
+def test_the_reading_cells_claim_no_mental_state(preregistration):
+    """Round 9, finding 2. §4.6's row-1 reading cell said "the author understood
+    the thresholds and did not test them" and §5.3's row 5 published it, on a
+    rule that cannot see whether any accepted record exercised a threshold:
+    `policy_mirror.verdict()` returns at the sanctions and embargo clauses
+    before it reads `riskScore`, so a whole arm of such records reads `|Q| = 0`.
+
+    The registered inference is now what the rule establishes, and this is the
+    lint that keeps it there — the §4.6 paragraph must carry its final sentence,
+    and no cell of the scorer's own table may reassert either withdrawn reading.
+    Without it the weakening can drift back a cell at a time and the parity diff
+    would still pass, because the diff only asks that the two sides AGREE.
+    """
+    assert CEILING_LIMIT in fixtures.plain(preregistration)
+    for entry in score_rates.READING_TABLE:
+        for member in ("reading", "publishedAs", "gloss", "labels",
+                       "placementGloss"):
+            cell = entry[member]
+            for withdrawn in WITHDRAWN_READINGS:
+                assert withdrawn not in cell, (
+                    "READING_TABLE's %r cell says %r: §4.6 registers that "
+                    "|Q| = 0 is a fact about labels and not about the author "
+                    "(round 9, finding 2)" % (member, cell))
+    # …and the file's own cells, which the parity test holds the code's to.
+    for row in reading_rows(preregistration):
+        for cell in row:
+            for withdrawn in WITHDRAWN_READINGS:
+                assert withdrawn not in cell, (cell, withdrawn)
 
 
 def test_a_near_ceiling_accuracy_with_one_mislabelled_record_is_degraded():
@@ -565,7 +643,6 @@ def test_the_registered_operating_characteristics_are_reproduced(trials,
     probabilities under §5.4's registered scenario, so a cut that moved would
     move these numbers and this test rather than being noticed later.
     """
-    from fractions import Fraction
     characteristics = score_rates.decision_operating_characteristics(trials)
     level_high = score_rates.level_operating_characteristics(
         trials, Fraction(19, 20))
@@ -625,6 +702,16 @@ def test_the_power_to_reach_row_four_is_not_the_marginal(trials):
     assert "%.7g" % joint == "%.7g" % REGISTERED_JOINT_ROW4[trials]
     assert round(characteristics["joint"]["row5"], 4) \
         == REGISTERED_JOINT_ROW5[trials]
+    # Round 9, finding 2: row 5 gained a fifth conjunct — arm E does not read
+    # COLLAPSE on class 3 — and it enters this model in the class-4 term's own
+    # shape, `1 - P(A HIGH) * P(E class 3 LOW)`, with E's class 3 sitting at
+    # p = 0.95 in §5.4's registered scenario just as its class 4 does. All the
+    # term can subtract from `row5` is bounded by `pLowIntact`, so every printed
+    # §5.4 figure stands — the bound and the figure are asserted separately,
+    # because deriving one from the other would check nothing.
+    assert characteristics["pLowIntact"] < 5e-5 / 2
+    assert abs(characteristics["joint"]["row5"]
+               - REGISTERED_JOINT_ROW5[trials]) < 5e-5
     # The joint figure IS the marginal times the gate, to within the class-4
     # term — arm E's class 4 sits at p = 0.95 in this scenario and reading LOW
     # there is a 1e-23 event, so the two agree to every place §5.4 prints and
@@ -657,6 +744,45 @@ def test_the_joint_row_four_figures_are_checked_against_the_file_when_it_carries
             assert abs(computed - registered[rule][trials]) < 5e-5, (
                 "§5.4's joint row 4 prints %s at N = %d; this file computes %.7f"
                 % (registered[rule][trials], trials, computed))
+
+
+# --- §5.4's MARGINAL level table (round 9, finding 12) ----------------------
+
+LEVEL_OC_HEADER = ["true p", "P(HIGH)", "P(LOW)", "P(MID)"]
+# Round 9, finding 12: §5.4's note said every 0.0000 in the FILE was rounded,
+# and these four cells are exact — at p = 1 no outcome has k <= 3, at p = 0
+# none has k >= 27. Pinned as a SET so that a cut which moved and made a fifth
+# cell exactly zero fires here and forces the note to be rewritten with it.
+EXACT_ZERO_CELLS = {("1.00", "P(LOW)"), ("1.00", "P(MID)"),
+                    ("0.00", "P(HIGH)"), ("0.00", "P(MID)")}
+ZERO_NOTE_P = Fraction(3, 10)          # the row §5.4's note gives a figure for
+BANNED_ZERO_NOTE_FIGURE = "4 × 10⁻¹¹"  # the figure round 9 found; not any tail
+SUPERSCRIPT = str.maketrans("-0123456789", "⁻⁰¹²³⁴⁵⁶⁷⁸⁹")
+
+
+def level_cells(body: str) -> dict:
+    """§5.4's MARGINAL table as {(printed p, column): (printed cell, computed
+    value)} — the file's own cells beside this study's own arithmetic."""
+    cells = {}
+    for p_text, *printed in table(body, LEVEL_OC_HEADER):
+        characteristics = score_rates.level_operating_characteristics(
+            30, Fraction(p_text))
+        for column, cell, key in zip(LEVEL_OC_HEADER[1:], printed,
+                                     ("pHigh", "pLow", "pMid")):
+            cells[(p_text, column)] = (cell, characteristics[key])
+    return cells
+
+
+def test_the_marginal_level_table_is_the_scorers_arithmetic(preregistration):
+    """§5.4's opening sentence says this table is asserted by a harness test.
+    Round 5 pinned the DECISION-rule characteristics and round 3 the interval
+    vectors; nothing diffed the marginal level table until round 9 finding 12."""
+    cells = level_cells(preregistration)
+    assert len(cells) == 12 * 3
+    for (p_text, column), (printed, value) in sorted(cells.items()):
+        assert "%.4f" % value == printed, (
+            "§5.4 prints %s for %s at p = %s; this file computes %.6e"
+            % (printed, column, p_text, value))
 
 
 # --- §5.4's PROSE, pinned by phrase (round 6, finding 4) ---------------------
@@ -792,3 +918,89 @@ def test_the_five_four_phrase_lint_fires_on_a_planted_name():
     # not §5.4's prose, and §5.3's is not either.
     assert len(prose_blocks_5_4(clean)) == 2
     assert "5.5" not in "".join(prose for _heading, prose in prose_blocks_5_4(clean))
+
+
+# --- §5.4's endpoint assumption, pinned (round 9, finding 9) -----------------
+
+# Row 5 reads ONE arm-A HIGH pattern for a primary rule (the gate, row 2) and
+# for an S1 rule (`nP`), which §5.4's own fourth independence layer says must
+# be marked wherever it happens. The two phrases are the load-bearing halves of
+# what makes that reading exact: the scenario's `p` goes to both endpoints, and
+# `H(r) ⊆ A(r)` pathwise then leaves the two per-slot indicators equal.
+REQUIRED_5_4_PHRASES = ("to both endpoints", "equal almost surely")
+# The other extreme, which §5.4 now prints so the premise is visibly material:
+# arm A's S1 HIGH pattern independent of its primary pattern.
+ENDPOINT_INDEPENDENT_ROW5 = {20: 0.0210, 25: 0.3057, 30: 0.7116}
+
+
+def endpoint_assumption_defects(body: str) -> list:
+    """Every way §5.4's prose fails to say what identifies its two endpoints;
+    the empty list is the passing state."""
+    prose = "\n".join(text for _heading, text in prose_blocks_5_4(body))
+    return ["§5.4's prose never says %r: the row-5 joint reads one arm-A "
+            "pattern for a primary rule and an S1 rule, and that identity "
+            "is an assumption of the scenario (round 9, finding 9)" % phrase
+            for phrase in REQUIRED_5_4_PHRASES if phrase not in prose]
+
+
+def test_the_section_five_four_prose_states_what_identifies_the_endpoints(
+        preregistration):
+    """Round 9, finding 9. Layer 4 promises that any figure combining the
+    primary and S1 is marked; row 5 is the one, and the mark is the paragraph
+    that says why reading one pattern twice is exact here."""
+    defects = endpoint_assumption_defects(preregistration)
+    assert defects == [], "§5.4's prose:\n  " + "\n  ".join(defects)
+
+
+def test_the_endpoint_assumption_lint_fires_when_the_sentence_is_removed():
+    """The known answer the lint is held to, as round 6's lint is."""
+    def body(prose: str) -> str:
+        return ("## 5. Verdicts\n\n### 5.4 What N = 30 can and cannot "
+                "resolve\n\n" + prose + "\n\n### 5.5 What a verdict does "
+                "not license\n\nnot §5.4's.\n")
+    carried = body("The scenario assigns its p to both endpoints, and with "
+                   "H(s) inside A(s) path by path the two per-slot "
+                   "indicators are equal almost surely.")
+    assert endpoint_assumption_defects(carried) == []
+    stripped = body("The scenario says nothing about how its two endpoints "
+                    "relate.")
+    assert len(endpoint_assumption_defects(stripped)) \
+        == len(REQUIRED_5_4_PHRASES)
+
+
+@pytest.mark.parametrize("trials", TRIALS)
+def test_the_endpoint_identity_is_what_makes_row_five_exact(
+        trials, preregistration):
+    """The alternative §5.4 now names, computed from the three quantities the
+    same call already returns rather than transcribed: arm A's S1 HIGH pattern
+    independent of its primary pattern makes row 5 strictly smaller, and §5.4
+    prints the number this file computes."""
+    characteristics = score_rates.decision_operating_characteristics(trials)
+    alternative = (characteristics["gate"]
+                   * (1 - characteristics["pLowIntact"])
+                   * characteristics["marginal"]["nP"])
+    assert round(alternative, 4) == ENDPOINT_INDEPENDENT_ROW5[trials]
+    assert alternative < characteristics["joint"]["row5"]
+    assert "%.4f" % alternative in "\n".join(section_5_4(preregistration))
+
+
+# --- §5.4's zero note, against the arithmetic (round 9, finding 12) ----------
+
+def test_the_section_five_four_zero_note_matches_the_arithmetic(preregistration):
+    """Round 9, finding 12. The note under §5.4's marginal table claimed every
+    0.0000 in the FILE was rounded — four of that table's own cells are exact —
+    and gave a magnitude for P(HIGH | p = 0.30) that is not the one this file
+    computes. Both halves are pinned to the code rather than to a transcription."""
+    cells = level_cells(preregistration)
+    assert {key for key, (_cell, value) in cells.items()
+            if value == 0.0} == EXACT_ZERO_CELLS
+    # …and the zero is the exact rational's, not a double that underflowed.
+    high_k, low_k = score_rates.high_threshold(30), score_rates.low_threshold(30)
+    assert score_rates.probability_at_least(high_k, 30, Fraction(0)) == Fraction(0)
+    assert score_rates._tail_le(low_k, 30, Fraction(1)) == Fraction(0)
+    prose = "\n".join(text for _heading, text in prose_blocks_5_4(preregistration))
+    assert BANNED_ZERO_NOTE_FIGURE not in prose
+    mantissa, exponent = ("%.1e" % float(score_rates.probability_at_least(
+        high_k, 30, ZERO_NOTE_P))).split("e")
+    figure = "%s × 10%s" % (mantissa, str(int(exponent)).translate(SUPERSCRIPT))
+    assert figure in prose, "§5.4's zero note must give %s" % figure

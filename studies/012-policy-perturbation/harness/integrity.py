@@ -73,6 +73,12 @@ import sys
 from collections import Counter
 from decimal import Decimal
 
+# The ceremony's commands run with bytecode writing disabled (§2.10, round 5
+# finding 3): set structurally, not left to the operator's environment. Round
+# 9, finding 1: README step 1 invokes this file by path, so it is one of those
+# commands — the flag belongs in every entry the ceremony names, not in one.
+sys.dont_write_bytecode = True
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
 ELEVEN = os.path.normpath(os.path.join(STUDY, "..", "011-authorship-coverage-rates"))
@@ -219,10 +225,12 @@ COUNTRIES = ("KP", "IR", "SY", "CA", "DE")
 
 
 def landmarks(t_low, t_high) -> list:
-    """§2.4's FOURTEEN landmarks, as exact decimal strings. Each landmark that
-    is not 0 or 100 is there because some predicate names that edge; the set
-    was closed twice by a review that found a mutant family it could not see
-    (the four at T_low+1 / T_high+1 in round 1; T_low-1-0.01 in round 2)."""
+    """§2.4's FOURTEEN landmarks, as exact decimal strings: five ON an edge
+    some predicate names (T_low-1, T_low, T_low+1, T_high, T_high+1), seven
+    0.01 probes beside one of those edges, and the floor and the ceiling. The
+    set was closed twice by a review that found a mutant family it could not
+    see (T_low+1 and T_high+1 with their probes in round 1; T_low-1-0.01 in
+    round 2)."""
     low, high = Decimal(t_low), Decimal(t_high)
     cent = Decimal("0.01")
     values = [Decimal(0),
@@ -1005,6 +1013,21 @@ POST_FREEZE_MEMBERS = (("freeze", "treeManifestSha256"),
                        ("isolationNegative", "assent"))
 
 
+def manifest_excluded(name: str, members: tuple) -> bool:
+    """§2.10's exclusion is a path LIST, not a pattern (round 9, finding 5).
+    An entry ending in "/" names a tree: it excludes that tree and everything
+    beneath it. Every other entry names exactly one file and excludes that
+    path alone — a file-shaped entry does not swallow descendants, so a
+    tracked `RESULTS.json/x` is reviewed bytes and belongs in the manifest."""
+    for member in members:
+        if member.endswith("/"):
+            if name.startswith(member):
+                return True
+        elif name == member:
+            return True
+    return False
+
+
 def normalized_pins(pins: dict) -> bytes:
     """The registry as the manifest binds it: the four members that are
     edited at registered moments after the freeze set to null, everything
@@ -1029,8 +1052,7 @@ def tree_manifest(study: str = STUDY, excluded: tuple = ()) -> str:
     for name in listing.stdout.decode("utf-8").split("\0"):
         if not name:
             continue
-        if any(name == member or name.startswith(member.rstrip("/") + "/")
-               for member in excluded):
+        if manifest_excluded(name, excluded):
             continue
         path = os.path.join(study, name)
         if not os.path.isfile(path) or os.path.islink(path):

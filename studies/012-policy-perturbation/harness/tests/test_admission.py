@@ -912,6 +912,12 @@ LABEL_COLLAPSE = [(0, 30), (0, 30), (0, 30), (30, 30), (30, 30), (0, 30)]
 # collapses in arm E: not a literal effect, and row 2 withdraws every other
 # reading of arm E before the gate is even consulted.
 CLASS4_COLLAPSE = [(30, 30)] * 4 + [(0, 0)] + [(30, 30)]
+# The degenerate arm E round 9's finding 2 names: the placement collapse and the
+# ceiling, class 4 intact — and class 3, the interior review band, gone with the
+# four narrow classes. Every accepted record is then an embargo case the mirror
+# labels before it reads the score, so the arm exercised neither threshold, and
+# row 5's fifth conjunct is what stops it confirming.
+INTERIOR_COLLAPSE = [(0, 0), (0, 0), (0, 0), (0, 0), (30, 30), (0, 0)]
 
 # Each scenario: the pattern per arm, whether the batch is complete and sealed,
 # the registered pattern counts, and the row §5.3's table must return.
@@ -941,10 +947,25 @@ DECISION_SCENARIOS = (
      "row": 5, "publishedAs": "CONFIRMED",
      "counts": {"nP": 4, "nC": 4, "nH": 0},
      "reading": "PLACEMENT collapse", "labels": "at the ceiling"},
+    # Round 9, finding 2: the same pattern with class 3 gone too. §4.6 still
+    # reads a PLACEMENT collapse at the ceiling — `|Q| = 0` cannot see whether
+    # any accepted record exercised a threshold — and row 5's fifth conjunct
+    # refuses it, so the table's last row does. The row-5 scenario above keeps
+    # class 3 at (30, 30) and keeps confirming, which is what makes this pair a
+    # test of the conjunct and not of the pattern.
+    {"why": "arm E placement-collapses on all four with its labels at the "
+            "ceiling, and class 3 collapses with them: every accepted record "
+            "is decided before the score is read, and row 5's class-3 conjunct "
+            "refuses it",
+     "arms": {"E": INTERIOR_COLLAPSE}, "complete": True, "sealed": True,
+     "row": 7, "publishedAs": "INDETERMINATE",
+     "counts": {"nP": 4, "nC": 4, "nH": 0},
+     "reading": "PLACEMENT collapse", "labels": "at the ceiling",
+     "confirmsR1": True, "interiorCollapse": True},
     # The same placement collapse with the labels gone: §4.6's SECOND row, the
-    # one round 3 found unreachable. "The author could not derive or apply the
-    # values" is a comprehension collapse, it is published as one, and it does
-    # not confirm R1 — so row 5 does not fire and the table's last row does.
+    # one round 3 found unreachable. "At least one accepted record was
+    # mislabelled" is a comprehension collapse, it is published as one, and it
+    # does not confirm R1 — so row 5 does not fire and the table's last row does.
     {"why": "arm E placement-collapses on all four while its S5 labels are "
             "degraded: §4.6's comprehension collapse, and R1 is not confirmed",
      "arms": {"E": PLACEMENT_COLLAPSE}, "mislabelled": {"E": (3, 4)},
@@ -1055,7 +1076,20 @@ def test_the_decision_table_rows_all_fire_at_known_integers(scenario, arm_blocks
         assert verdicts["reading"]["labels"] == scenario["labels"]
         assert row["reading"] == scenario["reading"]
         assert verdicts["labelBranches"]["E"]["branch"] == scenario["labels"]
-        assert verdicts["reading"]["confirmsR1"] is (scenario["row"] == 5)
+        # §4.6's reading confirms on its own row; §5.3's row 5 is a conjunction
+        # that also reads class 3 (round 9, finding 2), so a scenario can carry
+        # a confirming reading and still not be row 5 — and it says so, rather
+        # than letting `confirmsR1` be read off the row.
+        assert verdicts["reading"]["confirmsR1"] is scenario.get(
+            "confirmsR1", scenario["row"] == 5)
+    if scenario.get("interiorCollapse"):
+        # The conjunct fired for its own reason: class 3 really did collapse,
+        # and the published `why` says which conjunct refused the row.
+        interior = {entry["index"]: entry for entry in
+                    verdicts["contrasts"]["E"]}[score_rates.INTERIOR_CLASS]
+        assert interior["contrast"] == "COLLAPSE"
+        assert "reads COLLAPSE on class %d" % score_rates.INTERIOR_CLASS \
+            in row["why"]
     if "gate" in scenario:
         assert verdicts["gate"]["arms"] == scenario["gate"]
         assert verdicts["gate"]["passed"] is False
@@ -1934,13 +1968,15 @@ def test_the_registered_command_reports_a_refusal_and_not_a_traceback(monkeypatc
 
 def test_the_scoring_refuses_before_it_reads_a_slot(pins_path, study):
     """§6 C5 / §2.10: the preconditions bind the study's own committed
-    artifacts — the ported bytes, the registered interpreter, the golden pin
-    and the freeze digest — and three of those are `null` in the registry until
-    their registered moments arrive (§3.2, §2.10 [D-20]).
+    artifacts — the ported bytes, the registered interpreter, the golden pin,
+    the freeze digest and §6 C7's recorded control — and three of those are
+    `null` in the registry until their registered moments arrive (§3.2, §2.10
+    [D-20], §6 C7's assent).
 
     So no population, fixture or real, can be scored through the registered
-    interface until the capture is taken and the freeze is recorded, and the
-    fixtures above enter `score()`'s sequence at the line after this gate.
+    interface until the capture is taken, the control has run and the freeze is
+    recorded, and the fixtures above enter `score()`'s sequence at the line
+    after this gate.
     """
     with pytest.raises(score_rates.ScoreError):
         score_rates.verify_preconditions(pins_path, score_rates.REGISTERED_ARMS,
@@ -1970,17 +2006,20 @@ def test_the_declared_shortfall_the_driver_writes_is_the_one_the_scorer_reads():
     completed prefix of the registered schedule") and not its JSON spelling,
     which is precisely why a test has to hold the writer and the reader
     together. The member names are read off both sources rather than restated.
+
+    The scan walks a SET of readers (round 9, finding 4): `check_population()`
+    reads the declaration for C5 rule 5, and `_declares_no_slot_ran()` reads
+    three more members of it to admit the empty prefix's absent ledger. A
+    misspelling in either one would make every honest short batch — or every
+    honest zero-slot batch — refuse, which is the defect this test exists to
+    prevent. The set is asserted non-empty at both ends, so a renamed helper
+    cannot silently drop out of the scan and leave it passing over nothing.
     """
-    read = set()
+    readers = {"check_population", "_declares_no_slot_ran"}
+    read = {}
     for node in ast.walk(ast.parse(_source(score_rates.__file__))):
-        if isinstance(node, ast.FunctionDef) and node.name == "check_population":
-            for inner in ast.walk(node):
-                if isinstance(inner, ast.Call) and isinstance(inner.func, ast.Attribute) \
-                        and inner.func.attr == "get" \
-                        and isinstance(inner.func.value, ast.Name) \
-                        and inner.func.value.id == "shortfall" \
-                        and inner.args and isinstance(inner.args[0], ast.Constant):
-                    read.add(inner.args[0].value)
+        if isinstance(node, ast.FunctionDef) and node.name in readers:
+            read[node.name] = _declaration_members(node)
     written = set()
     for node in ast.walk(ast.parse(_source(batch.__file__))):
         if isinstance(node, ast.FunctionDef) and node.name == "declare_shortfall":
@@ -1988,13 +2027,331 @@ def test_the_declared_shortfall_the_driver_writes_is_the_one_the_scorer_reads():
                 if isinstance(inner, ast.Dict):
                     written |= {key.value for key in inner.keys
                                 if isinstance(key, ast.Constant)}
-    assert read, "check_population() reads no member of SHORTFALL.json"
+    assert set(read) == readers, (
+        "score_rates.py defines %r of the declaration's readers %r: a renamed "
+        "reader drops out of this scan and takes its members with it"
+        % (sorted(read), sorted(readers)))
+    for name, members in read.items():
+        assert members, "%s() reads no member of SHORTFALL.json" % name
     assert written, "declare_shortfall() writes no SHORTFALL.json members"
-    assert read <= written, (
-        "batch.py declare_shortfall() writes %r and score_rates.py "
-        "check_population() reads %r: a shortfall declared by the driver cannot "
-        "satisfy C5 rule 5, so every honest short batch refuses"
-        % (sorted(written), sorted(read - written)))
+    every = set().union(*read.values())
+    assert every <= written, (
+        "batch.py declare_shortfall() writes %r and score_rates.py's readers "
+        "read %r: a shortfall declared by the driver cannot satisfy C5 rule 5 "
+        "or admit an empty batch, so every honest short batch refuses"
+        % (sorted(written), sorted(every - written)))
+
+
+def _declaration_members(function: ast.FunctionDef) -> set:
+    """The `SHORTFALL.json` members one reader reads, off its own syntax.
+
+    Two shapes, because the two readers are written differently and neither
+    should have to be rewritten to be scanned: the literal argument of a
+    `shortfall.get("...")`, and — when `.get()` is handed a loop variable —
+    the literal names the loop walks. `_declares_no_slot_ran()` checks its
+    three integer members in one loop and its three null members in one
+    comprehension, and a scan that saw only literal arguments would have read
+    nothing there and passed over an empty set.
+    """
+    literals, variables = set(), set()
+    for inner in ast.walk(function):
+        if isinstance(inner, ast.Call) and isinstance(inner.func, ast.Attribute) \
+                and inner.func.attr == "get" \
+                and isinstance(inner.func.value, ast.Name) \
+                and inner.func.value.id == "shortfall" and inner.args:
+            argument = inner.args[0]
+            if isinstance(argument, ast.Constant):
+                literals.add(argument.value)
+            elif isinstance(argument, ast.Name):
+                variables.add(argument.id)
+    for inner in ast.walk(function):
+        if not isinstance(inner, (ast.For, ast.comprehension)):
+            continue
+        if not isinstance(inner.target, ast.Name) or inner.target.id not in variables:
+            continue
+        if isinstance(inner.iter, (ast.Tuple, ast.List)):
+            literals |= {element.value for element in inner.iter.elts
+                         if isinstance(element, ast.Constant)}
+    return literals
+
+
+# --- §2.8's short prefixes, through score() itself (round 9, finding 4) ------
+#
+# The driver creates `arms/<X>/authoring/` with that arm's FIRST slot, so a
+# batch that dies inside round 1 leaves the arms it never reached with no root
+# at all — and a batch that dies before its first slot finished leaves no
+# `BATCH.json` either, because the driver writes the ledger inside the run
+# loop. §2.8 [D-21] promises that "any incomplete batch, at any round, for any
+# reason" is published descriptively, and the scorer refused all five of those
+# prefixes. The fixtures concealed it: `build_arms_root()` used to pre-create
+# the five authoring roots, so no fixture population was ever the tree a real
+# crash leaves.
+
+
+def _stand_in_registry(root: str, golden: str) -> str:
+    """The committed registry, copied beside a fixture population with the
+    pins §2.10, §3.2 and §6 C7 leave null until their registered moments: this
+    population's own golden capture, the real preregistration's digest, and the
+    assent the control ran under.
+
+    Everything else is the committed registry's — N, the slot count, the
+    registered call order, the five arms' pinned digests — so the population
+    below goes through the REAL `verify_preconditions()` and not a relaxed one.
+    """
+    with open(score_rates.REGISTRY_OF_RECORD) as handle:
+        pins = json.load(handle)
+    pins["golden"]["sha256"] = score_rates.file_digest(golden)
+    pins["freeze"]["preregistrationSha256"] = score_rates.file_digest(
+        os.path.join(STUDY, "PREREGISTRATION.md"))
+    pins["isolationNegative"]["assent"] = "granted"
+    path = os.path.join(root, "PINS.json")
+    with open(path, "w") as handle:
+        json.dump(pins, handle, indent=2)
+    return path
+
+
+def _record_negative_control(root: str, golden: str) -> str:
+    """§6 C7's retained verdict, at a throwaway stand-in for its canonical path.
+
+    WRITTEN rather than run, exactly as `test_batch.py`'s
+    `record_negative_control()` writes it — the control's own behaviour is
+    tested against the real command there. The scorer re-checks the record
+    before it reads a slot (round 9, finding 3), so a population that reaches
+    `score()` has to carry one, and the canonical path is [D-23]'s: the
+    constant moves, no flag supplies it.
+    """
+    out = os.path.join(root, "controls-isolation-negative")
+    os.makedirs(out, exist_ok=True)
+    with open(os.path.join(out, "VERDICT.json"), "w") as handle:
+        json.dump({"control": "C7 — the isolation gate's power",
+                   "outcome": "refused", "assent": "granted",
+                   "goldenSha256": score_rates.file_digest(golden),
+                   "registeredOutcomes": list(score_rates.C7_OUTCOMES)},
+                  handle, indent=2)
+    return out
+
+
+def _score_prefix(population, root: str, monkeypatch) -> dict:
+    """`score_rates.score()` itself over a fixture population — the scorer's
+    OWN ordering, which is what this case is about.
+
+    The library override (§2.10, §7) is the registry these slots really name,
+    so `cell.registryOverride` stays non-null and `_write_outputs()` could
+    never publish the document. `score()` takes no population argument beyond
+    the root, so nothing here relaxes a check: the ported bytes, the registered
+    interpreter, the mirror, the arms and the schedule are all the committed
+    study's.
+    """
+    monkeypatch.setattr(score_rates, "REGISTERED_ISOLATION_NEGATIVE",
+                        _record_negative_control(root, population.golden))
+    return score_rates.score(
+        population.arms_root, _stand_in_registry(root, population.golden),
+        population.golden,
+        registry_sha256=score_rates.file_digest(score_rates.REGISTRY_OF_RECORD))
+
+
+@pytest.mark.parametrize("prefix", [0, 1, 2, 3, 4, 5])
+def test_every_prefix_of_round_one_publishes_the_descriptive_surface(prefix, pins,
+                                                                     study,
+                                                                     monkeypatch):
+    """§2.8 [D-21], for the five prefixes it could not reach: "any incomplete
+    batch, at any round, for any reason, is descriptive-only" (round 9,
+    finding 4).
+
+    Round 1 of the registered order is B, C, A, D, E, so a prefix of length
+    k < 5 leaves 5−k arms with no `authoring/` root, and the zero prefix leaves
+    no ledger either. Each of those used to refuse before terminality was even
+    read — the operator of a batch that died in round 1, which is where an
+    unproven pipeline dies, saw `arms/A/authoring is not a directory` and had
+    no registered way to publish what §2.8 promises.
+
+    The tree is asserted to be the one the DRIVER leaves before it is scored,
+    because that is the whole defect: a fixture that made the five roots in
+    advance passed every prefix here and proved nothing.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(prefix)], ledger=prefix > 0)
+        schedule = score_rates.registered_schedule()
+        reached = [entry["arm"] for entry in schedule[:prefix]]
+        for arm in fixtures.ARMS:
+            assert os.path.isdir(
+                score_rates.slots_root(population.arms_root, arm)) \
+                == (arm in reached), arm
+        assert os.path.isfile(os.path.join(population.arms_root, "BATCH.json")) \
+            == (prefix > 0)
+
+        results = _score_prefix(population, root, monkeypatch)
+
+        assert results["schedule"]["complete"] is False
+        assert results["schedule"]["perArmCounts"] == {
+            arm: reached.count(arm) for arm in fixtures.ARMS}
+        assert results["schedule"]["roundsCompleted"] == prefix // 5
+        assert results["schedule"]["ledgerRecords"] == prefix
+        # [D-21]: no verdict of any kind, and no contrast at all.
+        for arm in fixtures.ARMS:
+            for endpoint in score_rates.LEVEL_ENDPOINTS:
+                assert results["verdicts"]["levels"][arm][endpoint] == \
+                    [score_rates.UNRESOLVED] * 6, (arm, endpoint)
+        assert results["verdicts"]["contrasts"] is None
+        assert results["verdicts"]["resolved"] is False
+        # …and the headline names the round count rather than implying a batch.
+        assert "**%d of 30 rounds completed.**" % (prefix // 5) \
+            in score_rates.render_markdown(results)
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_a_missing_root_the_prefix_reached_refuses_and_names_the_arm(pins, study):
+    """The tolerance is not a hole: an arm the prefix DID reach may not lose
+    its root.
+
+    C5 rule 2 gets there first and says it better — the ledger still records
+    that arm's slot, the slot is gone with the root, and the refusal names the
+    slot rather than the arm — which is exactly why the rule-4 guard below is
+    the belt and this is the braces. A population whose arm E root is removed
+    is not an arm the prefix has not reached; it is a slot that was created and
+    removed, and no rate is computed over one.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(5)])
+        assert population.score_runs()["counts"]["E"] == 1
+        shutil.rmtree(score_rates.slots_root(population.arms_root, "E"))
+        with pytest.raises(score_rates.ScoreError) as caught:
+            population.score_runs()
+        assert "arms/E/authoring/run-001" in str(caught.value)
+        assert type(caught.value) is score_rates.ScoreError
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_a_missing_root_with_no_declaration_refuses_at_rule_four(pins, study):
+    """C5 rule 4's own guard, at the one shape rule 2 cannot reach: no slot, no
+    ledger record naming one, and no `SHORTFALL.json` either.
+
+    A missing root is an arm the prefix has not reached, and "the prefix has
+    not reached it" is a statement about a DECLARED short batch. With no
+    declaration there is no such statement, so the empty arm is an arm dropped
+    from the population, and the refusal says which arm and how many slots the
+    prefix derives for it.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([], ledger=False)
+        os.remove(os.path.join(population.arms_root, "SHORTFALL.json"))
+        slots = {arm: [] for arm in fixtures.ARMS}
+        with pytest.raises(score_rates.ScoreError) as caught:
+            score_rates.check_population(population.arms_root, slots, [],
+                                         population.schedule, None)
+        message = str(caught.value)
+        assert "arm A has no authoring/ root" in message
+        assert "derives 0 slot(s) for it" in message
+        assert "no SHORTFALL.json declares a short batch" in message
+        # …and the same population WITH the declaration is admitted, so the
+        # refusal above is about the missing declaration and not about the
+        # missing root.
+        declaration = fixtures.declare_shortfall(population.arms_root, [], 0)
+        assert score_rates.check_population(population.arms_root, slots, [],
+                                            population.schedule,
+                                            declaration)["counts"] == \
+            {arm: 0 for arm in fixtures.ARMS}
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_the_empty_batch_is_admitted_only_by_a_declaration_that_no_slot_ran(pins,
+                                                                           study):
+    """The absent `BATCH.json` is admitted for the empty prefix and for nothing
+    else (round 9, finding 4).
+
+    The declaration is read member by member: zero rounds, zero through global
+    index zero, zero slots, and no last slot and no clock to name. A
+    declaration that says a slot ran, a population with a slot in it, and the
+    JSON `false` that `== 0` would have accepted are all refused — the bool
+    exclusion is the same house rule the ledger's own type checks use, because
+    `isinstance(True, int)` is True in Python.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([], ledger=False)
+        arms_root = population.arms_root
+        path = os.path.join(arms_root, "SHORTFALL.json")
+        with open(path) as handle:
+            honest = json.load(handle)
+        assert score_rates.load_ledger(arms_root, honest, 0) == []
+        # (a) the declaration says a slot ran.
+        cases = [
+            dict(honest, completedThroughGlobalIndex=1),
+            dict(honest, completedRounds=1),
+            dict(honest, completedSlots=1),
+            dict(honest, lastSlot="arms/B/authoring/run-001"),
+            dict(honest, lastSlotEndedAt="2026-08-09T00:00:00Z"),
+            dict(honest, lastSlotEndedAtFrom="arms/B/authoring/run-001"),
+            # (b) the bool trap: JSON `false` is an int in Python and `== 0`.
+            dict(honest, completedThroughGlobalIndex=False),
+            dict(honest, completedRounds=False),
+            dict(honest, completedSlots=False),
+            # (c) a member missing altogether, and no declaration at all.
+            {key: value for key, value in honest.items()
+             if key != "completedSlots"},
+            None,
+        ]
+        for declaration in cases:
+            assert score_rates._declares_no_slot_ran(declaration) is False, \
+                declaration
+            with pytest.raises(score_rates.ScoreError) as caught:
+                score_rates.load_ledger(arms_root, declaration, 0)
+            assert "no ledger at" in str(caught.value)
+            assert type(caught.value) is score_rates.ScoreError
+        # (d) an honest zero declaration with a slot actually present: the
+        # ledger is required again, because the batch is no longer empty.
+        os.makedirs(os.path.join(arms_root, "B", "authoring", "run-001"))
+        with pytest.raises(score_rates.ScoreError) as caught:
+            score_rates.load_ledger(arms_root, honest, 1)
+        assert "no ledger at" in str(caught.value)
+        # …and the single-argument call, which is what a caller holding no
+        # declaration is entitled to, still refuses.
+        with pytest.raises(score_rates.ScoreError):
+            score_rates.load_ledger(arms_root)
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_an_authoring_root_that_is_present_and_not_a_directory_still_refuses(pins,
+                                                                            study):
+    """`collect_slots()` distinguishes ABSENT from present-but-not-a-directory,
+    and only the first is an empty population.
+
+    `lexists`, not `exists`: a DANGLING symlink at the authoring root is
+    something that was created and broken — a tree that lost its slots — and it
+    refuses with the message it always had. A symlink to a real directory keeps
+    its old behaviour for the same reason `isdir` has always followed one.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([], ledger=False)
+        arm_root = score_rates.slots_root(population.arms_root, "A")
+        assert score_rates.collect_slots(arm_root) == ([], [])
+        elsewhere = os.path.join(root, "somewhere-else")
+        os.makedirs(elsewhere)
+        for make in (lambda: open(arm_root, "w").close(),
+                     lambda: os.symlink(os.path.join(root, "gone"), arm_root)):
+            make()
+            with pytest.raises(score_rates.ScoreError) as caught:
+                score_rates.collect_slots(arm_root)
+            assert "is not a directory" in str(caught.value)
+            assert type(caught.value) is score_rates.ScoreError
+            os.remove(arm_root)
+        os.symlink(elsewhere, arm_root)
+        assert score_rates.collect_slots(arm_root) == ([], [])
+    finally:
+        shutil.rmtree(root, True)
 
 
 def _source(path: str) -> str:

@@ -76,9 +76,17 @@ else:
      finding 9): the load-bearing table §4.6 registers is `READING_TABLE` here,
      and `reading_verdict()` computes which of its three rows arm E's integers
      fall on. A placement collapse whose labels are NOT at the ceiling is a
-     *comprehension* collapse — "the author could not derive or apply the
-     values" — and §4.6 registers that it does not confirm R1, so it does not
-     reach §5.3's row 5.
+     *comprehension* collapse — "at least one accepted record was mislabelled"
+     — and §4.6 registers that it does not confirm R1, so it does not reach
+     §5.3's row 5. **What the ceiling establishes is a fact about labels and
+     not about the author** (round 9, finding 2): `policy_mirror.verdict()`
+     returns at the sanctions clause and then at the embargo clause before it
+     reads `riskScore`, so such a record is labelled correctly at every
+     threshold pair and `|Q| = 0` is not comprehension evidence. The `reading`
+     cells below say what the integers show and nothing more, and §5.3's row 5
+     carries a fifth conjunct — class 3, the interior review band, must not
+     collapse in arm E — which excludes the degenerate arm and, §4.6 registers,
+     establishes no comprehension either.
  12. **Arm D's three registered outcomes** (round 3, finding 10): §5.3 (ii)
      registers `OLD-EDGE-PREFERENCE` and a general degradation beside the
      predicted tracking, and `arm_d_outcome()` computes them from D's own-keyed
@@ -311,15 +319,25 @@ from fractions import Fraction
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
-sys.path.insert(0, HERE)
 
-import integrity  # noqa: E402
+# The ceremony's commands run with bytecode writing disabled (§2.10,
+# round 5 finding 3): set structurally, not left to the operator's
+# environment, before any harness module is imported — which means before
+# the `import integrity` below, not after it. Round 9, finding 1: this
+# command is one of the ceremony's and set the flag nowhere, so the plural
+# was a claim about one file.
+sys.dont_write_bytecode = True
+
+
 def _refuse_untracked_python_sources():
     """Round 8, finding 2: an untracked package can shadow a reviewed module
     at import time — including the module carrying the untracked-source scan
     itself, which is why THIS tripwire lives in the entry file the ceremony
     names by path, before any harness import. Import resolution cannot shadow
-    a script invoked as a file."""
+    a script invoked as a file. Round 9, finding 1: "before any harness
+    import" includes `import integrity` — the gate module was imported above
+    this scan, so the one module a shadow package would replace was the one
+    module the scan could not precede."""
     import subprocess as _subprocess
     study = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     tracked = set(_subprocess.run(
@@ -340,6 +358,10 @@ def _refuse_untracked_python_sources():
 
 if __name__ == "__main__":
     _refuse_untracked_python_sources()
+
+# Nothing is put on the import path until the tree has been scanned.
+sys.path.insert(0, HERE)
+import integrity  # noqa: E402
 
 
 # The mirror is imported LAZILY (round 7, finding 1): the bytecode gate in
@@ -371,7 +393,18 @@ SLOT_FILES = ("CALL.json", "stdout.raw", "stderr.raw")
 REGISTRY_OF_RECORD = os.path.join(HERE, "PINS.json")
 REGISTERED_ARMS = os.path.join(STUDY, "arms")
 REGISTERED_GOLDEN = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
+# §6 C7's control record, at the canonical path and nowhere else. `batch.py`
+# takes a `--out`; the precondition does not consult it, for [D-23]'s reason.
+REGISTERED_ISOLATION_NEGATIVE = os.path.join(STUDY, "controls",
+                                             "isolation-negative")
 REGISTERED_MIRROR = os.path.join(HERE, "policy_mirror.py")
+# §6 C7's three registered outcomes, in the registration's own order. They live
+# here rather than in `batch.py` because `batch.py` imports this module and not
+# the reverse, and the driver that WRITES a verdict, the preflight that reads
+# one and the scorer below must take the list from one place — the same reason
+# `batch._load_json` borrows this module's duplicate-key rule instead of
+# keeping a second one (round 9, finding 3).
+C7_OUTCOMES = ("refused", "matched", "no-context")
 # The five arms, in the registered order, and the baseline every §5.2 contrast
 # is taken against. Arm A is also S10's coordinate system (§4.6).
 ARMS = ("A", "B", "C", "D", "E")
@@ -485,6 +518,15 @@ SECOND_CONTRAST_TABLE = (
 # embargo-membership class whose collapse overrides every other reading of E.
 NARROW_NUMERIC_CLASSES = (0, 1, 2, 5)
 EMBARGO_CLASS = 4
+# §5.3 row 5's fifth conjunct (round 9, finding 2): class 3 is the interior
+# review band `¬S ∧ ¬E ∧ T_low <= risk < T_high`, and it is the one class whose
+# members are scored BETWEEN the two thresholds — so covering it means placing
+# records the two numbers bracket, and a record decided at the sanctions or
+# embargo clause never reaches the comparison. Requiring that arm E not COLLAPSE
+# here excludes an arm E whose accepted records carry no threshold information
+# at all; §4.6 registers that it excludes a degenerate case and establishes no
+# comprehension.
+INTERIOR_CLASS = 3
 # §5.3: "three or more of the four", and the control gate's "five of six".
 PATTERN_MINIMUM = 3
 CONTROL_GATE_MINIMUM = 5
@@ -519,7 +561,8 @@ DECISION_TABLE = (
      "publishedAs": "R1-UNSUPPORTED",
      "gloss": "§8's correction fires"},
     {"row": 5,
-     "condition": "`nP >= 3` **and arm E's S5 labels are at the ceiling (§4.6)**",
+     "condition": "`nP >= 3` **and arm E's S5 labels are at the ceiling (§4.6) "
+                  "and arm E does not read COLLAPSE on class 3**",
      "outcome": "confirmed for this instance",
      "publishedAs": "CONFIRMED",
      "gloss": ""},
@@ -537,11 +580,20 @@ DECISION_TABLE = (
 # --- §4.6's load-bearing table: S1 and S5 separate three readings of a collapse
 #
 # Round 3 finding 9: §4.6 registers that S5 is what separates a placement
-# collapse that means "did not test the boundary" from one that means "could not
-# derive the boundary", and that the second — a COMPREHENSION collapse — does
-# not confirm R1. The scorer computed nP, nC and nH and confirmed from nP alone,
-# so the registered distinction was unreachable. It is data and code here, and
+# collapse whose accepted records are all correctly labelled from one whose
+# labels failed, and that the second — a COMPREHENSION collapse — does not
+# confirm R1. The scorer computed nP, nC and nH and confirmed from nP alone, so
+# the registered distinction was unreachable. It is data and code here, and
 # `test_verdict_parity.py` diffs the table below against §4.6's own.
+#
+# Round 9 finding 2: the readings are named for the explanations they make
+# available, not for propositions this rule establishes, and the `reading` cells
+# say only what the integers show. `|Q| = 0` says no accepted record was
+# mislabelled; it does not say the author derived either threshold, because
+# `policy_mirror.verdict()` returns at the sanctions clause and then at the
+# embargo clause before it reads `riskScore`. §4.6 registers what the ceiling
+# establishes and what it does not, and this table no longer asserts a mental
+# state a set of correct labels cannot pin down.
 #
 # The cut is the word the file uses: **the ceiling** of a proportion is 1, so
 # arm E's pooled S5 accuracy `|H| / (|H| + |Q|)` is at the ceiling exactly when
@@ -562,14 +614,15 @@ READING_TABLE = (
      "placementGloss": "the records are not at the boundary",
      "labels": "at the ceiling",
      "branch": S5_BRANCHES[0],
-     "reading": "the author understood the thresholds and did not test them",
+     "reading": "no accepted record was mislabelled, and none was placed at "
+                "the boundary",
      "publishedAs": "PLACEMENT collapse",
      "gloss": "this is what R1 predicts, and the only thing that confirms it"},
     {"placementLevel": "LOW",
      "placementGloss": "",
      "labels": "degraded",
      "branch": S5_BRANCHES[1],
-     "reading": "the author could not derive or apply the values",
+     "reading": "at least one accepted record was mislabelled",
      "publishedAs": "comprehension collapse",
      "gloss": "published as one, R1 not confirmed"},
     {"placementLevel": "HIGH or MID",
@@ -931,8 +984,10 @@ def level_operating_characteristics(n: int, p: Fraction) -> dict:
     assigns a class whose TRUE coverage is p, at n trials. Registered rather
     than left to a reader's intuition, and asserted by a harness test.
 
-    Every 0.0000 in §5.4 is a rounded figure and not a zero — P(HIGH) at
-    p = 0.30 is about 4e-11 — and no rule in §5 reads these numbers."""
+    Every 0.0000 in §5.4's table is a rounded figure and not a zero except in
+    the two degenerate rows, where four are exact (at p = 1 no outcome has
+    k <= 3; at p = 0 none has k >= 27) — P(HIGH) at p = 0.30 is about 1.1e-11
+    — and no rule in §5 reads these numbers (round 9, finding 12)."""
     high_k = high_threshold(n)
     low_k = low_threshold(n)
     p_high = probability_at_least(high_k, n, p)
@@ -1006,6 +1061,17 @@ def decision_operating_characteristics(n: int) -> dict:
                                            and E's class 4 sits at p = 0.95 in
                                            both scenarios, so this term is
                                            within 1e-23 of 1 at every N
+      class 3 does not collapse            row 5 only (round 9, finding 2): the
+                                           same shape and the same magnitude,
+                                           E's class 3 also sitting at p = 0.95
+                                           under §5.4's scenario, so no printed
+                                           figure moves
+
+    Row 5's joint reads ONE arm-A pattern for a primary rule and an S1 rule at
+    once (round 9, finding 9): `nP`, the class-4 term and now the class-3 term
+    all condition on the same arm-A HIGH verdicts, and `H ⊆ raw` makes the two
+    endpoints dependent — §5.4's fourth independence layer is exactly that
+    assumption, and its paragraph states what the figure assumes.
 
     Every figure assumes the independence layers §5.4 names and is not a bound;
     §5.4's Fréchet column is what the marginals alone imply.
@@ -1026,21 +1092,27 @@ def decision_operating_characteristics(n: int) -> dict:
     # both control arms, and a class arm A does not read HIGH can never be
     # TRACKING, so only patterns of five or six matter; among the five-class
     # patterns what matters is whether the missing class is one of the four
-    # narrow numeric ones (which removes it from `nP`'s reach) and whether it is
-    # class 4 (which removes row 2's precondition).
-    shapes = ((classes, narrow, True, 1),           # A HIGH on all six
-              (classes - 1, narrow - 1, True, narrow),   # missing a narrow class
-              (classes - 1, narrow, True, 1),       # missing class 3
-              (classes - 1, narrow, False, 1))      # missing class 4
+    # narrow numeric ones (which removes it from `nP`'s reach), whether it is
+    # class 4 (which removes row 2's precondition) and whether it is class 3
+    # (which removes row 5's fifth conjunct: with A not HIGH there, no contrast
+    # verdict exists and COLLAPSE is unavailable).
+    shapes = ((classes, narrow, True, True, 1),          # A HIGH on all six
+              (classes - 1, narrow - 1, True, True, narrow),  # missing a narrow
+              (classes - 1, narrow, True, False, 1),     # missing class 3
+              (classes - 1, narrow, False, True, 1))     # missing class 4
     gate = row_four = row_five = Fraction(0)
-    for size, narrow_in, embargo_in, ways in shapes:
+    for size, narrow_in, embargo_in, interior_in, ways in shapes:
         weight = ways * q ** size * (1 - q) ** (classes - size)
         # Both control arms, independently, over the classes A reads HIGH.
         passes = _binomial_at_least(CONTROL_GATE_MINIMUM, size, q) ** 2
         no_embargo_collapse = (1 - intact_low) if embargo_in else Fraction(1)
+        # Round 9, finding 2: row 5's fifth conjunct, in the class-4 term's own
+        # shape. Row 4 does not read it — the falsification half is untouched.
+        no_interior_collapse = (1 - intact_low) if interior_in else Fraction(1)
         gate += weight * passes
         row_four += weight * passes * no_embargo_collapse
         row_five += (weight * passes * no_embargo_collapse
+                     * no_interior_collapse
                      * _binomial_at_least(PATTERN_MINIMUM, narrow_in,
                                           collapsed_low))
     # `nH` reads arm E's own levels and nothing of arm A's, so it factors out of
@@ -1061,7 +1133,9 @@ def decision_operating_characteristics(n: int) -> dict:
                 "(row 1). Independence layers 1-3. For row 4 that is the power "
                 "to publish R1-UNSUPPORTED; for row 5 it is the COVERAGE-SIDE "
                 "quantity and an upper bound for CONFIRMED — the S5 ceiling "
-                "conjunct is outside this model (§5.4, round 5 finding 5).",
+                "conjunct is outside this model (§5.4, round 5 finding 5), "
+                "while row 5's class-3 conjunct is inside it, in the class-4 "
+                "term's own shape (round 9, finding 2).",
     }
 
 
@@ -2599,9 +2673,25 @@ def collect_slots(root: str) -> tuple:
     states it over the ledger's prefix rather than over whatever is on disk:
     §2.8's own text leaves arms holding R or R−1 slots after a partly completed
     round, so `1…R` from a round number was never the right range.
+
+    An ABSENT root is an empty population, not a refusal (round 9, finding 4).
+    The driver creates `arms/<X>/authoring/` with that arm's FIRST slot
+    (`batch.py`'s `os.makedirs(slot, exist_ok=True)`), so an arm the registered
+    prefix has not reached yet has no root at all: §2.8's round-1 order is B, C,
+    A, D, E, and a prefix shorter than five leaves 5−k roots uncreated. Refusing
+    them made §2.8's own descriptive publication unreachable for exactly the
+    prefixes [D-21] is most obviously about — a batch that dies in round 1.
+    The tolerance is not free: `check_population()` validates it against the
+    declared shortfall and the prefix's own per-arm counts (C5 rules 2 and 4).
+    `lexists`, not `exists`: a DANGLING symlink at the authoring root is
+    something that was created and broken, not an arm never reached, and it
+    still refuses; a symlink to a real directory keeps its old behaviour,
+    because `isdir` follows.
     """
     if not os.path.isdir(root):
-        raise ScoreError("%s is not a directory" % root)
+        if os.path.lexists(root):
+            raise ScoreError("%s is not a directory" % root)
+        return [], []
     slots, unexpected = [], []
     for name in sorted(os.listdir(root)):
         path = os.path.join(root, name)
@@ -2732,6 +2822,46 @@ def verify_preconditions(pins_path: str, arms_root: str, golden_path: str,
         raise ScoreError("PREREGISTRATION.md is %s, not the %s registered at the "
                          "freeze: it was edited after the freeze"
                          % (prereg_digest, prereg_pin))
+    # §6 C7, re-checked here for the same reason the freeze and the golden are:
+    # none of it can be discovered afterwards from a published rate. The driver
+    # refuses a batch whose control never ran (round 9, finding 3); a rate could
+    # still be published over a study whose control record was removed after the
+    # batch, and §7 promises the record among the published artifacts. The path
+    # is the canonical one and `context.json` is NOT required — a `no-context`
+    # verdict is a registered outcome and leaves none.
+    c7_assent = pins.get("isolationNegative", {}).get("assent")
+    if c7_assent != "granted":
+        raise ScoreError(
+            "harness/PINS.json records isolationNegative.assent %r: §6 C7 runs "
+            "before the batch and the registry records the assent it ran under, "
+            "so no rate is computed while it is unrecorded" % (c7_assent,))
+    c7_path = os.path.join(REGISTERED_ISOLATION_NEGATIVE, "VERDICT.json")
+    c7_relative = os.path.relpath(c7_path, study)
+    if not os.path.isfile(c7_path):
+        raise ScoreError("no §6 C7 record at %s: the isolation negative control "
+                         "runs once, before the batch, and its verdict is among "
+                         "the artifacts §7 publishes" % c7_relative)
+    try:
+        c7 = load_json(c7_path)
+    except ValueError as error:
+        raise ScoreError("%s cannot be read as duplicate-free JSON (%s): §6 C7's "
+                         "verdict is read, not taken on trust" % (c7_relative, error))
+    if not isinstance(c7, dict):
+        raise ScoreError("%s is a %s and §6 C7's verdict is an object"
+                         % (c7_relative, type(c7).__name__))
+    if c7.get("outcome") not in C7_OUTCOMES:
+        raise ScoreError("%s records outcome %r and §6 C7 registers %r"
+                         % (c7_relative, c7.get("outcome"), list(C7_OUTCOMES)))
+    if c7.get("assent") != c7_assent:
+        raise ScoreError("%s: the control was authorized by %r and the registry "
+                         "records %r: the record is not this study's"
+                         % (c7_relative, c7.get("assent"), c7_assent))
+    if c7.get("goldenSha256") != golden_digest:
+        raise ScoreError("%s: the control was compared against golden capture %r "
+                         "and this population was scored against %s: C7 "
+                         "demonstrates the power of the gate these slots ran "
+                         "behind (§3.2, §6 C7)"
+                         % (c7_relative, c7.get("goldenSha256"), golden_digest))
     arms = {}
     for arm in ARMS:
         arms[arm] = load_arm(arms_root, arm, arm_pins[arm])
@@ -2750,10 +2880,47 @@ def verify_preconditions(pins_path: str, arms_root: str, golden_path: str,
             "arms": arms}
 
 
-def load_ledger(arms_root: str) -> list:
+def _declares_no_slot_ran(shortfall) -> bool:
+    """§2.8's declaration over the EMPTY prefix, exactly as
+    `batch.declare_shortfall()` writes it when the ledger holds no record: zero
+    rounds, zero through global index zero, zero slots, and no last slot and no
+    clock to name. A batch that died before global index 1 wrote no
+    `BATCH.json` — the driver writes it inside the run loop, after a slot — so
+    requiring the file would make §2.8's own descriptive publication
+    unreachable for the one prefix it is most obviously about.
+
+    The bool exclusion is the house rule the ledger's own type checks use
+    (round 8, finding 9): JSON `false` is an `int` in Python and must not
+    satisfy `== 0`, or a declaration that says `"completedSlots": false` would
+    be read as a declaration that no slot ran."""
+    if not isinstance(shortfall, dict):
+        return False
+    for member in ("completedRounds", "completedThroughGlobalIndex",
+                   "completedSlots"):
+        value = shortfall.get(member)
+        if isinstance(value, bool) or not isinstance(value, int) or value:
+            return False
+    return all(shortfall.get(member) is None
+               for member in ("lastSlot", "lastSlotEndedAt",
+                              "lastSlotEndedAtFrom"))
+
+
+def load_ledger(arms_root: str, shortfall: dict = None,
+                present: int = None) -> list:
     """§2.9's append-only chained ledger, as a list of records in file order.
     Read before any slot, because C5 rules 2-5 are questions about the ledger
     and the slot set together.
+
+    `shortfall` and `present` are §2.8's declaration and the count of slots on
+    disk, and they exist for one case (round 9, finding 4): the batch that died
+    before its first slot finished has no `BATCH.json` at all, because the
+    driver writes the ledger inside the run loop. That population is admitted
+    as an empty one ONLY when no slot is present and the declaration records
+    that no slot ran — `terminality()` has already refused the two neighbouring
+    cases, a complete batch that also declares and an over-full one, so by the
+    time `present == 0` reaches here a declaration is guaranteed to exist. The
+    defaults keep the single-argument call a refusal, which is what a caller
+    holding no declaration is entitled to.
 
     Every record is TYPE-CHECKED here, at the read (round 6, finding 8). C5
     registers that a malformed ledger refuses the whole scoring through the
@@ -2775,6 +2942,8 @@ def load_ledger(arms_root: str) -> list:
     """
     path = os.path.join(arms_root, LEDGER_FILE)
     if not os.path.isfile(path):
+        if present == 0 and _declares_no_slot_ran(shortfall):
+            return []
         raise ScoreError("no ledger at %s: the population is the registered "
                          "schedule and the ledger is the record of what ran (§2.9, "
                          "C5)" % path)
@@ -2958,6 +3127,23 @@ def check_population(arms_root: str, slots: dict, ledger: list, schedule: list,
     counts = {arm: sum(1 for entry in prefix if entry["arm"] == arm)
               for arm in ARMS}
     for arm in ARMS:
+        # `collect_slots()` reads an ABSENT authoring root as an empty
+        # population (round 9, finding 4), and this is where that tolerance is
+        # validated rather than inferred: a missing root is admitted only when
+        # a shortfall is declared AND the declared prefix derives no slot for
+        # this arm. `counts` is the LEDGER's prefix, and rule 5 below pins that
+        # prefix to the declaration slot for slot, so the pair is the strict
+        # condition. A root deleted after the fact cannot pass here — its
+        # ledger records still name paths that are gone and rule 2 above
+        # refuses first, with the more exact per-slot message.
+        if not os.path.isdir(slots_root(arms_root, arm)):
+            if shortfall is None or counts[arm]:
+                raise ScoreError(
+                    "arm %s has no authoring/ root and the registered prefix derives %d "
+                    "slot(s) for it%s: a missing root is an arm the prefix has not "
+                    "reached, never an arm dropped from the population (C5 rules 2 and 4)"
+                    % (arm, counts[arm], "" if shortfall is not None
+                       else ", and no %s declares a short batch" % SHORTFALL_FILE))
         indexes = sorted(int(os.path.basename(path).split("-", 1)[1])
                          for path in slots[arm])
         if indexes != list(range(1, counts[arm] + 1)):
@@ -3023,8 +3209,15 @@ def score(arms_root: str, pins_path: str, golden_path: str,
     slots, unexpected = {}, {}
     for arm in ARMS:
         slots[arm], unexpected[arm] = collect_slots(slots_root(arms_root, arm))
-    ledger = load_ledger(arms_root)
+    # The declaration is read BEFORE the ledger (round 9, finding 4).
+    # `terminality()` takes no ledger, so the order costs nothing and buys the
+    # empty prefix its honest reading: a batch that died before global index 1
+    # has no `BATCH.json`, and reading the ledger first made the operator see
+    # "no ledger" — or, before `collect_slots()` learned the difference, "arms/A/
+    # authoring is not a directory" — where §2.8 promises a descriptive batch.
     shortfall = terminality(arms_root, slots, len(schedule))
+    ledger = load_ledger(arms_root, shortfall,
+                         sum(len(paths) for paths in slots.values()))
     population = check_population(arms_root, slots, ledger, schedule, shortfall)
     by_key, prefix, counts = (population["byKey"], population["prefix"],
                               population["counts"])
@@ -3594,11 +3787,25 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     round-6 amendments carried the S5 conjunct into §5.3's row 5, the [D-10]
     box, the summary table and §5.5): confirmation requires the placement
     pattern, arm E's S5 labels at the ceiling, the B/C gate and class 4 not
-    collapsing — the four-conjunct rule this function computes. A placement
-    collapse with degraded labels falls through to the last row, published as
-    INDETERMINATE with §4.6's comprehension-collapse reading beside it
-    (round 7, finding 9: an earlier version of this docstring described the
-    pre-amendment split as live, which was itself the stale statement).
+    collapsing. A placement collapse with degraded labels falls through to the
+    last row, published as INDETERMINATE with §4.6's comprehension-collapse
+    reading beside it (round 7, finding 9: an earlier version of this docstring
+    described the pre-amendment split as live, which was itself the stale
+    statement).
+
+    **Row 5 also requires that arm E not read COLLAPSE on class 3** (round 9,
+    finding 2) — the fifth conjunct of the five-conjunct rule this function
+    computes. `|Q| = 0` cannot see whether any accepted record exercised a
+    threshold: `policy_mirror.verdict()` returns at the sanctions and embargo
+    clauses before it reads `riskScore`, so an arm E whose accepted records are
+    all such records reads the ceiling, keeps class 4 out of collapse and would
+    have confirmed having exercised neither number. Class 3 is the interior
+    review band: its members are scored BETWEEN the two thresholds, so a record
+    covered there is one the two numbers bracket and one the mirror labelled
+    after reading `riskScore`, and an arm that covers none of it has produced no
+    such record. It excludes a degenerate case and establishes no comprehension,
+    which is what §4.6 registers — and it is why §4.6's reading can confirm
+    while this table's row 5 does not fire.
     """
     def published(number: int, why: str) -> dict:
         entry = DECISION_TABLE[number - 1]
@@ -3631,18 +3838,31 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     if counts["nH"] >= PATTERN_MINIMUM:
         return published(4, "nH = %d" % counts["nH"])
     if counts["nP"] >= PATTERN_MINIMUM and reading is not None \
-            and reading["confirmsR1"]:
+            and reading["confirmsR1"] \
+            and e_rows[INTERIOR_CLASS]["contrast"] != CONTRAST_TABLE[0][1]:
         return published(5, "nP = %d and arm E's S5 labels are %s, which is "
-                            "§4.6's %s" % (counts["nP"], reading["labels"],
-                                           reading["publishedAs"]))
+                            "§4.6's %s, and arm E does not read COLLAPSE on "
+                            "class %d" % (counts["nP"], reading["labels"],
+                                          reading["publishedAs"],
+                                          INTERIOR_CLASS))
     if counts["nC"] >= PATTERN_MINIMUM and counts["nP"] < PATTERN_MINIMUM:
         return published(6, "nC = %d and nP = %d" % (counts["nC"], counts["nP"]))
+    if reading is None or reading["publishedAs"] is None:
+        tail = ""
+    elif reading["confirmsR1"]:
+        # The one way the last row is reached with a CONFIRMING reading, and it
+        # is new (round 9, finding 2): rows 4 and 6 are unreachable at `nP >= 3`
+        # with `nP >= 3` holding, so row 5's fifth conjunct is what failed. The
+        # gloss says which conjunct, because saying "does not confirm R1" of a
+        # reading that does would be the smaller rule stated again.
+        tail = ("; §4.6 reads arm E as a %s (%s), and arm E reads COLLAPSE on "
+                "class %d, which row 5 requires it not to"
+                % (reading["publishedAs"], reading["why"], INTERIOR_CLASS))
+    else:
+        tail = ("; §4.6 reads arm E as a %s (%s), which does not confirm R1"
+                % (reading["publishedAs"], reading["why"]))
     return published(7, "nP = %d, nC = %d, nH = %d%s"
-                        % (counts["nP"], counts["nC"], counts["nH"],
-                           "" if reading is None or reading["publishedAs"] is None
-                           else "; §4.6 reads arm E as a %s (%s), which does not "
-                                "confirm R1" % (reading["publishedAs"],
-                                                reading["why"])))
+                        % (counts["nP"], counts["nC"], counts["nH"], tail))
 
 
 def score_registered(records_dir: str = None) -> dict:

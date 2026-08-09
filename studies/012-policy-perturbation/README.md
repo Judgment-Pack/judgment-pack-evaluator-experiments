@@ -79,8 +79,8 @@ ordered, exhaustive decision table** whose first matching row is the outcome and
 whose last row always matches. Over the four narrow numeric classes: **placement
 collapse** — arm E's *raw* records leaving the boundary, not merely its
 correctly-labelled ones — on ≥ 3 of 4, with arm E's S5 labels at the
-ceiling (§4.6), the B/C control gate holding and class 4 not collapsing, is
-CONFIRMED; arm E reading HIGH on ≥ 3 of 4 is
+ceiling (§4.6), the B/C control gate holding and neither class 4 nor class 3
+collapsing, is CONFIRMED; arm E reading HIGH on ≥ 3 of 4 is
 R1-UNSUPPORTED; coverage collapsing while the raw records stay on the boundary
 is LABEL-COLLAPSE-ONLY; and every other pattern — including all-MID, which
 N = 30 makes the likely shape of any *partial* effect — is INDETERMINATE with R1
@@ -242,6 +242,10 @@ sha256sum PREREGISTRATION.md
 #    projection, so the freeze binding is untouched (§2.10); the command
 #    refuses while it is null. One probe call with the real HOME, expected to
 #    FAIL the golden match. Exits non-zero if it reached neither comparison.
+#    Step 6 REFUSES until this record exists: the batch reads the assent and
+#    the verdict before it creates a slot, and so does the scorer (§6 C7).
+#    Leave --out at its default — the precondition reads the canonical
+#    controls/isolation-negative/ and consults no flag.
 "$PY" harness/batch.py capture-isolation-negative --scratch-parent DIR
 
 # 6. The batch: 30 rounds x 5 arms = 150 sequential slots into

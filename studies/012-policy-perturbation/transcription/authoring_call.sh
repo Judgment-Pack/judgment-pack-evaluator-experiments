@@ -85,7 +85,15 @@ if [ "$#" -lt 5 ] || [ "$#" -gt 6 ]; then
 fi
 
 STUDY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-GIT_ROOT="$(cd "$(git -C "$STUDY" rev-parse --show-toplevel)" && pwd -P)"
+# Round 9, incidental to finding 6: read the toplevel first and refuse an empty
+# one. Nested in the `cd` below, a failed `rev-parse` left the substitution
+# empty, `cd ""` succeeded, and GIT_ROOT silently became the caller's cwd — so
+# the scratch check at the bottom of this block compared against a directory
+# nobody chose. Production is always in a worktree; this refuses rather than
+# degrades when it is not.
+GIT_ROOT="$(git -C "$STUDY" rev-parse --show-toplevel 2>/dev/null || true)"
+[ -n "$GIT_ROOT" ] || { echo "refused: $STUDY is not inside a git worktree" >&2; exit 1; }
+GIT_ROOT="$(cd "$GIT_ROOT" && pwd -P)"
 PYTHON="${PYTHON_BIN:-python3}"
 PINS="$3"
 SLOT="$2"
@@ -142,24 +150,18 @@ case "$PROMPT_KIND" in
     # driver's bookkeeping. An off-by-one in the driver's arm sequence would
     # otherwise place a slot in the wrong tree silently.
     #
-    # Round 8, finding 6: the WHOLE of §2.7's shape, not two basenames. This
-    # compared only the parent and grandparent names, so /tmp/C/authoring/run-001
-    # passed for arm C — the slot was not in an arms tree at all — and the slot
-    # NAME was unrestricted, so anything the scorer would later collect as a
-    # run could be written by hand under a correct-looking parent. All four
-    # trailing components are checked now, the leaf against run-NNN, and the
-    # path must be absolute: the driver derives every slot path from its own
-    # ARMS_ROOT ([D-23]) and never passes a relative one.
+    # Round 9, finding 6: a suffix is not a location. Four trailing components
+    # accepted <anywhere>/arms/<ARM>/authoring/run-NNN under any absolute root,
+    # which §2.7's sentence does not say and the driver never produces. $STUDY
+    # is already resolved from this script's own location above, so the whole
+    # path is required — no new argument and no new environment member
+    # (batch.py's environment contract stays 011's four).
     SLOT_NAME_GUARD="$(basename "$SLOT")"
-    SLOT_KIND="$(basename "$(dirname "$SLOT")")"
-    SLOT_ARM="$(basename "$(dirname "$(dirname "$SLOT")")")"
-    SLOT_TREE="$(basename "$(dirname "$(dirname "$(dirname "$SLOT")")")")"
+    ARMS_ANCHOR="$STUDY/arms/$ARM/authoring"
     SLOT_SHAPE=ok
-    case "$SLOT" in /*) ;; *) SLOT_SHAPE=bad;; esac
     case "$SLOT_NAME_GUARD" in run-[0-9][0-9][0-9]) ;; *) SLOT_SHAPE=bad;; esac
-    if [ "$SLOT_TREE" != "arms" ] || [ "$SLOT_ARM" != "$ARM" ] \
-       || [ "$SLOT_KIND" != "authoring" ] || [ "$SLOT_SHAPE" != "ok" ]; then
-      echo "refused: slot $SLOT is not under arms/$ARM/authoring/ as an absolute arms/$ARM/authoring/run-NNN path" >&2
+    if [ "$SLOT" != "$ARMS_ANCHOR/$SLOT_NAME_GUARD" ] || [ "$SLOT_SHAPE" != "ok" ]; then
+      echo "refused: slot $SLOT is not under arms/$ARM/authoring/ as this study's arms/$ARM/authoring/run-NNN path" >&2
       exit 1
     fi;;
   probe)
@@ -252,7 +254,26 @@ fi
 # never overwrites a retained one. Study 010's zero-retry rule protected a
 # single unrepeatable draw; here the protection that matters is that every
 # invocation leaves its own slot and no slot is ever written twice.
-mkdir -p "$(dirname "$SLOT")"
+if [ "$PROMPT_KIND" = "registered" ]; then
+  # Round 9, finding 6: the registered branch creates inside its own study and
+  # nowhere else — the anchor the guard above pinned is the only tree this
+  # branch may make, which is what keeps this file's own exit-1 promise
+  # ("nothing was called, no slot was left behind") true of a foreign path too.
+  mkdir -p "$ARMS_ANCHOR"
+  # …and the textual anchor cannot see a REPLACED component: `arms` or
+  # `authoring` may be a symlink pointing out of the study, and until this the
+  # first physical resolution of the slot came after it had been created. Still
+  # pre-call, and it creates nothing outside the study.
+  ANCHOR_PHYS="$(cd "$ARMS_ANCHOR" && pwd -P)"
+  if [ "$ANCHOR_PHYS" != "$ARMS_ANCHOR" ]; then
+    echo "refused: arms/$ARM/authoring resolves to $ANCHOR_PHYS, outside this study's tree" >&2
+    exit 1
+  fi
+else
+  # The probe calls (§3.2's recapture and §6 C7) are made under no arm and have
+  # no anchor: their slot is the capture directory the driver names.
+  mkdir -p "$(dirname "$SLOT")"
+fi
 # -e OR -L: a DANGLING symlink at the slot path is absent to `-e` and present
 # to `mkdir`, so the wrapper used to pass this check and then die in `mkdir`
 # under `set -e` with no refusal message. A link at a slot path is a slot that

@@ -47,6 +47,7 @@ import hashlib
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 from decimal import Decimal
 
@@ -416,11 +417,20 @@ def arm_pair(arms_root: str, arm: str) -> tuple:
 
 def build_arms_root(root: str, study: str) -> str:
     """A throwaway `arms/` root holding the study's REAL five arm artifacts, so
-    every pinned digest in `harness/PINS.json` still answers for them, plus the
-    five empty authoring trees the scorer walks."""
+    every pinned digest in `harness/PINS.json` still answers for them — and
+    NOTHING else: the tree this returns is the tree the DRIVER leaves.
+
+    The authoring roots are deliberately not pre-created (round 9, finding 4).
+    This helper used to make all five, and that one line is why no test could
+    ever see the scorer refuse an arm the prefix had not reached: `batch.py`
+    creates `arms/<X>/authoring/` with that arm's FIRST slot, so a batch that
+    died in round 1 leaves 5−k of them absent, and a fixture that made them all
+    in advance was scoring a population no batch can produce. `build_slot()`
+    makes its own slot and its parents, so every population that reaches an arm
+    still has that arm's root."""
     arms_root = os.path.join(root, "arms")
     for arm in ARMS:
-        os.makedirs(os.path.join(arms_root, arm, AUTHORING), exist_ok=True)
+        os.makedirs(os.path.join(arms_root, arm), exist_ok=True)
         for name in ARM_FILES:
             shutil.copyfile(os.path.join(study, "arms", arm, name),
                             os.path.join(arms_root, arm, name))
@@ -442,6 +452,43 @@ def throwaway_root(prefix: str = "s012-tests-") -> str:
             "the temporary directory %r carries the leak token(s) %r: set TMPDIR "
             "to a path with no study vocabulary in it and re-run" % (root, leaked))
     return root
+
+
+def standin_study(root: str, wrapper: str, harness: str) -> str:
+    """A stand-in study whose OWN path is what the wrapper resolves as
+    `$STUDY`: the committed wrapper reached through a symlink (the bytes that
+    run are the committed bytes; `$STUDY` follows the invocation path, not the
+    file's real location), the committed harness symlinked in for the wrapper's
+    python steps, and a git repo so the wrapper's worktree line sees
+    production's shape rather than its degraded one.
+
+    Round 9, finding 6 is why this exists: the wrapper anchors its slot guard
+    at the `$STUDY` it resolves for itself, so a tree it will write into has to
+    BE a study — the alternative was an override argument, which §2.7 caps out.
+    The layout the wrapper constrains, and this helper therefore fixes:
+
+      * the returned path is RESOLVED, because the anchor compares against
+        `pwd -P` and a caller that built its slots from a symlinked spelling of
+        the same directory would have every one of them refused;
+      * the scratch parent must be a SIBLING of this directory, never inside
+        it — the wrapper refuses a scratch that resolves inside its own
+        worktree, and `git init` here is what makes that check answer;
+      * `arms/` is deliberately NOT pre-created. The wrapper's registered
+        branch makes its own anchor, and a fixture that made the population
+        root first would falsify the driver tests that read the root's absence
+        as "no slot was created".
+
+    `PYTHONDONTWRITEBYTECODE` must be set for every interpreter that reaches
+    the symlinked harness: it is the committed directory, and the §2.10 gate
+    refuses on a cache beside the reviewed sources.
+    """
+    study = os.path.realpath(os.path.join(root, "study"))
+    os.makedirs(os.path.join(study, "transcription"))
+    os.symlink(wrapper, os.path.join(study, "transcription",
+                                     os.path.basename(wrapper)))
+    os.symlink(harness, os.path.join(study, "harness"))
+    subprocess.run(["git", "init", "-q", study], check=True)
+    return study
 
 
 # --- slot shapes ------------------------------------------------------------
@@ -658,16 +705,30 @@ def declare_shortfall(arms_root: str, records: list, present: int) -> dict:
     is where `batch.py`'s own writer is held to them — a fixture that quietly
     agreed with only one of the two modules would hide exactly the
     disagreement C5 rule 5 exists to prevent.
+
+    `completedRounds` counts WHOLE rounds, by the driver's own rule: the last
+    slot's round number is what round 3's finding 15 found wrong in `batch.py`,
+    and a fixture that kept it would declare one completed round over a prefix
+    that ends three slots into round 1. `lastSlotEndedAtFrom` is null beside a
+    null clock for the same reason the driver writes it that way — the scorer's
+    empty-prefix reader looks at both (round 9, finding 4).
     """
     last = records[-1] if records else None
+    counted: dict = {}
+    for record in records:
+        counted[record["round"]] = counted.get(record["round"], 0) + 1
+    whole_rounds = 0
+    while counted.get(whole_rounds + 1) == len(ARMS):
+        whole_rounds += 1
     body = {
         "registeredRounds": 30, "registeredRunsPerArm": 30,
         "registeredSlots": 150,
-        "completedRounds": last["round"] if last else 0,
+        "completedRounds": whole_rounds,
         "completedThroughGlobalIndex": last["globalIndex"] if last else 0,
         "completedSlots": present,
         "lastSlot": last["path"] if last else None,
         "lastSlotEndedAt": None,
+        "lastSlotEndedAtFrom": None,
         "reason": "test fixture: a prefix of the registered order",
     }
     _write_json(os.path.join(arms_root, SHORTFALL_FILE), body)
@@ -700,11 +761,18 @@ class Population:
         return os.path.join(self.arms_root, entry["arm"], AUTHORING,
                             "run-%03d" % entry["slotIndex"])
 
-    def build(self, specs: list) -> "Population":
+    def build(self, specs: list, ledger: bool = True) -> "Population":
         """`specs` is one dict of `build_slot()` keyword arguments per slot, in
         registered call order, plus two hooks: `mutate(slot)` runs after the
         golden stamp and BEFORE the seal (an alteration the seal covers), and
         `break_seal(slot)` runs after it (the §2.9 alteration the seal is for).
+
+        An EMPTY `specs` builds the ZERO prefix — the tree a batch that died
+        before its first slot finished leaves (round 9, finding 4): the five
+        arms' artifacts, no authoring root anywhere, and the declaration §2.8
+        requires. `ledger=False` removes `BATCH.json` as well, which completes
+        that tree: the driver writes the ledger inside the run loop, after a
+        slot, so a batch with no slot never wrote one.
         """
         self.entries = self.schedule[:len(specs)]
         for entry, spec in zip(self.entries, specs):
@@ -716,13 +784,27 @@ class Population:
         # §3.2: the capture precedes the batch, and every plan below builds
         # its first slot honest, so the capture is taken from that one and
         # stamped into all of them.
-        write_golden(self.golden, self.slots[0])
-        stamp_golden(self.golden, *self.slots)
+        if self.slots:
+            write_golden(self.golden, self.slots[0])
+            stamp_golden(self.golden, *self.slots)
+        else:
+            # The capture precedes the batch, so the zero prefix has one too —
+            # taken, as `batch.py capture` takes it, from a PROBE call that is
+            # no slot of the registered order. It is built OUTSIDE `arms/` and
+            # removed again, so the population root stays exactly what a batch
+            # with no completed slot leaves: five arm artifact sets and not one
+            # authoring root.
+            probe = os.path.join(self.root, "golden-probe", "run-001")
+            build_slot(probe, self.schedule[0], self.arms_root, self.pins)
+            write_golden(self.golden, probe)
+            shutil.rmtree(os.path.dirname(probe), True)
         for slot, spec in zip(self.slots, specs):
             if spec.get("mutate"):
                 spec["mutate"](slot)
         self.records = seal_and_ledger(self.study, self.arms_root,
                                        list(zip(self.entries, self.slots)))
+        if not ledger:
+            os.remove(os.path.join(self.arms_root, LEDGER_FILE))
         for slot, spec in zip(self.slots, specs):
             if spec.get("break_seal"):
                 spec["break_seal"](slot)
@@ -738,10 +820,10 @@ class Population:
 
         The preconditions are NOT skipped as a convenience: they bind the
         study's own committed artifacts — the ported bytes, the registered
-        interpreter, the golden pin and the freeze digest — and three of those
-        are `null` in `harness/PINS.json` until their registered moments arrive
-        (§2.10, §3.2), so no fixture population can satisfy them and none
-        should be able to.
+        interpreter, the golden pin, the freeze digest and §6 C7's recorded
+        control — and three of those are `null` in `harness/PINS.json` until
+        their registered moments arrive (§2.10, §3.2, §6 C7), so no fixture
+        population can satisfy them and none should be able to.
         `test_admission.py::test_the_scoring_refuses_before_it_reads_a_slot`
         asserts that the gate refuses, which is the half of it a fixture can
         test; everything below it is the real thing, function for function and
@@ -758,8 +840,12 @@ class Population:
         for arm in ARMS:
             slots[arm], unexpected[arm] = score_rates.collect_slots(
                 score_rates.slots_root(arms_root, arm))
-        ledger = score_rates.load_ledger(arms_root)
+        # `score()`'s own order: the declaration before the ledger, and the
+        # ledger told what the declaration and the disk say, so the zero prefix
+        # reads here exactly as it reads there (round 9, finding 4).
         shortfall = score_rates.terminality(arms_root, slots, len(self.schedule))
+        ledger = score_rates.load_ledger(
+            arms_root, shortfall, sum(len(paths) for paths in slots.values()))
         population = score_rates.check_population(arms_root, slots, ledger,
                                                   self.schedule, shortfall)
         by_key, prefix, counts = (population["byKey"], population["prefix"],

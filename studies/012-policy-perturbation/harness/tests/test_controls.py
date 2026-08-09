@@ -18,6 +18,14 @@ sentence), and that D's family coheres with D's MIRROR through §2.4's landmark
 grid, which is `harness/integrity.py`'s clause-6 equality asserted directly
 here for D. Nothing else vouches for D's family, and [D-6] says so.
 
+**§2.6's member split, pinned here as well.** §2.6 registers `FAMILY.json`'s
+whole member list — what this study reads (`embargoList`, and per mutation
+`index`, `title`, `predicate`, `predicateProse` and `patch`) and what is inert
+in it (`familyVersion`, `pack`, `note`, and per mutation `violatedClause`,
+`underD` and `reasonsUnderD`, 010's plant-and-evaluate vocabulary) — and the
+three tests closing the C2 block below bind that registration to the bytes
+(round 9, finding 8).
+
 **C3 clause 1, the counting.** The ported compiler, mirror and class arithmetic
 are run over Study 010's retained `completion.txt` and must reproduce 010's
 published profile exactly: `accepted = 16`, `|H| = 16`, `|Q| = 0`, H ∩ class
@@ -213,6 +221,73 @@ def test_arm_ds_family_coheres_with_arm_ds_mirror_over_the_landmark_grid():
     # The grid is 280 cells and not a handful: an equality over an empty or
     # truncated grid would pass without saying anything.
     assert len(integrity.grid(*perturbed)) == 280
+
+
+# §2.6: the whole member list, split into what this study reads and what it
+# does not. The inert set is 010's plant-and-evaluate vocabulary, retained
+# because arm A's bytes are 010's lock (§6 C9) and one generator makes all five.
+FAMILY_MEMBERS = ("familyVersion", "pack", "note", "embargoList", "mutations")
+MUTATION_MEMBERS = ("index", "title", "patch", "violatedClause", "predicate",
+                    "predicateProse", "underD", "reasonsUnderD")
+INERT_MUTATION_MEMBERS = ("violatedClause", "underD", "reasonsUnderD")
+ALL_ARMS = ("A", "B", "C", "D", "E")
+
+
+@pytest.mark.parametrize("arm", ALL_ARMS)
+def test_every_familys_members_are_the_set_2_6_registers(arm):
+    """§2.6 registers the whole member list, not only §2.3's six predicates: a
+    reviewer attesting the §2.10 tree manifest is attesting these bytes, so a
+    member the registration does not name fails here rather than being noticed
+    by a reader of the JSON."""
+    document = family(arm)
+    assert tuple(document) == FAMILY_MEMBERS
+    for mutation in document["mutations"]:
+        assert tuple(mutation) == MUTATION_MEMBERS
+
+
+@pytest.mark.parametrize("arm", ALL_ARMS)
+def test_the_inert_mutation_members_change_no_class(arm):
+    """The inert members carry no weight, demonstrated rather than asserted:
+    strip them and the class vector over that arm's own 280-cell grid — the
+    only thing any control computes from a family — is unchanged."""
+    full = family(arm)["mutations"]
+    stripped = [{key: value for key, value in mutation.items()
+                 if key not in INERT_MUTATION_MEMBERS} for mutation in full]
+    pair = integrity.REGISTERED_PAIRS[arm]
+    assert integrity.class_vector(stripped, *pair) \
+        == integrity.class_vector(full, *pair)
+
+
+def test_no_harness_source_outside_the_generator_names_the_inert_members():
+    """§2.6's "read by nothing", checked at the strength source text can carry.
+
+    Scanned: `familyVersion` and the three inert mutation members, whose names
+    are unambiguous. NOT scanned, and the gap is stated rather than papered
+    over: `pack` and `note` are ordinary words elsewhere in this harness
+    (`struct.pack` in integrity.py, the `note` member of PINS.json and of the
+    slot manifest in fixtures.py), so a name scan cannot separate them and
+    their non-use rests on the registration and on review. `arm_assembly.py`
+    is excluded because it WRITES these members, and this file because it
+    names them. A source scan is not a proof of non-use — a reflective read
+    would pass it — and this test is registered at that strength.
+    """
+    names = ("familyVersion",) + INERT_MUTATION_MEMBERS
+    hits = []
+    for root, _dirs, files in os.walk(HARNESS):
+        if "__pycache__" in root:
+            continue
+        for name in sorted(files):
+            if not name.endswith(".py") or name in ("arm_assembly.py",
+                                                    os.path.basename(__file__)):
+                continue
+            path = os.path.join(root, name)
+            with open(path, "rb") as handle:
+                text = handle.read().decode("utf-8")
+            hits += [(os.path.relpath(path, STUDY), member)
+                     for member in names if member in text]
+    assert not hits, (
+        "§2.6 registers these members as read by nothing, and they appear in "
+        "%r" % (hits,))
 
 
 # --- C3 clause 1 ------------------------------------------------------------

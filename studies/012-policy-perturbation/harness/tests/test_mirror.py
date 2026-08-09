@@ -1,6 +1,6 @@
 """The registered mirror properties (§2.2 [D-14], §2.4, §6 C8 clause 6).
 
-Three assertions, each named in the preregistration:
+Four assertions, each named in the preregistration:
 
 1. **Parameterization changes what the comparisons READ, nothing they
    DECIDE**: at (40, 70) the single registered module agrees with Study 010's
@@ -20,6 +20,14 @@ Three assertions, each named in the preregistration:
    14-landmark one. Verified both ways before the landmark was written into
    the registration; re-verified here so the grid cannot silently lose the
    cell that catches the mutant.
+
+4. **Every edge the family names is straddled** (§2.4's corrected claim, round
+   9, finding 11): for each of the five edges — `T_low - 1`, `T_low`,
+   `T_low + 1`, `T_high`, `T_high + 1` — the grid holds the edge and an
+   immediately adjacent landmark the family answers differently. Which side
+   that neighbour is on is NOT uniform, which is what §2.4's earlier "a point
+   0.01 to its excluded side" got wrong, so the straddle and the side facts
+   are asserted separately.
 """
 import copy
 import hashlib
@@ -119,3 +127,69 @@ def test_the_fourteenth_landmark_catches_the_class5_mutant():
             != _class_vector_over(fourteen, real)), (
         "the 14-landmark grid no longer distinguishes the [T_low-2, T_low) "
         "mutant: the landmark that exists to catch it is not doing so")
+
+
+# --- §2.4's straddle claim, as a computed fact (round 9, finding 11) ---------
+
+NAMED_EDGES = ("39", "40", "41", "70", "71")
+
+
+def _answer_columns(t_low="40", t_high="70"):
+    """Each landmark's ANSWER COLUMN — the registered mirror's verdict and the
+    family's matching class indices over the 20 non-score combinations — keyed
+    by the landmark. Two landmarks with different columns are two the six
+    predicates answer differently, which is the whole of what a straddle
+    means."""
+    classes = _family()["mutations"]
+    columns = {}
+    for cell in integrity.grid(t_low, t_high):
+        columns.setdefault(cell["riskScore"], []).append(
+            (policy_mirror.verdict(cell, t_low, t_high),
+             tuple(entry["index"] for entry in classes
+                   if policy_mirror.predicate_matches(entry["predicate"],
+                                                      cell))))
+    return {score: tuple(column) for score, column in columns.items()}
+
+
+def _classes_at(score):
+    """The classes arm A's family puts one score in, at the combination §2.4's
+    own worked reading uses: not sanctioned, registered in CA, personal data."""
+    cell = {"sanctionsHit": False, "registeredCountry": "CA",
+            "handlesPersonalData": True, "riskScore": score}
+    return {entry["index"] for entry in _family()["mutations"]
+            if policy_mirror.predicate_matches(entry["predicate"], cell)}
+
+
+def test_every_named_edge_is_straddled_by_adjacent_landmarks():
+    """§2.4's corrected claim as a computed fact (round 9, finding 11).
+
+    For each of the five edges arm A's family names, the grid holds the edge
+    AND an immediately adjacent landmark the family answers differently —
+    which is what pins the inclusive/exclusive decision. Which side that
+    neighbour is on is NOT uniform, so this asserts the straddle and then the
+    two side facts separately: §2.4 used to say the 0.01 point was always on
+    the excluded side, and at an exclusive upper bound it is the included one.
+    """
+    marks = integrity.landmarks("40", "70")
+    assert len(marks) == 14
+    for edge in NAMED_EDGES:
+        assert edge in marks, (
+            "§2.4 names %s as an edge the six predicates draw and the grid no "
+            "longer holds it" % edge)
+
+    columns = _answer_columns()
+    for edge in NAMED_EDGES:
+        below = marks[marks.index(edge) - 1]
+        assert columns[edge] != columns[below], (
+            "the grid answers %s and its neighbour %s identically, so nothing "
+            "pins the inclusive/exclusive decision at that edge" % (edge, below))
+
+    # Below an INCLUSIVE LOWER bound the 0.01 neighbour is the excluded point.
+    assert 5 in _classes_at("39") and 5 not in _classes_at("38.99")
+    # At an EXCLUSIVE UPPER bound the point AT the edge is itself the excluded
+    # side, and the 0.01 point below it is the included one — the two cases
+    # §2.4's withdrawn sentence had backwards.
+    assert 2 in _classes_at("40.99") and 2 not in _classes_at("41")
+    assert 1 in _classes_at("70.99") and 1 not in _classes_at("71")
+    # …and what T_high + 0.01 buys: class 0 is `= T_high`, not `>= T_high`.
+    assert 0 in _classes_at("70") and 0 not in _classes_at("70.01")

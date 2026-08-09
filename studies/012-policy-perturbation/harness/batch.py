@@ -88,6 +88,16 @@ carries the diff. The registered changes are exactly these:
    every other disagreement by name; and `shortfall` reconciles through the same
    function before it declares, because a batch killed in that window is exactly
    the batch that needs a declaration.
+15. **§6 C7 is a precondition of the BATCH, not only of its own command**
+   (round 9, finding 3). The registration orders the isolation negative control
+   before the batch and the registry's assent gated the control's command —
+   and nothing on the batch path read either, so all 150 calls could run with
+   the assent still null and no control record on disk. `preflight()` now
+   requires the registry's assent and the canonical
+   `controls/isolation-negative/VERDICT.json`, at one of the three registered
+   outcomes, under that same assent, and against the golden capture this batch
+   runs behind. `--dry-run` refuses too, because preflight precedes the dry-run
+   branch — as it already did for the golden gate.
 
 Everything else is 011's, including every refusal it registered.
 
@@ -120,11 +130,12 @@ arm's pinned prompt; a named CLI is not the pinned binary; the registry's N is
 not the N the registered order encodes; a plan would reach past global index
 150; `RESULTS.json` exists; a planned slot exists; or — for the registered
 prompt — the golden capture is absent or its digest is not the one
-`harness/PINS.json` registers (§3.2). The last one is why the golden recapture
-cannot be skipped: no slot is created until the capture is taken, registered
-and committed. That digest is then stamped into every slot's `CALL.json`, so a
-capture substituted after the batch does not change which runs were admissible
-— the scorer scores those slots `golden-mismatch` instead (§3.2 step 3).
+`harness/PINS.json` registers (§3.2), or §6 C7's control has not run and left
+its verdict. The golden one is why the recapture cannot be skipped: no slot is
+created until the capture is taken, registered and committed. That digest is
+then stamped into every slot's `CALL.json`, so a capture substituted after the
+batch does not change which runs were admissible — the scorer scores those
+slots `golden-mismatch` instead (§3.2 step 3).
 
 Commands:
 
@@ -191,20 +202,25 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
-sys.path.insert(0, HERE)
 
-import integrity  # noqa: E402
 # The ceremony's commands run with bytecode writing disabled (§2.10,
 # round 5 finding 3): set structurally, not left to the operator's
-# environment, before any harness module is imported.
+# environment, before any harness module is imported — which means before
+# the `import integrity` below, not after it. Round 9, finding 1: the
+# assignment sat one import too late, so the gate module's own cache was
+# written by the command whose comment said none was.
 sys.dont_write_bytecode = True
+
 
 def _refuse_untracked_python_sources():
     """Round 8, finding 2: an untracked package can shadow a reviewed module
     at import time — including the module carrying the untracked-source scan
     itself, which is why THIS tripwire lives in the entry file the ceremony
     names by path, before any harness import. Import resolution cannot shadow
-    a script invoked as a file."""
+    a script invoked as a file. Round 9, finding 1: "before any harness
+    import" includes `import integrity` — the gate module was imported above
+    this scan, so the one module a shadow package would replace was the one
+    module the scan could not precede."""
     import subprocess as _subprocess
     study = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     tracked = set(_subprocess.run(
@@ -225,6 +241,10 @@ def _refuse_untracked_python_sources():
 
 if __name__ == "__main__":
     _refuse_untracked_python_sources()
+
+# Nothing is put on the import path until the tree has been scanned.
+sys.path.insert(0, HERE)
+import integrity  # noqa: E402
 import score_rates  # noqa: E402  (one slot-naming rule and one JSON loader, not two)
 import transcript_check  # noqa: E402
 
@@ -239,6 +259,12 @@ DEFAULT_PINS = os.path.join(HERE, "PINS.json")
 ARMS_ROOT = os.path.join(STUDY, "arms")
 DEFAULT_CAPTURES = os.path.join(STUDY, "controls", "recapture")
 DEFAULT_NEGATIVE = os.path.join(STUDY, "controls", "isolation-negative")
+# §6 C7's three registered outcomes. The command that WRITES a verdict, the
+# preflight that READS one and `score_rates.verify_preconditions()` take the
+# list from ONE place, so a fourth outcome cannot be written by one and refused
+# by another; it is defined there and named here because this module imports
+# that one and not the reverse (round 9, finding 3).
+C7_OUTCOMES = score_rates.C7_OUTCOMES
 DEFAULT_GOLDEN = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
 PROBE_PROMPT = os.path.join(STUDY, "transcription", "PROBE-PROMPT.txt")
 RESULTS = os.path.join(STUDY, "RESULTS.json")
@@ -724,7 +750,14 @@ def preflight(entries: list, slots: list, scratch_parent: str, pins_path: str,
             # prediction about one of the arms.
             raise BatchError("%s exists: no slot may be created in any arm after a "
                              "rate has been computed" % RESULTS)
-        require_golden(pins, golden_path)
+        golden = require_golden(pins, golden_path)
+        # LAST in the registered branch, and after the golden gate: §6 C7's
+        # record is bound to the capture, so the capture is verified before the
+        # binding is compared, and every earlier refusal still fails for its own
+        # reason. Probe calls — the recapture and C7 itself — take the other
+        # branch, because the recapture precedes the control and the control
+        # precedes the batch.
+        require_isolation_negative(pins, golden)
     # `lexists`, not `exists`: a DANGLING symlink at a planned slot path is
     # absent to `exists()` and present to `mkdir`, so the batch used to pass
     # preflight and then die of an uncaught FileExistsError in refuse_slot() —
@@ -799,6 +832,77 @@ def require_golden(pins: dict, golden_path: str = None) -> str:
         raise BatchError("the golden capture at %s is %s, not the registered %s"
                          % (path, actual, pinned))
     return path
+
+
+def require_isolation_negative(pins: dict, golden_path: str) -> dict:
+    """§6 C7's retained verdict, before any slot is created. The control runs
+    ONCE and BEFORE the batch (README step 5, §6 C7), and round 9 finding 3 is
+    that the ordering was ceremony only: the registry's assent gated the
+    control's own command and nothing else, so a hundred and fifty calls could
+    be spent on a study whose §7 publication list promises a control record
+    that was never made — and a post-hoc run would be a departure from "before
+    the batch" rather than the registered step.
+
+    Checked here: the registry records the assent; the verdict is at the
+    CANONICAL path and readable as duplicate-free JSON; its outcome is one of
+    §6 C7's THREE registered outcomes; it names the same assent the registry
+    now records; and it was compared against the golden capture THIS batch runs
+    behind, which is the capture whose gate C7 demonstrates the power of (§3.2,
+    §6 C7). All three outcomes admit the batch — a `no-context` verdict already
+    exits non-zero and is reported as undemonstrated, and refusing it here
+    would make that registered sentence unreachable, because the command
+    refuses to rewrite a record that exists. What is refused is a control that
+    never ran.
+
+    The path is structural, `controls/isolation-negative/`, and `--out` is not
+    consulted: [D-23]'s rule that a derived canonical location is not an
+    argument applies to the record a precondition reads as much as to the
+    population root.
+
+    What this does NOT establish, stated so no caller reads more into it: that
+    the control's own calls were the registered ones — the wrapper checks the
+    probe prompt and the pinned binary at the moment C7 runs — nor that the
+    record was COMMITTED, which is ledger discipline the study records and not
+    an ordering this driver enforces (§7, "deliberately not claimed")."""
+    assent = pins.get("isolationNegative", {}).get("assent")
+    if assent != "granted":
+        raise BatchError(
+            "harness/PINS.json records isolationNegative.assent %r: §6 C7 runs "
+            "before the batch and the registry records the assent it ran under "
+            "(README step 5)" % (assent,))
+    path = os.path.join(DEFAULT_NEGATIVE, "VERDICT.json")
+    relative = os.path.relpath(path, STUDY)
+    if not os.path.isfile(path):
+        raise BatchError(
+            "no §6 C7 record at %s: the isolation negative control runs ONCE, "
+            "BEFORE the batch (batch.py capture-isolation-negative "
+            "--scratch-parent DIR), and no slot is created until its verdict is "
+            "on disk" % relative)
+    try:
+        verdict = _load_json(path)
+    except (ValueError, OSError) as error:
+        raise BatchError("%s cannot be read as duplicate-free JSON (%s): the "
+                         "control's verdict is the record the batch runs behind"
+                         % (relative, error))
+    if not isinstance(verdict, dict):
+        raise BatchError("%s is a %s and §6 C7's verdict is an object"
+                         % (relative, type(verdict).__name__))
+    if verdict.get("outcome") not in C7_OUTCOMES:
+        raise BatchError("%s records outcome %r and §6 C7 registers %r: a record "
+                         "carrying none of them is not a control that ran"
+                         % (relative, verdict.get("outcome"), list(C7_OUTCOMES)))
+    if verdict.get("assent") != assent:
+        raise BatchError("%s: the control was authorized by %r and the registry "
+                         "now records %r: the record is not this batch's"
+                         % (relative, verdict.get("assent"), assent))
+    recorded = verdict.get("goldenSha256")
+    actual = _digest(golden_path)
+    if not isinstance(recorded, str) or not _matches(actual, recorded):
+        raise BatchError("%s: the control was compared against golden capture %r "
+                         "and this batch runs against %s: C7 demonstrates the "
+                         "power of the gate THIS batch runs behind (§3.2, §6 C7)"
+                         % (relative, recorded, actual))
+    return verdict
 
 
 def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
@@ -1979,7 +2083,7 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
         _write_json(os.path.join(out_dir, "VERDICT.json"), {
             "control": "C7 — the isolation gate's power",
             "registeredExpectation": "the golden match FAILS",
-            "registeredOutcomes": ["refused", "matched", "no-context"],
+            "registeredOutcomes": list(C7_OUTCOMES),
             "outcome": outcome,
             "message": message,
             "wrapperExit": status,

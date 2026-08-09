@@ -15,7 +15,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:76bcd899eaee4042463b6df8b171f8f9b3cc66e0ea5a24dfa948cea5a432e5c7"
+    "sha256": "sha256:b4369c305f633d553019f2217c685f944f06b1256cfdba8ffce2f9fee73d5ee7"
   },
   "codex": {
     "model": "gpt-5.6-sol",
@@ -173,7 +173,7 @@
       "arms/D/authoring/",
       "arms/E/authoring/"
     ],
-    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set, at the paths the code actually writes (round 3, findings 1-2, dispositioned); the manifest's two carrier files (harness/PINS.json, PREREG-REVIEW.md) are excluded in integrity.tree_manifest() itself."
+    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set, at the paths the code actually writes (round 3, findings 1-2, dispositioned); the manifest's two carrier files (harness/PINS.json, PREREG-REVIEW.md) are excluded in integrity.tree_manifest() itself; an entry ending / is a tree and excludes everything beneath it, every other entry is exactly one path (round 9, finding 5)."
   },
   "registryOfRecord": "The committed harness/PINS.json is the registry of record: the wrapper stamps the digest of the registry it ran under, the scorer computes the committed file's digest itself, and any slot whose stamp differs is registry-mismatch. The scorer takes no registry argument at all (§2.10 [D-23]).",
   "thresholdDefinitionSentence": {

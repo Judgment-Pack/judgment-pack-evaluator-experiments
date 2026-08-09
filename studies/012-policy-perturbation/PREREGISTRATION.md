@@ -235,7 +235,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `76bcd899eaee4042463b6df8b171f8f9b3cc66e0ea5a24dfa948cea5a432e5c7` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `b4369c305f633d553019f2217c685f944f06b1256cfdba8ffce2f9fee73d5ee7` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -269,10 +269,10 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `arms/A/POLICY.md` | `e46f8c48a76566390b54f59d7dc3c1db5ecd30916af21307944737b5b6735f1f` | **010's lock directly** — 011 holds no separate policy copy, so there is no 011-side blob for this row | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` | exactly two registered deltas and nothing else: `PREAMBLE_DELTA` applied at its single occurrence and `CONVENTIONS_DELTA` appended at the registered position (§2.1, §2.6, Appendix A). Both are published verbatim; the assembled preamble and the conventions delta are each pinned by their own sha256 |
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt, and (round 5, finding 7) a completion that does not decode raises its own exception class so the scorer can name `completion-unreadable`; no other check logic changes |
-| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `1befd5e7ea8dc635c7de3b7eece8902ccf375dd3c106c3fbf84b4117bcc4ce0d` | §2.7 |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `0c271492d475f09892c10f5dc68639ad03f57c79856f200d88888dfce95872da` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `bef07a1b1acf959c929362c182b3e11701d53784e97e8770107b6d53254953d2` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `c454972d64fc787c5a01e108b8038b3b03d9be8fa9f35647eebd630d8fba9ba2` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `bf2f6b1c811365ce77d7034e6549c0e87a13228e0fb85389d466fc5b4dcf0f33` | §2.7 |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `e8b65e0ea9b730b50d89e46f878982e949233c2bc4fddd87cc472d909db3b9d5` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `c33581ddcf4fc27da6545a4fcd024f2f38836c395649ac25108bf80c4bd291d9` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `3576edcc350211e1fac8cef71c1e50696f3ec13bd5498a041536774644c823f1` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -422,15 +422,18 @@ landmarks(T_low, T_high) = [ 0,
 grid(arm)  = {false,true} x {KP, IR, SY, CA, DE} x {false,true} x landmarks(arm)
 ```
 
-**Fourteen landmarks, 280 cells per arm** (2 × 5 × 2 × 14). Each landmark that
-is not `0` or `100` is there because some predicate names that edge, and the
-set has been closed twice, each time by a review that found a mutant family it
-could not see:
+**Fourteen landmarks, 280 cells per arm** (2 × 5 × 2 × 14). Five sit **on** an
+edge one of the six predicates names — `T_low − 1`, `T_low`, `T_low + 1`,
+`T_high`, `T_high + 1` — seven are **0.01 probes** placed beside one of those
+five, and `0` and `100` are the floor and the ceiling. Nothing else is in the
+set, and it has been closed twice, each time by a review that found a mutant
+family it could not see:
 
-- the four at `T_low + 1` and `T_high + 1`, on both sides, are the **exclusive
-  upper bounds of classes 2 and 1** (§2.3); a nine-landmark grid probed
-  neither, so a family encoding class 2 as `[45, 47)` or class 1 as
-  `[72, 74)` would have passed the class-membership half unchanged (round 1);
+- `T_low + 1` and `T_high + 1` are the **exclusive upper bounds of classes 2
+  and 1** (§2.3), and the four landmarks round 1 added are those two edges
+  together with the 0.01 probe below each; a nine-landmark grid probed neither
+  edge, so a family encoding class 2 as `[45, 47)` or class 1 as `[72, 74)`
+  would have passed the class-membership half unchanged (round 1);
 - `T_low − 1 − 0.01` is the point immediately below **class 5's lower edge**;
   a thirteen-landmark grid probed the edge but nothing under it, so a family
   encoding class 5 as `[T_low − 2, T_low)` passed **every one of the 260
@@ -440,10 +443,22 @@ could not see:
 
 **The claim the grid carries, stated exactly and no wider.** For **every edge
 any of the six predicates names** — `T_low − 1`, `T_low`, `T_low + 1`,
-`T_high`, `T_high + 1` — the grid holds a point exactly at it and a point 0.01
-to its excluded side, so every inclusive/exclusive decision the six predicates
-make is pinned by a cell. What it does **not** establish, because no finite
-grid can: that two families agreeing on all 280 cells agree everywhere. A
+`T_high`, `T_high + 1` — the grid holds a point exactly at the edge **and its
+0.01 neighbour on the side the predicates answer differently**, so both answers
+appear as cells and every inclusive/exclusive decision the six predicates make
+is pinned by a pair of adjacent cells. Which side that neighbour is on is not
+uniform, and an earlier draft's "a point 0.01 to its excluded side" was wrong
+for two of the five: below an **inclusive lower** bound the neighbour is the
+excluded point (`T_low − 1 − 0.01`, `T_low − 0.01`, `T_high − 0.01`), while at
+an **exclusive upper** bound the point at the edge is *itself* the excluded
+side and the 0.01 point below it is the **included** one (`T_low + 1 − 0.01`
+for class 2, `T_high + 1 − 0.01` for class 1). `T_low + 0.01` and
+`T_high + 0.01` probe just above the two edges that are an exclusive upper
+bound and an inclusive lower bound at once; `T_high + 0.01` is what separates
+class 0's `= T_high` from a `≥ T_high`, and `T_low + 0.01` is its symmetric
+counterpart, which no predicate of the registered family distinguishes from
+`T_low`. What it does **not** establish, because no finite grid can: that two
+families agreeing on all 280 cells agree everywhere. A
 mutant that differs only strictly between two adjacent landmarks survives this
 check, and **C9's structural equality of the predicate encodings is what bounds
 that** — the two controls are complements and §6 C9 says which failure each
@@ -614,6 +629,30 @@ pinned prompt at
 review reverses both D-15 and D-16, arm A's two cells become those two digests
 outright and the derivation collapses to equality.
 
+**What `FAMILY.json` carries beyond §2.3's six classes, and which of it this
+study reads.** The file is Study 010's family document — arm A's is that file
+byte for byte (§6 C9), and the other four are the same document instantiated
+at their own pair by the same generator — so it carries members 010 needed and
+this study does not. **Read here:** `embargoList`, and per mutation `index`,
+`title`, `predicate` and `predicateProse` (the scorer's `load_arm()` reads
+exactly these), and `patch`, which **§6 C2 reads against Study 010's locked
+pack C** and which [D-6] reads for arm D to demonstrate that the pack-side
+clause is unavailable there. **Inert in this study, read by nothing:**
+`familyVersion`, `pack`, `note`, and per mutation `violatedClause`, `underD`
+and `reasonsUnderD`. They are 010's plant-and-evaluate vocabulary: `note`
+describes a drand draw selecting one index and a patch applied to pack C to
+produce a pack D, and `underD` and `reasonsUnderD` describe that D's
+dispositions. **This study draws nothing, plants nothing and evaluates no
+pack**, so `note`'s "PREREGISTRATION.md §5" is 010's §5 and not this file's,
+and `pack`'s path resolves in Study 010's tree — where §6 C2 does read it, at
+the digest 010's own `PROTOCOL-LOCK.json` locks — and not in this one. They
+are retained rather than removed because arm A's bytes are 010's lock and one
+generator produces all five arms: editing them would break the byte equality
+this study's class schema is anchored to (§6 C9,
+`harness/tests/test_assembly.py`). The member list is registered here in full
+so that a reviewer attesting the §2.10 tree manifest is attesting a file whose
+every member this document names.
+
 **The policy document's structure is registered**, because the mechanical
 checks of §6 C8 parse it:
 
@@ -685,11 +724,14 @@ weakened the inclusivity cue" would explain it at least as well as "the author
 anchors to the prompt's shape", and §5.3 (iii)'s registered dependency would
 take arm E's result down with it. So, registered and checked in C8:
 
-> **In every arm at (40, 70), each numeric bound is stated with an explicit
-> inclusivity word immediately adjacent to its literal, and the adjacency
-> pattern of arm B's bodies matches arm A's clause for clause** — same clause,
-> same literal, same side, an inclusivity word of the same sense on the same
-> side of the literal.
+> **In every arm whose clause bodies state the thresholds as literals — A, B,
+> C and D — each numeric bound is stated with an explicit inclusivity word
+> immediately adjacent to its literal, and the adjacency pattern of arm B's
+> bodies matches arm A's clause for clause** — same clause, same literal, same
+> side, an inclusivity word of the same sense on the same side of the literal.
+> Arm E states no literals; it carries the invariant in the named form
+> registered above — its six bound senses equal A's six, in the same six
+> clauses, with the side comparison omitted because a named bound has no side.
 
 The registered vocabulary, so that "inclusivity word" is a check and not a
 reading: the **inclusive** cues are `or above`, `or more`, `or higher` and
@@ -697,7 +739,9 @@ reading: the **inclusive** cues are `or above`, `or more`, `or higher` and
 check masks clause-label tokens `P1`–`P5` first (as the digit census does),
 strips emphasis markers, and records for each remaining literal the ordered
 tuple *(clause label, literal, side, sense)*; the invariant is that arm B's
-tuple sequence equals arm A's, and that arm D's equals arm A's under σ.
+tuple sequence equals arm A's, and that arm D's equals arm A's under σ. Arm
+C's bodies are byte-identical to A's, so C's tuple sequence is A's own and
+is established by that byte equality rather than by a second comparison.
 
 **The vocabulary is closed, and that is part of the invariant rather than an
 implementation detail.** A bound whose cue is not one of the seven listed
@@ -995,7 +1039,13 @@ anything is scored**, and the headline reports "R of 30 rounds completed".
 registered plan, and the scorer requires the declaration's prefix to match the
 slots actually present, slot for slot. The wall-clock member does not make a
 stop involuntary — §7 still lists that as unproven — but it timestamps the stop
-against the append-only ledger.
+against the append-only ledger. **An arm the completed prefix has not reached
+holds no `authoring/` root at all** — the driver creates one with that arm's
+first slot — and under the declaration the scoring reads it as an empty
+population rather than as an arm dropped from the batch, while a prefix of zero
+slots carries no ledger at all, because the ledger is written inside the run
+loop after a slot, and the scoring admits its absence only on a declaration
+recording zero rounds, zero slots and no last slot (round 9, finding 4).
 
 **Resume after a crash [D-22].** Resumption is by **global schedule index**,
 not by round: `batch.py run --resume` reads the ledger, finds the highest
@@ -1152,7 +1202,10 @@ artifacts that ran" now means:
    files that cannot exist yet by construction (`RESULTS.json`, `RATES.md`,
    `CENSUS.md`, `ANALYSIS.md`, `DEVIATIONS.md`, and the slot trees), which are
    named in the registry as an explicit exclusion list rather than left to a
-   pattern.
+   pattern. An entry ending in `/` names a tree and excludes it and everything
+   beneath it; every other entry names exactly one file and excludes that path
+   and nothing under it, so an unlisted tracked file that merely sits below an
+   excluded file's name stays in the manifest.
 3. **Any byte change after the final review requires a new review round.**
    There is no "editorial" exemption, no "the digest table was updated" path,
    and no way to change one file and re-record one digest: the manifest covers
@@ -1774,9 +1827,43 @@ describe this conjunct, which is stated here rather than discovered.
 
 | S1 (raw placement) | S5 / S2 (labels) | the reading | what §5.3 (i) does with it |
 | --- | --- | --- | --- |
-| **LOW** — the records are not at the boundary | at the ceiling | the author understood the thresholds and did not *test* them | **PLACEMENT collapse** — this is what R1 predicts, and the only thing that confirms it |
-| **LOW** | degraded | the author could not derive or apply the values | **comprehension collapse** — published as one, R1 not confirmed |
+| **LOW** — the records are not at the boundary | at the ceiling | no accepted record was mislabelled, and none was placed at the boundary | **PLACEMENT collapse** — this is what R1 predicts, and the only thing that confirms it |
+| **LOW** | degraded | at least one accepted record was mislabelled | **comprehension collapse** — published as one, R1 not confirmed |
 | **HIGH or MID** — the records *are* at the boundary | degraded, so H-coverage falls | the author placed records at the boundary and labelled them wrong | **label collapse** — the hugging did **not** go away; R1 is not confirmed and saying otherwise would be reading a labelling failure as an anchoring result |
+
+**What the ceiling establishes, and what it does not** (round 9, finding 2).
+`|Q| = 0` says every accepted record arm E produced carries the label the
+mirror assigns it. It does **not** say the author derived either threshold.
+`harness/policy_mirror.py`'s `verdict()` returns at the sanctions clause and
+then at the embargo clause **before it reads `riskScore`**, so a record with a
+sanctions hit or a registration in KP/IR/SY is labelled correctly at every
+threshold pair, and a record far below both thresholds is labelled correctly at
+every pair above it. Class 4's predicate is exactly the first kind, so an arm E
+whose accepted records are all sanctions or embargo cases reads `|Q| = 0`,
+keeps class 4 out of collapse, places nothing in classes 0, 1, 2, 3 and 5, and
+would reach §5.3's row 5 having exercised neither number. That degenerate arm is
+what row 5's **fifth conjunct** excludes: **arm E does not read COLLAPSE on
+class 3**, the interior review band `¬S ∧ ¬E ∧ T_low ≤ risk < T_high`, whose
+members are by definition scored *between* the two thresholds and are labelled
+by a mirror that has passed the sanctions and embargo clauses and read
+`riskScore` — so covering it at all means placing records the two numbers
+bracket. The conjunct is registered as **excluding a degenerate case, not as
+establishing comprehension**, and its weakness is registered with it: *not
+COLLAPSE* is not *HIGH*, so a class 3 covered in as few as four of thirty runs
+satisfies it, it is satisfied vacuously if arm A does not read HIGH on class 3,
+and it tolerates a wrong-but-nearby derivation — which is what §4.5's X6 census
+is for. **No conjunct available to this design could
+establish comprehension**: the set of threshold pairs consistent with a set of
+correct labels is an *interval*, and pinning it from both sides needs records on
+*both* sides of a threshold, which is precisely the boundary-testing the
+confirming row's own premise says arm E did not do. The two readings above are
+therefore named for the explanations they make available, not for propositions
+this rule establishes; §4.5's X6 is registered against the anticipated
+misderivations for exactly this reason — "diagnosed rather than assumed away by
+S5" (§4.5) — and no §5 decision reads it. **CONFIRMED therefore means the
+placement pattern with clean labels, an intact class 4 and class 3 not
+collapsed; it does not mean the author understood the thresholds, and this file
+does not claim it does.**
 
 That third row is why §5.3 (i)'s confirmation rule reads S1 and not only the
 primary: **H ⊆ raw by construction**, so a class can lose H-coverage entirely
@@ -1926,7 +2013,7 @@ gates of the decision table below**:
 
 | pattern | reading | published as |
 | --- | --- | --- |
-| **PLACEMENT-COLLAPSE on ≥ 3 of 4, with arm E's S5 labels at the ceiling (§4.6)** | R1 **confirmed for this instance** | CONFIRMED |
+| **PLACEMENT-COLLAPSE on ≥ 3 of 4, with arm E's S5 labels at the ceiling (§4.6) and arm E not reading COLLAPSE on class 3** | R1 **confirmed for this instance** | CONFIRMED |
 | E reads HIGH on the primary on **≥ 3 of 4** | the predicted collapse did not occur | **R1-UNSUPPORTED** |
 | COLLAPSE on ≥ 3 of 4 **without** placement collapse on ≥ 3 | the records are still at the boundary and the labels failed | **LABEL-COLLAPSE-ONLY** |
 | every other pattern | neither | **INDETERMINATE** |
@@ -1937,8 +2024,13 @@ gates of the decision table below**:
 > or more of the four narrow numeric classes**, **and** arm E's S5 labels are
 > at the ceiling (§4.6, round 3 finding 9 — |Q| = 0 among its accepted
 > records), **and** the B/C control gate of (iii) holds, **and** class 4 does
-> not collapse in arm E. Nothing less confirms it, and the four conditions
-> are conjunctive.
+> not collapse in arm E, **and** class 3 does not collapse in arm E (round 9,
+> finding 2 — the interior review band, the one class whose members are scored
+> between the two thresholds and so cannot be covered by a record the mirror
+> decides before it reads `riskScore`; it excludes an arm E whose accepted
+> records carry no threshold information, and §4.6 registers that it establishes
+> no comprehension). Nothing less confirms it, and the five conditions are
+> conjunctive.
 
 > **Non-support, registered [D-10]:** if arm E's primary level verdict is
 > **HIGH for three or more of the four narrow numeric classes**, the collapse
@@ -1985,10 +2077,13 @@ what any *partial* anchoring effect looks like here. It is published as
 INDETERMINATE, R1 is recorded as **neither confirmed nor unsupported**, and no
 post-hoc pattern is substituted for the registered one.
 
-§4.6's S5 is what distinguishes a placement collapse that means "did not test
-the boundary" from one that means "could not derive the boundary"; §4.5's X6
-census is what flags an anticipated wrong derivation; and §4.5's X2/X3 census
-is what distinguishes "no anchor" from "an anchor derived and then hugged".
+§4.6's S5 separates a placement collapse whose accepted records are all
+correctly labelled from one whose labels failed — and §4.6 records what that
+does and does not establish, because a record decided by a sanctions hit or an
+embargoed registration is labelled correctly without either threshold being
+read; §4.5's X6 census is what flags an anticipated wrong derivation; and
+§4.5's X2/X3 census is what distinguishes "no anchor" from "an anchor derived
+and then hugged".
 
 **(ii) D vs A — coverage follows the numbers.** Predicted: **TRACKING on all
 six classes under D's own family**, and, under the S10 old-edge cross-scoring
@@ -2113,7 +2208,7 @@ B TRACKING on ≥ 5 of 6 **and** arm C TRACKING on ≥ 5 of 6.
 | 2 | arm E reads COLLAPSE on **class 4** | not adjudicated | **E-DEGRADED-GENERALLY** — the denamed text degraded authoring generally; every other reading of arm E is withdrawn |
 | 3 | `gate` is false | not adjudicated | **CONTROLS-FAILED** — arm E's verdicts published in full, with the weaker reading named: paraphrase-driven if B fell short, order-driven if C |
 | 4 | `nH ≥ 3` | **unsupported** | **R1-UNSUPPORTED** — §8's correction fires |
-| 5 | `nP ≥ 3` **and arm E's S5 labels are at the ceiling (§4.6)** | **confirmed for this instance** | **CONFIRMED** |
+| 5 | `nP ≥ 3` **and arm E's S5 labels are at the ceiling (§4.6) and arm E does not read COLLAPSE on class 3** | **confirmed for this instance** | **CONFIRMED** |
 | 6 | `nC ≥ 3` and `nP < 3` | not adjudicated | **LABEL-COLLAPSE-ONLY** — the records are still at the boundary; the labels are not |
 | 7 | *(else)* | neither confirmed nor unsupported | **INDETERMINATE** |
 
@@ -2124,6 +2219,12 @@ Registered notes on the table, so its edges are not left to be discovered:
   collapse; with four classes, `nH ≥ 3` and `nP ≥ 3` are incompatible. The
   order is stated anyway, because a decision table with an unreachable
   ambiguity is still a decision table with an ambiguity.
+- **Row 5 is a conjunction and §4.6's reading is not** (round 9, finding 2). A
+  placement collapse whose labels are at the ceiling reads §4.6's *first* row —
+  the reading that confirms — and still falls through to row 7 if class 3
+  collapsed in arm E. The reading is published beside the row as it always is,
+  and row 7 records **which conjunct refused**, because a gloss saying the
+  reading did not confirm would state a rule smaller than the one that ran.
 - **Rows 1–3 are gates and produce no R1 verdict of any kind**, in either
   direction. A study that would publish CONFIRMED through a failed control but
   not R1-UNSUPPORTED through one would be a study with a preferred answer.
@@ -2156,10 +2257,17 @@ the rule assigns each level to a class whose *true* coverage is p:
 | 0.02 | 0.0000 | 0.9971 | 0.0029 |
 | 0.00 | 0.0000 | 1.0000 | 0.0000 |
 
-**Every `0.0000` in this file is a rounded figure, not a zero.** P(HIGH) at
-p = 0.30 is about 4 × 10⁻¹¹ and P(LOW) at p = 0.95 is smaller still; they are
-printed to four places because every other number here is, and no rule in §5
-reads them. Nothing in this study asserts that any of these events is
+**Every `0.0000` in this table is a rounded figure and not a zero, except in
+the two degenerate rows, where four of them are exact.** P(HIGH) at p = 0.30 is
+about 1.1 × 10⁻¹¹ and P(LOW) at p = 0.95 is smaller still; they are printed to
+four places because every other number here is, and no rule in §5 reads them.
+The four exceptions are arithmetic and not rounding: at p = 1.00 no outcome has
+`k ≤ 3` and at p = 0.00 none has `k ≥ 27`, so P(LOW) and P(MID) in the first
+row and P(HIGH) and P(MID) in the last are exactly zero. The same is true of
+the `0.0000` lower bounds at `k = 0` in §4.3 and §4.4, which are exact —
+Clopper–Pearson puts no lower bound above zero on a count of zero — and of the
+`1.0000` upper bounds at `k = n`, which are exactly one. Outside those
+degenerate cells, nothing in this study asserts that any of these events is
 impossible.
 
 #### The joint figures, and exactly what they assume
@@ -2186,7 +2294,8 @@ below beside each product so the gap is visible.
    assumes constant-p independent Bernoulli slots (§4.3);
 4. **between the primary and the S1 placement endpoint**, wherever a figure
    below combines them. These are *not* independent — `H ⊆ raw` — and any such
-   figure is marked.
+   figure is marked: the row-5 joint below is the one, and the paragraph after
+   that table says what the combination assumes.
 
 Under layers 1–3, at `q = P(HIGH | p)` from the table above:
 
@@ -2233,6 +2342,34 @@ The CONFIRMED-and-gate row and the row-4 row are both computed **jointly over
 arm A's six-class pattern** rather than as products of marginals, because the
 gate and the collapse condition on the same arm-A HIGH verdicts.
 
+**Row 5 is the one figure in this section that combines the primary and the S1
+placement endpoint — layer 4 — and the scenario's own assignment is what makes
+reading one pattern twice exact.** The control gate and row 2 are verdicts on
+the primary; `nP` is a verdict on S1 (§5.2); the arithmetic above reads arm A's
+six-class HIGH pattern once and lets both read it. That is exact under this
+scenario because the scenario assigns its `p` **to both endpoints** — the
+per-slot probability that the class is reached, labelled or not — and because
+`H(r) ⊆ A(r)` holds path by path (§4.1), so the primary's per-slot class
+indicator never exceeds S1's. Two indicators with the same mean, one never
+exceeding the other, are **equal almost surely**: `k_H = k_raw` on every class,
+and a class's primary level and its S1 level are the same verdict. **The
+marginal assignment is therefore the joint model**, and layer 4 enters here as
+an identity rather than as an independence — there is no joint freedom left for
+a separate model to describe. It is not a free assumption. A scenario carrying
+a label tax (§4.6's `a_i − c_i > 0`) separates the two endpoints, and the other
+extreme — arm A's two HIGH patterns independent of one another — turns
+`0.0364 / 0.3536 / 0.7359` into **0.0210 / 0.3057 / 0.7116**. Nor is the
+substitution one-sided once the endpoints do separate: for arm A it under-reads
+the S1 HIGH set, because primary HIGH implies S1 HIGH pointwise, while for arm
+E a label tax puts P(E reads S1 LOW) *below* the `P(LOW | p = 0.05)` the
+arithmetic uses — the two directions disagree, which is why the premise is
+stated here rather than converted into a bound. It is also not a claim about
+arm E's labels: equality of the class-level indicators does not entail
+`|Q| = 0`, so row 5's S5 conjunct stays outside this model exactly as the
+paragraph below says. The `nP ≥ 3` row uses only the first half of this — that
+`p` is assigned to S1 as well — and row 4, the gate, both COLLAPSE rows, `nH`
+and all-twelve TRACKING read the primary alone.
+
 **The last two rows are one quantity's two halves, and round 3's finding 11 is
 that an earlier draft published the first under the second's name.**
 `0.7142 / 0.9187 / 0.9796` is the marginal probability that arm E reads HIGH on
@@ -2243,7 +2380,12 @@ R1-UNSUPPORTED is published only through both. Conditional on a complete,
 sealed batch (row 1 not firing), and under independence layers 1-3, the power
 to publish R1-UNSUPPORTED is **0.0397841 at N = 20, 0.3703584 at N = 25 and
 0.7501924 at N = 30** — the marginal times the gate's 0.0557 / 0.4031 / 0.7658,
-the class-4 term being `1 − P(LOW | p = 0.95)` and below 10⁻²³ at every N.
+the class-4 term being `1 − P(LOW | p = 0.95)` and below 10⁻²³ at every N. The
+table's row-5 figure carries that term **twice** (round 9, finding 2): §5.3's
+row 5 requires class 3 not to collapse as well as class 4, arm E's class 3 sits
+at `p = 0.95` in the scenario above exactly as its class 4 does, so the second
+term has the same shape and the same magnitude and no figure in the table moves.
+Row 4 does not read it: the falsification half is untouched.
 
 **The consequence is registered rather than left to be noticed.** The control
 gate binds R1-UNSUPPORTED exactly as it binds CONFIRMED (0.7502 against 0.7359
@@ -2259,7 +2401,11 @@ figures are therefore exact for the coverage pattern and upper bounds for the
 confirmatory outcome; the actual probability of CONFIRMED is these numbers
 times an unmodeled P(no accepted arm-E record mislabelled), which this file
 declines to invent a distribution for. The R1-UNSUPPORTED row is not affected:
-row 4 reads coverage alone.
+row 4 reads coverage alone. Row 5's **fifth** conjunct — class 3 not collapsing
+(round 9, finding 2) — is by contrast *inside* this model, entered as
+`1 − P(A HIGH) · P(E class 3 LOW)` in the class-4 term's own shape; it is
+carried in the arithmetic, it moves no printed figure, and it does not narrow
+the gap between these quantities and the confirmatory one, which remains S5.
 
 `harness/score_rates.py::decision_operating_characteristics()` computes every
 figure in this section with this study's own interval and threshold code, and
@@ -2365,9 +2511,13 @@ instance of its perturbation type; that is the design's central limitation and
 R1-UNSUPPORTED row does not license its negation.** CONFIRMED means one
 denaming, of one policy family, at one model snapshot, on one day, produced a
 placement collapse on at least three of four narrow classes with arm E's S5
-labels at the ceiling, class 4 not collapsing, and both controls holding —
-the full [D-10] conjunction, restated whole so no summary of it states a
-smaller rule (round 6, finding 3). R1-UNSUPPORTED means that collapse did not happen, and is compatible
+labels at the ceiling, class 4 not collapsing, class 3 not collapsing, and both
+controls holding — the full [D-10] conjunction, restated whole so no summary of
+it states a smaller rule (round 6, finding 3). It does **not** establish that
+the author derived either threshold: §4.6 registers why `|Q| = 0` is not
+comprehension evidence, the class-3 conjunct excludes a degenerate arm rather
+than establishing comprehension, and §4.5's X6 is descriptive and gates nothing
+(round 9, finding 2). R1-UNSUPPORTED means that collapse did not happen, and is compatible
 with a snapshot that has seen this policy family before (§5.3 (i), §7, §9).
 Neither row is a measurement of "anchoring" as a property of models.
 
@@ -2575,7 +2725,14 @@ policy text an arm carries. Retention is by code, not by care: the verdict, a
 `CALL.json` stripped of every member naming the operator's environment, and the
 context digests when there are any; the transcript is digested, deleted, and
 the deletion verified. **Operator assent is a recorded precondition** in the
-registry, and the command refuses without it.
+registry, and the command refuses without it. The control precedes the batch by
+code and not only by ceremony: `batch.preflight()` creates no slot, and
+`score_rates.py` reads none, unless the registry records the assent and
+`controls/isolation-negative/VERDICT.json` carries one of the three registered
+outcomes under that same assent and against the golden capture this batch runs
+behind. Any of the three satisfies it — a `no-context` verdict still exits
+non-zero and is still reported as undemonstrated; what the batch refuses is a
+control that never ran.
 
 **C8 — the arm artifacts are what §2 says they are.** This is the control that
 makes "semantics constant, surface perturbed" checkable, and it is this study's
@@ -2604,14 +2761,17 @@ own. `harness/integrity.py` requires, before any call and before any scoring:
    - B's clause-body digit-run census equals A's, which is
      `{40, 40, 70, 70, 70, 70}`;
    - **B's inclusivity-adjacency pattern matches A's clause for clause**
-     (§2.6): in every arm at (40, 70), each numeric bound carries an explicit
-     inclusivity word from the registered vocabulary immediately adjacent to
-     its literal, on the same side, of the same sense, in the same clause —
-     compared as the ordered tuple sequence *(label, literal, side, sense)*,
-     and required to be **equal**, not merely compatible. **D's tuple sequence
-     must equal A's under σ**, and **E's six bound senses must equal A's six
-     senses in the same clauses**, with the side comparison omitted for E
-     because a named bound carries no side (§2.6);
+     (§2.6): in every arm that states its thresholds as literals — A, B, C and
+     D — each numeric bound carries an explicit inclusivity word from the
+     registered vocabulary immediately adjacent to its literal, on the same
+     side, of the same sense, in the same clause — compared as the ordered
+     tuple sequence *(label, literal, side, sense)* for A, B and D, and
+     required to be **equal**, not merely compatible; C's tuple sequence is
+     A's own by the byte-identity of its bodies with A's (next bullet), not by
+     a second comparison. **D's tuple sequence must equal A's under σ**, and
+     **E's six bound senses must equal A's six senses in the same clauses**,
+     with the side comparison omitted for E because a named bound carries no
+     side (§2.6);
    - C's bodies are byte-identical to A's, and its label order is the
      registered permutation, which must resolve **every explicit clause-label
      reference backward**, **every three-part "absent a sanctions hit or an
@@ -2655,11 +2815,12 @@ neither; §7 and §9 say so.
 
 **C9 — the class schema, structurally and extensionally.** Every arm's
 `FAMILY.json` must equal §2.3's schema instantiated at that arm's (`T_low`,
-`T_high`) — six contiguous indices, and **structural equality of all six
-predicate encodings** after substituting that arm's pair, not merely
-extensional agreement on the landmark grid. The two bound different failures
-and this control asserts the stronger one: structural equality refuses a
-predicate that encodes the right set by a different construction, which the
+`T_high`) — over the members §2.6 registers as read; §2.6 also names the inert
+members the file carries from 010 — six contiguous indices, and **structural
+equality of all six predicate encodings** after substituting that arm's pair,
+not merely extensional agreement on the landmark grid. The two bound different
+failures and this control asserts the stronger one: structural equality refuses
+a predicate that encodes the right set by a different construction, which the
 grid cannot see and which would make "the classes are the same six classes"
 false in the only sense that matters for a rename. Arm A's `FAMILY.json` must
 additionally equal Study 010's locked `FAMILY.json`
@@ -2678,9 +2839,26 @@ this instrument **earlier the same day** this study was drafted — its
 the model and the mirror share produces 784/784 agreement no matter how many
 witness records exist." Study 012 has **five** policy texts, **three** of which
 (B, D and E) are substantive authored prose from the team holding the
-prediction, and it is the one pre-data, model-call-free check that can answer
-the central attack on this design — *is arm E's wording derivable, or was it
-written to be hard?*
+prediction, and it is the one pre-data check that can answer the central
+attack on this design — *is arm E's wording derivable, or was it written to
+be hard?*
+
+**What carries no model call is the verdict, not the instrument** (round 9,
+finding 7). An earlier draft of this paragraph took round 1 finding 5's own
+phrase — "the one cheap, model-call-free, pre-data check" — and it was false
+as written: each clean-room mirror is **authored by a model session**, one per
+arm, and `MIRROR-AGREEMENT.md` publishes the reader identity, the verbatim
+commission prompt, the raw output and the consulted statement for every
+attempt. What carries no model call is the **decision**:
+`integrity.verify_mirror2()` executes the clean-room module and the registered
+mirror over the 280-cell grid and compares verdicts, so agreement is settled
+by code rather than by any reader's report of it, and no model is asked
+whether the mirrors agree. **"Pre-data" survives unchanged and is meant
+literally**: every reader ran against arm bytes already frozen and pinned,
+before the first authoring call of the batch and before any rate existed that
+a reader's result could be selected against. "Before any call" in this control
+means the batch's authoring calls, of which C10 makes none; C10's own reader
+sessions are pre-assigned, ordered, counted and published as such.
 
 Registered, per arm, before any call:
 
@@ -2806,6 +2984,11 @@ or in both:
   on raw retained evidence, from **probe** calls at the pinned probe-prompt
   digest, under the same ported-bytes, interpreter and freeze preflight the
   calls run; and the golden bound to its pin **and to every slot of every arm**;
+- **§6 C7's control recorded before the first slot**: the registry's assent, the
+  canonical verdict at `controls/isolation-negative/`, one of the three
+  registered outcomes, and the record bound to the same assent and the same
+  golden capture — checked by the driver before it creates a slot and by the
+  scorer before it reads one;
 - the preregistration's freeze digest as a precondition of the calls as well as
   the scoring, refused while it is null rather than skipped; and
   `harness/integrity.py` refuses while any `(port time)` placeholder remains in
@@ -3231,7 +3414,7 @@ D-24 and re-adjudicated D-1, D-4, D-5, D-7, D-9, D-10, D-13, D-16 and D-18.
 | **D-7** | The call order within the batch (§2.8) | **the registered first-order carryover-balanced order**: a Williams design for five treatments (ten sequences), three blocks, in the three registered block orders. Each arm holds each position 6 times; each ordered pair is adjacent exactly 6 times within rounds; every ordered pair occurs 7 or 8 times over all 149 transitions | cyclic rotation by round (the round-1 proposal) — balances position perfectly and predecessor not at all: under it **arm E follows D in 20 of 25 calls, C in 5, and A or B never**, so provider-side carryover from arm D's 45/72 prompt could manufacture arm E's predicted collapse. Round 2 found it and §7's claim that such state "could only blur a contrast" is withdrawn with it. Also available: fixed within-round order (confounds arm with position) or blocking by arm (confounds arm with time-of-day drift). Exact balance over 149 transitions is arithmetically impossible; max − min = 1 is the registered achievable | draft; replaced round 2 |
 | **D-8** | Golden recapture and C7, once or per arm (§3.2, §6 C7) | **once for the whole batch**, because both use the arm-independent probe prompt and the pre-prompt context does not depend on the prompt | per arm, which costs 10 extra probe calls and buys nothing this file can name | draft |
 | **D-9** | Who authors the arm texts (§7, §9) | the study team — **three of the five arms as substantive authored prose (B, D, E), which round 2 corrected from two** — with **C10's clean-room re-derivation under pre-assigned readers with every attempt published and a fresh reader after any re-authoring**, cross-vendor adversarial review of the complete post-port tree before the freeze, and the review record bound to that tree by manifest | cross-vendor *authorship* to a registered spec, which weakens the conflict in §9 and adds an uncontrolled authoring step of its own | draft; C10 and the digest binding added round 1; extent corrected and C10 hardened round 2 |
-| **D-10** | The E decision patterns (§5.3 i) | **CONFIRMED iff PLACEMENT-COLLAPSE (S1) on ≥ 3 of the 4 narrow numeric classes, *and* arm E's S5 labels are at the ceiling (§4.6), *and* the B/C control gate holds, *and* class 4 does not collapse; R1-UNSUPPORTED iff E reads HIGH on the primary on ≥ 3 of 4; LABEL-COLLAPSE-ONLY iff COLLAPSE on ≥ 3 without placement collapse on ≥ 3; every other pattern INDETERMINATE**, all-MID explicitly included, with §5.3's ordered decision table making the whole rule total | ≥ 2 of 4 (more easily decided in both directions) or all 4 (harder in both); and confirmation on the *primary* rather than on S1 placement — the round-1 form, which round 2 found reads the wrong mechanism: because `H ⊆ raw`, an arm E that still places records on 40 and 70 but mislabels them loses H-coverage entirely and would have read CONFIRMED while the hugging R1 predicts would vanish was still there. The round-1 draft registered only the falsification half, which let a motivated analyst call 2 COLLAPSE + 2 MID a confirmation afterwards | draft; confirmation half added round 1; mechanism and totality fixed round 2 |
+| **D-10** | The E decision patterns (§5.3 i) | **CONFIRMED iff PLACEMENT-COLLAPSE (S1) on ≥ 3 of the 4 narrow numeric classes, *and* arm E's S5 labels are at the ceiling (§4.6), *and* the B/C control gate holds, *and* class 4 does not collapse, *and* class 3 does not collapse (round 9, finding 2 — it excludes an arm E whose accepted records carry no threshold information; it establishes no comprehension, and §4.6 registers that no conjunct here could); R1-UNSUPPORTED iff E reads HIGH on the primary on ≥ 3 of 4; LABEL-COLLAPSE-ONLY iff COLLAPSE on ≥ 3 without placement collapse on ≥ 3; every other pattern INDETERMINATE**, all-MID explicitly included, with §5.3's ordered decision table making the whole rule total | ≥ 2 of 4 (more easily decided in both directions) or all 4 (harder in both); and confirmation on the *primary* rather than on S1 placement — the round-1 form, which round 2 found reads the wrong mechanism: because `H ⊆ raw`, an arm E that still places records on 40 and 70 but mislabels them loses H-coverage entirely and would have read CONFIRMED while the hugging R1 predicts would vanish was still there. The round-1 draft registered only the falsification half, which let a motivated analyst call 2 COLLAPSE + 2 MID a confirmation afterwards | draft; confirmation half added round 1; mechanism and totality fixed round 2 |
 | **D-11** | Which classes the collapse prediction covers (§2.3, §5.3) | **0, 1, 2, 5 only**; classes 3 and 4 predicted TRACKING everywhere | include class 3, which a diffuse author covers by accident across a 30-wide band (27-wide in arm D) and which would therefore flatter the prediction | draft |
 | **D-12** | S10 old-edge cross-scoring status (§4.6, §5.3 ii) | **registered secondary with its own registered predicted pattern** | promote to primary (it is the sharper measure of the rename claim) or drop it (it is the only registered probe on contamination) | draft |
 | **D-13** | Unequal valid counts across arms (§2.8, §4.2) | **no truncation**; the primary endpoint's denominator is N for every arm (intent-to-treat), and the per-protocol secondary S11 uses each arm's own `V_X` with a caution if two arms differ by more than 2 | truncate every arm to the common minimum, at the cost of discarding admitted runs. Round 2's move of the primary to N makes this decision smaller than it was: unequal denominators now affect only the secondary | draft; scope narrowed round 2 |
