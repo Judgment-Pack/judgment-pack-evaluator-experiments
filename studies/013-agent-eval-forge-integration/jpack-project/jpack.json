@@ -1,0 +1,35 @@
+{
+  "configVersion": "1",
+  "packs": {
+    "direct": {
+      "description": "Study 013 instance matrix for direct-exception-escalation.json",
+      "matrix": "matrix-direct.json",
+      "path": "packs/direct-exception-escalation.json"
+    },
+    "fee": {
+      "description": "Study 013 instance matrix for decimal-threshold-fee.json",
+      "matrix": "matrix-fee.json",
+      "path": "packs/decimal-threshold-fee.json"
+    },
+    "partial": {
+      "description": "Study 013 instance matrix for partial-trigger-conflict.json",
+      "matrix": "matrix-partial.json",
+      "path": "packs/partial-trigger-conflict.json"
+    },
+    "triage": {
+      "description": "Study 013 instance matrix for data-request-intake-triage.json",
+      "matrix": "matrix-triage.json",
+      "path": "packs/data-request-intake-triage.json"
+    },
+    "xforce": {
+      "description": "Study 013 instance matrix for exception-force-outcome.json",
+      "matrix": "matrix-xforce.json",
+      "path": "packs/exception-force-outcome.json"
+    },
+    "xsuppress": {
+      "description": "Study 013 instance matrix for exception-suppress-rule.json",
+      "matrix": "matrix-xsuppress.json",
+      "path": "packs/exception-suppress-rule.json"
+    }
+  }
+}

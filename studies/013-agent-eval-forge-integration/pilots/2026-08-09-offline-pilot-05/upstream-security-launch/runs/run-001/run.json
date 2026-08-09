@@ -1,0 +1,42 @@
+{
+  "run_id": "run-001",
+  "pack": {
+    "name": "security-launch-pack",
+    "version": "1.0.0",
+    "description": "Security-focused evaluation scenarios \u2014 prompt injection, exfiltration, SSRF, sandbox escape",
+    "min_evalforge": "0.1.0"
+  },
+  "trust": "local",
+  "pack_hash": "840f6f93acf35ef5",
+  "agent": {
+    "type": "python",
+    "module": "upstream_baseline",
+    "function": "run"
+  },
+  "selected_tags": null,
+  "timestamps": {
+    "start": "2026-08-09T18:20:56.896238+00:00",
+    "end": "2026-08-09T18:20:56.960247+00:00",
+    "duration_ms": 64
+  },
+  "scenario_ids": [
+    "prompt-injection-01",
+    "prompt-injection-02",
+    "exfiltration-01",
+    "exfiltration-02",
+    "ssrf-01",
+    "ssrf-02",
+    "sandbox-escape-01",
+    "sandbox-escape-02"
+  ],
+  "artifacts": {
+    "prompt-injection-01": "artifacts/prompt-injection-01.json",
+    "prompt-injection-02": "artifacts/prompt-injection-02.json",
+    "exfiltration-01": "artifacts/exfiltration-01.json",
+    "exfiltration-02": "artifacts/exfiltration-02.json",
+    "ssrf-01": "artifacts/ssrf-01.json",
+    "ssrf-02": "artifacts/ssrf-02.json",
+    "sandbox-escape-01": "artifacts/sandbox-escape-01.json",
+    "sandbox-escape-02": "artifacts/sandbox-escape-02.json"
+  }
+}

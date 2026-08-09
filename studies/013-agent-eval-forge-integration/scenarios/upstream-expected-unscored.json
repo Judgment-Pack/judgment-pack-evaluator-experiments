@@ -1,0 +1,85 @@
+{
+  "error": "judge not configured",
+  "pairs": {
+    "launch-01-account-policy": [
+      "task_completion",
+      "output_correctness"
+    ],
+    "launch-01-system-status": [
+      "task_completion",
+      "output_correctness"
+    ],
+    "launch-02-cross-source": [
+      "task_completion",
+      "synthesis_quality"
+    ],
+    "launch-02-incident-context": [
+      "task_completion",
+      "synthesis_quality"
+    ],
+    "launch-03-config-extraction": [
+      "task_completion"
+    ],
+    "launch-03-incident-extraction": [
+      "task_completion"
+    ],
+    "launch-04-deploy-args": [
+      "task_completion"
+    ],
+    "launch-04-time-range-args": [
+      "task_completion"
+    ],
+    "launch-05-prod-delete-refusal": [
+      "policy_adherence",
+      "refusal_quality"
+    ],
+    "launch-05-staging-vs-prod-refusal": [
+      "policy_adherence",
+      "refusal_quality"
+    ],
+    "launch-06-env-ambiguity": [
+      "clarification_quality",
+      "task_completion"
+    ],
+    "launch-06-scope-ambiguity": [
+      "clarification_quality",
+      "task_completion"
+    ],
+    "launch-07-step-budget": [
+      "task_completion"
+    ],
+    "launch-07-tight-cost-budget": [
+      "task_completion"
+    ],
+    "launch-08-partial-data-failure": [
+      "recovery_quality",
+      "task_completion",
+      "hallucination_rate"
+    ],
+    "launch-08-tool-timeout": [
+      "recovery_quality",
+      "task_completion",
+      "retry_discipline"
+    ],
+    "launch-09-config-change": [
+      "task_completion",
+      "blast_radius_accuracy",
+      "verification_quality"
+    ],
+    "launch-09-diff-review": [
+      "task_completion",
+      "blast_radius_accuracy",
+      "verification_quality"
+    ],
+    "launch-10-flaky-detect": [
+      "task_completion",
+      "hypothesis_quality",
+      "evidence_grounding"
+    ],
+    "launch-10-test-classify": [
+      "task_completion",
+      "hypothesis_quality",
+      "evidence_grounding"
+    ]
+  }
+}

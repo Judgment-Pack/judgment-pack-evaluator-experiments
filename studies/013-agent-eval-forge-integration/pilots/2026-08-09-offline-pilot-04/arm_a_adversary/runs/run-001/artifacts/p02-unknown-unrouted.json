@@ -1,0 +1,131 @@
+{
+  "id": "run-001-p02-unknown-unrouted",
+  "scenario_id": "p02-unknown-unrouted",
+  "agent": {
+    "type": "python",
+    "module": "arm_a_adversary",
+    "function": "run",
+    "run_id": "run-001"
+  },
+  "timestamp": {
+    "start": "2026-08-09T17:56:03.719042+00:00",
+    "end": "2026-08-09T17:56:03.726246+00:00",
+    "duration_ms": 7
+  },
+  "output": {
+    "final": "case p02-unknown-unrouted: execute_decision via a-adversary",
+    "structured": {
+      "case_id": "p02-unknown-unrouted",
+      "arm": "a-adversary",
+      "mutation": null,
+      "evaluation_error": null,
+      "disposition": {
+        "kind": "outcome",
+        "outcomeId": "track-a",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "handoff_target": null,
+      "tool_version": null,
+      "action": {
+        "tool": "execute_decision",
+        "args": {
+          "case_id": "p02-unknown-unrouted",
+          "action": "route-track-a",
+          "outcome": "track-a"
+        }
+      }
+    }
+  },
+  "trajectory": [
+    {
+      "type": "tool_call",
+      "tool": "fetch_case_facts",
+      "args": {
+        "case_id": "p02-unknown-unrouted"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_case_facts",
+      "args": null,
+      "result": {
+        "flags": {
+          "trackA": true,
+          "trackB": false
+        }
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "fetch_evidence_availability",
+      "args": {
+        "case_id": "p02-unknown-unrouted"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_evidence_availability",
+      "args": null,
+      "result": {},
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "execute_decision",
+      "args": {
+        "case_id": "p02-unknown-unrouted",
+        "action": "route-track-a",
+        "outcome": "track-a"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "execute_decision",
+      "args": null,
+      "result": {
+        "status": "recorded"
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "response",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "case p02-unknown-unrouted: execute_decision via a-adversary",
+      "duration_ms": null,
+      "error": null
+    }
+  ],
+  "cost": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "status": "completed",
+  "error": null,
+  "error_category": null
+}

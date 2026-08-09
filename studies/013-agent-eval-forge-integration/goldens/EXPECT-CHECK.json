@@ -1,0 +1,111 @@
+{
+  "cases": [
+    {
+      "agrees": true,
+      "case": "t01-proceed",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "t02-hard-stop",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "t03-evidence-absent",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "t04-evidence-unknown",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "t05-embargo-exception",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "t06-not-applicable",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "t07-clarify",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "t08-fact-unknown",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "t09-sponsor-absent",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "f01-exact-threshold",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "f02-boundary-scale",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "f03-just-below",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "f04-just-above",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "f05-number-amount",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "d01-approve",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "d02-flagged-escalation",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "d03-hold",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "p01-conflict-routed",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "p02-unknown-unrouted",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "x01-forced-reject",
+      "exit": 0
+    },
+    {
+      "agrees": true,
+      "case": "x02-suppressed-no-match",
+      "exit": 0
+    }
+  ],
+  "disagreements": 0,
+  "jpackSha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325"
+}

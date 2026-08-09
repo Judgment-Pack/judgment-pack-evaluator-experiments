@@ -1,0 +1,38 @@
+{
+  "run_id": "run-001",
+  "pack": {
+    "name": "study-013-cohort2",
+    "version": "0.1.0",
+    "description": "JPS decision cases expressed as Agent Eval Forge scenarios (generated from cases.json)",
+    "min_evalforge": null
+  },
+  "trust": "local",
+  "pack_hash": "fa96413df313162c",
+  "agent": {
+    "type": "python",
+    "module": "mut_m02",
+    "function": "run"
+  },
+  "selected_tags": [
+    "pack-fee"
+  ],
+  "timestamps": {
+    "start": "2026-08-09T17:56:04.654888+00:00",
+    "end": "2026-08-09T17:56:04.792665+00:00",
+    "duration_ms": 138
+  },
+  "scenario_ids": [
+    "f01-exact-threshold",
+    "f02-boundary-scale",
+    "f03-just-below",
+    "f04-just-above",
+    "f05-number-amount"
+  ],
+  "artifacts": {
+    "f01-exact-threshold": "artifacts/f01-exact-threshold.json",
+    "f02-boundary-scale": "artifacts/f02-boundary-scale.json",
+    "f03-just-below": "artifacts/f03-just-below.json",
+    "f04-just-above": "artifacts/f04-just-above.json",
+    "f05-number-amount": "artifacts/f05-number-amount.json"
+  }
+}

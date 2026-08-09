@@ -1,0 +1,66 @@
+{
+  "cases": [
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "flagged": false,
+          "ready": true
+        }
+      },
+      "id": "d01-approve",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "exception-escalation"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "exception-escalation"
+        ]
+      },
+      "facts": {
+        "request": {
+          "flagged": true,
+          "ready": true
+        }
+      },
+      "id": "d02-flagged-escalation",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "hold",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "flagged": false,
+          "ready": false
+        }
+      },
+      "id": "d03-hold",
+      "supportedExtensions": []
+    }
+  ],
+  "matrixVersion": "1"
+}

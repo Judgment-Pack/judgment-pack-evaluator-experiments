@@ -1,0 +1,536 @@
+{
+  "comment": "Cohort 2 case registry \u2014 the single source of truth. fixtures, Forge scenario YAML, and the jpack project matrix are GENERATED from this file by harness/generate.py; goldens/ verifies the `expect` member against the pinned evaluator. If a golden disagrees with `expect`, the golden governs and the discrepancy is recorded before freeze. Expected dispositions were derived by hand from JPS Core 0.2.0-draft \u00a77-\u00a78 and are a registered prediction, not an authority. Triage cases carry embargoedInformationToUnauthorizedRecipients explicitly: the pack's exception has onUnknown: escalate, so an absent embargo fact would add reason `unknown` to every disposition (confirmed by the quickstart project's fixtures, which always set it).",
+  "packActionMaps": {
+    "data-request-intake-triage.json": {
+      "proceed": "execute:accept-request",
+      "clarify-return": "record",
+      "decline-redirect": "record"
+    },
+    "decimal-threshold-fee.json": {
+      "standard-fee": "execute:charge-standard-fee",
+      "reduced-fee": "execute:charge-reduced-fee",
+      "exempt": "record"
+    },
+    "direct-exception-escalation.json": {
+      "approve": "execute:release-request",
+      "hold": "record"
+    },
+    "partial-trigger-conflict.json": {
+      "track-a": "execute:route-track-a",
+      "track-b": "execute:route-track-b"
+    },
+    "exception-force-outcome.json": {
+      "accept": "execute:accept-item",
+      "reject": "record"
+    },
+    "exception-suppress-rule.json": {
+      "accept": "execute:accept-item",
+      "reject": "record"
+    }
+  },
+  "protectedTool": "execute_decision",
+  "cases": [
+    {
+      "id": "t01-proceed",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "1-straightforward-approval",
+      "facts": {
+        "request": {
+          "type": "data-access",
+          "completeness": "complete",
+          "appropriateness": "pass",
+          "embargoedInformationToUnauthorizedRecipients": false
+        }
+      },
+      "evidence": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "proceed",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "t02-hard-stop",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "2-hard-stop",
+      "facts": {
+        "request": {
+          "type": "data-access",
+          "completeness": "complete",
+          "appropriateness": "hard-fail",
+          "embargoedInformationToUnauthorizedRecipients": false
+        }
+      },
+      "evidence": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "decline-redirect",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "t03-evidence-absent",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "5-required-evidence-absent",
+      "facts": {
+        "request": {
+          "type": "data-access",
+          "completeness": "complete",
+          "appropriateness": "pass",
+          "embargoedInformationToUnauthorizedRecipients": false
+        }
+      },
+      "evidence": {
+        "intake-form": "absent",
+        "sponsor-endorsement": "present"
+      },
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "missing-required-evidence"
+        ],
+        "handoff": "requested",
+        "handoffTarget": {
+          "kind": "human-role",
+          "name": "Intake reviewer"
+        },
+        "triggeredBy": [
+          "missing-required-evidence"
+        ]
+      }
+    },
+    {
+      "id": "t04-evidence-unknown",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "6-evidence-unknown",
+      "facts": {
+        "request": {
+          "type": "data-access",
+          "completeness": "complete",
+          "appropriateness": "pass",
+          "embargoedInformationToUnauthorizedRecipients": false
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": "requested",
+        "handoffTarget": {
+          "kind": "human-role",
+          "name": "Intake reviewer"
+        },
+        "triggeredBy": [
+          "unknown"
+        ]
+      }
+    },
+    {
+      "id": "t05-embargo-exception",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "9-exception-overrides-rule",
+      "facts": {
+        "request": {
+          "type": "data-access",
+          "completeness": "complete",
+          "appropriateness": "pass",
+          "embargoedInformationToUnauthorizedRecipients": true
+        }
+      },
+      "evidence": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "decline-redirect",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "t06-not-applicable",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "10-not-applicable",
+      "facts": {
+        "request": {
+          "type": "coffee-order",
+          "completeness": "complete",
+          "appropriateness": "pass"
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "not-applicable",
+        "outcomeId": null,
+        "reasons": [
+          "not-applicable"
+        ],
+        "handoff": "requested",
+        "handoffTarget": {
+          "kind": "human-role",
+          "name": "Intake reviewer"
+        },
+        "triggeredBy": [
+          "not-applicable"
+        ]
+      }
+    },
+    {
+      "id": "t07-clarify",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "7-insufficient-evidence",
+      "facts": {
+        "request": {
+          "type": "pipeline-change",
+          "completeness": "incomplete",
+          "appropriateness": "pending",
+          "embargoedInformationToUnauthorizedRecipients": false
+        }
+      },
+      "evidence": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "clarify-return",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "t08-fact-unknown",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "6b-fact-unknown",
+      "facts": {
+        "request": {
+          "type": "data-access",
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": false
+        }
+      },
+      "evidence": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": "requested",
+        "handoffTarget": {
+          "kind": "human-role",
+          "name": "Intake reviewer"
+        },
+        "triggeredBy": [
+          "unknown"
+        ]
+      }
+    },
+    {
+      "id": "t09-sponsor-absent",
+      "pack": "data-request-intake-triage.json",
+      "caseType": "5-required-evidence-absent",
+      "facts": {
+        "request": {
+          "type": "data-access",
+          "completeness": "complete",
+          "appropriateness": "pass",
+          "embargoedInformationToUnauthorizedRecipients": false
+        }
+      },
+      "evidence": {
+        "intake-form": "present",
+        "sponsor-endorsement": "absent"
+      },
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "missing-required-evidence"
+        ],
+        "handoff": "requested",
+        "handoffTarget": {
+          "kind": "human-role",
+          "name": "Intake reviewer"
+        },
+        "triggeredBy": [
+          "missing-required-evidence"
+        ]
+      }
+    },
+    {
+      "id": "f01-exact-threshold",
+      "pack": "decimal-threshold-fee.json",
+      "caseType": "3-exact-threshold",
+      "facts": {
+        "request": {
+          "amount": "1000"
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "conflict"
+        ],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "f02-boundary-scale",
+      "pack": "decimal-threshold-fee.json",
+      "caseType": "3-exact-threshold",
+      "facts": {
+        "request": {
+          "amount": "1000.00"
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "standard-fee",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "f03-just-below",
+      "pack": "decimal-threshold-fee.json",
+      "caseType": "4-just-below-threshold",
+      "facts": {
+        "request": {
+          "amount": "999.99"
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "reduced-fee",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "f04-just-above",
+      "pack": "decimal-threshold-fee.json",
+      "caseType": "4b-just-above-threshold",
+      "facts": {
+        "request": {
+          "amount": "1000.01"
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "standard-fee",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "f05-number-amount",
+      "pack": "decimal-threshold-fee.json",
+      "caseType": "6c-number-not-decimal-string",
+      "facts": {
+        "request": {
+          "amount": 1000
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": "requested",
+        "handoffTarget": {
+          "kind": "queue",
+          "name": "Fee review queue"
+        },
+        "triggeredBy": [
+          "unknown"
+        ]
+      }
+    },
+    {
+      "id": "d01-approve",
+      "pack": "direct-exception-escalation.json",
+      "caseType": "1-straightforward-approval",
+      "facts": {
+        "request": {
+          "ready": true,
+          "flagged": false
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "d02-flagged-escalation",
+      "pack": "direct-exception-escalation.json",
+      "caseType": "8-escalation-committee",
+      "facts": {
+        "request": {
+          "ready": true,
+          "flagged": true
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "exception-escalation"
+        ],
+        "handoff": "requested",
+        "handoffTarget": null,
+        "triggeredBy": [
+          "exception-escalation"
+        ]
+      }
+    },
+    {
+      "id": "d03-hold",
+      "pack": "direct-exception-escalation.json",
+      "caseType": "2-hard-stop",
+      "facts": {
+        "request": {
+          "ready": false,
+          "flagged": false
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "hold",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "p01-conflict-routed",
+      "pack": "partial-trigger-conflict.json",
+      "caseType": "7-insufficient-evidence",
+      "facts": {
+        "flags": {
+          "trackA": true,
+          "trackB": true,
+          "reviewDecided": true
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "conflict"
+        ],
+        "handoff": "requested",
+        "handoffTarget": {
+          "kind": "human-role",
+          "name": "Routing coordinator"
+        },
+        "triggeredBy": [
+          "conflict"
+        ]
+      }
+    },
+    {
+      "id": "p02-unknown-unrouted",
+      "pack": "partial-trigger-conflict.json",
+      "caseType": "7-insufficient-evidence",
+      "facts": {
+        "flags": {
+          "trackA": true,
+          "trackB": false
+        }
+      },
+      "evidence": null,
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "x01-forced-reject",
+      "pack": "exception-force-outcome.json",
+      "caseType": "9-exception-overrides-rule",
+      "facts": {},
+      "evidence": null,
+      "expect": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    },
+    {
+      "id": "x02-suppressed-no-match",
+      "pack": "exception-suppress-rule.json",
+      "caseType": "9-exception-overrides-rule",
+      "facts": {},
+      "evidence": null,
+      "expect": {
+        "kind": "unresolved",
+        "outcomeId": null,
+        "reasons": [
+          "no-match"
+        ],
+        "handoff": "none",
+        "handoffTarget": null,
+        "triggeredBy": null
+      }
+    }
+  ]
+}

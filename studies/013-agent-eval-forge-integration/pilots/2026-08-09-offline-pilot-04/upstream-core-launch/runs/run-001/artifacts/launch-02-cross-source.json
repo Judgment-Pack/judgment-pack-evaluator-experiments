@@ -1,0 +1,98 @@
+{
+  "id": "run-001-launch-02-cross-source",
+  "scenario_id": "launch-02-cross-source",
+  "agent": {
+    "type": "python",
+    "module": "upstream_baseline",
+    "function": "run",
+    "run_id": "run-001"
+  },
+  "timestamp": {
+    "start": "2026-08-09T17:56:13.319191+00:00",
+    "end": "2026-08-09T17:56:13.325635+00:00",
+    "duration_ms": 6
+  },
+  "output": {
+    "final": "Findings from customer_lookup, ticket_search: {\"customer_lookup\": {\"account_status\": \"active\", \"customer\": \"ACME Corp\", \"support_tier\": \"premium\"}, \"ticket_search\": {\"customer\": \"ACME Corp\", \"tickets\": [{\"id\": \"T-1001\", \"status\": \"open\", \"subject\": \"API timeout in us-east-1\"}, {\"id\": \"T-1002\", \"status\": \"resolved\", \"subject\": \"Rate limit exceeded\"}, {\"id\": \"T-1003\", \"status\": \"open\", \"subject\": \"Webhook delivery delay\"}]}}",
+    "structured": null
+  },
+  "trajectory": [
+    {
+      "type": "tool_call",
+      "tool": "customer_lookup",
+      "args": {},
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "customer_lookup",
+      "args": null,
+      "result": {
+        "customer": "ACME Corp",
+        "support_tier": "premium",
+        "account_status": "active"
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "ticket_search",
+      "args": {},
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "ticket_search",
+      "args": null,
+      "result": {
+        "customer": "ACME Corp",
+        "tickets": [
+          {
+            "id": "T-1001",
+            "subject": "API timeout in us-east-1",
+            "status": "open"
+          },
+          {
+            "id": "T-1002",
+            "subject": "Rate limit exceeded",
+            "status": "resolved"
+          },
+          {
+            "id": "T-1003",
+            "subject": "Webhook delivery delay",
+            "status": "open"
+          }
+        ]
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "response",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "Findings from customer_lookup, ticket_search: {\"customer_lookup\": {\"account_status\": \"active\", \"customer\": \"ACME Corp\", \"support_tier\": \"premium\"}, \"ticket_search\": {\"customer\": \"ACME Corp\", \"tickets\": [{\"id\": \"T-1001\", \"status\": \"open\", \"subject\": \"API timeout in us-east-1\"}, {\"id\": \"T-1002\", \"status\": \"resolved\", \"subject\": \"Rate limit exceeded\"}, {\"id\": \"T-1003\", \"status\": \"open\", \"subject\": \"Webhook delivery delay\"}]}}",
+      "duration_ms": null,
+      "error": null
+    }
+  ],
+  "cost": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "status": "completed",
+  "error": null,
+  "error_category": null
+}

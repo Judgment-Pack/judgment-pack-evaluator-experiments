@@ -1,0 +1,13 @@
+Round 2 of the cross-vendor pre-freeze review of Study 013. Your round-1 output is retained at reviews/round-1/REVIEW.md; the maintainer dispositions are in PREREG-REVIEW.md; all 18 were implemented in one pass, and pilots/2026-08-09-offline-pilot-03 is the first batch under the reworked harness (its ADJUDICATION.json reports pipeline-valid, 0 divergences, verdict R1-holds).
+
+Four tasks:
+
+1. VERIFY each round-1 finding against the current tree. Do not take PREREG-REVIEW.md's word for anything: check the code and docs. Report per finding: RESOLVED / PARTIALLY RESOLVED / NOT RESOLVED, with file evidence. Also verify pilot-03's ADJUDICATION.json actually has the two-channel shape the revised §4 promises (validity rows including the pristine precondition, blocking-adjudicated F on the F_requires_blocking cells, evaluator_refusal recorded on m15a).
+
+2. RE-AUDIT the changed surfaces for NEW defects introduced by the rework: harness/gate.py, harness/integrity.py, harness/repeat_check.py, harness/mutate_packs.py, harness/make_goldens.py, agents/shell.py, agents/deciders.py, scenarios/mutations/MATRIX.json, and the revised PREREGISTRATION.md. Number new findings R2-1, R2-2, ... with the same severity scale (BLOCKER/MAJOR/MINOR/NOTE) and concrete suggested changes.
+
+3. HOLDOUT AUTHORING — your round-1 suggestion, accepted by the maintainer. Author 3 to 6 holdout mutation cells to give the post-freeze registered run prospective content that is not a replication. Constraints: same architecture as the existing 16 (either a pack-byte mutation of one of the six pinned packs evaluated through the unmutated shell, or a single flipped hook in the shared shell); target cases must come from the existing 21; no new evaluator behavior may be invented. For each cell provide: an exact mutation spec (the precise edit), the target case ids, YOUR registered expected detected-by {J, F, G} with F_requires_blocking where you intend it, and a one-sentence rationale. These cells will be committed verbatim to scenarios/mutations/MATRIX-HOLDOUT.json attributed to you, never piloted before the freeze, and executed for the first time in the post-freeze registered run — your authorship makes their expectations independent of the maintainer's. Deliberately include at least one cell you expect could produce a divergence if the maintainer's layer model is wrong; adversarial choices are encouraged.
+
+4. FREEZE CHECKLIST: enumerate exactly what must be true at the freeze commit for you to call this preregistration freezable, and state whether it is freezable now (with round-2 findings addressed and holdout cells added).
+
+Output: markdown, sections 1-4. Do not modify any files.

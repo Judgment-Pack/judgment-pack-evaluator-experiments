@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "conflict"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "conflict"
+        ]
+      },
+      "facts": {
+        "flags": {
+          "reviewDecided": true,
+          "trackA": true,
+          "trackB": true
+        }
+      },
+      "id": "p01-conflict-routed",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "facts": {
+        "flags": {
+          "trackA": true,
+          "trackB": false
+        }
+      },
+      "id": "p02-unknown-unrouted",
+      "supportedExtensions": []
+    }
+  ],
+  "matrixVersion": "1"
+}

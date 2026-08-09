@@ -1,0 +1,132 @@
+{
+  "return": {
+    "d01-approve": {
+      "request": {
+        "flagged": false,
+        "ready": true
+      }
+    },
+    "d02-flagged-escalation": {
+      "request": {
+        "flagged": true,
+        "ready": true
+      }
+    },
+    "d03-hold": {
+      "request": {
+        "flagged": false,
+        "ready": false
+      }
+    },
+    "f01-exact-threshold": {
+      "request": {
+        "amount": "1000"
+      }
+    },
+    "f02-boundary-scale": {
+      "request": {
+        "amount": "1000.00"
+      }
+    },
+    "f03-just-below": {
+      "request": {
+        "amount": "999.99"
+      }
+    },
+    "f04-just-above": {
+      "request": {
+        "amount": "1000.01"
+      }
+    },
+    "f05-number-amount": {
+      "request": {
+        "amount": 1000
+      }
+    },
+    "p01-conflict-routed": {
+      "flags": {
+        "reviewDecided": true,
+        "trackA": true,
+        "trackB": true
+      }
+    },
+    "p02-unknown-unrouted": {
+      "flags": {
+        "trackA": true,
+        "trackB": false
+      }
+    },
+    "t01-proceed": {
+      "request": {
+        "appropriateness": "pass",
+        "completeness": "complete",
+        "embargoedInformationToUnauthorizedRecipients": false,
+        "type": "data-access"
+      }
+    },
+    "t02-hard-stop": {
+      "request": {
+        "appropriateness": "hard-fail",
+        "completeness": "complete",
+        "embargoedInformationToUnauthorizedRecipients": false,
+        "type": "data-access"
+      }
+    },
+    "t03-evidence-absent": {
+      "request": {
+        "appropriateness": "pass",
+        "completeness": "complete",
+        "embargoedInformationToUnauthorizedRecipients": false,
+        "type": "data-access"
+      }
+    },
+    "t04-evidence-unknown": {
+      "request": {
+        "appropriateness": "pass",
+        "completeness": "complete",
+        "embargoedInformationToUnauthorizedRecipients": false,
+        "type": "data-access"
+      }
+    },
+    "t05-embargo-exception": {
+      "request": {
+        "appropriateness": "pass",
+        "completeness": "complete",
+        "embargoedInformationToUnauthorizedRecipients": true,
+        "type": "data-access"
+      }
+    },
+    "t06-not-applicable": {
+      "request": {
+        "appropriateness": "pass",
+        "completeness": "complete",
+        "type": "coffee-order"
+      }
+    },
+    "t07-clarify": {
+      "request": {
+        "appropriateness": "pending",
+        "completeness": "incomplete",
+        "embargoedInformationToUnauthorizedRecipients": false,
+        "type": "pipeline-change"
+      }
+    },
+    "t08-fact-unknown": {
+      "request": {
+        "completeness": "complete",
+        "embargoedInformationToUnauthorizedRecipients": false,
+        "type": "data-access"
+      }
+    },
+    "t09-sponsor-absent": {
+      "request": {
+        "appropriateness": "pass",
+        "completeness": "complete",
+        "embargoedInformationToUnauthorizedRecipients": false,
+        "type": "data-access"
+      }
+    },
+    "x01-forced-reject": {},
+    "x02-suppressed-no-match": {}
+  }
+}
