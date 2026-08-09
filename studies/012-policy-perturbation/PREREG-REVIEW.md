@@ -1291,3 +1291,38 @@ Unchanged since round 2:
 | **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
 | **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
 | **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+## Round 9 — a discarded run, recorded
+
+The first commissioning of round 9, over `f5ab566`, produced no findings and
+no attestation. It ran to roughly 590,000 tokens and then the reviewing
+vendor's safety classifier refused its output three times
+("flagged for possible cybersecurity risk"). The cause is visible in the
+retained transcript: testing round 8's untracked-source refusal, the reviewer
+had begun authoring a working shadow package — one that replaced
+`subprocess.run` so the check would report a clean tree — and that artifact,
+read without this study's context, is indistinguishable from malware
+development.
+
+Recorded rather than quietly re-run, because it is a fact about this
+process and because it marks a boundary worth stating: **rounds 6 through 8
+concentrated on the tamper-resistance of the harness rather than on the
+study.** That drift was productive — it closed a symlink-sealed slot, a
+shadowable module, a laundering comparator — but it has passed the point
+where the registration's own claims are the subject. §2.10 already states
+what the in-tree binding does and does not establish; §7 and §9 already
+concede that an operator who edits the record can defeat any digest the
+record carries. A reviewer writing exploit code against those mechanisms is
+testing a threat model the study does not claim to defend against.
+
+The round is therefore re-commissioned with a brief that (a) asks for
+described gaps rather than demonstrated ones — file, line, what the check
+establishes, what it does not, what a complete check would require — and
+(b) puts the study's registered content first: the arms, the schedule, the
+partition, the endpoints, the verdict rules, the controls, and the claim.
+The rescoped brief and the script that runs it are handed to the maintainer
+rather than commissioned from inside the drafting session; the run they
+perform is the one this section will be completed from.
+
+Nothing from the discarded run is used, and no finding it may have been
+forming is known to this record.
