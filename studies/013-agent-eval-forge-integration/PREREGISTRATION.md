@@ -1,6 +1,6 @@
 # Preregistration — Study 013: the judgment/integration boundary under an external regression harness
 
-**Status: FROZEN by the merge of pull request #PRNUM into `main`, after
+**Status: FROZEN by the merge of pull request #46 into `main`, after
 three recorded rounds of cross-vendor adversarial review (PREREG-REVIEW.md).
 The merge commit of that pull request is the freeze commit, and this document
 governs from it onward; post-freeze departures land in DEVIATIONS.md and this

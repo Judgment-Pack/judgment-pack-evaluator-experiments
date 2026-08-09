@@ -1,6 +1,6 @@
 # Study 013 — can an independently developed agent-regression harness see the judgment/integration boundary?
 
-**Status: preregistration frozen by the merge of pull request #PRNUM (three
+**Status: preregistration frozen by the merge of pull request #46 (three
 cross-vendor review rounds recorded in PREREG-REVIEW.md); the registered
 primary attempt has not yet run.** Everything under `pilots/` is pre-freeze
 harness validation, labeled as such, and supports no claim beyond "the
