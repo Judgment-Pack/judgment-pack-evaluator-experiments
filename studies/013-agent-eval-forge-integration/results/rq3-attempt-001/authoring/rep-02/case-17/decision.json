@@ -1,0 +1,11 @@
+{
+  "handoff": "requested",
+  "kind": "not-applicable",
+  "reasons": [
+    "not-applicable"
+  ],
+  "target": {
+    "kind": "human-role",
+    "name": "Intake reviewer"
+  }
+}

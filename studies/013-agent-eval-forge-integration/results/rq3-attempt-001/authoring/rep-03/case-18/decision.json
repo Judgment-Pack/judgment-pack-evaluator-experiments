@@ -1,0 +1,8 @@
+{
+  "handoff": "requested",
+  "kind": "unresolved",
+  "reasons": [
+    "exception-escalation"
+  ],
+  "target": null
+}

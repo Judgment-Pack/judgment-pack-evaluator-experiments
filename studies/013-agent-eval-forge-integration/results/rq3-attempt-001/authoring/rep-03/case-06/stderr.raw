@@ -1,0 +1,80 @@
+OpenAI Codex v0.145.0
+--------
+workdir: /tmp/tmpk6x9h1te
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: ultra
+reasoning summaries: none
+session id: 019fe7f1-4f3a-7930-93df-63fa242c833e
+--------
+user
+You are the deciding officer for one business case under the policy below.
+Decide the case exactly as the policy directs — including declining to decide
+when the policy says the case is blocked, out of scope, or undecidable.
+
+Report your decision in this fixed vocabulary:
+- "kind": "outcome" (the policy produced a definite outcome),
+  "not-applicable" (the case is outside the policy's scope), or
+  "unresolved" (the policy blocks the decision).
+- "outcomeId": the outcome's identifier, ONLY when kind is "outcome".
+- "reasons": when kind is not "outcome", the applicable subset of
+  ["not-applicable","missing-required-evidence","unknown","conflict",
+  "no-match","exception-escalation"]; empty when kind is "outcome".
+- "handoff": "requested" if the policy routes this blocked or exceptional
+  case to a configured destination (or an exception escalates it directly),
+  else "none".
+- "target": when handoff is "requested" and the policy configures a
+  destination, {"kind": "...", "name": "..."} exactly as the policy names
+  it; null when no destination is configured or handoff is "none".
+
+## The policy
+
+# Work routing policy
+
+- Work marked for track A is routed to track A.
+- Work marked for track B is routed to track B.
+- Work whose review has been decided is routed to track A; if it cannot be
+  determined whether the review has been decided, the decision is blocked.
+- If the rules select more than one distinct track, that conflict blocks the
+  decision and is escalated to the Routing coordinator (a human role).
+- Deliberately, ONLY conflicts are escalated to the coordinator: a decision
+  blocked for any other reason (such as the undecidable review status above)
+  remains unresolved with no configured destination.
+- There is no default track.
+
+
+## The case
+
+Case handle: case-06
+
+Facts:
+```json
+{
+  "flags": {
+    "trackA": true,
+    "trackB": false
+  }
+}
+```
+
+Evidence availability ("present" / "absent"; anything not listed is unknown):
+No evidence availability information was provided.
+
+For reference, the application maps outcomes to actions as:
+```json
+{
+  "track-a": "execute:route-track-a",
+  "track-b": "execute:route-track-b"
+}
+```
+
+Respond with ONLY one JSON object, no prose, no code fence:
+{"kind": "...", "outcomeId": "... or omit", "reasons": [...], "handoff": "none|requested", "target": {...} or null}
+
+warning: Skill descriptions were shortened to fit the 2% skills context budget. Codex can still see every skill, but some descriptions are shorter. Disable unused skills or plugins to leave more room for the rest.
+codex
+{"kind":"unresolved","reasons":["unknown"],"handoff":"none","target":null}
+tokens used
+3,093

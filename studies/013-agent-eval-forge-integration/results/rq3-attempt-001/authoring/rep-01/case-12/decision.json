@@ -1,0 +1,11 @@
+{
+  "handoff": "requested",
+  "kind": "unresolved",
+  "reasons": [
+    "conflict"
+  ],
+  "target": {
+    "kind": "human-role",
+    "name": "Routing coordinator"
+  }
+}

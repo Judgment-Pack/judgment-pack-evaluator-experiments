@@ -1,0 +1,1193 @@
+{
+  "armBReference": "primary-attempt-001: 21/21 agreement by construction (deterministic evaluator)",
+  "attempt": "results/rq3-attempt-001",
+  "codexSha256": "a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "effort": "ultra",
+  "model": "gpt-5.6-sol",
+  "pooled": {
+    "agreement": 62,
+    "trials": 63
+  },
+  "repetitions": [
+    {
+      "cases": {
+        "d01-approve": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "approve",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "approve",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "d02-flagged-escalation": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "exception-escalation"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "exception-escalation"
+            ]
+          },
+          "target_agreement": true
+        },
+        "d03-hold": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "hold",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "hold",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f01-exact-threshold": {
+          "agreement": false,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "exempt",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f02-boundary-scale": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f03-just-below": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reduced-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reduced-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f04-just-above": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f05-number-amount": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": false
+        },
+        "p01-conflict-routed": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "target_agreement": true
+        },
+        "p02-unknown-unrouted": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t01-proceed": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "proceed",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "proceed",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t02-hard-stop": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t03-evidence-absent": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t04-evidence-unknown": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t05-embargo-exception": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t06-not-applicable": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "not-applicable",
+            "outcomeId": null,
+            "reasons": [
+              "not-applicable"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "not-applicable",
+            "outcomeId": null,
+            "reasons": [
+              "not-applicable"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t07-clarify": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "clarify-return",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "clarify-return",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t08-fact-unknown": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t09-sponsor-absent": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "target_agreement": true
+        },
+        "x01-forced-reject": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reject",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reject",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "x02-suppressed-no-match": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "no-match"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "no-match"
+            ]
+          },
+          "target_agreement": true
+        }
+      },
+      "counts": {
+        "agreement": 20,
+        "cases": 21,
+        "correct_abstention": 11,
+        "correct_handoff": 8,
+        "false_approval": 0,
+        "model_failures": 0,
+        "target_agreement": 20
+      },
+      "rep": 1
+    },
+    {
+      "cases": {
+        "d01-approve": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "approve",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "approve",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "d02-flagged-escalation": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "exception-escalation"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "exception-escalation"
+            ]
+          },
+          "target_agreement": true
+        },
+        "d03-hold": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "hold",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "hold",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f01-exact-threshold": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "target_agreement": true
+        },
+        "f02-boundary-scale": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f03-just-below": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reduced-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reduced-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f04-just-above": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f05-number-amount": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": false
+        },
+        "p01-conflict-routed": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "target_agreement": true
+        },
+        "p02-unknown-unrouted": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t01-proceed": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "proceed",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "proceed",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t02-hard-stop": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t03-evidence-absent": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t04-evidence-unknown": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t05-embargo-exception": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t06-not-applicable": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "not-applicable",
+            "outcomeId": null,
+            "reasons": [
+              "not-applicable"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "not-applicable",
+            "outcomeId": null,
+            "reasons": [
+              "not-applicable"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t07-clarify": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "clarify-return",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "clarify-return",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t08-fact-unknown": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t09-sponsor-absent": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "target_agreement": true
+        },
+        "x01-forced-reject": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reject",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reject",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "x02-suppressed-no-match": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "no-match"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "no-match"
+            ]
+          },
+          "target_agreement": true
+        }
+      },
+      "counts": {
+        "agreement": 21,
+        "cases": 21,
+        "correct_abstention": 11,
+        "correct_handoff": 8,
+        "false_approval": 0,
+        "model_failures": 0,
+        "target_agreement": 20
+      },
+      "rep": 2
+    },
+    {
+      "cases": {
+        "d01-approve": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "approve",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "approve",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "d02-flagged-escalation": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "exception-escalation"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "exception-escalation"
+            ]
+          },
+          "target_agreement": true
+        },
+        "d03-hold": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "hold",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "hold",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f01-exact-threshold": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "target_agreement": true
+        },
+        "f02-boundary-scale": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f03-just-below": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reduced-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reduced-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f04-just-above": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "standard-fee",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "f05-number-amount": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": false
+        },
+        "p01-conflict-routed": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "conflict"
+            ]
+          },
+          "target_agreement": true
+        },
+        "p02-unknown-unrouted": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t01-proceed": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "proceed",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "proceed",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t02-hard-stop": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t03-evidence-absent": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t04-evidence-unknown": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t05-embargo-exception": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "decline-redirect",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t06-not-applicable": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "not-applicable",
+            "outcomeId": null,
+            "reasons": [
+              "not-applicable"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "not-applicable",
+            "outcomeId": null,
+            "reasons": [
+              "not-applicable"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t07-clarify": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "clarify-return",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "clarify-return",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "t08-fact-unknown": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "unknown"
+            ]
+          },
+          "target_agreement": true
+        },
+        "t09-sponsor-absent": {
+          "agreement": true,
+          "golden": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "observed": {
+            "handoff": "requested",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "missing-required-evidence"
+            ]
+          },
+          "target_agreement": true
+        },
+        "x01-forced-reject": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reject",
+            "reasons": []
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "outcome",
+            "outcomeId": "reject",
+            "reasons": []
+          },
+          "target_agreement": true
+        },
+        "x02-suppressed-no-match": {
+          "agreement": true,
+          "golden": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "no-match"
+            ]
+          },
+          "observed": {
+            "handoff": "none",
+            "kind": "unresolved",
+            "outcomeId": null,
+            "reasons": [
+              "no-match"
+            ]
+          },
+          "target_agreement": true
+        }
+      },
+      "counts": {
+        "agreement": 21,
+        "cases": 21,
+        "correct_abstention": 11,
+        "correct_handoff": 8,
+        "false_approval": 0,
+        "model_failures": 0,
+        "target_agreement": 20
+      },
+      "rep": 3
+    }
+  ]
+}
