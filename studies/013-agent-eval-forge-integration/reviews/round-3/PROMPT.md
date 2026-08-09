@@ -1,0 +1,11 @@
+Round 3 of the cross-vendor pre-freeze review of Study 013 — the confirmation pass. Rounds 1 and 2 are retained under reviews/ with dispositions in PREREG-REVIEW.md. Since round 2, every residual and R2 finding was implemented; pilots/2026-08-09-offline-pilot-04 is the first batch under the round-2 harness (its ADJUDICATION.json claims 25/25 validity rows, 0 divergences, verdict "R1 holds", provenance stamped, no holdout content).
+
+Three tasks:
+
+1. CONFIRM the round-2 freeze-checklist items against the current tree, with the same skepticism as before (verify code, not the disposition table): exact artifact-and-score set equality everywhere including repeats and cohort 1; unreadable outputs as validity rows, not crashes; mandatory JPACK_BIN/FORGE_VENV_PY/FORGE_CLONE with exact interpreter versions and a clean pinned checkout; provenance stamped into the attempt; root marking with no partial-rerun mode; integrity as a recorded validity row; G scoped to disposition/action comparison in every document; the registered judge-unscored set asserted; census/decider wording; the RQ3 opaque-handle amendment requirement; R2-1..R2-5 each closed. Report per item: CLOSED / STILL OPEN with evidence.
+
+2. VERIFY THE HOLDOUT PACKAGING against your round-2 authorship: MATRIX-HOLDOUT.json must contain your JSON verbatim with attribution and UNEDITED expectations; the four fixtures must equal your registered pointer edits exactly (and nothing else beyond the documentary description prefix); agent entries exist; the gate merges holdouts only under --include-holdout and refuses it while the prereg is a DRAFT; tests statically verify fixture-vs-spec agreement; no execution artifact of h01-h04 exists anywhere in the tree (pilots/, goldens/, jpack-project outputs, git history of this branch). Also verify R1's restatement accommodates h02 and h04 without weakening the per-cell falsifiability.
+
+3. FREEZE VERDICT: is this preregistration freezable now? If yes, enumerate exactly what the freeze PR itself must contain (DRAFT-to-frozen wording, freeze-commit naming, primary-root designation, anything else) and any wording you require verbatim. If no, list what still blocks, numbered R3-1, R3-2, ... with severity and concrete changes.
+
+Output: markdown, sections 1-3. Do not modify any files.

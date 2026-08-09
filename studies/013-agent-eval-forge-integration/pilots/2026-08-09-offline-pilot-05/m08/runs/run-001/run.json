@@ -1,0 +1,46 @@
+{
+  "run_id": "run-001",
+  "pack": {
+    "name": "study-013-cohort2",
+    "version": "0.1.0",
+    "description": "JPS decision cases expressed as Agent Eval Forge scenarios (generated from cases.json)",
+    "min_evalforge": null
+  },
+  "trust": "local",
+  "pack_hash": "fa96413df313162c",
+  "agent": {
+    "type": "python",
+    "module": "mut_m08",
+    "function": "run"
+  },
+  "selected_tags": [
+    "pack-triage"
+  ],
+  "timestamps": {
+    "start": "2026-08-09T18:20:50.451347+00:00",
+    "end": "2026-08-09T18:20:50.715209+00:00",
+    "duration_ms": 264
+  },
+  "scenario_ids": [
+    "t01-proceed",
+    "t02-hard-stop",
+    "t03-evidence-absent",
+    "t04-evidence-unknown",
+    "t05-embargo-exception",
+    "t06-not-applicable",
+    "t07-clarify",
+    "t08-fact-unknown",
+    "t09-sponsor-absent"
+  ],
+  "artifacts": {
+    "t01-proceed": "artifacts/t01-proceed.json",
+    "t02-hard-stop": "artifacts/t02-hard-stop.json",
+    "t03-evidence-absent": "artifacts/t03-evidence-absent.json",
+    "t04-evidence-unknown": "artifacts/t04-evidence-unknown.json",
+    "t05-embargo-exception": "artifacts/t05-embargo-exception.json",
+    "t06-not-applicable": "artifacts/t06-not-applicable.json",
+    "t07-clarify": "artifacts/t07-clarify.json",
+    "t08-fact-unknown": "artifacts/t08-fact-unknown.json",
+    "t09-sponsor-absent": "artifacts/t09-sponsor-absent.json"
+  }
+}

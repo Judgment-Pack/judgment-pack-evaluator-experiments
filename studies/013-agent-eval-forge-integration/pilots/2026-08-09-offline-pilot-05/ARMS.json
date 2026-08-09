@@ -1,0 +1,416 @@
+{
+  "arm_a_adversary": {
+    "cases": {
+      "d01-approve": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "d02-flagged-escalation": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "d03-hold": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "f01-exact-threshold": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "f02-boundary-scale": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": false,
+        "forge_status": "warn"
+      },
+      "f03-just-below": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f04-just-above": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": false,
+        "forge_status": "warn"
+      },
+      "f05-number-amount": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "p01-conflict-routed": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "p02-unknown-unrouted": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "t01-proceed": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t02-hard-stop": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "t03-evidence-absent": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "t04-evidence-unknown": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "t05-embargo-exception": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "t06-not-applicable": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "t07-clarify": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "t08-fact-unknown": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "t09-sponsor-absent": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "x01-forced-reject": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      },
+      "x02-suppressed-no-match": {
+        "action_correct": false,
+        "decision_correct": false,
+        "false_approval": true,
+        "forge_status": "failed"
+      }
+    },
+    "counts": {
+      "action_correct": 3,
+      "cases": 21,
+      "correct_abstention": 0,
+      "correct_handoff": 0,
+      "decision_correct": 3,
+      "false_approval": 16
+    }
+  },
+  "arm_a_oracle": {
+    "cases": {
+      "d01-approve": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "d02-flagged-escalation": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "d03-hold": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f01-exact-threshold": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f02-boundary-scale": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f03-just-below": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f04-just-above": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f05-number-amount": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "p01-conflict-routed": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "p02-unknown-unrouted": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t01-proceed": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t02-hard-stop": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t03-evidence-absent": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t04-evidence-unknown": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t05-embargo-exception": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t06-not-applicable": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t07-clarify": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t08-fact-unknown": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t09-sponsor-absent": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "x01-forced-reject": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "x02-suppressed-no-match": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      }
+    },
+    "counts": {
+      "action_correct": 21,
+      "cases": 21,
+      "correct_abstention": 11,
+      "correct_handoff": 8,
+      "decision_correct": 21,
+      "false_approval": 0
+    }
+  },
+  "arm_b": {
+    "cases": {
+      "d01-approve": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "d02-flagged-escalation": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "d03-hold": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f01-exact-threshold": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f02-boundary-scale": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f03-just-below": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f04-just-above": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "f05-number-amount": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "p01-conflict-routed": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "p02-unknown-unrouted": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t01-proceed": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t02-hard-stop": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t03-evidence-absent": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t04-evidence-unknown": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t05-embargo-exception": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t06-not-applicable": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t07-clarify": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t08-fact-unknown": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "t09-sponsor-absent": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "x01-forced-reject": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      },
+      "x02-suppressed-no-match": {
+        "action_correct": true,
+        "decision_correct": true,
+        "false_approval": false,
+        "forge_status": "passed"
+      }
+    },
+    "counts": {
+      "action_correct": 21,
+      "cases": 21,
+      "correct_abstention": 11,
+      "correct_handoff": 8,
+      "decision_correct": 21,
+      "false_approval": 0
+    }
+  }
+}

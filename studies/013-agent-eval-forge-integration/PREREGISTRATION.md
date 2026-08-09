@@ -5,8 +5,9 @@ this document becomes governing when frozen by merge after cross-vendor
 adversarial review (PREREG-REVIEW.md will hold the rounds and dispositions).
 Everything executed before the freeze is pilot work, retained under `pilots/`
 and citable only as harness validation. This draft is written with the pilot
-machinery already built and exercised; the freeze re-runs everything from the
-pinned state and the first post-freeze attempt is primary even if it crashes.
+machinery already built and exercised; the post-freeze primary attempt
+executes the governing gate invocation (including the holdout stratum) into a
+designated, previously nonexistent root, and it is primary even if it crashes.
 
 ## 1. Research questions and the retractable proposition
 
@@ -55,12 +56,14 @@ artifacts. Any divergence from any per-cell registration, in any direction,
 falsifies R1 as stated and is reported as the result; holdout divergences are
 additionally reported in their own stratum.
 
-**Epistemic status of the post-freeze run (registered honestly):** this exact
-deterministic endpoint has already been observed in pre-freeze pilots on this
-same fixed cell set, and MATRIX.json, this document, and the pilot artifacts
-enter repository history together. The post-freeze registered run is therefore
-a **locked replication under the frozen protocol and pinned toolchain**, not
-fresh prospective discovery, and its result is claimed only as such. R1 is
+**Epistemic status of the post-freeze run (registered honestly):** the
+SIXTEEN ORIGINAL cells' deterministic endpoint has already been observed in
+pre-freeze pilots, and MATRIX.json, this document, and the pilot artifacts
+enter repository history together. The four holdout cells are outside this
+caveat: they are prospective and have never executed. The post-freeze registered run is therefore, ON THE
+SIXTEEN ORIGINAL CELLS ONLY, a **locked replication under the frozen protocol
+and pinned toolchain**, not fresh prospective discovery, and its result there
+is claimed only as such; the holdout stratum is claimed as prospective. R1 is
 fixed-cell signal concordance on a registered mutation set; it supports no
 sensitivity, detection-rate, or coverage generalization beyond those cells.
 
@@ -162,10 +165,12 @@ independent action oracle, and no claim in this study treats it as one.
   linux_amd64 binary, archive verified against the release `checksums.txt` —
   and a local build from the tag reproduced the identical binary digest, which
   is recorded as evidence the build is reproducible; harness scripts run under
-  CPython 3.12.11 (Study 011's interpreter). Three pilot batches are retained:
-  pilot-01 (original toolchain), pilot-02 (final toolchain, pre-rework
-  harness), pilot-03 (first batch under the round-1-reworked harness); all
-  three produced identical endpoints on the sixteen original cells.
+  CPython 3.12.11 (Study 011's interpreter). Retained pilot batches, one per harness
+  iteration and named individually: pilot-01 (original toolchain), pilot-02
+  (final toolchain, pre-rework harness), pilot-03 (round-1-reworked harness),
+  pilot-04 (round-2-reworked harness), pilot-05 (round-3-reworked harness:
+  total gate, per-stratum reporting). Every batch produced identical
+  endpoints on the sixteen original cells.
 
 ## 4. Procedure (deterministic phase — one orchestrated `gate.py` invocation)
 
@@ -185,8 +190,9 @@ exactly in §5.
    jpack binary digest, Forge venv freeze (bytes retained in
    `harness/forge-freeze.txt`; the freeze line pins the editable install's
    commit), harness interpreter series, mutated packs byte-equal to a fresh
-   temp-directory derivation, goldens agreement, and the 106-entry
-   `STUDY-MANIFEST.sha256` over every causal study file.
+   temp-directory derivation, goldens agreement, and the whole-tree
+   `STUDY-MANIFEST.sha256` over every causal study file (including
+   MATRIX-HOLDOUT.json and this document).
 2. Arms: arm_b, arm_a_oracle, arm_a_adversary over all 21 cohort-2 scenarios.
 3. Mutations: one run per MATRIX entry, tag-scoped, one mutation at a time;
    judgment-semantic mutations evaluate mutated pack bytes through the
@@ -237,8 +243,9 @@ exactly in §5.
    attempt is retained unchanged, and no rerun replaces it. A rerun happens
    only by recorded deviation, in a new attempt directory, labeled
    non-primary.
-2. Otherwise, if `ADJUDICATION.json` has zero divergences → **R1 holds**, as
-   a locked replication under the frozen protocol (§1).
+2. Otherwise, if `ADJUDICATION.json` has zero divergences → **R1 holds** —
+   reported per stratum: the sixteen original cells as a locked replication,
+   the reviewer-authored holdout cells as prospective results.
 3. Otherwise → **R1 falsified**; the divergence list is the result, reported
    per layer and per case, with no post-hoc reclassification of MATRIX.json.
 

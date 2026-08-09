@@ -37,7 +37,10 @@ MANIFEST_GLOBS = [
     "scenarios/jps/cohort2.yaml",
     "scenarios/jps/fixtures/*.json",
     "scenarios/mutations/MATRIX.json",
+    "scenarios/mutations/MATRIX-HOLDOUT.json",
     "scenarios/mutations/packs/*.json",
+    "scenarios/upstream-expected-unscored.json",
+    "PREREGISTRATION.md",
     "goldens/*.json",
     "jpack-project/jpack.json",
     "jpack-project/matrix-*.json",
@@ -174,14 +177,35 @@ def main():
                               capture_output=True, text=True)
         dirty = subprocess.run(["git", "-C", clone, "status", "--porcelain"],
                                capture_output=True, text=True)
-        if head.returncode != 0:
-            errors.append("FORGE_CLONE is not a git checkout")
+        if head.returncode != 0 or dirty.returncode != 0:
+            errors.append("FORGE_CLONE is not a usable git checkout")
         else:
             if head.stdout.strip() != pins["forge"]["commit"]:
                 errors.append("FORGE_CLONE HEAD {} is not the pinned commit".format(
                     head.stdout.strip()[:12]))
             if dirty.stdout.strip():
                 errors.append("FORGE_CLONE working tree is dirty")
+        # The venv must IMPORT this exact checkout (round 3, R3-4): an
+        # unrelated clean clone at the pin must not stand in for a dirty
+        # editable source.
+        venv_python = os.environ.get("FORGE_VENV_PY")
+        if venv_python:
+            src = subprocess.run(
+                [venv_python, "-c",
+                 "import evalforge, os; print(os.path.realpath("
+                 "os.path.dirname(os.path.dirname(os.path.dirname("
+                 "evalforge.__file__)))))"],
+                capture_output=True, text=True)
+            if src.returncode != 0:
+                errors.append("could not resolve the venv's evalforge source")
+            elif os.path.realpath(src.stdout.strip()) != os.path.realpath(clone):
+                errors.append("venv imports evalforge from {} which is not "
+                              "FORGE_CLONE".format(src.stdout.strip()))
+            impl = subprocess.run(
+                [venv_python, "-c", "import platform; print(platform.python_implementation())"],
+                capture_output=True, text=True)
+            if impl.returncode != 0 or impl.stdout.strip() != "CPython":
+                errors.append("Forge venv interpreter implementation is not CPython")
     errors += check_mutated_packs()
     check = STUDY / "goldens" / "EXPECT-CHECK.json"
     if not check.exists():

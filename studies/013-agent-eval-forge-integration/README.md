@@ -82,7 +82,8 @@ empirical endpoint, and not a failure of either system.
 ```sh
 python3.12 -m unittest discover -s harness/tests        # offline invariants
 FORGE_VENV_PY=<venv>/bin/python JPACK_BIN=<pinned jpack> \
-  python3.12 harness/gate.py --pilot-root pilots/<fresh-dir>
+  FORGE_CLONE=<pinned checkout> \
+  python3.12 harness/gate.py --pilot-root pilots/<nonexistent-dir>
 ```
 
 One gate invocation orchestrates everything: integrity refusal, the three
@@ -94,10 +95,9 @@ The Forge venv is CPython 3.11.13 with the pinned clone installed editable;
 the harness runs under CPython 3.12.11; the evaluator is the released v0.16.0
 binary verified against the release `checksums.txt` (a tag build reproduces
 its exact digest — the build is reproducible). `harness/PINS.json` records
-every digest. Three pilot batches are retained: pilot-01 (original toolchain), pilot-02
-(final toolchain, pre-rework harness), pilot-03 (first batch under the
-round-1-reworked harness) — identical endpoints on the sixteen original
-cells. The four reviewer-authored holdout cells (MATRIX-HOLDOUT.json) are
+every digest. Retained pilot batches (one per harness iteration): pilot-01 through
+pilot-05, individually named in PREREGISTRATION.md §3 — identical endpoints
+on the sixteen original cells in every batch. The four reviewer-authored holdout cells (MATRIX-HOLDOUT.json) are
 never executed pre-freeze; the gate refuses --include-holdout while the
 preregistration is a DRAFT.
 

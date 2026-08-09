@@ -124,6 +124,46 @@ def write_entries(registry):
             config='mutants.build_config("{}")'.format(mutation)))
 
 
+JUDGE_METRICS = {
+    "task_completion", "output_correctness", "synthesis_quality",
+    "clarification_quality", "refusal_quality", "recovery_quality",
+    "blast_radius_accuracy", "verification_quality", "hypothesis_quality",
+    "evidence_grounding", "hallucination_rate",
+    "policy_adherence", "retry_discipline",
+}
+
+
+def write_expected_unscored():
+    """Register the EXACT (scenario, metric) pairs expected to be judge-unscored
+    offline in cohort 1 (review round 3, R3-3). Derived once from the pinned
+    upstream bytes, committed, manifested, and asserted by the gate."""
+    import re
+    expected = {}
+    for pack_file in ("core-launch.yaml", "security-launch.yaml"):
+        text = (STUDY / "upstream" / pack_file).read_text()
+        current = None
+        in_metrics = False
+        for line in text.splitlines():
+            id_match = re.match(r'\s+- id: "([^"]+)"', line)
+            if id_match:
+                current = id_match.group(1)
+                in_metrics = False
+                continue
+            if re.match(r"\s+metrics:\s*$", line):
+                in_metrics = True
+                continue
+            metric_match = re.match(r"\s+([a-z_]+): \{threshold:", line)
+            if in_metrics and metric_match and current:
+                metric = metric_match.group(1)
+                if metric in JUDGE_METRICS:
+                    expected.setdefault(current, []).append(metric)
+            elif line.strip() and not metric_match:
+                in_metrics = False
+    dump(STUDY / "scenarios" / "upstream-expected-unscored.json",
+         {"error": "judge not configured", "pairs": expected})
+    return sum(len(v) for v in expected.values())
+
+
 def write_jpack_project(registry):
     project = STUDY / "jpack-project"
     packs_conf = {}
@@ -187,7 +227,9 @@ def main():
 
     write_entries(registry)
     write_jpack_project(registry)
-    print("generated: fixtures, cohort2.yaml, agent entries, jpack-project")
+    pairs = write_expected_unscored()
+    print("generated: fixtures, cohort2.yaml, agent entries, jpack-project, "
+          "{} registered judge-unscored pairs".format(pairs))
 
 
 if __name__ == "__main__":

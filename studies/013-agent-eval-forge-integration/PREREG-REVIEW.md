@@ -85,3 +85,31 @@ Open for round 3: confirm the residuals are closed and the holdout packaging
 matches the authored intent; then the freeze checklist's mechanics items
 (DRAFT→frozen wording, freeze commit naming, fresh primary root designation)
 land in the freeze PR itself.
+
+## Round 3 — 2026-08-09
+
+**Reviewer:** codex-cli 0.145.0, model `gpt-5.6-sol`, reasoning effort
+`ultra`, read-only sandbox. Prompt: `reviews/round-3/PROMPT.md`; verbatim
+output: `reviews/round-3/REVIEW.md`. **Result: confirmation pass — pilot-04's
+happy path verified as claimed and the holdout packaging verified byte-exact
+(MATRIX-HOLDOUT.json cmp-identical to the round-2 authorship, sha256
+b887db41…), but five blockers (R3-1..R3-5) and two majors (R3-6, R3-7) on
+failure-path totality and stratum reporting. Verdict: not freezable yet.**
+
+Dispositions (all implemented; pilot-05 is the first batch under the round-3
+gate: pipeline-valid, 0 divergences, replication stratum 118/118 adjudicated
+"holds", holdout stratum "not-scheduled", verdict "R1 holds"):
+
+| # | Disposition | Where |
+|---|-------------|-------|
+| R3-1 | **Accepted.** The gate is total: safe per-field provenance; a terminal recorded adjudication exists on every path (integrity failure writes it before registry/matrix parsing; registry/matrix failure is its own validity row); run.json checked; scores/artifacts shape-validated before entering `loaded`; packs-test wrapped (crash/unparsable output → "unavailable" status → invalidity row, affected cells not-adjudicated). Negative tests added (provenance without env, missing outputs, unreadable REPEAT.json). | harness/gate.py, harness/tests |
+| R3-2 | **Accepted.** Repeat details now carry artifact_ids, score_ids, all_completed, driver_exit, safety_violations; repeat_check refuses any cardinality but 3 and asserts both id sets per run; the gate re-validates REPEAT.json content: exactly repeat-01..repeat-03, both id sets equal to the full schedule, completion, scorer errors, exit/safety consistency. | harness/repeat_check.py, harness/gate.py |
+| R3-3 | **Accepted.** The exact 40 (scenario, metric) judge-unscored pairs are registered in `scenarios/upstream-expected-unscored.json` (generated once from the pinned upstream bytes, committed, manifested) with the exact error string `judge not configured`; the gate asserts exact pair equality and flags scored, silent, missing, or extra pairs. | harness/generate.py, harness/gate.py |
+| R3-4 | **Accepted.** Integrity resolves the venv's imported `evalforge` source (realpath) and requires it to BE `FORGE_CLONE`; git return codes are checked; the venv interpreter implementation is checked (CPython) in addition to its exact version. | harness/integrity.py |
+| R3-5 | **Accepted.** `MATRIX-HOLDOUT.json`, `upstream-expected-unscored.json`, and `PREREGISTRATION.md` (causally read by the gate's DRAFT guard) joined the manifest globs (117 entries); hard-coded manifest counts removed from prose; the fixture test now reconstructs source + exactly one registered edit + the documentary prefix and asserts whole-document equality. | harness/integrity.py, harness/tests, PREREGISTRATION.md |
+| R3-6 | **Accepted.** Strata are end-to-end: ADJUDICATION.json carries per-stratum scheduled/adjudicated/divergence counts and a per-stratum result (holds / falsified / incomplete / not-scheduled) under one global validity result; §1 and §5 scope "locked replication" to the sixteen original cells only, with the holdout stratum claimed as prospective. | harness/gate.py, PREREGISTRATION.md |
+| R3-7 | **Accepted (pre-freeze part); remainder is the freeze PR's content by design.** Done now: pilot batches individually named through pilot-05; "the freeze re-runs everything" replaced with post-freeze-primary-attempt wording; round-3 prompt/review retained with these dispositions; the DRAFT guard matches the status line pattern (`Status: DRAFT`), not a bare substring. Deferred to the freeze PR, per the reviewer's own checklist: removing the DRAFT status lines, naming the freeze commit, designating the literal primary root (e.g. `results/primary-attempt-001`), stating the governing command with all three identities and `--include-holdout`, and demonstrating the static suite in the exact pinned environment at the freeze commit. | PREREGISTRATION.md, README.md, reviews/round-3/ |
+
+Open for round 4 (if the reviewer wants one) or the freeze PR review: confirm
+R3-1..R3-6 are closed in code and that the freeze-PR text satisfies the
+checklist's transaction items.

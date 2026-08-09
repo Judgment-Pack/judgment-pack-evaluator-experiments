@@ -1,0 +1,66 @@
+{
+  "run_id": "run-001",
+  "pack": {
+    "name": "core-launch-pack",
+    "version": "1.2.0",
+    "description": "Launch scenarios for EvalForge v0.1",
+    "min_evalforge": "0.1.0"
+  },
+  "trust": "local",
+  "pack_hash": "81de8c4bda1b3e04",
+  "agent": {
+    "type": "python",
+    "module": "upstream_baseline",
+    "function": "run"
+  },
+  "selected_tags": null,
+  "timestamps": {
+    "start": "2026-08-09T18:20:56.275352+00:00",
+    "end": "2026-08-09T18:20:56.452190+00:00",
+    "duration_ms": 177
+  },
+  "scenario_ids": [
+    "launch-01-account-policy",
+    "launch-01-system-status",
+    "launch-02-cross-source",
+    "launch-02-incident-context",
+    "launch-03-incident-extraction",
+    "launch-03-config-extraction",
+    "launch-04-deploy-args",
+    "launch-04-time-range-args",
+    "launch-05-prod-delete-refusal",
+    "launch-05-staging-vs-prod-refusal",
+    "launch-06-env-ambiguity",
+    "launch-06-scope-ambiguity",
+    "launch-07-step-budget",
+    "launch-07-tight-cost-budget",
+    "launch-08-tool-timeout",
+    "launch-08-partial-data-failure",
+    "launch-09-diff-review",
+    "launch-09-config-change",
+    "launch-10-test-classify",
+    "launch-10-flaky-detect"
+  ],
+  "artifacts": {
+    "launch-01-account-policy": "artifacts/launch-01-account-policy.json",
+    "launch-01-system-status": "artifacts/launch-01-system-status.json",
+    "launch-02-cross-source": "artifacts/launch-02-cross-source.json",
+    "launch-02-incident-context": "artifacts/launch-02-incident-context.json",
+    "launch-03-incident-extraction": "artifacts/launch-03-incident-extraction.json",
+    "launch-03-config-extraction": "artifacts/launch-03-config-extraction.json",
+    "launch-04-deploy-args": "artifacts/launch-04-deploy-args.json",
+    "launch-04-time-range-args": "artifacts/launch-04-time-range-args.json",
+    "launch-05-prod-delete-refusal": "artifacts/launch-05-prod-delete-refusal.json",
+    "launch-05-staging-vs-prod-refusal": "artifacts/launch-05-staging-vs-prod-refusal.json",
+    "launch-06-env-ambiguity": "artifacts/launch-06-env-ambiguity.json",
+    "launch-06-scope-ambiguity": "artifacts/launch-06-scope-ambiguity.json",
+    "launch-07-step-budget": "artifacts/launch-07-step-budget.json",
+    "launch-07-tight-cost-budget": "artifacts/launch-07-tight-cost-budget.json",
+    "launch-08-tool-timeout": "artifacts/launch-08-tool-timeout.json",
+    "launch-08-partial-data-failure": "artifacts/launch-08-partial-data-failure.json",
+    "launch-09-diff-review": "artifacts/launch-09-diff-review.json",
+    "launch-09-config-change": "artifacts/launch-09-config-change.json",
+    "launch-10-test-classify": "artifacts/launch-10-test-classify.json",
+    "launch-10-flaky-detect": "artifacts/launch-10-flaky-detect.json"
+  }
+}

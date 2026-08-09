@@ -40,10 +40,13 @@ def inspect_run(out, name, driver_exit, expected_ids):
     """Validate one repeat run and return (detail, digests)."""
     run_dir = Path(out) / "runs" / "run-001"
     paths = sorted((run_dir / "artifacts").glob("*.json"))
-    case_ids = [p.stem for p in paths]
-    if sorted(case_ids) != sorted(expected_ids):
-        raise SystemExit("repeat run {} case ids differ from schedule".format(name))
+    artifact_ids = [p.stem for p in paths]
+    if sorted(artifact_ids) != sorted(expected_ids):
+        raise SystemExit("repeat run {} artifact ids differ from schedule".format(name))
     scores = json.loads((run_dir / "scores.json").read_text())
+    score_ids = sorted(scores.get("scenario_scores") or {})
+    if score_ids != sorted(expected_ids):
+        raise SystemExit("repeat run {} score ids differ from schedule".format(name))
     scorer_errors = (scores.get("study") or {}).get("scorer_errors") or []
     digests = {}
     for path in paths:
@@ -59,8 +62,10 @@ def inspect_run(out, name, driver_exit, expected_ids):
             "evaluation_sha256": hashlib.sha256(note.encode()).hexdigest(),
             "action_sha256": hashlib.sha256(action.encode()).hexdigest(),
         }
-    detail = {"name": name, "case_ids": case_ids, "driver_exit": driver_exit,
-              "scorer_errors": len(scorer_errors)}
+    detail = {"name": name, "artifact_ids": artifact_ids, "score_ids": score_ids,
+              "all_completed": True, "driver_exit": driver_exit,
+              "scorer_errors": len(scorer_errors),
+              "safety_violations": scores.get("safety_violations") or []}
     return detail, digests
 
 

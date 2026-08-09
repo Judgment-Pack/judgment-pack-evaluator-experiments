@@ -172,18 +172,30 @@ class TestHoldouts(unittest.TestCase):
                 for layer in "JFG":
                     self.assertIn(layer, cell, (name, cid))
 
-    def test_holdout_fixture_matches_registered_spec(self):
+    def test_holdout_fixture_is_source_plus_exactly_one_edit(self):
+        """Whole-document equality (round 3): reconstruct source + the single
+        registered pointer edit + the documentary prefix; any other edit fails."""
+        import copy
         for name, spec in self.holdout()["mutations"].items():
             ms = spec["mutation_spec"]
-            fixture = json.loads(
-                (STUDY / "scenarios" / "mutations" / "packs" / spec["fixture"]).read_text())
-            node = fixture
+            source = json.loads((STUDY / "packs" / ms["source_pack"]).read_text())
+            reconstructed = copy.deepcopy(source)
+            node = reconstructed
             parts = [p.replace("~1", "/").replace("~0", "~")
                      for p in ms["json_pointer"].split("/")[1:]]
             for part in parts[:-1]:
                 node = node[int(part)] if isinstance(node, list) else node[part]
-            value = node[int(parts[-1])] if isinstance(node, list) else node[parts[-1]]
-            self.assertEqual(value, ms["to"], name)
+            key = int(parts[-1]) if isinstance(node, list) else parts[-1]
+            self.assertEqual(node[key], ms["from"], name)
+            node[key] = ms["to"]
+            reconstructed["description"] = (
+                "[STUDY 013 MUTATED FIXTURE — DEFECTIVE ON PURPOSE: "
+                "reviewer-authored holdout {}: {} {} -> {}] {}".format(
+                    name, ms["json_pointer"], json.dumps(ms["from"]),
+                    json.dumps(ms["to"]), source.get("description", "")))
+            fixture = json.loads(
+                (STUDY / "scenarios" / "mutations" / "packs" / spec["fixture"]).read_text())
+            self.assertEqual(fixture, reconstructed, name)
 
     def test_no_holdout_execution_artifacts(self):
         self.assertEqual(sorted((STUDY / "pilots").glob("*/h0*")), [])
@@ -197,6 +209,43 @@ class TestVerdictLiterals(unittest.TestCase):
         for literal in (gate.VERDICT_INVALID, gate.VERDICT_HOLDS,
                         gate.VERDICT_FALSIFIED):
             self.assertIn(literal, text, literal)
+
+
+class TestGateTotality(unittest.TestCase):
+    """Negative tests (round 3, R3-1): no input may prevent a recorded verdict."""
+
+    def test_provenance_is_total_without_environment(self):
+        import gate
+        saved = {k: os.environ.pop(k, None) for k in ("JPACK_BIN", "FORGE_CLONE")}
+        try:
+            doc = gate.provenance()
+            self.assertIsNone(doc["jpackSha256"])
+            self.assertIsNone(doc["forgeCommit"])
+            self.assertEqual(doc["harnessPython"].count("."), 2)
+        finally:
+            for k, v in saved.items():
+                if v is not None:
+                    os.environ[k] = v
+
+    def test_load_run_raises_cleanly_on_missing_output(self):
+        import tempfile
+        import gate
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(Exception):
+                gate.load_run(tmp)
+
+    def test_check_repeat_unreadable_is_invalid_row(self):
+        import tempfile
+        import gate
+        with tempfile.TemporaryDirectory() as tmp:
+            row = gate.check_repeat(tmp, ["a"])
+            self.assertFalse(row["valid"])
+
+    def test_upstream_unscored_pairs_registered(self):
+        registered = json.loads(
+            (STUDY / "scenarios" / "upstream-expected-unscored.json").read_text())
+        self.assertEqual(registered["error"], "judge not configured")
+        self.assertEqual(sum(len(v) for v in registered["pairs"].values()), 40)
 
 
 if __name__ == "__main__":
