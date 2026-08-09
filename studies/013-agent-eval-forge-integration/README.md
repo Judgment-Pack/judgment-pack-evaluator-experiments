@@ -1,9 +1,10 @@
 # Study 013 — can an independently developed agent-regression harness see the judgment/integration boundary?
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** The
-preregistration is a draft awaiting cross-vendor review; everything under
-`pilots/` is harness validation, labeled as such, and supports no claim beyond
-"the machinery works". No model has been called; the study so far is entirely
+**Status: preregistration frozen by the merge of pull request #PRNUM (three
+cross-vendor review rounds recorded in PREREG-REVIEW.md); the registered
+primary attempt has not yet run.** Everything under `pilots/` is pre-freeze
+harness validation, labeled as such, and supports no claim beyond "the
+machinery works". No model has been called; the study so far is entirely
 deterministic and offline.
 
 ## The question

@@ -1,13 +1,28 @@
 # Preregistration — Study 013: the judgment/integration boundary under an external regression harness
 
-**Status: DRAFT. Not frozen. Governs nothing yet.** Per repository convention
-this document becomes governing when frozen by merge after cross-vendor
-adversarial review (PREREG-REVIEW.md will hold the rounds and dispositions).
-Everything executed before the freeze is pilot work, retained under `pilots/`
-and citable only as harness validation. This draft is written with the pilot
-machinery already built and exercised; the post-freeze primary attempt
-executes the governing gate invocation (including the holdout stratum) into a
-designated, previously nonexistent root, and it is primary even if it crashes.
+**Status: FROZEN by the merge of pull request #PRNUM into `main`, after
+three recorded rounds of cross-vendor adversarial review (PREREG-REVIEW.md).
+The merge commit of that pull request is the freeze commit, and this document
+governs from it onward; post-freeze departures land in DEVIATIONS.md and this
+file is never edited after the freeze.** Everything executed before that
+merge is pilot work, retained under `pilots/` and citable only as harness
+validation.
+
+**The governing invocation.** The post-freeze primary attempt is exactly one
+execution of, from this study's directory, under CPython 3.12.11:
+
+```sh
+JPACK_BIN=<released v0.16.0 linux_amd64 jpack; sha256 must equal PINS.jpack.binarySha256> \
+FORGE_VENV_PY=<CPython 3.11.13 venv whose editable evalforge IS $FORGE_CLONE> \
+FORGE_CLONE=<agent-eval-forge checkout at 8925cac, clean tree> \
+python3.12 harness/gate.py --pilot-root results/primary-attempt-001 --include-holdout
+```
+
+The primary root is **`results/primary-attempt-001`**: it must not exist
+before the attempt, and the attempt is primary even if it crashes. Identity
+verification is not operator diligence — `integrity.py` refuses every drifted
+or missing identity before any run, and the attempt's provenance is stamped
+into its ADJUDICATION.json.
 
 ## 1. Research questions and the retractable proposition
 
@@ -31,8 +46,8 @@ see "Epistemic status" below); the four holdout cells (h01–h04) are
 **prospective**: authored by the round-2 cross-vendor reviewer with the
 reviewer's own registered expectations, committed verbatim with attribution,
 never executed before the freeze (the gate mechanically refuses
-`--include-holdout` while this document is a DRAFT), and first executed in
-the post-freeze registered run.
+`--include-holdout` while this document's status line reads draft), and first
+executed in the post-freeze registered run.
 
 **R1 — the registered proposition, stated to be retractable:** for every
 adjudicated cell, the observed detected-by set equals the per-cell registered
