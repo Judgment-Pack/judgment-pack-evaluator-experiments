@@ -1,0 +1,5 @@
+{
+  "root": "results/primary-attempt-001",
+  "includeHoldout": true,
+  "repeats": 3
+}

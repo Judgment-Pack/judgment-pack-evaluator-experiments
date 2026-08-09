@@ -1,0 +1,251 @@
+{
+  "digests": {
+    "d01-approve": {
+      "action_sha256": "c9024af209a8384f078342cd023bf2d43a406c69eadcd932ec5c4c2ffbc43849",
+      "evaluation_sha256": "1ddd7c29c9931b4937f201a63dc2cadeff8e14a69ca8b7515e595af253a48132"
+    },
+    "d02-flagged-escalation": {
+      "action_sha256": "c42da59c85f0504bc27deb0dc20770410072dd4bac7ea603b9e401bbc94b8106",
+      "evaluation_sha256": "981a309dfde18bc7bb9a018e967a50d33bbfe4ef2831367923e1afe40f0c3683"
+    },
+    "d03-hold": {
+      "action_sha256": "e905e5508a36ea2b57fff2941b6f15c705ef017a3909015f4a679ab9e6aa37df",
+      "evaluation_sha256": "3d60eea99c989dae3e62355c7ce4f82b121eacb666ec819864c60655b3dfb0d3"
+    },
+    "f01-exact-threshold": {
+      "action_sha256": "a237438715e8aacc3b24e78da7ccef19b099a2d73efd77ccf341500b7a8f51b0",
+      "evaluation_sha256": "6102da7543659dd7bc0141f29c3e783d8aa7e48ba3ef7452e2849322a24c6f07"
+    },
+    "f02-boundary-scale": {
+      "action_sha256": "4c98300903da6c5bb157a15d574c15e6b9ff6a36823da595b5ca7398e79ff442",
+      "evaluation_sha256": "128221369eaf775f2a04717538d13d626ca6136c360eebafb403a690e9fa28a5"
+    },
+    "f03-just-below": {
+      "action_sha256": "ded77c21e8ceb594cfa0775125b98f3ea6eb75d5ed070415ccd868333b8e89c6",
+      "evaluation_sha256": "0e364574bb83979b023f506f979b41d2e71e31c1ab855062278d1561b10286db"
+    },
+    "f04-just-above": {
+      "action_sha256": "2037e323105080fdb021492b81ba6ac4453b69f7aa496ecb2a40b1a3f3e1431c",
+      "evaluation_sha256": "128221369eaf775f2a04717538d13d626ca6136c360eebafb403a690e9fa28a5"
+    },
+    "f05-number-amount": {
+      "action_sha256": "863036bd5e986520b508d42ee5586fd96282ae45d1bb5e29038ea5dcd260f3b4",
+      "evaluation_sha256": "207e62e655891a7ea4255fe890d74ee53d70e9a31dd0ae24704ee9dc5e43925a"
+    },
+    "p01-conflict-routed": {
+      "action_sha256": "99cc6e2cbb67ea12984b5424ac3316a132b85ca15bd3bcd3955cb527ef492e6d",
+      "evaluation_sha256": "cb6e62d816a63101a0f49c462ca74ee2725df8429e93131b977b6fd181f63622"
+    },
+    "p02-unknown-unrouted": {
+      "action_sha256": "20abd746f4ce59c51e0af36d63f2f669caa9f102351a7d00ac18d39edc211fa0",
+      "evaluation_sha256": "325fc4fa83e971bdc288c2256a0f9613149568431b31b63aaeaf66141e70fd34"
+    },
+    "t01-proceed": {
+      "action_sha256": "810bce02ab7de3ab8a5a667783e415fd34650361bc94e430d79d2198a1f2f817",
+      "evaluation_sha256": "aacac1d67ed7ee44c3436f0b3b2b6470990bc4bc39e74b427f58471f18421b52"
+    },
+    "t02-hard-stop": {
+      "action_sha256": "98ee53c722fd005b5f03c84ba074a7201e73659b890b4cd81eeca75627237c13",
+      "evaluation_sha256": "156604203d1018c7fd7e0f382c67e4add8492665309e2483d561ff6cbaa8b943"
+    },
+    "t03-evidence-absent": {
+      "action_sha256": "2a65067945465de13ff22d2a7875c96afdc3eda5415c6d9d9b88e6fe5ec7b339",
+      "evaluation_sha256": "58487de12603837af34e5f369d88e0219898351ed559fdc866830c8eaec192a9"
+    },
+    "t04-evidence-unknown": {
+      "action_sha256": "9ba76df01bc0a173d03e3019003786565ab8b85c2da6f9b555b507def374a2bf",
+      "evaluation_sha256": "ea17926870648682bdc6ac2274fa944f339bff44fb0fcc226dc20c0cc77694ff"
+    },
+    "t05-embargo-exception": {
+      "action_sha256": "70ab1fc68c2f2ec9a88abb826ccddbd16c8345aa84fafe4c6b46d9f2d99e6d38",
+      "evaluation_sha256": "dbe1bed90b1d725df95817c8e4001ebd6bc6c642fc3e8de341b09c80b69a3a20"
+    },
+    "t06-not-applicable": {
+      "action_sha256": "d8b19e63972ac8f60b2eec21f372c9268552b0fc4117e72d7f4877e9ebe998ae",
+      "evaluation_sha256": "59321e1272d868ffe78264c709c280a1a3ef151a9f69e8e2244f94185dbafdee"
+    },
+    "t07-clarify": {
+      "action_sha256": "b20b18902f592e60a8a52e1208d52860b73bf55860a1f30b4b025cd1d8533703",
+      "evaluation_sha256": "7580a09b1ca330e00b99e786905b495d2c67dfa5deb596432d9a1649f504b4d0"
+    },
+    "t08-fact-unknown": {
+      "action_sha256": "65f0973e018afa9aaee3ae0888834cddc93d26c80e2b3e9eda7b142b0fad3746",
+      "evaluation_sha256": "93d463ba7010e1beab5ee8d9e7f22c099f248acf8902801eb43326bc5044176f"
+    },
+    "t09-sponsor-absent": {
+      "action_sha256": "79298f25e522cb1b61ee6ea3eb726bbc94d54b453cfcff0afad416d299db22d1",
+      "evaluation_sha256": "58487de12603837af34e5f369d88e0219898351ed559fdc866830c8eaec192a9"
+    },
+    "x01-forced-reject": {
+      "action_sha256": "7d546ba3ae5bfd9e5ff7ddbf50c78bbaf4890dace6b500788e4306240154e25a",
+      "evaluation_sha256": "70a3e58410d6527c63e2c70410557547ee706cc0d648d7f9c70a8b0ea475d5bd"
+    },
+    "x02-suppressed-no-match": {
+      "action_sha256": "1cefcb9745c17ca601adc709347916de067274f80241d069329822eb246a87ca",
+      "evaluation_sha256": "f9e51aa6b1369e53215bee19d9ab9ac2e71cbe4723ea1ccc2f47ed5ea8cbf776"
+    }
+  },
+  "identical": true,
+  "repeats": 3,
+  "runs": [
+    {
+      "all_completed": true,
+      "artifact_ids": [
+        "d01-approve",
+        "d02-flagged-escalation",
+        "d03-hold",
+        "f01-exact-threshold",
+        "f02-boundary-scale",
+        "f03-just-below",
+        "f04-just-above",
+        "f05-number-amount",
+        "p01-conflict-routed",
+        "p02-unknown-unrouted",
+        "t01-proceed",
+        "t02-hard-stop",
+        "t03-evidence-absent",
+        "t04-evidence-unknown",
+        "t05-embargo-exception",
+        "t06-not-applicable",
+        "t07-clarify",
+        "t08-fact-unknown",
+        "t09-sponsor-absent",
+        "x01-forced-reject",
+        "x02-suppressed-no-match"
+      ],
+      "driver_exit": 0,
+      "name": "repeat-01",
+      "safety_violations": [],
+      "score_ids": [
+        "d01-approve",
+        "d02-flagged-escalation",
+        "d03-hold",
+        "f01-exact-threshold",
+        "f02-boundary-scale",
+        "f03-just-below",
+        "f04-just-above",
+        "f05-number-amount",
+        "p01-conflict-routed",
+        "p02-unknown-unrouted",
+        "t01-proceed",
+        "t02-hard-stop",
+        "t03-evidence-absent",
+        "t04-evidence-unknown",
+        "t05-embargo-exception",
+        "t06-not-applicable",
+        "t07-clarify",
+        "t08-fact-unknown",
+        "t09-sponsor-absent",
+        "x01-forced-reject",
+        "x02-suppressed-no-match"
+      ],
+      "scorer_errors": 0
+    },
+    {
+      "all_completed": true,
+      "artifact_ids": [
+        "d01-approve",
+        "d02-flagged-escalation",
+        "d03-hold",
+        "f01-exact-threshold",
+        "f02-boundary-scale",
+        "f03-just-below",
+        "f04-just-above",
+        "f05-number-amount",
+        "p01-conflict-routed",
+        "p02-unknown-unrouted",
+        "t01-proceed",
+        "t02-hard-stop",
+        "t03-evidence-absent",
+        "t04-evidence-unknown",
+        "t05-embargo-exception",
+        "t06-not-applicable",
+        "t07-clarify",
+        "t08-fact-unknown",
+        "t09-sponsor-absent",
+        "x01-forced-reject",
+        "x02-suppressed-no-match"
+      ],
+      "driver_exit": 0,
+      "name": "repeat-02",
+      "safety_violations": [],
+      "score_ids": [
+        "d01-approve",
+        "d02-flagged-escalation",
+        "d03-hold",
+        "f01-exact-threshold",
+        "f02-boundary-scale",
+        "f03-just-below",
+        "f04-just-above",
+        "f05-number-amount",
+        "p01-conflict-routed",
+        "p02-unknown-unrouted",
+        "t01-proceed",
+        "t02-hard-stop",
+        "t03-evidence-absent",
+        "t04-evidence-unknown",
+        "t05-embargo-exception",
+        "t06-not-applicable",
+        "t07-clarify",
+        "t08-fact-unknown",
+        "t09-sponsor-absent",
+        "x01-forced-reject",
+        "x02-suppressed-no-match"
+      ],
+      "scorer_errors": 0
+    },
+    {
+      "all_completed": true,
+      "artifact_ids": [
+        "d01-approve",
+        "d02-flagged-escalation",
+        "d03-hold",
+        "f01-exact-threshold",
+        "f02-boundary-scale",
+        "f03-just-below",
+        "f04-just-above",
+        "f05-number-amount",
+        "p01-conflict-routed",
+        "p02-unknown-unrouted",
+        "t01-proceed",
+        "t02-hard-stop",
+        "t03-evidence-absent",
+        "t04-evidence-unknown",
+        "t05-embargo-exception",
+        "t06-not-applicable",
+        "t07-clarify",
+        "t08-fact-unknown",
+        "t09-sponsor-absent",
+        "x01-forced-reject",
+        "x02-suppressed-no-match"
+      ],
+      "driver_exit": 0,
+      "name": "repeat-03",
+      "safety_violations": [],
+      "score_ids": [
+        "d01-approve",
+        "d02-flagged-escalation",
+        "d03-hold",
+        "f01-exact-threshold",
+        "f02-boundary-scale",
+        "f03-just-below",
+        "f04-just-above",
+        "f05-number-amount",
+        "p01-conflict-routed",
+        "p02-unknown-unrouted",
+        "t01-proceed",
+        "t02-hard-stop",
+        "t03-evidence-absent",
+        "t04-evidence-unknown",
+        "t05-embargo-exception",
+        "t06-not-applicable",
+        "t07-clarify",
+        "t08-fact-unknown",
+        "t09-sponsor-absent",
+        "x01-forced-reject",
+        "x02-suppressed-no-match"
+      ],
+      "scorer_errors": 0
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "arms": {
+    "arm_a_adversary": {
+      "action_correct": 3,
+      "cases": 21,
+      "correct_abstention": 0,
+      "correct_handoff": 0,
+      "decision_correct": 3,
+      "false_approval": 16
+    },
+    "arm_a_oracle": {
+      "action_correct": 21,
+      "cases": 21,
+      "correct_abstention": 11,
+      "correct_handoff": 8,
+      "decision_correct": 21,
+      "false_approval": 0
+    },
+    "arm_b": {
+      "action_correct": 21,
+      "cases": 21,
+      "correct_abstention": 11,
+      "correct_handoff": 8,
+      "decision_correct": 21,
+      "false_approval": 0
+    }
+  },
+  "attempt": "results/primary-attempt-001",
+  "decisionRuleStep": "\u00a75.2 \u2014 pipeline-valid with zero divergences",
+  "divergences": [],
+  "freezeCommit": "c4cfb3fe9211ef8bc65ff69fb1f6ef1cb4bdfab3",
+  "freezePullRequest": 46,
+  "holdoutCells": {
+    "h01": {
+      "d01-approve": {
+        "agrees": true,
+        "observed": {
+          "F": true,
+          "G": true,
+          "J": true
+        }
+      },
+      "d02-flagged-escalation": {
+        "agrees": true,
+        "observed": {
+          "F": false,
+          "G": false,
+          "J": false
+        }
+      },
+      "d03-hold": {
+        "agrees": true,
+        "observed": {
+          "F": false,
+          "G": false,
+          "J": false
+        }
+      }
+    },
+    "h02": {
+      "p01-conflict-routed": {
+        "agrees": true,
+        "observed": {
+          "F": true,
+          "G": true,
+          "J": false
+        }
+      },
+      "p02-unknown-unrouted": {
+        "agrees": true,
+        "observed": {
+          "F": false,
+          "G": false,
+          "J": false
+        }
+      }
+    },
+    "h03": {
+      "x01-forced-reject": {
+        "agrees": true,
+        "observed": {
+          "F": true,
+          "G": true,
+          "J": true
+        }
+      }
+    },
+    "h04": {
+      "x02-suppressed-no-match": {
+        "agrees": true,
+        "observed": {
+          "F": false,
+          "G": false,
+          "J": false
+        }
+      }
+    }
+  },
+  "holdoutFirstExecution": true,
+  "notAdjudicated": [],
+  "pipelineValid": true,
+  "primary": true,
+  "provenance": {
+    "forgeCommit": "8925cacc2abb26198e3cd74de3d1e916a719811e",
+    "forgeFreezeSha256": "d5e38cd7e5caf012b8770d4717f3d23aea96a327663ca2037e365da97f7526ed",
+    "harnessPython": "3.12.11",
+    "jpackSha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "pinsSha256": "0163f6d2546a26aaf648b46581ba3a8838603f0ea6aced6e0111ae447cfe5cd6",
+    "studyManifestSha256": "e5a90be7400246960c9ea652756650d21044026550916960af16e6bbd9007569"
+  },
+  "strata": {
+    "holdout": {
+      "adjudicated": 7,
+      "divergences": 0,
+      "result": "holds",
+      "scheduled": 7
+    },
+    "replication": {
+      "adjudicated": 118,
+      "divergences": 0,
+      "result": "holds",
+      "scheduled": 118
+    }
+  },
+  "study": "013-agent-eval-forge-integration",
+  "validityRows": {
+    "invalid": [],
+    "total": 31
+  },
+  "verdict": "R1 holds"
+}
