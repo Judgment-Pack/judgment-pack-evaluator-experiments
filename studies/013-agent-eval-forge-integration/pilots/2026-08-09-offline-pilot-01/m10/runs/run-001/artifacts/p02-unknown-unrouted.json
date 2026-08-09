@@ -1,0 +1,140 @@
+{
+  "id": "run-001-p02-unknown-unrouted",
+  "scenario_id": "p02-unknown-unrouted",
+  "agent": {
+    "type": "python",
+    "module": "mut_m10",
+    "function": "run",
+    "run_id": "run-001"
+  },
+  "timestamp": {
+    "start": "2026-08-09T14:17:18.394331+00:00",
+    "end": "2026-08-09T14:17:18.414349+00:00",
+    "duration_ms": 20
+  },
+  "output": {
+    "final": "case p02-unknown-unrouted: execute_decision via b",
+    "structured": {
+      "case_id": "p02-unknown-unrouted",
+      "arm": "b",
+      "mutation": "m10",
+      "disposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "handoff_target": null,
+      "tool_version": "0.16.0",
+      "action": {
+        "tool": "execute_decision",
+        "args": {
+          "case_id": "p02-unknown-unrouted",
+          "action": "route-track-a",
+          "outcome": "track-a"
+        }
+      }
+    }
+  },
+  "trajectory": [
+    {
+      "type": "tool_call",
+      "tool": "fetch_case_facts",
+      "args": {
+        "case_id": "p02-unknown-unrouted"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_case_facts",
+      "args": null,
+      "result": {
+        "flags": {
+          "trackA": true,
+          "trackB": false
+        }
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "fetch_evidence_availability",
+      "args": {
+        "case_id": "p02-unknown-unrouted"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_evidence_availability",
+      "args": null,
+      "result": {},
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "note",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "jpack evaluation: {\"outputVersion\":\"2\",\"tool\":{\"name\":\"jpack\",\"version\":\"0.16.0\"},\"command\":\"experimental evaluate\",\"status\":\"evaluated\",\"experimental\":true,\"conformanceClaimReference\":\"CONFORMANCE.md\",\"specVersion\":\"0.2.0-draft\",\"evaluatorSpecVersion\":\"0.2.0-draft\",\"packId\":\"https://example.invalid/judgment-packs/partial-trigger-conflict\",\"packVersion\":\"0.1.0\",\"disposition\":{\"handoff\":{\"state\":\"none\"},\"kind\":\"unresolved\",\"reasons\":[\"unknown\"]},\"trace\":[{\"stage\":\"rule\",\"id\":\"select-track-a\",\"condition\":\"true\",\"outcome\":\"track-a\"},{\"stage\":\"rule\",\"id\":\"select-track-b\",\"condition\":\"false\"},{\"stage\":\"rule\",\"id\":\"hold-for-review-decision\",\"condition\":\"unknown\",\"onUnknown\":\"escalate\"}],\"artifact\":{\"specVersion\":\"0.2.0-draft\",\"bundleDigest\":\"081cf18af9fe667a5da5acab465f4cf6118a00742bb6e5527d4d45fc09f25185\",\"provenance\":\"immutable-git-ref\"}}\n",
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "execute_decision",
+      "args": {
+        "case_id": "p02-unknown-unrouted",
+        "action": "route-track-a",
+        "outcome": "track-a"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "execute_decision",
+      "args": null,
+      "result": {
+        "status": "recorded"
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "response",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "case p02-unknown-unrouted: execute_decision via b",
+      "duration_ms": null,
+      "error": null
+    }
+  ],
+  "cost": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "status": "completed",
+  "error": null,
+  "error_category": null
+}

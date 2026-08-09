@@ -1,0 +1,233 @@
+{
+  "cases": [
+    {
+      "evidenceAvailability": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "proceed",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "appropriateness": "pass",
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "data-access"
+        }
+      },
+      "id": "t01-proceed",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "decline-redirect",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "appropriateness": "hard-fail",
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "data-access"
+        }
+      },
+      "id": "t02-hard-stop",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {
+        "intake-form": "absent",
+        "sponsor-endorsement": "present"
+      },
+      "expectedDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ]
+      },
+      "facts": {
+        "request": {
+          "appropriateness": "pass",
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "data-access"
+        }
+      },
+      "id": "t03-evidence-absent",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "facts": {
+        "request": {
+          "appropriateness": "pass",
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "data-access"
+        }
+      },
+      "id": "t04-evidence-unknown",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "decline-redirect",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "appropriateness": "pass",
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": true,
+          "type": "data-access"
+        }
+      },
+      "id": "t05-embargo-exception",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "not-applicable"
+          ]
+        },
+        "kind": "not-applicable",
+        "reasons": [
+          "not-applicable"
+        ]
+      },
+      "facts": {
+        "request": {
+          "appropriateness": "pass",
+          "completeness": "complete",
+          "type": "coffee-order"
+        }
+      },
+      "id": "t06-not-applicable",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "clarify-return",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "appropriateness": "pending",
+          "completeness": "incomplete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "pipeline-change"
+        }
+      },
+      "id": "t07-clarify",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {
+        "intake-form": "present",
+        "sponsor-endorsement": "present"
+      },
+      "expectedDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "facts": {
+        "request": {
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "data-access"
+        }
+      },
+      "id": "t08-fact-unknown",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {
+        "intake-form": "present",
+        "sponsor-endorsement": "absent"
+      },
+      "expectedDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ]
+      },
+      "facts": {
+        "request": {
+          "appropriateness": "pass",
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "data-access"
+        }
+      },
+      "id": "t09-sponsor-absent",
+      "supportedExtensions": []
+    }
+  ],
+  "matrixVersion": "1"
+}

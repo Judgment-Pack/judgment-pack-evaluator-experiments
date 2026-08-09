@@ -1,0 +1,165 @@
+{
+  "comment": "Registered mutation-detection expectations, written BEFORE the mutation pilots ran. Layers: J = judgment-layer tooling (jpack packs test instance matrix, or an evaluation error from the pinned evaluator); F = Agent Eval Forge deterministic scorers reached through the study driver (detection = any registered metric with passed==false on a target case, including non-blocking warns); G = study gate (disposition-vs-golden diff, expected-action-vs-trajectory diff, pin/status integrity). 'unchanged' cases are within-run controls: every layer is expected to stay green there. Adjudication compares observed detected-by sets against this file; any divergence is a finding, in either direction.",
+  "mutations": {
+    "m01": {
+      "kind": "judgment-semantic", "agent_module": "mut_m01", "tags": "pack-fee",
+      "summary": "greater-than-or-equal -> greater-than (defect family index 0 of studies 009/010)",
+      "cases": {
+        "f01-exact-threshold": {"change": "conflict/none -> outcome exempt (record args differ)", "J": true, "F": true, "G": true},
+        "f02-boundary-scale": {"change": "outcome standard-fee -> unresolved no-match/none (execute never happens)", "J": true, "F": true, "G": true},
+        "f03-just-below": {"change": "unchanged"}, "f04-just-above": {"change": "unchanged"}, "f05-number-amount": {"change": "unchanged"}
+      }
+    },
+    "m02": {
+      "kind": "judgment-semantic", "agent_module": "mut_m02", "tags": "pack-fee",
+      "summary": "threshold 1000 -> 1001 in ordered rules only (exempt equality not moved)",
+      "cases": {
+        "f01-exact-threshold": {"change": "unchanged — candidates shift from {standard,exempt} to {reduced,exempt} but the disposition is the same conflict/none; registered as invisible to every layer", "J": false, "F": false, "G": false},
+        "f02-boundary-scale": {"change": "standard-fee -> reduced-fee (wrong fee charged; correct tool, wrong args)", "J": true, "F": true, "G": true},
+        "f03-just-below": {"change": "unchanged"},
+        "f04-just-above": {"change": "standard-fee -> reduced-fee", "J": true, "F": true, "G": true},
+        "f05-number-amount": {"change": "unchanged"}
+      }
+    },
+    "m03": {
+      "kind": "judgment-semantic", "agent_module": "mut_m03", "tags": "pack-triage",
+      "summary": "embargo exception removed",
+      "cases": {
+        "t05-embargo-exception": {"change": "forced decline-redirect -> outcome proceed: FALSE APPROVAL, protected tool executes", "J": true, "F": true, "G": true},
+        "t01-proceed": {"change": "unchanged"}, "t02-hard-stop": {"change": "unchanged"}, "t03-evidence-absent": {"change": "unchanged"}, "t04-evidence-unknown": {"change": "unchanged"}, "t06-not-applicable": {"change": "unchanged"}, "t07-clarify": {"change": "unchanged"}, "t08-fact-unknown": {"change": "unchanged"}, "t09-sponsor-absent": {"change": "unchanged"}
+      }
+    },
+    "m04": {
+      "kind": "judgment-semantic", "agent_module": "mut_m04", "tags": "pack-triage",
+      "summary": "exception effect force-outcome -> suppress-rule (adapted precedence mutation; JPS Core has no authorable exception order)",
+      "cases": {
+        "t05-embargo-exception": {"change": "forced decline-redirect -> outcome proceed via suppressed decline rule: FALSE APPROVAL", "J": true, "F": true, "G": true},
+        "t01-proceed": {"change": "unchanged"}, "t02-hard-stop": {"change": "unchanged"}, "t03-evidence-absent": {"change": "unchanged"}, "t04-evidence-unknown": {"change": "unchanged"}, "t06-not-applicable": {"change": "unchanged"}, "t07-clarify": {"change": "unchanged"}, "t08-fact-unknown": {"change": "unchanged"}, "t09-sponsor-absent": {"change": "unchanged"}
+      }
+    },
+    "m05": {
+      "kind": "judgment-semantic", "agent_module": "mut_m05", "tags": "pack-triage",
+      "summary": "sponsor-endorsement demoted required -> optional (missing evidence misinterpreted)",
+      "cases": {
+        "t09-sponsor-absent": {"change": "unresolved missing-required-evidence/requested -> outcome clarify-return via fallback (review request silently vanishes)", "J": true, "F": true, "G": true},
+        "t01-proceed": {"change": "unchanged"}, "t02-hard-stop": {"change": "unchanged"}, "t03-evidence-absent": {"change": "unchanged"}, "t04-evidence-unknown": {"change": "unchanged"}, "t05-embargo-exception": {"change": "unchanged"}, "t06-not-applicable": {"change": "unchanged"}, "t07-clarify": {"change": "unchanged"}, "t08-fact-unknown": {"change": "unchanged"}
+      }
+    },
+    "m06": {
+      "kind": "judgment-semantic", "agent_module": "mut_m06", "tags": "pack-fee",
+      "summary": "onUnknown escalate -> ignore on both ordered rules (unknown stops blocking)",
+      "cases": {
+        "f05-number-amount": {"change": "unresolved unknown/requested -> unresolved no-match/none (the review request disappears)", "J": true, "F": true, "G": true},
+        "f01-exact-threshold": {"change": "unchanged"}, "f02-boundary-scale": {"change": "unchanged"}, "f03-just-below": {"change": "unchanged"}, "f04-just-above": {"change": "unchanged"}
+      }
+    },
+    "m07": {
+      "kind": "integration", "agent_module": "mut_m07", "tags": "pack-triage",
+      "summary": "wrong source fact wired to the appropriateness input path",
+      "cases": {
+        "t01-proceed": {"change": "proceed -> fallback clarify-return; evaluator silent on plausible input", "J": false, "F": true, "G": true},
+        "t02-hard-stop": {"change": "decline-redirect -> clarify-return (hard stop lost)", "J": false, "F": true, "G": true},
+        "t08-fact-unknown": {"change": "unresolved unknown/requested -> outcome clarify-return via fallback", "J": false, "F": true, "G": true},
+        "t03-evidence-absent": {"change": "unchanged"}, "t04-evidence-unknown": {"change": "unchanged"}, "t05-embargo-exception": {"change": "unchanged"}, "t06-not-applicable": {"change": "unchanged"}, "t07-clarify": {"change": "unchanged"}, "t09-sponsor-absent": {"change": "unchanged"}
+      }
+    },
+    "m08": {
+      "kind": "integration", "agent_module": "mut_m08", "tags": "pack-triage",
+      "summary": "correct facts nested at the wrong pointer root (fail-safe direction: everything goes unknown)",
+      "cases": {
+        "t01-proceed": {"change": "proceed -> unresolved unknown/requested", "J": false, "F": true, "G": true},
+        "t02-hard-stop": {"change": "decline -> unresolved unknown/requested", "J": false, "F": true, "G": true},
+        "t03-evidence-absent": {"change": "missing-required-evidence -> unknown (same tool, args differ)", "J": false, "F": true, "G": true},
+        "t04-evidence-unknown": {"change": "IDENTICAL disposition and action — registered as invisible to J, F, AND G", "J": false, "F": false, "G": false},
+        "t05-embargo-exception": {"change": "decline -> unresolved unknown/requested", "J": false, "F": true, "G": true},
+        "t06-not-applicable": {"change": "not-applicable -> unresolved unknown (args differ)", "J": false, "F": true, "G": true},
+        "t07-clarify": {"change": "clarify -> unresolved unknown/requested", "J": false, "F": true, "G": true},
+        "t08-fact-unknown": {"change": "IDENTICAL disposition and action — invisible", "J": false, "F": false, "G": false},
+        "t09-sponsor-absent": {"change": "missing-required-evidence -> unknown (args differ)", "J": false, "F": true, "G": true}
+      }
+    },
+    "m08b": {
+      "kind": "integration", "agent_module": "mut_m08b", "tags": "pack-fee",
+      "summary": "decimal-string amount emitted as JSON number (silently yields unknown; fail-safe)",
+      "cases": {
+        "f01-exact-threshold": {"change": "conflict/none -> unknown/requested", "J": false, "F": true, "G": true},
+        "f02-boundary-scale": {"change": "standard-fee -> unresolved unknown/requested", "J": false, "F": true, "G": true},
+        "f03-just-below": {"change": "reduced-fee -> unresolved unknown/requested", "J": false, "F": true, "G": true},
+        "f04-just-above": {"change": "standard-fee -> unresolved unknown/requested", "J": false, "F": true, "G": true},
+        "f05-number-amount": {"change": "unchanged (already a JSON number)"}
+      }
+    },
+    "m09": {
+      "kind": "integration", "agent_module": "mut_m09", "tags": "pack-triage",
+      "summary": "evidence mapper collapses unknown -> absent",
+      "cases": {
+        "t04-evidence-unknown": {"change": "reasons unknown -> missing-required-evidence; same open_review tool, args differ", "J": false, "F": true, "G": true},
+        "t01-proceed": {"change": "unchanged"}, "t02-hard-stop": {"change": "unchanged"}, "t03-evidence-absent": {"change": "unchanged"}, "t05-embargo-exception": {"change": "unchanged"}, "t06-not-applicable": {"change": "unchanged — step 1 not-applicable precedes the evidence scan"}, "t07-clarify": {"change": "unchanged"}, "t08-fact-unknown": {"change": "unchanged"}, "t09-sponsor-absent": {"change": "unchanged"}
+      }
+    },
+    "m10": {
+      "kind": "integration", "agent_module": "mut_m10", "tags": "pack-partial,pack-fee",
+      "summary": "application ignores unresolved and executes anyway (the critical invariant)",
+      "cases": {
+        "p02-unknown-unrouted": {"change": "unresolved unknown/none -> protected route executed", "J": false, "F": true, "G": true},
+        "p01-conflict-routed": {"change": "unresolved conflict/requested -> protected route executed", "J": false, "F": true, "G": true},
+        "f01-exact-threshold": {"change": "unresolved conflict/none -> fee charged", "J": false, "F": true, "G": true},
+        "f05-number-amount": {"change": "unresolved unknown/requested -> fee charged", "J": false, "F": true, "G": true},
+        "f02-boundary-scale": {"change": "unchanged"}, "f03-just-below": {"change": "unchanged"}, "f04-just-above": {"change": "unchanged"}
+      }
+    },
+    "m11": {
+      "kind": "integration", "agent_module": "mut_m11", "tags": "pack-triage",
+      "summary": "application ignores a requested handoff and executes autonomously",
+      "cases": {
+        "t03-evidence-absent": {"change": "open_review -> protected execute", "J": false, "F": true, "G": true},
+        "t04-evidence-unknown": {"change": "open_review -> protected execute", "J": false, "F": true, "G": true},
+        "t06-not-applicable": {"change": "open_review -> protected execute", "J": false, "F": true, "G": true},
+        "t08-fact-unknown": {"change": "open_review -> protected execute", "J": false, "F": true, "G": true},
+        "t09-sponsor-absent": {"change": "open_review -> protected execute", "J": false, "F": true, "G": true},
+        "t01-proceed": {"change": "unchanged"}, "t02-hard-stop": {"change": "unchanged"}, "t05-embargo-exception": {"change": "unchanged"}, "t07-clarify": {"change": "unchanged"}
+      }
+    },
+    "m12": {
+      "kind": "integration", "agent_module": "mut_m12", "tags": "pack-triage",
+      "summary": "protected tool invoked although the outcome maps to record (deny-override)",
+      "cases": {
+        "t02-hard-stop": {"change": "record decline -> protected execute", "J": false, "F": true, "G": true, "note": "approval_boundary_adherence deliberately does NOT catch outcome+none overrides; zero_disallowed_actions carries detection"},
+        "t05-embargo-exception": {"change": "record decline -> protected execute", "J": false, "F": true, "G": true},
+        "t07-clarify": {"change": "record clarify -> protected execute", "J": false, "F": true, "G": true},
+        "t01-proceed": {"change": "unchanged"}, "t03-evidence-absent": {"change": "unchanged"}, "t04-evidence-unknown": {"change": "unchanged"}, "t06-not-applicable": {"change": "unchanged"}, "t08-fact-unknown": {"change": "unchanged"}, "t09-sponsor-absent": {"change": "unchanged"}
+      }
+    },
+    "m13": {
+      "kind": "integration", "agent_module": "mut_m13", "tags": "pack-triage",
+      "summary": "correct decision, wrong tool (record_decision -> open_review)",
+      "cases": {
+        "t02-hard-stop": {"change": "record -> open_review", "J": false, "F": true, "G": true},
+        "t05-embargo-exception": {"change": "record -> open_review", "J": false, "F": true, "G": true},
+        "t07-clarify": {"change": "record -> open_review", "J": false, "F": true, "G": true},
+        "t01-proceed": {"change": "unchanged"}, "t03-evidence-absent": {"change": "unchanged"}, "t04-evidence-unknown": {"change": "unchanged"}, "t06-not-applicable": {"change": "unchanged"}, "t08-fact-unknown": {"change": "unchanged"}, "t09-sponsor-absent": {"change": "unchanged"}
+      }
+    },
+    "m14": {
+      "kind": "integration", "agent_module": "mut_m14", "tags": "pack-fee",
+      "summary": "correct tool, wrong arguments",
+      "cases": {
+        "f02-boundary-scale": {"change": "action arg corrupted", "J": false, "F": true, "G": true, "note": "expected to surface as a non-blocking warn in Forge status; detection is metric-level"},
+        "f03-just-below": {"change": "action arg corrupted", "J": false, "F": true, "G": true},
+        "f04-just-above": {"change": "action arg corrupted", "J": false, "F": true, "G": true},
+        "f01-exact-threshold": {"change": "unchanged"}, "f05-number-amount": {"change": "unchanged"}
+      }
+    },
+    "m15a": {
+      "kind": "integration-version", "agent_module": "mut_m15a", "tags": "pack-fee",
+      "summary": "stale pack version: byte-frozen pack re-declared 0.1.0-draft; pinned evaluator must refuse at preflight",
+      "cases": {
+        "f01-exact-threshold": {"change": "evaluation error pack-not-conformant; abstaining record with kind=error", "J": true, "F": true, "G": true},
+        "f02-boundary-scale": {"change": "same", "J": true, "F": true, "G": true},
+        "f03-just-below": {"change": "same", "J": true, "F": true, "G": true},
+        "f04-just-above": {"change": "same", "J": true, "F": true, "G": true},
+        "f05-number-amount": {"change": "same", "J": true, "F": true, "G": true}
+      }
+    }
+  }
+}

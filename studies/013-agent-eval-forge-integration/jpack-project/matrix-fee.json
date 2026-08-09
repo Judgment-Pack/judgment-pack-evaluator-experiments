@@ -1,0 +1,100 @@
+{
+  "cases": [
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "conflict"
+        ]
+      },
+      "facts": {
+        "request": {
+          "amount": "1000"
+        }
+      },
+      "id": "f01-exact-threshold",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "standard-fee",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "amount": "1000.00"
+        }
+      },
+      "id": "f02-boundary-scale",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reduced-fee",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "amount": "999.99"
+        }
+      },
+      "id": "f03-just-below",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "standard-fee",
+        "reasons": []
+      },
+      "facts": {
+        "request": {
+          "amount": "1000.01"
+        }
+      },
+      "id": "f04-just-above",
+      "supportedExtensions": []
+    },
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        },
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ]
+      },
+      "facts": {
+        "request": {
+          "amount": 1000
+        }
+      },
+      "id": "f05-number-amount",
+      "supportedExtensions": []
+    }
+  ],
+  "matrixVersion": "1"
+}

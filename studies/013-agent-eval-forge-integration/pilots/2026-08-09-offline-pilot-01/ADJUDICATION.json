@@ -1,0 +1,2230 @@
+{
+  "divergences": [],
+  "mutations": {
+    "m01": {
+      "cases": {
+        "f01-exact-threshold": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "f02-boundary-scale": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "f03-just-below": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f04-just-above": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f05-number-amount": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {
+          "fee": [
+            "f01-exact-threshold",
+            "f02-boundary-scale"
+          ]
+        },
+        "status": "mismatch"
+      }
+    },
+    "m02": {
+      "cases": {
+        "f01-exact-threshold": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f02-boundary-scale": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "f03-just-below": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f04-just-above": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "f05-number-amount": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {
+          "fee": [
+            "f02-boundary-scale",
+            "f04-just-above"
+          ]
+        },
+        "status": "mismatch"
+      }
+    },
+    "m03": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {
+          "triage": [
+            "t05-embargo-exception"
+          ]
+        },
+        "status": "mismatch"
+      }
+    },
+    "m04": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {
+          "triage": [
+            "t05-embargo-exception"
+          ]
+        },
+        "status": "mismatch"
+      }
+    },
+    "m05": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {
+          "triage": [
+            "t09-sponsor-absent"
+          ]
+        },
+        "status": "mismatch"
+      }
+    },
+    "m06": {
+      "cases": {
+        "f01-exact-threshold": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f02-boundary-scale": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f03-just-below": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f04-just-above": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f05-number-amount": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {
+          "fee": [
+            "f05-number-amount"
+          ]
+        },
+        "status": "mismatch"
+      }
+    },
+    "m07": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m08": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m08b": {
+      "cases": {
+        "f01-exact-threshold": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "f02-boundary-scale": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "f03-just-below": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "f04-just-above": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "f05-number-amount": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m09": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-diff",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m10": {
+      "cases": {
+        "f01-exact-threshold": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "f02-boundary-scale": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f03-just-below": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f04-just-above": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f05-number-amount": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "p01-conflict-routed": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "p02-unknown-unrouted": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m11": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [
+            "approval_boundary_adherence",
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m12": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "zero_disallowed_actions"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m13": {
+      "cases": {
+        "t01-proceed": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t02-hard-stop": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t03-evidence-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t04-evidence-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t05-embargo-exception": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t06-not-applicable": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t07-clarify": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "t08-fact-unknown": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "t09-sponsor-absent": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m14": {
+      "cases": {
+        "f01-exact-threshold": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        },
+        "f02-boundary-scale": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "f03-just-below": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "f04-just-above": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": false
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": false
+          }
+        },
+        "f05-number-amount": {
+          "F_metrics": [],
+          "G_findings": [],
+          "agrees": true,
+          "observed": {
+            "F": false,
+            "G": false,
+            "J": false
+          },
+          "registered": {
+            "F": false,
+            "G": false,
+            "J": false
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {},
+        "status": "passed"
+      }
+    },
+    "m15a": {
+      "cases": {
+        "f01-exact-threshold": {
+          "F_metrics": [
+            "argument_correctness"
+          ],
+          "G_findings": [
+            "disposition-missing-golden-present",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "f02-boundary-scale": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-missing-golden-present",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "f03-just-below": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-missing-golden-present",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "f04-just-above": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-missing-golden-present",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        },
+        "f05-number-amount": {
+          "F_metrics": [
+            "argument_correctness",
+            "tool_called",
+            "tool_correctness"
+          ],
+          "G_findings": [
+            "disposition-missing-golden-present",
+            "action-diff"
+          ],
+          "agrees": true,
+          "observed": {
+            "F": true,
+            "G": true,
+            "J": true
+          },
+          "registered": {
+            "F": true,
+            "G": true,
+            "J": true
+          }
+        }
+      },
+      "packsTest": {
+        "failing": {
+          "fee": [
+            "f01-exact-threshold",
+            "f02-boundary-scale",
+            "f03-just-below",
+            "f04-just-above",
+            "f05-number-amount"
+          ]
+        },
+        "status": "mismatch"
+      }
+    }
+  },
+  "pristinePacksTest": {
+    "failing": {},
+    "status": "passed"
+  }
+}

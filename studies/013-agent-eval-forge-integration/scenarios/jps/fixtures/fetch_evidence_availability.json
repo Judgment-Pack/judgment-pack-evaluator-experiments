@@ -1,0 +1,46 @@
+{
+  "return": {
+    "d01-approve": {},
+    "d02-flagged-escalation": {},
+    "d03-hold": {},
+    "f01-exact-threshold": {},
+    "f02-boundary-scale": {},
+    "f03-just-below": {},
+    "f04-just-above": {},
+    "f05-number-amount": {},
+    "p01-conflict-routed": {},
+    "p02-unknown-unrouted": {},
+    "t01-proceed": {
+      "intake-form": "present",
+      "sponsor-endorsement": "present"
+    },
+    "t02-hard-stop": {
+      "intake-form": "present",
+      "sponsor-endorsement": "present"
+    },
+    "t03-evidence-absent": {
+      "intake-form": "absent",
+      "sponsor-endorsement": "present"
+    },
+    "t04-evidence-unknown": {},
+    "t05-embargo-exception": {
+      "intake-form": "present",
+      "sponsor-endorsement": "present"
+    },
+    "t06-not-applicable": {},
+    "t07-clarify": {
+      "intake-form": "present",
+      "sponsor-endorsement": "present"
+    },
+    "t08-fact-unknown": {
+      "intake-form": "present",
+      "sponsor-endorsement": "present"
+    },
+    "t09-sponsor-absent": {
+      "intake-form": "present",
+      "sponsor-endorsement": "absent"
+    },
+    "x01-forced-reject": {},
+    "x02-suppressed-no-match": {}
+  }
+}

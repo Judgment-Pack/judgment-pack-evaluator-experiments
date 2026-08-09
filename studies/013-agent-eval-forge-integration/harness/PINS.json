@@ -1,0 +1,28 @@
+{
+  "comment": "Pin registry, 011-convention. It is a pin, not an attestation. Values recorded during the pilot phase; the preregistration freeze re-verifies every member and any change lands in DEVIATIONS.md. PILOT-PHASE CAVEATS the freeze must resolve: (1) the jpack binary is a local build from the v0.16.0 tag with the goreleaser ldflags, not the released checksums.txt artifact; (2) pilot harness scripts ran under CPython 3.8.20 (the machine default), not the 3.12 series used by studies 011/012.",
+  "forge": {
+    "repo": "https://github.com/deghosal-2026/agent-eval-forge",
+    "commit": "8925cacc2abb26198e3cd74de3d1e916a719811e",
+    "license": "MIT (c) 2026 Debashish Ghosal",
+    "install": "pip install -e <clone at pinned commit> into a CPython 3.11.13 venv",
+    "venvPython": "3.11.13",
+    "pipFreezeSha256": "d5e38cd7e5caf012b8770d4717f3d23aea96a327663ca2037e365da97f7526ed",
+    "note": "Upstream scenario and fixture bytes are vendored under upstream/ with upstream/MANIFEST.sha256; upstream is never modified."
+  },
+  "jpack": {
+    "version": "0.16.0",
+    "builtFromTag": "v0.16.0",
+    "builtFromCommit": "8fc375de09044c040baac0d94bc853dd6e5813ca",
+    "binarySha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "evaluatorSpecVersion": "0.2.0-draft",
+    "env": "JPACK_BIN",
+    "note": "Local tag build (go1.26.5, CGO_ENABLED=0, goreleaser ldflags). Registered runs should pin the released binary verified against the release checksums.txt, per docs/building-with-packs.md replay discipline."
+  },
+  "packs": {
+    "manifest": "packs/MANIFEST.sha256",
+    "note": "Byte-pinned copies from judgment-pack-runtime v0.16.0 (evaluation corpus packs + two valid-document exception examples). jpack-project/packs/ must stay byte-identical; scenarios/mutations/packs/ must equal a fresh mutate_packs.py derivation."
+  },
+  "upstream": {"manifest": "upstream/MANIFEST.sha256"},
+  "harnessPython": {"pilotVersion": "3.8.20", "targetSeries": "3.12", "note": "stdlib-only"},
+  "cases": {"path": "scenarios/jps/cases.json", "note": "goldens/EXPECT-CHECK.json must record zero disagreements against the pinned evaluator"}
+}

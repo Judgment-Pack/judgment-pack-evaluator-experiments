@@ -1,0 +1,19 @@
+{
+  "cases": [
+    {
+      "evidenceAvailability": {},
+      "expectedDisposition": {
+        "handoff": {
+          "state": "none"
+        },
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": []
+      },
+      "facts": {},
+      "id": "x01-forced-reject",
+      "supportedExtensions": []
+    }
+  ],
+  "matrixVersion": "1"
+}
