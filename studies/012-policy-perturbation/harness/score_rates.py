@@ -561,7 +561,9 @@ SECOND_CONTRAST_TABLE = (
     ("otherwise", None),
 )
 # §5.3: the four narrow numeric classes the E prediction is stated over, and the
-# embargo-membership class whose collapse overrides every other reading of E.
+# embargo-membership class whose LOW verdict in arm E overrides every other
+# reading of E. Round 11, finding 1: the overriding rule is a §5.1 LEVEL verdict
+# on arm E and not a §5.2 contrast against arm A — see `decision_row()`.
 NARROW_NUMERIC_CLASSES = (0, 1, 2, 5)
 EMBARGO_CLASS = 4
 # §5.3 row 5's fifth conjunct (round 9, finding 2; restated round 10, finding
@@ -597,7 +599,7 @@ DECISION_TABLE = (
      "publishedAs": UNRESOLVED,
      "gloss": "descriptive publication only, no contrast reported"},
     {"row": 2,
-     "condition": "arm E reads COLLAPSE on class 4",
+     "condition": "arm E reads LOW on class 4",
      "outcome": "not adjudicated",
      "publishedAs": "E-DEGRADED-GENERALLY",
      "gloss": "the denamed text degraded authoring generally; every other "
@@ -623,7 +625,10 @@ DECISION_TABLE = (
      "condition": "`nC >= 3` and `nP < 3`",
      "outcome": "not adjudicated",
      "publishedAs": "LABEL-COLLAPSE-ONLY",
-     "gloss": "the records are still at the boundary; the labels are not"},
+     "gloss": "on at least one of the collapsing classes the records are still "
+              "at the boundary and the labels are not; nP < 3 bounds the "
+              "placement collapses, it does not exclude them, and a class that "
+              "is not LOW may be reached in as few as 4 of 30 runs"},
     {"row": 7,
      "condition": "(else)",
      "outcome": "neither confirmed nor unsupported",
@@ -639,14 +644,15 @@ DECISION_TABLE = (
 # the registered distinction was unreachable. It is data and code here, and
 # `test_verdict_parity.py` diffs the table below against §4.6's own.
 #
-# Round 9 finding 2: the readings are named for the explanations they make
-# available, not for propositions this rule establishes, and the `reading` cells
-# say only what the integers show. `|Q| = 0` says no accepted record was
-# mislabelled; it does not say the author derived either threshold, because
-# `policy_mirror.verdict()` returns at the sanctions clause and then at the
-# embargo clause before it reads `riskScore`. §4.6 registers what the ceiling
-# establishes and what it does not, and this table no longer asserts a mental
-# state a set of correct labels cannot pin down.
+# Round 9 finding 2: the two readings that name a collapse of arm E's own
+# records — PLACEMENT collapse and comprehension collapse — are named for the
+# explanations they make available, not for propositions this rule establishes,
+# and the `reading` cells say only what the integers show. `|Q| = 0` says no
+# accepted record was mislabelled; it does not say the author derived either
+# threshold, because `policy_mirror.verdict()` returns at the sanctions clause
+# and then at the embargo clause before it reads `riskScore`. §4.6 registers
+# what the ceiling establishes and what it does not, and this table no longer
+# asserts a mental state a set of correct labels cannot pin down.
 #
 # Round 10 finding 2: saying what the integers show cuts both ways, and the
 # row-1 cells said MORE than the integers show. A LOW S1 verdict is `k <= 3` at
@@ -658,6 +664,26 @@ DECISION_TABLE = (
 # cut §5.1 registers: a LOW verdict BOUNDS placement, it does not zero it. That
 # sentence is machine-published — `reading_verdict()` carries it into
 # `verdicts` and `RESULTS.json` — which is why it is a cell and not a gloss.
+#
+# Round 11 finding 4: the NAME is machine-published too, and the sentence that
+# licenses reading it as a label rather than as a finding about the author lived
+# only in §4.6, fifty lines below the table. Round 10's own repair widened the
+# second row to cover an arm with no accepted record at all, and an arm that
+# produced no record has demonstrated no comprehension failure of any kind. The
+# name stays — it is registered pre-data, three assertions and a fixture key on
+# it, and ten rounds of review prose describe the file by it — and its GLOSS now
+# carries §4.6's disclaimer verbatim, so the qualifier travels with the bytes a
+# reader actually holds instead of with the registration alone.
+#
+# Round 11 finding 5: the third row said "the records are at the boundary" of a
+# rule that fires at `nC >= 3` and `nP < 3`, which permits one or two genuine
+# placement collapses among the four; and it reads *not LOW* rather than HIGH,
+# so a class it calls "still at the boundary" may be reached in as few as four
+# of thirty runs against arm A's thirty. What the counts establish is label
+# failure on at least `nC - nP` of the four and a BOUND on the rest, and the
+# cells now say that instead. Same quantifier error as the row-1 cells, in the
+# opposite direction: those published one class's fact arm-wide, these published
+# the arm-wide sentence when only one class had to carry it.
 #
 # The cut is the word the file uses: **the ceiling** of a proportion is 1, so
 # arm E's pooled S5 accuracy `|H| / (|H| + |Q|)` is at the ceiling exactly when
@@ -693,17 +719,21 @@ READING_TABLE = (
      "reading": "at least one accepted record was mislabelled, or the arm "
                 "produced no accepted record at all",
      "publishedAs": "comprehension collapse",
-     "gloss": "published as one, R1 not confirmed"},
-    {"placementLevel": "HIGH or MID",
-     "placementGloss": "the records are at the boundary",
+     "gloss": "named for the explanation it makes available, not for a "
+              "proposition this rule establishes; R1 not confirmed"},
+    {"placementLevel": "HIGH or MID on at least one collapsing class",
+     "placementGloss": "the records there are still at the boundary, in as few "
+                       "as 4 of 30 runs",
      "labels": "degraded, so H-coverage falls",
      "branch": S5_BRANCHES[1],
-     "reading": "the author placed records at the boundary and labelled them "
-                "wrong",
+     "reading": "the author placed records at the boundary on at least one "
+                "class whose labelled coverage collapsed and labelled them "
+                "wrong; nP < 3 bounds the placement collapses among the other "
+                "three, it does not exclude them",
      "publishedAs": "label collapse",
-     "gloss": "the hugging did not go away; R1 is not confirmed and saying "
-              "otherwise would be reading a labelling failure as an anchoring "
-              "result"},
+     "gloss": "the hugging did not go away there; R1 is not confirmed and "
+              "saying otherwise would be reading a labelling failure as an "
+              "anchoring result"},
 )
 
 # --- §5.3 (ii)'s three registered outcomes for arm D ------------------------
@@ -723,6 +753,20 @@ READING_TABLE = (
 # exclusion catches a D that reached both threshold pairs however it labelled
 # them. Neither survives an old-keyed side that quarantines a record placed at
 # 70 and labelled by the old rule before arm A's predicates are read.
+#
+# Round 11, finding 8: the asymmetry leaves a residual on ROW 3, and it is now
+# STATED rather than asserted away. An arm D that placed a record in each of its
+# own four narrow classes in every run and mislabelled all of them reads LOW on
+# the new-keyed side (the primary is correctly-labelled coverage) and LOW on the
+# old-keyed side (D's classes are disjoint from arm A's), so it reaches row 3 —
+# whose gloss said "the author placed records at neither threshold pair", which
+# is false of exactly that arm. The gloss says what the two LOW readings support
+# and points at D's own S1 placement rates, already published per class, for the
+# case they do not separate. Round 10 disclosed this by name so round 11 would
+# inherit it rather than rediscover it; this is where it is decided. Row 3's
+# CONDITION is untouched and correct, and row 2's gloss is not false — it is
+# silent about a D that reached its own pair too, which row 1's exclusion
+# already catches.
 #
 # Two counts the file does not spell, and where each comes from. §5.3 (ii)
 # states its conditions over "the narrow numeric classes" with no count —
@@ -776,8 +820,13 @@ D_OUTCOME_TABLE = (
                   "verdicts are LOW on at least %d of them"
                   % (D_NARROW_MINIMUM, D_NARROW_MINIMUM),
      "publishedAs": "GENERAL-DEGRADATION",
-     "gloss": "the author placed records at neither threshold pair; published "
-              "as one, and not read as evidence for or against R1",
+     "gloss": "no correctly-labelled coverage at D's own pair and no placement "
+              "at the old pair; published as one, and not read as evidence for "
+              "or against R1. It does not say the records went nowhere: the "
+              "new-keyed side is the labelled primary, so a D that placed "
+              "correctly at its own pair and mislabelled reads LOW on both "
+              "sides — D's own S1 placement rates are what separate that case "
+              "(round 11, finding 8)",
      "explanations": ()},
     {"row": 4,
      "condition": "(else)",
@@ -1164,6 +1213,45 @@ def _weighted_at_least(minimum: int, weights, p: Fraction) -> Fraction:
     return total
 
 
+def _ordered_placement(minimum: int, weights, nested_weight: int,
+                       low: Fraction, nested_low: Fraction) -> Fraction:
+    """P(nP >= minimum AND the OUTER class of a nested pair does not read LOW),
+    with the pair's two LOW indicators coupled the way §2.3's containment forces
+    instead of multiplied (round 11, finding 2).
+
+    Class 2 nests in class 3, so `K2 <= K3` slot by slot and {class 3 LOW} is a
+    SUBSET of {class 2 LOW}. That fixes the pair's 2x2 table from its two
+    marginals alone — P(2 LOW, 3 LOW) = nested_low, P(2 LOW, 3 not LOW) =
+    low - nested_low, P(2 not LOW, 3 not LOW) = 1 - low, and the fourth cell is
+    EMPTY — so this leaves no coupling freedom and adds no assumption to the
+    ones §5.4 names; it removes one the registration forbids. Where the two
+    classes share a marginal the pair merges instead (`class_groups()`); arm E's
+    classes 2 and 3 sit at 0.05 and 0.95, so the merge is unavailable and the
+    ORDERING is what remains.
+
+    The two coupled events read DIFFERENT endpoints — `nP` reads S1 and the
+    fifth conjunct reads arm E's primary level — and coupling them is licensed
+    by §5.4's own layer 4, which is registered here as an IDENTITY rather than
+    as an assumption (`k_H = k_raw` on every class, so a class's primary level
+    and its S1 level are the same verdict), and by §2.3's ordering being
+    registered on the primary endpoint and on S1 alike.
+
+    `weights` are the other reachable narrow weights, `nested_weight` the one
+    the nested group carries into `nP` — 0 when arm A is not HIGH on that group,
+    which is the one case where the two events really are independent and the
+    product is exact.
+    """
+    if nested_low > low:
+        raise ValueError(
+            "containment forces P(outer LOW) <= P(inner LOW); %s > %s is an "
+            "infeasible scenario, not a repairable one" % (nested_low, low))
+    if not nested_weight:
+        return (1 - nested_low) * _weighted_at_least(minimum, weights, low)
+    return ((low - nested_low)
+            * _weighted_at_least(minimum - nested_weight, weights, low)
+            + (1 - low) * _weighted_at_least(minimum, weights, low))
+
+
 def containment_joint_figures(n: int, p: Fraction) -> dict:
     """One row of §5.4's containment-respecting joint table at n trials and a
     true per-class coverage p: the conjunctions over the FOUR group indicators
@@ -1220,11 +1308,18 @@ def containment_operating_characteristics(n: int) -> dict:
     `comonotoneGate` is returned so §5.4 can print that rather than imply the
     companion is a floor.
 
-    Where the two nested classes do NOT carry the same marginal the merge is not
-    available and is not made: arm E's classes 2 and 3 sit at 0.05 and 0.95 in
-    the registered scenario, so containment holds between them without making
-    them equal, and row 5's `1 - P(E class 3 LOW)` term stays a separate factor.
-    It is below 1e-23 at every N and moves nothing either way.
+    Where the two nested classes do NOT carry the same marginal the MERGE is not
+    available — arm E's classes 2 and 3 sit at 0.05 and 0.95 in the registered
+    scenario — but the ORDERING is, and round 10 concluded from the first that
+    there was nothing left to respect. There is: containment fixes that pair's
+    2x2 table from its two marginals alone, with P(2 LOW, 3 not LOW) =
+    P(2 LOW) - P(3 LOW) and the fourth cell empty. So row 5's
+    `1 - P(E class 3 LOW)` term is no longer a separate factor multiplied
+    against a `nP` count that carries class 2; the two go through
+    `_ordered_placement()` together (round 11, finding 2). The repair ADDS no
+    assumption and removes one §2.3 forbids, and it moves nothing: the two exact
+    rationals differ by less than 1.1e-34 at N = 30 and collapse to the same
+    IEEE double at every N, so no printed figure and no pinned digit moves.
 
     The DIRECTION is not uniform, which is the half of this finding §5.4's own
     "positively dependent classes read higher" sentence had backwards:
@@ -1250,15 +1345,24 @@ def containment_operating_characteristics(n: int) -> dict:
     weights = tuple(len(group) for group in groups)
     narrow_weights = tuple(len(set(group) & set(NARROW_NUMERIC_CLASSES))
                            for group in groups)
+    # The group carrying §5.3's interior class — the one nested pair whose two
+    # classes do NOT share a marginal here, so it is the one place the merge is
+    # unavailable and the ordering has to be carried by hand.
+    interior_group = [index for index, group in enumerate(groups)
+                      if INTERIOR_CLASS in group][0]
     marginal_h = _weighted_at_least(PATTERN_MINIMUM,
                                     [weight for weight in narrow_weights if weight],
                                     q)
     marginal_p = _weighted_at_least(PATTERN_MINIMUM,
                                     [weight for weight in narrow_weights if weight],
                                     q * collapsed_low)
-    no_interior_collapse = 1 - intact_low
-    embargo_group = [index for index, group in enumerate(groups)
-                     if EMBARGO_CLASS in group][0]
+    # Round 11, finding 1: row 2 reads arm E's own class-4 level, so the
+    # class-4 term is `1 - P(E class 4 LOW)` in every arm-A pattern exactly as
+    # the class-3 conjunct is, and the group carrying class 4 being absent from
+    # A's HIGH set no longer removes it. Class 4 is in no nested pair, so it is
+    # a free factor; the class-3 conjunct is not, and goes through
+    # `_ordered_placement()` below (round 11, finding 2).
+    no_embargo_collapse = 1 - intact_low
     gate = row_four = row_five = Fraction(0)
     # Arm A's HIGH pattern, over the GROUPS rather than over the classes: every
     # subset, exactly, because there are sixteen of them and a shape argument
@@ -1271,16 +1375,20 @@ def containment_operating_characteristics(n: int) -> dict:
         # a class is TRACKING only if its GROUP is HIGH in both arms.
         passes = _weighted_at_least(CONTROL_GATE_MINIMUM,
                                     [weights[index] for index in chosen], q) ** 2
-        no_embargo_collapse = ((1 - intact_low) if embargo_group in chosen
-                               else Fraction(1))
-        reachable_narrow = [narrow_weights[index] for index in chosen
-                            if narrow_weights[index]]
         gate += weight * passes
         row_four += weight * passes * no_embargo_collapse
+        # `nP >= 3` AND arm E not reading LOW on class 3, as ONE probability:
+        # the interior group carries class 2 into `nP` at P(LOW | p = 0.05) and
+        # class 3's own LOW sits inside that event, so the two cannot be
+        # multiplied (round 11, finding 2).
         row_five += (weight * passes * no_embargo_collapse
-                     * no_interior_collapse
-                     * _weighted_at_least(PATTERN_MINIMUM, reachable_narrow,
-                                          collapsed_low))
+                     * _ordered_placement(
+                         PATTERN_MINIMUM,
+                         [narrow_weights[index] for index in chosen
+                          if narrow_weights[index] and index != interior_group],
+                         (narrow_weights[interior_group]
+                          if interior_group in chosen else 0),
+                         collapsed_low, intact_low))
     row_four *= marginal_h
     # §2.1's registered DRIFT rule, whose false-positive rate moves by more than
     # an order of magnitude here: a single group below HIGH puts TWO classes
@@ -1310,7 +1418,12 @@ def containment_operating_characteristics(n: int) -> dict:
                 "respected (round 10, finding 4): class 0 nests in class 1 and "
                 "class 2 in class 3, correctness is a property of the record, "
                 "so the coverage indicators are ordered pathwise and each pair "
-                "is one indicator at equal marginals. The four groups are "
+                "is one indicator at equal marginals. Where the marginals "
+                "differ the pair is COUPLED rather than merged (round 11, "
+                "finding 2): arm E's classes 2 and 3 sit at 0.05 and 0.95, and "
+                "containment fixes their 2x2 table from those two marginals "
+                "alone, so row 5 reads them jointly instead of multiplying "
+                "them. The four groups are otherwise "
                 "independent within and across arms and layer 3 is unchanged, "
                 "so this is a SCENARIO and not a bound — `comonotoneGate` is "
                 "one coherent coupling that gives a larger gate. Conjunctions "
@@ -1327,7 +1440,7 @@ def decision_operating_characteristics(n: int) -> dict:
     Round 3 finding 11, dispositioned: §5.4 labelled `P(nH >= 3)` "the power to
     reach decision row 4", and those are different numbers. Row 4 is reached
     only when the batch is complete and sealed (row 1 does not fire), arm E does
-    not read COLLAPSE on class 4 (row 2), the B/C control gate passes (row 3),
+    not read LOW on class 4 (row 2), the B/C control gate passes (row 3),
     AND `nH >= 3`. So both are computed here and both are published:
 
       MARGINAL   `nH >= 3` alone, and `nP >= 3` alone
@@ -1360,25 +1473,30 @@ def decision_operating_characteristics(n: int) -> dict:
                                            which is 0 below a = 5
       PLACEMENT-COLLAPSE on class i        arm A HIGH and E LOW  -> q * l
       `nH >= 3`                            E alone: Bin(4, q) >= 3
-      class 4 does not collapse            1 - P(A HIGH) * P(E class 4 LOW),
-                                           and E's class 4 sits at p = 0.95 in
-                                           both scenarios, so this term is
-                                           within 1e-23 of 1 at every N
+      arm E does not read LOW on class 4   rows 4 and 5 both (round 11, finding
+                                           1): `1 - P(E class 4 LOW)`, which
+                                           reads arm E alone and so applies in
+                                           EVERY arm-A pattern rather than
+                                           dropping out of the one in which arm
+                                           A is not HIGH on class 4. E's class 4
+                                           sits at p = 0.95 in both scenarios,
+                                           so this term is within 1e-23 of 1 at
+                                           every N
       arm E does not read LOW on class 3   row 5 only (round 9, finding 2; round
                                            10, finding 3): `1 - P(E class 3
-                                           LOW)`, which reads arm E alone and so
-                                           applies in EVERY arm-A pattern rather
-                                           than in the class-4 term's shape. The
-                                           same magnitude, E's class 3 also
-                                           sitting at p = 0.95 under §5.4's
-                                           scenario, so no printed figure moves
+                                           LOW)`, the same shape as the class-4
+                                           term since round 11 and the same
+                                           magnitude, E's class 3 also sitting
+                                           at p = 0.95 under §5.4's scenario, so
+                                           no printed figure moves
 
     Row 5's joint reads ONE arm-A pattern for a primary rule and an S1 rule at
-    once (round 9, finding 9): `nP` and the class-4 term condition on the same
-    arm-A HIGH verdicts, and `H ⊆ raw` makes the two endpoints dependent —
-    §5.4's fourth independence layer is exactly that assumption, and its
-    paragraph states what the figure assumes. The class-3 term left that
-    conditioning in round 10: it is a verdict on arm E alone.
+    once (round 9, finding 9): the gate and `nP` condition on the same arm-A
+    HIGH verdicts, and `H ⊆ raw` makes the two endpoints dependent — §5.4's
+    fourth independence layer is exactly that assumption, and its paragraph
+    states what the figure assumes. The class-3 term left that conditioning in
+    round 10 and the class-4 term in round 11: both are verdicts on arm E alone,
+    and both are constant factors here rather than per-shape ones.
 
     Every figure assumes the independence layers §5.4 names and is not a bound;
     §5.4's Fréchet column is what the marginals alone imply.
@@ -1401,7 +1519,7 @@ def decision_operating_characteristics(n: int) -> dict:
     # these cuts, and computed rather than assumed to be.
     collapsed_low = (_tail_le(low_k, n, SCENARIO_P_COLLAPSED) if low_k >= 0
                      else Fraction(0))
-    # P(LOW | p = 0.95): arm E's class 4 collapsing when it truly sits at 0.95.
+    # P(LOW | p = 0.95): arm E's class 4 reading LOW when it truly sits at 0.95.
     intact_low = (_tail_le(low_k, n, SCENARIO_P) if low_k >= 0 else Fraction(0))
     narrow = len(NARROW_NUMERIC_CLASSES)
     classes = narrow + 2                      # the six classes of §3.1's family
@@ -1410,26 +1528,32 @@ def decision_operating_characteristics(n: int) -> dict:
     # Arm A's HIGH pattern, by shape. The gate needs TRACKING on five of six in
     # both control arms, and a class arm A does not read HIGH can never be
     # TRACKING, so only patterns of five or six matter; among the five-class
-    # patterns what matters is whether the missing class is one of the four
-    # narrow numeric ones (which removes it from `nP`'s reach) and whether it is
-    # class 4 (which removes row 2's precondition). Round 10, finding 3: whether
-    # the missing class is class 3 no longer matters here, because row 5's fifth
-    # conjunct is a level verdict on arm E and reads arm A not at all.
-    shapes = ((classes, narrow, True, 1),                # A HIGH on all six
-              (classes - 1, narrow - 1, True, narrow),   # missing a narrow
-              (classes - 1, narrow, True, 1),            # missing class 3
-              (classes - 1, narrow, False, 1))           # missing class 4
+    # patterns the one thing that matters is whether the missing class is one of
+    # the four narrow numeric ones, which removes it from `nP`'s reach. Round
+    # 10, finding 3 and round 11, finding 1: whether the missing class is class
+    # 3 or class 4 no longer matters here either, because BOTH of the rules that
+    # read those classes — row 5's fifth conjunct and row 2's gate — are level
+    # verdicts on arm E and read arm A not at all, so the two five-class shapes
+    # that used to be told apart by them are one shape with two ways.
+    shapes = ((classes, narrow, 1),                     # A HIGH on all six
+              (classes - 1, narrow - 1, narrow),        # missing a narrow one
+              (classes - 1, narrow, 2))                 # missing class 3 or 4
     # Round 9, finding 2, restated round 10, finding 3: row 5's fifth conjunct.
     # It is `1 - P(E class 3 LOW)` in every shape — unconditional, because the
     # conjunct reads arm E's own level and no arm-A pattern removes it. Row 4
     # does not read it at all: the falsification half is untouched.
     no_interior_collapse = 1 - intact_low
+    # Round 11, finding 1: and so is row 2's class-4 gate, which is why it is a
+    # constant here rather than a per-shape one. Rows 4 and 5 both read it —
+    # row 2 precedes both — so the class-4 term is now exactly a factor on the
+    # gate, and `row4 = marginal * gate * (1 - P(E class 4 LOW))` is an identity
+    # rather than an approximation good to 1e-23.
+    no_embargo_collapse = 1 - intact_low
     gate = row_four = row_five = Fraction(0)
-    for size, narrow_in, embargo_in, ways in shapes:
+    for size, narrow_in, ways in shapes:
         weight = ways * q ** size * (1 - q) ** (classes - size)
         # Both control arms, independently, over the classes A reads HIGH.
         passes = _binomial_at_least(CONTROL_GATE_MINIMUM, size, q) ** 2
-        no_embargo_collapse = (1 - intact_low) if embargo_in else Fraction(1)
         gate += weight * passes
         row_four += weight * passes * no_embargo_collapse
         row_five += (weight * passes * no_embargo_collapse
@@ -1456,9 +1580,10 @@ def decision_operating_characteristics(n: int) -> dict:
                 "quantity and an upper bound for CONFIRMED — the S5 ceiling "
                 "conjunct is outside this model (§5.4, round 5 finding 5), "
                 "while row 5's class-3 conjunct is inside it as "
-                "`1 - P(E class 3 LOW)`, in every arm-A pattern, because it is "
-                "a level verdict on arm E (round 9 finding 2; round 10 "
-                "finding 3).",
+                "`1 - P(E class 3 LOW)` and row 2's class-4 gate as "
+                "`1 - P(E class 4 LOW)`, both in every arm-A pattern, because "
+                "both are level verdicts on arm E (round 9 finding 2; round 10 "
+                "finding 3; round 11 finding 1).",
     }
 
 
@@ -1499,8 +1624,12 @@ def contrast_verdict(baseline: str, arm: str) -> str:
 def placement_contrast_verdict(baseline: str, arm: str) -> str:
     """The same rule computed on S1, and a DISTINCT registered verdict rather
     than a gloss on the first (§5.2). Because H(r) is a subset of A(r) for
-    every run, k_H <= k_raw always, so PLACEMENT-COLLAPSE implies COLLAPSE on
-    the same class and the converse fails exactly in the case §4.6's table
+    every run, k_H <= k_raw always — but that orders each arm's OWN two
+    endpoints only: PLACEMENT-COLLAPSE implies COLLAPSE on the same class
+    exactly when arm A also reads HIGH on the PRIMARY there, which its S1 HIGH
+    does not supply (round 11, finding 3). A baseline that places records in the
+    class and mislabels them reads S1 HIGH and primary MID or LOW, so nP <= nC
+    is not an invariant. The converse fails exactly in the case §4.6's table
     calls a label collapse."""
     if UNRESOLVED in (baseline, arm):
         return UNRESOLVED
@@ -1589,6 +1718,18 @@ def reading_verdict(counts: dict, branch: str) -> dict:
     falls**", and a class reached raw but not in H is a mislabelled record in
     that class. `nC >= 3` with `nP < 3` IS that condition observed, which is
     also exactly §5.3's decision row 6.
+
+    **The keys are §5.2 CONTRASTS where §4.6 states the rows on §5.1 LEVELS, and
+    that is registered rather than repaired** (round 11, finding 1, the sweep).
+    §4.6's first column is arm E's S1 placement level; `nP` and `nC` are
+    contrasts against arm A, and a contrast needs arm A HIGH on the class. The
+    direction is the safe one and it is not the direction round 11 found at
+    decision row 2: an unresolved baseline SHRINKS `nP` and `nC`, so it can only
+    move an arm off a confirming reading, never onto one. A rule that reads the
+    levels instead would confirm strictly more often, which is why the mismatch
+    is named here and left alone — this file does not weaken a registered rule
+    after the design, and §4.6's rows say what §5.3's counts already say about
+    the arm they fire on.
 
     None when arm E's integers fall on no row of the table.
     """
@@ -1796,7 +1937,7 @@ def transition_census(entries: list) -> dict:
             "transitionCount": max(0, len(entries) - 1)}
 
 
-def utc_day(rows: list) -> dict:
+def utc_day(rows: list, complete: bool) -> dict:
     """§2.8's one-UTC-calendar-day rule, COMPUTED (round 10, finding 9).
 
     The rule is registered — "all 150 slots are begun and completed within one
@@ -1806,12 +1947,21 @@ def utc_day(rows: list) -> dict:
     the cell while carrying no member a reader could check it against, and
     [D-10]'s confirmation sentence and §9's bounds rest on the same conjunct.
 
-    THREE members and not one flag, because the two failures are different
-    facts. `crossedMidnight` is establishable from bytes even when some slot
-    stamped no clock; `oneDayEstablished` is withheld unless every slot carried
-    a readable pair, which is §2.8's own idiom for a truncated batch's
-    transition census — published as computed, reported as not established. A
-    single boolean would read a partial date set as compliance.
+    THREE members and not one flag, because the failures are different facts.
+    `crossedMidnight` is establishable from bytes even when some slot stamped no
+    clock, and from a PREFIX besides — a batch that crossed midnight crossed it
+    — so it takes neither conjunct below. `oneDayEstablished` is withheld unless
+    the batch is COMPLETE and every slot carried a readable pair, which is §2.8's
+    own idiom for a truncated batch's transition census — published as computed,
+    reported as not established — in both of its halves. A single boolean would
+    read a partial date set as compliance.
+
+    Round 11, finding 6: the completeness conjunct is why `complete` is a
+    required argument and not a default. The registered rule is over all 150
+    slots, and until round 11 a five-slot prefix all stamped on one date
+    published `oneDayEstablished: true` beside `schedule.complete: false`, eight
+    lines apart in one dict literal — the code cited §2.8's truncation idiom and
+    implemented only the unreadable-stamp half of it.
 
     Nothing here refuses: §2.8 registers a midnight crossing as a
     `DEVIATIONS.md` entry and NOT a stopping rule, so a scorer that refused
@@ -1831,7 +1981,7 @@ def utc_day(rows: list) -> dict:
         "dates": dates,
         "slotsWithoutReadableStamps": undated,
         "crossedMidnight": len(dates) > 1,
-        "oneDayEstablished": len(dates) == 1 and not undated,
+        "oneDayEstablished": bool(complete) and len(dates) == 1 and not undated,
         "note": "§2.8: all 150 slots are begun and completed within one UTC "
                 "calendar day, and spilling past midnight is a DEVIATIONS.md "
                 "entry rather than a stopping rule — so this is published as a "
@@ -1839,8 +1989,11 @@ def utc_day(rows: list) -> dict:
                 "parts of each slot's own retained startedAt and endedAt; a slot "
                 "whose pair the scorer cannot read (a wrapper that refused before "
                 "writing CALL.json stamps no clock at all) contributes no date and "
-                "is counted here, so one day is ESTABLISHED only when every slot "
-                "carried a readable pair. Dates and never a time of day, derived "
+                "is counted here, so one day is ESTABLISHED only when the batch is "
+                "complete (schedule.complete, beside this block) and every slot "
+                "carried a readable pair; a truncated prefix establishes nothing, "
+                "exactly as the realised transition census beside it does not. "
+                "Dates and never a time of day, derived "
                 "from retained bytes and never from a clock read at scoring: "
                 "re-scoring the same tree stays byte-identical.",
     }
@@ -2935,7 +3088,25 @@ def _epoch(stamp: str) -> int:
     """Seconds since 1970-01-01 for a `YYYY-MM-DDTHH:MM:SSZ` stamp, by
     arithmetic rather than by a library that consults a timezone database. The
     wrapper writes UTC and nothing else; a stamp in any other shape raises and
-    the duration is published as null."""
+    the duration is published as null.
+
+    Round 11, finding 6, NAMED AND NOT FIXED HERE — the shape check is
+    punctuation and length only, so a stamp whose FIELDS are out of range
+    (`2026-08-07T25:00:00Z`, month 99, day 32) parses: `int()` accepts it and
+    Hinnant's arithmetic below is total over any integers. It is deferred as a
+    separate, narrower concern rather than ridden along on a one-conjunct
+    repair, for three reasons on the record. It is unreachable from the
+    instrument — the only producer of these stamps is the wrapper's own
+    `date -u +%Y-%m-%dT%H:%M:%SZ`, so a punctuation-valid out-of-range stamp
+    needs a hand-edited `CALL.json`, which §2.9's per-slot manifest chain makes
+    visible and which §9 already registers as a standing assumption. Only an
+    out-of-range HOUR could hide anything, because `_utc_dates()` publishes the
+    raw `stamp[0:10]` and an out-of-range month or day changes the published
+    date string, which is itself the evidence. And this parser is deliberately
+    SHARED with §4.6 S8's wall clock, so tightening it is conservative for
+    `utc_day()` (a rejected stamp makes the slot undated) but turns some
+    published S8 durations null — a second published secondary, which is a
+    disposition of its own and not a clause of this one."""
     if len(stamp) != 20 or stamp[4] != "-" or stamp[7] != "-" \
             or stamp[10] != "T" or stamp[13] != ":" or stamp[16] != ":" \
             or stamp[19] != "Z":
@@ -3155,8 +3326,12 @@ def c7_record_shape_problems(verdict: dict) -> list:
     neither of them read was whether the record has the SHAPE `batch.py`
     produces, so a record the real writer could never have written admitted the
     batch and the scoring alike, and both files' fixtures wrote exactly such a
-    record. Three members, and only three, because they are the ones written
-    unconditionally on every path through `capture_isolation_negative()`:
+    record. Three members, and only three (round 11, finding 7: the reason
+    stated here was false — "the ones written unconditionally on every path"
+    picks out eleven, not three, because `capture_isolation_negative()` writes
+    the whole verdict from ONE `_write_json` call and PRESENCE therefore
+    discriminates nothing). These are the three whose SHAPE is fixed on every
+    path and checkable without a string diff over a registered paragraph:
 
     - `registeredOutcomes`, which the record carries so a later reader can see
       which registration it was judged against; equality, from the one constant
@@ -3181,6 +3356,10 @@ def c7_record_shape_problems(verdict: dict) -> list:
     Provenance is NOT what this establishes and no strengthening of it could:
     `controls/isolation-negative/` is in `freeze.excluded`, so no digest covers
     the control's retained bytes. This is a shape check, and shape is all it is.
+    It runs in ONE direction, which is why the callers' messages say what they
+    say: each predicate is a necessary condition of the writer's output, so a
+    record that FAILS one provably is not the driver's — and a record that
+    passes all three has proved nothing about where it came from.
     """
     problems = []
     recorded = verdict.get("registeredOutcomes")
@@ -3832,7 +4011,7 @@ def results_document(*, pins: dict, preconditions: dict, registry_sha256: str,
             "perArmCounts": counts,
             "shortfallDeclaration": shortfall,
             "realised": transition_census(prefix),
-            "utcDay": utc_day(rows),
+            "utcDay": utc_day(rows, complete),
             "note": "§2.8's registered call order is three blocks of ten Williams "
                     "sequences. A truncated batch is not balanced and no balance is "
                     "claimed over one: the realised census is published as computed "
@@ -4211,12 +4390,12 @@ def compute_verdicts(arm_blocks: dict, n: int, complete: bool,
     row = decision_row(complete, sealed, contrasts, gate, counts, reading,
                        levels)
     if reading is not None and row["row"] == 2:
-        # §5.3 (iv) and decision row 2: if class 4 collapses in arm E, "every
+        # §5.3 (iv) and decision row 2: if arm E reads LOW on class 4, "every
         # other reading of arm E is withdrawn in favour of that one". The
         # reading is published with that fact attached rather than deleted, so a
         # reader can see what was withdrawn.
         reading = dict(reading, withdrawn=True,
-                       withdrawnBy="decision row 2: arm E reads COLLAPSE on "
+                       withdrawnBy="decision row 2: arm E reads LOW on "
                                    "class %d, and every other reading of arm E "
                                    "is withdrawn in favour of that one"
                                    % EMBARGO_CLASS)
@@ -4272,10 +4451,11 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     registered statements of the CONFIRMED rule now agree (the round-3 and
     round-6 amendments carried the S5 conjunct into §5.3's row 5, the [D-10]
     box, the summary table and §5.5): confirmation requires the placement
-    pattern, arm E's S5 labels at the ceiling, the B/C gate and class 4 not
-    collapsing. A placement collapse with degraded labels falls through to the
-    last row, published as INDETERMINATE with §4.6's comprehension-collapse
-    reading beside it (round 7, finding 9: an earlier version of this docstring
+    pattern, arm E's S5 labels at the ceiling, the B/C gate and arm E not
+    reading LOW on class 4. A placement collapse with degraded labels falls
+    through to the last row, published as INDETERMINATE with §4.6's
+    comprehension-collapse reading beside it (round 7, finding 9: an earlier
+    version of this docstring
     described the pre-amendment split as live, which was itself the stale
     statement).
 
@@ -4285,13 +4465,14 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     see whether any accepted record exercised a threshold:
     `policy_mirror.verdict()` returns at the sanctions and embargo clauses
     before it reads `riskScore`, so an arm E whose accepted records are all such
-    records reads the ceiling, keeps class 4 out of collapse and would have
-    confirmed having exercised neither number. Class 3 is the interior review
-    band: its members are scored BETWEEN the two thresholds, so a record covered
-    there is one the two numbers bracket and one the mirror labelled after
-    reading `riskScore`, and an arm that covers none of it has produced no such
-    record. It establishes no comprehension, which is what §4.6 registers — and
-    it is why §4.6's reading can confirm while this table's row 5 does not fire.
+    records reads the ceiling, keeps class 4 clear of the LOW verdict row 2
+    fires on, and would have confirmed having exercised neither number. Class 3
+    is the interior review band: its members are scored BETWEEN the two
+    thresholds, so a record covered there is one the two numbers bracket and one
+    the mirror labelled after reading `riskScore`, and an arm that covers none
+    of it has produced no such record. It establishes no comprehension, which is
+    what §4.6 registers — and it is why §4.6's reading can confirm while this
+    table's row 5 does not fire.
 
     **The conjunct reads `levels`, not `contrasts`** (round 10, finding 3). It
     was written as a CONTRAST against arm A, and `contrast_verdict()` returns
@@ -4304,6 +4485,39 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     no §5.4 figure, and it is what §4.6's registered weakness sentence — "a
     class 3 covered in as few as four of thirty runs satisfies it", which is the
     not-LOW cut at `low_threshold(30) = 3` — already described.
+
+    **Row 2 reads `levels` too** (round 11, finding 1), and this is the same
+    defect one class over. Round 10 repaired the class-3 conjunct and wrote the
+    class-4 vacuity into §5.4 as a known property in the same commit: the
+    class-4 gate was `contrasts["E"][4] == COLLAPSE`, so it went INDETERMINATE
+    whenever arm A was not HIGH on class 4 and stopped gating anything — for an
+    arm E that reached the embargo class in three of thirty runs or in none of
+    them. It is worse here than it was at class 3 in two ways. Row 2 carries
+    OVERRIDE force (§5.3 (iv): "every other reading of arm E in this study is
+    withdrawn"), and it precedes row 4 as well as row 5, so the same failure
+    exposed R1-UNSUPPORTED and CONFIRMED alike — which is why the repair is at
+    row 2 and not a sixth conjunct on row 5. A row-5 conjunct would have
+    protected the confirming outcome and not the falsifying one, which is the
+    asymmetry the table's own registered note calls the mark of a study with a
+    preferred answer, and it would have published INDETERMINATE where §5.3 (iv)
+    registers an override. Because COLLAPSE implies arm E LOW, the level form is
+    uniformly at least as strong and strictly stronger in exactly the vacuity
+    case; it moves no §5.4 figure. Row 2's outcome is "not adjudicated", so the
+    widened rule asserts nothing it cannot carry — the ATTRIBUTION ("the denamed
+    text degraded authoring generally") is what an unresolved baseline leaves
+    unestablished, and the `why` names arm A's own class-4 level so a reader can
+    see which case this is.
+
+    **No row of this table reads a §5.2 contrast directly any more.** `nP`, `nC`
+    and the gate are the contrast-derived quantities and they arrive as `counts`
+    and `gate`, already computed; `contrasts` stays in the signature because the
+    two refusals above are about what a caller who computed contrasts must
+    supply with them. Where a contrast still decides — the gate of row 3, the
+    `nP` of row 5, the `nC` of row 6 — it decides in the CONSERVATIVE direction,
+    since an unresolved baseline makes TRACKING and both COLLAPSE forms
+    unavailable and can therefore only refuse an outcome, never manufacture one.
+    Round 11's sweep of the whole decision path found row 2 the last permissive
+    contrast, and §5.3's registered notes carry that finding.
     """
     def published(number: int, why: str) -> dict:
         entry = DECISION_TABLE[number - 1]
@@ -4326,18 +4540,21 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
             "7 read the S5 branch (round 3, finding 9) and a missing one is not "
             "a degraded label")
     if levels is None:
-        # The same refusal for the same reason (round 10, finding 3): rows 5 and
-        # 7 read arm E's own class-3 LEVEL, and a caller that supplied contrasts
-        # and no levels would silently lose the fifth conjunct — which is how
-        # the round-9 contrast form lost it. A caller error, not a data
+        # The same refusal for the same reason (round 10, finding 3; widened to
+        # row 2 in round 11, finding 1): row 2 reads arm E's own class-4 LEVEL
+        # and rows 5 and 7 its class-3 one, and a caller that supplied contrasts
+        # and no levels would silently lose both — which is how the round-9
+        # contrast form lost the fifth conjunct. A caller error, not a data
         # condition.
         raise ScoreError(
-            "decision_row() was given contrasts and no §5.1 levels: rows 5 and "
-            "7 read arm E's own level on class %d (round 10, finding 3) and a "
-            "missing one is not an uncollapsed class" % INTERIOR_CLASS)
-    e_rows = {row["index"]: row for row in contrasts["E"]}
-    if e_rows[EMBARGO_CLASS]["contrast"] == CONTRAST_TABLE[0][1]:
-        return published(2, "arm E reads COLLAPSE on class %d" % EMBARGO_CLASS)
+            "decision_row() was given contrasts and no §5.1 levels: row 2 reads "
+            "arm E's own level on class %d and rows 5 and 7 read it on class %d "
+            "(round 10, finding 3; round 11, finding 1) and a missing one is "
+            "not an uncollapsed class" % (EMBARGO_CLASS, INTERIOR_CLASS))
+    if levels["E"]["primary"][EMBARGO_CLASS] == "LOW":
+        return published(2, "arm E reads LOW on class %d, and arm A reads %s "
+                            "there" % (EMBARGO_CLASS,
+                                       levels["A"]["primary"][EMBARGO_CLASS]))
     if not gate["passed"]:
         return published(3, "the control gate failed: %s short of TRACKING on %d of "
                             "%d" % (" and ".join("arm %s" % arm

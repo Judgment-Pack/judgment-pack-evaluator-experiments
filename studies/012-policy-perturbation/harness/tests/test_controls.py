@@ -24,7 +24,11 @@ whole member list — what this study reads (`embargoList`, and per mutation
 in it (`familyVersion`, `pack`, `note`, and per mutation `violatedClause`,
 `underD` and `reasonsUnderD`, 010's plant-and-evaluate vocabulary) — and the
 three tests closing the C2 block below bind that registration to the bytes
-(round 9, finding 8).
+(round 9, finding 8). A fourth test beside them carries §2.6's other register
+of inherited bytes, the arms' shared policy preamble: its process assertions
+are in every arm's stimulus and byte-identical in all five, which is what
+"inherited and non-differential, not inert" means and is why that register and
+the inert one are not interchangeable (round 11, finding 9).
 
 **C3 clause 1, the counting.** The ported compiler, mirror and class arithmetic
 are run over Study 010's retained `completion.txt` and must reproduce 010's
@@ -131,10 +135,30 @@ def assign(document, pointer: str, value) -> None:
 
 
 def canonical(value) -> str:
-    """The byte-exact comparison C2 registers, in the form that distinguishes
-    `"70"` from `70` and `{"a": 1, "b": 2}` from a different dict with the same
-    members in another order."""
+    """The byte-exact comparison C2 registers, in Study 011's own form
+    (`011/harness/tests/test_controls.py:337`) — §6 C2 registers that 011's C2
+    "runs unchanged", so this sorts members as 011 does. It distinguishes
+    `"70"` from `70` and `true` from `1`, which is what a preimage comparison
+    has to do here (arm index 3's preimage is a JSON boolean, and plain `==`
+    would accept `1` for it). It does NOT distinguish two objects with the same
+    members in another order: `sort_keys=True` normalizes member order, JSON
+    object order is not a value distinction, and §6 C2 registers no order
+    claim. An earlier form of this docstring said it did; no family carries an
+    object-valued preimage, so nothing ever turned on it (round 11,
+    finding 11)."""
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+
+def contiguous_indexes(mutations) -> bool:
+    """§6 C2's index clause, type-strict. `type(...) is int` and not
+    `isinstance`, because JSON `false` is an `int` in Python:
+    `[false, true, 2, 3, 4, 5] == list(range(6))` is True, so ordinary equality
+    would accept a family whose first two indexes are booleans. This is the
+    house rule the ledger's own type checks use, in the form
+    `integrity.py`'s clause 6 already carries (round 8, finding 8)."""
+    indexes = [entry["index"] for entry in mutations]
+    return indexes == list(range(6)) and all(
+        type(index) is int for index in indexes)
 
 
 @pytest.mark.parametrize("arm", PACK_ARMS)
@@ -150,7 +174,20 @@ def test_every_patch_preimage_is_present_byte_exact_in_pack_c(arm, pack):
 
 @pytest.mark.parametrize("arm", PACK_ARMS)
 def test_the_six_indexes_are_contiguous(arm):
-    assert [mutation["index"] for mutation in family(arm)["mutations"]] == list(range(6))
+    assert contiguous_indexes(family(arm)["mutations"]), (
+        "arm %s's family indexes are not the contiguous INTEGERS 0-5 (a JSON "
+        "false is not an index; round 8, finding 8)" % arm)
+
+
+def test_the_index_clause_refuses_a_boolean_index():
+    """The assertion this helper replaced passed on `[false, true, 2, 3, 4, 5]`
+    under ordinary equality. `integrity.py`'s clause 6 already refuses such a
+    family before any run, so nothing was exposed; this pins the control's own
+    words to what it checks (round 11, finding 11)."""
+    assert contiguous_indexes([{"index": index} for index in range(6)])
+    assert not contiguous_indexes(
+        [{"index": json.loads("false")}, {"index": json.loads("true")}]
+        + [{"index": index} for index in (2, 3, 4, 5)])
 
 
 @pytest.mark.parametrize("arm", PACK_ARMS)
@@ -215,7 +252,7 @@ def test_arm_ds_family_coheres_with_arm_ds_mirror_over_the_landmark_grid():
     assert perturbed != baseline, "arm D is the perturbed-edge arm (§2.3)"
     assert integrity.verdict_vector(*perturbed) == integrity.verdict_vector(*baseline)
     mutations = family(PERTURBED_ARM)["mutations"]
-    assert [mutation["index"] for mutation in mutations] == list(range(6))
+    assert contiguous_indexes(mutations)
     assert integrity.class_vector(mutations, *perturbed) \
         == integrity.class_vector(family(BASELINE_ARM)["mutations"], *baseline)
     # The grid is 280 cells and not a handful: an equality over an empty or
@@ -288,6 +325,72 @@ def test_no_harness_source_outside_the_generator_names_the_inert_members():
     assert not hits, (
         "§2.6 registers these members as read by nothing, and they appear in "
         "%r" % (hits,))
+
+
+# §2.6: the two process assertions the arms inherit from Study 010's preamble,
+# quoted here as §2.6 quotes them. Flattened before the search, because the
+# stimulus hard-wraps them across lines.
+INHERITED_PROCESS_ASSERTIONS = (
+    "Every other artifact in this study is checked against this text",
+    "a divergence between a pack and this text is a pack bug",
+)
+
+
+def flatten(text: str) -> str:
+    return " ".join(text.split())
+
+
+def commission_prompts(arm: str) -> list:
+    """C10's clean-room commission prompts for one arm — every attempt rather
+    than attempt 1 alone, because §7 requires a fresh reader after any
+    re-authoring and any later attempt inlines the same policy."""
+    root = os.path.join(STUDY, "analysis", "mirror2-attempts", arm)
+    return [os.path.join(root, attempt, "prompt.txt")
+            for attempt in sorted(os.listdir(root))
+            if os.path.isfile(os.path.join(root, attempt, "prompt.txt"))]
+
+
+def test_the_inherited_preamble_is_in_every_stimulus_and_differs_in_none(pins):
+    """§2.6 registers the preamble's inherited process assertions as
+    **non-differential, not inert**, and the difference between those two words
+    is what this test demonstrates.
+
+    IN THE STIMULUS: both assertions §2.6 quotes reach every population this
+    study hands a policy to — the record author, through all five
+    `arms/<X>/PROMPT.txt`, and C10's clean-room readers, through their
+    commission prompts. That is why "inert" would be the wrong register: the
+    `FAMILY.json` members above are inert because nothing reads them, and this
+    prose is read in every one of the calls this study scores.
+
+    DIFFERENTIAL IN NONE: the parsed preamble is ONE value across the five arms
+    and hashes to `harness/PINS.json`'s `assembledPreamble` — the equality C8
+    clause 4 checks both ways — so it is constant by construction and can enter
+    no §5.2 contrast (round 11, finding 9).
+    """
+    for arm in ALL_ARMS:
+        paths = ([os.path.join(STUDY, "arms", arm, "PROMPT.txt")]
+                 + commission_prompts(arm))
+        assert len(paths) >= 2, (
+            "arm %s has no C10 commission prompt to check the preamble in" % arm)
+        for path in paths:
+            with open(path, "rb") as handle:
+                body = flatten(handle.read().decode("utf-8"))
+            for sentence in INHERITED_PROCESS_ASSERTIONS:
+                assert sentence in body, (
+                    "%s does not carry %r, which §2.6 registers as inherited "
+                    "prose that is in the stimulus"
+                    % (os.path.relpath(path, STUDY), sentence))
+    preambles = set()
+    for arm in ALL_ARMS:
+        with open(os.path.join(STUDY, "arms", arm, "POLICY.md"), "rb") as handle:
+            preambles.add(integrity.parse_policy(handle.read())[0])
+    assert len(preambles) == 1, (
+        "the preamble is not one value across the five arms, so §2.6's "
+        "non-differential register is false of the bytes")
+    assert "sha256:" + hashlib.sha256(
+        preambles.pop().encode("utf-8")).hexdigest() \
+        == pins["assembledPreamble"]["sha256"], (
+        "the assembled preamble does not hash to the pin C8 clause 4 checks")
 
 
 # --- C3 clause 1 ------------------------------------------------------------

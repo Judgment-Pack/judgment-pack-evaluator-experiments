@@ -79,14 +79,15 @@ ordered, exhaustive decision table** whose first matching row is the outcome and
 whose last row always matches. Over the four narrow numeric classes: **placement
 collapse** — arm E's *raw* records leaving the boundary, not merely its
 correctly-labelled ones — on ≥ 3 of 4, with arm E's S5 labels at the
-ceiling (§4.6), the B/C control gate holding and neither class 4 nor class 3
-collapsing, is CONFIRMED; arm E reading HIGH on ≥ 3 of 4 is
+ceiling (§4.6), the B/C control gate holding and arm E reading LOW on neither
+class 4 nor class 3, is CONFIRMED; arm E reading HIGH on ≥ 3 of 4 is
 R1-UNSUPPORTED; coverage collapsing while the raw records stay on the boundary
-is LABEL-COLLAPSE-ONLY; and every other pattern — including all-MID, which
-N = 30 makes the likely shape of any *partial* effect — is INDETERMINATE with R1
-recorded as neither confirmed nor unsupported. Three gate rows sit above all of
-them: an incomplete batch, a class-4 collapse, and a failed control gate each
-adjudicate R1 in **neither** direction. The condition that matters most:
+on at least one of them is LABEL-COLLAPSE-ONLY; and every other pattern —
+including all-MID, which N = 30 makes the likely shape of any *partial*
+effect — is INDETERMINATE with R1 recorded as neither confirmed nor unsupported. Three gate rows sit above all of
+them: an incomplete batch, arm E reading LOW on class 4, and a failed control
+gate each adjudicate R1 in **neither** direction. The condition that matters
+most:
 
 > **If arm E maintains coverage, R1 is published as UNSUPPORTED, with the same
 > prominence as the claim** — in `ANALYSIS.md`'s first paragraph, in this

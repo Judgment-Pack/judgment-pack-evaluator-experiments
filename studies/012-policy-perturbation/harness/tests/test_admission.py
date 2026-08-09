@@ -986,10 +986,41 @@ PLACEMENT_COLLAPSE_AT_THE_CUT = [(3, 3), (3, 3), (3, 3), (30, 30), (30, 30),
 # The same records, still at the boundary, with the labels gone: the primary
 # collapses and the placement does not (§4.6's *label collapse*).
 LABEL_COLLAPSE = [(0, 30), (0, 30), (0, 30), (30, 30), (30, 30), (0, 30)]
+# Round 11, finding 5: `nP < 3` is not `nP = 0`. Classes 0 and 1 place nothing
+# at all — a genuine placement collapse — while 2 and 5 place everything and
+# label none of it. Row 6 still fires, and the sentence beside it has to be true
+# of the arm it fires on.
+MIXED_LABEL_COLLAPSE = [(0, 0), (0, 0), (0, 30), (30, 30), (30, 30), (0, 30)]
+# …and the floor the new wording names: *not LOW* is not HIGH, so a class the
+# row calls "still at the boundary" may be reached in four of thirty runs
+# against arm A's thirty. `nP` is 0 here and the records are barely there.
+MID_LABEL_COLLAPSE = [(0, 4), (0, 4), (0, 4), (30, 30), (30, 30), (0, 4)]
 # Class 4 — the embargo-membership class, which names no numeric boundary —
-# collapses in arm E: not a literal effect, and row 2 withdraws every other
-# reading of arm E before the gate is even consulted.
+# goes to zero in arm E: not a literal effect, and row 2 withdraws every other
+# reading of arm E before the gate is even consulted. Arm A is PERFECT here, so
+# this fixture reads COLLAPSE as well as LOW — which is why it never contradicted
+# the round-9 contrast form, and why round 11's two fixtures below are the pair
+# that tests the rule rather than the arm.
 CLASS4_COLLAPSE = [(30, 30)] * 4 + [(0, 0)] + [(30, 30)]
+# Round 11, finding 1: arm A not HIGH on class 4, and the SAME arm E collapse
+# there. The registered rule was a §5.2 contrast — arm E reading COLLAPSE on
+# class 4 — and a contrast against a baseline that is not HIGH is INDETERMINATE
+# and never COLLAPSE, so row 2 stopped firing, rows 4 and 5 were both let
+# through beneath it, and this pair published row 5 CONFIRMED on the pre-fix
+# bytes for an arm E that reached the embargo class in none of its thirty runs.
+# Arms B and C still reach TRACKING on five of six — a class arm A is not HIGH
+# on can never be TRACKING, and five is the gate — so the same arm-A shortfall
+# that disabled row 2 spends exactly the gate's whole tolerance and nothing
+# upstream catches it.
+A_NO_EMBARGO = [(30, 30)] * 4 + [(15, 15)] + [(30, 30)]
+E_EMBARGO_GONE = [(0, 0), (0, 0), (0, 0), (30, 30), (0, 0), (0, 0)]
+# The same failure AT §5.1's two cuts rather than under them, which is the shape
+# a real batch produces: arm A reached class 4 in 26 of 30 runs — one short of
+# `high_threshold(30) == 27`, L = 0.6928 — and arm E in 3, exactly
+# `low_threshold(30)`, U = 0.2653. A single stray miss in the baseline is the
+# whole of what it takes.
+A_EMBARGO_NEAR_MISS = [(30, 30)] * 4 + [(26, 26)] + [(30, 30)]
+E_EMBARGO_AT_THE_CUT = [(0, 0), (0, 0), (0, 0), (30, 30), (3, 3), (0, 0)]
 # The degenerate arm E round 9's finding 2 names: the placement collapse and the
 # ceiling, class 4 intact — and class 3, the interior review band, gone with the
 # four narrow classes. Every accepted record is then an embargo case the mirror
@@ -1007,6 +1038,14 @@ INTERIOR_COLLAPSE = [(0, 0), (0, 0), (0, 0), (0, 0), (30, 30), (0, 0)]
 # TRACKING on five of six, because a class arm A is not HIGH on can never be
 # TRACKING and five is the gate — so nothing upstream catches it.
 A_NO_INTERIOR = [(30, 30), (30, 30), (30, 30), (0, 0), (30, 30), (30, 30)]
+# Round 11, finding 3: arm A at §5.1's HIGH cut on class 0 (`k_raw = 27`) with
+# ONE of those slots' class-0 records mislabelled, so `k_H = 26` and the primary
+# level is MID while the S1 level is HIGH. The placement contrast still
+# collapses on that class and the primary contrast does not — which is how
+# `nP ≤ nC`, registered as an implication, is separated by a single record. Arms
+# B and C still reach TRACKING on five of six, so the gate does not remove the
+# case and the batch that shows it publishes CONFIRMED.
+A_ONE_MISLABEL = [(26, 27), (30, 30), (30, 30), (30, 30), (30, 30), (30, 30)]
 
 # Each scenario: the pattern per arm, whether the batch is complete and sealed,
 # the registered pattern counts, and the row §5.3's table must return.
@@ -1017,10 +1056,43 @@ DECISION_SCENARIOS = (
     {"why": "a seal that does not verify (§2.9), on an otherwise complete batch",
      "arms": {}, "complete": True, "sealed": False,
      "row": 1, "publishedAs": score_rates.UNRESOLVED},
-    {"why": "arm E reads COLLAPSE on class 4",
+    {"why": "arm E reads LOW on class 4, against a perfect arm A: the reading "
+            "the rule was written for, and the one the contrast form also saw",
      "arms": {"E": CLASS4_COLLAPSE}, "complete": True, "sealed": True,
      "row": 2, "publishedAs": "E-DEGRADED-GENERALLY",
-     "counts": {"nP": 0, "nC": 0, "nH": 4}},
+     "counts": {"nP": 0, "nC": 0, "nH": 4},
+     "embargoLow": True, "embargoContrast": "COLLAPSE"},
+    # Round 11, finding 1: the same arm E with arm A not HIGH on class 4. Under
+    # the registered contrast form the class-4 contrast read INDETERMINATE, row
+    # 2 did not fire, the control gate passed at five of six and this scenario
+    # published row 5 CONFIRMED — verified on the pre-fix bytes. Row 2 is arm
+    # E's own level now, so it refuses the arm whatever arm A did, and the two
+    # scenarios here are a test of the rule rather than of the arm.
+    {"why": "arm E reads LOW on class 4 with arm A at MID there: the contrast "
+            "form was INDETERMINATE and gated nothing, and arm E's own level "
+            "still withdraws every other reading of it",
+     "arms": {"A": A_NO_EMBARGO, "E": E_EMBARGO_GONE},
+     "complete": True, "sealed": True,
+     "row": 2, "publishedAs": "E-DEGRADED-GENERALLY",
+     "counts": {"nP": 4, "nC": 4, "nH": 0},
+     "reading": "PLACEMENT collapse", "labels": "at the ceiling",
+     "confirmsR1": True,
+     "embargoLow": True, "embargoContrast": "INDETERMINATE"},
+    # …and at the two cuts themselves, which is the realistic form: arm A one
+    # short of the HIGH cut on class 4 and arm E exactly at the LOW cut. The
+    # published `why` names arm A's level, because §5.3 (iv) registers that the
+    # withdrawal holds here and the attribution does not.
+    {"why": "arm A 26 of 30 on class 4 — one short of the HIGH cut — and arm E "
+            "3 of 30, exactly at the LOW cut: row 2 fires on arm E's own level "
+            "where the contrast form published CONFIRMED",
+     "arms": {"A": A_EMBARGO_NEAR_MISS, "E": E_EMBARGO_AT_THE_CUT},
+     "complete": True, "sealed": True,
+     "row": 2, "publishedAs": "E-DEGRADED-GENERALLY",
+     "counts": {"nP": 4, "nC": 4, "nH": 0},
+     "reading": "PLACEMENT collapse", "labels": "at the ceiling",
+     "confirmsR1": True,
+     "embargoLow": True, "embargoContrast": "INDETERMINATE",
+     "embargoBaseline": "MID"},
     {"why": "arm B TRACKING on four of six: the control gate fails",
      "arms": {"B": GATE_SHORT}, "complete": True, "sealed": True,
      "row": 3, "publishedAs": "CONTROLS-FAILED",
@@ -1084,17 +1156,39 @@ DECISION_SCENARIOS = (
      "interiorContrast": "INDETERMINATE"},
     # The same placement collapse with the labels gone: §4.6's SECOND row, the
     # one round 3 found unreachable. "At least one accepted record was
-    # mislabelled" is a comprehension collapse, it is published as one, and it
-    # does not confirm R1 — so row 5 does not fire and the table's last row does.
+    # mislabelled" is published under §4.6's comprehension-collapse NAME — which
+    # names the explanation the reading makes available and not a proposition
+    # the rule establishes, and which since round 11 finding 4 says so in the
+    # gloss it travels with — and it does not confirm R1, so row 5 does not fire
+    # and the table's last row does.
     {"why": "arm E placement-collapses on all four while its S5 labels are "
-            "degraded: §4.6's comprehension collapse, and R1 is not confirmed",
+            "degraded: §4.6's comprehension-collapse reading, and R1 is not "
+            "confirmed",
      "arms": {"E": PLACEMENT_COLLAPSE}, "mislabelled": {"E": (3, 4)},
      "complete": True, "sealed": True,
      "row": 7, "publishedAs": "INDETERMINATE",
      "counts": {"nP": 4, "nC": 4, "nH": 0},
      "reading": "comprehension collapse", "labels": "degraded"},
-    {"why": "the records are still at the boundary and the labels are not",
+    {"why": "the records are still at the boundary on all four and the labels "
+            "are not",
      "arms": {"E": LABEL_COLLAPSE}, "complete": True, "sealed": True,
+     "row": 6, "publishedAs": "LABEL-COLLAPSE-ONLY",
+     "counts": {"nP": 0, "nC": 4, "nH": 0},
+     "reading": "label collapse", "labels": "degraded"},
+    # Round 11, finding 5: the two row-6 arms the fixture above never reached.
+    # `nP < 3` is a bound and not a zero, and *not LOW* is not HIGH — so the
+    # sentence row 6 publishes has to be true of an arm with two genuine
+    # placement collapses among the four, and of one whose records are at the
+    # boundary in four of thirty runs.
+    {"why": "two narrow classes place nothing at all and two lose only their "
+            "labels: row 6 fires at nP = 2, not nP = 0",
+     "arms": {"E": MIXED_LABEL_COLLAPSE}, "complete": True, "sealed": True,
+     "row": 6, "publishedAs": "LABEL-COLLAPSE-ONLY",
+     "counts": {"nP": 2, "nC": 4, "nH": 0},
+     "reading": "label collapse", "labels": "degraded"},
+    {"why": "row 6 with placement MID at four of thirty on every narrow class: "
+            "nP = 0 and the records are barely at the boundary",
+     "arms": {"E": MID_LABEL_COLLAPSE}, "complete": True, "sealed": True,
      "row": 6, "publishedAs": "LABEL-COLLAPSE-ONLY",
      "counts": {"nP": 0, "nC": 4, "nH": 0},
      "reading": "label collapse", "labels": "degraded"},
@@ -1218,6 +1312,26 @@ def test_the_decision_table_rows_all_fire_at_known_integers(scenario, arm_blocks
             interior = {entry["index"]: entry for entry in
                         verdicts["contrasts"]["E"]}[score_rates.INTERIOR_CLASS]
             assert interior["contrast"] == scenario["interiorContrast"]
+    if scenario.get("embargoLow"):
+        # Round 11, finding 1: row 2 fired for its own reason too, and the
+        # reason is arm E's own LEVEL on class 4 — not the contrast against arm
+        # A, which is INDETERMINATE rather than COLLAPSE wherever arm A is not
+        # HIGH there and which therefore withdrew nothing in the two scenarios
+        # that publish CONFIRMED on the pre-fix bytes. The published `why` names
+        # both levels, because §5.3 (iv) registers that the withdrawal holds on
+        # arm E's level alone while the attribution needs the baseline.
+        embargo = score_rates.EMBARGO_CLASS
+        assert verdicts["levels"]["E"]["primary"][embargo] == "LOW"
+        assert "arm E reads LOW on class %d" % embargo in row["why"]
+        assert "arm A reads %s there" \
+            % verdicts["levels"]["A"]["primary"][embargo] in row["why"]
+        if "embargoContrast" in scenario:
+            contrast = {entry["index"]: entry for entry in
+                        verdicts["contrasts"]["E"]}[embargo]
+            assert contrast["contrast"] == scenario["embargoContrast"]
+        if "embargoBaseline" in scenario:
+            assert verdicts["levels"]["A"]["primary"][embargo] \
+                == scenario["embargoBaseline"]
     if "gate" in scenario:
         assert verdicts["gate"]["arms"] == scenario["gate"]
         assert verdicts["gate"]["passed"] is False
@@ -1278,23 +1392,92 @@ def test_rows_four_and_five_cannot_both_hold(arm_blocks, pins):
     primary HIGH has E's placement HIGH too and cannot be a placement collapse.
     With four classes, `nH ≥ 3` and `nP ≥ 3` are incompatible — and the order
     is stated anyway, because a decision table with an unreachable ambiguity is
-    still a decision table with an ambiguity."""
-    for pattern in (PERFECT, PLACEMENT_COLLAPSE, LABEL_COLLAPSE, HALF):
-        blocks = {arm: arm_blocks(arm, PERFECT if arm != "E" else pattern)
-                  for arm in fixtures.ARMS}
-        counts = score_rates.compute_verdicts(blocks, pins["batch"]["n"],
-                                              True, True)["patternCounts"]
-        assert not (counts["nH"] >= score_rates.PATTERN_MINIMUM
-                    and counts["nP"] >= score_rates.PATTERN_MINIMUM)
-        # …and the placement contrast implies the primary one, class by class.
-        assert counts["nP"] <= counts["nC"]
+    still a decision table with an ambiguity.
+
+    That note reads arm E's own two endpoints and is arm-A-independent, which is
+    why it survives round 11's finding 3. The second assertion here did not: it
+    was `nP <= nC`, and every iteration made arm A PERFECT, so the fixture
+    supplied the only premise that assertion could fail without. Arm A is
+    carried over both patterns now — one at the ceiling, one taxed by a single
+    mislabelled record — and what is asserted is the implication that is true:
+    a placement collapse carries the primary collapse on the classes where arm A
+    reads HIGH on the PRIMARY. The test below is the class the taxed arm A
+    removes from that premise.
+    """
+    exercised = skipped = 0
+    for baseline in (PERFECT, A_ONE_MISLABEL):
+        for pattern in (PERFECT, PLACEMENT_COLLAPSE, LABEL_COLLAPSE, HALF):
+            blocks = {arm: arm_blocks(arm, PERFECT if arm != "E" else pattern)
+                      for arm in fixtures.ARMS}
+            blocks["A"] = arm_blocks("A", baseline)
+            verdicts = score_rates.compute_verdicts(blocks, pins["batch"]["n"],
+                                                    True, True)
+            counts = verdicts["patternCounts"]
+            assert not (counts["nH"] >= score_rates.PATTERN_MINIMUM
+                        and counts["nP"] >= score_rates.PATTERN_MINIMUM)
+            # …and the placement contrast implies the primary one on a class
+            # where arm A reads HIGH on the primary, which is the whole of what
+            # `k_H ≤ k_raw` gives (round 11, finding 3).
+            e_rows = {row["index"]: row for row in verdicts["contrasts"]["E"]}
+            for index in score_rates.NARROW_NUMERIC_CLASSES:
+                if (e_rows[index]["placementContrast"]
+                        != score_rates.PLACEMENT_CONTRAST_TABLE[0][1]):
+                    continue
+                if verdicts["levels"]["A"]["primary"][index] == "HIGH":
+                    exercised += 1
+                    assert (e_rows[index]["contrast"]
+                            == score_rates.CONTRAST_TABLE[0][1])
+                else:
+                    skipped += 1
+    # The premise is neither vacuous nor universal: seven classes across the
+    # eight batches satisfy it, and the one the taxed baseline removes is the
+    # one the old unconditional assertion was wrong about.
+    assert (exercised, skipped) == (7, 1)
+
+
+def test_the_placement_contrast_does_not_imply_the_primary_one(arm_blocks, pins):
+    """Round 11, finding 3: `k_H ≤ k_raw` orders each arm's OWN two endpoints,
+    so PLACEMENT-COLLAPSE carries COLLAPSE only where arm A reads HIGH on the
+    PRIMARY too. §5.2 registered the implication unconditionally until this
+    round, and one mislabelled record in one of arm A's thirty slots separates
+    the two counts.
+
+    Nothing upstream removes the case: arm A is HIGH on the other five classes,
+    so arms B and C still reach TRACKING on five of six, the control gate passes
+    and the batch publishes decision row 5 CONFIRMED with `nP` ABOVE `nC`. The
+    scorer is right and the sentence was wrong — no verdict here is miscomputed,
+    and none is repaired by moving a threshold (§5's opening).
+    """
+    blocks = {arm: arm_blocks(arm, PERFECT if arm != "E" else PLACEMENT_COLLAPSE)
+              for arm in fixtures.ARMS}
+    blocks["A"] = arm_blocks("A", A_ONE_MISLABEL)
+    verdicts = score_rates.compute_verdicts(blocks, pins["batch"]["n"],
+                                            True, True)
+    # The baseline's own two endpoints separate on class 0 and nowhere else.
+    assert verdicts["levels"]["A"]["placement"][0] == "HIGH"
+    assert verdicts["levels"]["A"]["primary"][0] == "MID"
+    assert verdicts["levels"]["A"]["primary"][1:] == ["HIGH"] * 5
+    rows = {row["index"]: row for row in verdicts["contrasts"]["E"]}
+    assert (rows[0]["placementContrast"]
+            == score_rates.PLACEMENT_CONTRAST_TABLE[0][1])
+    assert rows[0]["contrast"] == score_rates.CONTRAST_TABLE[2][1]
+    counts = verdicts["patternCounts"]
+    assert counts == {"nP": 4, "nC": 3, "nH": 0}
+    assert counts["nP"] > counts["nC"]
+    # …and the batch that shows it confirms, so this is not a corner the
+    # decision table removes before anybody reads the two counts.
+    assert verdicts["gate"]["passed"] is True
+    assert verdicts["decisionRow"]["row"] == 5
+    assert verdicts["decisionRow"]["publishedAs"] == "CONFIRMED"
 
 
 # --- §5.3 (ii)'s three outcomes for arm D, at known integers ----------------
 #
 # Arm D's own-keyed pattern when its narrow numeric classes collapse under its
 # OWN family, and the two S10 old-edge patterns that separate the three
-# outcomes: records at the old edges (40, 70) or at neither pair.
+# outcomes: records at the old edges (40, 70), or at neither pair, or — round
+# 11, finding 8 — at D's OWN pair with the labels gone, which reads the same on
+# both keyings and is the case row 3's gloss must not claim to exclude.
 D_NARROW_COLLAPSE = [(0, 0), (0, 0), (0, 0), (30, 30), (30, 30), (0, 0)]
 D_OLD_EDGES_HELD = [30, 30, 30, 30, 30, 30]
 D_OLD_EDGES_GONE = [0, 0, 0, 30, 30, 0]
@@ -1324,8 +1507,21 @@ D_SCENARIOS = (
      "counts": {"newKeyedHigh": 0, "newKeyedLow": 4, "oldKeyedHigh": 4,
                 "oldKeyedLow": 0, "tracking": 2, "narrowMinimum": 3,
                 "classes": 6}},
-    {"why": "neither threshold pair: a general degradation, published as one",
+    {"why": "no coverage at either pair: a general degradation, published as one",
      "pattern": D_NARROW_COLLAPSE, "oldEdge": D_OLD_EDGES_GONE,
+     "publishedAs": "GENERAL-DEGRADATION",
+     "counts": {"newKeyedHigh": 0, "newKeyedLow": 4, "oldKeyedHigh": 0,
+                "oldKeyedLow": 4, "tracking": 2, "narrowMinimum": 3,
+                "classes": 6}},
+    # Round 11, finding 8: the SAME row, the SAME counts — and an arm D whose
+    # records are all at its own (45, 72) in every run, mislabelled. The primary
+    # is correctly-labelled coverage, so it reads LOW; D's classes are disjoint
+    # from arm A's, so S10 reads LOW too. The counts below are identical to the
+    # scenario above, which is exactly the point: row 3 cannot tell these two
+    # populations apart, so its gloss may not say the records went nowhere.
+    {"why": "the labels are gone and the records are at D's own pair: row 3 "
+            "again, at counts indistinguishable from the row above",
+     "pattern": LABEL_COLLAPSE, "oldEdge": D_OLD_EDGES_GONE,
      "publishedAs": "GENERAL-DEGRADATION",
      "counts": {"newKeyedHigh": 0, "newKeyedLow": 4, "oldKeyedHigh": 0,
                 "oldKeyedLow": 4, "tracking": 2, "narrowMinimum": 3,
@@ -1347,7 +1543,8 @@ D_SCENARIOS = (
 
 
 @pytest.mark.parametrize("scenario", D_SCENARIOS,
-                         ids=[entry["publishedAs"] for entry in D_SCENARIOS])
+                         ids=["%d-%s" % (index, entry["publishedAs"])
+                              for index, entry in enumerate(D_SCENARIOS)])
 def test_arm_ds_registered_outcomes_all_fire_at_known_integers(scenario,
                                                                arm_blocks, pins):
     """Round 3, finding 10: §5.3 (ii) registers three outcomes for arm D and
@@ -1364,6 +1561,12 @@ def test_arm_ds_registered_outcomes_all_fire_at_known_integers(scenario,
     Each row fires here from a synthetic population at known integers, and the
     counts the scorer derived are asserted beside the outcome so a row that
     fired for the wrong reason is a failure and not a pass.
+
+    Round 11, finding 8: two scenarios now fire ROW 3 at identical counts from
+    populations that are not alike at all — one whose records reached neither
+    threshold pair, one whose records all reached D's own and were mislabelled.
+    The row is right about both and its gloss was false of the second; the pair
+    is fixtured so the sentence cannot drift back.
     """
     blocks = {arm: arm_blocks(arm, PERFECT) for arm in fixtures.ARMS}
     blocks["D"] = arm_blocks("D", scenario["pattern"], (), scenario["oldEdge"])
@@ -1391,6 +1594,18 @@ def test_arm_ds_registered_outcomes_all_fire_at_known_integers(scenario,
         assert contrasts[3] == "INDETERMINATE"
         assert all(contrasts[index] == "TRACKING"
                    for index in score_rates.NARROW_NUMERIC_CLASSES)
+    # Round 11, finding 8: the residual round 10 disclosed, in integers. Row 3
+    # fires at the counts above on an arm D whose records ARE at its own (45,
+    # 72) — S1 placement HIGH on every narrow numeric class — with the labels
+    # gone, so the correctly-labelled primary reads LOW and S10 reads LOW under
+    # arm A's disjoint predicates. The row cannot separate this arm from the one
+    # above it, which is why its gloss now points at D's own placement rates
+    # instead of claiming the records went nowhere.
+    if scenario["pattern"] is LABEL_COLLAPSE:
+        levels = verdicts["levels"]["D"]
+        for index in score_rates.NARROW_NUMERIC_CLASSES:
+            assert levels["placement"][index] == "HIGH", index
+            assert levels["primary"][index] == "LOW", index
     # Arm D's outcome adjudicates nothing about R1: the decision-table row is
     # what it would have been without arm D in the batch at all.
     assert verdicts["decisionRow"]["row"] == 4        # arm E is PERFECT here
@@ -1701,11 +1916,16 @@ def test_a_string_credential_flag_is_isolation_unproven(pins, study):
 # calendar day; spilling past midnight is a `DEVIATIONS.md` entry, not a
 # stopping rule" — and nothing computed it, while `RESULTS.json`'s `cell` note
 # published "one model, one day" and [D-10]'s confirmation sentence rested on
-# the same conjunct. The two tests below are the two ways the property fails,
-# and NEITHER refuses: a refusal would convert a registered non-stopping
+# the same conjunct. The three tests below are the three ways the property
+# fails, and NONE refuses: a refusal would convert a registered non-stopping
 # deviation into a stopping condition. The published block on an honest
 # population is asserted on the writer's own document in
 # `test_batch.py::test_the_published_schedule_carries_the_computed_utc_day`.
+#
+# Round 11, finding 6: TRUNCATION is the third way, and it is the one round 10
+# left uncovered — the rule is over all 150 slots, so `complete` is an argument
+# and the two tests above it pass True deliberately, to keep proving the reason
+# they were written for.
 
 
 def test_a_batch_that_crosses_midnight_is_published_and_not_refused(pins, study):
@@ -1732,7 +1952,10 @@ def test_a_batch_that_crosses_midnight_is_published_and_not_refused(pins, study)
         assert row["valid"] and row["code"] is None
         assert row["coveredClasses"] == [0, 1, 2, 3, 4, 5]
         assert row["wallClockSeconds"] == 42
-        block = score_rates.utc_day(results["runs"])
+        # Completeness supplied DELIBERATELY: this test is about the midnight
+        # half, so the False below proves the crossing and not the truncation
+        # (round 11, finding 6).
+        block = score_rates.utc_day(results["runs"], True)
         assert block["dates"] == ["2026-08-07", "2026-08-08"]
         assert block["slotsWithoutReadableStamps"] == 0
         assert block["crossedMidnight"] is True
@@ -1767,13 +1990,48 @@ def test_a_slot_that_stamped_no_clock_withholds_the_one_day_property(pins,
         assert row["utcDates"] == [] and row["wallClockSeconds"] is None
         for slot in (("B", "run-001"), ("C", "run-001"), ("A", "run-001")):
             assert results["byKey"][slot]["utcDates"] == ["2026-08-07"], slot
-        block = score_rates.utc_day(results["runs"])
+        # Complete, again deliberately, so the withheld property below is the
+        # unreadable stamp and nothing else (round 11, finding 6).
+        block = score_rates.utc_day(results["runs"], True)
         assert block["dates"] == ["2026-08-07"]
         assert block["slotsWithoutReadableStamps"] == 1
         # The establishable positive stays False; the withheld negative is what
         # moves. One boolean could not say both.
         assert block["crossedMidnight"] is False
         assert block["oneDayEstablished"] is False
+    finally:
+        shutil.rmtree(root, True)
+
+
+def test_a_truncated_batch_establishes_no_one_day_property(pins, study):
+    """Round 11, finding 6: the third way, and the one nothing covered.
+
+    Every stamp is readable and every slot is on one date — the two failures
+    above are both absent — and the batch is five slots of the registered 150.
+    §2.8 registers the rule over all 150 and registers a truncated batch's
+    properties as *published as computed, reported as not established*, so the
+    date set and the undated count are published and the property is withheld.
+    Before this, the same block published `complete: false` and
+    `oneDayEstablished: true` eight lines apart in one dict literal.
+
+    `crossedMidnight` deliberately does NOT take the conjunct: a prefix that
+    crossed midnight crossed it, and withholding that would hide a recorded
+    deviation behind a truncation.
+    """
+    root = fixtures.throwaway_root()
+    try:
+        population = fixtures.Population(root, study, pins)
+        population.build([{} for _ in range(5)])
+        results = population.score_runs()
+        block = score_rates.utc_day(results["runs"], False)
+        assert block["dates"] == ["2026-08-07"]
+        assert block["slotsWithoutReadableStamps"] == 0
+        assert block["crossedMidnight"] is False
+        assert block["oneDayEstablished"] is False
+        # The same rows over a complete batch establish it, so the prefix is
+        # what withheld it and not the population's stamps.
+        assert score_rates.utc_day(results["runs"],
+                                   True)["oneDayEstablished"] is True
     finally:
         shutil.rmtree(root, True)
 

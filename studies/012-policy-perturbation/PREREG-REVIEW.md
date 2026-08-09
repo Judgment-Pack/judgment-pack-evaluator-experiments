@@ -7,7 +7,7 @@ verbatim where one exists, every finding faithfully summarized, and what was
 done about each one. Nothing is discarded. It follows Study 011's per-round,
 per-finding disposition format.
 
-**Status: OPEN. Ten rounds complete, rounds 2 through 10 cross-vendor. Nothing
+**Status: OPEN. Eleven rounds complete, rounds 2 through 11 cross-vendor. Nothing
 is frozen and nothing has run.** (This line said "two rounds" through round 9,
 having been written in round 2 and never advanced; a status line that stops
 tracking its own subject is the defect this file exists to catch, so it is
@@ -1928,6 +1928,316 @@ Unchanged since round 2, and unchanged by every disposition above — no
 disposition in this round touches a file under `arms/`:
 
 | arm | bytes | sha256 of the arm text as reviewed in round 10 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+## Round 11 — the eighth post-disposition review
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-09; drafting as recorded in rounds 1-10
+- Reviewed commit: `60afba4`
+- Tree manifest, the reviewer's computation:
+  `f000000d67ac9fd2ce080834276160305a2c10f55827c464a31f4ad04a17470a` — 85
+  entries, matching the maintainer's own computation recorded in round 10's
+  dispositions
+- Runs: one review run, completed; no run discarded, and no classifier refusal
+  anywhere in the transcript. Run as rounds 9 and 10 were, with the same
+  deviation recorded in round 9
+- Reviewer's verification first: integrity exit 0; 271 passed in 328.93s;
+  worktree clean. **Round 10's dispositions 1, 3, 5, 6, 7, 8, 11, 12 and 13
+  fully implemented**; 2, 4, 9 and 10 partial as its findings describe.
+  **Both of round 10's flagged calls were validated in the reviewer's own
+  words**: the class-3 conjunct is "nowhere weaker and strictly stronger
+  exactly in the old vacuity case"; declining the straddle rule is
+  "defensible"; retaining N = 30 is "justified" and publishing both arithmetic
+  layers is "honest". Independent reconstruction reproduced all five Appendix
+  policies byte for byte, the 948-byte HEADER, all five prompt equations, all
+  twenty arm hashes, the 280-cell grids with class counts (4, 12, 6, 20, 28, 4)
+  and containments exactly (0, 1) and (2, 3), the five schedule balances,
+  §3.3's partition, the interval vectors, the decision-table encodings,
+  `CLAIM.md` against its Study 011 source, and all five retained C10 attempts.
+  The four coverage gaps round 10 left open on purpose were confirmed
+  accurately recorded
+
+### Prompt (verbatim)
+
+```
+You are performing a verification review — round 11 — of Study 012, a preregistered research study in a repository we own and maintain. This is documentation-and-code auditing of our own work before we freeze it and run it. Prior rounds' records, findings and maintainer dispositions are in `PREREG-REVIEW.md` in the study directory.
+
+Repository root: <worktree root>
+Study directory: <worktree root>/studies/012-policy-perturbation
+Reviewed commit: 60afba4 on branch study-012-perturbation
+
+## How to work
+
+Read the files and reason about them. Run the study's own test suite and its own verification command. You may write small scratch scripts **outside** the repository (under your working directory) to recompute a digest, re-derive a table, or check arithmetic independently.
+
+**Do not write, generate, or run code that imitates hostile software** — no files designed to defeat a check, no code that hides its own presence, no simulated attacker tooling. If you judge that a check is incomplete, **say so in prose**: name the file and line, state what the check currently establishes, state what it does not, and state what a complete check would have to do. A described gap is the deliverable; a working demonstration of one is not, and is out of scope for this review.
+
+Environment notes: modify no tracked file in the repository. The ceremony now runs under `PYTHONSAFEPATH=1` (README step 0) and every path-invoked entry file refuses without it. Run the suite with the pinned interpreter `~/.pyenv/versions/3.12.11/bin/python3`, with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider` so no cache is written into the tree.
+
+## Scope, in order
+
+**1. Verify round 10's thirteen dispositions.** `PREREG-REVIEW.md`'s round-10 section lists thirteen findings and, beneath them, the maintainer's dispositions. For each: is the disposition genuinely implemented in the bytes at this commit? Report any that is partial, mis-implemented, or implemented only in prose.
+
+Round 10's two hardest findings were answered in ways the maintainer flags for your judgment:
+
+- **Finding 3, the fifth [D-10] conjunct.** It was a contrast (arm A against arm E on class 3) that passed vacuously whenever arm A was not HIGH there; it now reads arm E's own level — `arm E does not read LOW on class 3`. The registered claims that went with it were narrowed: the "one class scored between the thresholds" uniqueness claim was withdrawn (class 2 nests inside class 3), and the impossibility argument was narrowed after conceding that a **straddle** conjunct is satisfiable by the arm R1 predicts. The straddle was declined as a fix, on the ground that it would need a registered straddle *width*, has no §5.4 model, and would make a §5 decision read record-level values §4.5 registers as gating nothing. **Judge the new conjunct** — does it close the vacuity completely, is it really no weaker anywhere, and is the decline of the straddle sound or is it declining the better rule?
+- **Finding 4, the joint model.** Layer 1's independence is now registered as arithmetically unavailable across the two nested class pairs, the direction sentence is corrected (conjunctions rise, tolerances fall), the Fréchet floor is sharpened, and the containment-respecting figures are published beside the independence ones rather than replacing them — with **N = 30 retained** on the corrected arithmetic (gate 0.6702 against N = 25's 0.4010). **Judge that retention**: is the corrected arithmetic right, is publishing both sets the honest choice or does it leave a reader unable to tell which governs, and does any remaining figure in the tree still stand on the incoherent model without saying so?
+
+**2. The registered content — a fresh sweep.** Rounds 9 and 10 both found their sharpest results in the study rather than the harness. Keep that priority.
+
+- `PREREGISTRATION.md` in full. It is the registration; everything else answers to it. Round 10's dispositions edited §2.1, §2.2, §2.3, §2.7, §2.8, §4.6, §4.7, §5.3, §5.4, §5.5, §6 C4, §7, §8, §10 and Appendix A — read the amended sections against what they now govern, and read the untouched ones as if for the first time.
+- §2.3's six semantic classes, §2.4's arm-D substitution and 280-cell landmark grid, §2.6's document structure and the prompt equation, Appendix A's assembly rule against the twenty committed arm artifacts. Re-derive at least two of these independently.
+- §2.8's schedule and its five balance properties; §3.3's partition; §4's endpoints and the §4.3 interval vectors; §5's level, contrast and decision tables against `harness/score_rates.py`'s encodings; §6's controls C1-C10 against `harness/integrity.py` and the test suite.
+- `CLAIM.md` against its cited source in `studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md`; `MIRROR-AGREEMENT.md` against the retained attempts under `analysis/mirror2-attempts/`.
+- Ask the question no checklist covers: **is there a registered sentence that no code makes true, a control that cannot fail, a test that asserts less than it appears to, or a claim in the records that the artifacts do not support?**
+
+**3. The suite, at 271, and what it does not reach.** Rounds 9 and 10 grew it from 208 to 271. The maintainer's round-10 record names four gaps left open on purpose: `verify_mirror2()` has no direct unit test; `verify_tree()` and `normalized_pins()` are uncovered; `_write_outputs()` is pinned only at its override gate; and §5.3 (ii) row 3's gloss is recorded as still false for an arm D that placed correctly and mislabelled. Confirm each is as described — and then ask what **else** the suite asserts less than it appears to. A test that passes for a reason unrelated to its subject is this round's standing target: round 10 found one such test cited in two places as a gate's coverage.
+
+**4. Run the suite and the verification command**, and report both results.
+
+**5. Compute the tree manifest yourself**, as §2.10 registers it: over every git-tracked regular file under the study directory, excluding the paths in `harness/PINS.json` `freeze.excluded` and the two carriers (`harness/PINS.json`, `PREREG-REVIEW.md`), build the sorted list of lines `<path> <bytes> <sha256>` with paths relative to the study directory; then append the registry's normalized-projection entry — `PINS.json` parsed, `freeze.treeManifestSha256`, `freeze.preregistrationSha256`, `golden.sha256` and `isolationNegative.assent` set to null, serialized with `json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":"))` plus a newline, hashed and listed as `harness/PINS.json#normalized <bytes> <sha256>` — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Confirm `integrity.tree_manifest()` implements the same recipe.
+
+## Final message
+
+A numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — then:
+
+- an overall verdict line;
+- the line `Reviewed commit: 60afba4`;
+- the line `Tree manifest (my computation): <hex digest>`;
+- then the single line `CODEX-012-R11-DONE`.
+
+If you find nothing blocking, say so plainly — a clean verdict is a real outcome and this study is ready to be frozen when it earns one.
+```
+
+### Complete unedited final message
+
+(The reviewer's own `## Findings` heading is demoted to keep this record's
+section structure; no other byte of the message is altered, and the absolute
+paths its markdown links carried are rendered as the `file:line` anchors they
+point at.)
+
+#### Findings
+
+1. **Blocking — class 4 retains the baseline-vacuity defect repaired for class 3.** The registration says confirmation requires an intact/non-collapsing class 4 and that class-4 collapse overrides every other reading (PREREGISTRATION.md:2114, PREREGISTRATION.md:2324). The scorer checks only the A-vs-E contrast (score_rates.py:4338). If A is not HIGH on class 4, E may be LOW while the contrast is INDETERMINATE; B and C can TRACK the other five classes, and E can still reach CONFIRMED. Existing tests leave A perfect in their class-4-collapse case (test_admission.py:989). The minimal complete rule is analogous to the class-3 repair: fire row 2 when E itself is LOW on class 4, making row 5 require E not LOW there.
+
+2. **Should-fix — the “coherent” containment model still violates containment in row 5.** The registration and function call the companion one coherent model (PREREGISTRATION.md:2550, score_rates.py:1208). The code nevertheless multiplies E’s class-3-not-LOW factor independently of the `nP` calculation containing E class-2 LOW (score_rates.py:1253, score_rates.py:1280). Because class 2 nests in class 3, `K₂≤K₃` pathwise and `{K₃ LOW}⊂{K₂ LOW}`. A complete computation must jointly enumerate or condition those ordered counts. The discrepancy is below printed precision, so 0.6253, the 0.6702 gate, and N=30 remain numerically unchanged.
+
+3. **Should-fix — the registered placement-to-primary implication is false, and its test passes for an unrelated reason.** The record and scorer docstring claim PLACEMENT-COLLAPSE implies primary COLLAPSE because `H⊆raw` (PREREGISTRATION.md:2057, score_rates.py:1499). A raw-HIGH baseline can have non-HIGH primary coverage through mislabelling, making the placement contrast collapse while the primary contrast is INDETERMINATE. The scorer correctly computes `nP` and `nC` independently. The purported test of `nP≤nC` always makes A PERFECT, so it passes because its fixture supplies the missing premise (test_admission.py:1276).
+
+4. **Should-fix — round-10 finding 2 remains partially implemented.** The false “no placement” LOW gloss is repaired, but the LOW-plus-degraded case is still categorically published as “comprehension collapse — published as one” (PREREGISTRATION.md:1892, score_rates.py:689). This conflicts with the nearby disclaimer that the name is merely an available explanation, not an established proposition. Tests explicitly pin the categorical label (test_verdict_parity.py:389).
+
+5. **Should-fix — LABEL-COLLAPSE-ONLY overstates mixed cases.** The record and scorer publish “the records are still at the boundary; the labels are not” for `nC≥3, nP<3` (PREREGISTRATION.md:2328, score_rates.py:622). But `nP<3` permits one or two genuine placement collapses. It proves label failure contributed to at least one primary collapse, not that placement remained intact generally. Tests cover only `nP=0,nC=4`.
+
+6. **Should-fix — the UTC-day disposition incorrectly establishes the property for incomplete prefixes.** The registration requires all 150 slots to have readable start/end dates before one day is established (PREREGISTRATION.md:1006). `utc_day(rows)` only checks the rows supplied and never checks completeness or 150 slots (score_rates.py:1799). The test publishes five slots and asserts `oneDayEstablished=True` (test_batch.py:2299). `_epoch()` also validates punctuation but not calendar/time ranges. This is descriptive and non-gating.
+
+7. **Should-fix — C7’s narrowed shape gate still establishes less than its error and control prose imply.** C7 says retention is by code: stripped CALL, outcome-consistent context, and digest/delete evidence (PREREGISTRATION.md:2998). The shared checker validates only exact `registeredOutcomes`, an arbitrary string-to-string deletion map, and a non-boolean integer exit status (score_rates.py:3149). Thus many records the writer could not produce pass despite the error saying otherwise. A complete shape check would require the canonical CALL/VERDICT members, deletion-name whitelist and digest grammar, and outcome-consistent context evidence. It still could not establish provenance, which is openly impossible because the control directory is freeze-excluded.
+
+8. **Should-fix — the disclosed arm-D row-3 gloss is indeed false.** The record says new-keyed LOW plus old-keyed LOW means records were placed at neither threshold pair (PREREGISTRATION.md:2243). The new-keyed side reads labelled primary coverage, while old-keyed S10 is raw placement (score_rates.py:773). Correct new-edge placement with wrong labels can therefore receive “placed at neither pair.” Existing fixtures set both new-keyed H and raw coverage to zero and miss the divergence.
+
+9. **Should-fix — every arm’s actual stimulus contains stale process assertions.** Each policy tells the author that every other study artifact is checked against that policy, that divergence from a pack is a pack bug, and that this is everything “the two sides” share (arms/A/POLICY.md:3). Study 012 intentionally has five policy texts, evaluates no pack, and expressly says D’s pack-side check is unavailable (PREREGISTRATION.md:2866). The prose is common across arms, so it is not a differential confound, but it is false inherited text inside the registered prompts.
+
+10. **Should-fix — round-10 manifest wording remains partially stale.** Appendix A first correctly says no code reads the per-round review digests, then says those digests “are what `integrity.py` binds the frozen artifacts to” (PREREGISTRATION.md:3819). Integrity binds PINS and the tree manifest, not the review table.
+
+11. **Nit — two control tests claim stronger assertions than they make.** The “byte-exact” C2 comparison says it distinguishes dictionary member order, but uses `sort_keys=True`, which erases order (test_controls.py:133). Its index-contiguity assertion would accept JSON `false` as zero (test_controls.py:151); runtime integrity correctly adds an exact-int check, so the live control is sound.
+
+Round-10 disposition status: 1, 3, 5 as expressly narrowed, 6, 7, 8, 11, 12 as expressly narrowed, and 13 are fully implemented. Dispositions 2, 4, 9, and 10 are partial as described above.
+
+The new class-3 [D-10] conjunct is sound: old pass was `(A≠HIGH) or (E≠LOW)`; new pass is `E≠LOW`. It is nowhere weaker and is strictly stronger exactly in the old vacuity case. Declining a straddle rule is defensible: it would support a stronger threshold-sensitivity claim, but is not a drop-in repair for the registered placement claim and would require a width, operating-characteristic model, and promotion of descriptive record values into the gate.
+
+The corrected containment gate is 0.4010 at N=25 and 0.6702 at N=30, so retaining N=30 is justified. Publishing both arithmetic layers is honest: the independence layer is explicitly labelled unavailable and the containment layer is identified as governing N. Finding 2 is the sole remaining figure advertised as coherent that is not fully so.
+
+Independent reconstruction reproduced all five Appendix policies byte-for-byte, the 948-byte HEADER and all five prompt equations, and all 20 arm hashes. The 280-cell grids reproduce counts `(4,12,6,20,28,4)` and exactly containments `(0,1)` and `(2,3)`. The five schedule balances, §3.3 partition, interval vectors, and decision-table encodings match. `CLAIM.md` matches Study 011’s cited source; all five retained C10 attempts, prompts, extracted modules, and agreement records match.
+
+The deliberately open coverage gaps are accurately recorded: `verify_mirror2()` has only indirect happy-path execution; `verify_tree()` and `normalized_pins()` lack direct tests; `_write_outputs()` is reached only at its override refusal; and the arm-D gloss is finding 8.
+
+Verification results:
+
+- Suite: `271 passed, 53360 warnings, 9 subtests passed in 328.93s (0:05:28)`.
+- Integrity ceremony: exit 0; 11 ported files, correct five threshold pairs, 948-byte HEADER, five agreeing clean-room mirrors, expected pre-freeze unbound manifest.
+- Independent manifest: 85 entries, including the 6,653-byte normalized PINS projection. `integrity.tree_manifest()` implements the same exclusions, normalization, sorting, trailing newline, and hashing recipe.
+- Commit and branch matched; worktree remained clean.
+
+Overall verdict: BLOCKING — not freeze-ready because CONFIRMED can bypass a LOW class-4 nonnumeric control when A’s class-4 baseline is unresolved.
+
+Reviewed commit: 60afba4
+
+Tree manifest (my computation): f000000d67ac9fd2ce080834276160305a2c10f55827c464a31f4ad04a17470a
+
+CODEX-012-R11-DONE
+
+### Dispositions
+
+All eleven findings **ACCEPTED**, two of them on corrected grounds and one at a
+**lower** severity than filed. As in rounds 9 and 10, every finding was
+independently re-verified against the bytes at `60afba4` before a disposition
+was written. That verification confirmed the blocking finding and priced it
+higher than the reviewer did, refuted two of the three charges inside finding 7,
+and corrected the prescribed remedy for findings 1 and 9 — in both cases toward
+a *narrower* claim than the reviewer proposed.
+
+**Finding 1 is the round's blocker, and it is the same defect class round 10
+repaired one class over. I fixed the instance and left the class.** Round 10's
+finding 3 was that the class-3 conjunct was written as a *contrast* — arm A
+against arm E — and so passed vacuously whenever arm A was not HIGH there.
+Class 4's gate has exactly that shape and exactly that hole. Demonstrated on
+the real arms at their pinned digests, in the realistic form rather than a
+corner: arm A at **26 of 30** on class 4 — one short of the HIGH cut, `L =
+0.6928` — and arm E at **3 of 30**, the LOW cut exactly, published **row 5
+CONFIRMED**. Under §5.4's own scenario that door carries 3.16% of row-5 mass at
+N = 30, digit for digit the figure round 10 quoted for class 3, because it is
+the same shape.
+
+Three things make this worse than a repeat, and the disposition records each.
+**It is symmetric across the R1 verdict**: row 2 gates row 4 as well as row 5,
+so R1-UNSUPPORTED was equally exposed — which is why the fix is at **row 2** and
+not, as the reviewer's own last sentence proposes, a sixth [D-10] conjunct on
+row 5. A row-5-only fix would protect CONFIRMED and not its falsifier, which is
+precisely the asymmetry §5.3 registers as the mark of "a study with a preferred
+answer", and it would publish INDETERMINATE where §5.3 (iv) registers an
+override. **The record's fault is a different one from round 10's, and blurring
+them would be the easy mistake**: class 3 was an implementation slip *against*
+its registration, whose weakness sentence was already written on arm E's own
+level; class 4's code matched its registration exactly, because every registered
+statement of it uses §5.2's defined term "collapse". Here the **registration**
+was wrong — together with the §4.6 gloss "CONFIRMED therefore means … an intact
+class 4", which is false of the arm the demonstration confirms and is
+machine-pinned as `CEILING_LIMIT`. And **round 10 wrote the class-4 vacuity into
+§5.4 as a known property in the same commit that repaired class 3** ("drops out
+of the pattern in which arm A is not HIGH on class 4"), which makes the round-10
+record self-contradicting rather than merely incomplete.
+
+Row 2 now fires on arm E's own level, with arm A's level named in the published
+`why` so a reader can see whether the attribution is established — the level
+form is uniformly at least as strong for the job that *gates* (a refusal to
+adjudicate R1 in either direction, which is a statement about arm E alone) and
+honest about the job that only *diagnoses*. Free at every pinned precision:
+rows 4 and 5 move by less than 1e-24 at every N and the gate carries no class-4
+term at all, so `REGISTERED_JOINT_ROW4` at seven significant figures, all five
+`REGISTERED_CONTAINMENT` pins and the 1e-12 identity all stand.
+
+**The class is now closed, and that is the part worth recording.** A sweep of
+the whole decision path found row 2 was the last permissive contrast. Rows 3, 5
+and 6 read contrasts in the **conservative** direction — an unresolved baseline
+can only refuse a verdict, never manufacture one — row 4 and the §4.6 branch are
+already levels, and arm D was closed in round 4. One form-mismatch remains and
+is **registered rather than repaired**: §4.6's table keys its rows on the S1
+placement level while the scorer keys them on `nP`/`nC`, which are contrasts —
+conservative in the same way, and named here in both the registration and
+`reading_verdict()`'s docstring so round 12 does not re-find it as a defect.
+
+**Finding 2 lands on the exact word round 10's disposition was sold with.** The
+"coherent" containment companion left layer-1 independence standing between arm
+E's class 2 and class 3 — the same nested pair, in the same arm, that round 10's
+own argument condemns. Narrowing the word would have cost the same manifest
+cascade as fixing the arithmetic, because the overclaim lives in a docstring in
+the same file, so there was no cheap way out and no reason to take one.
+Containment fixes the pair's two-by-two table from its marginals alone, so
+computing the joint properly **adds** no assumption and **removes** one the
+registration forbids. The two exact rationals collapse to the same IEEE double
+at all three N; the fix was verified three ways, including a brute-force
+enumeration over the coupled table.
+
+**Findings 3, 5 and 6 are each a claim that outran its own arithmetic, and two
+of the three are mine.** `nP ≤ nC` is not an invariant: a raw-HIGH baseline can
+have non-HIGH primary coverage through mislabelling, and the test that
+"asserted" it passed only because its fixture made arm A perfect and supplied
+the missing premise. The true conditional is registered instead, and the
+corrected test now goes red on one of eight batches under the old assertion.
+`LABEL-COLLAPSE-ONLY` published "the records are still at the boundary" when
+`nP < 3` permits one or two genuine placement collapses — the same correction
+round 10 made one row up, which that round's sweep had scoped to the row-1 cells
+rather than the table. And `oneDayEstablished` could be established on a partial
+prefix, though the registration requires all 150 slots; the flag now reads the
+population's completeness. The §2.8 edit is a **sharpening**, not a reversal:
+"established only when" is a necessary condition, so adding another never
+contradicted the registered sentence. `_epoch`'s calendar-range looseness is
+named and deferred, with its three reasons, rather than fixed in the same
+breath.
+
+**Finding 7 is ACCEPTED at nit, below the severity filed, because two of its
+three charges are refuted by the bytes.** §6 C7's sentence is accurate and
+already narrower than the code, and both error strings are true on the only path
+that emits them; `PORTS.md` had pre-conceded the incompleteness point in round
+10. What survives is one **false sentence in a docstring** — the three checked
+members were called the ones "written unconditionally on every path", when the
+writer writes all eleven on every path, so presence discriminates nothing. That
+sentence is corrected and a direction clause added; the gate, the messages and
+the registration are untouched. Downgrading a reviewer's severity is recorded
+here rather than quietly applied.
+
+**Finding 8 was disclosed in round 10's record so it would not be rediscovered;
+round 11 confirmed it, so it is decided now.** The arm-D row-3 gloss claimed
+records were placed at neither threshold pair when the new-keyed side reads
+labelled coverage and the old-keyed side reads raw placement. Of the two
+remedies the narrower one is taken — the gloss is corrected to what the mixed
+keying supports — and the wider one is **declined with its reason**: making rows
+2 and 3 read S1 placement would contradict §5.3 (ii)'s registered asymmetry,
+give "new-keyed" two referents inside one four-row table, and change which
+populations receive which registered outcome, which is a post-hoc design change
+on a table that adjudicates nothing.
+
+**Finding 9 is the one that could not be fixed at all, only registered — and the
+prescribed remedy was wrong.** Every arm's `POLICY.md` preamble tells the record
+author that other artifacts are checked against the policy and that a divergence
+from a pack is a pack bug. Neither is true of this study, and this prose is **in
+the stimulus**, seen in all 150 calls. Editing it is spec-unlawful three ways:
+§2.2 and `PORTS.md` register arm A's derivation from Study 010's locked bytes as
+exactly two deltas and nothing else; C8 clause 4 checks the preamble across arms
+both ways; and all five C10 commission prompts inline it, so §7 would require
+re-commissioning every clean-room mirror. So it is registered — but **not as
+"inert"**, which is what the parallel with round 9's `FAMILY.json` members would
+have suggested and what the round-9 idiom made tempting. Those members are inert
+because nothing reads them and nobody sees them; this prose is read by C8 *and*
+by the author in every call the study scores. Calling it inert would be a fresh
+overclaim of exactly the kind rounds 10 and 11 have been punishing. It is
+registered as **inherited and non-differential**: byte-identical in all five arms
+and pinned, so it enters no contrast and can confound none — with the
+external-validity cost stated in §9 rather than argued away.
+
+**Findings 4, 10 and 11 as verified.** The "comprehension collapse" outcome
+keeps its registered name — renaming it would put ten rounds of review prose out
+of step with the file they describe — but its travelling gloss now carries the
+disclaimer that had been living only in the registration, which matters because
+round 10's own empty-arm sub-case made the row fire on an arm with zero accepted
+records. Appendix A contradicted itself two sentences apart about what
+`integrity.py` binds; my round-10 fix was incomplete inside the same passage,
+and the re-sweep confirms the remaining sites are historical records that
+"Nothing is discarded" forbids rewriting. And two control tests claimed more
+than they asserted: `sort_keys=True` erases the member order one docstring
+claimed to distinguish — the **docstring** was the overclaim, since §6 C2
+registers the control as running unchanged and Study 011 sorts too, so
+tightening the comparison would have silently strengthened a registered control
+— and the index-contiguity assertion would have accepted JSON `false` as zero,
+round 8's house rule reaching a test instead of production code. All three sites
+of that second hole are closed.
+
+Verification after the dispositions: `harness/integrity.py` exit 0 (tree
+manifest unbound, pre-freeze); the pinned suite **283 passed**, run twice
+independently and green both times, the way README step 0 now specifies; tracked
+status clean; `arms/`, `analysis/` and `CLAIM.md` untouched by every disposition
+above. One anomaly is recorded rather than dropped: a single run made while
+heavy concurrent work was in flight reported one failure in
+`test_no_retained_byte_and_no_leftover_carries_the_credential`; that test then
+passed six consecutive times in isolation and in both clean full runs, so it is
+recorded as load-sensitivity observed once and not reproduced, not as a green
+suite. The post-disposition tree manifest, the maintainer's computation, is
+`5ea1deb972d3eb0e9b430501f97e9bcbda6af54eef9aedd7e349dd7e752ccc25` — round 12
+attests it independently, and under §2.10 rule 3 that round is required, because
+these dispositions changed bytes.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged since round 2, and unchanged by every disposition above — no
+disposition in this round touches a file under `arms/`, and finding 9 is
+registered rather than corrected precisely because it could not:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 11 |
 |---|---|---|
 | **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
 | **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |

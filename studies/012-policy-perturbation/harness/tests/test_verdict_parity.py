@@ -283,9 +283,10 @@ def test_the_pattern_thresholds_and_the_gate_are_the_registered_counts(preregist
     """§5.3's notation, in code: `nP`, `nC` and `nH` count over the four narrow
     numeric classes, "three or more of the four" is 3, the control gate is
     "five of six" over arms B and C, class 4 is the embargo-membership class
-    whose collapse overrides every other reading of arm E, and class 3 is the
-    interior review band row 5's fifth conjunct reads (round 9, finding 2) —
-    as a LEVEL verdict on arm E since round 10, finding 3."""
+    whose LOW verdict in arm E overrides every other reading of arm E, and class
+    3 is the interior review band row 5's fifth conjunct reads (round 9, finding
+    2). Both class conditions are LEVEL verdicts on arm E — class 3 since round
+    10, finding 3, class 4 since round 11, finding 1."""
     assert score_rates.NARROW_NUMERIC_CLASSES == (0, 1, 2, 5)
     assert score_rates.EMBARGO_CLASS == 4
     assert score_rates.INTERIOR_CLASS == 3
@@ -438,10 +439,26 @@ def test_the_s5_cut_is_the_ceiling_the_file_names(preregistration):
 # The sentence §4.6 registers about what the ceiling establishes, in the form
 # `fixtures.plain()` leaves it: emphasis off, whitespace collapsed. Prose and
 # lint are one string so the weakening cannot drift back a word at a time.
+#
+# Round 11, finding 1: it used to say "an intact class 4", which is a property
+# of the arm, and the rule that ran established no such property — the class-4
+# gate was a §5.2 contrast, so it was unavailable whenever arm A was not HIGH
+# there and CONFIRMED was published for an arm E that reached the embargo class
+# in none of its thirty runs. The rule is arm E's own level now (§5.3 (iv)) and
+# the sentence says what the rule establishes, which is what this lint is for.
 CEILING_LIMIT = ("CONFIRMED therefore means the placement pattern with clean "
-                 "labels, an intact class 4 and arm E not reading LOW on class "
-                 "3; it does not mean the author understood the thresholds, and "
+                 "labels and arm E reading LOW on neither class 4 nor class 3; "
+                 "it does not mean the author understood the thresholds, and "
                  "this file does not claim it does.")
+# The sentence §4.6 registers about what the reading NAMES mean, linted the same
+# way and for the same reason (round 11, finding 4). It is what licenses
+# publishing "comprehension collapse" as a label rather than as a finding about
+# the author, so it is load-bearing prose; before round 11 it was the only
+# load-bearing sentence in §4.6 with no lint, and it said "the two readings
+# above" of a three-row table without naming which two.
+NAMING_LIMIT = ("The two readings above — PLACEMENT collapse and comprehension "
+                "collapse — are therefore named for the explanations they make "
+                "available, not for propositions this rule establishes")
 # The two mental-state readings round 9 finding 2 withdrew. A reading cell says
 # what the integers show; neither of these is something a set of correct labels
 # can pin down.
@@ -455,6 +472,18 @@ WITHDRAWN_READINGS = ("understood the thresholds", "could not derive")
 # while the fourth narrow class may read HIGH.
 WITHDRAWN_PLACEMENT_CLAIMS = ("none was placed at the boundary",
                               "the records are not at the boundary")
+# Round 11, finding 8's withdrawn universal, in its own tuple for the same
+# reason: this is a claim about arm D's row 3, and the keying — not the cut — is
+# what makes it false. Row 3 reads LOW on the labelled PRIMARY and LOW on S10,
+# and an arm D that placed a record at its own (45, 72) in every run and
+# mislabelled every one of them reads exactly that. The row is right; the
+# sentence beside it was not.
+WITHDRAWN_D_PLACEMENT_CLAIM = ("placed records at neither threshold pair",
+                               "placed at neither pair")
+# The sentence that replaced it, which has to be in BOTH files: the scorer's
+# gloss travels into `RATES.md` and `RESULTS.json`, the registered blockquote
+# travels nowhere, and a lint over the negative alone would let them drift.
+D_PLACEMENT_RESIDUAL = "It does not say the records went nowhere"
 
 
 def test_the_reading_cells_claim_no_mental_state(preregistration):
@@ -469,8 +498,19 @@ def test_the_reading_cells_claim_no_mental_state(preregistration):
     and no cell of the scorer's own table may reassert either withdrawn reading.
     Without it the weakening can drift back a cell at a time and the parity diff
     would still pass, because the diff only asks that the two sides AGREE.
+
+    Round 11, finding 4: the sentence that licenses the published NAMES is
+    linted here too, and it names its two referents. The names travel into
+    `RESULTS.json`, `RATES.md` and the row-7 `why`; this paragraph travels
+    nowhere, which is why the second reading's gloss now carries its words.
     """
     assert CEILING_LIMIT in fixtures.plain(preregistration)
+    assert NAMING_LIMIT in fixtures.plain(preregistration)
+    # …and the gloss the name is published with says the same thing, because
+    # that is the copy a reader of the published bytes actually holds.
+    assert ("named for the explanation it makes available, not for a "
+            "proposition this rule establishes"
+            in score_rates.READING_TABLE[1]["gloss"])
     for entry in score_rates.READING_TABLE:
         for member in ("reading", "publishedAs", "gloss", "labels",
                        "placementGloss"):
@@ -523,6 +563,49 @@ def test_the_reading_cells_bound_placement_rather_than_zeroing_it(preregistratio
             % score_rates.low_threshold(30)) in fixtures.plain(preregistration)
 
 
+def test_the_label_collapse_cells_name_the_class_they_hold_of(preregistration):
+    """Round 11, finding 5, and it is round 10's finding 2 one row down.
+
+    §5.3's row 6 and §4.6's third reading fire on the same condition — `nC >= 3`
+    and `nP < 3` — and both published "the records are still at the boundary" of
+    an arm on which one or two of the four narrow classes may be genuine
+    placement collapses (`nP < 3` is not `nP = 0`), and on which a class that is
+    merely *not LOW* may have been reached in as few as four of thirty runs
+    against arm A's thirty. What the integers establish is label failure on at
+    least `nC - nP` of the four and a BOUND on the rest.
+
+    Both sentences are machine-published — the row's gloss into `RESULTS.json`
+    and `ANALYSIS.md`, the reading's cells into `verdicts["reading"]` — so this
+    is a published claim and not a table gloss. Asserted over the FILE's cells
+    as well as the scorer's, because a parity diff of two agreeing falsehoods
+    still passes, and the floor is derived from the cut rather than transcribed
+    beside it.
+    """
+    floor = "as few as %d of 30 runs" % (score_rates.low_threshold(30) + 1)
+    decision = score_rates.DECISION_TABLE[5]
+    reading = score_rates.READING_TABLE[2]
+    assert decision["publishedAs"] == "LABEL-COLLAPSE-ONLY"
+    assert reading["publishedAs"] == "label collapse"
+    for cell in (decision["gloss"], reading["placementLevel"],
+                 reading["reading"]):
+        assert "at least one" in cell, (
+            "the row fires at nC >= 3 and nP < 3, which is a claim about at "
+            "least nC - nP of the four classes and not about the arm: %r"
+            % cell)
+    for cell in (decision["gloss"], reading["placementGloss"]):
+        assert floor in cell, (
+            "not LOW is not HIGH: a class this row calls still at the boundary "
+            "may be reached in %d of 30 runs (%r)"
+            % (score_rates.low_threshold(30) + 1, cell))
+    # …and the file's own cells, which the two parity diffs hold the code's to.
+    registered_gloss = decision_rows(preregistration)[5][4]
+    placement, _labels, registered_reading, _published = \
+        reading_rows(preregistration)[2]
+    assert "at least one" in registered_gloss and floor in registered_gloss
+    assert "at least one" in placement and floor in placement
+    assert "at least one" in registered_reading
+
+
 def test_a_near_ceiling_accuracy_with_one_mislabelled_record_is_degraded():
     """Round 5, finding 13: the cut is the INTEGER `|Q| = 0` §4.6 registers, and
     the scorer compared the published float against 1.0.
@@ -568,6 +651,12 @@ def test_the_three_readings_are_reachable_at_known_counts():
     assert comprehension["confirmsR1"] is False
     assert label["publishedAs"] == "label collapse"
     assert label["confirmsR1"] is False
+    # Round 11, finding 5: `nP < 3` is not `nP = 0`, and the third reading is
+    # reached with two of the four narrow classes a genuine placement collapse —
+    # which is the arm its cells now have to be true of.
+    mixed = score_rates.reading_verdict({"nP": 2, "nC": 4, "nH": 0}, degraded)
+    assert mixed["publishedAs"] == "label collapse"
+    assert mixed["confirmsR1"] is False
     assert none_of_them["publishedAs"] is None
     # Three of four is the registered pattern minimum here as everywhere else.
     assert score_rates.reading_verdict({"nP": 3, "nC": 3, "nH": 0},
@@ -621,6 +710,55 @@ def test_arm_ds_outcomes_are_the_ones_section_5_3_registers(preregistration):
            "numeric classes" in condition
     assert "old-keyed (S10) verdicts are not HIGH-patterned" in condition
     assert "TRACKING" not in condition
+
+
+def test_arm_ds_degradation_row_does_not_claim_the_records_went_nowhere(
+        preregistration):
+    """Round 11, finding 8 — the residual round 10 disclosed by name so this
+    round would inherit it rather than rediscover it.
+
+    Row 3's two conditions are LOW on the labelled PRIMARY and LOW on S10, and
+    the two keyings are asymmetric by registration: the new-keyed side is
+    correctly-labelled coverage under D's own (45, 72), the old-keyed side is
+    raw placement under arm A's. An arm D that put a record in each of its four
+    narrow numeric classes in all thirty runs and mislabelled every one of them
+    therefore reads LOW on both sides and reaches this row — while its records
+    are exactly where D's own policy says to put them. "The author placed
+    records at neither threshold pair" was false of that arm, and it was
+    published: the gloss goes into `RATES.md` beside the `why`.
+
+    The registered sentence and the scorer's cell now say what the two LOW
+    readings support and point at D's own S1 placement rates, which are already
+    published per class, for the case they do not separate. Linted in the house
+    form because the parity diff only asks that the two sides AGREE, so a
+    withdrawn universal can walk back into both of them together.
+    """
+    quoted = fixtures.plain(" ".join(line.lstrip("> ")
+                                     for line in preregistration.splitlines()))
+    for withdrawn in WITHDRAWN_D_PLACEMENT_CLAIM:
+        assert withdrawn not in quoted, (
+            "§5.3 (ii) says %r: row 3 reads LOW on the labelled primary and LOW "
+            "on S10, which an arm D that placed correctly at its own pair and "
+            "mislabelled also reads (round 11, finding 8)" % withdrawn)
+        for entry in score_rates.D_OUTCOME_TABLE:
+            for member in ("condition", "publishedAs", "gloss"):
+                assert withdrawn not in entry[member], (entry["row"], member)
+    # The positive half, tied on both sides: the gloss travels into `RATES.md`
+    # and `RESULTS.json`, the blockquote travels nowhere, and a lint over the
+    # withdrawn phrases alone would let the two drift a word at a time.
+    assert D_PLACEMENT_RESIDUAL in quoted
+    degradation = score_rates.D_OUTCOME_TABLE[2]
+    assert degradation["publishedAs"] == "GENERAL-DEGRADATION"
+    assert D_PLACEMENT_RESIDUAL in degradation["gloss"]
+    assert "S1 placement rates" in degradation["gloss"]
+    assert "S1 placement rates" in quoted
+    # Row 3's CONDITION is accurate and is NOT what moved: only the gloss
+    # asserted something the two LOW readings do not support.
+    assert ("new-keyed level verdicts are LOW on at least %d of the four narrow "
+            "numeric classes" % score_rates.D_NARROW_MINIMUM) \
+        in degradation["condition"]
+    assert ("old-keyed (S10) verdicts are LOW on at least %d of them"
+            % score_rates.D_NARROW_MINIMUM) in degradation["condition"]
 
 
 def test_arm_ds_outcome_is_computed_from_the_registered_levels():
@@ -783,7 +921,7 @@ def test_the_registered_operating_characteristics_are_reproduced(trials,
 def test_the_power_to_reach_row_four_is_not_the_marginal(trials):
     """Round 3, finding 11: §5.4 labels `0.7142 / 0.9187 / 0.9796` "the power to
     reach decision row 4", and they are the marginal `P(nH >= 3)`. Reaching row
-    4 also requires that arm E does not collapse on class 4 (row 2) and that the
+    4 also requires that arm E does not read LOW on class 4 (row 2) and that the
     B/C control gate passes (row 3), and the decision table is evaluated in that
     order — so the power to publish R1-UNSUPPORTED is the smaller number.
 
@@ -800,20 +938,24 @@ def test_the_power_to_reach_row_four_is_not_the_marginal(trials):
         == REGISTERED_JOINT_ROW5[trials]
     # Round 9, finding 2: row 5 gained a fifth conjunct — arm E does not read
     # LOW on class 3 — and it enters this model as `1 - P(E class 3 LOW)`, in
-    # EVERY arm-A pattern rather than in the class-4 term's shape, because round
-    # 10 finding 3 made it a level verdict on arm E and it therefore reads arm A
-    # not at all. E's class 3 sits at p = 0.95 in §5.4's registered scenario
-    # just as its class 4 does. All the term can subtract from `row5` is bounded
-    # by `pLowIntact`, so every printed §5.4 figure stands — the bound and the
-    # figure are asserted separately, because deriving one from the other would
-    # check nothing.
+    # EVERY arm-A pattern, because round 10 finding 3 made it a level verdict on
+    # arm E and it therefore reads arm A not at all. Round 11 finding 1: the
+    # class-4 term has that shape too now, for the same reason — it used to be
+    # `1 - P(A HIGH) * P(E class 4 LOW)` and to drop out of the one arm-A
+    # pattern in which row 2 had stopped gating anything. E's class 3 sits at
+    # p = 0.95 in §5.4's registered scenario just as its class 4 does. All
+    # either term can subtract from `row5` is bounded by `pLowIntact`, so every
+    # printed §5.4 figure stands — the bound and the figure are asserted
+    # separately, because deriving one from the other would check nothing.
     assert characteristics["pLowIntact"] < 5e-5 / 2
     assert abs(characteristics["joint"]["row5"]
                - REGISTERED_JOINT_ROW5[trials]) < 5e-5
-    # The joint figure IS the marginal times the gate, to within the class-4
-    # term — arm E's class 4 sits at p = 0.95 in this scenario and reading LOW
-    # there is a 1e-23 event, so the two agree to every place §5.4 prints and
-    # the difference below is the double's own epsilon, not the term.
+    # The joint figure IS the marginal times the gate times the class-4 term —
+    # exactly, since round 11 finding 1 made row 2 a level verdict on arm E and
+    # the term a constant factor rather than a per-shape one. Arm E's class 4
+    # sits at p = 0.95 in this scenario and reading LOW there is a 1e-23 event,
+    # so the two agree to every place §5.4 prints and the difference below is
+    # the double's own epsilon, not the term.
     assert characteristics["pLowIntact"] < 1e-20
     assert abs(joint - marginal * characteristics["gate"]) < 1e-12
     assert joint < marginal
@@ -913,6 +1055,58 @@ def test_the_containment_companion_rows_are_reproduced(trials, preregistration):
     # to the double's own epsilon and not to a tolerance.
     assert abs(characteristics["perClassCollapse"]
                - sibling["pHigh"] * sibling["pLowCollapsed"]) < 1e-15
+
+
+def test_the_unequal_marginal_pair_is_coupled_and_not_multiplied():
+    """Round 11, finding 2. The companion merged each nested pair at EQUAL
+    marginals and, where the marginals differ, multiplied the pair's two LOW
+    indicators — layer-1 independence left standing between arm E's class 2 and
+    class 3, which is the very thing round 10 condemned the sibling for.
+
+    The repair is invisible in doubles: the two exact rationals collapse to the
+    same IEEE double at every registered N, which is why `REGISTERED_CONTAINMENT`
+    above is unedited. So this binds the SHAPE instead of the digits, on
+    synthetic rationals where the coupling is large enough to see.
+
+    At `low = 1/2`, `nested_low = 1/4`, other weights (2, 1) and a nested weight
+    of 1, the coupled value is exactly `(l - n)·l + (1 - l)·l² = 1/4` against the
+    product form's `(1 - n)·P(nP >= 3) = 3/4 · 3/8 = 9/32`. The product
+    OVERSTATES by 1/32, in the same direction the repair moves row 5.
+    """
+    low, nested_low = Fraction(1, 2), Fraction(1, 4)
+    others, nested_weight = (2, 1), 1
+    coupled = score_rates._ordered_placement(3, others, nested_weight,
+                                             low, nested_low)
+    product = (1 - nested_low) * score_rates._weighted_at_least(
+        3, others + (nested_weight,), low)
+    assert coupled == Fraction(1, 4)
+    assert product == Fraction(9, 32)
+    assert product - coupled == Fraction(1, 32)
+    assert coupled == ((low - nested_low) * low + (1 - low) * low ** 2)
+    # The fourth cell of the containment's 2x2 table is EMPTY by construction:
+    # {3 LOW} is a subset of {2 LOW}, so at equal marginals "3 not LOW" carries
+    # "2 not LOW" and the nested group can contribute nothing to `nP` — the same
+    # value the helper returns when arm A is not HIGH on that group at all.
+    assert (score_rates._ordered_placement(3, others, nested_weight, low, low)
+            == score_rates._ordered_placement(3, others, 0, low, low)
+            == (1 - low) * score_rates._weighted_at_least(3, others, low))
+    # …and where the group carries nothing into `nP` the two events really are
+    # independent, so the product is exact and the helper agrees with it.
+    assert (score_rates._ordered_placement(3, others, 0, low, nested_low)
+            == (1 - nested_low) * score_rates._weighted_at_least(3, others, low))
+    # An outer class more likely to read LOW than its inner one is not a
+    # dependence to model but a scenario containment forbids, and the helper
+    # refuses it rather than returning a negative cell.
+    with pytest.raises(ValueError) as caught:
+        score_rates._ordered_placement(3, others, nested_weight,
+                                       nested_low, low)
+    assert "infeasible scenario" in str(caught.value)
+    # The registered scenario satisfies the feasibility containment implies at
+    # every N: class 3 sits at p = 0.95 and class 2 at p = 0.05, and the ordering
+    # says the intact class cannot be the likelier of the two to read LOW.
+    for trials in TRIALS:
+        figures = score_rates.containment_operating_characteristics(trials)
+        assert figures["pLowIntact"] <= figures["pLowCollapsed"]
 
 
 def test_the_nested_pairs_make_layer_one_unavailable(preregistration):

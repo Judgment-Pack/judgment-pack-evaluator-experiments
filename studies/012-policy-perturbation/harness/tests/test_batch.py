@@ -2363,16 +2363,29 @@ class IntervalScope(unittest.TestCase):
 
         Asserted on the WRITER's document rather than on a second scoring, so
         the wiring is what is checked: the fixture population's slots are all
-        stamped on one date, and the block says so and establishes it. It
-        carries no `ci95` and no rate, which is why §4.3's registered scope
-        above is unchanged by it — this is a date, not a measurement.
+        stamped on one date, and the block says so — and establishes NOTHING,
+        because five slots are not the registered 150. Round 11, finding 6: the
+        property is over the whole batch, so a prefix publishes its date set and
+        reports the one-day rule as not established, exactly as the realised
+        transition census beside it is published and not claimed. It carries no
+        `ci95` and no rate, which is why §4.3's registered scope above is
+        unchanged by it — this is a date, not a measurement.
         """
         block = self.results["schedule"]["utcDay"]
-        self.assertEqual(block, score_rates.utc_day(self.results["runs"]))
+        complete = self.results["schedule"]["complete"]
+        self.assertEqual(block, score_rates.utc_day(self.results["runs"],
+                                                    complete))
         self.assertEqual(block["dates"], ["2026-08-07"])
         self.assertEqual(block["slotsWithoutReadableStamps"], 0)
         self.assertIs(block["crossedMidnight"], False)
-        self.assertIs(block["oneDayEstablished"], True)
+        # The reason the flag is False, NAMED rather than left to the reader:
+        # this is a five-slot prefix of a 150-slot schedule.
+        self.assertIs(complete, False)
+        self.assertIs(block["oneDayEstablished"], False)
+        # …and not stuck False. The same rows over a complete batch establish
+        # it, so only the completeness conjunct moved.
+        self.assertIs(score_rates.utc_day(self.results["runs"],
+                                          True)["oneDayEstablished"], True)
         self.assertIn("rather than a stopping rule", block["note"])
         # Nested inside `schedule`, so the top-level walk above is untouched;
         # named here so a writer that moved it to the root is caught.

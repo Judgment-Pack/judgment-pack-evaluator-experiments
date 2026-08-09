@@ -274,7 +274,12 @@ def test_the_family_nests_exactly_where_section_two_three_says_it_does():
     """
     for arm, (t_low, t_high) in sorted(integrity.REGISTERED_PAIRS.items()):
         members = _class_members(arm, t_low, t_high)
-        assert sorted(members) == list(range(6)), arm
+        # `type(...) is int`, not `isinstance`: JSON `false` is an `int` in
+        # Python and would arrive here as the dict key 0, so bare equality
+        # would accept a boolean index (round 8, finding 8; round 11,
+        # finding 11).
+        assert sorted(members) == list(range(6)) and all(
+            type(index) is int for index in members), arm
         assert all(members[index] for index in members), (
             "arm %s has an empty class over its own grid; containment would be "
             "vacuous for it" % arm)
