@@ -1,0 +1,58 @@
+{
+  "pinsVersion": "1",
+  "note": "Pin registry, 011-convention. It is a pin, not an attestation. Members are read by code: run_verify/score refuse on JPACK_BIN digest mismatch and on a null preregistration digest.",
+  "openworkproof": {
+    "repo": "https://github.com/dengyier/OpenWorkProof",
+    "commit": "8eeca6fff4a246374f9d64f4dc1af6ace42118d5",
+    "license": "LICENSE file: Apache-2.0 (Copyright 2026 Chengdu Xinghuo Linghang Technology Co., Ltd.); packaging metadata (pyproject.toml, mcp.json) still declares MIT - inconsistency recorded as found, not resolved here",
+    "install": "git clone <repo> && git -C OpenWorkProof checkout 8eeca6f && pip install -r upstream/requirements-lock-pypi.txt && pip install --no-deps ./OpenWorkProof",
+    "lockfileNote": "upstream/requirements-lock-pypi.txt is the upstream requirements-lock.txt with its --index-url line (a pinned PyPI mirror) removed; all package hashes byte-identical. Both digests in upstream/MANIFEST.sha256.",
+    "venvPython": "3.12.11",
+    "pipFreezeSha256": "8d7213284930e5ebd3e9eefdc1ababc3b909c85c37bd5a9d0248b594d666a26e",
+    "sourceUnmodified": true,
+    "buildHelperImports": "harness/owpflow.py (build path only) imports upstream test helpers read-only from the pinned clone via OWP_SOURCE, so upstream test bytes are never vendored into this repo. The verification path (adapter/, run_verify, score) imports only the installed package.",
+    "buildTimeEntropyPin": "harness/build_fixtures.py patches secrets.token_hex with a counter-derived generator while constructing fixtures, because upstream receipt_id mixing has no injection seam. Build path only; no verification path involves entropy. The frozen fixture bytes, not the builder, are what the study scores."
+  },
+  "jpack": {
+    "version": "0.16.0",
+    "releaseTag": "v0.16.0",
+    "releaseCommit": "8fc375de09044c040baac0d94bc853dd6e5813ca",
+    "releaseAsset": "judgment-pack_0.16.0_linux_amd64.tar.gz",
+    "archiveSha256": "1a12503ca96061da3a8d5657528cea643668ef53a00a9b336e94755e2437ed59",
+    "archiveVerified": "matches checksums.txt from the same release",
+    "binarySha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "reproducibleBuild": "same pins Study 013 froze, including its reproducible-build corroboration (local v0.16.0 tag build reproduced the binary digest)",
+    "evaluatorSpecVersion": "0.2.0-draft",
+    "env": "JPACK_BIN"
+  },
+  "pack": {
+    "name": "minimal-expense-approval",
+    "source": "judgment-pack-spec examples/minimal-expense-approval.json (byte-identical in conformance/valid/ and the runtime 0.2.0-draft artifacts)",
+    "sha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+    "packId": "https://example.com/judgment-packs/expense-approval",
+    "packVersion": "0.1.0",
+    "specVersion": "0.2.0-draft",
+    "note": "vendored byte-for-byte under fixtures/; the study never fetches it"
+  },
+  "harnessPython": {
+    "implementation": "CPython",
+    "series": "3.12",
+    "version": "3.12.11",
+    "note": "harness code runs in the same venv as the openworkproof package; adapter uses rfc8785 from that venv for JCS"
+  },
+  "matrix": {
+    "path": "harness/MATRIX.json",
+    "sha256": null,
+    "note": "registered cell expectations; digest filled at the freeze together with the preregistration digest"
+  },
+  "preregistration": {
+    "path": "PREREGISTRATION.md",
+    "sha256": null,
+    "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; the scorer refuses a registered (non-pilot) run while null."
+  },
+  "adapterSpec": {
+    "path": "adapter/SPEC.md",
+    "sha256": null,
+    "note": "registered with the preregistration; digest filled at the freeze"
+  }
+}
