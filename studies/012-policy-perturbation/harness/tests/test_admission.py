@@ -2544,57 +2544,75 @@ def _scorer_tree() -> ast.Module:
     return gatescan.parse(score_rates.__file__)
 
 
+def _scorer_universe() -> gatescan.Universe:
+    """`score_rates.py` and the sibling modules it imports, so an
+    attribute-spelled callee resolves to the function it names (round 18,
+    finding 1). Latent on this side rather than live — the scorer's one host
+    calls nothing across a module boundary today — which is exactly why the
+    repair belongs in the shared derivation and not in `test_batch.py`."""
+    return gatescan.Universe(score_rates.__file__)
+
+
+def scorer_refusal_types() -> tuple:
+    """The refusal types `score_rates.py main()` answers with, read out of its
+    own `except` clause rather than written down: one, `ScoreError`."""
+    return gatescan.refusal_types(
+        gatescan.module_functions(_scorer_tree())["main"])
+
+
 def scorer_gate_functions() -> tuple:
     """`verify_preconditions()`'s own direct module-level callees that can
-    raise `ScoreError`. Depth one, the same rule the driver's ledger uses."""
-    functions = gatescan.module_functions(_scorer_tree())
-    return gatescan.callee_gates(functions["verify_preconditions"], functions,
-                                 "ScoreError")
+    refuse. Depth one, the same rule the driver's ledger uses."""
+    universe = _scorer_universe()
+    return gatescan.callee_gates(
+        universe.functions()["verify_preconditions"], universe,
+        scorer_refusal_types())
+
+
+def _scorer_classify(gates):
+    def classify(call):
+        callee = gatescan.dotted(call.func)
+        return ("gate", callee) if callee in gates else None
+    return classify
 
 
 def derived_pre_read_gates() -> dict:
-    """{(host, kind, label): line} — every gate the scorer runs before it reads
-    a slot, derived from `score_rates.py`'s own source.
+    """{(host, kind, label): (first line, call sites)} — every gate the scorer
+    runs before it reads a slot, derived from `score_rates.py`'s own source.
 
     One host today. `score()`'s pre-read region does not stop here —
     `collect_slots`, `terminality`, `load_ledger` and `check_population` run
     twenty more refusal sites before any slot is read — and that is stated in
-    the limits below rather than left for the next round to discover."""
-    functions = gatescan.module_functions(_scorer_tree())
+    the limits below rather than left for the next round to discover.
+
+    The merge is `gatescan.add_cell()`, shared with the driver's ledger. This
+    copy of it was LATENT rather than live — all 25 cells are single-site, so
+    the count changes no number here today — and repairing only the file where
+    the same defect happened to be live is the enumeration mistake the standing
+    preference is aimed at (round 18, finding 3)."""
+    universe = _scorer_universe()
     gates = scorer_gate_functions()
-
-    def classify(call):
-        if isinstance(call.func, ast.Name) and call.func.id in gates:
-            return ("gate", call.func.id)
-        return None
-
     cells = {}
     for kind, label, line, _context, _literal in gatescan.sites_in(
-            functions["verify_preconditions"], "ScoreError", classify):
-        key = ("verify_preconditions", kind, label)
-        if key in cells and cells[key] != line and kind != "gate":
-            raise AssertionError(
-                "score_rates.py:%d and :%d both derive the cell %r: two "
-                "refusals under one guard are one ledger row, so deleting "
-                "either is invisible" % (cells[key], line, key))
-        cells[key] = min(cells.get(key, line), line)
+            universe.functions()["verify_preconditions"],
+            scorer_refusal_types(), _scorer_classify(gates)):
+        gatescan.add_cell(
+            cells, ("verify_preconditions", kind, label), line, kind == "gate",
+            "score_rates.py:%d and :%d both derive the cell %r: two refusals "
+            "under one guard are one ledger row, so deleting either is "
+            "invisible")
     return cells
 
 
 def scorer_refusal_literals() -> dict:
     """{gate identity: (refusal string, …)} for the scorer, over the union gate
     set and the one host."""
-    functions = gatescan.module_functions(_scorer_tree())
+    universe = _scorer_universe()
     gates = scorer_gate_functions()
-
-    def classify(call):
-        if isinstance(call.func, ast.Name) and call.func.id in gates:
-            return ("gate", call.func.id)
-        return None
-
     return gatescan.refusal_literals(
-        {"verify_preconditions": functions["verify_preconditions"]},
-        gates, functions, "ScoreError", classify)
+        {"verify_preconditions":
+         universe.functions()["verify_preconditions"]},
+        gates, universe, scorer_refusal_types(), _scorer_classify(gates))
 
 
 # Each cell, and how it is held. `recipe` names a builder below that leaves
@@ -2757,7 +2775,7 @@ PRE_READ_GATES = {
             "them."),
 }
 
-PRE_READ_CENSUS = {"cells": 25, "command": 4, "residual": 21}
+PRE_READ_CENSUS = {"cells": 25, "command": 4, "residual": 21, "sites": 25}
 
 
 def test_the_scorer_ledger_names_exactly_the_gates_it_runs():
@@ -2787,15 +2805,41 @@ def test_the_scorer_ledger_names_exactly_the_gates_it_runs():
         "PRE_READ_GATES records gates the scorer does not run: %r"
         % sorted(set(PRE_READ_GATES) - derived, key=str))
     # …and the derivation is live rather than an empty set agreeing with an
-    # empty table.
-    assert scorer_gate_functions() == ("load_arm", "registered_schedule")
-    counted = {"cells": len(PRE_READ_GATES)}
+    # empty table. Round 18, finding 3: what stands here is a PROPERTY of the
+    # derived gate set and not a copy of it. `("load_arm",
+    # "registered_schedule")` was the same enumeration one layer up — a list
+    # this file kept of a set the derivation computes, which a widening would
+    # have had to hand-edit and which said nothing the ledger's own key set
+    # does not already say.
+    gates = scorer_gate_functions()
+    functions = gatescan.module_functions(_scorer_tree())
+    assert gates, "the scorer's host runs no gate this derivation can see"
+    for gate in gates:
+        assert _scorer_universe().resolve(gate) is not None, gate
+        assert ("verify_preconditions", "gate", gate) in derived, gate
+    assert scorer_refusal_types() == ("ScoreError",)
+    assert "verify_preconditions" in functions
+    counted = {"cells": len(PRE_READ_GATES),
+               "sites": sum(row.sites for row in PRE_READ_GATES.values())}
     for how in ("command", "residual"):
         counted[how] = sum(1 for row in PRE_READ_GATES.values()
                            if row.how == how)
     assert counted == PRE_READ_CENSUS, counted
     assert sum(PRE_READ_CENSUS[how] for how in ("command", "residual")) \
         == PRE_READ_CENSUS["cells"]
+    # …and the site count, in both directions, exactly as the key set is. All
+    # 25 cells are single-site today; the point is that the scorer's ledger is
+    # covered BEFORE one of them grows a second site, not after.
+    derived_counts = derived_pre_read_gates()
+    disagree = {key: (derived_counts[key][1], PRE_READ_GATES[key].sites)
+                for key in derived & set(PRE_READ_GATES)
+                if derived_counts[key][1] != PRE_READ_GATES[key].sites}
+    assert disagree == {}, (
+        "score_rates.py runs these gates a different number of times before it "
+        "reads a slot than PRE_READ_GATES records (derived, ledgered): %r"
+        % (disagree,))
+    assert sum(sites for _line, sites in derived_counts.values()) \
+        == PRE_READ_CENSUS["sites"]
     for key, row in sorted(PRE_READ_GATES.items(), key=str):
         assert row.how in ("command", "residual"), key
         if row.how == "residual":
@@ -2877,7 +2921,7 @@ def test_the_scoring_refuses_before_it_reads_a_slot():
     """
     driven = sorted(((key, row) for key, row in PRE_READ_GATES.items()
                      if row.how == "command"),
-                    key=lambda pair: derived_pre_read_gates()[pair[0]])
+                    key=lambda pair: derived_pre_read_gates()[pair[0]][0])
     root = fixtures.throwaway_root()
     try:
         golden = os.path.join(root, "GOLDEN-CONTEXT.json")

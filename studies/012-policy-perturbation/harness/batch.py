@@ -2049,6 +2049,15 @@ def run_capture(runs: int, captures_dir: str, out_path: str, scratch_parent: str
             "the recapture makes at least %d probe calls and --runs %d asks for "
             "fewer: the capture is derived only from contexts that agree, so one "
             "call could never produce one (§3.2)" % (MIN_CAPTURE_SLOTS, runs))
+    # `--captures DIR` is an operator-named destination like the two `--out`s,
+    # and until round 18, finding 1 it was the one this rule did not reach:
+    # its default `controls/recapture/` is an excluded tree, so the ceremony as
+    # written was lawful and the flag took any directory. `--captures
+    # controls/recapture-2` was accepted, and the attempts retained beneath it
+    # (§8) are bytes the §2.10 manifest covers — measured, the staged manifest
+    # moved. The check is the general one and is made before the attempt
+    # directory is planned, so nothing is created by a refused capture.
+    score_rates.require_lawful_destination(captures_dir, "--captures")
     attempt = next_attempt(captures_dir)
     slots = plan(runs, 1, attempt, stem="capture")
     preflight([], slots, scratch_parent, pins_path, cli_override, "probe")

@@ -286,7 +286,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `0eafa7a30d3ab571f26cb44c068811d65ed681c4758b9e892f5208c71e5368a5` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `e754a583071d42c80e4a2b60ad4a44496cac8d8bb0a9ed59523c0baf2388ea4f` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -1361,18 +1361,18 @@ artifacts that ran" now means:
    And the rule that makes a pre-call gate more than a line of code:
    **every gate the driver runs before it spends a call is enumerated from
    `harness/batch.py`'s own source by the harness tests, per registered
-   command, and every gate the scorer runs before it reads a slot is enumerated
-   from `harness/score_rates.py`'s own source in the same way; and each is
-   either driven through the registered interface by a case that asserts the
-   gate's OWN refusal message — with every other gate satisfied, no call spent
-   and nothing written — or carries a registered reason saying what holds it
-   instead.** A deleted gate call is then a red suite, and a new gate with no
-   entry is a named failure, rather than a check silently dropped. This is
-   registered because rounds 13 and 15 both show that a rule living only in
-   test docstrings gets re-broken: three consecutive rounds repaired one
-   instance of the same class, and round 16's sweep found ten of `preflight()`'s
-   fourteen gates removable with the suite still green and §2.10's own freeze
-   gate removable at all five of its call sites at once.
+   command and PER CALL SITE, and every gate the scorer runs before it reads a
+   slot is enumerated from `harness/score_rates.py`'s own source in the same
+   way; and each is either driven through the registered interface by a case
+   that asserts the gate's OWN refusal message — with every other gate
+   satisfied, no call spent and nothing written — or carries a registered
+   reason saying what holds it instead.** A deleted gate call is then a red
+   suite, and a new gate with no entry is a named failure, rather than a check
+   silently dropped. This is registered because rounds 13 and 15 both show that
+   a rule living only in test docstrings gets re-broken: three consecutive
+   rounds repaired one instance of the same class, and round 16's sweep found
+   ten of `preflight()`'s fourteen gates removable with the suite still green
+   and §2.10's own freeze gate removable at all five of its call sites at once.
    `harness/tests/test_batch.py`'s `PreCallGates` carries the driver's
    derivation, ledger and three tests; `harness/tests/test_admission.py`'s
    `PRE_READ_GATES` carries the scorer's, through the same
@@ -1389,11 +1389,43 @@ artifacts that ran" now means:
    while this paragraph said it became a named failure; the mechanism is
    extended to match the sentence rather than the sentence narrowed to match
    the mechanism, and the derived set goes from fifty-eight cells to
-   eighty-two. What remains outside it, and is not claimed: a callee reached
-   under a module name rather than its own (`score_rates.x(…)`), a refusal
-   raised one level inside a gate, and a pre-call bound that is textual rather
-   than executional. It is author-VISIBLE, not author-proof, and says nothing
-   about a gate being correct.
+   eighty-two.
+
+   Round 18, finding 3: the cell MERGED a gate's repeated call sites and
+   discarded how many it had absorbed, so "a deleted gate call is then a red
+   suite" was false of 23 of the 105 sites the derivation walks — measured, by
+   deleting `run_batch()`'s second `verify_prefix()` call and finding the
+   pinned suite still at 315 passed and 177 subtests. The site COUNT is part of
+   the derived cell now and is asserted in both directions like the key set, in
+   `harness/tests/gatescan.py` so that both ledgers inherit it; the count is a
+   count and not an identity, and moving one of a cell's sites to another
+   pre-call position in the same host is invisible to it.
+
+   Round 18, finding 1: the derivation could not see a callee spelled
+   `score_rates.x(…)` and did not know a refusal type it had not been given, so
+   round 17's own general destination rule — an attribute-spelled callee
+   raising a `ScoreError` — had ZERO cells at any of its call sites, and its
+   fourth instance could be added ungated with all 315 tests green. A callee is
+   resolved by its dotted spelling through the sibling module it names, and the
+   refusal vocabulary is read out of `main()`'s own `except` clause; the
+   derived set goes from eighty-two cells over 105 sites to **eighty-nine cells
+   over 112 sites**. What remains outside it, and is not claimed: a callee
+   reached under an import alias or a `from … import`, a computed callee, a
+   gate in a module the driver does not import, a refusal raised one level
+   inside a gate, and a pre-call bound that is textual rather than executional.
+   It is author-VISIBLE, not author-proof, and says nothing about a gate being
+   correct.
+
+   And the claim that a case turns RED when a call is deleted is itself run,
+   for the destination rule, rather than asserted: `harness/tests/redness.py`
+   derives the call chain from a module's own `main()` down to the rule,
+   compiles the module with one link removed — in memory, never written, never
+   imported by name — and requires the case to stop refusing. Round 18, finding
+   2: a probe written to prove exactly this drove an INTERMEDIATE, so the one
+   line wiring the rule into the registered scoring command could be deleted
+   with integrity at exit 0 and the suite at 315 passed. The mutation operator
+   is call-deletion only, and a link a case sits below is reported by name as
+   uncoverable rather than passed over.
 4. Registered honestly, because this is a bound and not a proof: **the manifest
    is computed by this study's own code over this study's own worktree.** It
    binds the *reviewer's* attestation to a specific byte state, and it makes a
@@ -3549,13 +3581,25 @@ or in both:
 - the record-emission directory disjoint from every arm's slot tree, checked on
   both sides' resolved paths **and** their filesystem identity, so publishing
   the derived record trees cannot add a slot to a population that was just
-  published; and, more generally, **every destination the operator names —
-  `score --emit-records DIR`, `capture-golden --out PATH`,
-  `capture-isolation-negative --out DIR` — either outside the study or wholly
-  inside a registered `freeze.excluded` tree**, so no registered act can write
-  a byte the §2.10 manifest covers (round 17, finding 1: the emission target
-  was checked against the population and against nothing else, and the other
-  two were held by README's prose alone);
+  published; and **every command-line argument of `harness/batch.py` and
+  `harness/score_rates.py` whose value reaches a filesystem write — derived
+  from their own source rather than listed here — either outside the study,
+  wholly inside a registered `freeze.excluded` tree, or carrying a registered
+  classification saying what else holds it**. The destinations are computed by
+  `harness/tests/flagtaint.py` and asserted against a registered table, so a
+  flag that becomes a destination and is not registered is a named failure;
+  the one classified otherwise today is `capture-isolation-negative
+  --scratch-parent`, whose §6 C7 raw slot is held by
+  `transcription/authoring_call.sh`'s refusal of any scratch parent inside a
+  git worktree, before the slot is created. Round 17, finding 1 wrote the
+  general rule and applied it at three call sites chosen by hand; round 18,
+  finding 1 found the fourth, `capture --captures DIR`, whose default is
+  excluded and whose flag was checked by nothing — staging what §8 retains
+  beneath an in-study value moved the §2.10 tree manifest, measured. What
+  remains outside the derivation is stated at the case's own docstring and not
+  claimed here: a destination not named by a flag, one reached through a callee
+  the walk cannot follow, one named positionally, and the paths the wrapper
+  derives for itself;
 - the golden recapture derived from at least two **distinct sessions**, checked
   on raw retained evidence, from **probe** calls at the pinned probe-prompt
   digest, under the same ported-bytes, interpreter and freeze preflight the

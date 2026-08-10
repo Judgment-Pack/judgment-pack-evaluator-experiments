@@ -7,7 +7,7 @@ verbatim where one exists, every finding faithfully summarized, and what was
 done about each one. Nothing is discarded. It follows Study 011's per-round,
 per-finding disposition format.
 
-**Status: OPEN. Seventeen rounds complete, rounds 2 through 17 cross-vendor. Nothing
+**Status: OPEN. Eighteen rounds complete, rounds 2 through 18 cross-vendor. Nothing
 is frozen and nothing has run.** (This line said "two rounds" through round 9,
 having been written in round 2 and never advanced; a status line that stops
 tracking its own subject is the defect this file exists to catch, so it is
@@ -3752,3 +3752,244 @@ has been and the rule carries to round 19 unchanged. **If a blocking finding
 touches the arms, the endpoints, the decision rules or the claim** — the
 scientific instrument rather than the verification of it — this rule does not
 apply to it and the study does not freeze on that round whatever the count says.
+
+## Round 18 — the first round run under the registered stopping rule
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-10; drafting as recorded in rounds 1-17
+- Reviewed commit: `8e93689`
+- Tree manifest, the reviewer's computation:
+  `cf9c57383d9108ab79965c2943e06762814df98ebaf430de657bbb63d2a6e821` — 86
+  covered files plus the normalized registry entry, matching the maintainer's
+  own computation
+- Runs: one review run, completed; no run discarded, no classifier refusal
+- **This is the first round commissioned under the stopping rule registered
+  above.** Its brief told the reviewer what its severity assignments now cost —
+  that a blocking finding sends the study round again and its absence freezes
+  the tree — and named both failure modes: softening a genuine blocker because
+  the process is tired, and inflating a should-fix to appear rigorous or to keep
+  the process alive. The instruction was to call each finding what it is
+- **Verdict: NOT READY TO FREEZE**, on one blocking finding. **The reviewer
+  applied the rule correctly and said so in its own verdict line**: the blocker
+  "is not a scientific-instrument finding, so the ordinary stopping rule carries
+  to round 19"
+- Reviewer's verification first: integrity exit 0; 315 passed, 177 subtests;
+  worktree clean. Both censuses the round-17 record published reconciled
+  independently — driver 82 = 40 + 3 + 39 over 14 gate functions, scorer
+  25 = 4 + 21. The lifecycle sweep found no further covered byte whose value
+  depends on stage. The scientific instrument re-derived cleanly once more: the
+  six semantic classes and five 280-cell grids, arm-D's substitution, twenty
+  artifact pins and prompt equations, the schedule balances, §3.3's partition,
+  the intervals, the level/contrast/decision tables, C1-C10, `CLAIM.md`'s
+  provenance and all five retained mirror attempts. **"No blocking finding
+  touches the arms, endpoints, decision rules, or claim."**
+
+### Prompt (verbatim)
+
+```
+You are performing a verification review — round 18 — of Study 012, a preregistered research study in a repository we own and maintain. This is documentation-and-code auditing of our own work before we freeze it and run it. Prior rounds' records, findings and maintainer dispositions are in `PREREG-REVIEW.md` in the study directory.
+
+Repository root: <worktree root>
+Study directory: <worktree root>/studies/012-policy-perturbation
+Reviewed commit: 8e93689 on branch study-012-perturbation
+
+**This round may be the last one.** A stopping rule was registered before this round was commissioned — you can read it at the end of `PREREG-REVIEW.md`, and its commit precedes this one in the history. It says the freeze binds to the manifest of the first round that returns **no finding the reviewer assigns severity `blocking`**, and that at that round the non-blocking findings are recorded as accepted residuals rather than fixed, because fixing them would change bytes and require yet another round.
+
+**What that means for you, stated plainly so it cannot distort your judgment.** Your severity assignments now carry consequence: a blocking finding sends the study round again, and its absence freezes this tree. Two failure modes follow, and they are opposite. Do not soften a genuine blocking finding because the study is tired — nine rounds of care are worth nothing if the tenth waves something through. And do not manufacture or inflate one to keep the process going or to appear rigorous; a should-fix labelled blocking is as much a misreport as the reverse, and it would spend hundreds of thousands of tokens and delay a study whose contamination bound worsens with time. **Call each finding what it is.** If nothing is blocking, say so plainly — that is a real outcome and this round is the one where it counts.
+
+The rule also carves out one exception you should know: if a blocking finding touches the **arms, the endpoints, the decision rules or the claim** — the scientific instrument rather than the verification of it — the stopping rule does not apply and the study does not freeze regardless of counts. So weigh that class especially carefully.
+
+**What round 17 changed.** Its subject was that three rounds running, the maintainer's record claimed a mechanism reached further than it did — and round 16's gate ledger, built to end exactly that, was itself an instance. The repairs: the ledger derivation now runs from every command entry and from `main()`, growing from 58 cells to a measured 82 (40 command-driven, 3 preflight, 39 residual) over a gate set grown from 5 functions to 14; a general lawful-destination rule (outside the study, or wholly inside a registered exclusion tree) now gates every operator-supplied destination including two `--out` flags; the scorer carries its own 25-cell ledger sharing one derivation helper; the writer scan's fail-closed holes and the stand-in rule's syntax-only exemption are closed; and [D-19]'s call site is bound by sentinel where only its helper had been pinned. Every new check in that round shipped with a mutation that turns it red — because the verification caught the first draft of the destination gate leaving the suite green, which was round 16's own defect reproduced by its fix.
+
+**Attack all of that by doing, not reading** — the last four rounds each turned on a fact that only surfaced when someone executed a check. Can you still add a gate that no ledger names? Remove one and keep the suite green? Point a registered destination flag somewhere that moves the manifest? Is the measured census (82 cells, 39 residual; scorer 25 cells, 21 residual) accurate? And the standing target across five rounds: **a test that passes for a reason unrelated to its subject.**
+
+## How to work
+
+Read the files and reason about them. Run the study's own test suite and its own verification command. You may write small scratch scripts **outside** the repository (under your working directory) to recompute a digest, re-derive a table, or check arithmetic independently. Driving the scorer's own public API on synthetic per-class integers is ordinary use of the study's instrument, not attack tooling.
+
+**Do not write, generate, or run code that imitates hostile software** — no files designed to defeat a check, no code that hides its own presence, no simulated attacker tooling. If you judge that a check is incomplete, **say so in prose**: name the file and line, state what the check currently establishes, state what it does not, and state what a complete check would have to do. A described gap is the deliverable; a working demonstration of one is not, and is out of scope for this review.
+
+Environment notes: modify no tracked file in the repository. The ceremony runs under `PYTHONSAFEPATH=1` (README step 0) and every path-invoked entry file refuses without it. Run the suite with the pinned interpreter `~/.pyenv/versions/3.12.11/bin/python3`, with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider` so no cache is written into the tree.
+
+## Scope, in order
+
+**1. Round 17's eight dispositions — the priority of this round, and the attack described above comes first.** Judge each against the bytes:
+
+- **Is the lifecycle-staleness class actually closed?** Sweep every manifest-covered file yourself for any sentence, status, count, date or claim that is true now and false after the freeze, after the batch runs, or after publication. The maintainer's sweep found eleven prose hits and two executable ones; find what it missed, in either direction. Say explicitly whether any *further* covered byte is a function of the study's own stage.
+- **Are the five untouched sentences correctly classified?** They were judged registration-time statements that must not be "fixed". If any is in fact a live self-updating value, that is a finding; if any was fixed that should not have been, that is also a finding.
+- **Do the three new tests do what they claim?** The manifest-invariance test, the lifecycle-status lint, and the two rewritten stage-dependent tests. Would each fail if the property it names stopped holding? The lint is a blacklist and says so — judge whether its registered statement of its own strength is honest.
+- **Verify the freeze and run really move no covered byte.** Take the registry's four lifecycle members and `freeze.excluded`, and satisfy yourself that no registered act — freeze, golden capture, C7, the 150-call batch, scoring, publication — changes anything the manifest covers. This is the property rule 3's termination depends on, so check it from the registration rather than from the maintainer's summary.
+
+**2. The defect class itself, at every act.** Three acts have been repaired. Sweep for a fourth: take every registered act in the study's lifecycle — the freeze, the golden capture, §6 C7, the 150-call batch, scoring, `--emit-records`, publication, the correction, `DEVIATIONS.md`, and the recording of a review round — and satisfy yourself from the registration and the exclusion list that each moves only carrier or excluded bytes. If any act still moves a covered byte, that is this round's blocking finding. Say explicitly whether the class is now closed or whether you found a fourth instance.
+
+**3. The registered content — a fresh sweep, with freeze in view.** Rounds 9 through 13 found their sharpest results in the study rather than the harness. Read as though the next act is the freeze.
+
+- `PREREGISTRATION.md` in full. It is the registration; everything else answers to it.
+- §2.3's six semantic classes, §2.4's arm-D substitution and 280-cell landmark grid, §2.6's document structure and the prompt equation, Appendix A's assembly rule against the twenty committed arm artifacts. Re-derive at least two independently.
+- §2.8's schedule and its five balance properties; §3.3's partition; §4's endpoints and the §4.3 interval vectors; §5's level, contrast and decision tables against `harness/score_rates.py`'s encodings; §6's controls C1-C10 against `harness/integrity.py` and the test suite.
+- `CLAIM.md` against its cited source in `studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md`; `MIRROR-AGREEMENT.md` against the retained attempts under `analysis/mirror2-attempts/`.
+- Ask the question no checklist covers: **is there a registered sentence that no code makes true, a control that cannot fail, a test that asserts less than it appears to, or a claim in the records that the artifacts do not support?**
+
+**4. The suite, at 315 (177 subtests), and the residuals the record names.** The record names these as open on purpose: `verify_mirror2()` has no direct unit test; `verify_tree()` and `normalized_pins()` are covered only for `tree_manifest()`; `_write_outputs()` is pinned only at its override gate; `_emit_records()` and `_check_records_target()` have no direct suite coverage, which is why the record destination went unmodelled for fourteen rounds; `_epoch()` validates punctuation but not calendar ranges; §4.6's reading keys on levels while the scorer keys on contrasts (registered as conservative); §4.1's Q sentence has no test; §2.2's two digest cells are hand transcriptions no assertion covers; and after README step 5 the tree stops producing the C7 refusal message with no test asserting it. Confirm each is as described, then ask what **else** the suite asserts less than it appears to.
+
+**5. The freeze question, asked directly.** §2.10 registers what the freeze binds and §7 registers what is mechanically enforced against what is merely recorded. Read both against the tree as it stands and answer: **if this tree were frozen at this commit and the batch run tomorrow, what would the study publish that it has not earned?** If the answer is nothing, say so.
+
+**6. Run the suite and the verification command**, and report both results. If any test fails, report it with its output rather than re-running until it passes; one test has shown load-sensitivity once and the record says so.
+
+**7. Compute the tree manifest yourself**, as §2.10 registers it: over every git-tracked regular file under the study directory, excluding the paths in `harness/PINS.json` `freeze.excluded` and the two carriers (`harness/PINS.json`, `PREREG-REVIEW.md`), build the sorted list of lines `<path> <bytes> <sha256>` with paths relative to the study directory; then append the registry's normalized-projection entry — `PINS.json` parsed, `freeze.treeManifestSha256`, `freeze.preregistrationSha256`, `golden.sha256` and `isolationNegative.assent` set to null, serialized with `json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":"))` plus a newline, hashed and listed as `harness/PINS.json#normalized <bytes> <sha256>` — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Confirm `integrity.tree_manifest()` implements the same recipe.
+
+## Final message
+
+A numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — then:
+
+- an overall verdict line, which must state explicitly whether you judge the tree **ready to freeze**;
+- the line `Reviewed commit: 8e93689`;
+- the line `Tree manifest (my computation): <hex digest>`;
+- then the single line `CODEX-012-R18-DONE`.
+
+If you find nothing blocking, say so plainly — a clean verdict is a real outcome and this study is ready to be frozen when it earns one.
+```
+
+### Complete unedited final message
+
+(Absolute paths in the reviewer's markdown links are rendered as the
+`file:line` anchors they point at; its two `##` headings are demoted to keep
+this record's structure; no other byte is altered.)
+
+#### Findings
+
+1. **Ungated `capture --captures DIR` can move manifest-covered bytes.**  
+   PREREGISTRATION.md:3552 says every operator-named destination obeys the lawful-destination rule; PREREG-REVIEW.md:3608 records that rule as general. But batch.py:2472 passes `--captures` unchecked into `run_capture()`, which creates attempts beneath it at lines 2052–2058; the probe wrapper then creates and fills those slots at `authoring_call.sh:297–310,398,408,421–422`. PINS.json:159 excludes only the default `controls/recapture/`. An in-study sibling therefore becomes covered when the retained attempts are staged for the publication required by §8. The destination table has only three roots at `test_manifest.py:1026–1035`; adding the missing attribute-spelled gate in a disposable copy left its four relevant ledger/writer tests green. A complete repair must gate `captures_dir` before `next_attempt()` or any side effect, classify and behaviorally drive that root through the command entry, bind the configured destination in the lifecycle model, and make deletion mutation-red. This is the fifth lifecycle-output instance; the class is not closed. **Severity: blocking.**
+
+2. **The score destination test bypasses the production wiring it claims to test.**  
+   test_manifest.py:954 says `_drive_emit_records()` drives the real entry and that deleting the call turns it red. Instead it calls `_check_records_target()` directly; production invokes that helper at score_rates.py:4711. Removing only the production call in a re-pinned disposable copy left integrity and all 13 manifest tests green. This contradicts `PREREG-REVIEW.md:3617–3624`’s mutation-red claim. The runtime call is currently correct; the regression guarantee is not. **Severity: should-fix.**
+
+3. **“A deleted gate call is a red suite” is broader than the ledger actually provides.**  
+   PREREGISTRATION.md:1361 and `test_batch.py:3148–3151` make that claim. `_add_cell()` at `test_batch.py:2437–2455` deliberately merges repeated calls of the same gate in one host. Removing the post-recovery `verify_prefix()` at batch.py:1740 left a re-pinned full suite at 315 passed and 177 subtests. The call appears redundant, so this is a reach/wording defect rather than a current control failure. **Severity: should-fix.**
+
+4. **The writer scan overclaims coverage of “any binding form.”**  
+   test_manifest.py:622 describes every name-binding statement, and lines 860–883 claim filesystem aliases through any binding form are rejected. `_bindings()` handles ordinary assignments and simple-name `for`/`with` targets, but not tuple/list `for` or `with` targets, exception bindings, comprehension targets, or pattern captures. No current writer uses such an alias, so no present destination is unsafe. The scan must cover those AST binding contexts or narrow its stated guarantee. **Severity: should-fix.**
+
+#### Verification
+
+- Official suite: **315 passed, 77,952 warnings, 177 subtests passed in 394.62s**.
+- Standalone `harness/integrity.py`: **exit 0**; 11 ported files, all five arms and mirrors verified, HEADER 948 bytes, tree correctly reported unbound pre-freeze.
+- Worktree remained clean.
+- Driver census independently reconciled: **82 = 40 command + 3 preflight + 39 residual**, over 14 gate functions.
+- Scorer census independently reconciled: **25 = 4 command + 21 residual**.
+- Bare module-level gate additions/removals were detected; the missing attribute-spelled capture gate and repeated-call deletion were not.
+
+The lifecycle-staleness sweep found no further covered byte whose value depends on review, freeze, batch, scoring, or publication stage. The five untouched sentences are correctly conditional, historical, role-defining, or verbatim quoted text. The lifecycle lint honestly describes itself as a blacklist; the two rewritten stage-dependent tests are genuinely stage-independent. The manifest-invariance test honestly says it models rather than executes the acts, but its model omits configurable `--captures`.
+
+Apart from finding 1, freeze, golden capture at its default, C7, batch, scoring, record emission, publication, correction, `DEVIATIONS.md`, and review recording map to carriers, registered exclusions, or an external study. There is no separate sixth destination instance.
+
+The scientific instrument re-derived cleanly: all six semantic classes and five 280-cell grids, arm-D substitution, twenty artifact pins and prompt equations, schedule balances, partition, intervals, level/contrast/decision tables, C1–C10, `CLAIM.md` provenance, and all five retained mirror attempts agree with the registration and code. No blocking finding touches the arms, endpoints, decision rules, or claim.
+
+The named residuals remain accurate with two nuances: `normalized_pins()` now has direct projection-lint use, though no complete focused test; `_check_records_target()` has direct helper coverage, but not production-call coverage. The other recorded residuals remain as described.
+
+My independent manifest contained 86 covered tracked regular files plus the normalized registry entry. The normalized entry was 7,506 bytes with SHA-256 `471897704b386ecdee60d2ab8d26911185f2596d4739eedaf3c43a1264d59f63`; the final 8,862-byte manifest text produced the digest below. `integrity.tree_manifest()` implements the same recipe and returned the same digest.
+
+If the literal default ceremony ran tomorrow, it would publish no unearned scientific conclusion. The tree would nevertheless publish unearned claims of universal lifecycle immutability and mutation-red destination wiring.
+
+Overall verdict: **NOT READY TO FREEZE** — finding 1 is blocking. It is not a scientific-instrument finding, so the ordinary stopping rule carries to round 19.
+
+Reviewed commit: 8e93689
+
+Tree manifest (my computation): cf9c57383d9108ab79965c2943e06762814df98ebaf430de657bbb63d2a6e821
+
+CODEX-012-R18-DONE
+
+### Dispositions
+
+All four findings **ACCEPTED**, all four independently confirmed — and the
+verification found the blocking one materially worse than filed.
+
+**Finding 1 is the fifth instance of a class this record has twice called
+closed, and the diagnosis is a habit rather than a bug.** `--captures` was
+ungated: pointed at an in-study sibling it moves the manifest once the retained
+attempts are staged for the publication §8 requires, measured at
+`cf9c5738…` → `2bce35f1…`, with the default target leaving it unchanged. Round
+17's repair was recorded as a **general** lawful-destination rule applied to
+"every operator-supplied destination at once." It was applied to three call
+sites chosen by hand. The predicate was general; its application was a list.
+Four rounds running I have fixed a class by enumerating its members and had the
+next round find the one I missed.
+
+**Two measurements made that undeniable.** Adding the missing gate left all 25
+gate, ledger, writer and destination tests green and the full suite at 315 — so
+the new gate could have been deleted again with nothing noticing, which is round
+16's finding reproduced at the fourth destination. And worse, the derived ledger
+carried **zero** cells for the lawful-destination rule at *any* of its three
+existing call sites, because `classify()` and `gatescan` filtered on
+`isinstance(call.func, ast.Name)` and an attribute-spelled callee is invisible
+to that. The rule that was supposed to be the general answer was held entirely
+by three hand-listed behavioural pairs.
+
+**So the repair is a derivation, and the test of it is that it finds this round's
+finding by itself.** A flag→write taint analysis walks every command-line
+argument in the driver and the scorer through to every path-consuming call,
+keyed on (flag, entry, formal) because `--out` names three different
+destinations through three commands. Run against pristine `8e93689` — the tree
+the reviewer read — it prints the finding unprompted: `(--captures, run_capture,
+captures_dir) UNGATED`, and `(--scratch-parent, …) UNGATED` beside it. A fifth
+destination flag added ungated now fails by name; so does one whose only write
+is the shell wrapper's slot, which the writer scan cannot see at all. The
+`ast.Name` blindness is fixed in both ledgers, and the census moves
+**82 → 89 cells** over **105 → 112 sites**, with the three lawful-destination
+call sites appearing as driven cells where there were none.
+
+**Mutation-redness is now run rather than asserted.** Finding 2 is the standing
+target found inside the mechanism built to prevent it: a test whose docstring
+said it drives the real entry, which called the helper directly, so deleting the
+production call stayed green — and the round-17 record's mutation-red claim was
+therefore false one round after it was made. There is now a derived call chain
+and an in-memory one-edge mutant, so "deleting X turns this red" is executed.
+Deleting that production call now fails three independent ways.
+
+**Three record overclaims are corrected in place**, quoted by the verification
+and named here because the record is what a later reader gets: §7's "every
+destination the operator names" followed by a three-item list; the test comment
+saying "what stops a fifth is that the rule is general"; and the claim that the
+parameter-to-callers gap "is not the permanent residual here any more" — it
+still was. §7 now names the derivation rather than a list, and the gate rule is
+registered per call site.
+
+**Findings 3 and 4** took the exhaustive-by-construction form the round's
+instruction asked for: the ledger counts call sites rather than merging repeats,
+and the writer scan's hand-listed binding forms are replaced by `symtable` and
+`callable()` rules — nineteen gap spellings measured caught, six correct shapes
+silent, all eight harness modules clean.
+
+**What the derivation still cannot see, measured against synthetic sources
+rather than reasoned about**: an attribute-spelled callee on the *propagation*
+path, a value stored in and read from a container, `os.environ`, and a
+positional `argv[2]`. Also outside it: destinations named positionally, a module
+with no `main()`, and path-insensitivity — reaching the gate somewhere is not
+the gate dominating every write, which the behavioural pairs cover instead. **A
+sixth instance escapes only by being one of those shapes**, and that sentence is
+the first in this sequence I can support by having tried to break it.
+
+Verification after the dispositions: `harness/integrity.py` exit 0; the pinned
+suite **317 passed** with 190 subtests; tracked status clean; `arms/`,
+`analysis/`, `CLAIM.md` and `MIRROR-AGREEMENT.md` untouched. The
+post-disposition tree manifest, the maintainer's computation, is
+`9fa37a514a8ca7ac45078cc0574c714f0706eb5d91b58bdf17b35e7a391270cc` — round 19
+attests it, and under §2.10 rule 3 that round is required.
+
+Residuals unchanged except where named above, plus two new ones recorded rather
+than closed: the scorer's third gate region (`collect_slots`, `terminality`,
+`load_ledger`, `check_population`, roughly twenty refusal sites) remains outside
+both ledgers, and `pathlib`-style filesystem objects pass both new writer rules —
+no module imports `pathlib` today, verified by `symtable`.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged since round 2, and unchanged by every disposition above:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 18 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |

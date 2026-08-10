@@ -2211,14 +2211,35 @@ def _batch_tree() -> ast.Module:
     return gatescan.parse(batch.__file__)
 
 
+def _batch_universe() -> gatescan.Universe:
+    """`batch.py` and the sibling modules it imports, so a callee spelled
+    `score_rates.require_lawful_destination(…)` resolves to the function it
+    names instead of being dropped (round 18, finding 1)."""
+    return gatescan.Universe(batch.__file__)
+
+
+def refusal_types() -> tuple:
+    """The refusal types `batch.py main()` answers `refused: …` with, read out
+    of its own `except` clause.
+
+    Three, not one: `BatchError`, `score_rates.ScoreError` and
+    `transcript_check.TranscriptError`. Deriving the set rather than writing
+    `"BatchError"` down is what puts round 17's own `--out` rule into this
+    ledger at all — it refuses with a `ScoreError`, which the ledger's one-word
+    vocabulary could not see — and what makes a fourth refusal type widen the
+    gate set by being CAUGHT rather than by being listed here."""
+    return gatescan.refusal_types(_module_functions(_batch_tree())["main"])
+
+
 def _is_batch_error(node: ast.Raise) -> bool:
-    return gatescan.is_raise_of(node, "BatchError")
+    return gatescan.is_raise_of(node, refusal_types())
 
 
-def _raises_batch_error(name: str, functions: dict) -> bool:
-    """Whether calling `name` can raise `BatchError`, directly or through
-    another module-level function of `batch.py`."""
-    return gatescan.can_raise(name, functions, "BatchError")
+def _raises_batch_error(name: str, universe: gatescan.Universe) -> bool:
+    """Whether calling `name` can raise one of the driver's refusal types,
+    directly or through another module-level function it reaches — including
+    one in a sibling module it names."""
+    return gatescan.can_raise(name, universe, refusal_types())
 
 
 def _first_invoke(function: ast.FunctionDef):
@@ -2268,14 +2289,23 @@ def gate_functions(host: str = "preflight", limit=None) -> tuple:
     `verify_chain`) are reached only THROUGH another function that is already
     ledgered as a gate, so each would be counted a second time under its own
     name. What that leaves outside is the depth of literal attribution, and it
-    is stated in this class's own limits rather than glossed."""
-    functions = _module_functions(_batch_tree())
+    is stated in this class's own limits rather than glossed.
+
+    Round 18, finding 1: a gate is named by the SPELLING its host writes, so
+    `score_rates.require_lawful_destination` is a gate function of
+    `capture_golden()`, `capture_isolation_negative()` and `run_capture()` the
+    same way `require_freeze` is one of `preflight()`. It was in no host's
+    callee set at all until this round, because every callee test in the
+    derivation asked `isinstance(node.func, ast.Name)` — which is how a rule
+    the record called general came to have zero cells anywhere in this
+    ledger."""
+    universe = _batch_universe()
     # The dispatch is not a gate: an entry function is a HOST of its own and
     # its gates are derived there, once. `preflight` and `invoke` are sites of
     # their own kinds, not gate functions.
     skip = set(command_entries().values()) | {"preflight", "invoke"}
-    return gatescan.callee_gates(functions[host], functions, "BatchError",
-                                 skip=skip, limit=limit)
+    return gatescan.callee_gates(universe.functions()[host], universe,
+                                 refusal_types(), skip=skip, limit=limit)
 
 
 def all_gate_functions() -> tuple:
@@ -2356,11 +2386,12 @@ def _sites_in(function: ast.FunctionDef, gates: tuple) -> list:
     guarding a gate."""
 
     def classify(call):
-        if not isinstance(call.func, ast.Name):
+        callee = gatescan.dotted(call.func)
+        if callee is None:
             return None
-        if call.func.id in gates:
-            return ("gate", call.func.id)
-        if call.func.id == "preflight":
+        if callee in gates:
+            return ("gate", callee)
+        if callee == "preflight":
             argument = (call.args[5] if len(call.args) > 5 else None)
             if not isinstance(argument, ast.Constant):
                 raise AssertionError(
@@ -2369,7 +2400,7 @@ def _sites_in(function: ast.FunctionDef, gates: tuple) -> list:
                     "command reaches which gate has to be a literal at the "
                     "call site" % call.lineno)
             return ("preflight", argument.value)
-        if call.func.id == "invoke":
+        if callee == "invoke":
             return ("invoke", None)
         return None
 
@@ -2388,7 +2419,7 @@ def _sites_in(function: ast.FunctionDef, gates: tuple) -> list:
 
     return [(kind, label, line, context[0], literal, context[1])
             for kind, label, line, context, literal
-            in gatescan.sites_in(function, "BatchError", classify, narrow,
+            in gatescan.sites_in(function, refusal_types(), classify, narrow,
                                  context=(None, None))]
 
 
@@ -2434,34 +2465,70 @@ def command_entries() -> dict:
     return entries
 
 
+def destination_flag(host: str) -> str:
+    """The command-line flag whose value one host hands to the lawful-
+    destination rule, read out of `batch.py` at that host's own call site.
+
+    The rule is called with `(<the operator's path>, "<the flag>")`, so the
+    flag is in the source beside the gate. Reading it here is what keeps the
+    break recipe honest through a rename: `--captures` becoming `--attempts`
+    changes what this drives, instead of leaving a recipe that substitutes a
+    flag the command no longer has and a case that passes because the default
+    was used."""
+    universe = _batch_universe()
+    for call in ast.walk(universe.functions()[host]):
+        if not isinstance(call, ast.Call):
+            continue
+        callee = gatescan.dotted(call.func)
+        if callee is None \
+                or callee.rsplit(".", 1)[-1] != "require_lawful_destination":
+            continue
+        flag = call.args[1] if len(call.args) > 1 else None
+        if not isinstance(flag, ast.Constant) or not isinstance(flag.value, str):
+            raise AssertionError(
+                "batch.py:%d names its destination rule's subject with "
+                "something this derivation cannot read: the flag has to be a "
+                "literal at the call site, because it is what the refusal "
+                "prints and what a break recipe substitutes" % call.lineno)
+        return flag.value
+    raise AssertionError(
+        "%s() carries a lawful-destination ledger row and calls no "
+        "destination rule this derivation can find" % host)
+
+
 def _add_cell(cells: dict, key: tuple, line: int) -> None:
     """One derived cell, and a refusal to lose one to a key collision.
 
-    `cells` used to be an ordinary dict assignment, so two sites that produced
-    one key silently became one cell (round 17, finding 3). A GATE function is
-    one gate however many times a host calls it — that is `gate_identity()`'s
-    rule and the reason `require_freeze` is one `SATISFY` row and five cells —
-    so repeated call sites of one gate collapse to the FIRST of them by
-    design. Two distinct INLINE raises under one guard do not: that is two
-    gates wearing one name, and it fails here rather than becoming a cell whose
-    deletion nothing notices. `capture_isolation_negative()` carries the live
-    example — two `raise BatchError`s both guarded by `os.path.exists(raw)`,
-    which only stay apart because the second sits below the first `invoke()`."""
-    if key not in cells or cells[key] == line:
-        cells[key] = min(cells.get(key, line), line)
-        return
-    if key[2] == "gate":
-        cells[key] = min(cells[key], line)
-        return
-    raise AssertionError(
+    The merge itself is `gatescan.add_cell()`, shared with the scorer's ledger:
+    the same collapse sat in both files, live here and latent there, and two
+    hand-kept copies of one rule is the pattern `test_manifest.py` already
+    records as this sequence's signature defect (round 18, finding 3).
+
+    `capture_isolation_negative()` carries the live example of the half that
+    does NOT merge — two `raise BatchError`s both guarded by
+    `os.path.exists(raw)`, which only stay apart because the second sits below
+    the first `invoke()`."""
+    gatescan.add_cell(
+        cells, key, line, key[2] == "gate",
         "batch.py:%d and batch.py:%d both derive the cell %r: two refusals "
         "under one guard are one ledger row, so deleting either is invisible. "
-        "Give one of them its own guard." % (cells[key], line, key))
+        "Give one of them its own guard.")
 
 
 def derived_pre_call_gates() -> dict:
-    """{(command, host, kind, label): line} — every gate the driver runs
-    BEFORE it spends a call, per command.
+    """{(command, host, kind, label): (first line, call sites)} — every gate
+    the driver runs BEFORE it spends a call, per command, and how many times it
+    runs it.
+
+    THE SITE COUNT IS PART OF THE CELL (round 18, finding 3). A gate function
+    is one cell however many times a host calls it, so the merge used to
+    discard everything after the first site and PREREGISTRATION.md §7's "a
+    deleted gate call is then a red suite" was false of the other 23 of the 105
+    sites this walk visits — measured: deleting `run_batch()`'s second
+    `verify_prefix()` call left the pinned suite at 315 passed. The count is
+    asserted in both directions exactly as the key set is, so a second site's
+    deletion is a named failure and no new cell, case or residual is needed to
+    catch it.
 
     A site counts when it is in `main()`'s own pre-dispatch region, in
     `preflight()`, or in a command's own entry function above that entry's
@@ -2539,10 +2606,11 @@ def gate_refusal_literals() -> dict:
                 continue
             literals.setdefault(("inline", host, label), []).append(literal)
     for gate in gates:
+        _home, node = _batch_universe().resolve(gate)
         literals[("gate", gate)] = [
             text for text in
-            (_raised_literal(node) for node in ast.walk(functions[gate])
-             if isinstance(node, ast.Raise) and _is_batch_error(node))
+            (_raised_literal(inner) for inner in ast.walk(node)
+             if isinstance(inner, ast.Raise) and _is_batch_error(inner))
             if text]
     return {key: tuple(value) for key, value in literals.items()}
 
@@ -2619,6 +2687,12 @@ SATISFY = {
         "satisfied_by_the_fixture",
     ("run_capture", "inline", "runs < MIN_CAPTURE_SLOTS"):
         "satisfied_by_the_fixture",
+    # The three operator-named destinations. The fixture names all of them
+    # under its own throwaway root, which is outside the study and therefore
+    # lawful by the rule's own terms; each is broken by the one recipe that
+    # reads the flag out of `batch.py` at the gate's own call site.
+    ("run_capture", "gate", "score_rates.require_lawful_destination"):
+        "satisfied_by_the_fixture",
 
     ("capture_golden", "inline", "not out_path"): "satisfied_by_the_fixture",
     ("capture_golden", "inline", "os.path.exists(out_path)"):
@@ -2642,6 +2716,14 @@ SATISFY = {
     ("capture_golden", "gate", "capture_slots"): "satisfied_by_the_fixture",
     ("capture_golden", "gate", "require_distinct_sessions"):
         "satisfied_by_the_fixture",
+    ("capture_golden", "gate", "score_rates.require_lawful_destination"):
+        "satisfied_by_the_fixture",
+    ("capture_golden", "gate", "transcript_check._events"):
+        "satisfied_by_the_fixture",
+    ("capture_golden", "gate", "transcript_check.screen_prior_context"):
+        "satisfied_by_the_fixture",
+    ("capture_golden", "gate", "transcript_check.context_digests"):
+        "satisfied_by_the_fixture",
 
     ("capture_isolation_negative", "gate", "verify_ported_bytes"):
         "satisfied_by_the_fixture",
@@ -2657,6 +2739,8 @@ SATISFY = {
         "satisfied_by_the_fixture",
     ("capture_isolation_negative", "inline", "os.path.exists(raw)"):
         "satisfied_by_the_fixture",
+    ("capture_isolation_negative", "gate",
+     "score_rates.require_lawful_destination"): "satisfied_by_the_fixture",
 
     ("declare_shortfall", "gate", "verify_ported_bytes"):
         "satisfied_by_the_fixture",
@@ -2678,6 +2762,7 @@ SATISFY = {
     ("declare_shortfall", "gate", "reconcile_ledger"):
         "satisfied_by_the_fixture",
     ("declare_shortfall", "gate", "write_ledger"): "satisfied_by_the_fixture",
+    ("declare_shortfall", "gate", "slots_on_disk"): "satisfied_by_the_fixture",
 }
 
 # Two refusals the driver spells the same way in two gates. Recorded here, and
@@ -2701,15 +2786,20 @@ PRE_CALL_GATES = {
     # `_argument()`'s "needs a value" once per command — were derived by
     # nothing and named by nothing. Every one of them is driven here.
     ("run", "main", "gate", "_argument"): Gate(
-        "command", "needs a value", recipe="a_flag_given_without_its_value"),
+        "command", "needs a value", recipe="a_flag_given_without_its_value",
+        sites=6),
     ("capture", "main", "gate", "_argument"): Gate(
-        "command", "needs a value", recipe="a_flag_given_without_its_value"),
+        "command", "needs a value", recipe="a_flag_given_without_its_value",
+        sites=7),
     ("capture-golden", "main", "gate", "_argument"): Gate(
-        "command", "needs a value", recipe="a_flag_given_without_its_value"),
+        "command", "needs a value", recipe="a_flag_given_without_its_value",
+        sites=5),
     ("capture-isolation-negative", "main", "gate", "_argument"): Gate(
-        "command", "needs a value", recipe="a_flag_given_without_its_value"),
+        "command", "needs a value", recipe="a_flag_given_without_its_value",
+        sites=6),
     ("shortfall", "main", "gate", "_argument"): Gate(
-        "command", "needs a value", recipe="a_flag_given_without_its_value"),
+        "command", "needs a value", recipe="a_flag_given_without_its_value",
+        sites=2),
     ("run", "main", "inline", "flag in argv"): Gate(
         "command", "is removed from `batch.py",
         recipe="a_flag_a_registered_decision_removed"),
@@ -2816,7 +2906,7 @@ PRE_CALL_GATES = {
         "command", "a ledger is an object carrying a records list",
         recipe="a_ledger_that_is_not_an_object"),
     ("run", "run_batch", "gate", "verify_prefix"): Gate(
-        "residual",
+        "residual", sites=2,
         why="§2.8's registered call order, checked against the ledger. "
             "Reaching it with every other gate met needs a ledger that loads "
             "and then diverges, which is a whole recorded batch and not a "
@@ -2824,7 +2914,16 @@ PRE_CALL_GATES = {
             "at 62054fd: deleting the call at all four of its sites leaves "
             "`test_a_ledger_diverging_from_the_registered_order_refuses_the_"
             "resume` red and the rest of the suite green — so it is held, "
-            "unnamed, by exactly one case."),
+            "unnamed, by exactly one case. The SECOND site (batch.py:1740, "
+            "after the crash-window recovery) is redundant BY CONSTRUCTION "
+            "and not merely in practice: `reconcile_ledger()` appends "
+            "`ledger_record(entry, slot_path(entry), …)` for the entry whose "
+            "`globalIndex` it has just required to equal "
+            "`entries[len(records)]`'s, and `verify_prefix()` compares exactly "
+            "the keys `ledger_record()` copied from that same entry — so the "
+            "appended record satisfies the check at the moment it is built. "
+            "Deleting it alone left the whole pinned suite at 315 passed "
+            "(round 18, finding 3); what catches it now is `sites`."),
     ("run", "run_batch", "gate", "reconcile_ledger"): Gate(
         "residual",
         why="the §2.9 crash-window reconciliation, reached only under "
@@ -2958,6 +3057,18 @@ PRE_CALL_GATES = {
         why="held by `test_one_capture_cannot_derive_a_golden`, which drives "
             "`capture --runs 1` and asserts exit 1 before a call is spent — "
             "unnamed, and recorded."),
+    # The FOURTH operator-named destination (round 18, finding 1). `--captures`
+    # took any directory: its default `controls/recapture/` is an excluded
+    # tree, so the registered ceremony was lawful and nothing checked the flag
+    # — `--captures controls/recapture-2` was accepted and the attempts §8
+    # retains beneath it are bytes the §2.10 manifest covers, measured moving
+    # it. Driven here BY NAME, which is what the other three destinations still
+    # lacked in this ledger: they were held only by `test_manifest.py`'s
+    # behavioural pairs, because an attribute-spelled callee produced no cell.
+    ("capture", "run_capture", "gate",
+     "score_rates.require_lawful_destination"): Gate(
+        "command", "which harness/PINS.json does not exclude",
+        recipe="a_destination_the_manifest_covers"),
 
     # -- `capture-golden` ----------------------------------------------------
     ("capture-golden", "capture_golden", "gate", "verify_ported_bytes"): Gate(
@@ -3016,6 +3127,42 @@ PRE_CALL_GATES = {
         "residual",
         why="held by `test_a_capture_that_does_not_reproduce_refuses_the_"
             "derivation`; exit 1, unnamed."),
+    ("capture-golden", "capture_golden", "gate",
+     "score_rates.require_lawful_destination"): Gate(
+        "command", "which harness/PINS.json does not exclude",
+        recipe="a_destination_the_manifest_covers"),
+    # The three transcript gates a golden derivation runs over each capture it
+    # reads. They entered this ledger with the spelling widening: they are
+    # `transcript_check.x(…)`, and they refuse with a `TranscriptError`, which
+    # `main()` prints as `refused: …` like any other — two independent reasons
+    # the old derivation could not see them.
+    ("capture-golden", "capture_golden", "gate",
+     "transcript_check._events"): Gate(
+        "residual",
+        why="§6 C6's transcript reader, run over every capture slot before its "
+            "context is taken. RUN by every golden derivation the fixture "
+            "makes — `capture_two_agreeing_probes()` writes real sessions and "
+            "this parses them — and named by nothing: no case builds a capture "
+            "whose session.jsonl is off-whitelist, so its own refusals "
+            "(`line %d is not a JSON object`, the role and payload "
+            "whitelists) are unexercised from this command."),
+    ("capture-golden", "capture_golden", "gate",
+     "transcript_check.screen_prior_context"): Gate(
+        "residual",
+        why="§6 C6's leak screen, applied to the probe's prior context before "
+            "the capture is usable. Run by every golden derivation here and "
+            "named by none: the screen's own refusal (`prior %s message (item "
+            "%d) contains the leak token %r`) is driven through the WRAPPER's "
+            "path in this file's C6 cases, never through `capture-golden`."),
+    ("capture-golden", "capture_golden", "gate",
+     "transcript_check.context_digests"): Gate(
+        "residual",
+        why="the pre-prompt context digests the capture IS. It raises no "
+            "`TranscriptError` of its own — it refuses only through the "
+            "readers below it — so there is no literal test B could pin, and "
+            "what holds the call is that the derivation cannot produce a "
+            "capture without it: `test_the_recapture_derives_a_golden_context` "
+            "compares the digests it returns."),
 
     # -- `capture-isolation-negative` ----------------------------------------
     ("capture-isolation-negative", "capture_isolation_negative", "gate",
@@ -3052,6 +3199,10 @@ PRE_CALL_GATES = {
         "residual",
         why="a scratch slot left by a previous control at the same pid. Not "
             "reachable from a command line inside one process."),
+    ("capture-isolation-negative", "capture_isolation_negative", "gate",
+     "score_rates.require_lawful_destination"): Gate(
+        "command", "which harness/PINS.json does not exclude",
+        recipe="a_destination_the_manifest_covers"),
 
     # -- `shortfall` ---------------------------------------------------------
     ("shortfall", "declare_shortfall", "gate", "verify_ported_bytes"): Gate(
@@ -3103,11 +3254,14 @@ PRE_CALL_GATES = {
         "command", "a ledger is an object carrying a records list",
         recipe="a_ledger_that_is_not_an_object"),
     ("shortfall", "declare_shortfall", "gate", "verify_prefix"): Gate(
-        "residual",
+        "residual", sites=2,
         why="the same gate as `run`'s row above, at the shortfall's own call "
             "site, and held the same way: MEASURED at 62054fd, deleting it at "
             "all four sites leaves one case red and it is a `run` case, so "
-            "this site is held by nothing of its own."),
+            "this site is held by nothing of its own. Its second site "
+            "(batch.py:2340) is redundant by the same construction as `run`'s: "
+            "it re-checks the record `reconcile_ledger()` has just built from "
+            "the schedule entry the prefix is compared against."),
     ("shortfall", "declare_shortfall", "gate", "reconcile_ledger"): Gate(
         "residual",
         why="the shortfall reconciles the ledger with the slots before it "
@@ -3121,6 +3275,17 @@ PRE_CALL_GATES = {
         why="no `raise BatchError` of its own, so no needle; and it is "
             "reached only when the reconciliation recovered a record, which "
             "is the crash-window state the declaration cases build."),
+    ("shortfall", "declare_shortfall", "gate", "slots_on_disk"): Gate(
+        "residual",
+        why="the population count, taken by the SCORER's own rule so that a "
+            "declaration cannot pass over a slot the scoring will then refuse "
+            "(round 7, finding 4). It is refusal-capable only through "
+            "`score_rates.collect_slots()`, which is why it entered this "
+            "ledger with round 18's refusal-vocabulary widening and not "
+            "before: a `ScoreError` was not a refusal this derivation knew "
+            "about. Run by every shortfall case — the count it returns is what "
+            "the declaration compares — and named by none, because no case "
+            "builds an arms tree whose entries the scorer's rule refuses."),
 }
 
 # The census the record quotes. `PRE_CALL_GATES` is checked against the
@@ -3134,7 +3299,13 @@ PRE_CALL_GATES = {
 # the one direction nobody checks because it understates the author's own
 # coverage. The recurring defect across rounds 15, 16 and 17 is not a
 # direction; it is a sentence about a DERIVED artifact, written by hand.
-LEDGER_CENSUS = {"cells": 82, "command": 40, "preflight": 3, "residual": 39}
+#
+# `sites` is round 18, finding 3's: the derivation visits 112 gate call sites
+# and emits 89 cells, and until this round the 23 it absorbed were sites the
+# registered sentence at PREREGISTRATION.md §7 claimed a red suite for and did
+# not have. A disposition may quote 112 the way it quotes 89.
+LEDGER_CENSUS = {"cells": 89, "command": 43, "preflight": 3, "residual": 43,
+                 "sites": 112}
 
 
 @unittest.skipUnless(
@@ -3146,9 +3317,20 @@ class PreCallGates(BatchFixture):
     holds — as a property of the SUITE and not of one gate at a time.
 
     WHAT THIS CAN SHOW.
-      * Deleting any ledgered gate call turns the suite red. With that gate
-        alone unmet the command either runs to a slot or refuses with another
-        gate's words, and the named assertion catches both.
+      * Deleting any ledgered gate CALL SITE turns the suite red, and it is
+        test A that does it: a cell with one site disappears from the derived
+        key set, and a cell with more than one loses a site from its derived
+        COUNT. For a driven cell the behavioural case fails too — with that
+        gate alone unmet the command either runs to a slot or refuses with
+        another gate's words, and the named assertion catches both — but that
+        is the second mechanism and not the first, and it reaches none of the
+        43 residual rows. Round 18, finding 3 is why this bullet is worded
+        twice over: it used to say "any ledgered gate call" and credit the
+        named assertion for it, and both halves were wrong. The cell merged
+        repeated sites of one gate and discarded the count, so 23 of the
+        derivation's 105 sites could be deleted with the pinned suite at 315
+        passed — measured at `batch.py:1740`, `run_batch()`'s second
+        `verify_prefix()` — under a registered sentence saying they could not.
       * A gate added to `main()`, to `preflight()` or to a command entry, or a
         command that starts calling one, is a key the derivation produces and
         the ledger does not: test A fails and names it. This bullet used to say
@@ -3162,7 +3344,9 @@ class PreCallGates(BatchFixture):
         unchanged at 58 and the whole suite at 309 passed. Round 16's own new
         gate happened to be inline, which is why the mechanism looked as though
         it worked. The gate set is host-relative now, `main()` is a host, and
-        compound-statement headers are scanned — 58 cells to 82.
+        compound-statement headers are scanned — 58 cells to 82, and round
+        18's spelling and refusal-vocabulary widening took it to 89 cells over
+        112 call sites.
       * Rewording a refusal fails test B. That is deliberate. The message is
         the only thing that says WHICH gate refused, and every claim here rests
         on it.
@@ -3174,19 +3358,27 @@ class PreCallGates(BatchFixture):
       * It says nothing about a gate being CORRECT. An inverted predicate still
         fires on a fixture built to trip it, which is why every driven row also
         carries an admitting half.
-      * It sees statically resolved calls to module-level names in `batch.py`
-        only. `integrity.verify()` is in scope because `verify_ported_bytes()`
-        wraps it; `transcription/authoring_call.sh`'s own gates are outside it
+      * It sees calls that are statically resolved by their DOTTED spelling,
+        in `batch.py` and in the sibling modules `batch.py` imports.
+        `integrity.verify()` is in scope because `verify_ported_bytes()` wraps
+        it; `transcription/authoring_call.sh`'s own gates are outside it
         entirely, the same Python-only residual round 15 recorded for the
-        writer scan. An ATTRIBUTE-spelled callee is outside it too, and that is
-        load-bearing now rather than theoretical: round 17 finding 1's
-        `score_rates.require_lawful_destination()` calls in `capture_golden()`
-        and `capture_isolation_negative()` are gates by every other definition
-        used here and produce no cell, because they are `score_rates.x(…)` and
-        not `x(…)`. They are held by
-        `test_manifest.py`'s `PARAMETER_ROOTS` behavioural pairs instead, which
-        is named here so the next round does not read this ledger as covering
-        them.
+        writer scan. An attribute-spelled callee used to be outside it too, and
+        the cost was measured rather than theoretical: round 17 finding 1's
+        `score_rates.require_lawful_destination()` calls were gates by every
+        other definition used here and produced NO cell, because they are
+        `score_rates.x(…)` and not `x(…)` — so a rule the record called
+        "general rather than fourth" was held, in this ledger, by nothing at
+        all, and the fourth instance of it (`--captures`) could be added
+        ungated with all 315 tests green. Both halves of that are closed
+        (round 18, finding 1): `gatescan.Universe` follows an `import` into the
+        module a dotted callee names, and `refusal_types()` reads the driver's
+        refusal vocabulary out of `main()`'s own `except` clause instead of
+        assuming it is one word. What is STILL outside: a callee reached
+        through an import alias or a `from x import y`, which
+        `test_manifest.py`'s binding discipline is what keeps out of these
+        sources; a computed callee; and a gate in a module `batch.py` does not
+        import.
       * GATE DEPTH IS ONE, and literal attribution is one level shallower
         still. A gate function owns its cell as a black box, so a refusal
         raised inside a gate's own callee — `verify_chain()` inside
@@ -3207,6 +3399,15 @@ class PreCallGates(BatchFixture):
         bound is checked after `run_batch` has already bounded the slice, and
         `batch.py` says so itself; such rows carry a `why` naming the gate
         above them, or they would be permanent silent green.
+      * THE SITE COUNT IS A COUNT, NOT AN IDENTITY. It says how many times a
+        host calls a gate before a call, and nothing about WHERE. Moving one of
+        two sites to another pre-call position in the same host, or deleting
+        one and adding an unrelated call to the same gate in the same host,
+        keeps the count at two and is invisible. A stable per-site identity
+        would need an ordinal — which is the count in a more expensive spelling
+        — or a line number, which would make every unrelated edit above a gate
+        a ledger rewrite. The count is the most this derivation holds cheaply,
+        and it says so rather than being read as a per-site guarantee.
       * It is author-VISIBLE, not author-proof. Deleting a gate AND its ledger
         row is green. What it converts is a silent deletion into an edit of the
         file whose only job is to record the gate set — a diff a reviewer sees.
@@ -3236,6 +3437,8 @@ class PreCallGates(BatchFixture):
         # through a flag (`--resume` over a crash window) says so here, because
         # dropping that flag would make the admitting half a different command.
         self.keep = {}
+        # The (host, kind, label) under test, set by the behavioural case.
+        self.cell = None
         # The study at README step 2: ported bytes verified, wrapper on disk,
         # CLI pinned — and none of steps 3, 4 and 5 taken. Each ceremony act in
         # `SATISFY` is one of those steps, so "this gate alone unmet" is
@@ -3313,6 +3516,32 @@ class PreCallGates(BatchFixture):
         self.write_pins(pins)
 
     # --- the break recipes --------------------------------------------------
+
+    def a_destination_the_manifest_covers(self) -> dict:
+        """The operator names a destination the §2.10 manifest covers.
+
+        ONE recipe for all three of the driver's operator-named destinations,
+        because the flag is DERIVED from the gate's own call site rather than
+        written here: `--captures` for `capture`, `--out` for `capture-golden`
+        and for `capture-isolation-negative`. A fourth destination flag arrives
+        with a cell (the gate set is derived), a `SATISFY` row and this recipe
+        — not with a fourth method.
+
+        The fixture is live at both ends. The unlawful value is checked against
+        the COMMITTED `freeze.excluded` — which is the list the rule itself
+        reads, not the stand-in registry this fixture writes — so the case
+        cannot pass because the pair went stale; and the admitting half keeps
+        the fixture's own default, which is under the throwaway root and
+        outside the study altogether."""
+        flag = destination_flag(self.cell[0])
+        target = os.path.join(STUDY, "harness", "not-an-excluded-destination")
+        with open(score_rates.REGISTRY_OF_RECORD) as handle:
+            registered = tuple(json.load(handle)["freeze"]["excluded"])
+        relative = os.path.relpath(target, STUDY)
+        self.assertFalse(integrity.excluded_tree_covers(relative, registered))
+        self.assertFalse(integrity.manifest_excluded(relative, registered))
+        self.assertFalse(os.path.exists(target))
+        return {"replace": {flag: target}}
 
     def break_the_ported_bytes(self) -> dict:
         def refuse(*arguments, **keywords):
@@ -3520,6 +3749,13 @@ class PreCallGates(BatchFixture):
         # `bare` leaves the flag at the end of the line with nothing after it,
         # which is what `_argument()` refuses. Neither is expressible as a
         # substitution, which is why the other recipes could not reach main().
+        # `replace` puts a different VALUE after a flag the line already
+        # carries, which is what an operator naming a destination does and what
+        # neither `drop` nor `bare` can express. It fails rather than appending
+        # when the flag is absent: a recipe that silently drove the default is
+        # exactly how a destination case would go vacuous.
+        for flag, value in overrides.get("replace", {}).items():
+            line[line.index(flag) + 1] = value
         for flag in overrides.get("drop", ()):
             index = line.index(flag)
             del line[index:index + 2]
@@ -3566,7 +3802,7 @@ class PreCallGates(BatchFixture):
         """The gates this command runs, in the order `batch.py` runs them."""
         derived = derived_pre_call_gates()
         return [key[1:] for key, _line in
-                sorted(((key, line) for key, line in derived.items()
+                sorted(((key, line) for key, (line, _sites) in derived.items()
                         if key[0] == command),
                        key=lambda row: (row[0][1] != "preflight", row[1]))]
 
@@ -3580,8 +3816,18 @@ class PreCallGates(BatchFixture):
         before, is a key here that `PRE_CALL_GATES` does not carry — and a row
         naming a gate the driver no longer runs is a key the derivation does
         not produce. Either is a failure that names the cell. This is the test
-        that makes the other two total rather than a list someone kept."""
-        derived = set(derived_pre_call_gates())
+        that makes the other two total rather than a list someone kept.
+
+        AND THE COUNT, in both directions too (round 18, finding 3). A gate a
+        host calls TWICE is one cell, so until this round the key set said
+        nothing about the second call and PREREGISTRATION.md §7's "a deleted
+        gate call is then a red suite" was false of 23 of the driver's 105
+        sites — measured: deleting `run_batch()`'s second `verify_prefix()`
+        left the whole pinned suite at 315 passed and nothing named it. The
+        disagreement is reported cell by cell rather than as two tables, so the
+        failure says which gate changed how often it is called."""
+        counts = derived_pre_call_gates()
+        derived = set(counts)
         self.assertEqual(
             derived - set(PRE_CALL_GATES), set(),
             "batch.py runs these gates before a call and PRE_CALL_GATES does "
@@ -3589,6 +3835,15 @@ class PreCallGates(BatchFixture):
         self.assertEqual(
             set(PRE_CALL_GATES) - derived, set(),
             "PRE_CALL_GATES records gates batch.py does not run before a call")
+        disagree = {key: (counts[key][1], PRE_CALL_GATES[key].sites)
+                    for key in derived & set(PRE_CALL_GATES)
+                    if counts[key][1] != PRE_CALL_GATES[key].sites}
+        self.assertEqual(
+            disagree, {},
+            "batch.py calls these gates a different number of times before a "
+            "call than PRE_CALL_GATES records (derived, ledgered): a repeated "
+            "call site of one gate is one CELL, so the count is the only thing "
+            "that makes deleting the second one visible")
         # …and the derivation is live, not an empty set agreeing with an empty
         # table: every registered command carries gates, and BOTH halves of
         # the gate set are pinned. `preflight()`'s five were the whole of it
@@ -3605,8 +3860,19 @@ class PreCallGates(BatchFixture):
             ("_argument", "arm_prompt", "capture_slots", "check_registry",
              "load_ledger", "reconcile_ledger", "require_distinct_sessions",
              "require_freeze", "require_golden", "require_isolation_negative",
-             "schedule_entries", "verify_ported_bytes", "verify_prefix",
-             "write_ledger"))
+             "schedule_entries", "score_rates.require_lawful_destination",
+             "slots_on_disk", "transcript_check._events",
+             "transcript_check.context_digests",
+             "transcript_check.screen_prior_context", "verify_ported_bytes",
+             "verify_prefix", "write_ledger"))
+        # …and the refusal VOCABULARY is pinned with them. A ledger over one
+        # exception name is a ledger over one module's refusals, which is how
+        # `score_rates.require_lawful_destination()` — round 17's own new rule
+        # — had no cell here at all: it raises a `ScoreError`, and `main()`
+        # prints that as `refused: …` exactly like a `BatchError` (round 18,
+        # finding 1).
+        self.assertEqual(refusal_types(),
+                         ("BatchError", "ScoreError", "TranscriptError"))
         # …and every host is a host: `main()` was read for its dispatch and
         # never walked, which is how eleven of its own refusals stayed out of
         # the ledger, so the host set is asserted too.
@@ -3654,15 +3920,23 @@ class PreCallGates(BatchFixture):
         8). Both directions: the census matches the ledger, and the ledger
         matches the derivation, so the four numbers cannot drift from the code
         without a named failure here."""
-        counted = {"cells": len(PRE_CALL_GATES)}
+        counted = {"cells": len(PRE_CALL_GATES),
+                   "sites": sum(row.sites for row in PRE_CALL_GATES.values())}
         for how in ("command", "preflight", "residual"):
             counted[how] = sum(1 for row in PRE_CALL_GATES.values()
                                if row.how == how)
         self.assertEqual(counted, LEDGER_CENSUS)
-        self.assertEqual(len(derived_pre_call_gates()), LEDGER_CENSUS["cells"])
+        derived = derived_pre_call_gates()
+        self.assertEqual(len(derived), LEDGER_CENSUS["cells"])
+        self.assertEqual(sum(sites for _line, sites in derived.values()),
+                         LEDGER_CENSUS["sites"])
         self.assertEqual(sum(LEDGER_CENSUS[how] for how in
                              ("command", "preflight", "residual")),
                          LEDGER_CENSUS["cells"])
+        # A cell is at least one site, and the sites outnumber the cells by
+        # exactly what the merge absorbs — so "112 sites over 89 cells" is a
+        # sentence the suite maintains rather than one a round counted.
+        self.assertGreaterEqual(LEDGER_CENSUS["sites"], LEDGER_CENSUS["cells"])
 
     # --- B: the needle is that gate's own refusal ---------------------------
 
@@ -3719,6 +3993,9 @@ class PreCallGates(BatchFixture):
             command, site = key[0], key[1:]
             with self.subTest(gate=key):
                 self.fresh()
+                # The cell under test, for the recipes that derive their break
+                # from the gate's own call site rather than restating it.
+                self.cell = site
                 for other in self.ladder(command):
                     # The omitted ceremony act IS the break — and it is omitted
                     # wherever it appears, because one registered step can meet

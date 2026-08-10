@@ -5099,14 +5099,27 @@ def require_lawful_destination(path: str, what: str, is_file: bool = False) -> N
     rule 3 answers a covered-byte move with another review round whose own
     subject the same act breaks again.
 
-    It is written GENERALLY on purpose. This was the FOURTH instance of one
-    shape — `records/` absent from the exclusion list (round 14, finding 1),
-    `CORRECTION.md` (round 14, finding 2), `arms/BATCH.json.partial` (round 16,
-    finding 3), and this — and each of the first three was repaired at the
-    instance in front of it. `batch.py capture-golden --out` and
-    `capture-isolation-negative --out` were the same hole through a different
-    flag, held by README's prose "leave `--out` at its default" and by nothing
-    else, so they call this too.
+    It is written GENERALLY on purpose, and being general was not enough.
+    This was the FOURTH instance of one shape — `records/` absent from the
+    exclusion list (round 14, finding 1), `CORRECTION.md` (round 14, finding
+    2), `arms/BATCH.json.partial` (round 16, finding 3), and this — and each of
+    the first three was repaired at the instance in front of it. `batch.py
+    capture-golden --out` and `capture-isolation-negative --out` were the same
+    hole through a different flag, held by README's prose "leave `--out` at its
+    default" and by nothing else, so they call this too.
+
+    ROUND 18, FINDING 1: a general predicate called at a hand-chosen list of
+    sites is a hand-chosen list. `batch.py capture --captures DIR` was a fifth
+    instance of the same shape and was gated by nothing: its default
+    `controls/recapture/` is an excluded tree, so the registered ceremony was
+    lawful while the flag took any directory, and staging what §8 retains
+    beneath an in-study value moved the tree manifest. It calls this too now —
+    and, more to the point, the CALL SITES are no longer a list. Which
+    command-line arguments reach a write is derived from `batch.py`'s and this
+    module's own source by `harness/tests/flagtaint.py`, and a destination flag
+    that is not registered — or is registered and not gated — is a named
+    failure. That derivation is what makes "general" a property of the rule's
+    APPLICATION and not only of its text.
 
     FAILS CLOSED ON WHAT IT CANNOT DECIDE. A target lexically outside the study
     that nonetheless shares a directory OBJECT with it — a bind mount, a host

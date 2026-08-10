@@ -62,17 +62,23 @@ themselves, through `ast`, and run no git and no subprocess at all.
 """
 from __future__ import annotations
 import ast
+import importlib
 import json
 import os
 import re
 import shutil
 import subprocess
+import symtable
+import types
 
 import arm_assembly
 import batch
 import fixtures
+import flagtaint
+import gatescan
 import integrity
 import records_compile
+import redness
 import score_rates
 
 
@@ -445,14 +451,30 @@ PARAMETER_ROOTS = {
         "outside the STUDY or wholly inside a registered `freeze.excluded` "
         "tree, which is the other half of the same §2.10 rule. Driven both "
         "ways by `test_every_runtime_gated_destination_refuses_an_unlawful_"
-        "one`; README step 7's literal is no longer what carries this row."),
+        "one`, THROUGH `score_registered()` — the function `main()` dispatches "
+        "to — since round 18, finding 2: the pair used to call "
+        "`_check_records_target()` itself, so the one line that wires the "
+        "whole rule into the registered command could be deleted with the "
+        "pinned suite at 315 passed. README step 7's literal is no longer what "
+        "carries this row."),
     ("batch", "stamp_slot", "slot"): (
         "constant-derived",
         "a slot of the registered order, always `arms/<ARM>/authoring/run-NNN` "
         "(`slot_path()`), which is an excluded tree."),
     ("batch", "refuse_slot", "slot"): (
         "constant-derived",
-        "the same slot root, handed in by `run_batch()` from `slot_path()`."),
+        "two callers, and the reason has to answer for both — round 18, "
+        "finding 1, where this entry said \"the same slot root, handed in by "
+        "`run_batch()` from `slot_path()`\" and named ONE of them. "
+        "`run_batch()` (batch.py:1816) hands a slot of the registered order, "
+        "an excluded tree. `run_capture()` (batch.py:2069) hands a capture "
+        "slot built from `--captures`, which is the OPERATOR's directory and "
+        "not a constant at all; that path is why `REFUSAL.json` under an "
+        "in-study `--captures` was a covered byte this table declared could "
+        "not exist. It is constant-derived now because the flag itself is "
+        "gated at `run_capture()`'s own entry and registered in "
+        "`OPERATOR_DESTINATIONS`, which is where a caller-supplied root "
+        "belongs."),
     ("batch", "seal_slot", "slot"): (
         "constant-derived",
         "the same slot root, from the same expansion of the same order."),
@@ -603,68 +625,181 @@ def _classify(call) -> str:
     return "non-creating"
 
 
-def _bound_names(target, value) -> list:
-    """A binding target and the value it is bound to, paired through tuple
-    unpacking. A target this cannot pair carries `None` as its value, which
-    reads as "bound to something unreadable" and not as "bound to nothing"."""
-    if isinstance(target, ast.Name):
-        return [(target.id, value)]
-    if isinstance(target, (ast.Tuple, ast.List)):
-        values = (value.elts
-                  if isinstance(value, (ast.Tuple, ast.List))
-                  and len(value.elts) == len(target.elts)
-                  else [None] * len(target.elts))
-        return [pair for sub, item in zip(target.elts, values)
-                for pair in _bound_names(sub, item)]
-    return []
+def _vocabulary() -> set:
+    """Every name this scan reads as a filesystem name, derived from the
+    scan's own tables — so a new entry in `FILE_WRITERS` extends the discipline
+    below with no second edit."""
+    return ({"open"} | set(FS_NAMESPACES) | set(IMPORT_DISCIPLINE)
+            | {key.split(".")[0] for key in FILE_WRITERS}
+            | {key.split(".")[0] for key in NON_CREATING})
 
 
-def _bindings(node) -> list:
-    """[(bound name, value node or None)] for every statement that BINDS a
-    name — assignment, annotated assignment, walrus, `def`, `class`, `for`
-    target, `with … as`.
+def _binding_lines(tree: ast.Module, name: str) -> list:
+    """The lines at which a name appears in a BINDING position, for reporting.
 
-    Round 17, finding 4: the old form read `ast.Assign` targets and `def` names
-    only, and only to ask whether `open` was rebound — it never looked at what
-    a name was bound TO. So `_osmod = os`, `_repl = os.replace`, `_opener =
-    open`, `_tf = tempfile` and `_wj = _write_json` each reached a writer under
-    a name the dotted match cannot see, and `open: object = None`, `with X() as
-    open:` and `for open in …:` evaded even the `open`-rebinding limb whose own
-    docstring promised there "cannot be one tomorrow without a red suite"."""
-    if isinstance(node, ast.Assign):
-        found = []
-        for target in node.targets:
-            found += _bound_names(target, node.value)
-        return found
-    if isinstance(node, (ast.AnnAssign, ast.NamedExpr)):
-        return ([(node.target.id, getattr(node, "value", None))]
-                if isinstance(node.target, ast.Name) else [])
-    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-        return [(node.name, None)]
-    if isinstance(node, (ast.For, ast.AsyncFor)):
-        return ([(node.target.id, None)]
-                if isinstance(node.target, ast.Name) else [])
-    if isinstance(node, (ast.With, ast.AsyncWith)):
-        return [(item.optional_vars.id, None) for item in node.items
-                if isinstance(item.optional_vars, ast.Name)]
-    return []
+    `symtable` decides what a binding IS; it has no line numbers, so the line
+    is located here. The rule is the AST's own shape and not a list of
+    statements: an identifier field holding this name, on a node that either
+    has no `ctx` at all (`alias.asname`, `arg.arg`, a `def`'s or an `except
+    … as`'s or a `match` capture's `name`) or whose `ctx` is not `Load`. String
+    CONSTANTS are excluded, because a message mentioning `open` is not a
+    binding of it."""
+    lines = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant):
+            continue
+        context = getattr(node, "ctx", None)
+        if context is not None and isinstance(context, ast.Load):
+            continue
+        for _field, value in ast.iter_fields(node):
+            if value == name and getattr(node, "lineno", None) is not None:
+                lines.append(node.lineno)
+                break
+    return sorted(lines)
+
+
+def binding_offenders(module_name: str, source: str, tree: ast.Module) -> list:
+    """RULE 1: no name in the scan's vocabulary may be BOUND, except by
+    `import <module>` at module level and by the module-level `def` of a
+    writer this scan knows.
+
+    WHICH NAMES A MODULE BINDS IS CPYTHON'S QUESTION, NOT THIS FILE'S.
+    `symtable` is the compiler's own front end, so the set is exhaustive by
+    construction in the way a list of statement types is not.
+
+    Round 18, finding 4 is why it is written this way. The function that used
+    to stand here said it read "every statement that BINDS a name" and then
+    glossed the universal with a seven-item list, and the docstring below said
+    a primitive could not be reached under a second name "not by any other
+    binding form". Measured false in twelve spellings: tuple, list and starred
+    `for` targets; tuple `with` targets; `except … as`; comprehension targets;
+    the three `match` capture forms; every parameter form; a NON-filesystem
+    `import json as open`; and a PEP 695 `type` alias. The reviewer's own
+    proposed repair — walking `ast.Name` in `Store` context — finds 15 of 35
+    declared names on a probe source and would have re-recorded the same
+    universal, so it is not what is here.
+
+    Confining the sanctioned set to the MODULE scope is load-bearing: it is
+    what makes `def f(os)` in an os-importing module an offender."""
+    vocabulary = _vocabulary()
+    sanctioned = set()
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.asname is None and "." not in alias.name \
+                        and alias.name in vocabulary:
+                    sanctioned.add(alias.name)
+        if isinstance(node, ast.FunctionDef) and node.name in FILE_WRITERS:
+            sanctioned.add(node.name)      # `_write_json`, `_write_json_atomic`
+    offenders = []
+
+    def visit(table, path):
+        for symbol in table.get_symbols():
+            name = symbol.get_name()
+            if name not in vocabulary:
+                continue
+            # THREE PREDICATES, and all three are load-bearing. `is_assigned()`
+            # alone is what a reader assumes and it is FALSE of an import —
+            # measured: `import os` reports assigned False and imported True,
+            # so a rule written on assignment alone would have let `import json
+            # as open` past while looking exhaustive.
+            if not (symbol.is_assigned() or symbol.is_parameter()
+                    or symbol.is_imported()):
+                continue
+            if path == "<module>" and name in sanctioned:
+                continue
+            floor = 0 if path == "<module>" else table.get_lineno()
+            found = [line for line in _binding_lines(tree, name)
+                     if line >= floor]
+            offenders.append(
+                "%s.py:%d binds the filesystem name `%s` in scope %s. The "
+                "writer scan matches filesystem calls by their dotted "
+                "spelling, so a second name for one defeats it: the only "
+                "bindings this discipline allows are `import %s` at module "
+                "level and this module's own definition of a writer the scan "
+                "knows"
+                % (module_name, found[0] if found else table.get_lineno(),
+                   name, path, name))
+        for child in table.get_children():
+            visit(child, "%s.%s" % (path, child.get_name()))
+
+    visit(symtable.symtable(source, module_name + ".py", "exec"), "<module>")
+    return offenders
+
+
+def escape_offenders(module_name: str, tree: ast.Module) -> list:
+    """RULE 2: a filesystem primitive may be CALLED, and not otherwise used.
+
+    Every mention of a vocabulary name that is not a callee and not a link in a
+    longer dotted chain is a VALUE use — the primitive escaping as an object,
+    which is how it acquires a second name without a binding statement anywhere
+    in this module: `functools.partial(os.replace, …)`, a dispatch dict, a
+    parameter default, a `return os.replace`.
+
+    The classifier is `callable()` against the resolved object, not a list.
+    That is what separates `os.sep`, `os.O_CREAT` and `os.environ` — which are
+    data and pass — from `os.replace`, `shutil.copy` and `os` itself. A name
+    outside `FS_NAMESPACES` that is in the vocabulary at all is a writer by
+    construction (`open`, `_write_json`, `_write_json_atomic`), and a chain
+    that will not resolve is an offender, because a fail-closed scan may not
+    treat "I could not look this up" as "it is fine".
+
+    Rule 2 subsumes the alias half of the old import discipline: it does not
+    matter which statement form bound the second name, because the primitive
+    has to LEAVE the callee position to be bound at all."""
+    vocabulary = _vocabulary()
+    called, chained = set(), set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            called.add(id(node.func))
+        if isinstance(node, ast.Attribute):
+            chained.add(id(node.value))
+    offenders = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name):
+            if not isinstance(node.ctx, ast.Load):
+                continue
+        elif not isinstance(node, ast.Attribute):
+            continue
+        name = _dotted(node)
+        if name is None or name.split(".")[0] not in vocabulary:
+            continue
+        if id(node) in called or id(node) in chained:
+            continue
+        why = None
+        root = name.split(".")[0]
+        if root not in FS_NAMESPACES:
+            why = "a writer of this scan's own vocabulary"
+        else:
+            try:
+                value = importlib.import_module(root)
+                for part in name.split(".")[1:]:
+                    value = getattr(value, part)
+            except (ImportError, AttributeError):
+                why = "a filesystem name this scan cannot resolve"
+            else:
+                if callable(value) or isinstance(value, types.ModuleType):
+                    why = ("a filesystem module" if isinstance(
+                        value, types.ModuleType) else "a filesystem primitive")
+        if why is None:
+            continue                       # data: `os.sep`, `os.O_*`, `os.environ`
+        offenders.append(
+            "%s.py:%d uses `%s` as a VALUE and not as a callee, and it is %s. "
+            "The writer scan matches filesystem calls by their dotted "
+            "spelling, so a primitive that escapes as an object is reachable "
+            "under a name this scan cannot see: call it through its module"
+            % (module_name, node.lineno, name, why))
+    return offenders
 
 
 def import_offenders(module_name: str, tree: ast.Module) -> list:
-    """The spelling assumption `_dotted()` rests on, enforced.
+    """RULE 3: the two spellings in which a primitive never appears dotted at
+    all, and which rules 1 and 2 therefore structurally cannot see.
 
-    `_dotted()` matches a call by the name it is WRITTEN with, so `from os
-    import replace`, `import tempfile as t`, `_repl = os.replace` or a local
-    `open = …` defeats the whole scan silently. There is no instance today —
-    verified — and the point is that there cannot be one tomorrow without a red
-    suite.
-
-    Round 17, finding 4 widened this from an IMPORT discipline to a BINDING
-    discipline. The rule the round-16 limb was reaching for is that a
-    filesystem primitive may not acquire a second name; it tested one spelling
-    of that ("a writer reached under another name" was the shape it named, and
-    `from tempfile import mkstemp` was the spelling it drove). Every binding
-    form is one rule here."""
+    `from tempfile import mkstemp` binds `mkstemp`, which is not in the
+    vocabulary and never will be — the vocabulary is roots. `import tempfile as
+    t` binds `t`, likewise. Both defeat `_dotted()`'s spelling match, and both
+    are caught here by the IMPORT rather than by the name it produces."""
     offenders = []
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom) \
@@ -682,21 +817,6 @@ def import_offenders(module_name: str, tree: ast.Module) -> list:
                         "filesystem calls by their dotted spelling, so an "
                         "alias defeats it"
                         % (module_name, node.lineno, alias.name, alias.asname))
-        for bound, value in _bindings(node):
-            source = _dotted(value) if value is not None else None
-            if source is not None and (source in FILE_WRITERS
-                                       or source.split(".")[0]
-                                       in IMPORT_DISCIPLINE):
-                offenders.append(
-                    "%s.py:%d binds `%s` to the name `%s`. The writer scan "
-                    "matches filesystem calls by their dotted spelling, so an "
-                    "assignment alias defeats it exactly as an import alias "
-                    "does: call it through its module"
-                    % (module_name, node.lineno, source, bound))
-            elif bound == "open":
-                offenders.append(
-                    "%s.py:%d rebinds the name `open`, which this scan reads "
-                    "as the builtin" % (module_name, node.lineno))
     return offenders
 
 
@@ -782,7 +902,9 @@ def scan_source(module_name: str, source: str) -> tuple:
     `test_the_writer_scan_fails_closed_on_what_it_cannot_read` can splice a
     write into a copy and require it to be caught."""
     tree = ast.parse(source)
-    offenders = import_offenders(module_name, tree)
+    offenders = (import_offenders(module_name, tree)
+                 + binding_offenders(module_name, source, tree)
+                 + escape_offenders(module_name, tree))
     sites = []
     for scope_name, scope_node, node in _scope_calls(tree):
         try:
@@ -839,57 +961,88 @@ def test_every_study_destination_a_writer_names_is_an_excluded_path(study, pins)
         scoring that computed the committed registry's digest itself and
         re-derives the whole result from the committed arms tree, so no fixture
         can reach it and none should be able to (§2.10, §7).
-      * It does not follow a parameter to its CALLERS. That used to be the
-        permanent residual here, and it is not any more: the roots a caller may
-        supply are classified in `PARAMETER_ROOTS`, and the ones the OPERATOR
-        supplies are gated at run time by
-        `score_rates.require_lawful_destination()` — outside the study, or
-        wholly inside a registered exclusion tree — with a behavioural pair per
-        root in `test_every_runtime_gated_destination_refuses_an_unlawful_one`.
-        README step 5's "leave `--out` at its default" was prose and not a
-        check when this bullet last said so (round 17, finding 1); the check
-        exists now, `_check_records_target()` is driven through, and what is
-        still true is only that this SCAN does not follow parameters — a
-        different sentence from "nothing does".
+      * IT DOES NOT FOLLOW A PARAMETER TO ITS CALLERS, and that IS the
+        permanent residual here. This bullet said "it is not any more" for one
+        round and was wrong: what the round-17 repair added was a
+        classification per root in `PARAMETER_ROOTS` and a run-time gate at
+        three call sites chosen by hand, and neither is this scan following a
+        parameter anywhere. `--captures` proved the difference — a fourth
+        operator-named destination, classified by nothing, gated by nothing,
+        and invisible here because the only file written under it is written by
+        `refuse_slot()`, whose root this same table had already declared
+        "constant-derived" on the strength of ONE of its two callers (round 18,
+        finding 1).
+        What follows the parameter is a different derivation, and it is named
+        rather than implied: `test_every_operator_named_destination_is_
+        registered_and_gated` propagates each command-line flag's value forward
+        through the writers' own source to every write, so the roots the
+        OPERATOR supplies are computed instead of listed, and each is gated at
+        run time by `score_rates.require_lawful_destination()` — outside the
+        study, or wholly inside a registered exclusion tree — with a
+        behavioural pair per destination in
+        `test_every_runtime_gated_destination_refuses_an_unlawful_one`. What is
+        still true of THIS scan is that it reads a writer's own module and
+        stops there.
       * It is Python-only. `transcription/authoring_call.sh` writes into
         `$SLOT`, an excluded tree, and into the scratch parent outside the
         study; that is named here rather than parsed.
       * It fails CLOSED on anything it cannot resolve OR cannot classify: an
         unresolvable destination, an `open()` whose mode is not a literal, an
         `os.open()` whose flag set is not a readable expression of `os.O_*`
-        constants, a COMPUTED callee that mentions a filesystem name, a
-        filesystem primitive bound to a second name by any binding form, and a
+        constants, a COMPUTED callee that mentions a filesystem name, and a
         filesystem call outside `FILE_WRITERS` and `NON_CREATING` are each an
-        offender that names the line. Round 16, finding 3 is why that sentence
-        is worded this way: it used to say the scan failed closed on anything
-        it could not resolve and it failed OPEN in three independent ways — an
+        offender that names the line — and so are the two rules the alias half
+        is written as: a name in the scan's vocabulary BOUND anywhere except by
+        `import <module>` at module level, and a filesystem primitive USED as
+        anything but a callee. Round 16, finding 3 is why that sentence is
+        worded this way: it used to say the scan failed closed on anything it
+        could not resolve and it failed OPEN in three independent ways — an
         unknown API was skipped, a variable `open()` mode was read as
         non-creating, and the whole bodies of
         `_write_json`/`_write_json_atomic` were skipped, which hid the one real
         unexcluded destination the study had. Round 17, finding 4 is why the
         sentence is worded this way TWICE: the round-16 form said "an
         `os.open()` whose flags are not readable" four lines below a function
-        that read `os.open(path, flags)` as non-creating, and the fail-closed
-        claim was false in two further independent ways. Each of the seven
-        spellings is driven by `FAIL_CLOSED_SPLICES`, so the list above is
-        seven properties and not one adjective.
+        that read `os.open(path, flags)` as non-creating. Round 18, finding 4
+        is why it no longer says "by any binding form": that was a universal
+        over a seven-item list of statement types, measured false in twelve
+        spellings, and the repair was to stop enumerating and ask CPython's own
+        binder instead. THIRTEEN spellings are driven by `FAIL_CLOSED_SPLICES`,
+        one per mechanism these rules turn on, and the case pins that count —
+        so the list above is a set of driven properties and not one adjective.
       * The residual it does NOT close, stated rather than implied: the
         vocabulary is finite. A creator that is neither `open` nor a member of
         `FS_NAMESPACES` — a C extension, a vendored helper, a `subprocess` that
         shells out — is classified as non-creating and is invisible here. What
-        bounds that is the BINDING discipline: within a scanned module's own
-        source a filesystem primitive may not be reached under a second name —
-        not by import, not by import alias, not by assignment, not by any other
-        binding form, and not through a computed callee. What that discipline
-        cannot see is a binding made at RUN time (`globals()["w"] =
-        os.replace`, a callable handed in as a parameter) and a creator that
-        never enters the source as a name at all. Round 17, finding 4: this
-        bullet used to bound the residual by "the import discipline (nothing
-        may be reached under another name)", which was false as written —
-        `import x as y` and `from x import y` were the whole of that
-        discipline, so every assignment spelling of "another name" was open.
-        It is a discipline, not a proof; `WRITING_MODULES` is itself checked by
-        `test_every_writing_module_is_scanned`.
+        bounds that is TWO RULES, and they are rules rather than a list of
+        forms: a filesystem primitive may be CALLED and not otherwise used, and
+        no name in the scan's vocabulary may be BOUND except by `import
+        <module>` at module level. The first is `callable()` against the
+        resolved object; the second is `symtable`, CPython's own binder, so
+        what counts as a binding is not this file's to enumerate. Round 17,
+        finding 4 bounded this residual by "the import discipline", which was
+        false as written; round 18, finding 4 found the replacement false too —
+        "not by any other binding form" was a universal glossing a seven-item
+        list, and twelve spellings escaped it, four of them (parameters, a
+        non-filesystem `import … as open`, starred `for` targets, PEP 695 type
+        aliases) also missed by the finding that reported it. What the two
+        rules still cannot see: a binding made at RUN time (`globals()["w"] =
+        os.replace`, `setattr`, a module reached by a string through
+        `importlib`), a callable handed in from OUTSIDE the module (`def
+        f(writer, p): writer(p)` — the same parameter-to-callers residual named
+        above), a creator that never enters the source as a name at all, and a
+        filesystem OBJECT as distinct from a primitive: `p =
+        pathlib.Path(root); p.write_text(x)` passes both rules, because the
+        `Path` call is in callee position and the root `p` is not in
+        `FS_NAMESPACES`. No harness module imports `pathlib` today, verified by
+        the same `symtable` walk, and closing it means extending the
+        fail-closed table to METHOD calls on filesystem-derived objects, which
+        collides with the deliberate allowance for `open(p).read()` above. It
+        is a discipline, not a proof; `WRITING_MODULES` is itself checked by
+        `test_every_writing_module_is_scanned`, whose scope this widening
+        extends: `census.py`, `integrity.py`, `policy_mirror.py` and
+        `transcript_check.py` are bound by both rules there too, and all four
+        are clean.
 
     What it does buy is that the classification is CHECKED against the code: an
     unresolvable destination, an unclassified root and an unclassified call all
@@ -939,39 +1092,107 @@ def test_every_study_destination_a_writer_names_is_an_excluded_path(study, pins)
     assert offenders == [], "\n".join(offenders)
 
 
-def _refusal_of(call) -> str:
+def _refusal_of(call, module=None) -> str:
     """The refusal one drive produced, or "" — either exception type, because
-    the destination rule lives in `score_rates` and two of its three call sites
-    are in `batch`, so the operator meets it as a `ScoreError` once and as a
-    `BatchError`-caught `ScoreError` twice. `main()` prints both the same way."""
+    the destination rule lives in `score_rates` and three of its four call
+    sites are in `batch`, so the operator meets it as a `ScoreError` once and
+    as a `BatchError`-caught `ScoreError` three times. `main()` prints them the
+    same way.
+
+    A drive against a MUTANT module (round 18, finding 2) meets that module's
+    OWN copies of those classes, which are different objects from the imported
+    ones however identical their source. They are added by NAME against the
+    types already caught, rather than by catching whatever the mutant raises:
+    a redness case asserts a refusal is ABSENT, so a catch-all here would make
+    it pass for the wrong reason."""
+    kinds = (score_rates.ScoreError, batch.BatchError)
+    if module is not None:
+        named = {kind.__name__ for kind in kinds}
+        kinds = kinds + tuple(
+            value for value in vars(module).values()
+            if isinstance(value, type) and issubclass(value, Exception)
+            and value.__name__ in named)
     try:
         call()
-    except (score_rates.ScoreError, batch.BatchError) as refusal:
+    except kinds as refusal:
         return str(refusal)
     return ""
 
 
-def _drive_emit_records(study: str, target: str) -> str:
-    """`score --emit-records DIR`, as far as its destination gate. The whole
-    gate is `_check_records_target()`, so this drives the real entry point and
-    not the predicate underneath it: deleting either the predicate or the call
-    to it turns this red."""
-    return _refusal_of(lambda: score_rates._check_records_target(
-        os.path.join(study, "arms"), target))
+def _drive_emit_records(study: str, target: str, module=None) -> str:
+    """`score --emit-records DIR`, through the REGISTERED INTERFACE.
+
+    `score_registered()` is the function `main()` dispatches to, and it
+    validates the destination before anything is scored or written, so the gate
+    is met with nothing spent. `score()` is replaced for the length of the
+    drive so that the lawful half cannot become a function of the study's stage
+    (§2.10): pre-freeze it would stop at the golden pin, post-freeze it would
+    score the real population and publish.
+
+    Round 18, finding 2 is why it is written this way. It used to call
+    `score_rates._check_records_target()` — an INTERMEDIATE — while its own
+    docstring said "this drives the real entry point and not the predicate
+    underneath it". Measured: deleting `score_registered()`'s call to that
+    helper (score_rates.py:4711-4712) left `harness/integrity.py` at exit 0 and
+    the whole pinned suite at 315 passed with 177 subtests, taking the
+    lawful-destination rule AND the round-14 population rule out together. A
+    probe bound below its entry is the round-16 shape one level up, and the
+    entry a probe may bind to is derived rather than asserted — see
+    `test_every_parameter_root_carries_a_classification_not_only_a_reason`."""
+    module = module or score_rates
+
+    def past_the_gate(*arguments, **keywords):
+        raise module.ScoreError(
+            "the drive reached score(): past the destination gate")
+
+    spent, module.score = module.score, past_the_gate
+    try:
+        return _refusal_of(lambda: module.score_registered(target), module)
+    finally:
+        module.score = spent
 
 
-def _drive_capture_golden(study: str, target: str) -> str:
+def _drive_run_capture(study: str, target: str, module=None) -> str:
+    """`capture --captures DIR`, through the entry `main()` dispatches to.
+
+    `run_capture()` is the FOURTH operator-named destination (round 18,
+    finding 1): its default is the excluded `controls/recapture/`, so the
+    registered ceremony was lawful and the flag itself was checked by nothing.
+    `preflight()` is replaced for the length of the drive, one statement below
+    the gate and above `os.makedirs()`, so the ADMITTING half stops before the
+    lawful destination is created and the case is the same at every stage of
+    the study."""
+    module = module or batch
+
+    def past_the_gate(*arguments, **keywords):
+        raise module.BatchError("the drive reached preflight(): past the "
+                                "destination gate")
+
+    spent, module.preflight = module.preflight, past_the_gate
+    try:
+        return _refusal_of(lambda: module.run_capture(
+            module.MIN_CAPTURE_SLOTS, target,
+            os.path.join(study, "no-such-golden-capture.json"),
+            os.path.join(study, "no-such-scratch"),
+            score_rates.REGISTRY_OF_RECORD, None), module)
+    finally:
+        module.preflight = spent
+
+
+def _drive_capture_golden(study: str, target: str, module=None) -> str:
     """`capture-golden --out PATH`, as far as its destination gate. Nothing is
     spent and nothing is written: the gate sits third in `capture_golden()`,
     above `verify_ported_bytes()` and far above any call, so the drive either
     refuses there or falls through to a later gate whose message this test
     reads as "not refused by THIS rule"."""
-    return _refusal_of(lambda: batch.capture_golden(
+    module = module or batch
+    return _refusal_of(lambda: module.capture_golden(
         os.path.join(study, "no-such-capture-attempt"), target,
-        batch.MIN_CAPTURE_SLOTS))
+        module.MIN_CAPTURE_SLOTS), module)
 
 
-def _drive_capture_isolation_negative(study: str, target: str) -> str:
+def _drive_capture_isolation_negative(study: str, target: str,
+                                      module=None) -> str:
     """`capture-isolation-negative --out DIR`, as far as its destination gate.
 
     This one is staged, because its gate sits below §6 C7's own preconditions —
@@ -1004,35 +1225,279 @@ def _drive_capture_isolation_negative(study: str, target: str) -> str:
         with open(pins_path, "w") as handle:
             json.dump(pins, handle)
 
-        def no_call(*arguments, **keywords):
-            raise batch.BatchError("the drive reached invoke(): past the gate")
+        driven = module or batch
 
-        spent, batch.invoke = batch.invoke, no_call
+        def no_call(*arguments, **keywords):
+            raise driven.BatchError("the drive reached invoke(): past the gate")
+
+        spent, driven.invoke = driven.invoke, no_call
         try:
-            return _refusal_of(lambda: batch.capture_isolation_negative(
-                target, scratch, pins_path, None, golden))
+            return _refusal_of(lambda: driven.capture_isolation_negative(
+                target, scratch, pins_path, None, golden), driven)
         finally:
-            batch.invoke = spent
+            driven.invoke = spent
     finally:
         shutil.rmtree(root, True)
 
 
-# One behavioural pair per "runtime-gated" parameter root: the canonical
-# destination, and an in-study sibling `freeze.excluded` does not cover. Both
-# are relative to the study root, and both are DRIVEN through the command's own
-# entry point rather than through the shared predicate — a pair that called
-# `require_lawful_destination()` directly would stay green with the call site
-# deleted, which is the round-16 shape this round is a repair of.
+# One behavioural pair per operator-named destination: the ENTRY it is driven
+# through, the drive, the canonical destination, and an in-study sibling
+# `freeze.excluded` does not cover. Both paths are relative to the study root.
+#
+# The entry is written here and CHECKED against the module's own `main()`
+# dispatch (round 18, finding 2), because "driven through the command's own
+# entry point rather than through the shared predicate" is what this comment
+# used to claim while one of the three drove an intermediate — and the wiring
+# above that intermediate was then deletable with the whole suite green. A
+# probe naming a function `main()` does not dispatch to fails by name at
+# collection now, rather than being read as an entry because it says so.
 LAWFUL_DESTINATION_PROBES = {
     ("score_rates", "_emit_records", "out_dir"): (
-        _drive_emit_records, "records", "analysis/records"),
+        "score_registered", _drive_emit_records, "records", "analysis/records"),
     ("batch", "capture_golden", "out_path"): (
-        _drive_capture_golden, "transcription/GOLDEN-CONTEXT.json",
-        "transcription/GOLDEN-2.json"),
+        "capture_golden", _drive_capture_golden,
+        "transcription/GOLDEN-CONTEXT.json", "transcription/GOLDEN-2.json"),
     ("batch", "capture_isolation_negative", "out_dir"): (
-        _drive_capture_isolation_negative, "controls/isolation-negative",
-        "controls/isolation-negative-2"),
+        "capture_isolation_negative", _drive_capture_isolation_negative,
+        "controls/isolation-negative", "controls/isolation-negative-2"),
+    ("batch", "run_capture", "captures_dir"): (
+        "run_capture", _drive_run_capture,
+        "controls/recapture", "controls/recapture-2"),
 }
+
+
+# --- the operator's own destinations, DERIVED (round 18, finding 1) ---------
+
+# Calls that compute a path and create nothing, so a tainted argument makes a
+# tainted result. `os.path.*` is exempt from the writer scan by rule for the
+# same reason; this is that rule in the form the taint walk needs.
+PATH_ARITHMETIC = frozenset({
+    "os.path.join", "os.path.realpath", "os.path.abspath", "os.path.normpath",
+    "os.path.dirname", "os.path.basename", "os.path.relpath",
+    "os.path.expanduser",
+})
+
+# Arguments that are written to by something outside this AST. `invoke()`'s
+# first argument is the wrapper's `$SLOT`, and `transcription/authoring_call.sh`
+# creates it and fills it with `stdout.raw`, `stderr.raw`, `session.jsonl`,
+# `CALL.json` and `context.json`. It is DECLARED rather than derived, and it is
+# the reason `--captures` is a destination at all even before `refuse_slot()`
+# writes a `REFUSAL.json` under it.
+DECLARED_SINKS = {"invoke": 0}
+
+# The rule the taint walk asks about by name.
+DESTINATION_GATE = "require_lawful_destination"
+
+# Why an operator-named destination is not a way to move covered bytes. The
+# same shape as `ROOT_CLASSIFICATIONS`, plus the one class a destination can be
+# in that a writer's parameter root cannot: held by the WRAPPER, which is bash
+# and outside every Python check.
+DESTINATION_CLASSIFICATIONS = ROOT_CLASSIFICATIONS + ("held-by-the-wrapper",)
+
+# Every command-line flag whose value reaches a write, keyed (flag, the entry
+# `main()` hands it to, that entry's formal) — and NOT by the flag alone,
+# because `--out` names three destinations through three commands and keyed by
+# the flag they would be one row whose gate could be deleted at two of the
+# three sites invisibly.
+#
+# The KEYS are derived by `flagtaint.roster()` from the two modules' own source
+# and asserted equal to this table in both directions, so a FIFTH destination
+# flag fails here by name. That is the whole difference from round 17, which
+# wrote one general predicate, applied it at three call sites chosen by hand,
+# and recorded the result as "applied to every operator-supplied destination at
+# once" — while `batch.py capture --captures DIR` was a fourth, was ungated,
+# and moved the staged tree manifest.
+#
+# The value is (classification, the behavioural pair that drives it, reason).
+OPERATOR_DESTINATIONS = {
+    ("--captures", "run_capture", "captures_dir"): (
+        "runtime-gated", ("batch", "run_capture", "captures_dir"),
+        "the §3.2 recapture's attempt root. Its default `DEFAULT_CAPTURES` = "
+        "`controls/recapture/` is an excluded TREE, which is why nothing "
+        "noticed: the registered ceremony was lawful and the flag took any "
+        "directory. `--captures controls/recapture-2` was accepted, the "
+        "wrapper created and filled a slot beneath it, `refuse_slot()` wrote a "
+        "`REFUSAL.json` there, and staging what §8 retains moved the §2.10 "
+        "tree manifest — measured, cf9c5738 to 2bce35f1, against the default's "
+        "unchanged cf9c5738 (round 18, finding 1)."),
+    ("--out", "run_capture", "out_path"): (
+        "runtime-gated", ("batch", "capture_golden", "out_path"),
+        "the same golden capture `capture-golden --out` names, reached through "
+        "the `capture` command: `run_capture()` hands its `out_path` to "
+        "`capture_golden()`, which is where the rule is called and where the "
+        "pair drives it. The derivation reports this row gated THROUGH that "
+        "call, so deleting the gate at batch.py:1946 fails this row and "
+        "`capture_golden`'s together."),
+    ("--out", "capture_golden", "out_path"): (
+        "runtime-gated", ("batch", "capture_golden", "out_path"),
+        "the golden capture, named directly. README step 5's \"leave `--out` "
+        "at its default\" was prose and not a check until round 17, finding "
+        "1."),
+    ("--out", "capture_isolation_negative", "out_dir"): (
+        "runtime-gated", ("batch", "capture_isolation_negative", "out_dir"),
+        "§6 C7's record. A TREE here rather than a file, so every path beneath "
+        "it has to be covered by a registered exclusion tree."),
+    ("--emit-records", "score_registered", "records_dir"): (
+        "runtime-gated", ("score_rates", "_emit_records", "out_dir"),
+        "the compiled record trees. Gated against the POPULATION by "
+        "`_check_records_target()` and against the MANIFEST by the rule this "
+        "table is about — the two halves of §2.10 rule 3, both reached through "
+        "the registered entry `score_registered()`."),
+    ("--scratch-parent", "capture_isolation_negative", "scratch_parent"): (
+        "held-by-the-wrapper", None,
+        "§6 C7's raw slot: `capture_isolation_negative()` builds "
+        "`os.path.join(scratch_parent, 's012-c7-raw-<pid>')` and hands it to "
+        "`invoke()`, where the wrapper creates it and writes five files into "
+        "it. It is NOT gated by `require_lawful_destination()` and must not "
+        "be: the registered value is a directory OUTSIDE the study, which the "
+        "rule would accept, but the rule cannot be what holds it because the "
+        "operator's legitimate parent is outside the study by design. What "
+        "holds it is `transcription/authoring_call.sh:216-219` — \"the scratch "
+        "dir resolves inside the repository\" and \"the scratch dir is inside "
+        "some git worktree\" — which fires BEFORE the slot is created. This "
+        "row is why the roster is a table and not a list of gated flags: the "
+        "derivation found this destination, and the honest answer to it is a "
+        "classification rather than a fifth call to the rule."),
+}
+
+
+def _taint_creates(call) -> bool:
+    """Whether a call creates a file AT THIS SITE, by the writer scan's own
+    two rules — the same `_classify()` and `_creates()` the destination case
+    uses, so there is one vocabulary and not a second copy. It fails CLOSED:
+    a mode or flag set that cannot be read counts as creating."""
+    try:
+        return _classify(call) == "creator" and _creates(call)
+    except Unclassified:
+        return True
+
+
+def _entry_modules() -> tuple:
+    """The writing modules that have a command line — derived, by asking each
+    one's source whether it defines `main()`, rather than naming the two that
+    do today."""
+    found = []
+    for module in WRITING_MODULES:
+        with open(module.__file__, encoding="utf-8") as handle:
+            source = handle.read()
+        if "main" in {node.name for node in ast.parse(source).body
+                      if isinstance(node, ast.FunctionDef)}:
+            found.append((module, source))
+    return tuple(found)
+
+
+def operator_destinations() -> dict:
+    """{(flag, entry, formal): (gated, sinks)} over every module with a command
+    line, read out of their own sources."""
+    rows = {}
+    for module, source in _entry_modules():
+        rows.update(flagtaint.roster(
+            source, "main", FILE_WRITERS, _taint_creates, PATH_ARITHMETIC,
+            DESTINATION_GATE, DECLARED_SINKS))
+    return rows
+
+
+def test_every_operator_named_destination_is_registered_and_gated(study):
+    """The class, closed by DERIVATION rather than by a fourth list.
+
+    Rounds 14, 16 and 17 each repaired one member of one class — `records/`
+    absent from the exclusion list, `CORRECTION.md`, `arms/BATCH.json.partial`,
+    the two `--out` flags — and each repair was scoped to the instance in front
+    of it. Round 17 went furthest: it wrote ONE general predicate. It then
+    called that predicate at three call sites chosen by hand and recorded the
+    result as "applied to every operator-supplied destination at once". Round
+    18 found the fourth, `--captures`, and measured the manifest moving.
+
+    So the members are computed. `flagtaint.roster()` walks the source of every
+    writing module that has a `main()` — all four of them, which is the scope
+    and not the two that carry destinations today — seeds every `--flag`
+    literal each `main()` reads, propagates the value forward through
+    assignment, `for` targets, path arithmetic and the module's own calls, and
+    reports every flag whose value reaches a file-creating write or the
+    wrapper's slot, together with whether the lawful-destination rule was
+    called on that same value on the way.
+
+    THREE THINGS ARE ASSERTED, and each fails BY NAME.
+      * The roster IS this table: a fifth destination flag, or a flag that
+        stops being one, is a named failure here rather than a member nobody
+        listed.
+      * A row is gated exactly when it is classified `runtime-gated`. Deleting
+        a call to the rule flips its row to UNGATED and fails; adding one to a
+        row held another way fails too, because a destination that has acquired
+        a gate has changed class.
+      * Every `runtime-gated` row names a behavioural PAIR, so the derivation's
+        "the gate is called on this value somewhere" is backed by a run in
+        which the unlawful destination is actually refused.
+
+    WHAT THE DERIVATION CANNOT SEE — in its own docstring, because a residual
+    stated in a summary is what rounds 15, 16 and 17 each recorded and each had
+    to widen. A destination escapes it by being: not named by a flag at all
+    (`os.environ`, a config file, a positional argument, a mutated module
+    constant); reached through a call the walk cannot follow (an
+    attribute-spelled or computed callee on the PROPAGATION path — the gate is
+    matched by its dotted name, the propagation is not — a callable passed as a
+    parameter, or a value stored in and read back out of a container or an
+    attribute); written only by the wrapper along a path the driver never names
+    (`invoke()`'s slot is a DECLARED sink; `$SCRATCH`, `$RUN_TMP` and
+    `$ISOLATED_HOME` are outside the AST entirely); named POSITIONALLY rather
+    than by a flag — all four writing modules define `main()` and all four are
+    walked, but `records_compile` and `arm_assembly` take their destination as
+    `argv[n]`, so this seeding finds nothing in them and their roots are
+    classified in `PARAMETER_ROOTS` instead; written by a module with no
+    `main()` at all, which `census.py` is; or gated on one branch only, or
+    below the write, because the taint is path-INSENSITIVE: "the value reaches
+    the gate somewhere" is not "the gate dominates every write", and what
+    covers that is the behavioural pair.
+    """
+    derived = operator_destinations()
+    assert set(derived) == set(OPERATOR_DESTINATIONS), (
+        "the flags whose values reach a write are not the flags this table "
+        "registers. Derived and unregistered: %r. Registered and no longer "
+        "derived: %r. A destination flag arrives with a classification and, if "
+        "it is gated, a behavioural pair — it does not arrive as a member "
+        "nobody listed (round 18, finding 1)."
+        % (sorted(set(derived) - set(OPERATOR_DESTINATIONS)),
+           sorted(set(OPERATOR_DESTINATIONS) - set(derived))))
+    # …and the walk is LIVE rather than an empty roster agreeing with an empty
+    # table. Its SCOPE is every writing module that has a `main()` — all four
+    # of them, not the two that carry destinations — so a module that starts
+    # naming a destination by flag is inside this case from the moment it does,
+    # and both modules that do today contribute rows.
+    assert len(_entry_modules()) == len(WRITING_MODULES)
+    assert {key[1] for key in derived} & {"score_registered"}
+    assert {key[1] for key in derived} - {"score_registered"}
+    for key, value in sorted(OPERATOR_DESTINATIONS.items()):
+        assert isinstance(value, tuple) and len(value) == 3, key
+        kind, pair, why = value
+        assert kind in DESTINATION_CLASSIFICATIONS, (
+            "%r is classified %r, which is not one of %r"
+            % (key, kind, DESTINATION_CLASSIFICATIONS))
+        assert why and len(why) > 40, key
+        gated = derived[key][0]
+        assert gated == (kind == "runtime-gated"), (
+            "%r is classified %r and the derivation reports it %s: a "
+            "destination is gated exactly when it is classified runtime-gated, "
+            "so this is either a deleted call to %s() or a row whose class has "
+            "changed" % (key, kind, "gated" if gated else "UNGATED",
+                         DESTINATION_GATE))
+        if kind == "runtime-gated":
+            assert pair in LAWFUL_DESTINATION_PROBES, (
+                "%r is gated and names the behavioural pair %r, which "
+                "`LAWFUL_DESTINATION_PROBES` does not carry: the derivation "
+                "says the rule is CALLED on this value, and only a pair says "
+                "it refuses" % (key, pair))
+        else:
+            assert pair is None, key
+    # No pair is orphaned: every behavioural pair is claimed either by a
+    # destination row here or by a runtime-gated parameter root above.
+    claimed = {pair for _kind, pair, _why in OPERATOR_DESTINATIONS.values()
+               if pair is not None}
+    claimed |= {key for key, (kind, _why) in PARAMETER_ROOTS.items()
+                if kind == "runtime-gated"}
+    assert set(LAWFUL_DESTINATION_PROBES) == claimed, (
+        "these behavioural pairs are claimed by no destination row and no "
+        "runtime-gated parameter root, or are claimed and missing: %r"
+        % (sorted(set(LAWFUL_DESTINATION_PROBES) ^ claimed),))
 
 
 def test_every_parameter_root_carries_a_classification_not_only_a_reason(study):
@@ -1060,9 +1525,33 @@ def test_every_parameter_root_carries_a_classification_not_only_a_reason(study):
         assert why and len(why) > 40, key
     gated = {key for key, (kind, _why) in PARAMETER_ROOTS.items()
              if kind == "runtime-gated"}
-    assert gated == set(LAWFUL_DESTINATION_PROBES), (
-        "every runtime-gated root needs a behavioural pair and nothing else "
-        "may have one: %r" % (sorted(gated ^ set(LAWFUL_DESTINATION_PROBES)),))
+    assert gated <= set(LAWFUL_DESTINATION_PROBES), (
+        "every runtime-gated root needs a behavioural pair: %r"
+        % (sorted(gated - set(LAWFUL_DESTINATION_PROBES)),))
+    # …and no pair may exist without a claimant, which the destination case
+    # above asserts over both tables at once — a parameter root here, or a
+    # derived operator destination there.
+
+    # THE ENTRY EACH PAIR DRIVES IS DERIVED (round 18, finding 2). A probe that
+    # names a function `main()` does not dispatch to is a probe bound BELOW its
+    # own entry, and the wiring above it is then deletable with the suite
+    # green: measured, deleting `score_registered()`'s call to
+    # `_check_records_target()` left integrity at exit 0 and the pinned suite
+    # at 315 passed while removing both halves of §2.10 rule 3's destination
+    # rule. The legal set of drive targets is read out of each module's own
+    # dispatch here, so the next probe cannot bind to a helper and say in a
+    # docstring that it did not.
+    for key, (entry, _drive, _lawful, _unlawful) in sorted(
+            LAWFUL_DESTINATION_PROBES.items()):
+        module = {"batch": batch, "score_rates": score_rates}[key[0]]
+        tree = gatescan.parse(module.__file__)
+        functions = gatescan.module_functions(tree)
+        assert entry in gatescan.entry_points(functions["main"], functions), (
+            "%r drives %r, which is not a function %s.main() dispatches to: a "
+            "probe bound below the entry stays green with the wiring above it "
+            "deleted (round 18, finding 2). The entries are %r."
+            % (key, entry, key[0],
+               gatescan.entry_points(functions["main"], functions)))
 
 
 def test_every_runtime_gated_destination_refuses_an_unlawful_one(study, pins):
@@ -1071,22 +1560,33 @@ def test_every_runtime_gated_destination_refuses_an_unlawful_one(study, pins):
     reproduced.
 
     §2.10 rule 3 registers that every act from the freeze to publication moves
-    carrier or excluded bytes only. Three operator-named destinations can
-    break it — `score --emit-records DIR`, `capture-golden --out PATH` and
-    `capture-isolation-negative --out DIR` — and until round 17 finding 1 the
-    first was checked against the population only and the other two were held
-    by README's prose. Each is driven here twice: the registered destination
-    must not be refused by this rule, and an in-study sibling the exclusion
-    list does not cover must be, naming the path.
+    carrier or excluded bytes only. FOUR operator-named destinations can break
+    it — `score --emit-records DIR`, `capture --captures DIR`, `capture-golden
+    --out PATH` and `capture-isolation-negative --out DIR` — and each is driven
+    here twice: the registered destination must not be refused by this rule,
+    and an in-study sibling the exclusion list does not cover must be, naming
+    the path.
 
-    THE PAIRS ARE THE POINT. Round 13 asserted the manifest invariant "under
-    every registered lifecycle act" and modelled five documents; round 14
-    modelled the emit act at ONE literal value; round 16 made the writer scan's
-    vocabulary total and left the parameter door it had itself documented. Each
-    repair was scoped to the instance in front of it. What stops a fifth is
-    that the rule is general and that its generality is exercised."""
+    WHAT STOPS A FIFTH, said accurately this time. Round 13 asserted the
+    manifest invariant "under every registered lifecycle act" and modelled five
+    documents; round 14 modelled the emit act at ONE literal value; round 16
+    made the writer scan's vocabulary total and left the parameter door it had
+    itself documented; round 17 wrote one general predicate and called it at
+    three call sites CHOSEN BY HAND. This docstring then said "what stops a
+    fifth is that the rule is general and that its generality is exercised",
+    which was false in the way that mattered: what was general was
+    `require_lawful_destination()`, and what stopped at three was the list of
+    places it is called. A fourth had already arrived — `--captures` — and it
+    was ungated.
+
+    What stops a fifth is
+    `test_every_operator_named_destination_is_registered_and_gated` above,
+    which DERIVES the destinations from the two modules' own source and fails
+    by name on a flag whose value reaches a write and is not registered. These
+    pairs are what turn that derivation's "the rule is called on this value"
+    into "and it refuses"; neither is the other's substitute."""
     registered = tuple(pins["freeze"]["excluded"])
-    for key, (drive, lawful, unlawful) in sorted(
+    for key, (_entry, drive, lawful, unlawful) in sorted(
             LAWFUL_DESTINATION_PROBES.items()):
         # The fixture is live at both ends: the pair really is one excluded
         # destination and one the registry does not cover, read out of
@@ -1108,6 +1608,80 @@ def test_every_runtime_gated_destination_refuses_an_unlawful_one(study, pins):
             "act that writes there moves the §2.10 tree manifest: %s"
             % (key, unlawful, refused or "(no refusal at all)"))
         assert unlawful in refused, (key, refused)
+
+
+def test_deleting_any_link_of_a_destination_gate_turns_its_case_red(study):
+    """"Deleting the call turns this red" — RUN, for every link of the chain.
+
+    Round 18, finding 2. The pair above is what makes the destination rule a
+    behaviour rather than a predicate, and until this case the claim that it
+    would catch a deleted call was a sentence in a docstring. It was false:
+    `_drive_emit_records()` called `_check_records_target()` itself, so the one
+    line in `score_registered()` that wires the rule into the registered
+    command could be deleted with `harness/integrity.py` at exit 0 and the
+    whole pinned suite at 315 passed — and that deletion removes the round-14
+    POPULATION check with it, not only the destination check.
+
+    So the chain is derived and each of its links is cut. `redness.chain_to()`
+    reads the path from the module's own `main()` down to
+    `require_lawful_destination()` out of the source; `redness.mutant()`
+    compiles the module with ONE of those calls removed, into a throwaway
+    module object that is never written and never imported by name; the probe's
+    own drive is re-run against it; and the UNLAWFUL destination must stop
+    being refused. A link this case cannot cover is reported by name rather
+    than passed over: today those are exactly the four `main()` -> entry edges,
+    which are VALUE edges (`return run_capture(…)`) that cannot be deleted and
+    still compile — which is why a drive starts at an entry, and which is the
+    round-18 finding stated as a property of the chain rather than as an
+    apology.
+
+    This case is the reason the pair may claim redness at all. It is not a
+    substitute for the ledgers in `test_batch.py` and `test_admission.py`:
+    those protect gates no probe drives, and this protects only chains a probe
+    does. `redness.py`'s own docstring carries what the mutation operator
+    cannot reach."""
+    with open(score_rates.REGISTRY_OF_RECORD) as handle:
+        registered = tuple(json.load(handle)["freeze"]["excluded"])
+    modules = {"batch": batch, "score_rates": score_rates}
+    uncoverable = []
+    cut = 0
+    for key, (entry, drive, _lawful, unlawful) in sorted(
+            LAWFUL_DESTINATION_PROBES.items()):
+        module = modules[key[0]]
+        universe = gatescan.Universe(module.__file__)
+        # What the command line runs ABOVE the drive point, derived the same
+        # way: the case cannot cut those and says so by name.
+        for _home, host, callee, _line, _deletable in redness.chain_to(
+                universe, "main", entry):
+            uncoverable.append((key, "%s() -> %s (above the drive point)"
+                                % (host, callee)))
+        chain = redness.chain_to(universe, entry, DESTINATION_GATE)
+        assert chain, (
+            "%s.%s() reaches no %s(): the chain this case cuts is derived from "
+            "the source, so an empty one is a rule that is no longer wired in "
+            "at all" % (key[0], entry, DESTINATION_GATE))
+        assert not integrity.manifest_excluded(unlawful, registered), key
+        for home, host, callee, line, deletable in chain:
+            if not deletable:
+                uncoverable.append((key, "%s() -> %s (not a deletable "
+                                         "statement)" % (host, callee)))
+                continue
+            broken = redness.mutant(modules[home], host, callee, line)
+            refused = drive(study, os.path.join(study, unlawful),
+                            module=broken)
+            assert LAWFUL_DESTINATION_NEEDLE not in refused, (
+                "%r still refuses %r with %s.py:%d %s() -> %s deleted, so this "
+                "pair is not what holds that call: %s"
+                % (key, unlawful, home, line, host, callee, refused))
+            cut += 1
+    # …and the harness is live: it cut something, and what it could not cut it
+    # named. Today every link below each drive point is deletable and every
+    # deletion is caught, so the only uncoverable links are the value edges
+    # `main()` dispatches through — which no case can delete and keep the
+    # module compiling, and which is why a drive starts at an entry.
+    assert cut == 5, cut
+    assert all("above the drive point" in why or "not a deletable" in why
+               for _key, why in uncoverable), uncoverable
 
 
 def test_every_writing_module_is_scanned(study):
@@ -1573,10 +2147,11 @@ def test_every_stand_in_registry_writes_every_lifecycle_member(study):
         assert stand_in_offenders("stand-in.py", source) == [], what
 
 
-# The three shapes round 16, finding 3 demonstrated the old scan staying GREEN
-# under. Each is spliced onto a copy of a writing module's source and must come
-# back as a NAMED offender: a fail-closed claim that is not itself tested is the
-# same sentence in a docstring the round before.
+# Every shape the scan has been measured staying GREEN under — round 16's
+# three, round 17's four, round 18's five. Each is spliced onto a copy of a
+# writing module's source and must come back as a NAMED offender at a line past
+# that module's own last one: a fail-closed claim that is not itself tested is
+# the same sentence in a docstring the round before.
 FAIL_CLOSED_SPLICES = (
     ("an API outside the vocabulary",
      "def _sneak_one(root):\n"
@@ -1608,6 +2183,29 @@ FAIL_CLOSED_SPLICES = (
     ("a writer reached through a computed callee",
      "def _sneak_eight(root):\n"
      "    return getattr(os, 'replace')('/x', os.path.join(root, 'SNEAK8.md'))\n"),
+    # Round 18, finding 4. The eight above drive four of the five clauses the
+    # bullet below used to make; the fifth — "not by any other binding form" —
+    # was driven by nothing and was false in twelve measured spellings. These
+    # are one per MECHANISM rather than one per spelling, because the rules are
+    # `symtable` and `callable()` now and a spelling is not what either of them
+    # decides on: a binding target that is not a simple name, a parameter, a
+    # rebinding through a NON-filesystem import (which the import limbs
+    # structurally cannot see), a primitive escaping as a value with no
+    # assignment statement anywhere, and the one existing clause — `import
+    # tempfile as t` — that had a limb and no splice.
+    ("a binding target that is not a simple name",
+     "for open, _sneak_nine in ((1, 2),):\n"
+     "    pass\n"),
+    ("a filesystem name bound as a parameter",
+     "def _sneak_ten(open):\n"
+     "    return open\n"),
+    ("`open` rebound through a NON-filesystem import",
+     "import json as open\n"),
+    ("a writer escaping as a value, with no assignment",
+     "def _sneak_eleven(root, _replace=os.replace):\n"
+     "    return _replace('/x', root)\n"),
+    ("a filesystem module reached under an import alias",
+     "import tempfile as _sneak_twelve\n"),
 )
 
 
@@ -1629,7 +2227,15 @@ def test_the_writer_scan_fails_closed_on_what_it_cannot_read():
     `os.open()` whose flag set is a variable was a fourth independent
     fail-open. The rule this file now works to: a disposition may not name a
     CLASS as closed unless the class's boundary is driven, and where it is not
-    driven, the spellings that ARE driven are the claim."""
+    driven, the spellings that ARE driven are the claim.
+
+    Round 18, finding 4 applied that rule to this file's own record and it
+    failed: the alias bullet made five clauses, `FAIL_CLOSED_SPLICES` drove
+    three of them, and the undriven clause — "not by any other binding form" —
+    was false in twelve spellings. Five more splices, one per mechanism rather
+    than one per spelling, and the count is pinned below so that a clause
+    cannot be added to the claim without a splice being added to the drive."""
+    assert len(FAIL_CLOSED_SPLICES) == 13, len(FAIL_CLOSED_SPLICES)
     for module in WRITING_MODULES:
         with open(module.__file__, encoding="utf-8") as handle:
             source = handle.read()

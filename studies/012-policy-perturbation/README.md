@@ -266,6 +266,15 @@ sha256sum PREREGISTRATION.md
 #    arm: it uses the arm-independent probe prompt, and the pre-prompt
 #    context precedes the prompt. TWO probe calls; the capture is derived
 #    only if they agree, and only from distinct sessions.
+#
+#    LEAVE --captures AND --out AT THEIR DEFAULTS. The attempts land in
+#    controls/recapture/ and the capture in transcription/GOLDEN-CONTEXT.json,
+#    both of which harness/PINS.json excludes from the §2.10 tree manifest.
+#    This is not advice: naming any other place inside the study REFUSES,
+#    because §8 retains the attempts and the bytes retained under an
+#    unexcluded path would move the manifest the final review round attested
+#    (round 18, finding 1 — --captures had this sentence nowhere, and no
+#    check either).
 "$PY" harness/batch.py capture --scratch-parent DIR
 #    Then put the printed digest into harness/PINS.json golden.sha256 and
 #    COMMIT both. From here on PINS.json is not edited: the batch stamps its
