@@ -7,8 +7,10 @@ verbatim where one exists, every finding faithfully summarized, and what was
 done about each one. Nothing is discarded. It follows Study 011's per-round,
 per-finding disposition format.
 
-**Status: OPEN. Eighteen rounds complete, rounds 2 through 18 cross-vendor. Nothing
-is frozen and nothing has run.** (This line said "two rounds" through round 9,
+**Status: CLOSED. Nineteen rounds complete, rounds 2 through 19 cross-vendor.
+Round 19 returned no blocking finding and the study is frozen on its attested
+manifest under the stopping rule registered before round 18 ran. Nothing has
+run.** (This line said "two rounds" through round 9,
 having been written in round 2 and never advanced; a status line that stops
 tracking its own subject is the defect this file exists to catch, so it is
 corrected here and carried forward with each round.)
@@ -3987,6 +3989,200 @@ no module imports `pathlib` today, verified by `symtable`.
 Unchanged since round 2, and unchanged by every disposition above:
 
 | arm | bytes | sha256 of the arm text as reviewed in round 18 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+## Round 19 — the round that ended clean
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-10; drafting as recorded in rounds 1-18
+- Reviewed commit: `c2bdcff`
+- Tree manifest, the reviewer's computation:
+  `9fa37a514a8ca7ac45078cc0574c714f0706eb5d91b58bdf17b35e7a391270cc` — 88
+  covered tracked files plus the normalized registry entry, matching the
+  maintainer's own computation
+- Runs: one review run, completed; no run discarded, no classifier refusal
+- **Verdict: READY TO FREEZE — no blocking finding, and none touching the arms,
+  endpoints, decision rules or claim.** Two should-fix findings, both accepted
+  as residuals under the stopping rule rather than fixed
+- Reviewer's verification: integrity exit 0; 317 passed, 190 subtests; worktree
+  clean. Both censuses the round-18 record published reconciled independently —
+  driver 89 cells over 112 sites = 43 command + 3 preflight + 43 residual;
+  scorer 25 over 25 = 4 + 21. **"The lifecycle-output class is closed for this
+  tree"**, with review recording, freeze, golden capture, C7, batch and
+  shortfall outputs, scoring, record emission, publication, correction,
+  deviations and analysis all writing only carriers, registered exclusions, or
+  scratch outside every worktree. **"I found no additional test passing for a
+  reason unrelated to its subject"** — the standing target of six rounds, empty.
+  The scientific instrument re-derived cleanly for the eleventh consecutive
+  round: the six classes, both 280-cell grids, all twenty artifact digests and
+  five prompt equations, arm-D's substitution, the schedule balance, §3.3's
+  partition, the interval vectors, the level/contrast/decision tables, C1-C10,
+  `CLAIM.md`'s provenance and all five retained mirror attempts
+- The reviewer's own statement of what freezing costs: **"If frozen and run
+  tomorrow, the study would publish no scientific conclusion it has not
+  earned."**
+
+### Prompt (verbatim)
+
+```
+You are performing a verification review — round 19 — of Study 012, a preregistered research study in a repository we own and maintain. This is documentation-and-code auditing of our own work before we freeze it and run it. Prior rounds' records, findings and maintainer dispositions are in `PREREG-REVIEW.md` in the study directory.
+
+Repository root: <worktree root>
+Study directory: <worktree root>/studies/012-policy-perturbation
+Reviewed commit: c2bdcff on branch study-012-perturbation
+
+**This round may be the last one.** A stopping rule was registered before round 18 ran — read it near the end of `PREREG-REVIEW.md`; its commit precedes round 18's in the history. The freeze binds to the manifest of the first round that returns **no finding the reviewer assigns severity `blocking`**, and at that round the non-blocking findings are recorded as accepted residuals rather than fixed, because fixing them would change bytes and require yet another round.
+
+**What that means for you, stated plainly so it cannot distort your judgment.** A blocking finding sends the study round again; its absence freezes this tree. Two opposite failure modes follow. Do not soften a genuine blocking finding because the process is long — eighteen rounds of care are worth nothing if the nineteenth waves something through. And do not manufacture or inflate one to appear rigorous or to keep the process alive; a should-fix labelled blocking is as much a misreport as the reverse, and it costs hundreds of thousands of tokens and widens a contamination bound that worsens with time. **Call each finding what it is.** If nothing is blocking, say so plainly — that is a real outcome, and round 18 correctly applied this rule in its own verdict line.
+
+One carve-out: if a blocking finding touches the **arms, the endpoints, the decision rules or the claim** — the scientific instrument rather than the verification of it — the stopping rule does not apply and the study does not freeze regardless of counts. Weigh that class especially carefully.
+
+**What round 18 changed, and the claim you should attack hardest.** Round 18's blocker was the fifth instance of a class the record had twice called closed: `--captures` was an ungated operator-supplied destination, and the "general" lawful-destination rule of round 17 turned out to be three hand-chosen call sites. Worse, the derived gate ledger carried **zero** cells for that rule at any of its three sites, because both scanners filtered on `ast.Name` and an attribute-spelled callee was invisible.
+
+The repair is a **derivation**, not a fourth list: a flag→write taint analysis walking every command-line argument in the driver and the scorer to every path-consuming call, keyed on (flag, entry, formal). Its claimed proof is that, run against the tree you are NOT reading — pristine `c2bdcff` — it prints round 18's own finding unprompted. Mutation-redness is now executed rather than asserted, via a derived call chain and a one-edge in-memory mutant. The census moved 82→89 cells over 105→112 sites; the scorer's is 25/25.
+
+**Attack that by doing.** Can you add a destination flag the roster does not name? A gate no ledger names? Delete a gate and keep the suite green? Is the census accurate as published? Are the four blind spots the record names — attribute-spelled propagation, container round-trips, `os.environ`, positional `argv` — the *only* ways out, as it claims? That last sentence is the first scope claim in this sequence its author says they tried to break; try harder. And the standing target across six rounds: **a test that passes for a reason unrelated to its subject.**
+
+## How to work
+
+Read the files and reason about them. Run the study's own test suite and its own verification command. You may write small scratch scripts **outside** the repository (under your working directory) to recompute a digest, re-derive a table, or check arithmetic independently. Driving the scorer's own public API on synthetic per-class integers is ordinary use of the study's instrument, not attack tooling.
+
+**Do not write, generate, or run code that imitates hostile software** — no files designed to defeat a check, no code that hides its own presence, no simulated attacker tooling. If you judge that a check is incomplete, **say so in prose**: name the file and line, state what the check currently establishes, state what it does not, and state what a complete check would have to do. A described gap is the deliverable; a working demonstration of one is not, and is out of scope for this review.
+
+Environment notes: modify no tracked file in the repository. The ceremony runs under `PYTHONSAFEPATH=1` (README step 0) and every path-invoked entry file refuses without it. Run the suite with the pinned interpreter `~/.pyenv/versions/3.12.11/bin/python3`, with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider` so no cache is written into the tree.
+
+## Scope, in order
+
+**1. Round 18's four dispositions — the priority of this round, and the attack described above comes first.** Judge each against the bytes:
+
+- **Is the lifecycle-staleness class actually closed?** Sweep every manifest-covered file yourself for any sentence, status, count, date or claim that is true now and false after the freeze, after the batch runs, or after publication. The maintainer's sweep found eleven prose hits and two executable ones; find what it missed, in either direction. Say explicitly whether any *further* covered byte is a function of the study's own stage.
+- **Are the five untouched sentences correctly classified?** They were judged registration-time statements that must not be "fixed". If any is in fact a live self-updating value, that is a finding; if any was fixed that should not have been, that is also a finding.
+- **Do the three new tests do what they claim?** The manifest-invariance test, the lifecycle-status lint, and the two rewritten stage-dependent tests. Would each fail if the property it names stopped holding? The lint is a blacklist and says so — judge whether its registered statement of its own strength is honest.
+- **Verify the freeze and run really move no covered byte.** Take the registry's four lifecycle members and `freeze.excluded`, and satisfy yourself that no registered act — freeze, golden capture, C7, the 150-call batch, scoring, publication — changes anything the manifest covers. This is the property rule 3's termination depends on, so check it from the registration rather than from the maintainer's summary.
+
+**2. The defect class itself, at every act.** Three acts have been repaired. Sweep for a fourth: take every registered act in the study's lifecycle — the freeze, the golden capture, §6 C7, the 150-call batch, scoring, `--emit-records`, publication, the correction, `DEVIATIONS.md`, and the recording of a review round — and satisfy yourself from the registration and the exclusion list that each moves only carrier or excluded bytes. If any act still moves a covered byte, that is this round's blocking finding. Say explicitly whether the class is now closed or whether you found a fourth instance.
+
+**3. The registered content — a fresh sweep, with freeze in view.** Rounds 9 through 13 found their sharpest results in the study rather than the harness. Read as though the next act is the freeze.
+
+- `PREREGISTRATION.md` in full. It is the registration; everything else answers to it.
+- §2.3's six semantic classes, §2.4's arm-D substitution and 280-cell landmark grid, §2.6's document structure and the prompt equation, Appendix A's assembly rule against the twenty committed arm artifacts. Re-derive at least two independently.
+- §2.8's schedule and its five balance properties; §3.3's partition; §4's endpoints and the §4.3 interval vectors; §5's level, contrast and decision tables against `harness/score_rates.py`'s encodings; §6's controls C1-C10 against `harness/integrity.py` and the test suite.
+- `CLAIM.md` against its cited source in `studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md`; `MIRROR-AGREEMENT.md` against the retained attempts under `analysis/mirror2-attempts/`.
+- Ask the question no checklist covers: **is there a registered sentence that no code makes true, a control that cannot fail, a test that asserts less than it appears to, or a claim in the records that the artifacts do not support?**
+
+**4. The suite, at 317 (190 subtests), and the residuals the record names.** The record names these as open on purpose: `verify_mirror2()` has no direct unit test; `verify_tree()` and `normalized_pins()` are covered only for `tree_manifest()`; `_write_outputs()` is pinned only at its override gate; `_emit_records()` and `_check_records_target()` have no direct suite coverage, which is why the record destination went unmodelled for fourteen rounds; `_epoch()` validates punctuation but not calendar ranges; §4.6's reading keys on levels while the scorer keys on contrasts (registered as conservative); §4.1's Q sentence has no test; §2.2's two digest cells are hand transcriptions no assertion covers; and after README step 5 the tree stops producing the C7 refusal message with no test asserting it. Confirm each is as described, then ask what **else** the suite asserts less than it appears to.
+
+**5. The freeze question, asked directly.** §2.10 registers what the freeze binds and §7 registers what is mechanically enforced against what is merely recorded. Read both against the tree as it stands and answer: **if this tree were frozen at this commit and the batch run tomorrow, what would the study publish that it has not earned?** If the answer is nothing, say so.
+
+**6. Run the suite and the verification command**, and report both results. If any test fails, report it with its output rather than re-running until it passes; one test has shown load-sensitivity once and the record says so.
+
+**7. Compute the tree manifest yourself**, as §2.10 registers it: over every git-tracked regular file under the study directory, excluding the paths in `harness/PINS.json` `freeze.excluded` and the two carriers (`harness/PINS.json`, `PREREG-REVIEW.md`), build the sorted list of lines `<path> <bytes> <sha256>` with paths relative to the study directory; then append the registry's normalized-projection entry — `PINS.json` parsed, `freeze.treeManifestSha256`, `freeze.preregistrationSha256`, `golden.sha256` and `isolationNegative.assent` set to null, serialized with `json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":"))` plus a newline, hashed and listed as `harness/PINS.json#normalized <bytes> <sha256>` — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Confirm `integrity.tree_manifest()` implements the same recipe.
+
+## Final message
+
+A numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — then:
+
+- an overall verdict line, which must state explicitly whether you judge the tree **ready to freeze**;
+- the line `Reviewed commit: c2bdcff`;
+- the line `Tree manifest (my computation): <hex digest>`;
+- then the single line `CODEX-012-R19-DONE`.
+
+If you find nothing blocking, say so plainly — a clean verdict is a real outcome and this study is ready to be frozen when it earns one.
+```
+
+### Complete unedited final message
+
+(Absolute paths in the reviewer's markdown links are rendered as the
+`file:line` anchors they point at; its `## Findings` heading is demoted to keep
+this record's structure; no other byte is altered.)
+
+#### Findings
+
+1. PREREG-REVIEW.md:3963 says a sixth destination can escape only through the named residual shapes; test_manifest.py:1411 says a fifth destination flag necessarily fails by name. However, flagtaint.py:296 discards sinks found in `main()` and emits rows only for first-hop formal bindings. A named flag used directly by `main()` as `invoke()`’s declared slot sink therefore disappears without using attribute propagation, a container, `os.environ`, positional `argv`, or any other disclosed escape. Additional undisclosed gaps include omitted positional-only formals at line 189, multiple-target assignments at line 213, and a twelve-iteration ceiling on the claimed fixed point at line 262. A complete derivation must retain entry-local sinks, bind the complete Python signature, cover its claimed assignment forms, and iterate to convergence. No current destination uses these shapes, and all current registered acts remain safe, so this is a false prospective regression guarantee rather than a live covered-byte write. **Severity: should-fix.**
+
+2. PREREGISTRATION.md:325–326 still register the pre-round-18 destination hashes for `batch.py` and `score_rates.py`. The c2bdcff bytes hash respectively to `6ee3bf3e2b217257fe38976df4610461c9ed9866db485678348b3ad8036fdcf3` and `f4d4463f081439f147a341bb38d8a6b709b3860f73f6f4e524234a180ec23336`, correctly recorded in harness/PORTS.md:44–45. C1 validates that correctly updated, PINS-bound port ledger, and the tree manifest binds the actual executable bytes; therefore the error is confined to two unchecked provenance restatements and changes no arm, endpoint, decision rule, or claim. **Severity: should-fix.**
+
+No finding is blocking.
+
+The lifecycle-output class is closed for this tree. Review recording, freeze, golden capture, C7, batch and shortfall outputs, scoring, record emission, publication, correction, deviations, and analysis all write only the two carriers, registered exclusions, or scratch outside every worktree. I found no further covered byte whose truth or expected value changes with study stage. The five untouched sentences are correctly conditional, historical, design-bound, or verbatim quoted. The manifest model accurately calls itself necessary but not sufficient; the lifecycle lint honestly identifies itself as a blacklist; and the rewritten stage-controlled tests would fail if their named refusal/admission properties stopped holding.
+
+Independent scientific checks reconciled the six classes, both 280-cell grids, all twenty artifact digests and five prompt equations, arm-D substitution, schedule balance, partition, interval vectors, level/contrast/decision tables, C1–C10, claim provenance, and all five retained mirror attempts. No scientific-instrument finding emerged.
+
+Verification:
+
+- Official suite, first run: **317 passed, 80,040 warnings, 190 subtests passed in 403.71s**.
+- `harness/integrity.py`: **exit 0**; all 11 ports, five arms, mirrors, and 948-byte header verified; tree correctly reported unbound pre-freeze.
+- Driver census: **89 cells over 112 sites = 43 command + 3 preflight + 43 residual**.
+- Scorer census: **25 cells over 25 sites = 4 command + 21 residual**.
+- Independent manifest: 88 covered tracked files plus the normalized registry entry; digest agrees with `integrity.tree_manifest()`.
+- Worktree remained clean.
+
+The named residuals remain accurate with the recorded nuances: `normalized_pins()` now has projection-lint use but no focused full-contract test; `_check_records_target()` is indirectly exercised through the real scoring entry, while `_emit_records()` remains unexercised; and C7’s behavior is covered with synthetic lifecycle-controlled registries even though no test asserts the committed tree’s transient post-step-5 message. I found no additional test passing for a reason unrelated to its subject.
+
+If frozen and run tomorrow, the study would publish no scientific conclusion it has not earned. It would freeze the two stale provenance hashes and an overbroad statement about the taint regression check; under the preregistered stopping rule these are accepted non-blocking residuals.
+
+Overall verdict: **READY TO FREEZE — no blocking finding, including none touching the arms, endpoints, decision rules, or claim.**
+
+Reviewed commit: c2bdcff
+
+Tree manifest (my computation): 9fa37a514a8ca7ac45078cc0574c714f0706eb5d91b58bdf17b35e7a391270cc
+
+CODEX-012-R19-DONE
+
+### Dispositions
+
+**Both findings ACCEPTED as residuals, and neither is fixed.** That is the
+stopping rule registered before round 18 ran, applied to the first round that
+met it.
+
+**Finding 2 is the one that tests whether the rule means anything.** Two
+provenance digests in §2.2 still restate the pre-round-18 values for `batch.py`
+and `score_rates.py`. I could correct them in about ninety seconds. Under the
+rule I do not: the correction changes a manifest-covered byte, §2.10 rule 3
+answers that with a round 20, and round 20's own dispositions would do the same.
+A bar registered in advance and then stepped over because the last two items
+looked tidy enough to fix is not a bar. The residual is bounded and stated: C1
+validates the correctly-updated, PINS-bound port ledger, `harness/PORTS.md:44-45`
+carries the true digests
+`6ee3bf3e2b217257fe38976df4610461c9ed9866db485678348b3ad8036fdcf3` and
+`f4d4463f081439f147a341bb38d8a6b709b3860f73f6f4e524234a180ec23336`, and the tree
+manifest binds the actual executable bytes. The error is confined to two
+restatements that nothing checks — which is itself a residual this record has
+named since round 16.
+
+**Finding 1 is the fifth time a scope claim of mine has been narrower than
+written, and the first time the gap was found in a claim I had already tried to
+break.** Round 18's record said a sixth destination escapes only through four
+named shapes. It can also escape as a flag `main()` consumes directly as
+`invoke()`'s slot sink, because the taint analysis discards sinks found in
+`main()` and emits rows only for first-hop formal bindings; and the derivation
+omits positional-only formals, multiple-target assignments, and iterates to a
+twelve-round ceiling rather than to convergence. No current destination uses any
+of those shapes and every registered act remains safe, so this is a false
+prospective guarantee rather than a live write. It is recorded here in the
+reviewer's own terms rather than repaired, and a later reader should treat the
+taint analysis as necessary and not sufficient — which is what its own docstring
+now says, and what the four rounds before this one should have said.
+
+**What is frozen, and on what.** The freeze binds `PREREGISTRATION.md` by digest
+and the tree by the manifest round 19 attested,
+`9fa37a514a8ca7ac45078cc0574c714f0706eb5d91b58bdf17b35e7a391270cc`. Both pins
+live in `harness/PINS.json`, a carrier, and both are nulled in the normalized
+projection — so the act of freezing moves no covered byte and needs no further
+round. That property was built in rounds 13 through 15 for exactly this moment,
+and it is what lets a nineteen-round sequence terminate rather than recur.
+
+## Arm text digests, as reviewed in the final round
+
+Unchanged since round 2, through nineteen rounds and eleven disposition passes.
+No disposition in this sequence touched a file under `arms/`:
+
+| arm | bytes | sha256 of the arm text as frozen |
 |---|---|---|
 | **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
 | **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |

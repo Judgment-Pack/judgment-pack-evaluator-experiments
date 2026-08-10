@@ -154,8 +154,8 @@
     "note": "§6 C7 runs once, against the operator's real home, only with recorded operator assent; batch.py capture-isolation-negative refuses while this is null."
   },
   "freeze": {
-    "preregistrationSha256": null,
-    "treeManifestSha256": null,
+    "preregistrationSha256": "sha256:97c6ee3e2156f2de60875efe472be22ca19e89ed11a16d164b982f94dcb2f415",
+    "treeManifestSha256": "sha256:9fa37a514a8ca7ac45078cc0574c714f0706eb5d91b58bdf17b35e7a391270cc",
     "excluded": [
       "RESULTS.json",
       "RATES.md",
