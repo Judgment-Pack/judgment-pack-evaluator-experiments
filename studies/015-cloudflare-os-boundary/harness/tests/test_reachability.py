@@ -392,6 +392,24 @@ def test_unbound_execution_catches_a_changed_argument_governed_effect(cell_copy)
     assert binding(cell)["code"] == "unbound-execution"
 
 
+def test_binding_reuse_catches_an_unbound_call_filling_the_cap(cell_copy):
+    """Round 5: counting is not enough — the governed call must BE the bound one.
+
+    A single governed call carrying no commitment digest satisfied
+    `len(subject) == authorized == 1` while sitting outside `bound_calls`, so every
+    target, argument, revision and report check skipped it.
+    """
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["stagedCalls"][0].pop("commitmentDigest")
+    platform["effects"] = []
+    dump_json(cell / "platform.json", platform)
+    report = load_json(cell / "report.json")
+    report["execution"] = "none"
+    dump_json(cell / "report.json", report)
+    assert binding(cell)["code"] == "binding-reuse"
+
+
 def test_binding_reuse_catches_an_orphan_governed_application(cell_copy):
     """An approved governed ledger row with no staged call used to be invisible."""
     cell = cell_copy("pos-baseline")

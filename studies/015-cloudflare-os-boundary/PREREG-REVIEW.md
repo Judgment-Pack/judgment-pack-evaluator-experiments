@@ -164,3 +164,30 @@ that is nearly done.
 closed — including the one the reviewer called fatal — and two are open with precise remedies.
 The study does not freeze on this record, and should not: a fifth round should confirm R4-1 and
 R4-4 and re-examine R4-2 and R4-3 once addressed.
+
+
+## Round 5 — DO-NOT-FREEZE
+
+Reviewer: same configuration, static review only. Study tree reviewed at commit `b193df3`.
+Verbatim review: [`reviews/round-5/REVIEW.md`](reviews/round-5/REVIEW.md).
+
+Round 5 opens by observing that **this record already says the study should not freeze** — R4-2
+was recorded "mostly fixed", R4-5 and R4-6 "open" — so its verdict confirms the study's own
+position rather than contradicting it. That is the intended function of the disposition table.
+
+Its sharpest finding is precise and is closed here:
+
+| # | Finding | Disposition |
+|---|---|---|
+| R5-1 | **Blocker.** Counting is not enough. Under `proceed`, a single governed call carrying no or a foreign commitment digest satisfied `len(subject_calls) == authorized == 1` while sitting outside `bound_calls`, so target, argument, revision and report-state checks all skipped it; `execution: "none"` then accepted the history. A wrong-tool call sharing an approved row's identity could also make a governed row be discarded rather than refused. | **Fixed.** The governed inventory must now match the authorization by **identity**, not arithmetic: every governed staged call must be the one bound to this commitment, and every approved governed record must be the bound one. The tag-based discard is gone, so an orphan row is refused rather than dropped. A regression test constructs the reviewer's exact history. |
+
+**Still open, and stated as such:** witness schema validation; retaining and joining the real
+private connector row (the study retains a flattened `connectorOutcome` enum and says so); the
+exact portal deployment inputs (portal name, upstream display name, workspace title) and a
+full-description byte comparison; and the wording sweeps R4-5 and R4-6.
+
+**Standing after five rounds.** Every blocker from rounds 1–4 is closed, and round 5's is closed
+here. Each round's findings have been narrower than the last — round 1 questioned whether the
+study measured anything, round 5 questioned one predicate's use of a count instead of an
+identity — which is convergence rather than churn. The study still does not freeze, and the
+remaining items are known, small and written down.

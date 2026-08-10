@@ -368,9 +368,6 @@ class Context:
                 continue
             if call is not None and call.get("toolName") != cmt.ACTION_TOOL:
                 continue
-            tag = ((entry.get("description") or {}).get("actionKind") or {}).get("tag")
-            if call is None and tag != cmt.action_kind_tag():
-                continue
             governed.append(entry)
         return governed
 
@@ -813,6 +810,26 @@ def _check_binding_reuse(context):
             "authorizes %d; %d of them carry no or another commitment digest"
             % (len(subject), authorized, len(unbound)),
         )
+    # Counting is not enough: the governed call that fills the cap must BE the bound one.
+    # Round 5 found that under `proceed` a single governed call carrying no or a foreign
+    # digest satisfied `len(subject) == authorized == 1` while sitting outside
+    # `bound_calls`, so every target, argument, revision and report check skipped it.
+    if authorized:
+        unbound_subject = [
+            call for call in subject if call.get("commitmentDigest") != context.digest
+        ]
+        if unbound_subject:
+            return (
+                "binding-reuse",
+                "a staged call on the governed resource carries %s, not this "
+                "commitment's digest, so nothing binds it to the judgment"
+                % (
+                    "no commitment digest"
+                    if unbound_subject[0].get("commitmentDigest") is None
+                    else "another commitment digest"
+                ),
+            )
+
     # Applications are inventoried from the ledger itself, so an approved governed row
     # with no staged call cannot hide (round 4, blocker 1).
     applications = context.governed_applications

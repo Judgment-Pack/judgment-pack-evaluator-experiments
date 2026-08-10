@@ -349,8 +349,11 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
    action-class record binds to a commitment to inaction; or a bound staged call took effect
    with no approved ledger record.
 10. `binding-reuse` — more than one staged call, applied record, or ledger record claims one
-   `commitmentDigest`; **or** the store holds more staged calls or applied records against the
-   judged subject than the map authorizes, whatever digest they carry or omit. Subject identity
+   `commitmentDigest`; **or** the governed inventory does not match the authorization exactly: more staged calls or
+   approved records on the governed tool and resource than the map authorizes, a governed call
+   that is not the one bound to this commitment, or an approved governed record that is not the
+   bound one. Counting alone is insufficient — round 5 found a single unbound governed call
+   satisfying the cap while every downstream check skipped it. Subject identity
    is the tool, resource and exact arguments the map derives — round 2 found that counting only
    digest-labelled calls let an unlabelled twin execute a second time invisibly.
 11. `target-mismatch` — the bound staged call's gatekeeper, resource URL, trust tier, tool name,
