@@ -184,7 +184,10 @@ jobs:
       - name: Install the pinned harness dependencies
         working-directory: studies/015-cloudflare-os-boundary
         run: python -m pip install --disable-pip-version-check -r harness/requirements.txt
-      - name: Run the protocol-integrity and reachability suites
+      - name: Run the protocol-integrity, reachability and upstream-probe suites
+        # The suite covers the SPEC/code vocabulary and ordering sync, per-code
+        # reachability, the registry and manifest gates, the fixture typecheck against
+        # the pinned server-side types, and the upstream-behaviour probes.
         working-directory: studies/015-cloudflare-os-boundary
         env:
           CFOS_SOURCE: /tmp/cloudflare-os

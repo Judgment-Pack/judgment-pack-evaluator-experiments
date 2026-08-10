@@ -7,6 +7,8 @@
 // behave as registered under the study's aliased, stubbed, node-only loading.
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { actionKindFor, catalogRevision, classifyTool } from "@gadgets/mcp-shared/tools";
 import {
   AutoApprovalDrainer,
@@ -160,6 +162,22 @@ suite("catalog identity helpers", () => {
     const kind = actionKindFor("jps-tracker", "create_work_item");
     assert.equal(kind.tag, "jps-tracker:create_work_item");
     assert.equal(kind.label, "create_work_item");
+  });
+
+  test("the adapter's reproduction of the tag rule agrees with upstream", () => {
+    // adapter/commitment.py reproduces `actionKindFor` so the verifier can DERIVE the
+    // action-kind tag instead of trusting one the store handed it. This is the pin that
+    // keeps the reproduction honest; a divergence is an apparatus failure, not a detection.
+    for (const [scope, tool] of [
+      ["jps-tracker", "create_work_item"],
+      ["jps-tracker", "delete_work_item"],
+      ["scope with spaces", "tool/with/slashes"],
+      ["a:b", "c d"],
+    ]) {
+      const upstream = actionKindFor(scope, tool).tag;
+      const reproduced = `${encodeURIComponent(scope)}:${encodeURIComponent(tool)}`;
+      assert.equal(upstream, reproduced, `${scope} / ${tool}`);
+    }
   });
 
   test("catalogRevision moves when a policy-feeding annotation moves", async () => {
