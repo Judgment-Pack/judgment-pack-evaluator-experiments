@@ -859,9 +859,9 @@ hard-coded tuple.
 **Arm C is no longer a derangement, and that is the round-2 trade [D-5].** The
 round-1 registration was (P2, P1, P4, P5, P3): the unique *derangement* that
 resolves clause 1 and clause 2, at the cost of leaving P2's own two-part opener
-forward-referencing P1 at position 2 — provably unavoidable, since *derangement
-+ every reference backward* is empty over all 120 permutations, by the same
-enumeration. Round 2's finding is that arm C is **a control on which arm E's
+forward-referencing P1 at position 2 — provably unavoidable, since
+*derangement + every reference backward* is empty over all 120 permutations,
+by the same enumeration. Round 2's finding is that arm C is **a control on which arm E's
 interpretation depends**, so a residual comprehension difficulty in C is not a
 disclosed cost but a live alternative explanation for a C-collapse — and a
 C-collapse disarms E under §5.3 (iii)'s dependency. Comprehensibility
@@ -3358,7 +3358,7 @@ Registered, per arm, before any call:
    record shape and the three outcome tokens, published verbatim in
    `MIRROR-AGREEMENT.md`, carrying no threshold, no class and no study term
    (round 3, finding 8, dispositioned) — and otherwise nothing
-   else** — not another arm, not the registered mirror, not `FAMILY.json`, not
+   else — not another arm, not the registered mirror, not `FAMILY.json`, not
    a record, not this file — and writes `analysis/mirror2_<arm>.py`;
 3. **every clean-room mirror must agree with that arm's registered mirror
    elementwise on the §2.4 landmark grid**, all 280 cells. This is a

@@ -18,7 +18,7 @@ entry names exactly one path. The asymmetry is deliberate in both directions —
 a tracked file sitting at a tree entry's BARE name (no slash) is reviewed bytes
 and stays in the manifest, and so does a tracked file under a file entry's name.
 
-Six assertions:
+Nine assertions:
 
 1. a file-shaped entry excludes that path and no descendant of it — including
    the two `MANIFEST_CARRIERS`, which the same widening covered;
@@ -36,29 +36,44 @@ Six assertions:
 6. and the property the exclusions exist to buy — the manifest is IDENTICAL
    after every registered act of the study's lifecycle, from recording a review
    round through the freeze, the golden recapture, §6 C7, the batch, the
-   scoring and the publication. The scoring act is the whole registered
-   command, `--emit-records` included, at the destination README step 7 names
-   rather than at a stand-in this file chose; the publication act includes
-   `CORRECTION.md`, which §8 requires written in every outcome. That is what
-   makes §2.10 rule 3 terminate, and it is asserted here by applying each act
-   to a copy of the tree rather than argued in prose.
+   scoring and the publication. The scoring act's DESTINATION is the one
+   README step 7 names, read out of the README rather than chosen here; the
+   layout beneath it is this file's model of what `_emit_records()` writes;
+   the publication act includes `CORRECTION.md`, which §8 requires written in
+   every outcome. That is what makes §2.10 rule 3 terminate, and it is asserted
+   here by applying each act to a copy of the tree rather than argued in prose;
+7. the destination README step 7 emits the compiled records into is a
+   registered exclusion tree, read out of the README's own command literal
+   rather than restated here (round 14, finding 1);
+8. every destination the study's writers NAME is an excluded path — read out of
+   their own source rather than modelled here, so an output a writer grows
+   without an entry in `freeze.excluded` fails whatever it is called, which is
+   what assertion 6 models and cannot check (round 15, finding 2);
+9. and that scan's own scope is total: a harness module that creates a file
+   and is not in its list fails there rather than going unscanned.
 
 Tests 4 and 6 are the only tests in the suite that run `git`. They are offline,
 they run inside `fixtures.throwaway_root()` and write nothing into the
 committed tree, and they need no git identity because only the index is ever
 read — `git add` without a commit is enough for `git ls-files`. Tests 5 and 6
 read the committed tree through `git ls-files`; test 6 copies it and writes
-only inside its own throwaway root.
+only inside its own throwaway root. Tests 8 and 9 read the harness sources
+themselves, through `ast`, and run no git and no subprocess at all.
 """
 from __future__ import annotations
+import ast
 import json
 import os
 import re
 import shutil
 import subprocess
 
+import arm_assembly
+import batch
 import fixtures
 import integrity
+import records_compile
+import score_rates
 
 
 def _tracked(root: str) -> list:
@@ -224,8 +239,12 @@ def test_the_manifest_is_identical_after_every_registered_lifecycle_act(study,
     throwaway copy of the tree and the manifest is required to be identical
     after each. It is the positive half of the remedy — the lint in
     `test_review_status.py` is the negative half, and a phrase list cannot be
-    complete. What this case adds is that a future output added without an
-    entry in `freeze.excluded` fails here, whatever it is called.
+    complete. What this case adds is that the acts as MODELLED here move no
+    covered byte. It models them; it does not run them, so an output a writer
+    grows without an entry in `freeze.excluded` is caught by
+    `test_every_study_destination_a_writer_names_is_an_excluded_path` below,
+    which reads the destinations out of the writers, and not by this case
+    (round 15, finding 2).
 
     It is necessary and not sufficient. A covered file that asserts a lifecycle
     status stays false-after-the-act without moving any digest here, because
@@ -321,3 +340,259 @@ def test_no_tracked_path_hides_under_a_file_entry(study, pins):
     hidden = [(name, entry) for entry in files for name in _tracked(study)
               if name.startswith(entry + "/")]
     assert hidden == []
+
+
+# --- the writers' own destinations (round 15, finding 2) ---------------------
+
+# The primitives that CREATE A FILE. Directory creation is deliberately absent:
+# a directory is not a tracked file and never enters the manifest.
+FILE_WRITERS = {
+    "open": 0, "os.rename": 1, "os.replace": 1, "os.symlink": 1, "os.link": 1,
+    "shutil.copyfile": 1, "shutil.copy": 1, "shutil.copy2": 1,
+    "shutil.copytree": 1, "shutil.move": 1,
+    "_write_json": 0, "_write_json_atomic": 0,
+}
+# Module-local functions that ARE one of the primitives above: their bodies are
+# that primitive's implementation, not destinations of their own.
+WRITER_HELPERS = ("_write_json", "_write_json_atomic")
+
+# Every executable that writes anything, and nothing else is scanned — a module
+# added here is scanned, and a module that starts writing and is not here is
+# caught by `test_every_writing_module_is_scanned` below.
+WRITING_MODULES = (score_rates, batch, records_compile, arm_assembly)
+
+# A destination root that is a PARAMETER is the caller's value, and this scan
+# does not follow it there. Each one is classified here, once, with the reason
+# it is not covered bytes; a parameter root that is not in this table FAILS, so
+# a new writer cannot be added without an entry.
+PARAMETER_ROOTS = {
+    ("score_rates", "_emit_records", "out_dir"):
+        "the `--emit-records DIR` target. `_check_records_target()` requires it "
+        "outside the population, README step 7 names `records`, and "
+        "`test_the_registered_record_destination_is_an_excluded_tree` binds that "
+        "name to a `freeze.excluded` tree.",
+    ("batch", "stamp_slot", "slot"):
+        "a slot of the registered order, always `arms/<ARM>/authoring/run-NNN` "
+        "(`slot_path()`), which is an excluded tree.",
+    ("batch", "refuse_slot", "slot"): "the same slot root.",
+    ("batch", "seal_slot", "slot"): "the same slot root.",
+    ("batch", "capture_golden", "out_path"):
+        "the golden capture, `DEFAULT_GOLDEN` = "
+        "`transcription/GOLDEN-CONTEXT.json`, an excluded file.",
+    ("batch", "capture_isolation_negative", "out_dir"):
+        "§6 C7's record, `DEFAULT_NEGATIVE` = `controls/isolation-negative/`, "
+        "an excluded tree.",
+    ("records_compile", "cmd_compile", "out_root"):
+        "the compiler's CLI output root. It is not a step of the registered "
+        "ceremony — the scoring uses this module as a LIBRARY "
+        "(`compiled_files()`) and writes through `_emit_records()` above.",
+    ("arm_assembly", "build", "root"):
+        "the arms root. This writer is the only one that writes COVERED bytes, "
+        "lawfully: assembling `arms/<X>/{POLICY.md,PROMPT.txt,FAMILY.json,"
+        "ARM.json}` is a pre-registration act, and it refuses to overwrite "
+        "bytes that differ, so it is byte-idempotent after the freeze.",
+}
+
+
+def _dotted(node):
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        base = _dotted(node.value)
+        return None if base is None else base + "." + node.attr
+    return None
+
+
+def _creates(call) -> bool:
+    """`open()` in a mode that creates a file; every other primitive always
+    does."""
+    if _dotted(call.func) != "open":
+        return True
+    mode = None
+    if len(call.args) > 1 and isinstance(call.args[1], ast.Constant):
+        mode = call.args[1].value
+    for keyword in call.keywords:
+        if keyword.arg == "mode" and isinstance(keyword.value, ast.Constant):
+            mode = keyword.value.value
+    return bool(mode) and any(letter in mode for letter in "wax+")
+
+
+def _resolve(node, assignments, depth=0, seen=frozenset()):
+    """(root symbol, [tail parts]) for a destination expression.
+
+    Resolved through the writer's own module only: `os.path.join`, string
+    literals, and a local name's single in-function assignment. A name already
+    being expanded is not expanded again (`root = root or <default>` rebinds a
+    parameter to itself), and anything else returns a root the caller cannot
+    classify — which is a failure and never a skip."""
+    if depth > 8:
+        return ("<too-deep>", [])
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return ("<literal>", [node.value])
+    if isinstance(node, ast.Name):
+        if node.id in assignments and node.id not in seen:
+            return _resolve(assignments[node.id], assignments, depth + 1,
+                            seen | {node.id})
+        return (node.id, [])
+    if isinstance(node, ast.BoolOp):
+        # `root or <default>`: the caller's value wins, so the parameter is the
+        # root and the default is not a second destination.
+        return _resolve(node.values[0], assignments, depth + 1, seen)
+    if isinstance(node, ast.Call):
+        name = _dotted(node.func)
+        if name in ("os.path.realpath", "os.path.abspath", "os.path.normpath"):
+            return _resolve(node.args[0], assignments, depth + 1, seen)
+        if name == "os.path.join":
+            root, tail = _resolve(node.args[0], assignments, depth + 1, seen)
+            for extra in node.args[1:]:
+                part_root, part_tail = _resolve(extra, assignments, depth + 1,
+                                                seen)
+                tail = tail + (part_tail if part_root == "<literal>"
+                               else ["<%s>" % part_root])
+            return (root, tail)
+        return ("<call:%s>" % name, [])
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Mod):
+        # `"run-%03d" % index`: the literal's fixed head is all a reader of the
+        # source knows, and the substituted tail is marked as unresolved.
+        root, tail = _resolve(node.left, assignments, depth + 1, seen)
+        if root == "<literal>":
+            return ("<literal>", [tail[0].split("%")[0] + "<format>"])
+        return (root, tail + ["<format>"])
+    return ("<%s>" % type(node).__name__, [])
+
+
+def write_sites(module) -> list:
+    """[(line, function, root symbol, [tail parts])] for every file-creating
+    write in a writing module, read out of its own source."""
+    with open(module.__file__, encoding="utf-8") as handle:
+        tree = ast.parse(handle.read())
+    sites = []
+    for function in [node for node in ast.walk(tree)
+                     if isinstance(node, ast.FunctionDef)]:
+        if function.name in WRITER_HELPERS:
+            continue
+        assignments = {}
+        for node in ast.walk(function):
+            if isinstance(node, ast.Assign) and len(node.targets) == 1 \
+                    and isinstance(node.targets[0], ast.Name):
+                assignments.setdefault(node.targets[0].id, node.value)
+        for node in ast.walk(function):
+            if not isinstance(node, ast.Call):
+                continue
+            name = _dotted(node.func)
+            if name not in FILE_WRITERS or not _creates(node):
+                continue
+            index = FILE_WRITERS[name]
+            if len(node.args) <= index:
+                sites.append((node.lineno, function.name, "<no-argument>", []))
+                continue
+            root, tail = _resolve(node.args[index], assignments)
+            sites.append((node.lineno, function.name, root, tail))
+    return sorted(sites)
+
+
+def _module_string(module, name):
+    value = getattr(module, name, None)
+    return value if isinstance(value, str) else None
+
+
+def test_every_study_destination_a_writer_names_is_an_excluded_path(study, pins):
+    """The writers' own destinations, derived from their source rather than
+    restated here (round 15, finding 2).
+
+    The lifecycle case above applies each registered act by HAND — it writes
+    the names the ceremony's writers write. That is an assertion about a list
+    THIS file keeps, so a writer that grew a fourth study-root output would
+    leave it green while the publication moved the attested manifest. This case
+    is the coupling the other one cannot be: every file-creating write in the
+    writing modules is read out of their AST, its destination is resolved as
+    far as the writer's own module resolves it, and every destination that
+    lands inside the study tree must be `manifest_excluded()`.
+
+    What it does not do, said rather than implied.
+
+      * It READS; it does not RUN. It binds the destinations the writers NAME,
+        not the files they produce — `_write_outputs()` publishes only for a
+        scoring that computed the committed registry's digest itself and
+        re-derives the whole result from the committed arms tree, so no fixture
+        can reach it and none should be able to (§2.10, §7). `_emit_records()`
+        and `_check_records_target()` therefore still have no direct coverage.
+      * It does not follow a parameter to its CALLERS, so a caller that hands a
+        writer a study path is invisible here: README step 5's "leave `--out`
+        at its default" is prose and not a check. The parameter roots are
+        classified in `PARAMETER_ROOTS` with the reason each is not covered
+        bytes.
+      * It is Python-only. `transcription/authoring_call.sh` writes into
+        `$SLOT`, an excluded tree, and into the scratch parent outside the
+        study; that is named here rather than parsed.
+      * It fails CLOSED on anything it cannot resolve, so a future writer with
+        a computed destination needs a constant or an entry.
+
+    What it does buy is that the classification is CHECKED against the code: an
+    unresolvable destination and an unclassified root both fail here, so a
+    writer cannot quietly acquire a covered destination.
+    """
+    registered = tuple(pins["freeze"]["excluded"])
+    study_root = os.path.realpath(study)
+    offenders = []
+    for module in WRITING_MODULES:
+        name = module.__name__
+        for line, function, root, tail in write_sites(module):
+            anchor = _module_string(module, root)
+            if anchor is None:
+                key = (name, function, root)
+                if key not in PARAMETER_ROOTS:
+                    offenders.append(
+                        "%s.py:%d %s() writes under %r, which is neither a "
+                        "module path constant nor a classified parameter root: "
+                        "add it to PARAMETER_ROOTS with the reason it is not "
+                        "covered bytes, or give the writer a constant"
+                        % (name, line, function, root))
+                continue
+            parts = [_module_string(module, part.strip("<>")) or part
+                     for part in tail]
+            if any(part.startswith("<") for part in parts):
+                offenders.append(
+                    "%s.py:%d %s() builds its destination from %r, which this "
+                    "scan cannot resolve; a destination that is not statically "
+                    "readable cannot be checked against freeze.excluded"
+                    % (name, line, function, parts))
+                continue
+            destination = os.path.realpath(os.path.join(anchor, *parts))
+            if destination != study_root \
+                    and not destination.startswith(study_root + os.sep):
+                continue                      # not a path inside the study tree
+            relative = os.path.relpath(destination, study_root)
+            if not integrity.manifest_excluded(relative, registered):
+                offenders.append(
+                    "%s.py:%d %s() writes %s, which harness/PINS.json does not "
+                    "exclude: the act that writes it would move the manifest "
+                    "the final round attested, and §2.10 rule 3 answers that "
+                    "with another round (round 15, finding 2)"
+                    % (name, line, function, relative))
+    assert offenders == [], "\n".join(offenders)
+
+
+def test_every_writing_module_is_scanned(study):
+    """`WRITING_MODULES` is the scan's own scope, so a module that starts
+    writing outside it would be invisible. Every harness module is parsed here
+    and one that holds a file-creating write must be in the list."""
+    harness = os.path.join(study, "harness")
+    missing = []
+    scanned = {os.path.realpath(module.__file__) for module in WRITING_MODULES}
+    for name in sorted(os.listdir(harness)):
+        if not name.endswith(".py"):
+            continue
+        path = os.path.join(harness, name)
+        if os.path.realpath(path) in scanned:
+            continue
+        with open(path, encoding="utf-8") as handle:
+            tree = ast.parse(handle.read())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) \
+                    and _dotted(node.func) in FILE_WRITERS and _creates(node):
+                missing.append("%s:%d" % (name, node.lineno))
+    assert missing == [], (
+        "these harness modules create files and are outside WRITING_MODULES, "
+        "so their destinations are checked against freeze.excluded by nothing: "
+        "%r" % (missing,))

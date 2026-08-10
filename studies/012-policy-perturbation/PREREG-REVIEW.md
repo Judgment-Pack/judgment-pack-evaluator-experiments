@@ -7,7 +7,7 @@ verbatim where one exists, every finding faithfully summarized, and what was
 done about each one. Nothing is discarded. It follows Study 011's per-round,
 per-finding disposition format.
 
-**Status: OPEN. Fourteen rounds complete, rounds 2 through 14 cross-vendor. Nothing
+**Status: OPEN. Fifteen rounds complete, rounds 2 through 15 cross-vendor. Nothing
 is frozen and nothing has run.** (This line said "two rounds" through round 9,
 having been written in round 2 and never advanced; a status line that stops
 tracking its own subject is the defect this file exists to catch, so it is
@@ -2940,6 +2940,275 @@ one this round closed.
 Unchanged since round 2, and unchanged by every disposition above:
 
 | arm | bytes | sha256 of the arm text as reviewed in round 14 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+## Round 15 — the class reopens in a test fixture
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-10; drafting as recorded in rounds 1-14
+- Reviewed commit: `c221dbb`
+- Tree manifest, the reviewer's computation:
+  `77f1e1fb1a90cd547b949b19aff6d6689d89d5db812871958f86e6f370b51223` — 86
+  entries, matching the maintainer's own computation
+- Runs: one review run, completed; no run discarded, no classifier refusal
+- **Verdict: NOT READY TO FREEZE**, on one blocking finding
+- Reviewer's verification first: integrity exit 0; 297 passed in 330.38s;
+  worktree clean. **Round 14's four dispositions hold**, and the one the brief
+  asked it to judge for post-hoc softening was cleared in its own words: the
+  four correction venues remain, the same-prominence language, the
+  no-recut/no-relegation sentence and both correction clauses are intact, and
+  **"the mechanism does not make correction easier to avoid: the pointer is
+  frozen, `CORRECTION.md` is mandatory in every outcome, and omission leaves a
+  visible dangling commitment."** On the fourth-instance sweep the brief asked
+  for: every current lifecycle writer — freeze, golden capture, C7, batch,
+  scoring, record emission, publication, correction, deviations and review
+  recording — writes only carriers or excluded destinations, and **no fourth
+  output-path writer exists**. The scientific registration re-derived cleanly:
+  all twenty arm hashes and Appendix assemblies, every prompt against the
+  948-byte header equation, all five 280-cell grids, the five schedule
+  balances, the partition, the interval vectors, the level/contrast tables, the
+  decision rows and the operating figures; `CLAIM.md` matches its Study 011
+  source and all five retained C10 attempts reconcile at 280/280
+- The reviewer's own statement of what freezing here would cost: the rate and
+  decision machinery **"would publish no scientific result it has not earned"**;
+  what it would publish unearned is **"durable stage-independent batch-golden
+  coverage and a functioning CI C1 run"**
+
+### Prompt (verbatim)
+
+```
+You are performing a verification review — round 15 — of Study 012, a preregistered research study in a repository we own and maintain. This is documentation-and-code auditing of our own work before we freeze it and run it. Prior rounds' records, findings and maintainer dispositions are in `PREREG-REVIEW.md` in the study directory.
+
+Repository root: <worktree root>
+Study directory: <worktree root>/studies/012-policy-perturbation
+Reviewed commit: c221dbb on branch study-012-perturbation
+
+**The question in front of you is: is this tree ready to freeze?** A clean verdict is a real outcome, and saying so plainly is the most useful thing you can do if the bytes earn it. Manufacturing a finding to justify the round would be worse than finding nothing.
+
+**What changed since round 14, and what it means for where you should look.** Round 14 answered NOT READY on two blocking findings, both instances of one defect class this study has now hit at three separate acts: a self-updating value living in a manifest-covered file. Round 12 hit it at the **recording** act (a round count), a pre-round-14 repair hit it at the **freezing** act (status prose), and round 14 hit it at the **publishing** act, twice:
+
+- `records/` — the destination the registered `score --emit-records records` command writes, whose compiled trees §8 *requires* published — was not in `freeze.excluded`, so publishing them would have moved the frozen manifest and made `integrity.py` refuse permanently.
+- §8 commits that an R1-UNSUPPORTED result is published "with the same prominence as the claim" in four venues, one of which was this study's manifest-covered README. **The falsification outcome could not be published without breaking the study's own freeze pin.**
+
+Round 14's dispositions closed both. `records/` and a new top-level `CORRECTION.md` are now in `freeze.excluded`; the README venue became a **frozen, pre-data pointer** to `CORRECTION.md`, which is registered as written in **every** outcome so the link is permanent and an absent `CORRECTION.md` is a visible failure to publish rather than a legitimate outcome. **Judge that repair hard, and judge it specifically for post-hoc softening**: the maintainer's constraint was that the commitment must not weaken, and a later skeptical reader is exactly who the check is for. All four venues, the "same prominence" clause, §8's no-re-cutting sentence and the two-part correction text were required to survive byte-identical — verify they did, and say plainly whether the mechanism change makes the correction easier to avoid in any way at all.
+
+Two further things round 14 changed, both of which caught the maintainer's own work: the lifecycle-invariance test claimed to cover "every registered lifecycle act" while modelling only five documents and never the registered scoring command (it now reads the destination out of README's own command literal); and the §4.6 labelling premise added one round earlier had overshot — coverage is existential within a run, and row 2 reads the aggregate level. A garbled registered sentence in §4.6, covered by no finding, was also repaired rather than carried into a freeze.
+
+## How to work
+
+Read the files and reason about them. Run the study's own test suite and its own verification command. You may write small scratch scripts **outside** the repository (under your working directory) to recompute a digest, re-derive a table, or check arithmetic independently. Driving the scorer's own public API on synthetic per-class integers is ordinary use of the study's instrument, not attack tooling.
+
+**Do not write, generate, or run code that imitates hostile software** — no files designed to defeat a check, no code that hides its own presence, no simulated attacker tooling. If you judge that a check is incomplete, **say so in prose**: name the file and line, state what the check currently establishes, state what it does not, and state what a complete check would have to do. A described gap is the deliverable; a working demonstration of one is not, and is out of scope for this review.
+
+Environment notes: modify no tracked file in the repository. The ceremony runs under `PYTHONSAFEPATH=1` (README step 0) and every path-invoked entry file refuses without it. Run the suite with the pinned interpreter `~/.pyenv/versions/3.12.11/bin/python3`, with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider` so no cache is written into the tree.
+
+## Scope, in order
+
+**1. Round 14's four dispositions — the priority of this round.** Judge each, and press hardest on the two blocking repairs:
+
+- **Is the lifecycle-staleness class actually closed?** Sweep every manifest-covered file yourself for any sentence, status, count, date or claim that is true now and false after the freeze, after the batch runs, or after publication. The maintainer's sweep found eleven prose hits and two executable ones; find what it missed, in either direction. Say explicitly whether any *further* covered byte is a function of the study's own stage.
+- **Are the five untouched sentences correctly classified?** They were judged registration-time statements that must not be "fixed". If any is in fact a live self-updating value, that is a finding; if any was fixed that should not have been, that is also a finding.
+- **Do the three new tests do what they claim?** The manifest-invariance test, the lifecycle-status lint, and the two rewritten stage-dependent tests. Would each fail if the property it names stopped holding? The lint is a blacklist and says so — judge whether its registered statement of its own strength is honest.
+- **Verify the freeze and run really move no covered byte.** Take the registry's four lifecycle members and `freeze.excluded`, and satisfy yourself that no registered act — freeze, golden capture, C7, the 150-call batch, scoring, publication — changes anything the manifest covers. This is the property rule 3's termination depends on, so check it from the registration rather than from the maintainer's summary.
+
+**2. The defect class itself, at every act.** Three acts have been repaired. Sweep for a fourth: take every registered act in the study's lifecycle — the freeze, the golden capture, §6 C7, the 150-call batch, scoring, `--emit-records`, publication, the correction, `DEVIATIONS.md`, and the recording of a review round — and satisfy yourself from the registration and the exclusion list that each moves only carrier or excluded bytes. If any act still moves a covered byte, that is this round's blocking finding. Say explicitly whether the class is now closed or whether you found a fourth instance.
+
+**3. The registered content — a fresh sweep, with freeze in view.** Rounds 9 through 13 found their sharpest results in the study rather than the harness. Read as though the next act is the freeze.
+
+- `PREREGISTRATION.md` in full. It is the registration; everything else answers to it.
+- §2.3's six semantic classes, §2.4's arm-D substitution and 280-cell landmark grid, §2.6's document structure and the prompt equation, Appendix A's assembly rule against the twenty committed arm artifacts. Re-derive at least two independently.
+- §2.8's schedule and its five balance properties; §3.3's partition; §4's endpoints and the §4.3 interval vectors; §5's level, contrast and decision tables against `harness/score_rates.py`'s encodings; §6's controls C1-C10 against `harness/integrity.py` and the test suite.
+- `CLAIM.md` against its cited source in `studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md`; `MIRROR-AGREEMENT.md` against the retained attempts under `analysis/mirror2-attempts/`.
+- Ask the question no checklist covers: **is there a registered sentence that no code makes true, a control that cannot fail, a test that asserts less than it appears to, or a claim in the records that the artifacts do not support?**
+
+**4. The suite, at 297, and the residuals the record names.** The record names these as open on purpose: `verify_mirror2()` has no direct unit test; `verify_tree()` and `normalized_pins()` are covered only for `tree_manifest()`; `_write_outputs()` is pinned only at its override gate; `_emit_records()` and `_check_records_target()` have no direct suite coverage, which is why the record destination went unmodelled for fourteen rounds; `_epoch()` validates punctuation but not calendar ranges; §4.6's reading keys on levels while the scorer keys on contrasts (registered as conservative); §4.1's Q sentence has no test; §2.2's two digest cells are hand transcriptions no assertion covers; and after README step 5 the tree stops producing the C7 refusal message with no test asserting it. Confirm each is as described, then ask what **else** the suite asserts less than it appears to.
+
+**5. The freeze question, asked directly.** §2.10 registers what the freeze binds and §7 registers what is mechanically enforced against what is merely recorded. Read both against the tree as it stands and answer: **if this tree were frozen at this commit and the batch run tomorrow, what would the study publish that it has not earned?** If the answer is nothing, say so.
+
+**6. Run the suite and the verification command**, and report both results. If any test fails, report it with its output rather than re-running until it passes; one test has shown load-sensitivity once and the record says so.
+
+**7. Compute the tree manifest yourself**, as §2.10 registers it: over every git-tracked regular file under the study directory, excluding the paths in `harness/PINS.json` `freeze.excluded` and the two carriers (`harness/PINS.json`, `PREREG-REVIEW.md`), build the sorted list of lines `<path> <bytes> <sha256>` with paths relative to the study directory; then append the registry's normalized-projection entry — `PINS.json` parsed, `freeze.treeManifestSha256`, `freeze.preregistrationSha256`, `golden.sha256` and `isolationNegative.assent` set to null, serialized with `json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":"))` plus a newline, hashed and listed as `harness/PINS.json#normalized <bytes> <sha256>` — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Confirm `integrity.tree_manifest()` implements the same recipe.
+
+## Final message
+
+A numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — then:
+
+- an overall verdict line, which must state explicitly whether you judge the tree **ready to freeze**;
+- the line `Reviewed commit: c221dbb`;
+- the line `Tree manifest (my computation): <hex digest>`;
+- then the single line `CODEX-012-R15-DONE`.
+
+If you find nothing blocking, say so plainly — a clean verdict is a real outcome and this study is ready to be frozen when it earns one.
+```
+
+### Complete unedited final message
+
+(The absolute paths the reviewer's markdown links carried are rendered as the
+`file:line` anchors they point at; its own `## Findings` heading is demoted to
+keep this record's section structure; no other byte is altered.)
+
+#### Findings
+
+1. **Blocking — the lifecycle-staleness class is not closed: the batch fixture still inherits live golden/C7 state.**
+
+   - **Record:** PREREGISTRATION.md:1307 says no manifest-covered test expectation may depend on the study’s stage.
+   - **Code:** test_batch.py:188 copies the committed registry but does not reset `golden.sha256` or `isolationNegative.assent`. Consequently, after README step 4, test_batch.py:491 no longer tests an unregistered golden: it tests a missing or mismatching temporary capture. After step 5, test_batch.py:226 falsely says the helper deliberately does not grant assent.
+   - Both golden tests assert only exit 1 while C7 is unmet, so the downstream C7 refusal can mask removal of the named batch golden check. The explicit scorer fixture tests a separate gate and does not cover `batch.require_golden()`.
+   - A complete repair must explicitly set the fixture’s lifecycle members, advance them only through fixture acts, and assert the named batch refusal.
+   - **Severity: blocking.** The mandatory golden and C7 acts make covered test prose and test meaning false after freeze. This is another instance of the lifecycle defect class.
+
+2. **The manifest-invariance test is not coupled to the executable writers it claims to cover.**
+
+   - **Record:** PREREGISTRATION.md:1315 and test_manifest.py:208 say every registered lifecycle act is applied and any future unexcluded output will fail.
+   - **Code:** test_manifest.py:249 hand-models fixed destinations. Its scoring simulation writes six named documents plus the README-parsed `records/` layout; it never invokes or introspects `score_registered()`, `_write_outputs()`, `_emit_records()`, or the batch writers. It would remain green if one of those writers added an unexcluded `SUMMARY.md`.
+   - The current writer inventory is correct and entirely excluded, so this is a regression-strength defect rather than a present manifest violation. A complete test must bind the real writers’ destination inventory to the exclusions.
+   - **Severity: should-fix.**
+
+3. **The carrier-only review-status check has an unregistered twenty-round ceiling.**
+
+   - **Record:** PREREGISTRATION.md:1296 says recording another review round remains free because only carrier bytes move; no review-count maximum is registered.
+   - **Code:** test_review_status.py:51 defines number words only through twenty, and test_review_status.py:152 indexes that tuple by the live round count. Round 21 raises `IndexError` and requires a covered test edit.
+   - **Severity: should-fix.**
+
+4. **The registered Study-012 CI verification step unconditionally refuses.**
+
+   - **Record:** README.md:198 and PREREGISTRATION.md:3055 say C1 and the deterministic suite run in CI.
+   - **Code:** .github/workflows/ci.yml:71 runs `python harness/integrity.py` without `-P` or `PYTHONSAFEPATH=1`; integrity.py:1380 therefore refuses before verification. I reproduced exit 2 with the exact safe-path refusal. The following pytest step is skipped.
+   - The local ceremony and batch/scorer gates remain sound, and the workflow is outside the study manifest, so I follow the earlier CI precedent rather than treating this as scientific blocking.
+   - **Severity: should-fix.**
+
+5. **C10 carries a malformed Markdown delimiter.**
+
+   - **Record:** C10’s second clause says the clean-room author receives only the arm policy and fixed interface.
+   - **Bytes:** PREREGISTRATION.md:3356 closes the intended bold span before carrying an unmatched `**` after `else` at line 3361. The substantive rule remains intelligible and the retained attempts satisfy it.
+   - **Severity: nit.**
+
+Round 14’s four dispositions otherwise hold:
+
+- `records/` and `CORRECTION.md` are correctly excluded, and every current lifecycle writer—freeze, golden capture, C7, batch, scoring, record emission, publication, correction, deviations, and review recording—writes only carriers or excluded destinations. No fourth output-path writer exists.
+- The four correction venues remain; outside the expressly registered README-to-linked-`CORRECTION.md` mechanism change, the same-prominence language, no-recut/no-relegation sentence, and both correction clauses remain intact. The mechanism does **not** make correction easier to avoid: the pointer is frozen, `CORRECTION.md` is mandatory in every outcome, and omission leaves a visible dangling commitment.
+- The five untouched statements are correctly retained as conditional, historical, role-defining, or pinned quotations. None is a live status value.
+- The lifecycle lint honestly calls itself a blacklist and now scans normalized PINS. The rewritten scorer and C7 null-state tests are stage-independent. The separate batch fixture in finding 1 is what the sweep missed.
+- The §4.6 repair is correct: mixed labelling loses the S5 ceiling but does not erase existential within-run coverage; 29/30 remains HIGH and routes from row 5 to row 7, while 3/30 routes to row 2.
+
+The scientific registration re-derived cleanly: all 20 arm hashes and Appendix assemblies match; every prompt satisfies the 948-byte-header equation; all five 280-cell grids agree with the registered mirror; the schedule has all five registered balances; the partition, interval vectors, level/contrast tables, decision rows, and operating figures match the scorer. `CLAIM.md` matches its Study-011 source, and all five retained C10 attempts reconcile through prompt, extraction, chronology, and 280/280 agreement.
+
+The named coverage residuals are accurately described, with one nuance: `normalized_pins()` is now directly exercised by the projection lint, although its complete four-member normalization contract and `verify_tree()`’s frozen branch remain without direct tests. No additional scientific claim or arithmetic defect was found.
+
+- Suite: `297 passed, 54050 warnings, 9 subtests passed in 330.38s`; exit 0.
+- Verification command: exit 0; 11 ports, five arms, 948-byte header, and mirrors A–E verified; expected pre-freeze manifest status `unbound`.
+- Independent manifest: 86 entries, including a 7,031-byte normalized registry projection. `integrity.tree_manifest()` returned the identical digest.
+- Worktree remained clean.
+
+If frozen and run tomorrow, the rate and decision machinery would publish no scientific result it has not earned. It would, however, publish verification claims it has not earned: durable stage-independent batch-golden coverage and a functioning CI C1 run.
+
+**Overall verdict: NOT READY TO FREEZE — finding 1 is blocking; the lifecycle-staleness class remains open.**
+
+Reviewed commit: c221dbb
+
+Tree manifest (my computation): 77f1e1fb1a90cd547b949b19aff6d6689d89d5db812871958f86e6f370b51223
+
+CODEX-012-R15-DONE
+
+### Dispositions
+
+All five findings **ACCEPTED**, all five independently confirmed against the
+bytes at `c221dbb`.
+
+**Finding 1 is blocking, and the verification changed what it is blocking
+*for*. The disposition must not overstate it.** The reviewer framed it as a
+fourth instance of the lifecycle-livelock class. It is an instance of the
+registered rule — a covered test expectation that is a function of the study's
+stage — but it is **not a livelock**: the suite is 297 green at the base stage,
+green after the golden capture, and green after §6 C7. Nothing turns red at any
+act. The harm is **silent coverage loss**, which is worse in one respect and
+better in another, and both belong in the record: worse because a red suite
+announces itself and this does not; better because freezing with it open would
+not have stopped the study running.
+
+What makes it blocking is the fact the verification established by doing it
+rather than arguing it: **with `batch.require_golden()`'s preflight call
+removed, the entire suite still passed — 297 of 297.** Not merely the two
+golden cases. Nothing anywhere in the harness caught deletion of §3.2's golden
+gate from the batch path, because the stand-in registry inherited a live
+`golden.sha256` and a live `isolationNegative.assent` from the committed
+registry, and both golden cases asserted only `exit 1` while a downstream C7
+refusal supplied it. The fixture now writes all four post-freeze members
+explicitly — including `freeze.treeManifestSha256`, which the verification
+added to the repair — advances them only through fixture acts, and the cases
+assert the **named** refusal rather than a bare exit code. With the fix, that
+same deletion turns the suite red on the two tests that name the gate.
+
+Two things the reviewer had imprecise, corrected here because the record is the
+thing a later reader gets. The golden case's *first* assertion never changed
+meaning — `require_golden` checks file existence before the pin — so only the
+second degenerated, into a byte-for-byte duplicate of the mismatch test beside
+it, leaving §3.2's "the null must be replaced" refusal with no test at all. And
+a **third** affected case the reviewer did not name: the test whose subject is
+the C7 *record* gate was in fact exercising the *assent* member, and its subject
+would have flipped at step 5. The sweep the brief demanded found no others:
+`stand_in_registry` was the only fixture inheriting any lifecycle member.
+
+**Finding 4 is mine, and it is the one I would least like to have found late.**
+CI has run `python harness/integrity.py` without `PYTHONSAFEPATH=1` since round
+10's disposition added the safe-path refusal — so the registered C1 verification
+step has exited 2 before verifying ever since, with the pytest step skipped
+behind it. Measured while fixing it: the pytest step as written fails 61 of 301
+for the same reason. §7 and the README say C1 and the deterministic suite run in
+CI. Those sentences have been false for five rounds, and no round caught it
+because every round ran the ceremony locally, where it passes. The workflow is
+outside the study manifest, so this could have been fixed after the freeze —
+which is exactly why it is worth saying that it was **not** deferred: a
+registered sentence being false is not less false for being cheaply fixable.
+
+**Findings 2, 3 and 5 as verified.** The manifest-invariance test hand-modelled
+its destinations, so it would have stayed green if a writer grew an unexcluded
+output; it now scans the writing modules and binds every destination they name
+to the exclusion list, and its own docstring states the four things that scan
+still does not reach — it reads rather than runs, does not follow a parameter to
+its callers, is Python-only, and fails closed. The round-count check carried an
+unregistered twenty-round ceiling that would have raised `IndexError` at round
+21 and forced a covered-byte edit — a latent instance of precisely the class the
+round-13 livelock fix closed, sitting inside that fix. And C10's malformed
+delimiter is repaired.
+
+**One repair beyond the findings**, taken because this was the last free moment:
+a `+ ` at the start of a continuation line in [D-5] splits that paragraph under
+CommonMark and orphans two italic delimiters. It is strictly worse than the
+delimiter finding 5 named, no finding covered it, and shipping it into a freeze
+because no reviewer filed it would be the wrong kind of discipline — the same
+reason round 14 repaired a garbled sentence no finding covered.
+
+Verification after the dispositions: `harness/integrity.py` exit 0; the pinned
+suite **301 passed** (297 + 4: the stage guard, the writer-destination scan, its
+scope check, and the round-ceiling test); tracked status clean; `arms/`,
+`analysis/`, `CLAIM.md` and `MIRROR-AGREEMENT.md` untouched. Demonstrated rather
+than asserted: the suite's *meaning* is now stable across the base, post-golden
+and post-C7 stages — a probe recording which refusal each case actually asserts
+prints the same three lines at all three, where before the second silently
+became a duplicate and the third flipped gate. The post-disposition tree
+manifest, the maintainer's computation, is
+`e4f15954c87373e2f885bde8ea0382d78feb208c9157a5f5244a0c5d501369db` — round 16
+attests it, and under §2.10 rule 3 that round is required, because these
+dispositions changed bytes.
+
+Residuals named rather than closed: `_emit_records()` and
+`_check_records_target()` still have no direct coverage; the writer scan is
+Python-only, so `authoring_call.sh`'s writes are outside it; and the four
+registered sentences about CI become true only when a pull request actually runs
+`study-012-harness` green, which has never happened — the publication PR should
+be tied to an observed-green job rather than to an absence of failures.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged since round 2, and unchanged by every disposition above:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 15 |
 |---|---|---|
 | **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
 | **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |

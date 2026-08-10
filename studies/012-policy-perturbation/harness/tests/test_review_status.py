@@ -48,6 +48,10 @@ NORMALIZED = "harness/PINS.json#normalized"
 # The record's own heading convention: `# Round N — ...` at any depth (rounds
 # 1-2 are `#`, rounds 3 on are `##`).
 ROUND_HEADING = re.compile(r"^#{1,6} Round (\d+)\b", re.M)
+# A convenience the record MAY use, never the vocabulary it must use: a word
+# table has a last entry, and an expectation whose domain ends inside a covered
+# file is the round-13 livelock one act later. `_count_renderings()` below is
+# what makes the expectation total in the count (round 15, finding 3).
 COUNT_WORDS = (
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
     "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
@@ -89,6 +93,19 @@ COVERED_LIFECYCLE_IDIOMS = (
     "this tree has not had",    # the freeze
     "is not a file yet",        # the golden recapture
 )
+
+
+def _count_renderings(total):
+    """Every rendering of the count the record's status line may use. A word
+    table has a last entry, and a covered file the record can outgrow puts the
+    round-13 livelock back one act later: past the table, recording a round
+    needs an edit HERE, and rule 3 answers that with another round. The numeral
+    is defined for every N, so the table is a convenience the record may use and
+    never a ceiling (round 15, finding 3)."""
+    renderings = [str(total)]
+    if total < len(COUNT_WORDS):
+        renderings.append(COUNT_WORDS[total].capitalize())
+    return renderings
 
 
 def _read(name):
@@ -150,8 +167,9 @@ def test_the_records_own_status_line_equals_its_own_headings():
     total = rounds_recorded()
     flowed = _flowed(_read("PREREG-REVIEW.md"))
     wanted = ["**Status: %s. %s rounds complete, rounds 2 through %d "
-              "cross-vendor." % (word, COUNT_WORDS[total].capitalize(), total)
-              for word in STATUS_WORDS]
+              "cross-vendor." % (word, count, total)
+              for word in STATUS_WORDS
+              for count in _count_renderings(total)]
     matched = [sentence for sentence in wanted if sentence in flowed]
     assert len(matched) == 1, (
         "PREREG-REVIEW.md's own status line is out of step with its own %d "
@@ -263,6 +281,16 @@ def test_the_projection_scan_catches_a_status_line_in_a_registry_note(pins):
     planted["freeze"]["note"] += " Freeze pending."
     assert _projection_hits(planted) == [(NORMALIZED, "freeze pending")]
     assert _projection_hits(pins) == []
+
+
+def test_the_status_line_check_has_no_round_ceiling():
+    """The expectation must be total in the round count. A lookup table with a
+    last entry is a covered file the record outgrows, and past it the only
+    repair is a covered edit — the round-13 livelock one act later. Stage-free
+    by construction: the counts probed are constants about the table, not the
+    live count (§2.10 rule 3, round 15 finding 3)."""
+    for total in (0, len(COUNT_WORDS) - 1, len(COUNT_WORDS), 10 ** 4):
+        assert str(total) in _count_renderings(total), total
 
 
 def test_round_one_is_internal_and_round_two_is_the_first_cross_vendor():

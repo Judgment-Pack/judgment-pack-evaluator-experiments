@@ -185,19 +185,40 @@ class Batch(unittest.TestCase):
         patched.start()
         self.addCleanup(patched.stop)
 
-    def stand_in_registry(self) -> dict:
-        """The committed registry with exactly three members moved: the stand-in
-        binary's digest and version, and the freeze digest §2.10 requires to be
-        non-null before any call. Everything the batch checks — N, the slot
-        count, the registered order, the five arm prompts — is the committed
-        registry's, so these tests run the real preflight and not a relaxed one.
+    def stand_in_registry(self, committed: dict = None) -> dict:
+        """The committed registry with the stand-in binary's digest and version
+        moved, and every one of §2.10's four post-freeze members WRITTEN.
+        Everything the batch checks — N, the slot count, the registered order,
+        the five arm prompts — is the committed registry's, so these tests run
+        the real preflight and not a relaxed one.
+
+        The four lifecycle members are written rather than inherited because
+        they are the study's STAGE, not its registration: `register_golden()`
+        and `record_negative_control()` below are this fixture's own README
+        steps 4 and 5, and a value read off the committed registry would make
+        every case here a function of how far the real ceremony has got — which
+        §2.10 forbids a manifest-covered test expectation to be, and which rule
+        3 would forbid repairing once the final round has read the file (round
+        15, finding 1). `test_no_case_here_depends_on_the_studys_stage` holds
+        it, so the next inherited member fails there rather than in a later
+        round's reading.
         """
-        with open(REGISTRY) as handle:
-            pins = json.load(handle)
+        if committed is None:
+            with open(REGISTRY) as handle:
+                committed = json.load(handle)
+        pins = json.loads(json.dumps(committed))
         pins["codex"]["binarySha256"] = batch._digest(self.cli)
         pins["codex"]["version"] = "codex-cli 0.145.0-fake"
         pins["freeze"]["preregistrationSha256"] = batch._digest(
             os.path.join(STUDY, "PREREGISTRATION.md"))
+        # §2.10's remaining three post-freeze members, at their pre-act state:
+        # the two this fixture's own acts advance, and the tree manifest, which
+        # no batch or scorer path reads from a registry it is handed — written
+        # anyway so the guard is total in `integrity.POST_FREEZE_MEMBERS`
+        # rather than a fourth list this file has to keep.
+        pins["freeze"]["treeManifestSha256"] = None
+        pins["golden"]["sha256"] = None
+        pins["isolationNegative"]["assent"] = None
         return pins
 
     def write_pins(self, pins: dict) -> None:
@@ -229,8 +250,10 @@ class Batch(unittest.TestCase):
         WRITTEN rather than run: running the real control would consume a
         stand-in-CLI plan entry and shift every other case's PLAN. The
         control's own behaviour is tested against the real command below, and
-        `stand_in_registry()` deliberately does not grant the assent — the
-        control's own refusal test builds its null case from there.
+        `stand_in_registry()` WRITES the assent null rather than inheriting one
+        — this method and `register_golden()` are the fixture's own README
+        steps 5 and 4, and every case that wants another state writes the state
+        it wants (round 15, finding 1).
 
         Round 10, finding 5: written with the members the REAL writer writes.
         The earlier five-member record was one `batch.capture_isolation_negative`
@@ -268,6 +291,18 @@ class Batch(unittest.TestCase):
                            "--pins", pins_path or self.pins_path,
                            "--golden", self.golden,
                            "--cli-override", self.cli] + list(extra))
+
+    def refusal(self, extra=(), pins_path: str = None) -> str:
+        """The registered refusal line `batch.py run` prints, so a case can name
+        the gate it is about instead of taking any exit 1 for the one it meant.
+
+        Round 15, finding 1: with `require_golden()` removed from `preflight()`
+        the whole suite stayed green, because §6 C7's gate below it refused for
+        its own reason and every golden case asserted only the status."""
+        captured = io.StringIO()
+        with contextlib.redirect_stderr(captured):
+            self.assertEqual(self.run_batch(list(extra), pins_path=pins_path), 1)
+        return captured.getvalue()
 
     def capture(self, out: str = None, extra=()):
         return batch.main(["batch.py", "capture", "--scratch-parent", self.scratch,
@@ -356,6 +391,39 @@ class Batch(unittest.TestCase):
 
     def attempt(self, index: int = 1) -> str:
         return os.path.join(self.captures, "attempt-%d" % index)
+
+    # --- the fixture's own stage (round 15, finding 1) -----------------------
+
+    def test_no_case_here_depends_on_the_studys_stage(self):
+        """§2.10: no manifest-covered test expectation may be a function of the
+        study's stage. Asserted rather than reviewed for the one input every
+        case in this class shares — the registry `setUp` writes is IDENTICAL
+        when the committed registry is advanced through each of its four
+        post-freeze members, so no case running under it can read one.
+
+        The instance it closes: the fixture used to INHERIT `golden.sha256` and
+        `isolationNegative.assent`, so README steps 4 and 5 moved the refusal
+        two golden cases and the C7-ordering case below actually fired on,
+        while all three stayed green at every stage — silent coverage loss and
+        not the livelock §2.10 describes, which is why fourteen rounds of a
+        green suite did not see it (round 15, finding 1).
+
+        What it does NOT cover, so the guard is not read for more than it is:
+        the two other cases in this class that open `REGISTRY` themselves, the
+        module-level interpreter check, and `IntervalScope` below. None of the
+        four reads a post-freeze member — `check_registry()` reads the order
+        and the prompts, the spelling case reads member NAMES, the interpreter
+        check reads `python`, and `fixtures.Population` writes its own
+        preconditions with the study's three nulled — but that is reviewed and
+        not asserted here."""
+        with open(REGISTRY) as handle:
+            committed = json.load(handle)
+        advanced = json.loads(json.dumps(committed))
+        for parent, member in integrity.POST_FREEZE_MEMBERS:
+            advanced.setdefault(parent, {})[member] = "sha256:" + "3" * 64
+        self.assertNotEqual(advanced, committed)
+        self.assertEqual(self.stand_in_registry(advanced),
+                         self.stand_in_registry(committed))
 
     # --- the registry the preflight reads (round 3 finding 3) ---------------
 
@@ -491,10 +559,16 @@ class Batch(unittest.TestCase):
     def test_no_slot_is_created_before_the_golden_capture_is_registered(self):
         # The failure this closes cost fifty real calls in Study 011: the batch
         # ran to completion and only the scorer noticed there was no allowlist.
-        self.assertEqual(self.run_batch(["--runs", "1"]), 1)
+        #
+        # Both refusals are NAMED. An exit 1 is not evidence that this gate
+        # fired: §6 C7's assent gate sits below it and refuses the same case
+        # for its own reason, so with `require_golden()` gone from `preflight()`
+        # this test — and the whole suite — stayed green (round 15, finding 1).
+        self.assertIn("no golden context at", self.refusal(["--runs", "1"]))
         self.assertFalse(os.path.exists(self.arms_root))
         self.assertEqual(self.capture(), 0)          # the file exists…
-        self.assertEqual(self.run_batch(["--runs", "1"]), 1)   # …unpinned
+        self.assertIn("registers no golden.sha256",
+                      self.refusal(["--runs", "1"]))           # …unpinned
         self.assertFalse(os.path.exists(self.arms_root))
         self.register_golden()
         self.record_negative_control()
@@ -506,7 +580,7 @@ class Batch(unittest.TestCase):
         self.register_golden()
         with open(self.golden, "a") as handle:
             handle.write("\n")
-        self.assertEqual(self.run_batch(["--runs", "1"]), 1)
+        self.assertIn("not the registered", self.refusal(["--runs", "1"]))
         self.assertFalse(os.path.exists(self.arms_root))
 
     def test_a_batch_never_starts_against_an_unfrozen_preregistration(self):
@@ -1223,7 +1297,14 @@ class Batch(unittest.TestCase):
         self.assertEqual(self.capture(), 0)
         self.register_golden()
         spent = self.calls_made()
-        self.assertEqual(self.run_batch(["--runs", "1"]), 1)
+        # Named, and under a registry that GRANTS the assent: the refusal this
+        # case is about is the missing RECORD's, and the assent gate sits above
+        # it — so an unnamed exit 1 here was the assent case one test down, and
+        # the subject would have moved to the record at README step 5 (round
+        # 15, finding 1).
+        self.assertIn("no §6 C7 record at",
+                      self.refusal(["--runs", "1"],
+                                   pins_path=self.assenting_registry()))
         self.assertFalse(os.path.exists(self.arms_root))
         self.assertEqual(self.calls_made(), spent)
         self.record_negative_control()
