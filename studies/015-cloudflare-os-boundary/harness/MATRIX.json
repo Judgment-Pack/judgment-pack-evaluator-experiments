@@ -305,7 +305,7 @@
         "binding": "fail:report-misattribution",
         "replay": "pass"
       },
-      "note": "forbidden mapping 1: JPS unresolved is not action rejected — an unresolved conflict is a judgment that could not be resolved, not a judgment to refuse"
+      "note": "forbidden mapping 1 of 5: JPS unresolved is not action rejected — an unresolved conflict is a judgment that could not be resolved, not a judgment to refuse"
     },
     {
       "id": "s02-unknown-auto-applied",
@@ -336,7 +336,7 @@
         "binding": "fail:action-map-violation",
         "replay": "pass"
       },
-      "note": "the headline cell: both platform checks replay and both pass, because eligibility reads the author verdict and the rule (auto-approval.ts:66-70) and no platform field carries a disposition — only the binding layer knows unresolved authorizes inaction"
+      "note": "forbidden mapping 2 of 5, and the headline cell: both platform checks replay and both pass, because eligibility reads the author verdict and the rule (auto-approval.ts:66-70) and no platform field carries a disposition — only the binding layer knows unresolved authorizes inaction"
     },
     {
       "id": "s03-opfail-as-unknown",
@@ -356,7 +356,7 @@
         "binding": "pass",
         "replay": "fail:replay-disposition-mismatch"
       },
-      "note": "forbidden mapping 3: a platform operational failure retconned into a JPS epistemic unknown — the retcon had to forge the envelope, and recomputation from the retained inputs is what exposes it"
+      "note": "forbidden mapping 3 of 5: a platform operational failure retconned into a JPS epistemic unknown — the retcon had to forge the envelope, and recomputation from the retained inputs is what exposes it"
     },
     {
       "id": "s04-approval-as-evidence",
@@ -383,7 +383,7 @@
         "binding": "fail:evidence-backing-invalid",
         "replay": "pass"
       },
-      "note": "forbidden mapping 4: human action approval is not evidence truth — workspace authority to release an effect says nothing about whether an evidence artifact exists"
+      "note": "forbidden mapping 4 of 5: human action approval is not evidence truth — workspace authority to release an effect says nothing about whether an evidence artifact exists"
     },
     {
       "id": "s05-handoff-dropped",
@@ -457,7 +457,7 @@
         "binding": "fail:evidence-backing-invalid",
         "replay": "pass"
       },
-      "note": "the observation-versus-evidence distinction made mechanical: access-flow tracking answers who read what through which binding, never whether an evidence artifact satisfies a requirement"
+      "note": "forbidden mapping 5 of 5: the observation-versus-evidence distinction made mechanical: access-flow tracking answers who read what through which binding, never whether an evidence artifact satisfies a requirement"
     },
     {
       "id": "b01-commitment-reuse",
@@ -661,7 +661,7 @@
         "binding": "fail:commit-overclaim",
         "replay": "pass"
       },
-      "note": "forbidden mapping 5: a returned callback reported as a committed external effect. The platform's approved state covers its callback returning and deliberately not dispatch (at-most-once, mcp-shared/README.md)"
+      "note": "the callback-versus-commit distinction: a returned callback reported as a committed external effect. (The boundary analysis's five forbidden mappings are s01, s02, s03, s04 and o01; this is a sixth hazard from the same analysis, not one of the five.) The platform's approved state covers its callback returning and deliberately not dispatch (at-most-once, mcp-shared/README.md)"
     },
     {
       "id": "m01-readonly-bypass",
@@ -676,6 +676,7 @@
       ],
       "modeledDependencies": [
         "effectAttestation",
+        "observedRouting",
         "evidenceArtifacts"
       ],
       "construction": "the mutating tool is annotated readOnlyHint true by the server; the pinned classifier routes it to the read path (mode read, classifiedBy server-annotation); the effect happens with an observation record and no action record",

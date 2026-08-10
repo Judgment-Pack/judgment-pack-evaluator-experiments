@@ -255,25 +255,28 @@ class Context:
         one.
 
         Subject identity is the tool, the resource, and the exact arguments the map
-        derives from the judgment — not a label the store chose. Keying on arguments is
-        what separates a surplus execution of *this* decision from an unrelated call
-        that happens to use the same tool.
+        derives from the *facts* — not a label the store chose, and **not** conditioned on
+        the judgment being executable. Keying on arguments is what separates a surplus
+        execution of this decision from an unrelated call that happens to use the same
+        tool; keying on the facts alone is what keeps the check alive under a commitment
+        to inaction, where the map authorizes zero calls and any subject call at all is
+        the violation. An earlier version returned nothing whenever no action was derived,
+        which silently disabled the whole check on the inaction half of the map.
         """
-        if self.derived is None:
+        if self.facts is None:
             return []
+        expected = cmt.arguments_digest(cmt.action_arguments(self.facts))
         subject = []
         for call in self.platform.get("stagedCalls") or []:
             gatekeeper = self.gatekeeper(call.get("gatekeeperId"))
-            if call.get("toolName") != self.derived["toolName"]:
+            if call.get("toolName") != cmt.ACTION_TOOL:
                 continue
-            if gatekeeper is None or gatekeeper.get("resourceUrl") != self.derived[
-                "resourceUrl"
-            ]:
+            if gatekeeper is None or gatekeeper.get("resourceUrl") != cmt.RESOURCE_URL:
                 continue
             digest = cmt.arguments_digest(
                 call.get("arguments"), tool_name=call.get("toolName")
             )
-            if digest != self.derived["argumentsDigest"]:
+            if digest != expected:
                 continue
             subject.append(call)
         return subject

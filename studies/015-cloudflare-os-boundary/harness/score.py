@@ -113,6 +113,7 @@ MODELED_DEPENDENCIES = (
     "commitmentCarrier",
     "connectorOutcome",
     "effectAttestation",
+    "observedRouting",
     "drainSnapshot",
     "evidenceArtifacts",
 )

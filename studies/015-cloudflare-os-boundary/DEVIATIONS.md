@@ -61,6 +61,41 @@ edited again.
   commit message asserted it. Round 2 caught it. The probes now exist and run; the lesson recorded
   is that a scripted edit must be verified against the file afterwards, not assumed.
 
+## Pre-freeze self-audit (before round 3 reported)
+
+An adversarial self-audit of the twice-rebuilt tree, run in parallel with round 3 and using the
+same standard the reviewers use, found seventeen defects introduced or left by the churn. The
+load-bearing ones, all fixed before round 3's report was read:
+
+- **A functional hole in the round-2 repair.** Subject identity for the cardinality check was
+  derived from the *authorized action*, which is `None` under every non-executable disposition —
+  so the check silently disabled itself on the whole inaction half of the map, where the map
+  authorizes zero calls and any subject call is the violation. Round 2's own attack shape
+  survived there. Subject identity now comes from the retained facts alone, and a regression
+  test constructs the attack.
+- **A tautological probe, and six documents citing it.** The check named "the adapter's
+  reproduction of the tag rule agrees with upstream" compared upstream's `actionKindFor` against
+  an inline TypeScript restatement of upstream's own one-line body — it asserted `f(x) == f(x)`
+  and never touched the adapter, while `commitment.py`, `SPEC.md`, `build_fixtures.py`, two
+  tests and `PREREG-REVIEW.md` all cited it as the guarantee. The real comparison now lives in
+  `test_study.py`, calls the pinned function through the runner over adversarial inputs
+  (spaces, slashes, non-ASCII, already-encoded strings), and the six claims are corrected. This
+  is the second time this study has claimed a check it did not have; the first is recorded above.
+- **The SPEC's own §1 example was the withdrawn scenario** — bare endpoint, `create_work_item`,
+  `jps-tracker:create_work_item` — in a document that says three sections later that exactly that
+  triple is emitted by no connector. It was also schema-invalid under the study's own validator.
+- **Three fixture-fidelity defects of the class round 2 blocked.** `m02` and holdout `h08`
+  carried `autoApprovable: false` on a vetted, non-destructive, idempotent tool, which
+  `classifyTool` makes `true`; `describeCall` was fed a server name and endpoint the portal
+  cannot supply (its `serverName` is a `${server} / ${id}` scope label, and the endpoint it
+  passes is the bare one, not the `#server=` resource URL); and `m01`'s observation prose was
+  hand-written where the read path submits the connector's own.
+- **An undeclared modeled dependency.** `observedCalls[].toolName` is the sole reason `m01`'s
+  upstream layer engages at all, and stock Cloudflare OS does not retain it structurally. It now
+  has a provenance row and a registry term, and `m01` declares it.
+- Plus the endpoint-category count (M annotation-trust contributes no endpoint), the mapping
+  numbering in the registry, and three dangling references to the removed simulation field.
+
 ## Registry changes before the freeze
 
 - **`d01-dependent-simulated-write` is withdrawn** (round 1, finding 5). The construction — a

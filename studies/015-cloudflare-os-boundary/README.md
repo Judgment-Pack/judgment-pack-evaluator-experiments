@@ -15,13 +15,12 @@ An interoperability falsification study between two independently designed layer
   disposition follows (deterministic, byte-portable under Core §8.3).
 - **Cloudflare OS** (Apache-2.0, pinned commit — an open governed-agent platform:
   Gatekeeper-mediated resources, an action approval queue, human and automatic approval,
-  deferred simulated effects, MCP tool-trust classification, an unsigned per-workspace
-  action log) owns capability, staging, approval, and effect execution.
+  deferred effects, MCP tool-trust classification, an unsigned per-workspace action log) owns capability, staging, approval, and effect execution.
 - A **thin adapter** (`adapter/SPEC.md`) owns exactly one thing: a *staged-action
   commitment* — the judgment digest tuple `{pack bytes, input bytes, evidence backing,
   canonical disposition, replay tuple}` bound to one exact staged platform action
-  `{gatekeeper, resource, trust tier, tool, action-kind tag, arguments digest, resource
-  revision, simulation basis}` — and a verification ceremony that recomputes everything
+  `{gatekeeper, resource, trust tier, tool, action-kind tag, arguments digest, stage-time
+  resource revision}` — and a verification ceremony that recomputes everything
   from retained artifacts.
 
 The study then tries to break the composition: 19 registered endpoint mutations across

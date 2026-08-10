@@ -303,6 +303,41 @@ def test_binding_reuse_catches_an_unlabelled_second_subject_call(cell_copy):
     assert binding(cell)["code"] == "binding-reuse"
 
 
+def test_binding_reuse_catches_a_subject_call_under_an_inaction_commitment(cell_copy):
+    """The same attack on the *inaction* half of the map.
+
+    A pre-freeze self-audit found that subject identity was derived from the authorized
+    action, which is `None` under every non-executable disposition — so the whole
+    subject-cardinality check silently disabled itself exactly where the map authorizes
+    zero calls. Subject identity now comes from the retained facts alone.
+    """
+    cell = cell_copy("b06-unbound-execution")
+    facts = json.loads((cell / "facts.json").read_bytes())
+    platform = load_json(cell / "platform.json")
+    platform["effects"] = []
+    platform["stagedCalls"] = [
+        {
+            "gatekeeperId": 1,
+            "action": 11,
+            "toolName": cmt.ACTION_TOOL,
+            "arguments": cmt.action_arguments(facts),
+            "resourceRevisionAtStage": "rev-7",
+            "connectorOutcome": "committed",
+        }
+    ]
+    platform["world"] = {"resourceRevisionAtApply": {"1:11": "rev-7"}}
+    dump_json(cell / "platform.json", platform)
+    ledger = load_json(cell / "ledger.json")
+    row = json.loads(
+        json.dumps(load_json(STUDY / "fixtures" / "baseline" / "ledger.json")[0])
+    )
+    row["id"] = 1
+    row["action"] = 11
+    ledger.append(row)
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "binding-reuse"
+
+
 def test_unbound_execution_counts_surplus_effects(cell_copy):
     """A second attested effect must not hide behind one legitimate application."""
     cell = cell_copy("pos-baseline")

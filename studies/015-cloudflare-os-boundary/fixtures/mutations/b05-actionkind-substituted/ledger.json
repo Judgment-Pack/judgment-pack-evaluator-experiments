@@ -13,8 +13,8 @@
     "type": "action",
     "action": 11,
     "description": {
-      "title": "tracker: trackerdeleteworkitem",
-      "description": "**tracker** → `tracker_delete_work_item`\n\n> Delete a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"expunge-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp#server=tracker`\n\nTreated as an action because the server did not declare it read-only. Nothing has been sent yet.",
+      "title": "tracker portal / tracker: trackerdeleteworkitem",
+      "description": "**tracker portal / tracker** → `tracker_delete_work_item`\n\n> Delete a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"expunge-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp`\n\nTreated as an action because the server did not declare it read-only. Nothing has been sent yet.",
       "implementsRevert": false,
       "awaitDecision": true,
       "autoApprovable": true,

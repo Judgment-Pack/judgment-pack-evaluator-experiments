@@ -73,6 +73,7 @@ it does not.
 | Catalog annotations and trust tier | **yes**, stock, but **untimestamped** | n/a | classification replay uses the *current* values; later drift could launder or falsely reject a historical classification — a registered limitation |
 | Approval identity, auto-approval attribution | **yes**, stock (`resolvedBy`, `autoApproved`) | not retained | `autoApproved` selects the drain replay; `resolvedBy` is compared against the enabler the pinned drainer attributes |
 | Action lifecycle state | **yes**, stock, three values | five values, divergent | read as-is |
+| Observed read-path routing (which tool a read-path call named) | not retained — `ObservationDescription` carries only title, description and policy hints (`gatekeeper.ts:911`) | not retained structurally | **instrumentation**; it is what the upstream layer classifies for `m01` |
 | Evidence artifacts | n/a | n/a | **instrumentation** (the acquiring system's, not the platform's) |
 
 Two structural facts the table implies and the study relies on. First, **the join key is
@@ -112,10 +113,10 @@ order.
   },
   "action": {
     "gatekeeperId": 1,
-    "resourceUrl": "https://tracker.example/mcp",
+    "resourceUrl": "https://tracker.example/mcp#server=tracker",
     "serverTrust": "vetted",
-    "toolName": "create_work_item",
-    "actionKindTag": "jps-tracker:create_work_item",
+    "toolName": "tracker_create_work_item",
+    "actionKindTag": "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker:tracker_create_work_item",
     "argumentsDigest": "<64 lowercase hex, no prefix>",
     "boundResourceRevision": "<opaque string>"
   }
@@ -145,8 +146,8 @@ Field semantics and digest conventions:
   `actionKindTag`, `argumentsDigest` — are determined by the §4 map from the judgment alone, and the verifier
   re-derives them rather than trusting them (§5, `action-derivation-mismatch`).
   `actionKindTag` is derived by reproducing the platform's own rule (`actionKindFor`,
-  `tools.ts:94`) over the registered scope tag; a probe asserts the reproduction agrees with
-  upstream.
+  `tools.ts:94`) over the portal's scope tag; a harness test calls the pinned function itself
+  over adversarial inputs and asserts the reproduction agrees with it.
 - **Contextual member** — `boundResourceRevision` alone — is staging state no map can
   determine. It is never derived; it is checked against the retained store
   (`stage-revision-mismatch`, `revision-drift`). Round 2 found `serverTrust` was wrongly

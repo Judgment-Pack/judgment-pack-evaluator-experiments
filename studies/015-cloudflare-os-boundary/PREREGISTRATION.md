@@ -165,11 +165,12 @@ detection here is post-hoc provability from retained artifacts.
 ## 4. Cells
 
 27 cells in `harness/MATRIX.json`: 1 positive control, 5 negative controls, 19 endpoint mutation
-cells across six registered categories (A judgment-artifact, S semantic-collapse,
-O observation-evidence, B binding-integrity, D deferred-execution, and the endpoint rows of
-M annotation-trust), 1 demonstration (`m01-readonly-bypass`) and 1 descriptive boundary
-(`m02-ambiguous-commit`). The six control-gate rows are validity gates on the apparatus and
-count toward nothing; every endpoint category is represented among the 19 endpoints.
+cells across **five** endpoint categories (A judgment-artifact ×4, S semantic-collapse ×6,
+O observation-evidence ×1, B binding-integrity ×7, D deferred-execution ×1), 1 demonstration
+(`m01-readonly-bypass`) and 1 descriptive boundary (`m02-ambiguous-commit`). The six control-gate
+rows are validity gates on the apparatus and count toward nothing. The sixth category,
+M annotation-trust, contributes **no endpoint** — its two cells are exactly the demonstration and
+the descriptive boundary, which is the point of registering them as such.
 
 The S family is the published boundary analysis's five forbidden mappings, one cell each
 (`s01` unresolved→rejected, `s02` unknown staged and auto-applied, `s03` operational failure

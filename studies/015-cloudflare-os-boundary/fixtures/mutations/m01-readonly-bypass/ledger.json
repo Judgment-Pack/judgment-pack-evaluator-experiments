@@ -12,8 +12,8 @@
     "state": "approved",
     "type": "observation",
     "description": {
-      "title": "Called tracker tool",
-      "description": "Called create_work_item through the read path (server-declared read-only)."
+      "title": "tracker portal / tracker: trackercreateworkitem",
+      "description": "**tracker portal / tracker** → `tracker_create_work_item`\n\n> Create a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"provision-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp`\n\nThe server declares this tool read-only, so it runs without approval. That claim comes from the server itself."
     }
   }
 ]

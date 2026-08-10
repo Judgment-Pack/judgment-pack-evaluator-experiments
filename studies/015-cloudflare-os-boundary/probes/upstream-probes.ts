@@ -31,7 +31,7 @@ function test(name: string, body: () => void | Promise<void>): void {
 }
 
 const TRACKER_TOOL = {
-  name: "create_work_item",
+  name: "tracker_create_work_item",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
 };
 
@@ -99,7 +99,7 @@ async function drainApplied(storage: AutoApprovalStorage): Promise<number[]> {
 suite("classifyTool — the m01/neg-mcp branches (tools.ts:62-77)", () => {
   test("honours readOnlyHint true on a byo endpoint: read path on the server's word", () => {
     const mislabeled = {
-      name: "create_work_item",
+      name: "tracker_create_work_item",
       annotations: { readOnlyHint: true, destructiveHint: true },
     };
     const classified = classifyTool(mislabeled as never, "byo");
@@ -116,7 +116,7 @@ suite("classifyTool — the m01/neg-mcp branches (tools.ts:62-77)", () => {
 
   test("refuses auto-approval without an exact idempotentHint === true", () => {
     const unannotated = {
-      name: "create_work_item",
+      name: "tracker_create_work_item",
       annotations: { readOnlyHint: false, destructiveHint: false },
     };
     assert.equal(classifyTool(unannotated as never, "vetted").autoApprovable, false);
@@ -195,26 +195,19 @@ suite("the registered scenario's foreclosures, read from pinned source", () => {
 });
 
 suite("catalog identity helpers", () => {
-  test("actionKindFor derives the policy tag from scope and tool name", () => {
-    const kind = actionKindFor("jps-tracker", "create_work_item");
-    assert.equal(kind.tag, "jps-tracker:create_work_item");
-    assert.equal(kind.label, "create_work_item");
-  });
-
-  test("the adapter's reproduction of the tag rule agrees with upstream", () => {
-    // adapter/commitment.py reproduces `actionKindFor` so the verifier can DERIVE the
-    // action-kind tag instead of trusting one the store handed it. This is the pin that
-    // keeps the reproduction honest; a divergence is an apparatus failure, not a detection.
-    for (const [scope, tool] of [
-      ["jps-tracker", "create_work_item"],
-      ["jps-tracker", "delete_work_item"],
-      ["scope with spaces", "tool/with/slashes"],
-      ["a:b", "c d"],
-    ]) {
-      const upstream = actionKindFor(scope, tool).tag;
-      const reproduced = `${encodeURIComponent(scope)}:${encodeURIComponent(tool)}`;
-      assert.equal(upstream, reproduced, `${scope} / ${tool}`);
-    }
+  test("actionKindFor derives the policy tag from the portal's scope and tool", () => {
+    // The adapter's Python reproduction is compared against this same pinned function
+    // by `harness/tests/test_study.py::test_adapter_tag_reproduction_agrees_with_upstream`,
+    // which is where that guarantee actually lives — a TypeScript restatement of
+    // upstream's own body could only ever assert f(x) == f(x).
+    const scope = "mcp-portal:https%3A%2F%2Ftracker.example%2Fmcp:portal-tracker";
+    const kind = actionKindFor(scope, "tracker_create_work_item");
+    assert.equal(
+      kind.tag,
+      "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker" +
+        ":tracker_create_work_item",
+    );
+    assert.equal(kind.label, "tracker_create_work_item");
   });
 
   test("catalogRevision moves when a policy-feeding annotation moves", async () => {

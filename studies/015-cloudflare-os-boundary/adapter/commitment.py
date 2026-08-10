@@ -133,9 +133,10 @@ def executable(disposition):
 
 # `encodeURIComponent`'s unreserved set (RFC 2396 mark characters plus alphanumerics) —
 # the platform's `actionKindFor` builds its tag with that exact escaping, so the adapter
-# reproduces the rule rather than trusting a value the store hands it. A probe against
-# the pinned `actionKindFor` asserts this function agrees with upstream
-# (`probes/upstream-probes.ts`); a divergence is an apparatus failure, not a detection.
+# reproduces the rule rather than trusting a value the store hands it. The reproduction is
+# compared against the pinned function itself, over adversarial inputs, by
+# `harness/tests/test_study.py::test_adapter_tag_reproduction_agrees_with_upstream`;
+# a divergence is an apparatus failure, not a detection.
 _URI_UNRESERVED = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()"
 )

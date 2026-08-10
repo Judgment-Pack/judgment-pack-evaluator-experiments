@@ -265,7 +265,6 @@ def test_action_kind_tag_matches_the_platform_rule():
     # The literal the pinned MCP Portal connector produces for the registered endpoint,
     # upstream server id and tool — double-encoded, because the portal's scope tag is
     # itself encoded and `actionKindFor` encodes the scope tag again.
-    # `probes/upstream-probes.ts` asserts the same equality against upstream itself.
     assert cmt.action_scope_tag() == (
         "mcp-portal:https%3A%2F%2Ftracker.example%2Fmcp:portal-tracker"
     )
@@ -273,6 +272,40 @@ def test_action_kind_tag_matches_the_platform_rule():
         "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker"
         ":tracker_create_work_item"
     )
+
+
+def test_adapter_tag_reproduction_agrees_with_upstream(cfos_source):
+    """The adapter reproduces `actionKindFor`; upstream itself must agree.
+
+    This calls the PINNED function through the build-helper runner and compares its
+    output to `commitment.py`'s own reproduction over adversarial inputs. An earlier
+    probe claimed to do this and did not: it compared upstream against an inline
+    restatement of upstream's one-line body, asserting f(x) == f(x) while six documents
+    cited it as the guarantee.
+    """
+    del cfos_source
+    import cf_runner
+
+    cases = [
+        (cmt.action_scope_tag(), cmt.ACTION_TOOL),
+        (cmt.action_scope_tag(), cmt.SECOND_TOOL),
+        ("scope with spaces", "tool/with/slashes"),
+        ("a:b", "c d"),
+        ("caf\u00e9", "na\u00efve_tool"),
+        ("100%", "a+b=c"),
+        ("~!*'()-_.", "already%20encoded"),
+    ]
+    helpers = cf_runner.build_helpers(
+        {
+            "actionKinds": [
+                {"scopeTag": scope, "toolName": tool} for scope, tool in cases
+            ]
+        }
+    )
+    assert len(helpers["actionKinds"]) == len(cases)
+    for item, (scope, tool) in zip(helpers["actionKinds"], cases):
+        assert item["kind"]["tag"] == cmt.action_kind_tag(scope, tool), (scope, tool)
+        assert item["kind"]["label"] == tool
 
 
 def test_registered_scenario_is_connector_shaped():
@@ -290,10 +323,29 @@ def test_registered_scenario_is_connector_shaped():
             if entry.get("type") != "action":
                 continue
             description = entry["description"]
-            # session.ts:126-135 always sets both.
+            # session.ts:126-135 always sets these three.
             assert description.get("awaitDecision") is True, cell["id"]
             assert isinstance(description.get("autoApprovable"), bool), cell["id"]
             assert description["implementsRevert"] is False, cell["id"]
+            # ...and the action kind is the connector's own, for the tool the staged
+            # call names — not a literal the fixture chose.
+            platform = json.loads(
+                (directory / "platform.json").read_text(encoding="utf-8")
+            )
+            call = next(
+                (
+                    item
+                    for item in platform.get("stagedCalls") or []
+                    if item.get("gatekeeperId") == entry.get("gatekeeperId")
+                    and item.get("action") == entry.get("action")
+                ),
+                None,
+            )
+            if call is None or "actionKind" not in description:
+                continue
+            expected_tag = cmt.action_kind_tag(tool_name=call["toolName"])
+            if description["actionKind"]["tag"] == expected_tag:
+                assert description["actionKind"]["label"] == call["toolName"], cell["id"]
 
 
 def test_derived_action_fields_are_disjoint_from_contextual_ones():

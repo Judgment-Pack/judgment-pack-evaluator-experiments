@@ -5,7 +5,7 @@ Every cell derives from one shared deterministic timeline. The JPS side is real:
 retained facts and evidence bytes, which are themselves the JCS serialization of verbatim
 cases from the specification's conformance seed manifest (vendored digests in PINS.json).
 The platform-identity values are derived by the adapter's reproduction of the platform's
-own rule and pinned against upstream `actionKindFor` by a probe.
+own rule, which a harness test compares against the pinned `actionKindFor` itself.
 
 Both strata are constructed here. Construction is not adjudication: the holdout fixtures
 are BUILT before the freeze — they must exist for the scorer's holdout gate to pass — but
@@ -65,7 +65,11 @@ DELETE_TOOL = {
     "description": "Delete a work item in the tracker.",
     "annotations": {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": True},
 }
-PORTAL_SERVER_NAME = "tracker"
+# The portal's `host.serverName` is its scope label — `${serverName} / ${serverId}`
+# (gatekeeper-mcp-portal/src/portal.ts:559-561, :495-498) — so it always contains the
+# separator. And `describeCall`'s endpoint is `host.endpoint`, the BARE endpoint
+# (session.ts:113, facet.ts:82-83); the `#server=` form is the resourceUrl.
+PORTAL_SERVER_NAME = "tracker portal / tracker"
 
 # The specification conformance seed cases each cell evaluates (facts + evidence verbatim).
 CASES = {
@@ -364,7 +368,7 @@ class Builder:
                         {
                             "label": "d",
                             "serverName": PORTAL_SERVER_NAME,
-                            "endpoint": cmt.RESOURCE_URL,
+                            "endpoint": cmt.PORTAL_ENDPOINT,
                             "tool": tool,
                             "toolArgs": tool_args,
                             "mode": mode,
@@ -799,9 +803,13 @@ def build_all():
     timeline = builder.timeline(built)
     timeline.gatekeepers[0]["tools"][0]["annotations"] = {
         "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True}
-    timeline.add_observation(
-        1, "Called tracker tool",
-        "Called create_work_item through the read path (server-declared read-only).")
+    read_described = builder.describe(
+        timeline.gatekeepers[0]["tools"][0],
+        cmt.action_arguments(built["facts"]),
+        mode="read",
+        classified_by="server-annotation",
+    )
+    timeline.add_observation(1, read_described["title"], read_described["description"])
     timeline.observed.append(
         {"gatekeeperId": 1, "ledgerId": 1, "toolName": cmt.ACTION_TOOL})
     timeline.attest_effect(cmt.action_arguments(built["facts"]))
@@ -813,7 +821,10 @@ def build_all():
     # stays pending, because overseer.ts only transitions it after applyAction returns.
     built = builder.build(case_key="proceed")
     timeline = builder.timeline(built)
-    timeline.add_action(1, action_key=11, state="pending", autoApprovable=False)
+    # `autoApprovable` is the classifier's verdict for this vetted, non-destructive,
+    # idempotent tool — true — and no rule is enabled, so the action waits for a human.
+    # Writing false here would be a shape the connector cannot emit.
+    timeline.add_action(1, action_key=11, state="pending", autoApprovable=True)
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
                    arguments=cmt.action_arguments(built["facts"]),
                    commitment_digest=built["digest"],
@@ -944,7 +955,7 @@ def build_holdout(builder, emit):
     # h08 — the outcome-unknown trace reported as a definite application.
     built = builder.build(case_key="proceed")
     timeline = builder.timeline(built)
-    timeline.add_action(1, action_key=11, state="pending", autoApprovable=False)
+    timeline.add_action(1, action_key=11, state="pending", autoApprovable=True)
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
                    arguments=cmt.action_arguments(built["facts"]),
                    commitment_digest=built["digest"],
