@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/home/onword/.local/bin/codex",
+    "exec",
+    "-s",
+    "read-only",
+    "--skip-git-repo-check",
+    "-m",
+    "gpt-5.6-sol",
+    "-c",
+    "model_reasoning_effort=\"ultra\"",
+    "-o",
+    "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/aa6c2e1b-6627-4273-9ea2-6377a9b17a60/scratchpad/exp-013/studies/013-agent-eval-forge-integration/results/rq3-attempt-001/authoring/rep-02/case-17/last-message.txt",
+    "-"
+  ],
+  "codexSha256": "a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "effort": "ultra",
+  "exitCodes": [
+    0
+  ],
+  "model": "gpt-5.6-sol",
+  "promptSha256": "4e31b85efa15e2493cc34c34e7d34131a102fd5048f45970cd65025760bda1c3"
+}

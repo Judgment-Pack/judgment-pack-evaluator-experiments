@@ -1,0 +1,26 @@
+{
+  "comment": "Opaque, non-answer-bearing case handles for the RQ3 model decider (frozen prereg requirement). Order = sha256(case id), so handles carry no semantic signal. The model sees ONLY the handle; the replay machinery maps back.",
+  "handles": {
+    "d01-approve": "case-05",
+    "d02-flagged-escalation": "case-18",
+    "d03-hold": "case-15",
+    "f01-exact-threshold": "case-08",
+    "f02-boundary-scale": "case-19",
+    "f03-just-below": "case-20",
+    "f04-just-above": "case-04",
+    "f05-number-amount": "case-01",
+    "p01-conflict-routed": "case-12",
+    "p02-unknown-unrouted": "case-06",
+    "t01-proceed": "case-07",
+    "t02-hard-stop": "case-13",
+    "t03-evidence-absent": "case-10",
+    "t04-evidence-unknown": "case-21",
+    "t05-embargo-exception": "case-14",
+    "t06-not-applicable": "case-17",
+    "t07-clarify": "case-03",
+    "t08-fact-unknown": "case-09",
+    "t09-sponsor-absent": "case-11",
+    "x01-forced-reject": "case-02",
+    "x02-suppressed-no-match": "case-16"
+  }
+}

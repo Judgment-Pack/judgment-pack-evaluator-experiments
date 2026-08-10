@@ -1,0 +1,110 @@
+2026-08-09T19:11:12.610199Z ERROR codex_models_manager::cache: failed to load models cache: missing field `base_instructions` at line 94 column 5
+OpenAI Codex v0.145.0
+--------
+workdir: /tmp/tmp5oejj_9j
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: ultra
+reasoning summaries: none
+session id: 019fe7ef-b021-7ed2-8cde-3aa91e13e692
+--------
+user
+You are the deciding officer for one business case under the policy below.
+Decide the case exactly as the policy directs — including declining to decide
+when the policy says the case is blocked, out of scope, or undecidable.
+
+Report your decision in this fixed vocabulary:
+- "kind": "outcome" (the policy produced a definite outcome),
+  "not-applicable" (the case is outside the policy's scope), or
+  "unresolved" (the policy blocks the decision).
+- "outcomeId": the outcome's identifier, ONLY when kind is "outcome".
+- "reasons": when kind is not "outcome", the applicable subset of
+  ["not-applicable","missing-required-evidence","unknown","conflict",
+  "no-match","exception-escalation"]; empty when kind is "outcome".
+- "handoff": "requested" if the policy routes this blocked or exceptional
+  case to a configured destination (or an exception escalates it directly),
+  else "none".
+- "target": when handoff is "requested" and the policy configures a
+  destination, {"kind": "...", "name": "..."} exactly as the policy names
+  it; null when no destination is configured or handoff is "none".
+
+## The policy
+
+# Data request intake triage policy
+
+This policy applies only to requests whose type is one of: new-data-pipeline,
+pipeline-change, dataset-onboarding, one-time-extract, data-access,
+reporting-feed. A request of any other type is outside this policy's scope.
+
+Required evidence: the completed intake form, and a sponsor endorsement from
+an accountable business sponsor. (Sensitive-data approvals may also exist but
+are not required.) If a required piece of evidence is known to be missing, or
+its availability cannot be determined, the request cannot be decided and must
+go to the Intake reviewer.
+
+Decision rules:
+- Decline and redirect when the request fails an appropriateness criterion
+  that more information cannot fix (appropriateness assessed as hard-fail).
+- Return for clarification when the submission is incomplete, or when
+  appropriateness is still pending or not yet evaluable.
+- Proceed when the submission is complete, every appropriateness criterion
+  passes, and both required pieces of evidence are present.
+- If the value of a fact needed by one of these rules is not available, the
+  decision is blocked and goes to the Intake reviewer rather than being
+  guessed.
+
+Exception (overrides everything above): if the request would put embargoed
+material non-public information in front of unauthorized recipients, the
+outcome is forced to decline-and-redirect. If it cannot be determined whether
+this exception applies, the decision is blocked and goes to the Intake
+reviewer.
+
+If no rule produces an outcome, the default disposition is
+return-for-clarification. Any blocked decision — not applicable, missing
+required evidence, an undecidable fact, conflicting rules, or no matching
+rule — is routed to the Intake reviewer (a human role).
+
+
+## The case
+
+Case handle: case-10
+
+Facts:
+```json
+{
+  "request": {
+    "appropriateness": "pass",
+    "completeness": "complete",
+    "embargoedInformationToUnauthorizedRecipients": false,
+    "type": "data-access"
+  }
+}
+```
+
+Evidence availability ("present" / "absent"; anything not listed is unknown):
+```json
+{
+  "intake-form": "absent",
+  "sponsor-endorsement": "present"
+}
+```
+
+For reference, the application maps outcomes to actions as:
+```json
+{
+  "clarify-return": "record",
+  "decline-redirect": "record",
+  "proceed": "execute:accept-request"
+}
+```
+
+Respond with ONLY one JSON object, no prose, no code fence:
+{"kind": "...", "outcomeId": "... or omit", "reasons": [...], "handoff": "none|requested", "target": {...} or null}
+
+warning: Skill descriptions were shortened to fit the 2% skills context budget. Codex can still see every skill, but some descriptions are shorter. Disable unused skills or plugins to leave more room for the rest.
+codex
+{"kind":"unresolved","reasons":["missing-required-evidence"],"handoff":"requested","target":{"kind":"human-role","name":"Intake reviewer"}}
+tokens used
+3,107
