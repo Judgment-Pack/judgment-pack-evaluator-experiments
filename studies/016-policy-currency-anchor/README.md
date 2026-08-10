@@ -1,6 +1,8 @@
 # Study 016 — the policy-currency anchor: what a signed pack-version registry catches, and where it must fail
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.**
+**Status: preregistration FROZEN at the squash-merge of PR #55 (five cross-vendor review
+rounds; final verdict `freezable as written`). Nothing has run under the freeze;
+`results/` is absent until the registered primary attempt.**
 
 Study 013 asked whether the application that acts on a judgment respects it at runtime
 (behavior). Study 014 asked whether a third party can prove, offline, which judgment an
@@ -55,9 +57,10 @@ registered as results in advance:
   configuration)`. Most cells share the baseline chain's bytes and vary only the signed
   registry state — the move that makes currency observable where 014's §4c could not: the
   world-that-moved is itself a retained, signed, pinned artifact.
-- **Fixtures** were revised at review round 1 (`PREREG-REVIEW.md`): 22 cells, one
-  aliveness control per layer, per-series trust pins, and a strictly fail-closed
-  verifier vocabulary.
+- **Fixtures** were revised across five review rounds (`PREREG-REVIEW.md`): 22 locked
+  cells, one aliveness control per layer, per-series trust pins, a strictly fail-closed
+  verifier vocabulary, and the reviewer-authored 10-cell holdout stratum
+  (`harness/MATRIX-HOLDOUT.json`, never executed pre-freeze).
 
 ## Layout
 

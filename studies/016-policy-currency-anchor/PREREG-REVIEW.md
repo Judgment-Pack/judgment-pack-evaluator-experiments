@@ -96,6 +96,15 @@ lineage sentence, outside a disavowal); one new MINOR. Prompt and findings verba
 Manifest regenerated after the edits; the freshness assertion and the full suite are
 green.
 
-## Round 5 — pending
+## Round 5 — 2026-08-10
 
-Confirmation of the two round-4 closures.
+Same reviewer. Verdict: **`freezable as written`** — R1-15 and R4-1 RESOLVED, the
+whole-study manifest verified fresh, **no new findings**. Prompt and findings verbatim in
+[`reviews/round-5/`](reviews/round-5/).
+
+The review record is complete: round 1 (15 findings, DO NOT FREEZE — all accepted),
+round 2 (confirmation + the reviewer-authored 10-cell holdout stratum, landed verbatim),
+round 3 (holdout landing confirmed byte-identical; residuals + the stale-manifest MAJOR
+closed), round 4 (two last closures), round 5 (clean confirmation, freezable as
+written). The freeze is the squash-merge of PR #55; the five freeze pins are filled in
+the freeze commit and enforced by the scorer thereafter.

@@ -1,7 +1,10 @@
 # Preregistration — Study 016: the policy-currency anchor, composed over Study 014's binding ceremony
 
-**Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing
-thereafter.**
+**Status: FROZEN by the squash-merge of PR #55 to `main`; governing thereafter.** The
+merge commit of that pull request is the freeze commit — named by reference because a
+squash hash cannot exist before the merge; the repository history renders the reference
+unambiguous. Five pre-freeze cross-vendor review rounds concluded with `freezable as
+written` (`PREREG-REVIEW.md`).
 
 **Nothing has run.** No registered attempt exists; everything executed during harness
 development lands under `pilots/`, is labeled harness validation, and supports no claim.
@@ -19,7 +22,7 @@ diverge, the pinned artifacts govern and the divergence is a deviation.
 
 ## The freeze and the primary attempt
 
-- **Freeze commit**: the squash-merge commit of this study's freeze pull request on `main`.
+- **Freeze commit**: the squash-merge commit of PR #55 on `main`.
 - **Primary attempt root**: `results/primary-attempt-001` — literal, and it must not exist at
   the freeze. The scorer refuses an existing root, so the first invocation of the governing
   command below is the primary attempt, and it is primary even if it crashes.

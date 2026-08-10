@@ -82,12 +82,16 @@ def test_registered_undetected_cells_expect_all_pass():
 
 
 def test_pins_registry_is_consistent():
+    """Two legal states: all freeze pins null (draft) or all filled AND
+    matching their live files (frozen). Any mixture, or a filled pin that
+    does not match, is inconsistent in either state."""
     pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
-    for member in score.FREEZE_PINS:
-        assert member in pins, member
-        assert pins[member].get("sha256") is None, (
-            "%s is already pinned in a DRAFT tree" % member
-        )
+    values = {m: (pins.get(m) or {}).get("sha256") for m in score.FREEZE_PINS}
+    if any(v is None for v in values.values()):
+        assert all(v is None for v in values.values()), values
+    else:
+        for member, relative in score.PINNED_DIGEST_MEMBERS:
+            assert values[member] == score.sha256_file(STUDY / relative), member
     assert pins["jpack"]["version"] == "0.17.0"
     assert pins["harnessPython"]["version"] == "3.12.11"
 
@@ -179,7 +183,10 @@ def test_scorer_is_deterministic_and_control_gates_hold(jpack_bin, tmp_path):
         outputs.append(raw.replace(name, "attempt-x"))
         results = json.loads(raw)
         assert results["pipelineInvalid"] is False
-        assert results["label"] == "PILOT"
+        pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+        frozen = all((pins.get(m) or {}).get("sha256") is not None
+                     for m in score.FREEZE_PINS)
+        assert results["label"] == ("REGISTERED" if frozen else "PILOT")
         for cid, record in results["cells"].items():
             if record["role"] == "control-gate":
                 assert record["adjudicated"] and not record["divergent"], cid
@@ -200,9 +207,13 @@ def test_holdout_registry_schema_and_hooks():
     assert "control-gate" in roles
 
 
-def test_holdout_construction_refuses_pre_freeze():
-    """No context: refused. A forged context: refused while any freeze pin is
-    null — so nothing can execute the stratum before the freeze."""
+def test_holdout_construction_refuses_without_valid_context():
+    """No context: refused. A forged context: refused on digest mismatch in
+    every tree state; while any freeze pin is null the same gate refuses even
+    a digest-correct context (the scorer-level null-pin refusal is asserted
+    separately against a nulled registry copy). Every exposed hook carries the
+    same gate, so nothing can construct a byte outside a valid post-freeze
+    attempt."""
     with pytest.raises(build_fixtures.HoldoutRefused):
         build_fixtures.construct_holdout(None, STUDY / "nowhere", [])
     forged = build_fixtures.HoldoutAttemptContext(
@@ -212,7 +223,10 @@ def test_holdout_construction_refuses_pre_freeze():
     with pytest.raises(build_fixtures.HoldoutRefused):
         build_fixtures.construct_holdout(forged, STUDY / "nowhere", [])
     problems = build_fixtures.holdout_context_problems(forged)
-    assert any("freeze pin" in problem for problem in problems)
+    assert any("does not match" in problem for problem in problems)
+    for hook in build_fixtures.HOLDOUT_HOOKS.values():
+        with pytest.raises(build_fixtures.HoldoutRefused):
+            hook(forged)
 
 
 def test_no_holdout_bytes_under_fixtures():
@@ -233,21 +247,23 @@ def test_scorer_refuses_existing_attempt_root(tmp_path):
     assert "already exists" in completed.stderr
 
 
-def test_holdout_refused_while_freeze_pins_null(tmp_path):
-    completed = subprocess.run(
-        [sys.executable, str(STUDY / "harness" / "score.py"),
-         "--attempt-root", str(tmp_path / "holdout-early"), "--include-holdout"],
-        capture_output=True, text=True,
-    )
-    assert completed.returncode == 2
-    results = json.loads(
-        (tmp_path / "holdout-early" / "RESULTS.json").read_text(encoding="utf-8")
-    )
+def test_holdout_refused_while_freeze_pins_null(tmp_path, monkeypatch):
+    """Freeze-state-agnostic: the refusal path is exercised against a
+    null-pinned COPY of the registry, never the live one — post-freeze, an
+    --include-holdout invocation here would otherwise execute the reviewer
+    stratum outside the registered attempt."""
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    for member in score.FREEZE_PINS:
+        pins.setdefault(member, {})["sha256"] = None
+    nulled = tmp_path / "PINS.json"
+    nulled.write_text(json.dumps(pins, indent=2), encoding="utf-8")
+    monkeypatch.setattr(score, "PINS_PATH", nulled)
+    root = tmp_path / "holdout-early"
+    assert score.main(["--attempt-root", str(root), "--include-holdout"]) == 2
+    results = json.loads((root / "RESULTS.json").read_text(encoding="utf-8"))
     assert results["pipelineInvalid"] is True
     assert "refused" in results["problem"]
-    marker = json.loads(
-        (tmp_path / "holdout-early" / "ATTEMPT.json").read_text(encoding="utf-8")
-    )
+    marker = json.loads((root / "ATTEMPT.json").read_text(encoding="utf-8"))
     assert marker["pinsRawSha256"] == results["pinsRawSha256"]
     assert marker["pinsRawSha256"] is not None
 
