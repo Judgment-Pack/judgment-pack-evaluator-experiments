@@ -5,7 +5,10 @@ the merge of pull request #46 (freeze commit c4cfb3fe; three cross-vendor
 review rounds in PREREG-REVIEW.md); the registered primary attempt
 (`results/primary-attempt-001`, holdouts included, first execution) returned
 the frozen verdict "R1 holds" in BOTH strata — see RESULTS.json and
-ANALYSIS.md. The gated RQ3 model arm remains unexecuted and undecided.** Everything under `pilots/` is pre-freeze
+ANALYSIS.md. RQ3 executed under its registered amendment
+(codex gpt-5.6-sol at ultra): 62/63 primary agreement, 0/63 false approvals
+— RESULTS-RQ3.json, ANALYSIS-RQ3.md. The h02 projection limit is closed
+structurally in the runtime by ADR-0025 (runtime PR #104, merged).** Everything under `pilots/` is pre-freeze
 harness validation, labeled as such, and supports no claim beyond "the
 machinery works". No model has been called; the study so far is entirely
 deterministic and offline.

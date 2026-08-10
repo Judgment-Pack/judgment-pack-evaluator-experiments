@@ -77,10 +77,13 @@ test of the pinned substrate only.
 
 ## Follow-ups
 
-- The h02 projection limit is actionable upstream-of-this-study: a
-  `jpack packs test` row shape that could optionally assert the configured
-  escalation target would close it. That is a runtime-repo conversation
-  (ADR territory), not a deviation here.
-- RQ3 (the gated, paid model arm) remains unexecuted and undecided. Its
-  amendment — opaque case handles, pinned models and prompts — has not been
-  written; nothing in this analysis depends on it.
+- The h02 projection limit is CLOSED upstream: runtime ADR-0025 ("assert
+  the handoff target in the matrix", runtime PR #104, merged) adds an
+  optional `expectedHandoffTarget` assertion to packs-test matrix rows
+  (matrix v2), after a ten-round cross-vendor review recorded on that PR.
+  RQ3's f05 finding (the configured destination degrading through prose)
+  independently motivated the same fix.
+- RQ3 was subsequently executed under its registered amendment
+  (AMENDMENT-RQ3.md; ANALYSIS-RQ3.md): 62/63 agreement, 0/63 false
+  approvals; both divergences on pre-registered cells. Nothing in THIS
+  analysis depends on it, and its non-claims are its own.
