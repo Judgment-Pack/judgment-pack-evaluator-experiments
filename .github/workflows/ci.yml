@@ -79,7 +79,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12"
+          # The exact pinned interpreter, not the series: harness/PINS.json
+          # records 3.12.11 and harness/score.py refuses to adjudicate under
+          # anything else.
+          python-version: "3.12.11"
       - name: Install OpenWorkProof at the pinned commit
         # Hash-checked lockfile (upstream's, mirror index removed - see
         # studies/014-openworkproof-binding/upstream/MANIFEST.sha256), then the
@@ -100,12 +103,17 @@ jobs:
           echo "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325  /tmp/jpack-bin/jpack" | sha256sum --check
       - name: Run the adapter, control and fixture suite
         # Deterministic and offline once the toolchain is staged: the suite
-        # verifies frozen fixture manifests, the SPEC/code verdict vocabulary
-        # sync, build determinism, and the registered controls. The matrix
+        # verifies frozen fixture manifests, the whole-study manifest, the
+        # SPEC/code verdict vocabulary sync and per-code reachability, the
+        # upstream probes, a full rebuild of every cell, two byte-compared
+        # scorer runs, and the registered controls. Both OWP_SOURCE and
+        # JPACK_BIN are required - the suite fails rather than skips without
+        # them, which is why the clone staged above is exported here. The matrix
         # adjudication itself is an attempt, not a test, and never runs here.
         working-directory: studies/014-openworkproof-binding
         env:
           JPACK_BIN: /tmp/jpack-bin/jpack
+          OWP_SOURCE: /tmp/OpenWorkProof
         run: python -m pytest harness/tests -q
 
   python:

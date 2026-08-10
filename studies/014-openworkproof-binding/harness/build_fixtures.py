@@ -80,6 +80,10 @@ FACTS_2500 = (
     b'{"expense":{"type":"employee-expense","amount":"2500.00",'
     b'"category":"travel","activeInvestigation":false}}'
 )
+FACTS_MANUAL_REVIEW = (
+    b'{"expense":{"type":"employee-expense","amount":"7500.00",'
+    b'"category":"travel","activeInvestigation":false}}'
+)
 EVIDENCE_PRESENT = b'{"receipt":"present","cost-center":"present"}'
 EVIDENCE_ABSENT = b'{"receipt":"absent","cost-center":"present"}'
 
@@ -186,19 +190,31 @@ def payload_for(decision, candidate, bundle, *, envelope_bytes=None):
 
 def flow_cell(work_root, decision, candidate, *, salt, objective=None,
               patch_facts=None, target_paths=None, binding_point="apply_patch",
-              bind=True, envelope_bytes=None, owp_source=None, **flow_kwargs):
-    """Build one validly signed chain and return its cell payload."""
+              bind=True, binding_digest=None, envelope_bytes=None,
+              owp_source=None, **flow_kwargs):
+    """Build one validly signed chain and return its cell payload.
+
+    The patch is derived for the declared target path itself: OWP's parser
+    refuses any patch whose derived section paths differ from the declared
+    target set, so a cell that moves the target moves the patch's own Git
+    header, blob object id and hunk with it.
+    """
     facts = json.loads((patch_facts or decision["facts"]).decode("utf-8"))
+    paths = list(target_paths or [ACTION_PATH])
     directory = Path(tempfile.mkdtemp(prefix="study014-flow-", dir=str(work_root)))
     bundle = owpflow.run_flow(
         directory,
         objective=commitment_bytes(candidate).decode("utf-8")
         if objective is None
         else objective,
-        patch_bytes=action_patch_bytes(facts),
-        target_paths=list(target_paths or [ACTION_PATH]),
-        binding_digest=commitment_digest(candidate) if bind else None,
-        binding_point=binding_point if bind else None,
+        patch_bytes=action_patch_bytes(facts, path=paths[0]),
+        target_paths=paths,
+        binding_digest=(
+            binding_digest
+            if binding_digest is not None
+            else (commitment_digest(candidate) if bind else None)
+        ),
+        binding_point=binding_point if (bind or binding_digest) else None,
         salt=salt,
         owp_source=owp_source,
         **flow_kwargs
@@ -268,6 +284,11 @@ def build_payloads(jpack_bin, work_root, owp_source):
     inapplicable = decide(
         jpack_bin, judgments, pack_bytes, FACTS_NOT_APPLICABLE, EVIDENCE_PRESENT
     )
+    manual_review = decide(
+        jpack_bin, judgments, pack_bytes, FACTS_MANUAL_REVIEW, EVIDENCE_PRESENT
+    )
+    if manual_review["disposition"].get("outcomeId") != "manual-review":
+        raise BuildError("the manual-review fixture facts do not produce manual-review")
 
     base_commitment = commitment_for(base, executable_digest)
     alt_commitment = commitment_for(alt, executable_digest)
@@ -397,6 +418,16 @@ def build_payloads(jpack_bin, work_root, owp_source):
         bind=False,
     )
 
+    # c15: an honest manual-review disposition, an honest null action, and an
+    # execution that simply omits the marker. Only structural discovery over the
+    # action class sees it.
+    flow(
+        "c15-manual-review-unbound-execution",
+        manual_review,
+        commitment_for(manual_review, executable_digest),
+        bind=False,
+    )
+
     # ---- D: the action -----------------------------------------------------
     bundle = bundle_of(baseline)
     executing_receipt(bundle)["tool_name"] = "owp.repo_read"
@@ -429,18 +460,33 @@ def build_payloads(jpack_bin, work_root, owp_source):
 
     flow("d17-amount-resigned", base, base_commitment, patch_facts=FACTS_2500)
 
-    # ---- E: replay and drift ----------------------------------------------
-    cells["e18-stale-decision-currency"] = dict(baseline)
+    # d18: the surplus arm of exact-set totality. A second live patch round is
+    # not constructible at this commit (three independent upstream refusals,
+    # recorded in harness/owpflow.py), so the extra unbound execution is inserted
+    # post-hoc and re-signed with the Sidecar key alone - the same shape e21, f23
+    # and f25 already use, and the OWP-layer refusal is registered, not hidden.
+    cells["d18-approve-extra-execution"] = with_bundle(
+        baseline, extra_execution_bundle(bundle_of(baseline))
+    )
 
+    # ---- E: replay and drift ----------------------------------------------
+    # e18 (stale decision currency) left the matrix at round 1: no fixture
+    # distinct from the baseline can observe it, so it is an analytic limitation
+    # in the preregistration rather than an empirical row.
     bundle = bundle_of(baseline)
     bundle["work_order"] = rebound_work_order(bundle["work_order"])
     cells["e19-decision-rebound"] = with_bundle(baseline, bundle)
 
+    # e20: the authorization-time point is coherent (objective, retained
+    # artifacts and retained commitment are all X); only the executing request's
+    # marker names a different valid commitment Z, and the chain is re-signed
+    # around it. The objective comparison therefore passes and the divergence
+    # surfaces where the second binding point actually looks.
     flow(
-        "e20-mismatched-decision-pairing",
+        "e20-execution-point-divergence",
         base,
         base_commitment,
-        objective=commitment_bytes(alt_commitment).decode("utf-8"),
+        binding_digest=commitment_digest(alt_commitment),
     )
 
     # E21 as registered (an executing call whose occurred_at is after its grant's
@@ -464,6 +510,20 @@ def build_payloads(jpack_bin, work_root, owp_source):
             "quota_ceiling": {"tool_calls": 200, "repair_rounds": 2},
             "acceptance_criteria": "The fixed verifier exits with status zero.",
         },
+    )
+
+    flow(
+        "e23-executable-digest-forged",
+        base,
+        commitment_for(
+            base,
+            executable_digest,
+            overrides={
+                "executableDigest": "sha256:"
+                + hashlib.sha256(b"study-014/wrong-executable").hexdigest(),
+                "evaluatorRelease": "0.15.0",
+            },
+        ),
     )
 
     # ---- F: the causal chain ----------------------------------------------
@@ -596,6 +656,47 @@ def replace_receipt(bundle, tool_name, mutate):
             )
             return bundle["receipts"][index]
     raise BuildError("bundle carries no receipt for " + tool_name)
+
+
+def extra_execution_bundle(bundle):
+    """Insert a second, unbound `owp.apply_patch` receipt after the real one.
+
+    The insert is the same execution again — same patch bytes, same committed
+    evidence, same arguments digest — under a fresh receipt id and nonce, chained
+    to the real executing receipt and re-signed with the Sidecar key alone, with
+    its request's `context_source_digest` left unbound. That keeps the evidence
+    set coherent while the chain carries two action-class receipts for one
+    commitment. A live second round is refused by upstream three ways over (see
+    `harness/owpflow.py`), so the OWP layer is expected to refuse this too; the
+    binding layer's surplus arm is what the cell is registered for.
+    """
+    from openworkproof.models import ACTION_RECEIPT_ADAPTER
+    from openworkproof.signing import sign_payload
+
+    keys = owpflow.role_keys()
+    original = executing_receipt(bundle)
+    index = bundle["receipts"].index(original)
+    parsed = ACTION_RECEIPT_ADAPTER.validate_python(original)
+
+    raw = copy.deepcopy(original)
+    raw["receipt_id"] = hashlib.sha256(
+        b"study-014/d18/extra-execution/" + original["receipt_id"].encode("ascii")
+    ).hexdigest()
+    raw["nonce"] = hashlib.sha256(
+        b"study-014/d18/extra-nonce/" + original["nonce"].encode("ascii")
+    ).hexdigest()
+    raw["sequence"] = original["sequence"] + 1
+    raw["previous_receipt_digest"] = parsed.digest
+    raw["parent_receipt_ids"] = [original["receipt_id"]]
+    raw["nested_claim"] = copy.deepcopy(original["nested_claim"])
+    raw["nested_claim"]["context_source_digest"] = "b" * 64
+    raw["correlation_factors"] = copy.deepcopy(original["correlation_factors"])
+    raw["correlation_factors"]["context_source_digest"] = "b" * 64
+    signed = sign_payload("action-receipt", raw, keys["Sidecar"][0])
+    bundle["receipts"] = (
+        bundle["receipts"][: index + 1] + [signed] + bundle["receipts"][index + 1 :]
+    )
+    return bundle
 
 
 def rewindowed_grant(document):

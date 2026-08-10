@@ -1,0 +1,7 @@
+{
+  "matrixVersion": "2",
+  "stratum": "reviewer-holdout",
+  "status": "EMPTY-SCAFFOLD",
+  "note": "The holdout stratum of Study 014. This file is EMPTY on purpose. Round 1 found the registered matrix to be a locked replication: the a04 expectation was corrected after pilot-01 observed it, so a rerun of those rows can only reproduce already-observed behaviour. The remedy is a second stratum that the study's own authors never ran. Rules, registered with the preregistration and binding at the freeze: (1) cells here are authored by the cross-vendor reviewer, not by the maintainer, and are committed verbatim with attribution in each cell's `author` field; (2) no cell here is ever executed before the preregistration freezes - they are never executed pre-freeze, and the refusal is mechanical - the scorer refuses --include-holdout mechanically while harness/PINS.json's preregistration.sha256 is null, and that refusal is itself tested; (3) holdout results are reported separately from the locked-replication stratum and are never merged into its counts; (4) an empty holdout stratum is not a passing holdout stratum - a round-2 verdict that adopts the round-1 dispositions without authoring cells here leaves R1's postdictivity finding open, and the preregistration says so. Cell schema is exactly harness/MATRIX.json's, plus the required `author` string.",
+  "cells": []
+}

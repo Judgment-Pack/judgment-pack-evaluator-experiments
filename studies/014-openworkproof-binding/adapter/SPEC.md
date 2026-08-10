@@ -58,8 +58,8 @@ Field semantics and digest conventions:
   conforming implementations must agree on, so they are what the commitment binds.
 - `action` is `null` iff the disposition authorizes no autonomous action under the §4 map
   (any non-`approve` outcome, `unresolved`, `not-applicable`, or a requested handoff). A
-  `null` action commits to *inaction*: no receipt in the chain may carry this commitment's
-  digest.
+  `null` action commits to *inaction* over the whole chain: the chain may carry no
+  action-class receipt at all (§5), marked or unmarked.
 - `action.toolName`: one of OWP's closed tool literals. In this study only
   `owp.apply_patch` is ever executable.
 - `action.argumentsDigest`: **OWP's own** request-arguments digest — SHA-256 over
@@ -97,9 +97,20 @@ with any OWP protocol digest.
    request only, so OWP's shared-factor independence warnings are never coupled to the
    commitment.
 
-The executing receipt is located by searching the verified chain for tool-call receipts
-whose nested request's `context_source_digest` equals the commitment digest recomputed from
-`WorkOrder.objective`. Zero such receipts, or more than one, is a binding failure.
+The executing receipt is located **structurally**, by tool, and never by the marker: the
+action class is every `event_type="tool_call"` receipt whose `tool_name` is
+`owp.apply_patch`. `owp.create_pr_proposal` is deliberately outside the action class —
+the §4 map never authorizes it, so a chain carrying one is not carrying an execution of a
+judged action. Marker-based selection was the round-1 blocker: a chain that simply omitted
+`context_source_digest` presented an empty selected set, and a negative disposition could
+execute by declining to mark its own receipt.
+
+**Defense in depth, not demonstrated necessity.** OWP already associates every receipt
+with its signed WorkOrder cryptographically, so the second point's marginal contribution
+over that authenticated lineage is not established by this study: no coherent
+objective-only / execution-only ablation arm is registered. The two points are described
+as defense in depth and `e20` exercises the execution-side check; a differential-necessity
+claim is withdrawn.
 
 ## 4. The disposition→action map (registered)
 
@@ -109,21 +120,49 @@ JPS Core binds no caller, exactly as Study 013's execution mapper was study-defi
 | Replayed disposition | Authorized action |
 |---|---|
 | `kind=outcome`, `outcomeId="approve"`, `handoff.state="none"` | `owp.apply_patch` with the canonical action document (below) |
-| any other disposition (any other outcome, `unresolved`, `not-applicable`, or any `handoff.state="requested"`) | **no autonomous action** — an executing receipt bound to the commitment is a violation |
+| any other disposition (any other outcome — including `manual-review` — `unresolved`, `not-applicable`, or any `handoff.state="requested"`) | **no autonomous action** — *any* action-class receipt in the chain is a violation, marked or not (§5) |
 
-Canonical action document: a unified diff adding one file `decision-actions/disburse.json`
-whose content is the JCS bytes of
+Canonical action document: the file `decision-actions/disburse.json`, whose content is the
+JCS bytes of
 
 ```json
 {"action": "disburse-expense", "amount": <facts /expense/amount>,
  "category": <facts /expense/category>, "currency": "USD"}
 ```
 
-The diff bytes are a deterministic function of the retained facts (exact byte template in
-`adapter/commitment.py`). The patch **is** the executed action: OWP binds its bytes by
-SHA-256 into `ApplyPatchArguments.patch_digest` under both the actor's and the Sidecar's
-signatures, which is what makes argument substitution (mutations D16/D17) a digest
-mismatch rather than a semantic dispute.
+plus one terminating newline. The patch that creates it is OWP's **canonical create-file
+patch**, which is the only shape `repo_tools.parse_patch_phase_a` accepts:
+
+```
+diff --git a/decision-actions/disburse.json b/decision-actions/disburse.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..<git blob oid of the content>
+--- /dev/null
++++ b/decision-actions/disburse.json
+@@ -0,0 +1 @@
++<JCS bytes of the action document>
+```
+
+Every line is load-bearing upstream: the Git file header (the old `--- /dev/null` unified
+diff without it is refused as "patch file header is not canonical"), the `new file mode`
+line, the zero-to-blob `index` line whose right object id must equal
+`repo_tools.git_blob_oid` of the created content, and a hunk whose ranges are exactly
+`-0,0 +1`. The created file carries its terminating newline because
+`repo_tools._canonical_patch_text` refuses a touched file without one — which is why the
+old template's `\ No newline at end of file` trailer is gone. The patch's own derived
+paths must equal the declared `target_paths` exactly, so a cell that moves the target
+moves the header, the blob object id and the hunk with it. The candidate source therefore
+also carries `decision-actions/.keep`: `apply_patch_phase_b` refuses to create a file
+whose immediate parent directory does not already exist.
+
+The diff bytes are a deterministic function of the retained facts and the target path
+(exact byte template in `adapter/commitment.py`). The patch **is** the executed action:
+OWP binds its bytes by SHA-256 into `ApplyPatchArguments.patch_digest` under both the
+actor's and the Sidecar's signatures, which is what makes argument substitution (mutations
+D16/D17) a digest mismatch rather than a semantic dispute. Every registered chain applies
+its patch through `repo_tools.apply_patch_in_candidate_workspace` against a real Git
+candidate workspace, and the executor's own `PatchResultEvidence` — not a harness-built
+stand-in — is what the receipt commits.
 
 ## 5. The verification ceremony
 
@@ -138,54 +177,89 @@ pass iff every layer passes.
 upstream ships it. Verdict: `pass` | `fail` (upstream message recorded) | `unavailable`
 (bundle unreadable).
 
-**Layer BINDING** — adapter checks, in order, first failure wins:
+**Layer BINDING** — adapter checks over the raw bundle JSON, in this exact order, first
+failure wins. Every layer returns `{verdict, code, detail}`; adjudication is on the
+`code` alone and `detail` never enters a comparison.
 
 | Code | Check |
 |---|---|
-| `commitment-objective-missing` | `WorkOrder.objective` does not parse as a commitment |
-| `commitment-schema-invalid` | parsed object violates §1 (unknown fields refused) |
-| `binding-point-divergence` | recomputed `commitmentDigest` ≠ the executing request's `context_source_digest`, or retained commitment document ≠ objective commitment |
-| `executing-receipt-missing` / `executing-receipt-ambiguous` | with a non-null `action`: no receipt, or more than one, carries the commitment digest. With a `null` action, a receipt carrying the digest is `action-map-violation` |
+| `commitment-objective-missing` | `WorkOrder.objective` is absent, is not a string, or does not decode to a version-1 commitment at all |
+| `commitment-schema-invalid` | the objective *is* a version-1 commitment but violates §1 (unknown fields refused), or violates the encoding rule below — duplicate member names, invalid UTF-8, or bytes that are not the canonical JCS encoding of their own content |
+| `binding-point-divergence` | the retained commitment document is absent or is a *different* commitment from the objective's; or the single action-class receipt's request does not carry the commitment digest; or the receipt's `CorrelationFactors` do not mirror the request binding |
+| `executing-receipt-missing` | with a non-null `action`: the chain carries no action-class receipt at all |
+| `action-map-violation` | the §4 map is violated: a null `action` with any action-class receipt or any receipt carrying the commitment digest; a non-null `action` with more than one action-class receipt; or an executable disposition whose derived action document differs from the committed and executed one |
+| `action-tool-mismatch` | a receipt carrying the commitment digest names a tool other than `action.toolName` — the chain claims something the map cannot authorize is the executing call |
 | `pack-artifact-missing` / `pack-digest-mismatch` | retained pack bytes absent / SHA-256 ≠ `packDigest` (with `packId`/`packVersion`/`specVersion` cross-checked against the retained bytes) |
 | `facts-artifact-missing` / `facts-digest-mismatch` | same, facts |
 | `evidence-artifact-missing` / `evidence-digest-mismatch` | same, evidence (respecting the `null` case) |
 | `disposition-digest-mismatch-retained` | retained evaluator envelope's canonical disposition bytes do not hash to `dispositionDigest` |
-| `action-tool-mismatch` | executing receipt's `tool_name` ≠ `action.toolName` |
-| `action-arguments-mismatch` | executing receipt's `arguments_digest` ≠ `action.argumentsDigest` |
-| `action-map-violation` | the §4 map, applied to the committed disposition, does not authorize the executed action (including: non-executable disposition with an executing receipt present; executable disposition whose derived action document digest ≠ the committed/executed one) |
+| `action-arguments-mismatch` | the action-class receipt's `arguments_digest` ≠ `action.argumentsDigest` |
 
-Verdict: `pass` | `fail:<code>`.
+Outcome: `pass` | `fail:<code>`.
 
-**Layer REPLAY** — deterministic recomputation under the recorded tuple:
+**The JCS boundary is byte-level, not object-level.** The commitment is parsed from exact
+bytes, refusing duplicate member names (`object_pairs_hook`) and non-UTF-8 input, and the
+signed objective bytes MUST equal `JCS(parsed commitment)` exactly. The retained
+`commitment.json` bytes MUST equal those same canonical bytes. The two failure codes are
+distinguished by *what* differs, and the rule is exact:
+
+- retained bytes ≠ canonical bytes, but the retained bytes parse to the **same** object →
+  `commitment-schema-invalid` (a non-canonical encoding of the right commitment);
+- retained bytes parse to a **different** object → `binding-point-divergence`.
+
+Comparing parsed Python objects would let two conforming consumers assign different
+semantics to the same signed duplicate-key document while Python reported equality; that
+is the hole this rule closes.
+
+**Exact-set totality over the action class.** With a `null` action the chain must carry
+**zero** action-class receipts *and* zero receipts carrying the commitment digest. With a
+non-null action it must carry **exactly one** action-class receipt, that receipt's nested
+request must carry the commitment digest, its `CorrelationFactors` must mirror it, and its
+`tool_name`/`arguments_digest` must match the commitment. Any surplus action-class receipt
+is an `action-map-violation` whichever one carries the marker: one commitment authorizes
+one execution.
+
+**Layer REPLAY** — deterministic recomputation under the recorded tuple. The committed
+`supportedExtensions` are passed to the evaluator as `--supported-extension` (completing
+the §8.2 input tuple rather than committing a field nothing reads), and the replayed
+envelope's `evaluatorSpecVersion` is cross-checked against the committed one.
 
 | Code | Check |
 |---|---|
+| `replay-unavailable` | no conforming commitment at the signed binding point, the pinned evaluator is unavailable, or retained pack/facts/evidence bytes are absent |
 | `replay-executable-mismatch` | SHA-256 of the `jpack` binary ≠ `executableDigest`, or its reported version ≠ `evaluatorRelease` (the harness refuses to substitute a different evaluator — replay means the recorded binary) |
-| `replay-unavailable` | retained pack/facts/evidence bytes absent |
-| `replay-refused:<class>` | the evaluator returned an error envelope (class recorded; a refusal is never a disposition) |
+| `replay-refused` | the evaluator returned an error envelope (the §8.4 class is recorded as detail, never as part of the code; a refusal is never a disposition) |
+| `replay-spec-version-mismatch` | the replayed envelope's `evaluatorSpecVersion` ≠ the committed `evaluatorSpecVersion` — the contract applied is not the contract committed |
 | `replay-disposition-mismatch` | recomputed canonical disposition bytes do not hash to `dispositionDigest` |
 
-Verdict: `pass` | `fail:<code>` | `unavailable`.
+Outcome: `pass` | `fail:<code>` | `unavailable`, where `unavailable` is definitionally the
+outcome of the pair (verdict `unavailable`, code `replay-unavailable`).
 
 Interpretation rules, load-bearing for the registered matrix:
 
 - Both adapter layers source the commitment from the **signed** binding point
   (`WorkOrder.objective`). A chain with no commitment there yields Layer REPLAY
   `unavailable` — nothing committed, nothing to recompute.
-- Within `binding-point-divergence`, the retained-commitment-vs-objective comparison runs
-  before the executing-receipt search. Consequence: *any* tamper inside the objective
-  commitment surfaces as `binding-point-divergence`; the artifact-level codes
-  (`pack-digest-mismatch`, …) are reachable only when the commitment itself is
-  consistently carried (the resigned variants).
-- The executing receipt is located by digest search (§3), never structurally by tool —
-  that is what lets a commitment bound to the wrong tool fire `action-tool-mismatch`.
-- A `null` action with no receipt carrying the digest is conforming even when the
-  committed disposition would have authorized an action; `action-map-violation` requires
-  an executing receipt.
+- The retained-commitment-vs-objective comparison runs before receipt discovery.
+  Consequence: *any* tamper inside the objective commitment surfaces as
+  `binding-point-divergence`; the artifact-level codes (`pack-digest-mismatch`, …) are
+  reachable only when the commitment itself is consistently carried (the resigned
+  variants).
+- Receipt discovery is structural (by tool); the marker is then *checked* against the
+  discovered receipt rather than used to select it. `action-tool-mismatch` is what a
+  marker pointing somewhere else produces, and it is checked before the action-class
+  count so a mis-pointed marker is attributed to the marker.
+- A `null` action is conforming only in a chain that executed nothing at all — the map's
+  commitment to inaction is a commitment about the whole chain, not about marked receipts.
 - Two executable-digest checks exist and are distinct: the harness checks `JPACK_BIN`
   against the **registry pin** (`PINS.json`) — a mismatch is pipeline-invalid, validity
   channel; Layer REPLAY checks the binary against the **commitment's** `executableDigest`
-  — a mismatch is the cell verdict `replay-executable-mismatch`.
+  — a mismatch is the cell outcome `replay-executable-mismatch`.
+- Every registered code is *reachable*: a harness test constructs a minimal condition for
+  each one and asserts the exact code and the first-failure ordering.
+  `executing-receipt-ambiguous` left the registry at round 1 because structural discovery
+  makes it unreachable — two marked action-class receipts are now a surplus
+  `action-map-violation`.
 
 The ceremony order (verify the external chain under pinned keys → bind → recompute →
 replay → act on the verdict JSON, never on incidental signals) follows the gateway's §5a
@@ -202,6 +276,11 @@ consumer ceremony, cited as prior art.
   produces from the committed inputs — JPS §8.3 byte-portability doing real work.
 - Nobody owns: policy truth, fact truth, currency ("is this pack still the one to use") or
   policy rollback across otherwise-valid WorkOrders — those need an anchor outside the
-  chain (reviewed-set lock / registry analogue) and are registered as expected-undetected.
+  chain (reviewed-set lock / registry analogue). Currency is registered as an analytic
+  limitation (no fixture distinct from the baseline can observe it); alternative-WorkOrder
+  remint is registered as a descriptive boundary row, excluded from R1 credit. An attacker
+  holding every fixture key can remint the whole chain coherently and nothing chain-internal
+  distinguishes the remint — stated plainly rather than papered over with another
+  self-declared commitment field.
 
 Ceiling, both layers, stated once and meant: binding/lineage, not truth.

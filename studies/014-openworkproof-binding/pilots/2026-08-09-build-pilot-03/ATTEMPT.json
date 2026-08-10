@@ -1,0 +1,7 @@
+{
+  "study": "014-openworkproof-binding",
+  "stratum": "locked-replication",
+  "attemptLabel": "PILOT",
+  "includeHoldout": false,
+  "marker": "written before any cell ran"
+}

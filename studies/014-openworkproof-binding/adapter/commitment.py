@@ -17,6 +17,7 @@ import json
 
 import rfc8785
 from openworkproof.models import request_arguments_digest
+from openworkproof.repo_tools import git_blob_oid
 
 COMMITMENT_VERSION = "1"
 COMMITMENT_DOMAIN = "jps-openworkproof-binding/commitment/1"
@@ -91,33 +92,60 @@ def action_document(facts):
     }
 
 
-def action_patch_bytes(facts, *, path=ACTION_PATH):
-    """The exact patch byte template: a unified diff adding one file whose content
-    is the JCS bytes of the canonical action document, with no trailing newline.
+def action_file_bytes(facts):
+    """The exact bytes of the file the action creates.
 
+    Canonical OWP patch text: the JCS bytes of the action document plus the one
+    terminating newline `repo_tools._canonical_patch_text` requires of every
+    touched file.
+    """
+    return jcs(action_document(facts)) + b"\n"
+
+
+def action_patch_bytes(facts, *, path=ACTION_PATH):
+    """The exact patch byte template — OWP's canonical create-file patch.
+
+        diff --git a/<path> b/<path>
+        new file mode 100644
+        index 0000000000000000000000000000000000000000..<git blob oid>
         --- /dev/null
         +++ b/<path>
         @@ -0,0 +1 @@
-        +<JCS bytes>
-        \\ No newline at end of file
+        +<JCS bytes of the action document>
 
-    A deterministic function of the retained facts and nothing else.
+    Every line is required by `repo_tools.parse_patch_phase_a`: the Git file
+    header, the `new file mode` line, the zero-to-blob index line whose right
+    object id is `git_blob_oid` of the created content, the `/dev/null` old
+    header, and a hunk whose ranges are `-0,0 +1`. The created content carries
+    its terminating newline (OWP refuses a touched file without one), so the
+    old "\\ No newline at end of file" trailer is gone. A deterministic function
+    of the retained facts and the target path, and nothing else.
     """
-    content = jcs(action_document(facts))
+    content = action_file_bytes(facts)
+    encoded = path.encode("utf-8")
     return (
+        b"diff --git a/" + encoded + b" b/" + encoded + b"\n"
+        b"new file mode 100644\n"
+        b"index " + b"0" * 40 + b".." + git_blob_oid(content).encode("ascii") + b"\n"
         b"--- /dev/null\n"
-        b"+++ b/" + path.encode("utf-8") + b"\n"
+        b"+++ b/" + encoded + b"\n"
         b"@@ -0,0 +1 @@\n"
-        b"+" + content + b"\n"
-        b"\\ No newline at end of file\n"
+        b"+" + content
     )
 
 
 def action_arguments(facts, *, target_paths=None, patch=None):
-    """The OWP `ApplyPatchArguments` payload for the canonical action document."""
-    payload = action_patch_bytes(facts) if patch is None else patch
+    """The OWP `ApplyPatchArguments` payload for the canonical action document.
+
+    The declared target paths and the patch's own derived paths must agree —
+    `parse_patch_phase_a` refuses a patch whose sections do not equal the
+    declared set — so when no explicit patch is supplied the bytes are derived
+    for the declared path itself.
+    """
+    paths = list(target_paths) if target_paths else [ACTION_PATH]
+    payload = action_patch_bytes(facts, path=paths[0]) if patch is None else patch
     return {
-        "target_paths": list(target_paths) if target_paths else [ACTION_PATH],
+        "target_paths": paths,
         "patch_digest": sha256_hex(payload),
         "patch_size_bytes": len(payload),
     }
@@ -223,15 +251,71 @@ def commitment_digest(commitment):
     return sha256_hex(jcs({"domain": COMMITMENT_DOMAIN, "payload": commitment}))
 
 
-def parse_commitment(text):
-    """Parse commitment JSON text; raises CommitmentSchemaError when it is not one."""
+class CommitmentEncodingError(CommitmentSchemaError):
+    """The bytes carry a conforming commitment in a non-canonical encoding."""
+
+
+def _no_duplicate_keys(pairs):
+    """`object_pairs_hook` that refuses duplicate member names (RFC 8785 / I-JSON).
+
+    `json.loads` silently keeps the last duplicate, so two conforming consumers
+    can assign different semantics to the same signed document. Refusing here is
+    what makes the cross-vendor "exact judgment" claim mean anything.
+    """
+    seen = set()
+    for name, _ in pairs:
+        if name in seen:
+            raise CommitmentSchemaError("commitment object has a duplicate member: " + name)
+        seen.add(name)
+    return dict(pairs)
+
+
+def parse_commitment_bytes(raw):
+    """Strictly parse commitment bytes: UTF-8, no duplicate keys, version 1.
+
+    Encoding is *not* checked here — `canonical_encoding_problem` owns the
+    byte-level rule, so a caller can tell a non-canonical encoding of the right
+    commitment (`commitment-schema-invalid`) from a different commitment
+    (`binding-point-divergence`).
+    """
+    if isinstance(raw, str):
+        raise CommitmentSchemaError("commitment must be parsed from exact bytes")
+    if not isinstance(raw, (bytes, bytearray)):
+        raise CommitmentSchemaError("commitment must be exact bytes")
     try:
-        candidate = json.loads(text)
+        text = bytes(raw).decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise CommitmentSchemaError("commitment bytes are not valid UTF-8") from error
+    try:
+        candidate = json.loads(text, object_pairs_hook=_no_duplicate_keys)
+    except CommitmentSchemaError:
+        raise
     except Exception as error:
         raise CommitmentSchemaError("commitment does not parse as JSON") from error
-    if not isinstance(candidate, dict) or candidate.get("commitmentVersion") != COMMITMENT_VERSION:
+    if (
+        not isinstance(candidate, dict)
+        or candidate.get("commitmentVersion") != COMMITMENT_VERSION
+    ):
         raise CommitmentSchemaError("object is not a version 1 commitment")
     return candidate
+
+
+def canonical_encoding_problem(raw, candidate):
+    """None when `raw` is exactly the canonical JCS bytes of `candidate`."""
+    if bytes(raw) == jcs(candidate):
+        return None
+    return "commitment bytes are not the canonical JCS encoding of their own content"
+
+
+def parse_commitment(text):
+    """Parse commitment text carried in `WorkOrder.objective` (a JSON string).
+
+    The signed bytes are the objective's UTF-8 encoding; strictness and the
+    byte-level canonical check are the caller's, in that order.
+    """
+    if isinstance(text, str):
+        return parse_commitment_bytes(text.encode("utf-8"))
+    return parse_commitment_bytes(text)
 
 
 def validate_commitment(candidate):

@@ -1,6 +1,6 @@
 {
   "pinsVersion": "1",
-  "note": "Pin registry, 011-convention. It is a pin, not an attestation. Members are read by code: run_verify/score refuse on JPACK_BIN digest mismatch and on a null preregistration digest.",
+  "note": "Pin registry, 011-convention. It is a pin, not an attestation - but every non-null member here is now ENFORCED before adjudication, not merely declared: harness/score.py compares the preregistration, matrix and adapterSpec digests when they are filled, the jpack binary digest always, harnessPython.version exactly, and openworkproof.pipFreezeSha256 against `pip freeze` in the running interpreter, and refuses to adjudicate on any mismatch. harness/STUDY-MANIFEST.sha256 covers this file (so it cannot carry that manifest's own digest) and is verified as an exact set in the same pass.",
   "openworkproof": {
     "repo": "https://github.com/dengyier/OpenWorkProof",
     "commit": "8eeca6fff4a246374f9d64f4dc1af6ace42118d5",
@@ -43,7 +43,18 @@
   "matrix": {
     "path": "harness/MATRIX.json",
     "sha256": null,
-    "note": "registered cell expectations; digest filled at the freeze together with the preregistration digest"
+    "note": "locked-replication cell expectations; digest filled at the freeze together with the preregistration digest. The frozen cell-id set is additionally asserted in harness/score.py, so a reduced registry cannot satisfy zero divergence"
+  },
+  "matrixHoldout": {
+    "path": "harness/MATRIX-HOLDOUT.json",
+    "sha256": null,
+    "note": "reviewer-authored holdout stratum, committed verbatim with attribution and never executed pre-freeze; score.py --include-holdout is refused mechanically while preregistration.sha256 is null"
+  },
+  "studyManifest": {
+    "path": "harness/STUDY-MANIFEST.sha256",
+    "generator": "harness/make_manifest.py",
+    "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/PINS.json, every adapter/*.py and harness/*.py (including owpflow.py, where the build-time entropy algorithm lives), and every fixtures/**/MANIFEST.sha256",
+    "note": "exact-set whole-study manifest; regenerated during drafting, pinned at the freeze. No digest is recorded here because this file is inside the manifest's own coverage"
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",

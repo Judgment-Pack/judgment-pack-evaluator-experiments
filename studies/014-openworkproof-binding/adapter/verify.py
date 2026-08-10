@@ -16,7 +16,14 @@ ledger, no state.
                 Parses dicts rather than models so a bundle OWP would refuse is
                 still adjudicated.
   Layer REPLAY  deterministic recomputation with the pinned binary under the
-                commitment's own replay tuple.
+                commitment's own replay tuple, including its supported-extension
+                set and its evaluator spec version.
+
+Every layer returns the same structured record — `{"verdict", "code", "detail"}`
+— and `outcome()` is the only string anything adjudicates on. `detail` is for
+humans and never enters a comparison: that is what keeps a decorated runtime
+string (`replay-refused: pack-not-conformant`) from becoming an unregistered
+verdict.
 
 The commitment REPLAY and BINDING work from is the one at the signed
 authorization-time binding point (`WorkOrder.objective`); a chain that carries no
@@ -33,12 +40,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from commitment import (  # noqa: E402
+    ACTION_TOOL,
     CommitmentSchemaError,
     authorized_action,
+    canonical_encoding_problem,
+    commitment_bytes,
     commitment_digest,
     disposition_digest,
     envelope_disposition,
-    parse_commitment,
+    parse_commitment_bytes,
     sha256_prefixed,
     validate_commitment,
 )
@@ -58,7 +68,6 @@ BINDING_CODES = (
     "commitment-schema-invalid",
     "binding-point-divergence",
     "executing-receipt-missing",
-    "executing-receipt-ambiguous",
     "pack-artifact-missing",
     "pack-digest-mismatch",
     "facts-artifact-missing",
@@ -71,11 +80,31 @@ BINDING_CODES = (
     "action-map-violation",
 )
 REPLAY_CODES = (
-    "replay-executable-mismatch",
     "replay-unavailable",
+    "replay-executable-mismatch",
     "replay-refused",
+    "replay-spec-version-mismatch",
     "replay-disposition-mismatch",
 )
+
+# The tools whose receipts are *executions* under the study's SPEC section 4 map.
+# `owp.create_pr_proposal` is deliberately outside it: the map never authorizes
+# it, so a chain carrying one is not carrying an execution of a judged action.
+ACTION_CLASS_TOOLS = (ACTION_TOOL,)
+
+
+def result(verdict, code=None, detail=None):
+    """The one shape every layer returns."""
+    return {"verdict": verdict, "code": code, "detail": detail}
+
+
+def outcome(layer_result):
+    """The adjudicated string for a layer record — code only, never detail."""
+    verdict = layer_result["verdict"]
+    if verdict in ("pass", "unavailable"):
+        return verdict
+    code = layer_result.get("code")
+    return "fail" if code is None else "fail:" + code
 
 
 # --------------------------------------------------------------------------
@@ -162,8 +191,14 @@ def jpack_release(jpack_bin):
     return parts[-1] if parts else None
 
 
-def evaluate(jpack_bin, work_dir, pack_bytes, facts_bytes, evidence_bytes):
-    """Run the pinned evaluator over retained bytes; return (envelope bytes, exit)."""
+def evaluate(jpack_bin, work_dir, pack_bytes, facts_bytes, evidence_bytes,
+             supported_extensions=()):
+    """Run the pinned evaluator over retained bytes; return (envelope bytes, exit).
+
+    The committed supported-extension set is part of the Core section 8.2 input
+    tuple, so it is passed through as `--supported-extension` (repeatable) rather
+    than committed and ignored.
+    """
     work_dir = Path(work_dir)
     pack_path = work_dir / "pack.json"
     facts_path = work_dir / "facts.json"
@@ -183,6 +218,8 @@ def evaluate(jpack_bin, work_dir, pack_bytes, facts_bytes, evidence_bytes):
         evidence_path = work_dir / "evidence.json"
         evidence_path.write_bytes(evidence_bytes)
         command.extend(["--evidence", str(evidence_path)])
+    for extension in supported_extensions or ():
+        command.extend(["--supported-extension", str(extension)])
     completed = subprocess.run(command, capture_output=True, timeout=300)
     return completed.stdout, completed.returncode
 
@@ -194,7 +231,7 @@ def evaluate(jpack_bin, work_dir, pack_bytes, facts_bytes, evidence_bytes):
 def layer_owp(cell):
     bundle = cell.json("bundle.json")
     if bundle is None:
-        return {"verdict": "unavailable", "detail": "bundle is unreadable"}
+        return result("unavailable", None, "bundle is unreadable")
     try:
         import base64
 
@@ -252,11 +289,11 @@ def layer_owp(cell):
             reports=reports,
         )
     except Exception as error:
-        return {
-            "verdict": "fail",
-            "detail": "%s: %s" % (type(error).__name__, error),
-        }
-    return {"verdict": "pass", "detail": None}
+        # Upstream reports bundle-level failure as one composite verdict, so the
+        # OWP layer carries no code of its own: its outcome is `fail` and the
+        # upstream message is recorded as detail.
+        return result("fail", None, "%s: %s" % (type(error).__name__, error))
+    return result("pass")
 
 
 # --------------------------------------------------------------------------
@@ -264,74 +301,194 @@ def layer_owp(cell):
 # --------------------------------------------------------------------------
 
 def _fail(code, detail=None):
-    return {"verdict": "fail:" + code, "detail": detail}
+    return result("fail", code, detail)
+
+
+def _objective_text(cell):
+    bundle = cell.json("bundle.json")
+    if not isinstance(bundle, dict):
+        return None, None
+    objective = (bundle.get("work_order") or {}).get("objective")
+    return bundle, objective if isinstance(objective, str) else None
+
+
+def _looks_like_a_commitment(raw):
+    """True when the bytes decode to a version-1 commitment under lax parsing.
+
+    The distinction the codes turn on: a chain that carries no commitment at the
+    signed point at all (`commitment-objective-missing`) versus one that carries
+    a version-1 commitment the strict rules refuse — duplicate members, invalid
+    UTF-8, a non-canonical encoding (`commitment-schema-invalid`).
+    """
+    try:
+        candidate = json.loads(bytes(raw).decode("utf-8", errors="strict"))
+    except Exception:
+        return False
+    return isinstance(candidate, dict) and candidate.get("commitmentVersion") == "1"
 
 
 def commitment_at_binding_point(cell):
     """The commitment carried by `WorkOrder.objective`, or None."""
-    bundle = cell.json("bundle.json")
-    if not isinstance(bundle, dict):
+    _, objective = _objective_text(cell)
+    if objective is None:
         return None
-    objective = (bundle.get("work_order") or {}).get("objective")
-    if not isinstance(objective, str):
-        return None
+    raw = objective.encode("utf-8")
     try:
-        return parse_commitment(objective)
+        candidate = parse_commitment_bytes(raw)
+        validate_commitment(candidate)
     except CommitmentSchemaError:
         return None
+    if canonical_encoding_problem(raw, candidate) is not None:
+        return None
+    return candidate
 
 
-def layer_binding(cell):
-    bundle = cell.json("bundle.json")
-    if not isinstance(bundle, dict):
+def _commitment_from_objective(cell):
+    """(candidate, canonical bytes) or a failing layer record."""
+    bundle, objective = _objective_text(cell)
+    if bundle is None:
         return _fail("commitment-objective-missing", "bundle is unreadable")
-
-    objective = (bundle.get("work_order") or {}).get("objective")
-    if not isinstance(objective, str):
+    if objective is None:
         return _fail("commitment-objective-missing", "objective is not a string")
+    raw = objective.encode("utf-8")
     try:
-        candidate = parse_commitment(objective)
+        candidate = parse_commitment_bytes(raw)
     except CommitmentSchemaError as error:
+        if _looks_like_a_commitment(raw):
+            return _fail("commitment-schema-invalid", str(error))
         return _fail("commitment-objective-missing", str(error))
     try:
         validate_commitment(candidate)
     except CommitmentSchemaError as error:
         return _fail("commitment-schema-invalid", str(error))
+    problem = canonical_encoding_problem(raw, candidate)
+    if problem is not None:
+        return _fail("commitment-schema-invalid", problem)
+    return candidate, commitment_bytes(candidate)
 
-    digest = commitment_digest(candidate)
-    retained = cell.json("commitment.json")
-    if retained != candidate:
+
+def _retained_commitment_problem(cell, candidate, canonical):
+    """The byte-level retained-vs-signed rule (SPEC section 5)."""
+    retained = cell.read("commitment.json")
+    if retained is None:
         return _fail(
             "binding-point-divergence",
-            "retained commitment document is not the objective commitment",
+            "retained commitment document is absent",
         )
+    if retained == canonical:
+        return None
+    try:
+        parsed = parse_commitment_bytes(retained)
+    except CommitmentSchemaError as error:
+        return _fail("commitment-schema-invalid", "retained commitment: " + str(error))
+    if parsed == candidate:
+        return _fail(
+            "commitment-schema-invalid",
+            "retained commitment bytes are not the canonical JCS encoding",
+        )
+    return _fail(
+        "binding-point-divergence",
+        "retained commitment document is not the objective commitment",
+    )
 
-    judgment = candidate["judgment"]
-    action = candidate["action"]
-    matches = [
+
+def _tool_call_receipts(bundle):
+    return [
         receipt
         for receipt in bundle.get("receipts", [])
-        if isinstance(receipt, dict)
-        and receipt.get("event_type") == "tool_call"
-        and isinstance(receipt.get("nested_claim"), dict)
+        if isinstance(receipt, dict) and receipt.get("event_type") == "tool_call"
+    ]
+
+
+def action_class_receipts(bundle):
+    """Structural discovery: every receipt that *is* an execution under the map.
+
+    Discovery is by tool, never by the attacker-controlled marker — a negative
+    disposition cannot execute by simply omitting the commitment digest from its
+    request context.
+    """
+    return [
+        receipt
+        for receipt in _tool_call_receipts(bundle)
+        if receipt.get("tool_name") in ACTION_CLASS_TOOLS
+    ]
+
+
+def marked_receipts(bundle, digest):
+    """Receipts whose nested request carries the commitment digest."""
+    return [
+        receipt
+        for receipt in _tool_call_receipts(bundle)
+        if isinstance(receipt.get("nested_claim"), dict)
         and receipt["nested_claim"].get("context_source_digest") == digest
     ]
+
+
+def layer_binding(cell):
+    parsed = _commitment_from_objective(cell)
+    if isinstance(parsed, dict) and "verdict" in parsed:
+        return parsed
+    candidate, canonical = parsed
+    bundle = cell.json("bundle.json")
+
+    problem = _retained_commitment_problem(cell, candidate, canonical)
+    if problem is not None:
+        return problem
+
+    digest = commitment_digest(candidate)
+    judgment = candidate["judgment"]
+    action = candidate["action"]
+
+    executions = action_class_receipts(bundle)
+    marked = marked_receipts(bundle, digest)
+
+    # Exact-set totality over the action class (SPEC section 5).
     if action is None:
-        if matches:
+        if executions:
+            return _fail(
+                "action-map-violation",
+                "commitment authorizes no action yet the chain carries %d "
+                "action-class receipt(s)" % len(executions),
+            )
+        if marked:
             return _fail(
                 "action-map-violation",
                 "commitment authorizes no action yet a receipt carries its digest",
             )
         executing = None
-    elif not matches:
-        return _fail("executing-receipt-missing", "no receipt carries the commitment digest")
-    elif len(matches) > 1:
-        return _fail(
-            "executing-receipt-ambiguous",
-            "%d receipts carry the commitment digest" % len(matches),
-        )
     else:
-        executing = matches[0]
+        # A marked receipt is what the chain *claims* is the executing call. If
+        # the claim names a tool the map cannot authorize, that is the binding
+        # failure, whether or not an action-class receipt also exists.
+        mismarked = [
+            receipt
+            for receipt in marked
+            if receipt.get("tool_name") != action["toolName"]
+        ]
+        if mismarked:
+            return _fail(
+                "action-tool-mismatch",
+                "the commitment digest is bound to a %r receipt, not the "
+                "committed %r" % (mismarked[0].get("tool_name"), action["toolName"]),
+            )
+        if not executions:
+            return _fail(
+                "executing-receipt-missing",
+                "commitment authorizes an action yet the chain carries no "
+                "action-class receipt",
+            )
+        if len(executions) > 1:
+            return _fail(
+                "action-map-violation",
+                "commitment authorizes one action yet the chain carries %d "
+                "action-class receipts" % len(executions),
+            )
+        executing = executions[0]
+        if not marked:
+            return _fail(
+                "binding-point-divergence",
+                "the executing request does not carry the commitment digest",
+            )
         if executing.get("correlation_factors", {}).get("context_source_digest") != digest:
             return _fail(
                 "binding-point-divergence",
@@ -390,11 +547,6 @@ def layer_binding(cell):
         )
 
     if action is not None:
-        if executing.get("tool_name") != action["toolName"]:
-            return _fail(
-                "action-tool-mismatch",
-                "executed tool %r is not the committed tool" % executing.get("tool_name"),
-            )
         if executing.get("arguments_digest") != action["argumentsDigest"]:
             return _fail(
                 "action-arguments-mismatch",
@@ -407,86 +559,84 @@ def layer_binding(cell):
                 "action-map-violation",
                 "the section 4 map does not authorize the executed action",
             )
-    return {"verdict": "pass", "detail": None}
+    return result("pass")
 
 
 # --------------------------------------------------------------------------
 # Layer REPLAY
 # --------------------------------------------------------------------------
 
+def _unavailable(detail):
+    return result("unavailable", "replay-unavailable", detail)
+
+
 def layer_replay(cell, jpack_bin, work_dir):
     candidate = commitment_at_binding_point(cell)
     if candidate is None:
-        return {
-            "verdict": "unavailable",
-            "detail": "replay-unavailable: no commitment at the signed binding point",
-        }
-    try:
-        validate_commitment(candidate)
-    except CommitmentSchemaError as error:
-        return {
-            "verdict": "unavailable",
-            "detail": "replay-unavailable: " + str(error),
-        }
+        return _unavailable("no conforming commitment at the signed binding point")
     judgment = candidate["judgment"]
 
     if jpack_bin is None or not Path(jpack_bin).is_file():
-        return {
-            "verdict": "unavailable",
-            "detail": "replay-unavailable: the pinned evaluator is not available",
-        }
+        return _unavailable("the pinned evaluator is not available")
     if jpack_digest(jpack_bin) != judgment["executableDigest"]:
-        return {
-            "verdict": "fail:replay-executable-mismatch",
-            "detail": "executable digest is not the recorded one",
-        }
+        return _fail(
+            "replay-executable-mismatch",
+            "executable digest is not the recorded one",
+        )
     release = jpack_release(jpack_bin)
     if release != judgment["evaluatorRelease"]:
-        return {
-            "verdict": "fail:replay-executable-mismatch",
-            "detail": "evaluator release %r is not the recorded %r"
+        return _fail(
+            "replay-executable-mismatch",
+            "evaluator release %r is not the recorded %r"
             % (release, judgment["evaluatorRelease"]),
-        }
+        )
 
     pack_bytes = cell.read("pack.json")
     facts_bytes = cell.read("facts.json")
     evidence_bytes = cell.read("evidence.json")
     if pack_bytes is None or facts_bytes is None:
-        return {
-            "verdict": "unavailable",
-            "detail": "replay-unavailable: retained pack or facts bytes are absent",
-        }
+        return _unavailable("retained pack or facts bytes are absent")
     if judgment["evidenceDigest"] is not None and evidence_bytes is None:
-        return {
-            "verdict": "unavailable",
-            "detail": "replay-unavailable: retained evidence bytes are absent",
-        }
+        return _unavailable("retained evidence bytes are absent")
     if judgment["evidenceDigest"] is None:
         evidence_bytes = None
 
     stdout, returncode = evaluate(
-        jpack_bin, work_dir, pack_bytes, facts_bytes, evidence_bytes
+        jpack_bin,
+        work_dir,
+        pack_bytes,
+        facts_bytes,
+        evidence_bytes,
+        supported_extensions=judgment["supportedExtensions"],
     )
     try:
         envelope = json.loads(stdout.decode("utf-8"))
     except Exception:
-        return {
-            "verdict": "fail:replay-refused:unreadable",
-            "detail": "the evaluator produced no readable envelope (exit %d)" % returncode,
-        }
+        return _fail(
+            "replay-refused",
+            "unreadable: the evaluator produced no readable envelope (exit %d)"
+            % returncode,
+        )
     error = envelope.get("evaluationError")
     if error is not None or "disposition" not in envelope:
         error_class = (error or {}).get("class", "unclassified")
-        return {
-            "verdict": "fail:replay-refused:" + str(error_class),
-            "detail": "the evaluator refused the retained inputs",
-        }
+        return _fail(
+            "replay-refused",
+            "%s: the evaluator refused the retained inputs" % error_class,
+        )
+    replayed_spec_version = envelope.get("evaluatorSpecVersion")
+    if replayed_spec_version != judgment["evaluatorSpecVersion"]:
+        return _fail(
+            "replay-spec-version-mismatch",
+            "replayed evaluatorSpecVersion %r is not the committed %r"
+            % (replayed_spec_version, judgment["evaluatorSpecVersion"]),
+        )
     if disposition_digest(envelope) != judgment["dispositionDigest"]:
-        return {
-            "verdict": "fail:replay-disposition-mismatch",
-            "detail": "recomputed disposition is not the committed disposition",
-        }
-    return {"verdict": "pass", "detail": None}
+        return _fail(
+            "replay-disposition-mismatch",
+            "recomputed disposition is not the committed disposition",
+        )
+    return result("pass")
 
 
 # --------------------------------------------------------------------------
@@ -496,20 +646,17 @@ def layer_replay(cell, jpack_bin, work_dir):
 def verify_cell(cell_dir, jpack_bin, work_dir):
     """Run the three layers independently and derive the combined verdict."""
     cell = Cell(cell_dir)
-    owp = layer_owp(cell)
-    binding = layer_binding(cell)
-    replay = layer_replay(cell, jpack_bin, work_dir)
-    combined = (
-        "pass"
-        if owp["verdict"] == "pass"
-        and binding["verdict"] == "pass"
-        and replay["verdict"] == "pass"
-        else "fail"
-    )
+    layers = {
+        "owp": layer_owp(cell),
+        "binding": layer_binding(cell),
+        "replay": layer_replay(cell, jpack_bin, work_dir),
+    }
+    outcomes = {name: outcome(record) for name, record in layers.items()}
+    combined = "pass" if all(value == "pass" for value in outcomes.values()) else "fail"
     return {
         "cell": cell.name,
-        "owp": owp,
-        "binding": binding,
-        "replay": replay,
+        "owp": dict(layers["owp"], outcome=outcomes["owp"]),
+        "binding": dict(layers["binding"], outcome=outcomes["binding"]),
+        "replay": dict(layers["replay"], outcome=outcomes["replay"]),
         "combined": combined,
     }

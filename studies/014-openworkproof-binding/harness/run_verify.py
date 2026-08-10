@@ -24,13 +24,13 @@ import score  # noqa: E402
 import verify  # noqa: E402
 
 
-def registered_expectation(cell_id):
+def registered_cell(cell_id):
     registry = json.loads(
         (STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8")
     )
     for cell in registry["cells"]:
         if cell["id"] == cell_id:
-            return cell["expected"]
+            return cell
     return None
 
 
@@ -41,13 +41,17 @@ def main(argv=None):
 
     directory = Path(arguments.cell).resolve()
     cell_id = "pos-baseline" if directory.name == "baseline" else directory.name
-    expectation = registered_expectation(cell_id)
+    cell = registered_cell(cell_id)
+    if cell is None:
+        print(json.dumps({"cell": cell_id, "pipelineInvalid": True,
+                          "problems": ["cell is not registered in the matrix"]}, indent=2))
+        return 2
 
     pins = json.loads(
         (STUDY / "harness" / "PINS.json").read_text(encoding="utf-8")
     )
     jpack_bin = os.environ.get("JPACK_BIN")
-    problems = score.pipeline_problems(directory, expectation)
+    problems = score.pipeline_problems(directory, cell)
     if not jpack_bin or not Path(jpack_bin).is_file():
         problems.append("JPACK_BIN is not available")
     elif verify.sha256_file(jpack_bin) != pins["jpack"]["binarySha256"]:

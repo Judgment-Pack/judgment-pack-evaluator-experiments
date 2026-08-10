@@ -18,15 +18,28 @@ An interoperability falsification study between two independently designed layer
 - A **thin adapter** (`adapter/SPEC.md`) owns exactly one thing: a *judgment commitment* —
   the digest tuple `{pack bytes, input bytes, canonical disposition, replay tuple,
   authorized action}` — bound into the OWP chain at two signed points, and a verification
-  ceremony that recomputes it from retained artifacts.
+  ceremony that recomputes it from retained artifacts. The two points are **defense in
+  depth**, not a demonstrated necessity: OWP already associates every receipt with its
+  signed work order cryptographically, and no arm here establishes what the second point
+  adds over that.
 
-The study then tries to break the composition: 31 registered one-at-a-time mutations
-(judgment-artifact, facts, disposition, action, replay/drift, causal-chain) plus controls,
-each adjudicated per layer — did OWP's unchanged verifier catch it, did the adapter's
-binding check catch it, did deterministic JPS replay catch it, or did nothing? An
-undetected-by-all cell is a primary result, preserved, never patched
-(`harness/MATRIX.json` registers two such cells up front: decision currency and policy
-rollback, which no chain-internal evidence can see).
+The study then tries to break the composition: 33 registered one-at-a-time mutations
+(judgment-artifact, facts, disposition, action, replay/drift, causal-chain) plus 5 controls
+and 1 disclosed demonstration, each adjudicated per layer — did OWP's unchanged verifier
+catch it, did the adapter's binding check catch it, did deterministic JPS replay catch it,
+or did nothing? An undetected-by-all cell is a primary result, preserved, never patched:
+alternative-work-order remint is registered as such up front, and decision currency is
+registered as an analytic limitation because no fixture distinct from the baseline can
+observe it at all.
+
+What a green ceremony means, stated narrowly: **the retained artifacts and the receipted
+lineage are internally consistent, and the executed call the chain records is the one the
+recorded judgment authorized.** It is not a claim that the action physically happened (a
+receipt is an attestation by the signing system), not a claim that the judgment is correct,
+and not a claim that a JPS disposition authorizes anything — an approve disposition is
+eligibility under a study-defined map, never an OWP capability grant. An insider holding
+every fixture key can remint a whole alternative chain that this composition does not
+distinguish; catching that needs an anchor outside the chain.
 
 Neither protocol is modified. OWP is consumed as an installed package at a pinned commit;
 jpack as a pinned release binary. The commitment rides in slots OWP signs but never
@@ -44,7 +57,7 @@ precisely the difference between *carried under signature* and *semantically che
 - **The gateway** proves byte-lineage of *inputs* under its own signing identity and
   refuses, by policy, to let a receipt assert truth or authorization. Its mechanisms
   (record signing, chaining, the external-anchor lesson, the §5a consumer ceremony) are
-  prior art here; its subject matter is disjoint. The registered-undetected cells are the
+  prior art here; its subject matter is disjoint. The registered boundary rows are the
   gateway's registry lesson resurfacing one layer up.
 - **ADR-0002's ceiling** governs both layers of this composition: binding/lineage, not
   truth.
@@ -52,13 +65,21 @@ precisely the difference between *carried under signature* and *semantically che
 ## Reproduce (once frozen)
 
 ```
-harness/build_fixtures.py   # one-time fixture construction (entropy pinned; output frozen by manifest)
-harness/run_verify.py       # the composed ceremony over one cell
-harness/score.py            # the full matrix -> detection table (the only thing that publishes)
+export JPACK_BIN=/path/to/jpack           # pinned v0.16.0 release binary
+export OWP_SOURCE=/path/to/OpenWorkProof  # the pinned clone, read-only, build path only
+
+harness/build_fixtures.py --force   # one-time fixture construction (entropy pinned; output frozen by manifest)
+harness/make_manifest.py            # regenerate harness/STUDY-MANIFEST.sha256 (--check to verify)
+harness/run_verify.py --cell fixtures/baseline
+harness/score.py --attempt-root pilots/<new-directory>
 python -m pytest harness/tests -q
 ```
 
-Toolchain pins (OWP commit + venv, jpack release digests, interpreter) live in
-`harness/PINS.json`; upstream identity in `upstream/`.
+Both environment variables are required: the tests fail rather than skip without them.
+Toolchain pins (OWP commit + venv, jpack release digests, interpreter, dependency freeze)
+live in `harness/PINS.json` and are enforced by the scorer before it adjudicates anything;
+upstream identity in `upstream/`. The registry is stratified: `harness/MATRIX.json` is the
+locked-replication stratum, `harness/MATRIX-HOLDOUT.json` is the reviewer-authored holdout
+stratum, and `--include-holdout` is refused mechanically until the preregistration freezes.
 
 Nothing in this repository claims any JPS conformance.
