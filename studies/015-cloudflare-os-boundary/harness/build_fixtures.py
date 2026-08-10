@@ -37,7 +37,13 @@ PACK_PATH = FIXTURES / "data-request-intake-triage.pack.json"
 
 # A second portal-scoped resource: the portal rejects unscoped grants, so the
 # substitution target must carry a `#server=` scope like the first (round 3).
-OTHER_RESOURCE_URL = "https://other-tracker.example/mcp#server=other"
+# A SECOND portal deployment. The portal hosts one endpoint per deployment and a wire
+# tool belongs to its own server scope, so a second target needs its own endpoint, its
+# own scope and correspondingly-named tools (round 4).
+OTHER_ENDPOINT = "https://other-tracker.example/mcp"
+OTHER_SERVER_ID = "other"
+OTHER_RESOURCE_URL = "%s#server=%s" % (OTHER_ENDPOINT, OTHER_SERVER_ID)
+OTHER_TOOL_NAME = "other_create_work_item"
 BOUND_REVISION = "rev-7"
 DRIFTED_REVISION = "rev-9"
 
@@ -222,8 +228,9 @@ class Timeline:
             # (:2495) and on reject (:7729). The study never reads it as evidence of
             # application — only `state == "approved"` means applied.
             record["appliedAt"] = resolved_at or timestamp(30 + ledger_id)
-        if state == "approved" and auto:
-            record["autoApproved"] = True
+        if state == "approved":
+            # `applyPendingAction` always stores the flag, both ways (overseer.ts:2497).
+            record["autoApproved"] = bool(auto)
         self.ledger.append(record)
         return record
 
@@ -575,7 +582,7 @@ def build_all():
                         kind=builder.gate_kind, resolved_at=timestamp(45),
                         described=builder.describe(GATE_TOOL, gate_arguments))
     timeline.stage(action_key=10, tool_name=GATE_TOOL["name"],
-                   arguments=gate_arguments)
+                   arguments=gate_arguments, connector_outcome="rejected")
     record = timeline.add_action(2, action_key=11, state="approved", auto=True,
                                  resolved_at=timestamp(32))
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
@@ -718,8 +725,15 @@ def build_all():
     backing["intake-form"] = {"kind": "observation-record", "ref": "ledger:1"}
     built = builder.build(case_key="proceed", backing_override=backing)
     timeline = builder.timeline(built)
-    timeline.add_observation(1, "Read intake form",
-                             "Read the intake form through the tracker capability.")
+    read_tool = dict(copy.deepcopy(TRACKER_TOOL), name="tracker_get_intake_form",
+                     annotations={"readOnlyHint": True})
+    timeline.gatekeepers[0]["tools"].append(read_tool)
+    read_args = {"requestId": "R-1"}
+    read_described = builder.describe(read_tool, read_args, mode="read",
+                                      classified_by="server-annotation")
+    timeline.add_observation(1, read_described["title"], read_described["description"])
+    timeline.observed.append(
+        {"gatekeeperId": 1, "ledgerId": 1, "toolName": read_tool["name"]})
     timeline.add_action(2, action_key=11, state="approved", auto=False)
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
                    arguments=cmt.action_arguments(built["facts"]),
@@ -739,6 +753,8 @@ def build_all():
                    commitment_digest=built["digest"])
     second_arguments = dict(cmt.action_arguments(built["facts"]),
                             requestType="second-request")
+    timeline.ledger[1]["description"].update(
+        builder.describe(TRACKER_TOOL, second_arguments))
     timeline.stage(action_key=12, tool_name=cmt.ACTION_TOOL,
                    arguments=second_arguments, commitment_digest=built["digest"])
     timeline.applied_at_revision(action_key=11, revision=BOUND_REVISION)
@@ -749,6 +765,8 @@ def build_all():
 
     built = builder.build(case_key="proceed")
     timeline = builder.executed_timeline(built, auto=False, attest=False)
+    # The ledger's prose deliberately stays as submitted: that is the construction — the
+    # log describes the action that was approved while the staged arguments moved under it.
     timeline.staged[0]["arguments"] = dict(
         cmt.action_arguments(built["facts"]), requestType="someone-else-entirely")
     emit("b02-argument-drift", built, timeline,
@@ -762,13 +780,23 @@ def build_all():
 
     built = builder.build(case_key="proceed")
     timeline = builder.timeline(built)
+    other_tool = dict(copy.deepcopy(TRACKER_TOOL), name=OTHER_TOOL_NAME)
+    other_kind = {
+        "tag": cmt.action_kind_tag(
+            scope_tag=cmt.action_scope_tag(OTHER_RESOURCE_URL, OTHER_SERVER_ID),
+            tool_name=OTHER_TOOL_NAME,
+        ),
+        "label": OTHER_TOOL_NAME,
+    }
     timeline.gatekeepers.append(
         {"id": 2, "resourceUrl": OTHER_RESOURCE_URL, "serverTrust": "vetted",
-         "tools": [copy.deepcopy(TRACKER_TOOL)]})
-    timeline.add_action(1, gatekeeper_id=2, action_key=21, state="approved", auto=False)
-    timeline.stage(gatekeeper_id=2, action_key=21, tool_name=cmt.ACTION_TOOL,
-                   arguments=cmt.action_arguments(built["facts"]),
-                   commitment_digest=built["digest"])
+         "tools": [other_tool]})
+    other_arguments = cmt.action_arguments(built["facts"])
+    timeline.add_action(1, gatekeeper_id=2, action_key=21, state="approved", auto=False,
+                        kind=other_kind,
+                        described=builder.describe(other_tool, other_arguments))
+    timeline.stage(gatekeeper_id=2, action_key=21, tool_name=OTHER_TOOL_NAME,
+                   arguments=other_arguments, commitment_digest=built["digest"])
     timeline.applied_at_revision(gatekeeper_id=2, action_key=21, revision=BOUND_REVISION)
     emit("b04-gatekeeper-substituted", built, timeline,
          honest_report(built["envelope"], built["digest"], "applied"))
@@ -900,7 +928,8 @@ def build_holdout(builder, emit):
             "proceed", argumentsDigest=cmt.arguments_digest(substituted)),
     )
     timeline = builder.timeline(built)
-    timeline.add_action(1, action_key=11, state="approved", auto=False)
+    timeline.add_action(1, action_key=11, state="approved", auto=False,
+                        described=builder.describe(TRACKER_TOOL, substituted))
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL, arguments=substituted,
                    commitment_digest=built["digest"])
     timeline.applied_at_revision(action_key=11, revision=BOUND_REVISION)
@@ -913,16 +942,22 @@ def build_holdout(builder, emit):
         case_key="proceed",
         action_override=builder.forced_action(
             "proceed", gatekeeperId=2, resourceUrl=OTHER_RESOURCE_URL,
-            actionKindTag=forged_tag),
+            toolName=OTHER_TOOL_NAME, actionKindTag=forged_tag),
     )
     timeline = builder.timeline(built)
+    # A second portal deployment with its own scope and correspondingly-named tool. The
+    # action-kind TAG remains the reviewer's forged literal — that forgery is the point
+    # of the cell — but everything around it is a shape the portal could host.
+    h04_tool = dict(copy.deepcopy(TRACKER_TOOL), name=OTHER_TOOL_NAME)
     timeline.gatekeepers.append(
         {"id": 2, "resourceUrl": OTHER_RESOURCE_URL, "serverTrust": "vetted",
-         "tools": [copy.deepcopy(TRACKER_TOOL)]})
+         "tools": [h04_tool]})
+    h04_arguments = cmt.action_arguments(built["facts"])
     timeline.add_action(1, gatekeeper_id=2, action_key=21, state="approved", auto=False,
-                        kind={"tag": forged_tag, "label": cmt.ACTION_TOOL})
-    timeline.stage(gatekeeper_id=2, action_key=21, tool_name=cmt.ACTION_TOOL,
-                   arguments=cmt.action_arguments(built["facts"]),
+                        kind={"tag": forged_tag, "label": OTHER_TOOL_NAME},
+                        described=builder.describe(h04_tool, h04_arguments))
+    timeline.stage(gatekeeper_id=2, action_key=21, tool_name=OTHER_TOOL_NAME,
+                   arguments=h04_arguments,
                    commitment_digest=built["digest"])
     timeline.applied_at_revision(gatekeeper_id=2, action_key=21, revision=BOUND_REVISION)
     emit("h04-coherent-target-and-kind-substitution", built, timeline,
@@ -952,7 +987,7 @@ def build_holdout(builder, emit):
                         kind=builder.gate_kind, resolved_at=timestamp(50),
                         described=builder.describe(GATE_TOOL, gate_arguments))
     timeline.stage(action_key=10, tool_name=GATE_TOOL["name"],
-                   arguments=gate_arguments)
+                   arguments=gate_arguments, connector_outcome="rejected")
     record = timeline.add_action(2, action_key=11, state="approved", auto=True,
                                  resolved_at=timestamp(32))
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,

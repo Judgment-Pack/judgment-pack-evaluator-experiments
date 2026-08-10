@@ -317,40 +317,49 @@ evaluable without them: `commitment-missing` and `commitment-schema-invalid` (by
 UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own content, or not
 §1's exact field set, closed vocabularies and digest shapes). Then, in order:
 
-1. `pack-artifact-missing` / `pack-digest-mismatch` — retained pack bytes absent, or their
+1. `ledger-lifecycle-invalid` — some action record's lifecycle tuple is one the platform cannot
+   write. Upstream sets `state`, `appliedAt` and `resolvedBy` together at the approve chokepoint
+   (`overseer.ts:2493-2498`) and at the reject path (`:7727-7732`), and `autoApproved` only
+   alongside an approval (there is no automatic rejection), so: a `pending` row carrying a
+   resolution stamp, a resolver or an auto-approval flag; an `approved`/`rejected` row missing a
+   stamp or a resolver; an out-of-vocabulary state; an auto-approval claimed in any state but
+   `approved`; or a row resolved before it was created. This runs for **every** cell in the
+   binding layer — round 4 found lifecycle validity was enforced only inside an engaged drain
+   replay, so a cell claiming no auto-approval was never checked at all.
+2. `pack-artifact-missing` / `pack-digest-mismatch` — retained pack bytes absent, or their
    digest differs from `judgment.packDigest`.
-2. `judgment-identity-mismatch` — a committed identity or release field is not the one its
+3. `judgment-identity-mismatch` — a committed identity or release field is not the one its
    artifact carries (`packId`, `packVersion`, `specVersion` against the retained pack;
    `evaluatorSpecVersion`, `evaluatorRelease` against the retained envelope), the retained pack
    does not parse at all, or `supportedExtensions` carries duplicates.
-3. `facts-digest-mismatch` — retained facts absent or not the committed digest.
-4. `evidence-digest-mismatch` — same rule for the evidence-availability document (null field ⇔
+4. `facts-digest-mismatch` — retained facts absent or not the committed digest.
+5. `evidence-digest-mismatch` — same rule for the evidence-availability document (null field ⇔
    absent document).
-5. `disposition-digest-mismatch-retained` — the retained envelope's canonical disposition bytes
+6. `disposition-digest-mismatch-retained` — the retained envelope's canonical disposition bytes
    do not digest to `judgment.dispositionDigest`.
-6. `evidence-backing-invalid` — a `present` claim with no backing entry; a backing entry for a
+7. `evidence-backing-invalid` — a `present` claim with no backing entry; a backing entry for a
    claim that is not `present`; a backing that is not an `artifact` reference; a backing whose
    digest has no retained preimage; a retained artifact whose bytes do not hash to their backing
    digest; or a retained artifact with no backing entry.
-7. `action-derivation-mismatch` — the commitment's action diverges, in any derived member, from
+8. `action-derivation-mismatch` — the commitment's action diverges, in any derived member, from
    the action the §4 map derives from the **retained** judgment; or the retained facts or
    disposition are unreadable, so no action can be derived.
-8. `action-map-violation` — the commitment's `action` contradicts the map for the committed
+9. `action-map-violation` — the commitment's `action` contradicts the map for the committed
    disposition (an action object under a non-executable disposition, null under `proceed`); an
    action-class record binds to a commitment to inaction; or a bound staged call took effect
    with no approved ledger record.
-9. `binding-reuse` — more than one staged call, applied record, or ledger record claims one
+10. `binding-reuse` — more than one staged call, applied record, or ledger record claims one
    `commitmentDigest`; **or** the store holds more staged calls or applied records against the
    judged subject than the map authorizes, whatever digest they carry or omit. Subject identity
    is the tool, resource and exact arguments the map derives — round 2 found that counting only
    digest-labelled calls let an unlabelled twin execute a second time invisibly.
-10. `target-mismatch` — the bound staged call's gatekeeper, resource URL, trust tier, tool name,
+11. `target-mismatch` — the bound staged call's gatekeeper, resource URL, trust tier, tool name,
     or the record's action-kind tag differs from the commitment's `action`.
-11. `argument-drift` — the staged call's arguments do not digest to `action.argumentsDigest`.
-12. `stage-revision-mismatch` — the revision recorded at staging is not the committed
+12. `argument-drift` — the staged call's arguments do not digest to `action.argumentsDigest`.
+13. `stage-revision-mismatch` — the revision recorded at staging is not the committed
     `boundResourceRevision`.
-13. `revision-drift` — the revision recorded at apply time is not the committed one.
-14. `unbound-execution` — over the **governed inventory** (every attested effect on the tool
+14. `revision-drift` — the revision recorded at apply time is not the committed one.
+15. `unbound-execution` — over the **governed inventory** (every attested effect on the tool
     and resource the map governs, whatever arguments it carries): an effect exists with no
     approved bound application; or more effects than approved bound applications; or an effect
     whose named staged call is not the approved call bound to this commitment; or an effect on
@@ -360,14 +369,14 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
     same tuple, so an attestation names the staged call that produced it (`gatekeeperId`,
     `action`) and the ceremony joins on that name. That identity is instrumentation, like the
     attestation itself: stock Cloudflare OS retains neither.
-15. `handoff-dropped` — the committed disposition carries handoff `requested` and `report.json`
+16. `handoff-dropped` — the committed disposition carries handoff `requested` and `report.json`
     carries no handoff.
-16. `commit-overclaim` — `report.json` claims `effect-attested` while no matching effect
+17. `commit-overclaim` — `report.json` claims `effect-attested` while no matching effect
     attestation is retained. The platform's `approved` state (its callback returned) is
     registered as *not* satisfying the claim, per its own at-most-once contract.
-17. `report-state-unsupported` — the report's execution state is out of vocabulary, or is not
+18. `report-state-unsupported` — the report's execution state is out of vocabulary, or is not
     supported by the retained store under the closed predicates below.
-18. `report-misattribution` — no report is retained, the report does not bind this commitment,
+19. `report-misattribution` — no report is retained, the report does not bind this commitment,
     or its decision is not the committed disposition verbatim (kind, outcomeId, reasons, handoff
     state).
 
@@ -397,9 +406,9 @@ predicate over the retained store** rather than a free-text claim — round 1 fo
 | `staged` | exactly one bound staged call, its ledger record (if any) still `pending`, no matching effect |
 | `applied` | one bound staged call with an `approved` ledger record, and the connector outcome is not `outcome-unknown` |
 | `applied-unproven` | one bound staged call whose retained connector outcome **is** `outcome-unknown`, with no matching effect — the ambiguity state, never a default |
-| `effect-attested` | an approved bound record **and** a matching retained effect attestation (§5 step 16) |
+| `effect-attested` | an approved bound record **and** a matching retained effect attestation (§5 step 17) |
 
-The connector outcome vocabulary is `pending`, `committed`, `failed`, `outcome-unknown`. The
+The connector outcome vocabulary is `pending`, `committed`, `failed`, `rejected`, `outcome-unknown`. The
 last is the platform's own at-most-once ambiguity: when an MCP dispatch's result is never
 observed, the connector's private record becomes failed and non-retryable while the **outer**
 workspace record stays `pending`, because the platform transitions it only after the gatekeeper

@@ -48,6 +48,7 @@ BINDING_CODES = (
     "commitment-missing",
     "commitment-schema-invalid",
     "retained-store-unreadable",
+    "ledger-lifecycle-invalid",
     "pack-artifact-missing",
     "pack-digest-mismatch",
     "judgment-identity-mismatch",
@@ -80,7 +81,15 @@ EXECUTION_STATES = ("none", "staged", "applied", "applied-unproven", "effect-att
 # The connector outcome an instrumented Gatekeeper retains per staged call. `committed`
 # and `failed` are determinate; `outcome-unknown` is the platform's own at-most-once
 # ambiguity, the only state that supports an `applied-unproven` report.
-CONNECTOR_OUTCOMES = ("pending", "committed", "failed", "outcome-unknown")
+# `rejected` is the private record's state when the approver refuses; the outer row is
+# rejected in the same transaction (overseer.ts:7727-7732).
+CONNECTOR_OUTCOMES = (
+    "pending",
+    "committed",
+    "failed",
+    "rejected",
+    "outcome-unknown",
+)
 
 
 def result(verdict, code=None, detail=None, suppressed=()):
@@ -449,6 +458,52 @@ def _load_context(cell):
 # --------------------------------------------------------------------------
 # layer binding — the checks, in registered order (SPEC section 5)
 # --------------------------------------------------------------------------
+
+def _check_ledger_lifecycle(context):
+    """Every action row's lifecycle tuple against what the platform can actually write.
+
+    Round 4 found lifecycle validity was enforced only inside an engaged drain replay, so
+    a cell whose ledger claimed no auto-approval was never checked at all, and nine
+    source-impossible shapes were accepted. Upstream writes the resolution fields
+    together — `state`, `appliedAt` and `resolvedBy` at the approve chokepoint
+    (`overseer.ts:2493-2498`) and at the reject path (`:7727-7732`) — and `autoApproved`
+    is set only alongside an approval (`auto-approval.ts:85`, there is no automatic
+    rejection). This check runs for every cell, in the binding layer, always.
+    """
+    problems = []
+    for entry in context.ledger_actions:
+        label = "ledger id %s" % entry.get("id")
+        state = entry.get("state")
+        stamped = entry.get("appliedAt") is not None
+        resolved_by = entry.get("resolvedBy") is not None
+        auto = entry.get("autoApproved")
+        if state == "pending":
+            if stamped:
+                problems.append("%s is pending but carries a resolution stamp" % label)
+            if resolved_by:
+                problems.append("%s is pending but records a resolver" % label)
+            if auto is not None:
+                problems.append("%s is pending but records an auto-approval flag" % label)
+        elif state in ("approved", "rejected"):
+            if not stamped:
+                problems.append("%s is %s with no resolution stamp" % (label, state))
+            if not resolved_by:
+                problems.append("%s is %s with no resolver" % (label, state))
+        else:
+            problems.append("%s carries state %r, which is out of the platform's own "
+                            "vocabulary" % (label, state))
+        if auto is True and state != "approved":
+            problems.append(
+                "%s claims auto-approval in state %r; the platform has no automatic "
+                "rejection" % (label, state)
+            )
+        created, applied = entry.get("createdAt"), entry.get("appliedAt")
+        if isinstance(created, str) and isinstance(applied, str) and applied < created:
+            problems.append("%s is resolved before it was created" % label)
+    if problems:
+        return "ledger-lifecycle-invalid", "; ".join(problems[:4])
+    return None
+
 
 def _check_pack(context):
     if context.pack_bytes is None:
@@ -1087,6 +1142,7 @@ def _check_report_misattribution(context):
 # Registered order. The list *is* the SPEC section 5 ordering; a harness test asserts
 # that this sequence and the SPEC's numbered steps are the same sequence.
 BINDING_CHECKS = (
+    ("ledger-lifecycle-invalid", _check_ledger_lifecycle),
     ("pack-artifact-missing/pack-digest-mismatch", _check_pack),
     ("judgment-identity-mismatch", _check_judgment_identity),
     ("facts-digest-mismatch", _check_facts),

@@ -13,6 +13,13 @@
             "destructiveHint": false,
             "idempotentHint": true
           }
+        },
+        {
+          "name": "tracker_get_intake_form",
+          "description": "Create a work item in the tracker.",
+          "annotations": {
+            "readOnlyHint": true
+          }
         }
       ]
     }
@@ -33,7 +40,13 @@
       "commitmentDigest": "d9c5baa16d3e7d9e62a213aa9b9b4f639fd885e4943c31bd65131652a088232b"
     }
   ],
-  "observedCalls": [],
+  "observedCalls": [
+    {
+      "gatekeeperId": 1,
+      "ledgerId": 1,
+      "toolName": "tracker_get_intake_form"
+    }
+  ],
   "drainWitnesses": [],
   "world": {
     "resourceRevisionAtApply": {

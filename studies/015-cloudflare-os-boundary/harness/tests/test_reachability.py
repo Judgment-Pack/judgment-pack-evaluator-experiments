@@ -61,6 +61,33 @@ def test_commitment_schema_invalid_duplicate_member(cell_copy):
     assert binding(cell)["code"] == "commitment-schema-invalid"
 
 
+def test_ledger_lifecycle_invalid_pending_with_a_resolution_stamp(cell_copy):
+    """The shape round 4 tabulated: pending, yet already resolved."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["state"] = "pending"
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+def test_ledger_lifecycle_invalid_resolved_without_a_stamp(cell_copy):
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0].pop("appliedAt")
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+def test_ledger_lifecycle_invalid_auto_approved_rejection(cell_copy):
+    """The platform has no automatic rejection."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["state"] = "rejected"
+    ledger[0]["autoApproved"] = True
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
 def test_pack_artifact_missing(cell_copy):
     cell = cell_copy("pos-baseline")
     (cell / "pack.json").unlink()

@@ -438,9 +438,11 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
-      "mutationConstraint": "only one backing entry changes; an observation record is added to make the reference resolvable",
+      "mutationConstraint": "only one backing entry changes; a real read-path observation is added to make the reference resolvable",
       "registeredAbsences": [],
-      "upstreamChecksReplayed": [],
+      "upstreamChecksReplayed": [
+        "classifyTool"
+      ],
       "modeledDependencies": [
         "stagedCallToolName",
         "stagedCallArguments",
@@ -449,11 +451,12 @@
         "commitmentCarrier",
         "connectorOutcome",
         "evidenceArtifacts",
-        "effectAttestation"
+        "effectAttestation",
+        "observedRouting"
       ],
-      "construction": "the intake-form requirement is claimed present with its backing entry referencing an observation record — proof the resource was read through an authorized capability — rather than a captured artifact",
+      "construction": "the intake-form requirement is claimed present with its backing entry referencing an observation record — proof the resource was read through an authorized capability — rather than a captured artifact. The observation is a genuine read-path record for a read-only tool, so the pinned classifier replays over it and correctly raises no objection",
       "expected": {
-        "upstream": "not-engaged",
+        "upstream": "pass",
         "binding": "fail:evidence-backing-invalid",
         "replay": "pass"
       },

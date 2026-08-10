@@ -22,7 +22,7 @@
       "serverTrust": "vetted",
       "tools": [
         {
-          "name": "tracker_create_work_item",
+          "name": "other_create_work_item",
           "description": "Create a work item in the tracker.",
           "annotations": {
             "readOnlyHint": false,
@@ -38,7 +38,7 @@
     {
       "gatekeeperId": 2,
       "action": 21,
-      "toolName": "tracker_create_work_item",
+      "toolName": "other_create_work_item",
       "arguments": {
         "kind": "provision-intake",
         "requestType": "new-data-pipeline",
@@ -46,7 +46,7 @@
       },
       "resourceRevisionAtStage": "rev-7",
       "connectorOutcome": "committed",
-      "commitmentDigest": "7ad4d9a8093bf0dd9c9d42a1195ae061de95cf50fabfe32f6d948ce00b0a96d0"
+      "commitmentDigest": "de7c68b143e09ece0e88450d17ea690b0a82a7612c9e59a0e2dfc2c18a7049a2"
     }
   ],
   "observedCalls": [],

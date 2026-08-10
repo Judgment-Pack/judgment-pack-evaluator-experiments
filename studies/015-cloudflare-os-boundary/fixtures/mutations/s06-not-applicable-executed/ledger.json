@@ -28,6 +28,7 @@
       "id": "approver@example.invalid",
       "name": "Approver"
     },
-    "appliedAt": "2026-08-01T00:31:00.000Z"
+    "appliedAt": "2026-08-01T00:31:00.000Z",
+    "autoApproved": false
   }
 ]

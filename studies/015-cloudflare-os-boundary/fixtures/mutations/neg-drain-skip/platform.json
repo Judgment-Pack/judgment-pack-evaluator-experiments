@@ -45,7 +45,7 @@
         "itemId": "WI-1"
       },
       "resourceRevisionAtStage": "rev-7",
-      "connectorOutcome": "committed"
+      "connectorOutcome": "rejected"
     },
     {
       "gatekeeperId": 1,

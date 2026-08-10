@@ -12,8 +12,8 @@
     "state": "approved",
     "type": "observation",
     "description": {
-      "title": "Read intake form",
-      "description": "Read the intake form through the tracker capability."
+      "title": "tracker portal / tracker: trackergetintakeform",
+      "description": "**tracker portal / tracker** → `tracker_get_intake_form`\n\n> Create a work item in the tracker.\n\nArguments:\n```json\n{\n  \"requestId\": \"R-1\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp`\n\nThe server declares this tool read-only, so it runs without approval. That claim comes from the server itself."
     }
   },
   {
@@ -45,6 +45,7 @@
       "id": "approver@example.invalid",
       "name": "Approver"
     },
-    "appliedAt": "2026-08-01T00:32:00.000Z"
+    "appliedAt": "2026-08-01T00:32:00.000Z",
+    "autoApproved": false
   }
 ]

@@ -22,7 +22,7 @@
       "serverTrust": "vetted",
       "tools": [
         {
-          "name": "tracker_create_work_item",
+          "name": "other_create_work_item",
           "description": "Create a work item in the tracker.",
           "annotations": {
             "readOnlyHint": false,
@@ -38,7 +38,7 @@
     {
       "gatekeeperId": 2,
       "action": 21,
-      "toolName": "tracker_create_work_item",
+      "toolName": "other_create_work_item",
       "arguments": {
         "kind": "provision-intake",
         "requestType": "new-data-pipeline",
