@@ -45,8 +45,8 @@ compares every non-null pin in `PINS.json` against the live artefact — the
 preregistration, matrix, holdout-matrix, study-manifest and SPEC digests when
 they are filled, the `jpack` binary digest always, the vendored pack bytes
 always, a digest over the *installed* `openworkproof` package's own files
-always, the interpreter version exactly, and the installed dependency set
-through `pip freeze` — verifies `harness/STUDY-MANIFEST.sha256` as an exact set,
+always, the interpreter version exactly, and the locked dependency set as
+installed — verifies `harness/STUDY-MANIFEST.sha256` as an exact set,
 and asserts the frozen cell-id set and per-cell schema of the loaded matrix. Any
 mismatch is terminal: the attempt is pipeline-invalid and no detection is
 adjudicated. Nothing in the published outputs is a timestamp or an absolute
@@ -72,9 +72,11 @@ Run: JPACK_BIN=... python harness/score.py --attempt-root <new directory>
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -262,14 +264,44 @@ def installed_package_digest(name="openworkproof"):
         raise PipelineInvalid(str(error))
 
 
-def pip_freeze_sha256():
-    """SHA-256 of `pip freeze` in the interpreter that is running the scorer."""
-    completed = subprocess.run(
-        [sys.executable, "-m", "pip", "freeze"], capture_output=True, timeout=300
-    )
-    if completed.returncode != 0:
-        raise PipelineInvalid("pip freeze failed in the running interpreter")
-    return hashlib.sha256(completed.stdout).hexdigest()
+LOCKFILE = STUDY / "upstream" / "requirements-lock-pypi.txt"
+
+
+def canonical_dependency_name(name):
+    """PEP 503 normalization, so lockfile and metadata spellings meet."""
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def locked_dependency_digest():
+    """SHA-256 over the installed versions of exactly the lockfile's packages.
+
+    Hashing raw `pip freeze` output pinned the machine, not the dependency set:
+    a local install's freeze line embeds its filesystem path, and test-time
+    tools drift per environment. The lockfile names the set; this digest pins
+    that every locked package is installed at its locked version, resolved
+    through `importlib.metadata` in the running interpreter. OpenWorkProof is
+    not in the lockfile and is pinned by content (`installedPackageDigest`),
+    which is strictly stronger than any freeze line.
+    """
+    names = set()
+    for line in LOCKFILE.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith(("#", "--")):
+            continue
+        head = stripped.split(";")[0].split()[0]
+        if "==" not in head:
+            continue
+        names.add(canonical_dependency_name(head.split("==")[0].split("[")[0]))
+    pairs = []
+    for name in sorted(names):
+        try:
+            version = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            raise PipelineInvalid(
+                "locked dependency %s is not installed in this interpreter" % name
+            )
+        pairs.append("%s==%s" % (name, version))
+    return hashlib.sha256(("\n".join(pairs) + "\n").encode("ascii")).hexdigest()
 
 
 PINNED_DIGEST_MEMBERS = (
@@ -368,16 +400,17 @@ def pin_problems(pins, jpack_bin):
             "interpreter is %s, pinned %s" % (platform.python_version(), expected_python)
         )
 
-    expected_freeze = (pins.get("openworkproof") or {}).get("pipFreezeSha256")
+    expected_freeze = (pins.get("openworkproof") or {}).get("lockedDependencyDigest")
     if expected_freeze:
         try:
-            actual_freeze = pip_freeze_sha256()
+            actual_freeze = locked_dependency_digest()
         except Exception as error:
-            problems.append("dependency freeze is unreadable: %s" % error)
+            problems.append("dependency set is unreadable: %s" % error)
         else:
             if actual_freeze != expected_freeze:
                 problems.append(
-                    "installed dependency set does not match the pinned pip-freeze digest"
+                    "installed dependency set does not match the pinned "
+                    "locked-dependency digest"
                 )
     return problems
 

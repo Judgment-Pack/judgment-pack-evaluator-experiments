@@ -198,7 +198,9 @@ Recorded as a standing limitation, not repaired this round.
   study-manifest and SPEC digests when filled; the `jpack` binary digest always; the
   vendored pack bytes always; `openworkproof.installedPackageDigest`, a SHA-256 over the
   installed package's own files as `importlib` resolves them, always; the interpreter
-  version exactly; the installed dependency set through `pip freeze` — and verifies
+  version exactly; the locked dependency set as installed (the lockfile's packages
+  resolved to `name==version` through `importlib.metadata` — a raw `pip freeze` hash
+  would pin the minting machine's paths, not the set) — and verifies
   `harness/STUDY-MANIFEST.sha256` as an exact set. It also asserts the frozen cell-id set
   and the per-cell schema of the loaded matrix, so a reduced registry cannot satisfy zero
   divergence by shrinking the denominator. Any mismatch is terminal: the attempt is
@@ -504,7 +506,7 @@ Enforced by machinery: fixture manifests; the whole-study exact-set manifest, it
 anchored by `studyManifest.sha256` in the pin registry, which the manifest does not cover;
 every non-null pin (prereg/matrix/holdout-matrix/study-manifest/SPEC digests, `jpack` binary
 digest, vendored pack bytes, installed-`openworkproof` package digest, interpreter version,
-`pip freeze` digest); the `REGISTERED`-requires-every-freeze-pin rule; the pinned
+locked-dependency digest); the `REGISTERED`-requires-every-freeze-pin rule; the pinned
 `OWP_SOURCE` commit, clean tracked tree and per-file helper digests before any upstream
 import; the frozen cell-id set and per-cell schema; the SPEC/code verdict-vocabulary sync,
 the registered `{verdict, code}` pair table, per-code reachability tests, and a
