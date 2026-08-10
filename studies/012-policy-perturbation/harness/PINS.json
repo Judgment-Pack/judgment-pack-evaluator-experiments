@@ -146,7 +146,7 @@
     "note": "§2.8's registered call order; harness/tests/test_schedule.py re-derives the five balance properties and requires batch.schedule() to equal the expansion."
   },
   "golden": {
-    "sha256": null,
+    "sha256": "sha256:78c3f3b24521dec5fb60a9c4a7a05c12554258e174b9ca6269d129fe101b3c68",
     "note": "The recaptured golden context (§3.2, one capture for all five arms); null until the capture is registered."
   },
   "isolationNegative": {

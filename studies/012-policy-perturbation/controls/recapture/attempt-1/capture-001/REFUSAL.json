@@ -1,0 +1,7 @@
+{
+  "code": "preflight-refused",
+  "note": "Recorded by batch.py. score_rates.py recomputes admission from the retained bytes and does not trust this record.",
+  "run": "capture-001",
+  "wrapperExit": 1,
+  "wrapperStderrTail": "refused: the scratch path carries leak tokens ['judgment-pack']\n"
+}
