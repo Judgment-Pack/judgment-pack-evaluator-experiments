@@ -1,0 +1,7 @@
+{
+  "matrixVersion": "1",
+  "stratum": "reviewer-holdout",
+  "note": "The reviewer-authored holdout stratum (014/016 convention): cells authored by the cross-vendor reviewer during the pre-freeze review rounds, committed verbatim with attribution, never executed before the freeze; the construction machinery lands together with the cells. score.py --include-holdout refuses while the preregistration or holdout freeze pin is null, refuses an empty registered stratum post-freeze, and refuses registered cells without machinery. An empty holdout is not a passing holdout.",
+  "reviewer": null,
+  "cells": []
+}

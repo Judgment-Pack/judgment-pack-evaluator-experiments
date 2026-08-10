@@ -1,0 +1,15 @@
+{
+  "sightingsVersion": "1",
+  "sightings": [
+    {
+      "sighting": {
+        "sightingVersion": "1",
+        "seriesId": "https://example.com/judgment-packs/witnessed-policy",
+        "head": "sha256:90abad08a66feddc2264af87a50b7b9a10e91028920dc28901b14f4e66263d4f",
+        "position": 2
+      },
+      "witnessKeyId": "ed25519:4aa30d97faaa4e1fd9bfe5a9cd462046e0d1b18ea718acb9815e8edeb88c88c4",
+      "signature": "eN+8HlcwYawr/VPd/Pv1vG5OawCKyzDMXuz76y5bxXeTQ5WDJyM0A/7UycFHIEjMF3U2eSYSWoG3vdBi7H7NAw=="
+    }
+  ]
+}

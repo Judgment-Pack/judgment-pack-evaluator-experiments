@@ -26,6 +26,7 @@ and agreement tracks are kept separate and why.
 | [014](014-openworkproof-binding/) | Can an independently developed receipt protocol bind an executed action to the exact judgment that authorized it? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
 | [015](015-cloudflare-os-boundary/) | Can a third party prove offline which judgment authorized which staged action on a governed-agent platform — and what can neither system see? | Interoperability | Cloudflare OS | **Draft — five review rounds, not frozen** |
 | [016](016-policy-currency-anchor/) | Can a signed pack-version currency registry detect a retired-version decision offline — and where must it fail? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
+| [017](017-witnessed-currency/) | What does a minimal witness/cross-view comparison step buy against the registry split view — and which contract clause does each remaining silence isolate? | Currency governance | — | **Draft — preregistration in review** |
 
 Study 012 (policy-surface perturbation) is preregistered on its own branch and not yet
 merged. Study 015 is merged as a **draft**: five consecutive cross-vendor review rounds

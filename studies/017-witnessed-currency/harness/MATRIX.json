@@ -1,0 +1,98 @@
+{
+  "matrixVersion": "1",
+  "stratum": "locked-replication",
+  "note": "Registered cell expectations for Study 017, locked-replication stratum (the reviewer-authored holdout stratum lives in harness/MATRIX-HOLDOUT.json and is never executed pre-freeze). Layers: currency = Study 016's frozen registry/verify_currency.py, consumed as a digest-pinned unmodified upstream; witness = this study's witness/verify_witness.py (witness/SPEC.md section 2). Expected values are adjudicated layer OUTCOME strings and nothing else: 'pass', 'fail:<code>' with an exact registered code, or 'unavailable' (definitionally the pair verdict=unavailable with the layer's own -unavailable code). combined is derived: pass iff both layer outcomes are pass. Roles: endpoint rows decide R1; control-gate rows are validity gates evaluated first. registeredUndetected: true marks cells whose all-pass outcome is itself the registered finding - a detection there falsifies R1 (016's D-3, upheld by its review). attackerCapability: none = only registry state, pins and sightings vary; authority-key = the registry authority's key signs the construction; witness-key = a pinned witness key's own signing behavior is the construction (the collusion threat); tamper = signed bytes changed without re-signing. variant: registry / config / sightings / tampered / none. pairs.collusion names the witness-equivocation exhibit: the scorer validates structurally from the two cells' sightings files that the SAME pinned witness key attests DIFFERENT heads at the SAME position across the pair - each run internally valid, the equivocation visible only across the pair (the 016 split-view move, one level up).",
+  "identityGroups": [],
+  "pairs": {
+    "collusion": ["wit-collusion-a", "wit-collusion-b"]
+  },
+  "cells": [
+    {"id": "pos-consistent", "category": "control-positive", "variant": "none",
+     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "view A at position 2; honest witness w2 sighting of A's head@2; minimumSightings 1",
+     "expected": {"currency": "pass", "witness": "pass"},
+     "note": "validity gate: the positive composition must verify through both layers before any endpoint row is read"},
+
+    {"id": "unchanged", "category": "control-positive", "variant": "none",
+     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "byte-copy of pos-consistent adjudicated mid-matrix (within-run control convention)",
+     "expected": {"currency": "pass", "witness": "pass"},
+     "note": "validity gate: the apparatus must not manufacture detections on untouched bytes"},
+
+    {"id": "neg-sighting-forged", "category": "control-negative", "variant": "tampered",
+     "role": "control-gate", "attackerCapability": "tamper", "registeredAbsences": [],
+     "construction": "pos-consistent with one signature character of the pinned witness's sighting flipped",
+     "expected": {"currency": "pass", "witness": "fail:witness-sighting-invalid"},
+     "note": "validity gate: a sighting claiming a pinned witness that fails verification is fail-closed, never silently dropped - the label can only cause refusal, never acceptance"},
+
+    {"id": "neg-unpinned-conflict", "category": "control-negative", "variant": "sightings",
+     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "view C presented with an UNPINNED key's sighting of view A's head - a real conflict, carried by untrusted evidence; minimumSightings 0",
+     "expected": {"currency": "pass", "witness": "pass"},
+     "note": "validity gate, registered pass (D-3's cost made visible): pinning is load-bearing - an unpinned sighting is ignored-and-counted and its conflict is invisible. Never a detection; the cell exists so the ignore rule is measured, not assumed"},
+
+    {"id": "neg-limits", "category": "control-negative", "variant": "sightings",
+     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "pos-consistent with 65 sightings - one past the registered MAX_SIGHTINGS cap",
+     "expected": {"currency": "pass", "witness": "fail:witness-limits-exceeded"},
+     "note": "validity gate: the registered resource cap refuses before unbounded work (R-13 discipline; the at-cap sibling is a unit vector)"},
+
+    {"id": "wit-split-view-caught", "category": "W-witnessing", "variant": "sightings",
+     "role": "endpoint", "attackerCapability": "authority-key", "registeredAbsences": [],
+     "construction": "the fork: view C presented (both fork branches keep the committed version current, so Layer CURRENCY passes on either); one honest pinned sighting of view A's head@2; minimumSightings 0",
+     "expected": {"currency": "pass", "witness": "fail:snapshot-conflicts-with-witnessed-head"},
+     "note": "the payoff, measured: the exact split view Study 016 proved silent to a fresh stateless verifier becomes observable with ONE honest sighting crossing views - and only the witness layer sees it (currency passes, isolating the attribution)"},
+
+    {"id": "wit-collusion-a", "category": "W-witnessing", "variant": "sightings",
+     "role": "endpoint", "attackerCapability": "witness-key", "registeredAbsences": [],
+     "registeredUndetected": true, "pair": "collusion",
+     "construction": "view A presented with colluding witness w1's sighting of A's head - w1 signs per audience; minimumSightings 1 (satisfied)",
+     "expected": {"currency": "pass", "witness": "pass"},
+     "note": "the load-bearing exhibit, half A: a witness that is the operator (or signs whatever each audience is shown) restores the split view's silence WHILE SATISFYING the enforcement clause. All-pass is the registered finding"},
+
+    {"id": "wit-collusion-b", "category": "W-witnessing", "variant": "sightings",
+     "role": "endpoint", "attackerCapability": "witness-key", "registeredAbsences": [],
+     "registeredUndetected": true, "pair": "collusion",
+     "construction": "view C presented with the SAME witness w1's sighting of C's head at the same position; minimumSightings 1 (satisfied)",
+     "expected": {"currency": "pass", "witness": "pass"},
+     "note": "half B: the same witness key attests the contradictory head. Each run is internally valid; the witness's equivocation exists only across the pair, which the scorer validates structurally - the empirical case for witness INDEPENDENCE, the contract clause nothing in this mechanism enforces"},
+
+    {"id": "wit-one-honest", "category": "W-witnessing", "variant": "sightings",
+     "role": "endpoint", "attackerCapability": "witness-key", "registeredAbsences": [],
+     "construction": "the collusion-b construction plus one honest witness w2 whose view-A sighting reaches this run; both keys pinned; minimumSightings 1",
+     "expected": {"currency": "pass", "witness": "fail:snapshot-conflicts-with-witnessed-head"},
+     "note": "independence measured as a difference: one honest, comparing witness converts the collusion pair's silence into a refusal - the diff between this cell and wit-collusion-b IS the independence requirement"},
+
+    {"id": "wit-partition-vacuous", "category": "W-witnessing", "variant": "config",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "registeredUndetected": true,
+     "construction": "view C presented with an EMPTY sighting set; minimumSightings 0 - comparison never happens",
+     "expected": {"currency": "pass", "witness": "pass"},
+     "note": "vacuous consistency, registered: witnessing is conditional on comparison actually happening; a partitioned verifier that exchanges nothing sees nothing. The enforcement arm is the next cell"},
+
+    {"id": "wit-partition-enforced", "category": "W-witnessing", "variant": "config",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "the same empty sighting set; minimumSightings 1 - the enforcement clause made explicit",
+     "expected": {"currency": "pass", "witness": "unavailable"},
+     "note": "the arm that decides the design point: an enforcement floor converts silent partition into a fail-closed refusal to call the view witnessed - the RFC 0011 Unresolved #9 'verifier enforcement' clause, measured"},
+
+    {"id": "wit-retention-horizon", "category": "W-witnessing", "variant": "sightings",
+     "role": "endpoint", "attackerCapability": "authority-key", "registeredAbsences": [],
+     "registeredUndetected": true,
+     "construction": "view C presented; the only pinned sighting attests the SHARED GENESIS at position 1; minimumSightings 1 (satisfied)",
+     "expected": {"currency": "pass", "witness": "pass"},
+     "note": "the fork-after-sighting limit, recurring one level up: a sighting anchors only the prefix it names, and the fork at position 2 is above the sighted horizon - retention/coverage is a load-bearing contract clause, registered as the boundary it is"},
+
+    {"id": "wit-recency-behind", "category": "W-witnessing", "variant": "sightings",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "the position-1 prefix of view A presented to a verifier holding w2's sighting of A's head@2",
+     "expected": {"currency": "pass", "witness": "fail:snapshot-behind-witnessed-head"},
+     "note": "the witness recency floor: a pinned witness attesting a longer history than the presented view refuses the stale presentation - the sighting doubles as prior-acceptance state, generalizing 016's minimum head pin across parties"},
+
+    {"id": "cur-retired-interplay", "category": "X-layer-composition", "variant": "registry",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "the retiring history at position 3 with a consistent sighting of its own head - currency must fail while witness passes",
+     "expected": {"currency": "fail:not-current-at-snapshot", "witness": "pass"},
+     "note": "attribution independence: a witnessed, consistent view can still carry a retired version - witnessing states history consistency, never currency, and the two layers fail independently"}
+  ]
+}

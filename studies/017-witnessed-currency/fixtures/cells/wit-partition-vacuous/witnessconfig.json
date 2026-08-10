@@ -1,0 +1,8 @@
+{
+  "witnessConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/witnessed-policy",
+  "witnessKeys": [
+    "8FABNulPXjSyawWOkiLaK2p54KSuHs4k2V99Eq6pNG4="
+  ],
+  "minimumSightings": 0
+}

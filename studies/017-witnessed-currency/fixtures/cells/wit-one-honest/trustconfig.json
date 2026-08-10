@@ -1,0 +1,7 @@
+{
+  "trustConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/witnessed-policy",
+  "authorityPublicKey": "tfiJSMZx6GRHFzptWQ/VqImH/oZgJrbvkK06LxwQ/gs=",
+  "genesisHead": "sha256:38305ab9589b14bfab0c51c1d531703e66b2674bfd66d82e754b597ad095155c",
+  "minimumHeadPin": null
+}
