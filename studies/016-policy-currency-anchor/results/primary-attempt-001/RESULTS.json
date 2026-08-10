@@ -1,0 +1,1755 @@
+{
+  "attemptRoot": "primary-attempt-001",
+  "label": "REGISTERED",
+  "includeHoldout": true,
+  "pipelineInvalid": false,
+  "pinsRawSha256": "ef88f3a4291025f1e0c47069c99f096e4c6615e32c01c0dc015f1f96335a0a49",
+  "matrixSha256": "e9f1b16f0b794b2b5f89cd9891f98bca524919054164270fb214ac62015d0d3a",
+  "verdict": "R1 holds (REGISTERED)",
+  "verdictCells": [],
+  "summary": {
+    "cells": 22,
+    "adjudicated": 22,
+    "endpoints": 11,
+    "endpointDivergences": 0,
+    "registeredUndetectedConfirmed": [
+      "cur-split-view-a",
+      "cur-workorder-remint-accepted"
+    ]
+  },
+  "cells": {
+    "cur-concurrent-set": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 2"
+      }
+    },
+    "cur-genesis-unpinned": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "unavailable"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "unavailable"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "no genesis head is pinned: below the genesis pin this verifier is trust-on-first-use and refuses to call anything current"
+      }
+    },
+    "cur-older-snapshot-pinned": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-behind-pinned-minimum-head"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-behind-pinned-minimum-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "the snapshot does not contain the pinned minimum head at its position"
+      }
+    },
+    "cur-rebind-refused": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:binding-rebound"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:binding-rebound"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "the history rebinds a version to a different digest"
+      }
+    },
+    "cur-reinstated": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 3"
+      }
+    },
+    "cur-retired-reuse": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 3"
+      }
+    },
+    "cur-series-unknown": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:series-unknown-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:series-unknown-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "the snapshot carries no events for this series"
+      }
+    },
+    "cur-split-view-a": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 2"
+      }
+    },
+    "cur-split-view-b": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 2"
+      }
+    },
+    "cur-split-view-b-stateful": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-behind-pinned-minimum-head"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-behind-pinned-minimum-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "the snapshot does not contain the pinned minimum head at its position"
+      }
+    },
+    "cur-successor-current": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 3"
+      }
+    },
+    "cur-workorder-remint-accepted": {
+      "role": "descriptive",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "dem-freshness-legit": {
+      "role": "demonstration",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 3"
+      }
+    },
+    "dem-freshness-stale": {
+      "role": "demonstration",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 3"
+      }
+    },
+    "neg-authority-unpinned": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-signature-invalid"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-signature-invalid"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "snapshot head attestation does not verify under the pinned authority key (record labels an unpinned key id — label is unauthenticated)"
+      }
+    },
+    "neg-binding-alive": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "fail:pack-digest-mismatch",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "fail:pack-digest-mismatch",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": "retained pack bytes are not the committed pack",
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "neg-chain-break": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-chain-inconsistent"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-chain-inconsistent"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "checkpoint 2 does not bind its predecessor"
+      }
+    },
+    "neg-owp-alive": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "fail",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "fail",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": "AcceptanceTransactionError: acceptance signature does not match the bound Acceptor",
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "neg-replay-alive": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "fail:replay-executable-mismatch",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "fail:replay-executable-mismatch",
+        "currency": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": "executable digest is not the recorded one",
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "neg-snapshot-signature": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-signature-invalid"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-signature-invalid"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "snapshot head attestation does not verify under the pinned authority key"
+      }
+    },
+    "pos-current": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "unchanged": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    }
+  },
+  "pairs": {
+    "split-view": {
+      "members": [
+        "cur-split-view-a",
+        "cur-split-view-b"
+      ],
+      "adjudicated": true,
+      "forkStructure": {
+        "validated": true,
+        "checks": {
+          "sameGenesisRecord": true,
+          "bothAttestationsVerifyUnderPinnedAuthority": true,
+          "samePerSeriesTrustPins": true,
+          "samePosition": true,
+          "differentHeads": true
+        }
+      },
+      "currencyOutcomes": {
+        "cur-split-view-a": "pass",
+        "cur-split-view-b": "fail:not-current-at-snapshot"
+      },
+      "contradictoryVerdicts": true,
+      "note": "derived, not asserted: forkStructure is recomputed from the two snapshot artifacts, and the outcomes above are the adjudicated ones. What the pair registers as impossible is detection by a fresh, stateless, per-series-pinned verifier given exactly one view; the stateful arm (cur-split-view-b-stateful) shows prior-acceptance state converting the silence into a refusal"
+    }
+  },
+  "holdout": {
+    "reviewer": "codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), round 2",
+    "construction": {
+      "h01": {
+        "cell": "h01",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h02": {
+        "cell": "h02",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h03": {
+        "cell": "h03",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h04": {
+        "cell": "h04",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h05": {
+        "cell": "h05",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h06": {
+        "cell": "h06",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h07": {
+        "cell": "h07",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h08": {
+        "cell": "h08",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h09": {
+        "cell": "h09",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      },
+      "h10": {
+        "cell": "h10",
+        "builderVersionDigest": "82ee261a6cbad27df080982f9f34c105c14c70571db0b879e0495bf563090636",
+        "status": "built"
+      }
+    },
+    "fixtureDigests": {
+      "h01": {
+        "CONSTRUCTION.json": "a6eb1737bce66997e458ccfea22253b2e520f28cb455e5b0da4373095c7d7295",
+        "MANIFEST.sha256": "9bce131b9ef4c4f50e39f0bf9d116226937861e6337a517afcff14f12afeae81",
+        "bundle.json": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "commitment.json": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "6e9773872f7e180f711a5069c1ac645726739a56bfe631599a2cab04a91a8a3c",
+        "trustconfig.json": "7b6d12f0af0dd42f82fa58f4a1ab726fe82cc0b81c76a84f9c34afecfec58ca1"
+      },
+      "h02": {
+        "CONSTRUCTION.json": "a68343cd478141544d07398cff7e7a635ef7574f5b26dde04cc783552563692d",
+        "MANIFEST.sha256": "f5495fb9f4aa99d73732c56ad440c0d8fd2672c63d94b8dcfe9f2f7b84c7533a",
+        "bundle.json": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "commitment.json": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "2b81989b516153db0e789217ba6fd968e2c9835eb55ffb6294749b257baa34f7",
+        "trustconfig.json": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073"
+      },
+      "h03": {
+        "CONSTRUCTION.json": "c4b7f4f524eafdd291956990e8b577508fde211edecb0c1ecbf83a3f092b6c81",
+        "MANIFEST.sha256": "60b3bd2573fd7986efaaa1bb187d76843697341d68e95edd2091d01bc932924a",
+        "bundle.json": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "commitment.json": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "6b76fac3a165b007febca3608488a7d1f98be3d31ad3f44b8dd33f06b93d946b",
+        "trustconfig.json": "2621d9cc30224de9b7a1f3baf01cc760cfd762180145697a402d960ee30c1b87"
+      },
+      "h04": {
+        "CONSTRUCTION.json": "654f2012b3d9c01f6fd789a94c361301dbdcec4da01f8843cfd5ce98080cc3b3",
+        "MANIFEST.sha256": "57f9c9a28b88d4414e676b3e0fd79d2364f5b8342f7bba7f8cd9dafd72bbbe0e",
+        "bundle.json": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "commitment.json": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "d92319ee089a0fdd792666367ded6182f9355a71703c0cb9aa19d4864cd5c55b",
+        "trustconfig.json": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073"
+      },
+      "h05": {
+        "CONSTRUCTION.json": "75b7ee3a0e8c09fd27c0dcb513c86a68126b1fa421be8175ef0d2dd5766af47b",
+        "MANIFEST.sha256": "f9478678ed75f3e27ee83a12be139a49f808a02c76cba1ff859439ea732cdbad",
+        "bundle.json": "052275399ddeb442b91c778ff2909f94400fa9e26248660ca05ffce3d56793fc",
+        "commitment.json": "f7a4fd68a894bd0a98f89fd3b4dcc755bd1e0d5fb941e7286318e51fe98f3e3d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "28c7d9bf3790c449a53aa922de9f6635c4db4f4909ad763854dc218f7715e7cd",
+        "trustconfig.json": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073"
+      },
+      "h06": {
+        "CONSTRUCTION.json": "a761b3d65c01ca5d22af510cec9f5d3c87904c83ff156c5eea45caa61df3c3df",
+        "MANIFEST.sha256": "ae46c3a323cab900c20add10378666cdf38cf6190da0ffc956b6cd731812d55c",
+        "bundle.json": "b8521e4882978e442e176cdde47c2770573acecba1497301566da5f0e6c2c9f0",
+        "commitment.json": "c8bb3717db9a888eb4a97e85086d1491125eb0054aac2c93d7d57709bcbfc273",
+        "evaluation.json": "cbf8ae1d9b6f73f1085fc307433869d165270261d4693afde54315f2e7cce689",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "fc7896121e98d840ca7ba30505e4dc4c63bf5ae0ec7ac9a9c8bdd0529af42c70",
+        "snapshot.json": "6e9773872f7e180f711a5069c1ac645726739a56bfe631599a2cab04a91a8a3c",
+        "trustconfig.json": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073"
+      },
+      "h07": {
+        "CONSTRUCTION.json": "f28c2c44c1c692dec62c273e45f1ba0b354e509e7ebde9f9473e6d1e34a38401",
+        "MANIFEST.sha256": "78fe8081a504e511a924335a9176843809c86e593520be45915f020a7389fab9",
+        "bundle.json": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "commitment.json": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "92cde63b031c164c7902fefa40121b40ac64ed1a1a960aaba8107da01321be61",
+        "trustconfig.json": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073"
+      },
+      "h08": {
+        "CONSTRUCTION.json": "5b19ffc892d79652d9c0e07dae53e7b9bc1c23bed5165933d0b132fcdab0a5a0",
+        "MANIFEST.sha256": "97b249d5e2cc2308eb43d1da877bff311e3b2ae2bf30d9e9fb86af684f636785",
+        "bundle.json": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "commitment.json": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "68e2ce82be2b5400ec56406584a7273be72a310f54f502868945527b2cf16ad8",
+        "trustconfig.json": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073"
+      },
+      "h09": {
+        "CONSTRUCTION.json": "f8bba15709e95bffd44c07f6c2f56b67d0b5d7e67ad5c5432edf9e5e27d64405",
+        "MANIFEST.sha256": "9fd37ec5ae7afc33d2502c731be8422b9e47937e328b80a424b17767e0604780",
+        "bundle.json": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "commitment.json": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "48e51af58ec083a1eee7e122c87cc4bd3eface96cb7447af9c73be93de943309",
+        "trustconfig.json": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073"
+      },
+      "h10": {
+        "CONSTRUCTION.json": "75ce12f611e6ffa771e31e9ca4bda834abf7e40cb42bbf0e60ab41543c558f2f",
+        "MANIFEST.sha256": "d8beb10a59116ff9c8cacc41abc7d37743f6663414deece6d5d45ac529d20a5c",
+        "bundle.json": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "commitment.json": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "evaluation.json": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "evidence.json": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "facts.json": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "snapshot.json": "114b2426ec72de5cf862ac734d75e8b22526c55559995bb66d318a39109316eb",
+        "trustconfig.json": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073"
+      }
+    },
+    "cells": {
+      "h01": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "unavailable"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "unavailable"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "trust configuration is not strict JSON: duplicate member name: minimumHeadPin"
+        }
+      },
+      "h02": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "fail:snapshot-chain-inconsistent"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "fail:snapshot-chain-inconsistent"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "attestation position is not a positive integer"
+        }
+      },
+      "h03": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "fail:snapshot-behind-pinned-minimum-head"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "fail:snapshot-behind-pinned-minimum-head"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "the snapshot does not contain the pinned minimum head at its position"
+        }
+      },
+      "h04": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "fail:binding-rebound"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "fail:binding-rebound"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "the history rebinds a version to a different digest"
+        }
+      },
+      "h05": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-executable-mismatch",
+          "currency": "fail:not-current-at-snapshot"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-executable-mismatch",
+          "currency": "fail:not-current-at-snapshot"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": "executable digest is not the recorded one",
+          "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 3"
+        }
+      },
+      "h06": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "fail:not-current-at-snapshot"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "fail:not-current-at-snapshot"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "(0.2.0, sha256:fc7896121e98d840ca7ba30505e4dc4c63bf5ae0ec7ac9a9c8bdd0529af42c70) is not in the supported set at snapshot position 1"
+        }
+      },
+      "h07": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "pass"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "pass"
+        },
+        "combined": "pass",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "current at snapshot position 512"
+        }
+      },
+      "h08": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "pass"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "pass"
+        },
+        "combined": "pass",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "current at snapshot position 1024"
+        }
+      },
+      "h09": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "pass"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "pass"
+        },
+        "combined": "pass",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "current at snapshot position 1"
+        }
+      },
+      "h10": {
+        "role": "control-gate",
+        "adjudicated": true,
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "pass"
+        },
+        "observed": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "currency": "pass"
+        },
+        "combined": "pass",
+        "divergentLayers": [],
+        "divergent": false,
+        "detail": {
+          "owp": null,
+          "binding": null,
+          "replay": null,
+          "currency": "current at snapshot position 1"
+        }
+      }
+    },
+    "postAdjudicationIntegrity": [
+      {
+        "cell": "h01",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "a6eb1737bce66997e458ccfea22253b2e520f28cb455e5b0da4373095c7d7295",
+        "finalSha256": "a6eb1737bce66997e458ccfea22253b2e520f28cb455e5b0da4373095c7d7295",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "9bce131b9ef4c4f50e39f0bf9d116226937861e6337a517afcff14f12afeae81",
+        "finalSha256": "9bce131b9ef4c4f50e39f0bf9d116226937861e6337a517afcff14f12afeae81",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "bundle.json",
+        "stampedSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "finalSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "commitment.json",
+        "stampedSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "finalSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "snapshot.json",
+        "stampedSha256": "6e9773872f7e180f711a5069c1ac645726739a56bfe631599a2cab04a91a8a3c",
+        "finalSha256": "6e9773872f7e180f711a5069c1ac645726739a56bfe631599a2cab04a91a8a3c",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "trustconfig.json",
+        "stampedSha256": "7b6d12f0af0dd42f82fa58f4a1ab726fe82cc0b81c76a84f9c34afecfec58ca1",
+        "finalSha256": "7b6d12f0af0dd42f82fa58f4a1ab726fe82cc0b81c76a84f9c34afecfec58ca1",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "a68343cd478141544d07398cff7e7a635ef7574f5b26dde04cc783552563692d",
+        "finalSha256": "a68343cd478141544d07398cff7e7a635ef7574f5b26dde04cc783552563692d",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "f5495fb9f4aa99d73732c56ad440c0d8fd2672c63d94b8dcfe9f2f7b84c7533a",
+        "finalSha256": "f5495fb9f4aa99d73732c56ad440c0d8fd2672c63d94b8dcfe9f2f7b84c7533a",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "bundle.json",
+        "stampedSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "finalSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "commitment.json",
+        "stampedSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "finalSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "snapshot.json",
+        "stampedSha256": "2b81989b516153db0e789217ba6fd968e2c9835eb55ffb6294749b257baa34f7",
+        "finalSha256": "2b81989b516153db0e789217ba6fd968e2c9835eb55ffb6294749b257baa34f7",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "trustconfig.json",
+        "stampedSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "finalSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "c4b7f4f524eafdd291956990e8b577508fde211edecb0c1ecbf83a3f092b6c81",
+        "finalSha256": "c4b7f4f524eafdd291956990e8b577508fde211edecb0c1ecbf83a3f092b6c81",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "60b3bd2573fd7986efaaa1bb187d76843697341d68e95edd2091d01bc932924a",
+        "finalSha256": "60b3bd2573fd7986efaaa1bb187d76843697341d68e95edd2091d01bc932924a",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "bundle.json",
+        "stampedSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "finalSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "commitment.json",
+        "stampedSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "finalSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "snapshot.json",
+        "stampedSha256": "6b76fac3a165b007febca3608488a7d1f98be3d31ad3f44b8dd33f06b93d946b",
+        "finalSha256": "6b76fac3a165b007febca3608488a7d1f98be3d31ad3f44b8dd33f06b93d946b",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "trustconfig.json",
+        "stampedSha256": "2621d9cc30224de9b7a1f3baf01cc760cfd762180145697a402d960ee30c1b87",
+        "finalSha256": "2621d9cc30224de9b7a1f3baf01cc760cfd762180145697a402d960ee30c1b87",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "654f2012b3d9c01f6fd789a94c361301dbdcec4da01f8843cfd5ce98080cc3b3",
+        "finalSha256": "654f2012b3d9c01f6fd789a94c361301dbdcec4da01f8843cfd5ce98080cc3b3",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "57f9c9a28b88d4414e676b3e0fd79d2364f5b8342f7bba7f8cd9dafd72bbbe0e",
+        "finalSha256": "57f9c9a28b88d4414e676b3e0fd79d2364f5b8342f7bba7f8cd9dafd72bbbe0e",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "bundle.json",
+        "stampedSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "finalSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "commitment.json",
+        "stampedSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "finalSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "snapshot.json",
+        "stampedSha256": "d92319ee089a0fdd792666367ded6182f9355a71703c0cb9aa19d4864cd5c55b",
+        "finalSha256": "d92319ee089a0fdd792666367ded6182f9355a71703c0cb9aa19d4864cd5c55b",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "trustconfig.json",
+        "stampedSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "finalSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "75b7ee3a0e8c09fd27c0dcb513c86a68126b1fa421be8175ef0d2dd5766af47b",
+        "finalSha256": "75b7ee3a0e8c09fd27c0dcb513c86a68126b1fa421be8175ef0d2dd5766af47b",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "f9478678ed75f3e27ee83a12be139a49f808a02c76cba1ff859439ea732cdbad",
+        "finalSha256": "f9478678ed75f3e27ee83a12be139a49f808a02c76cba1ff859439ea732cdbad",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "bundle.json",
+        "stampedSha256": "052275399ddeb442b91c778ff2909f94400fa9e26248660ca05ffce3d56793fc",
+        "finalSha256": "052275399ddeb442b91c778ff2909f94400fa9e26248660ca05ffce3d56793fc",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "commitment.json",
+        "stampedSha256": "f7a4fd68a894bd0a98f89fd3b4dcc755bd1e0d5fb941e7286318e51fe98f3e3d",
+        "finalSha256": "f7a4fd68a894bd0a98f89fd3b4dcc755bd1e0d5fb941e7286318e51fe98f3e3d",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "snapshot.json",
+        "stampedSha256": "28c7d9bf3790c449a53aa922de9f6635c4db4f4909ad763854dc218f7715e7cd",
+        "finalSha256": "28c7d9bf3790c449a53aa922de9f6635c4db4f4909ad763854dc218f7715e7cd",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "trustconfig.json",
+        "stampedSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "finalSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "a761b3d65c01ca5d22af510cec9f5d3c87904c83ff156c5eea45caa61df3c3df",
+        "finalSha256": "a761b3d65c01ca5d22af510cec9f5d3c87904c83ff156c5eea45caa61df3c3df",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "ae46c3a323cab900c20add10378666cdf38cf6190da0ffc956b6cd731812d55c",
+        "finalSha256": "ae46c3a323cab900c20add10378666cdf38cf6190da0ffc956b6cd731812d55c",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "bundle.json",
+        "stampedSha256": "b8521e4882978e442e176cdde47c2770573acecba1497301566da5f0e6c2c9f0",
+        "finalSha256": "b8521e4882978e442e176cdde47c2770573acecba1497301566da5f0e6c2c9f0",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "commitment.json",
+        "stampedSha256": "c8bb3717db9a888eb4a97e85086d1491125eb0054aac2c93d7d57709bcbfc273",
+        "finalSha256": "c8bb3717db9a888eb4a97e85086d1491125eb0054aac2c93d7d57709bcbfc273",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "evaluation.json",
+        "stampedSha256": "cbf8ae1d9b6f73f1085fc307433869d165270261d4693afde54315f2e7cce689",
+        "finalSha256": "cbf8ae1d9b6f73f1085fc307433869d165270261d4693afde54315f2e7cce689",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "pack.json",
+        "stampedSha256": "fc7896121e98d840ca7ba30505e4dc4c63bf5ae0ec7ac9a9c8bdd0529af42c70",
+        "finalSha256": "fc7896121e98d840ca7ba30505e4dc4c63bf5ae0ec7ac9a9c8bdd0529af42c70",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "snapshot.json",
+        "stampedSha256": "6e9773872f7e180f711a5069c1ac645726739a56bfe631599a2cab04a91a8a3c",
+        "finalSha256": "6e9773872f7e180f711a5069c1ac645726739a56bfe631599a2cab04a91a8a3c",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "trustconfig.json",
+        "stampedSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "finalSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "f28c2c44c1c692dec62c273e45f1ba0b354e509e7ebde9f9473e6d1e34a38401",
+        "finalSha256": "f28c2c44c1c692dec62c273e45f1ba0b354e509e7ebde9f9473e6d1e34a38401",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "78fe8081a504e511a924335a9176843809c86e593520be45915f020a7389fab9",
+        "finalSha256": "78fe8081a504e511a924335a9176843809c86e593520be45915f020a7389fab9",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "bundle.json",
+        "stampedSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "finalSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "commitment.json",
+        "stampedSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "finalSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "snapshot.json",
+        "stampedSha256": "92cde63b031c164c7902fefa40121b40ac64ed1a1a960aaba8107da01321be61",
+        "finalSha256": "92cde63b031c164c7902fefa40121b40ac64ed1a1a960aaba8107da01321be61",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "trustconfig.json",
+        "stampedSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "finalSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "5b19ffc892d79652d9c0e07dae53e7b9bc1c23bed5165933d0b132fcdab0a5a0",
+        "finalSha256": "5b19ffc892d79652d9c0e07dae53e7b9bc1c23bed5165933d0b132fcdab0a5a0",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "97b249d5e2cc2308eb43d1da877bff311e3b2ae2bf30d9e9fb86af684f636785",
+        "finalSha256": "97b249d5e2cc2308eb43d1da877bff311e3b2ae2bf30d9e9fb86af684f636785",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "bundle.json",
+        "stampedSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "finalSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "commitment.json",
+        "stampedSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "finalSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "snapshot.json",
+        "stampedSha256": "68e2ce82be2b5400ec56406584a7273be72a310f54f502868945527b2cf16ad8",
+        "finalSha256": "68e2ce82be2b5400ec56406584a7273be72a310f54f502868945527b2cf16ad8",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "trustconfig.json",
+        "stampedSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "finalSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "f8bba15709e95bffd44c07f6c2f56b67d0b5d7e67ad5c5432edf9e5e27d64405",
+        "finalSha256": "f8bba15709e95bffd44c07f6c2f56b67d0b5d7e67ad5c5432edf9e5e27d64405",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "9fd37ec5ae7afc33d2502c731be8422b9e47937e328b80a424b17767e0604780",
+        "finalSha256": "9fd37ec5ae7afc33d2502c731be8422b9e47937e328b80a424b17767e0604780",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "bundle.json",
+        "stampedSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "finalSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "commitment.json",
+        "stampedSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "finalSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "snapshot.json",
+        "stampedSha256": "48e51af58ec083a1eee7e122c87cc4bd3eface96cb7447af9c73be93de943309",
+        "finalSha256": "48e51af58ec083a1eee7e122c87cc4bd3eface96cb7447af9c73be93de943309",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "trustconfig.json",
+        "stampedSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "finalSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "75ce12f611e6ffa771e31e9ca4bda834abf7e40cb42bbf0e60ab41543c558f2f",
+        "finalSha256": "75ce12f611e6ffa771e31e9ca4bda834abf7e40cb42bbf0e60ab41543c558f2f",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "d8beb10a59116ff9c8cacc41abc7d37743f6663414deece6d5d45ac529d20a5c",
+        "finalSha256": "d8beb10a59116ff9c8cacc41abc7d37743f6663414deece6d5d45ac529d20a5c",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "bundle.json",
+        "stampedSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "finalSha256": "543b19650cd2868e9e692c3ff48a883f04a53f3b327ddbc30fc3121faf7b4a2b",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "commitment.json",
+        "stampedSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "finalSha256": "7559a73e2b2226fd9ca490ef2e90da6dbd45541d2f6f0cf9af689758df483e5d",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "evaluation.json",
+        "stampedSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "finalSha256": "ba4b06201b29fb810ffb36c014bd99a9f5ad357487b220f33b927b1290b23cba",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "evidence.json",
+        "stampedSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "finalSha256": "689277f7d694db16129dadef48979ab6df2f2a86ac8be541208bbc6528f35876",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "facts.json",
+        "stampedSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "finalSha256": "4b99e3741aac5c36291361736f0103477a5cdde250aaa593007b89a0f0941efd",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "pack.json",
+        "stampedSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "finalSha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "snapshot.json",
+        "stampedSha256": "114b2426ec72de5cf862ac734d75e8b22526c55559995bb66d318a39109316eb",
+        "finalSha256": "114b2426ec72de5cf862ac734d75e8b22526c55559995bb66d318a39109316eb",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "trustconfig.json",
+        "stampedSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "finalSha256": "33190be5bbef009e84474076aa25afd92320c8b1268425253555cf4e5893e073",
+        "match": true
+      }
+    ],
+    "gatesFailed": [],
+    "notAdjudicated": [],
+    "divergent": [],
+    "summary": "holdout concordant - 10/10 adjudicated, 0 divergent",
+    "note": "reported separately: no holdout outcome enters a locked-stratum count and none can change the R1 verdict"
+  }
+}
