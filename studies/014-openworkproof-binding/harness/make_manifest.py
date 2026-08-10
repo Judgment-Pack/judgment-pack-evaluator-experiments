@@ -24,13 +24,18 @@ and to survive a post-freeze holdout construction.**
    Nothing inside the manifest names the manifest, and nothing inside the
    manifest names `PINS.json`, so each link is fillable in one pass.
 
-2. `fixtures/holdout/**` is NOT covered. Holdout fixtures are constructed
-   *after* the freeze, so covering them would make the frozen exact set fail the
-   moment the registered post-freeze path ran. Their integrity travels a
-   different road: the pinned `matrixHoldout.sha256` over the registry that
-   specifies them, the per-cell `MANIFEST.sha256` the builder writes beside each
-   one, the per-cell `CONSTRUCTION.json` record, and the attempt record that
-   publishes both.
+2. `fixtures/holdout/**` is NOT covered — and after round 4 that subtree does
+   not exist at all. Holdout fixtures are constructed after the freeze, into the
+   attempt that adjudicates them (`<attempt>/holdout-fixtures/<id>/`), never into
+   a shared `fixtures/` subtree that a later run could rebuild under an earlier
+   attempt's record. Attempt directories were never covered by this manifest, so
+   the exclusion below is no longer load-bearing; it is kept as a **guard**, so
+   that re-introducing a shared holdout tree cannot silently start invalidating
+   the frozen exact set (or, worse, quietly enter it). Holdout integrity travels
+   a different road entirely: the pinned `matrixHoldout.sha256` over the registry
+   that specifies the cells, the per-cell `MANIFEST.sha256` and
+   `CONSTRUCTION.json` written inside the attempt, and the digests of both
+   stamped into that attempt's own record.
 
 The manifest is regenerated during drafting and pinned at the freeze; after the
 freeze a regeneration that changes a line is a deviation, not a fix.
@@ -56,7 +61,9 @@ REGISTERED_DOCUMENTS = (
 
 # Excluded from the covered set by construction, not by omission. Both are
 # asserted by a harness test, so a future edit that quietly re-covers either one
-# fails the suite rather than silently re-introducing the round-2 cycle.
+# fails the suite rather than silently re-introducing the round-2 cycle. The
+# fixture-root exclusion is a standing guard rather than a live case: no holdout
+# fixture is written under `fixtures/` any more (round 4 — they are attempt-local).
 EXCLUDED_DOCUMENTS = ("harness/PINS.json",)
 EXCLUDED_FIXTURE_ROOTS = ("fixtures/holdout",)
 

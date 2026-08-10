@@ -34,9 +34,13 @@ The frozen fixture bytes, not this builder, are what the study scores.
 
 `OWP_SOURCE` is pinned, not merely present (round 3). Before a single helper is
 imported, `load_upstream` checks that the clone's HEAD equals
-`PINS.json`'s pinned commit, that its tracked files are clean, and that every
-helper file it imports matches its pinned digest in
-`openworkproof.upstreamHelpers.files`. Any failure refuses the build.
+`PINS.json`'s pinned commit, that its tracked files are clean, that no
+import-capable untracked path sits under the roots this module prepends to
+`sys.path` (round 4), and that every helper file it imports matches its pinned
+digest in `openworkproof.upstreamHelpers.files`. After the import it checks that
+the `openworkproof` the process actually loaded resolves inside the installed
+package directory and still matches `openworkproof.installedPackageDigest`. Any
+failure refuses the build.
 
 Determinism: fixed Ed25519 seeds, fixed clocks, caller-supplied nonces, and — the
 one thing upstream provides no seam for — `secrets.token_hex` patched with a
@@ -100,6 +104,11 @@ UPSTREAM_HELPER_FILES = (
     "tests/test_receipt_chain.py",
 )
 
+# The clone-relative roots `load_upstream` prepends to `sys.path`. Exactly one
+# today; the untracked-shadow check below is written over the tuple so a second
+# root cannot be added without its guard coming with it.
+IMPORT_ROOTS = ("tests",)
+
 
 def _pins():
     return json.loads(PINS_PATH.read_text(encoding="utf-8"))
@@ -123,19 +132,142 @@ def _git(root, *arguments):
     return completed.stdout
 
 
+def _untracked_paths(root):
+    """Every untracked clone-relative path, or None when git cannot answer.
+
+    `--others` **without** `--exclude-standard`, deliberately: an ignored path is
+    still an importable path, and the ignore rules can be extended from
+    `.git/info/exclude`, which is not a tracked file and so cannot be caught by
+    the cleanliness check. `-z` because git quotes unusual names otherwise.
+    """
+    output = _git(root, "ls-files", "--others", "-z")
+    if output is None:
+        return None
+    return [item for item in output.split("\0") if item]
+
+
+def import_shadow_paths(root, untracked):
+    """Untracked paths under a prepended import root that Python could import.
+
+    Round 4's blocker. Untracked paths are ignored by the cleanliness check on
+    purpose — a `build/` directory beside the checkout changes nothing this
+    module reads — but `load_upstream` *prepends* `<clone>/tests` to `sys.path`.
+    Under that root an untracked path is not inert: `tests/openworkproof/` with
+    an `__init__.py` is imported in preference to the digest-checked installed
+    package and then stays in `sys.modules` for every later verification, and
+    any untracked `*.py` can shadow a module name through the same root
+    (namespace packages make the deeper ones reachable too).
+
+    So under an import root the rule inverts: any untracked `*.py`, and any
+    untracked directory carrying an `__init__.py`, is a refusal. Outside those
+    roots untracked stays ignored — this clone's own untracked
+    `build/lib/openworkproof/` is exactly that shape and is exactly why the
+    check is scoped to the roots rather than to the whole tree.
+    """
+    root = Path(root)
+    shadows = []
+    for relative in untracked:
+        parts = relative.split("/")
+        if not any(
+            parts[: len(import_root.split("/"))] == import_root.split("/")
+            for import_root in IMPORT_ROOTS
+        ):
+            continue
+        path = root / relative
+        if relative.endswith(".py"):
+            shadows.append(relative)
+        elif path.is_dir() and (path / "__init__.py").exists():
+            # A symlinked or otherwise directory-shaped untracked entry: git
+            # names it once, so the `*.py` rule above never sees its contents.
+            shadows.append(relative.rstrip("/") + "/")
+    return sorted(set(shadows))
+
+
+def loaded_package_problems(pins=None, name="openworkproof"):
+    """After the helper import: the `openworkproof` in memory is the installed one.
+
+    The path checks above run *before* anything is imported, which leaves the
+    other half of round 4's finding: whatever `sys.path` did during the import,
+    the module the process ended up with has to be the package the freeze pins.
+    Two independent statements, both required:
+
+      1. the loaded module's `__file__` resolves inside the installed
+         distribution's own package directory (located through the distribution
+         metadata, not through `sys.path`, which is the thing under suspicion);
+      2. that directory still hashes to `openworkproof.installedPackageDigest`.
+
+    Empty means the loaded package is the pinned installed one.
+    """
+    import importlib
+
+    import verify  # adapter-side; the single implementation of this pin
+
+    pins = _pins() if pins is None else pins
+    try:
+        module = importlib.import_module(name)
+    except Exception as error:
+        return [
+            "the %s package could not be imported after the helper import: %s"
+            % (name, error)
+        ]
+    origin = getattr(module, "__file__", None)
+    if not origin:
+        return [
+            "the imported %s module carries no file origin, so it cannot be shown "
+            "to be the installed package" % name
+        ]
+    try:
+        installed_root = verify.installed_package_root(name)
+    except Exception as error:
+        return [
+            "the installed %s package directory could not be resolved: %s"
+            % (name, error)
+        ]
+    problems = []
+    origin = Path(origin).resolve()
+    if installed_root != origin.parent and installed_root not in origin.parents:
+        problems.append(
+            "the imported %s module resolves to %s, outside the installed package "
+            "directory %s" % (name, origin, installed_root)
+        )
+    expected = (pins.get("openworkproof") or {}).get("installedPackageDigest")
+    if not expected:
+        problems.append(
+            "PINS.json carries no installed openworkproof package digest, so the "
+            "package this build imported is unverified"
+        )
+        return problems
+    try:
+        actual = verify.installed_package_digest(name, root=installed_root)
+    except Exception as error:
+        return problems + [
+            "the installed %s package could not be re-verified after the helper "
+            "import: %s" % (name, error)
+        ]
+    if actual != expected:
+        problems.append(
+            "the installed %s package no longer matches its pinned digest after "
+            "the helper import" % name
+        )
+    return problems
+
+
 def upstream_problems(root, pins=None):
     """Every reason this clone is not the pinned one. Empty means it is.
 
     Round 3's finding: the builder imported external test helpers after checking
     only that `tests/conftest.py` existed, so `OWP_SOURCE` could point at any
     working tree — including a modified one — and the fixtures would still be
-    called upstream's. Three independent checks now stand between the flag and
+    called upstream's. Four independent checks now stand between the flag and
     the import:
 
       1. the clone's HEAD is exactly the pinned commit;
-      2. its tracked files are clean (untracked paths are ignored — a build
-         directory beside the checkout changes nothing this module reads);
-      3. every helper file this module imports matches its pinned digest.
+      2. its tracked files are clean (untracked paths outside the import roots
+         are ignored — a build directory beside the checkout changes nothing
+         this module reads);
+      3. no untracked path under an import root is import-capable (round 4:
+         `import_shadow_paths`, because those roots go on `sys.path`);
+      4. every helper file this module imports matches its pinned digest.
 
     Any one of them failing is a refusal, not a warning: the fixture oracle's
     whole claim is that it is upstream's.
@@ -181,6 +313,22 @@ def upstream_problems(root, pins=None):
                 "the OWP_SOURCE clone has modified tracked files: %s" % "; ".join(dirty)
             )
 
+    untracked = _untracked_paths(root)
+    if untracked is None:
+        problems.append(
+            "the OWP_SOURCE clone's untracked paths could not be read, so the "
+            "import roots this builder prepends to sys.path cannot be shown to be "
+            "free of shadowing modules"
+        )
+    else:
+        shadows = import_shadow_paths(root, untracked)
+        if shadows:
+            problems.append(
+                "the OWP_SOURCE clone carries import-capable untracked paths under "
+                "the import roots %s, which this builder prepends to sys.path: %s"
+                % (", ".join(IMPORT_ROOTS), "; ".join(shadows))
+            )
+
     pinned_files = helpers.get("files")
     if not isinstance(pinned_files, dict) or not pinned_files:
         problems.append(
@@ -224,7 +372,9 @@ def load_upstream(source=None):
             "the OWP_SOURCE clone is not the pinned one, so no fixture may be "
             "built from it: " + "; ".join(problems)
         )
-    sys.path.insert(0, str(root / "tests"))
+    inserted = [str(root / import_root) for import_root in IMPORT_ROOTS]
+    for entry in inserted:
+        sys.path.insert(0, entry)
     # The upstream conftest is loaded by explicit path under a private module
     # name: under pytest the bare name `conftest` already belongs to the harness
     # suite's own conftest, and importing it here would silently pick that up.
@@ -240,6 +390,21 @@ def load_upstream(source=None):
     import test_independent_recomposition
     import test_mcp_server
     import test_receipt_chain
+
+    # Round 4's other half: the roots above were on `sys.path` while everything
+    # under them imported, so the last word belongs to the module that actually
+    # loaded. A build whose `openworkproof` is not the pinned installed package
+    # is refused here, after the import and before a single fixture byte.
+    loaded = loaded_package_problems()
+    if loaded:
+        for entry in inserted:
+            if entry in sys.path:
+                sys.path.remove(entry)
+        raise FlowError(
+            "the openworkproof package this build imported is not the pinned "
+            "installed one, so no fixture may be built from it: "
+            + "; ".join(loaded)
+        )
 
     _UPSTREAM.update(
         {

@@ -85,3 +85,24 @@ and issued the freeze-ready checklist adopted below.
 | Checklist items 10–14 (banners, freeze commit naming, primary root, governing invocation, pin filling, clean freeze commit) | **Adopted as freeze-PR content**, deliberately not performed while the draft is under review — the same split Study 013 used. |
 
 Round 4 asks: confirm these closures and re-issue a verdict.
+
+## Round 4 — 2026-08-10
+
+Reviewer: codex-cli 0.145.0 / gpt-5.6-sol / reasoning effort ultra / read-only sandbox.
+Verdict: **freezable after listed fixes**. Verbatim record: `reviews/round-4/PROMPT.md`,
+`reviews/round-4/REVIEW.md`. Confirmed: the linear anchor is one-pass initializable;
+h01/h06 are byte-copy + registered-edit-only (source-inspected, unexecuted); ordering
+coverage is mechanical with four justified exemptions; d18 correctly re-attributed; the
+holdout stratum still byte-identical (git blob `0fea3d92…`) and unexecuted; the
+marker-first behavior change accepted as required; the items-10–14 freeze-PR split
+accepted, conditional on the five findings below.
+
+| # | Sev | Disposition | Action |
+|---|---|---|---|
+| R4-1 | BLOCKER | **Accepted.** An untracked import-capable path under the upstream tests dir could shadow the digest-checked installed package. | `upstream_problems()` refuses import-capable untracked paths (`*.py`, or directories carrying `__init__.py`) anywhere under the prepended import root; after helper import, the loaded `openworkproof` module's resolved origin must sit inside the installed package dir, re-verified against `installedPackageDigest`. |
+| R4-2 | BLOCKER | **Accepted.** Holdout bytes were not bound to the attempt that adjudicated them. | Holdout construction and adjudication move into an immutable attempt-local subtree (`<attempt>/holdout-fixtures/<id>/`); every per-cell manifest digest and construction-record digest is stamped into the attempt's results; shared `fixtures/holdout/` is no longer used at all. Preregistration §1a updated to match. |
+| R4-3 | MAJOR | **Accepted.** | The standalone `build_fixtures.py --holdout` CLI route is removed; holdout hooks are reachable only through the scorer's attempt machinery. |
+| R4-4 | MAJOR | **Accepted.** | A constructibility refusal now requires both: the exception type belongs to the upstream package's own refusal types, and the raising frame resolves inside the installed `openworkproof` package. Everything else is `harness-error`. |
+| R4-5 | MAJOR | **Accepted.** | Construction catches `Exception` only; `SystemExit`/`KeyboardInterrupt` propagate to the scorer's terminal-record-and-reraise path. |
+
+Round 5 asks: confirm these five closures and re-issue a verdict.

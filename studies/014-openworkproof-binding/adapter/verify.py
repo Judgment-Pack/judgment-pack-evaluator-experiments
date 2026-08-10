@@ -174,6 +174,65 @@ def sha256_file(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def installed_package_root(name="openworkproof"):
+    """The installed distribution's package directory, resolved from metadata.
+
+    Deliberately **not** `importlib.util.find_spec`: that resolves through
+    `sys.path`, so a directory prepended to it could answer for the very package
+    the caller is trying to authenticate. The installed distribution's own
+    metadata is independent of `sys.path` order, which is what makes this usable
+    as the reference point for "did we import the installed package?".
+    """
+    import importlib.metadata
+
+    distribution = importlib.metadata.distribution(name)
+    root = Path(distribution.locate_file(name)).resolve()
+    if not root.is_dir():
+        raise RuntimeError("the installed %s package directory is not readable" % name)
+    return root
+
+
+def installed_package_digest(name="openworkproof", root=None):
+    """A deterministic digest over the *installed* package's own source files.
+
+    Round 2's blocker: every OWP pin was either a mutable local-file URL (the
+    `pip freeze` line) or an unverified declaration (the commit string), so the
+    package the verification path actually imports was never checked. This walks
+    the installed package directory — resolved through `importlib` unless the
+    caller supplies one — sorts by package-relative path, and hashes
+    `path \\0 bytes \\0` for every file that is not a `__pycache__` artefact, so a
+    byte edit anywhere inside the installed package, including a schema JSON,
+    changes the value.
+
+    One implementation, two callers: the scorer enforces it as a freeze pin
+    before it adjudicates, and the builder re-verifies it after it imports the
+    pinned clone's helpers (round 4). Two implementations could drift, and the
+    pin is only worth what the weaker of them checks.
+    """
+    import importlib.util
+
+    if root is None:
+        spec = importlib.util.find_spec(name)
+        if spec is None or not spec.origin:
+            raise RuntimeError("the %s package is not importable" % name)
+        root = Path(spec.origin).resolve().parent
+    root = Path(root)
+    if not root.is_dir():
+        raise RuntimeError("the %s package directory is not readable" % name)
+    relatives = sorted(
+        path.relative_to(root).as_posix()
+        for path in root.rglob("*")
+        if path.is_file() and "__pycache__" not in path.parts
+    )
+    digest = hashlib.sha256()
+    for relative in relatives:
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update((root / relative).read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
 def manifest_text(directory):
     """`sha256  name` for every cell file present, sorted by name."""
     directory = Path(directory)

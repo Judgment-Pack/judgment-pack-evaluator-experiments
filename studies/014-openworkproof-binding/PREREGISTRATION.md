@@ -46,30 +46,58 @@ registered here:
   and it cannot be read as a prospective prediction.
 - **Reviewer holdout** (`harness/MATRIX-HOLDOUT.json`). Cells authored by the cross-vendor
   reviewer, committed verbatim with attribution, and **never executed before the freeze**.
-  `harness/score.py --include-holdout` and `harness/build_fixtures.py --holdout` both
-  refuse mechanically while `harness/PINS.json`'s `preregistration.sha256` is null (the
-  scorer additionally refuses while `matrixHoldout.sha256` is null, so the stratum it
-  adjudicates is the one the freeze pinned), and harness tests assert both refusals.
-  **Holdout results are reported separately**, in their own section of `RESULTS.json` and
-  `DETECTION-MATRIX.md`, with their own control gates and their own concordance summary:
-  no holdout outcome enters a locked-stratum count and none can change the R1 verdict.
+  There is exactly one route into the stratum: `harness/score.py --include-holdout`, which
+  refuses mechanically while `harness/PINS.json`'s `preregistration.sha256` is null or its
+  `matrixHoldout.sha256` is null (so the stratum it adjudicates is the one the freeze
+  pinned), and refuses again inside the construction step while any freeze pin is null.
+  `harness/build_fixtures.py` has **no holdout command-line route at all** — round 4
+  removed it, because a command outside the attempt machinery could produce holdout bytes
+  post-freeze with no attempt marker, no terminal record and no complete freeze gates. The
+  hooks remain as library entry points the scorer drives, and harness tests assert both the
+  scorer's refusals and the absence of the flag. **Holdout results are reported
+  separately**, in their own section of `RESULTS.json` and `DETECTION-MATRIX.md`, with
+  their own control gates and their own concordance summary: no holdout outcome enters a
+  locked-stratum count and none can change the R1 verdict.
 
 The reviewer authored eight cells (`h01`–`h08`) at round 2 and they landed byte-for-byte
 with attribution; `h08` is the holdout's own control gate. Builder hooks for all eight
 exist in `harness/build_fixtures.py`, unexecuted.
 
+**The holdout artifacts live inside the attempt that adjudicates them.** Round 4 found the
+holdout bytes unbound to any attempt: they were built into a shared `fixtures/holdout/`,
+carried no digest in the attempt record, and a later run could rebuild and coherently
+re-manifest them while an earlier attempt's published outcomes went on reading as though
+they described the bytes that attempt had seen. Construction and adjudication now happen in
+`<attempt>/holdout-fixtures/<id>/` — a directory the scorer has just created, since it
+refuses an attempt root that already exists — and **no holdout artifact is written under
+`fixtures/` at all**. Holdout integrity is therefore carried by three things together: the
+pinned `matrixHoldout.sha256` over the registry that specifies the cells; the per-cell
+`MANIFEST.sha256` and `CONSTRUCTION.json` written inside the attempt, whose digests are
+stamped into that attempt's `RESULTS.json` (`holdout.fixtureDigests`) and its
+`CONSTRUCTION.json`; and the attempt record itself, which is what publishes both.
+
 **A holdout construction that upstream refuses to publish is a constructibility finding,
 not a silent drop** — and nothing else is. Every holdout cell gets a persisted
-`fixtures/holdout/<id>/CONSTRUCTION.json`, written atomically, carrying `{cell, status,
-builderVersionDigest}` with `status` one of:
+`<attempt>/holdout-fixtures/<id>/CONSTRUCTION.json`, written atomically, carrying `{cell,
+status, builderVersionDigest}` with `status` one of:
 
 - `built` — the fixture exists and the cell is adjudicated normally;
-- `refused` — the registered construction was attempted and **upstream** declined; the
-  upstream error is recorded verbatim in `upstreamError`. This, and only this, is a
-  constructibility finding: the cell is **NOT-ADJUDICATED** on the validity channel with the
-  upstream refusal attached, and is never a detection and never a miss;
-- `harness-error` — this harness failed (a crash, or a precondition such as an unbuilt
-  source cell). That is a **validity problem**, never a finding.
+- `refused` — the registered construction was attempted and **upstream** declined. This is
+  proven, not assumed (round 4): the exception must be one of the installed `openworkproof`
+  package's own refusal types (or a `ValueError`/`ValidationError`) **and** its deepest
+  traceback frame — where the raise happened — must resolve inside the installed package's
+  directory. The upstream error is recorded verbatim in `upstreamError`. This, and only
+  this, is a constructibility finding: the cell is **NOT-ADJUDICATED** on the validity
+  channel with the upstream refusal attached, and is never a detection and never a miss;
+- `harness-error` — this harness failed (a crash, a precondition such as an unbuilt source
+  cell, or any exception that fails either half of the test above — a helper-pin failure, a
+  temporary-file error, a JSON or patch-generation bug). That is a **validity problem**,
+  never a finding.
+
+`SystemExit` and `KeyboardInterrupt` are not construction outcomes and are not recorded as
+any of the three: they propagate out of construction to the scorer's terminal
+record-and-re-raise path (§6), so an interrupted construction ends as a recorded pipeline
+event rather than as a stratum of harness errors.
 
 A cell whose directory carries no construction record at all — never built, deleted,
 aborted — is also a validity problem, never a finding: absence on its own does not say
@@ -138,22 +166,33 @@ Recorded as a standing limitation, not repaired this round.
   still rewrite the manifest but cannot rewrite the digest the registry pins it at, so
   editing covered code and regenerating no longer satisfies the scorer.
 
-  `fixtures/holdout/**` is likewise **outside** the manifest's exact set, because those
-  fixtures are constructed after the freeze and covering them would make the frozen anchor
-  fail the moment the registered post-freeze path ran. Their integrity travels a different
-  road: the pinned `matrixHoldout.sha256` over the registry that specifies them, the
-  per-cell `MANIFEST.sha256` and `CONSTRUCTION.json` the builder writes beside each one, and
-  the attempt record that publishes both.
+  Holdout fixtures are outside the manifest's exact set because they are not under
+  `fixtures/` at all: they are constructed after the freeze, inside the attempt that
+  adjudicates them (§1a). `make_manifest.py` keeps `fixtures/holdout/**` in its exclusion
+  list as a standing guard — re-introducing a shared holdout tree must not be able to
+  invalidate the frozen anchor, or quietly enter it — but the subtree no longer exists.
 - **`REGISTERED` requires every freeze pin.** An attempt is labelled `REGISTERED` only when
   all five freeze pins — preregistration, matrix, matrixHoldout, adapterSpec, studyManifest
   — are non-null. Any null makes it a `PILOT`, whatever else is filled; the non-null ones
   are enforced under both labels.
 - **`OWP_SOURCE` is pinned, not merely present.** Fixture construction reads upstream test
   helpers out of the pinned clone. Before importing any of them, `harness/owpflow.py`
-  requires the clone's `HEAD` to equal the pinned commit, its tracked files to be clean
-  (untracked paths are ignored), and each imported helper file to match its digest in
+  requires the clone's `HEAD` to equal the pinned commit, its tracked files to be clean,
+  and each imported helper file to match its digest in
   `openworkproof.upstreamHelpers.files`. Any failure refuses the build, so "the fixture
   oracle is upstream's" is a checked claim rather than a path that happens to exist.
+
+  Untracked paths are ignored **except under the roots the builder prepends to `sys.path`**
+  (round 4). `<clone>/tests` goes on `sys.path` for the helper import, so an untracked
+  `tests/openworkproof/` package — or any untracked `*.py` under that root — would be
+  imported in preference to the digest-checked installed package and would then stay in
+  `sys.modules` for every later verification. Any such path refuses the build; untracked
+  paths elsewhere stay ignored (this clone's own untracked `build/lib/openworkproof/` is
+  exactly that shape, and is never on `sys.path`). After the helper import the builder
+  additionally requires that the loaded `openworkproof` module resolve inside the installed
+  distribution's package directory — located through the distribution metadata, not through
+  `sys.path` — and that the directory still match `openworkproof.installedPackageDigest`.
+  The scorer enforces the same pin before it adjudicates, from the same implementation.
 
 ## 3. Baseline scenario (deterministic, no models)
 
@@ -400,8 +439,11 @@ import; the frozen cell-id set and per-cell schema; the SPEC/code verdict-vocabu
 the registered `{verdict, code}` pair table, per-code reachability tests, and a
 competing-defect case for every ordered **check site** — the site inventory parsed out of
 `adapter/verify.py` and the site each case fires recorded by line-tracing, not declared;
-the holdout refusals (scorer and builder) before the freeze; per-cell holdout construction
-records; upstream OWP bytes never imported into the repo (package install only); missing
+the scorer's holdout refusals before the freeze and the absence of any other route into the
+stratum; per-cell holdout construction records, built inside the attempt with their digests
+stamped into it; the two-part test a constructibility refusal must pass; upstream OWP bytes
+never imported into the repo (package install only); the import-shadow refusal over the
+prepended import roots and the post-import package-origin/digest re-verification; missing
 `OWP_SOURCE` or `JPACK_BIN` failing the determinism tests rather than skipping them.
 
 Recorded, not enforced: the build-time `secrets.token_hex` patch (the single deliberate

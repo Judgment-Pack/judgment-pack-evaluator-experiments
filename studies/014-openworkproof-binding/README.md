@@ -78,20 +78,23 @@ python -m pytest harness/tests -q
 Both environment variables are required: the tests fail rather than skip without them.
 `OWP_SOURCE` is checked, not just used — the clone's HEAD, its tracked-file cleanliness and
 every helper file the builder imports are pinned in `harness/PINS.json`, and a mismatch
-refuses the build. Toolchain pins (OWP commit + venv, jpack release digests, interpreter,
+refuses the build. So does an import-capable untracked path under the roots the builder
+prepends to `sys.path`, or an `openworkproof` that, once imported, is not the installed
+package the pins cover. Toolchain pins (OWP commit + venv, jpack release digests, interpreter,
 dependency freeze) live in the same registry and are enforced by the scorer before it
 adjudicates anything; upstream identity in `upstream/`.
 
 The freeze anchor is linear: `harness/STUDY-MANIFEST.sha256` covers the code, the protocol
 documents and the locked stratum's fixture manifests; `harness/PINS.json` pins that
 manifest's digest; the freeze commit anchors `harness/PINS.json`. The manifest covers
-neither itself, nor the registry that pins it, nor `fixtures/holdout/**`.
+neither itself nor the registry that pins it.
 
 The registry is stratified: `harness/MATRIX.json` is the locked-replication stratum,
 `harness/MATRIX-HOLDOUT.json` is the reviewer-authored holdout stratum, and
-`--include-holdout` is refused mechanically until the preregistration freezes. After the
-freeze that flag makes the attempt construct the holdout stratum itself and record every
-cell's construction outcome, so a refusal is a finding and a crash is a recorded pipeline
-event.
+`--include-holdout` is refused mechanically until the preregistration freezes. It is the
+only route into that stratum. After the freeze the flag makes the attempt construct the
+holdout stratum itself — inside its own `holdout-fixtures/` subtree, with every per-cell
+manifest digest stamped into the attempt record — and record every cell's construction
+outcome, so a refusal is a finding and a crash is a recorded pipeline event.
 
 Nothing in this repository claims any JPS conformance.

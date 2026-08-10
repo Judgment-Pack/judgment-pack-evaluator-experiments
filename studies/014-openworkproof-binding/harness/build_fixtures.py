@@ -18,14 +18,17 @@ Determinism: fixed keys, fixed clocks, caller-supplied nonces, and a build-time
 `secrets.token_hex` patch (see `harness/owpflow.py`). Running this twice from
 scratch yields byte-identical trees; a harness test asserts it.
 
-The reviewer-authored holdout stratum has builder hooks here too (`--holdout`),
-implemented but never executed: the flag is refused mechanically while
-`PINS.json` carries a null preregistration digest, exactly as the scorer refuses
-`--include-holdout`.
+The reviewer-authored holdout stratum has builder hooks here too, implemented
+but never executed. They are **library entry points only**: round 4 removed the
+standalone `--holdout` CLI route, because a command outside the attempt
+machinery could build holdout bytes post-freeze with no attempt marker, no
+terminal record and no complete freeze gates. `construct_holdout` is now
+reachable solely from `harness/score.py --include-holdout`, which refuses while
+any freeze pin is null and writes every cell into the attempt's own
+`holdout-fixtures/` directory.
 
 Run:
     JPACK_BIN=... OWP_SOURCE=... python harness/build_fixtures.py [--out DIR] [--force]
-    JPACK_BIN=... OWP_SOURCE=... python harness/build_fixtures.py --holdout   # post-freeze
 """
 
 import argparse
@@ -774,7 +777,14 @@ def cell_directory(out_root, cell_id):
 
 
 def holdout_cell_directory(out_root, cell_id):
-    return Path(out_root) / "holdout" / cell_id
+    """One holdout cell's directory under an **attempt-local** holdout root.
+
+    Round 4: `out_root` is `<attempt>/holdout-fixtures`, never a shared
+    `fixtures/` subtree. The scorer refuses an attempt root that already exists,
+    so these bytes are written once, by the attempt that adjudicates them, and
+    no later run can re-manifest them under an earlier attempt's record.
+    """
+    return Path(out_root) / cell_id
 
 
 # --------------------------------------------------------------------------
@@ -782,15 +792,17 @@ def holdout_cell_directory(out_root, cell_id):
 # --------------------------------------------------------------------------
 #
 # These hooks exist so that the holdout is a buildable specification rather than
-# a promise, and they are gated by the same mechanical guard the scorer uses:
-# `--holdout` is refused while `PINS.json`'s `preregistration.sha256` is null.
-# Nothing in this repository has executed them. Each hook takes the shared build
+# a promise. They have no command-line route of their own (round 4): the scorer
+# drives them inside an attempt, refusing while any freeze pin is null, and
+# nothing in this repository has executed them. Each hook takes the shared build
 # context and either returns a cell payload, returns a `ConstructibilityRefusal`
 # carrying the verbatim upstream error (a registered construction upstream
-# declines to publish is a finding under PREREGISTRATION section 1a), or raises
-# `BuildError` when a harness precondition is not met (which is a validity
-# problem, never a finding). Whichever it is, `build_holdout_records` persists a
-# `CONSTRUCTION.json` beside the cell, so absence never has to be interpreted.
+# declines to publish is a finding under PREREGISTRATION section 1a, and only
+# `upstream_refusal` may mint one), or raises — `BuildError` when a harness
+# precondition is not met, or the original exception when it was not upstream
+# declining. Either raise is a validity problem, never a finding. Whichever it
+# is, `build_holdout_records` persists a `CONSTRUCTION.json` beside the cell, so
+# absence never has to be interpreted.
 #
 # Two of the hooks are *artifact* constructions — `h01` and `h06` register "copy
 # the baseline byte-for-byte and change exactly one retained document". They read
@@ -853,6 +865,114 @@ class ConstructibilityRefusal:
             self.detail,
             self.upstream_error,
         )
+
+
+# --------------------------------------------------------------------------
+# what may become a constructibility refusal (round 4)
+# --------------------------------------------------------------------------
+#
+# Round 4's finding: the hooks wrapped `flow_cell` in a bare `except Exception`
+# and reported whatever they caught as "upstream refused to publish". A
+# helper-pin failure, a temporary-file error, a JSON error, a patch-generation
+# bug in this builder — every one of them would have been published as a
+# finding about OpenWorkProof. A refusal now has to prove two independent
+# things, and anything that proves only one is a `harness-error`:
+#
+#   1. the exception is one of the installed package's OWN refusal types
+#      (collected below from the modules on the publication/validation paths
+#      this builder drives), or a `ValueError`/`ValidationError` — the two
+#      generic types upstream genuinely raises on validation paths;
+#   2. the deepest traceback frame — where the exception was actually raised —
+#      is a file inside the installed `openworkproof` package directory.
+#
+# Condition 2 is what makes condition 1 safe to state generically: a
+# `ValueError` raised in this builder, or in the pinned clone's test helpers,
+# resolves outside the package and is a harness failure, whoever's type it wears.
+
+UPSTREAM_REFUSAL_MODULES = (
+    "acceptance",
+    "composition",
+    "evidence",
+    "execution_adapter",
+    "models",
+    "policy",
+    "predicates",
+    "repo_tools",
+    "runtime_context",
+    "schema_registry",
+    "signing",
+    "state",
+)
+
+_UPSTREAM_REFUSAL_TYPES = []
+
+
+def upstream_refusal_types():
+    """The installed package's own exception classes, plus the two generic ones.
+
+    Collected from the installed package itself rather than transcribed here, so
+    a rename or a new refusal upstream cannot leave a stale hand-written list
+    silently mis-classifying refusals as harness failures.
+    """
+    if _UPSTREAM_REFUSAL_TYPES:
+        return tuple(_UPSTREAM_REFUSAL_TYPES)
+    import importlib
+
+    from pydantic import ValidationError
+
+    collected = []
+    for name in UPSTREAM_REFUSAL_MODULES:
+        module = importlib.import_module("openworkproof." + name)
+        for value in vars(module).values():
+            if (
+                isinstance(value, type)
+                and issubclass(value, BaseException)
+                and value.__module__.split(".")[0] == "openworkproof"
+                and value not in collected
+            ):
+                collected.append(value)
+    collected.sort(key=lambda item: (item.__module__, item.__name__))
+    # `ValidationError` is a `ValueError` subclass; both are named so the
+    # registered set says plainly which generic types are admitted at all.
+    collected.extend([ValidationError, ValueError])
+    _UPSTREAM_REFUSAL_TYPES.extend(collected)
+    return tuple(collected)
+
+
+def raising_frame_file(error):
+    """The file of the deepest traceback frame — where the raise happened."""
+    filename = None
+    frame = error.__traceback__
+    while frame is not None:
+        filename = frame.tb_frame.f_code.co_filename
+        frame = frame.tb_next
+    if not filename:
+        return None
+    try:
+        return Path(filename).resolve()
+    except Exception:  # pragma: no cover - unresolvable frame filename
+        return None
+
+
+def upstream_refusal(cell_id, detail, error):
+    """A `ConstructibilityRefusal` iff `error` is a proven upstream refusal.
+
+    None means "this is not upstream declining", and every caller turns that
+    into a re-raise, which `build_holdout_records` records as `harness-error` —
+    a validity problem, never a finding.
+    """
+    if not isinstance(error, upstream_refusal_types()):
+        return None
+    frame = raising_frame_file(error)
+    if frame is None:
+        return None
+    try:
+        root = verify.installed_package_root()
+    except Exception:
+        return None
+    if root != frame.parent and root not in frame.parents:
+        return None
+    return ConstructibilityRefusal(cell_id, detail, str(error), type(error).__name__)
 
 
 # --------------------------------------------------------------------------
@@ -1017,13 +1137,15 @@ def holdout_h02(context):
             owp_source=context["owp_source"],
         )
     except Exception as error:
-        return ConstructibilityRefusal(
+        refusal = upstream_refusal(
             "h02-objective-lone-surrogate",
             "OpenWorkProof refused to publish a work order whose objective is "
             "not I-JSON",
-            str(error),
-            type(error).__name__,
+            error,
         )
+        if refusal is None:
+            raise
+        return refusal
     return payload
 
 
@@ -1047,12 +1169,14 @@ def holdout_h03(context):
             owp_source=context["owp_source"],
         )
     except Exception as error:
-        return ConstructibilityRefusal(
+        refusal = upstream_refusal(
             "h03-duplicate-supported-extension",
             "the chain could not be rebuilt around a duplicate supported extension",
-            str(error),
-            type(error).__name__,
+            error,
         )
+        if refusal is None:
+            raise
+        return refusal
 
 
 def holdout_h04(context):
@@ -1135,13 +1259,15 @@ def holdout_h07(context):
             owp_source=context["owp_source"],
         )
     except Exception as error:
-        return ConstructibilityRefusal(
+        refusal = upstream_refusal(
             "h07-self-consistent-wrong-action",
             "the alternate action target could not be executed through the "
             "upstream patch executor",
-            str(error),
-            type(error).__name__,
+            error,
         )
+        if refusal is None:
+            raise
+        return refusal
 
 
 def holdout_h08(context):
@@ -1200,6 +1326,14 @@ def build_holdout_records(jpack_bin, work_root, owp_source, cell_ids=None):
     problem and never a constructibility finding). A crash in one hook does not
     stop the others, and a crash building the shared context marks every cell,
     because in that case nothing was genuinely attempted.
+
+    Round 4: both catches are `Exception`, not `BaseException`. A `SystemExit` or
+    a `KeyboardInterrupt` raised anywhere inside construction is not a
+    construction outcome and may not be recorded as one — it propagates to the
+    scorer, whose terminal catch records the attempt and re-raises, so an
+    interrupted construction ends as a recorded pipeline event rather than as
+    eight cells labelled `harness-error` by a harness that was itself told to
+    stop.
     """
     cell_ids = list(cell_ids or HOLDOUT_IDS)
     digest = builder_version_digest()
@@ -1207,7 +1341,7 @@ def build_holdout_records(jpack_bin, work_root, owp_source, cell_ids=None):
     records = {}
     try:
         context = _holdout_context(jpack_bin, work_root, owp_source)
-    except BaseException as error:  # noqa: BLE001 - recorded, then reported
+    except Exception as error:  # noqa: BLE001 - recorded, then reported
         for cell_id in cell_ids:
             records[cell_id] = construction_record(
                 cell_id,
@@ -1231,10 +1365,11 @@ def build_holdout_records(jpack_bin, work_root, owp_source, cell_ids=None):
             continue
         try:
             outcome = builder(context)
-        except BaseException as error:  # noqa: BLE001 - recorded, then reported
+        except Exception as error:  # noqa: BLE001 - recorded, then reported
             # An *uncaught* exception is this harness failing, not upstream
-            # refusing: only a hook that wrapped a known upstream call and kept
-            # its message may return a refusal.
+            # refusing: only a hook that caught an exception raised inside the
+            # installed package, of one of its own refusal types, may return a
+            # refusal (`upstream_refusal`). Interruptions are not caught at all.
             records[cell_id] = construction_record(
                 cell_id,
                 "harness-error",
@@ -1275,23 +1410,14 @@ def publish_holdout(out_root, cell_ids, payloads, records):
     return records
 
 
-def holdout_refusal(pins):
-    """The mechanical pre-freeze guard on `--holdout`, or None once frozen."""
-    if (pins.get("preregistration") or {}).get("sha256") is None:
-        return (
-            "--holdout is refused: harness/PINS.json carries a null "
-            "preregistration digest, so the preregistration is still DRAFT and "
-            "the reviewer-authored holdout stratum may not be built"
-        )
-    return None
-
-
 def construct_holdout(jpack_bin, out_root, owp_source, cell_ids):
     """Build and publish the holdout stratum; return the per-cell records.
 
-    The one entry point the scorer's post-freeze path calls, so construction and
-    adjudication run under the same attempt machinery rather than in two
-    disconnected commands.
+    The **only** entry point into holdout construction (round 4 removed the
+    standalone `--holdout` CLI route entirely): the scorer calls this inside an
+    attempt, with `out_root` set to that attempt's own `holdout-fixtures/`
+    directory, so construction and adjudication cannot come apart and no command
+    outside the attempt machinery can produce holdout bytes at all.
     """
     work_root = Path(tempfile.mkdtemp(prefix="study014-holdout-"))
     try:
@@ -1304,49 +1430,10 @@ def construct_holdout(jpack_bin, out_root, owp_source, cell_ids):
     return records
 
 
-def build_holdout(jpack_bin, out_root, force, owp_source):
-    """Write the holdout cells, persisting every construction outcome."""
-    registry = json.loads(
-        (STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8")
-    )
-    registered = [cell["id"] for cell in registry["cells"]]
-    existing = [
-        cell_id
-        for cell_id in registered
-        if holdout_cell_directory(out_root, cell_id).is_dir()
-    ]
-    if existing and not force:
-        raise SystemExit(
-            "holdout fixtures already exist under %s; pass --force to rebuild"
-            % (Path(out_root) / "holdout")
-        )
-    records = construct_holdout(jpack_bin, out_root, owp_source, registered)
-    built = [item for item in records.values() if item["status"] == "built"]
-    print(
-        "built %d of %d holdout cells under %s (a CONSTRUCTION.json is written for "
-        "every cell, built or not)" % (len(built), len(registered), out_root)
-    )
-    for cell_id in registered:
-        record = records[cell_id]
-        if record["status"] == "refused":
-            print(
-                "  constructibility refusal %s: %s [upstream: %s]"
-                % (cell_id, record["detail"], record["upstreamError"])
-            )
-        elif record["status"] == "harness-error":
-            print("  HARNESS ERROR %s: %s" % (cell_id, record["harnessError"]))
-    return 0
-
-
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--out", default=str(STUDY / "fixtures"))
     parser.add_argument("--force", action="store_true")
-    parser.add_argument(
-        "--holdout",
-        action="store_true",
-        help="build harness/MATRIX-HOLDOUT.json's cells (refused before the freeze)",
-    )
     arguments = parser.parse_args(argv)
 
     jpack_bin = os.environ.get("JPACK_BIN")
@@ -1355,13 +1442,6 @@ def main(argv=None):
     pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
     if verify.sha256_file(jpack_bin) != pins["jpack"]["binarySha256"]:
         raise SystemExit("JPACK_BIN does not match the pinned binary digest")
-
-    if arguments.holdout:
-        refusal = holdout_refusal(pins)
-        if refusal is not None:
-            raise SystemExit(refusal)
-        return build_holdout(jpack_bin, Path(arguments.out), arguments.force,
-                             os.environ.get("OWP_SOURCE"))
 
     out_root = Path(arguments.out)
     existing = sorted((out_root / "mutations").glob("*")) if out_root.is_dir() else []

@@ -13,7 +13,11 @@ recomputation from frozen fixture bytes, and writes one attempt record:
     DETECTION-MATRIX.md  the per-layer table, published in full whichever way it
                          lands (PREREGISTRATION section 10)
     CONSTRUCTION.json    post-freeze `--include-holdout` only: the per-cell record
-                         of the holdout construction this attempt drove
+                         of the holdout construction this attempt drove, with a
+                         digest of every fixture manifest it produced
+    holdout-fixtures/    post-freeze `--include-holdout` only: the holdout cells
+                         this attempt constructed and adjudicated, written once
+                         inside the attempt that read them
 
 Every output write is atomic (temporary file in the same directory, then
 `os.replace`), and every step from the holdout refusals and PINS parsing through
@@ -54,9 +58,10 @@ can never be labelled REGISTERED (PREREGISTRATION section 6), and
 `--include-holdout` is refused mechanically: the reviewer-authored holdout
 stratum may not be executed before the freeze. After the freeze the flag makes
 the attempt itself **construct** the holdout stratum (the builder hooks, driven
-in-process, inside this attempt's marker and terminal catch, with a per-cell
-`CONSTRUCTION.json` beside each fixture and in the attempt record) and then
-adjudicate `harness/MATRIX-HOLDOUT.json` into a **separate** stratum section —
+in-process, inside this attempt's marker and terminal catch, into this attempt's
+own `holdout-fixtures/` subtree, with a per-cell `CONSTRUCTION.json` beside each
+fixture and every per-cell manifest digest stamped into the attempt record) and
+then adjudicate `harness/MATRIX-HOLDOUT.json` into a **separate** stratum section —
 its own gates, its own concordance summary, its own rows — that never touches
 the locked stratum's counts or the R1 verdict. A construction that upstream
 refuses is a constructibility finding; a construction that crashes is this
@@ -67,7 +72,6 @@ Run: JPACK_BIN=... python harness/score.py --attempt-root <new directory>
 
 import argparse
 import hashlib
-import importlib.util
 import json
 import os
 import platform
@@ -182,9 +186,26 @@ def cell_directory(cell_id):
     return STUDY / "fixtures" / "mutations" / cell_id
 
 
-def holdout_cell_directory(cell_id):
-    """Where a reviewer-authored holdout cell's fixture would live if built."""
-    return STUDY / "fixtures" / "holdout" / cell_id
+HOLDOUT_FIXTURE_DIRECTORY = "holdout-fixtures"
+
+
+def holdout_fixture_root(attempt_root):
+    """The attempt's own holdout subtree. Round 4: there is no shared one.
+
+    Holdout bytes used to be built into `fixtures/holdout/`, shared across every
+    attempt: a later run could rebuild and re-manifest them coherently while an
+    earlier attempt's record — which carried no digest of them — went on reading
+    as if it had adjudicated the bytes it actually saw. They are now built inside
+    the attempt that adjudicates them, in a directory the scorer has just created
+    (it refuses an attempt root that already exists), and their per-cell manifest
+    and construction-record digests are stamped into that attempt's results.
+    """
+    return Path(attempt_root) / HOLDOUT_FIXTURE_DIRECTORY
+
+
+def holdout_cell_directory(attempt_root, cell_id):
+    """Where this attempt's copy of a reviewer-authored holdout cell lives."""
+    return holdout_fixture_root(attempt_root) / cell_id
 
 
 # --------------------------------------------------------------------------
@@ -225,34 +246,20 @@ def atomic_write_text(path, text):
 # --------------------------------------------------------------------------
 
 def installed_package_digest(name="openworkproof"):
-    """A deterministic digest over the *installed* package's own source files.
+    """The freeze pin over the *installed* package's own bytes.
 
-    Round 2's blocker: every OWP pin was either a mutable local-file URL (the
-    `pip freeze` line) or an unverified declaration (the commit string), so the
-    package the verification path actually imports was never checked. This walks
-    the installed package directory resolved through `importlib`, sorts by
-    study-relative path, and hashes `path \\0 bytes \\0` for every file that is
-    not a `__pycache__` artefact — so a byte edit anywhere inside the installed
-    package, including a schema JSON, changes the value.
+    The computation lives in `adapter/verify.py` because the builder re-verifies
+    the same pin after it imports the pinned clone's helpers (round 4's import
+    laundering finding), and two implementations of one pin would be worth only
+    what the weaker of them checks. Failures become `PipelineInvalid` here, which
+    is the attempt-scope shape the gates expect.
     """
-    spec = importlib.util.find_spec(name)
-    if spec is None or not spec.origin:
-        raise PipelineInvalid("the %s package is not importable" % name)
-    root = Path(spec.origin).resolve().parent
-    if not root.is_dir():
-        raise PipelineInvalid("the %s package directory is not readable" % name)
-    relatives = sorted(
-        path.relative_to(root).as_posix()
-        for path in root.rglob("*")
-        if path.is_file() and "__pycache__" not in path.parts
-    )
-    digest = hashlib.sha256()
-    for relative in relatives:
-        digest.update(relative.encode("utf-8"))
-        digest.update(b"\0")
-        digest.update((root / relative).read_bytes())
-        digest.update(b"\0")
-    return digest.hexdigest()
+    try:
+        return verify.installed_package_digest(name)
+    except PipelineInvalid:
+        raise
+    except Exception as error:
+        raise PipelineInvalid(str(error))
 
 
 def pip_freeze_sha256():
@@ -747,8 +754,12 @@ def holdout_summary(rows):
     }
 
 
-def adjudicate_holdout(registry, jpack_bin, work_root, validity):
-    """Adjudicate the holdout stratum into rows of its own. Never merged."""
+def adjudicate_holdout(attempt_root, registry, jpack_bin, work_root, validity):
+    """Adjudicate the holdout stratum into rows of its own. Never merged.
+
+    Reads the attempt's own `holdout-fixtures/` subtree and nothing else (round
+    4), so the bytes adjudicated here are the bytes this attempt constructed.
+    """
     rows = []
     for cell in registry["cells"]:
         rows.append(
@@ -757,7 +768,7 @@ def adjudicate_holdout(registry, jpack_bin, work_root, validity):
                 jpack_bin,
                 work_root,
                 validity,
-                directory=holdout_cell_directory(cell["id"]),
+                directory=holdout_cell_directory(attempt_root, cell["id"]),
                 scope="holdout",
             )
         )
@@ -862,6 +873,33 @@ def construction_problems(cell_id, directory):
     )
 
 
+def holdout_fixture_digests(attempt_root, cell_ids):
+    """Per-cell digests over what this attempt actually constructed.
+
+    Round 4's blocker: an attempt published holdout outcomes without binding the
+    bytes they came from, so the same record could be paired with any later,
+    coherently re-manifested tree. Two digests per cell — over the per-cell
+    `MANIFEST.sha256` (which itself covers every artifact byte) and over the
+    per-cell `CONSTRUCTION.json` — go into the attempt record, so the attempt
+    states which bytes it adjudicated. `None` where the file is absent, which is
+    itself a statement: a refused construction has a record and no manifest.
+    """
+    digests = {}
+    for cell_id in cell_ids:
+        directory = holdout_cell_directory(attempt_root, cell_id)
+        manifest = directory / verify.MANIFEST_NAME
+        record = directory / CONSTRUCTION_RECORD_NAME
+        digests[cell_id] = {
+            "manifestSha256": (
+                verify.sha256_file(manifest) if manifest.is_file() else None
+            ),
+            "constructionSha256": (
+                verify.sha256_file(record) if record.is_file() else None
+            ),
+        }
+    return digests
+
+
 def construct_holdout(attempt_root, registry, pins, jpack_bin):
     """Build the holdout stratum as part of this attempt, and record every cell.
 
@@ -871,6 +909,13 @@ def construct_holdout(attempt_root, registry, pins, jpack_bin):
     and the per-cell records land both beside the fixtures and in the attempt.
     A crash anywhere in it propagates and becomes this attempt's terminal
     pipeline-invalid record.
+
+    Round 4's finding: the fixtures are written into `<attempt>/holdout-fixtures/`
+    rather than a shared `fixtures/holdout/`, and every per-cell manifest digest
+    and construction-record digest is stamped into the attempt's own record. The
+    attempt root is created by this run and refused if it already exists, so the
+    subtree is written once and cannot be re-manifested under this attempt's
+    published outcomes afterwards.
 
     The pre-freeze guard is repeated here rather than assumed from the caller:
     the reviewer-authored stratum may not be built while any freeze pin is null.
@@ -885,13 +930,18 @@ def construct_holdout(attempt_root, registry, pins, jpack_bin):
 
     cell_ids = [cell["id"] for cell in registry["cells"]]
     records = build_fixtures.construct_holdout(
-        jpack_bin, STUDY / "fixtures", os.environ.get("OWP_SOURCE"), cell_ids
+        jpack_bin,
+        holdout_fixture_root(attempt_root),
+        os.environ.get("OWP_SOURCE"),
+        cell_ids,
     )
     published = {
         "study": "014-openworkproof-binding",
         "stratum": "reviewer-holdout",
+        "fixtureRoot": HOLDOUT_FIXTURE_DIRECTORY,
         "builderVersionDigest": build_fixtures.builder_version_digest(),
         "records": [records[cell_id] for cell_id in cell_ids],
+        "fixtureDigests": holdout_fixture_digests(attempt_root, cell_ids),
     }
     atomic_write_text(
         Path(attempt_root) / CONSTRUCTION_RECORD_NAME,
@@ -1015,9 +1065,10 @@ def run(attempt_root, include_holdout=False):
             return publish_terminal(attempt_root, label, gate_problems, provenance)
 
         # Construction runs INSIDE the attempt (round 3): after the freeze gates,
-        # before adjudication, under the marker and the terminal catch. The
-        # freeze anchor survives it because `fixtures/holdout/**` is outside the
-        # study manifest's covered set by construction.
+        # before adjudication, under the marker and the terminal catch. It writes
+        # into this attempt's own `holdout-fixtures/` subtree (round 4), so the
+        # frozen study manifest — which covers `fixtures/` and never an attempt
+        # directory — is untouched by it.
         construction = None
         if holdout_registry is not None:
             construction = construct_holdout(
@@ -1033,7 +1084,7 @@ def run(attempt_root, include_holdout=False):
                 rows.append(adjudicate_cell(cell, jpack_bin, work_root, validity))
             if holdout_registry is not None:
                 holdout = adjudicate_holdout(
-                    holdout_registry, jpack_bin, work_root, validity
+                    attempt_root, holdout_registry, jpack_bin, work_root, validity
                 )
         except Exception as error:
             return publish_terminal(
@@ -1088,9 +1139,17 @@ def run(attempt_root, include_holdout=False):
         }
         if holdout is not None:
             # A separate section, never merged: the R1 verdict above is computed
-            # from the locked rows alone and is not recomputed here.
+            # from the locked rows alone and is not recomputed here. The
+            # construction records and the digests of the bytes they produced
+            # travel with it (round 4), so the stratum's outcomes and the
+            # artifacts they were read from are published as one object.
             if construction is not None:
-                holdout = dict(holdout, construction=construction["records"])
+                holdout = dict(
+                    holdout,
+                    construction=construction["records"],
+                    fixtureRoot=construction["fixtureRoot"],
+                    fixtureDigests=construction["fixtureDigests"],
+                )
             results["holdout"] = holdout
         write_outputs(attempt_root, results, rows, holdout)
         return results
@@ -1125,8 +1184,8 @@ def adjudicate_cell(cell, jpack_bin, work_root, validity, directory=None, scope=
     """One cell. Never raises: a crash here is a NOT-ADJUDICATED row.
 
     `directory` and `scope` are the holdout stratum's only difference: its cells
-    live under `fixtures/holdout/<id>/` and their validity records are tagged so
-    a holdout problem can never be read as a locked-stratum problem.
+    live under `<attempt>/holdout-fixtures/<id>/` and their validity records are
+    tagged so a holdout problem can never be read as a locked-stratum problem.
 
     A holdout cell is adjudicated from its persisted `CONSTRUCTION.json`, not
     from whether a directory happens to exist (round 3). A captured upstream
