@@ -122,3 +122,23 @@ new findings. Holdout stratum tree-verified byte-identical and unexecuted again.
 | R5-4 | MAJOR | **Accepted.** | Every flow-calling hook (h04/h05/h07/h08 alike) routes exceptions through the same upstream-frame refusal predicate; an AST test asserts no flow-calling hook bypasses it. |
 
 Round 6 asks: confirm these four closures and re-issue a verdict.
+
+## Round 6 — 2026-08-10
+
+Reviewer: codex-cli 0.145.0 / gpt-5.6-sol / reasoning effort ultra / read-only sandbox.
+Verdict: **`freezable as written`** — all four round-5 closures RESOLVED and
+tree-verified, both argued narrowings explicitly ACCEPTED (the PEP 3147 cache exemption
+with its stated residual — "source-only loading is disproportionate for this offline,
+full-key-insider model" — and the structural attempt-context gate as accident-prevention,
+not an insider boundary; ungated `publish_holdout` accepted as unable to drive a hook),
+and **no new material findings**. Verbatim record: `reviews/round-6/PROMPT.md`,
+`reviews/round-6/REVIEW.md`.
+
+The verdict's condition is the freeze-PR mechanical set (round-3 checklist items 10–14),
+performed at freeze time in this order: remove the DRAFT banners; name the freeze commit;
+designate the literal primary attempt root; register the governing invocation
+(CPython 3.12.11, `JPACK_BIN`, pinned `OWP_SOURCE`, post-freeze holdout construction,
+`--include-holdout`, the root); fill every null freeze pin (preregistration, matrix,
+matrixHoldout, adapterSpec, studyManifest) in a non-circular order and verify integrity;
+keep the freeze commit clean of holdout fixtures and primary-attempt results. Review
+rounds closed at six: 14 → 9 → 5 → 4 → 0 findings.
