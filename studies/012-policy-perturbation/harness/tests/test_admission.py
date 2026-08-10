@@ -1023,11 +1023,13 @@ A_EMBARGO_NEAR_MISS = [(30, 30)] * 4 + [(26, 26)] + [(30, 30)]
 E_EMBARGO_AT_THE_CUT = [(0, 0), (0, 0), (0, 0), (30, 30), (3, 3), (0, 0)]
 # The degenerate arm E round 9's finding 2 names: the placement collapse and the
 # ceiling, class 4 intact — and class 3, the interior review band, gone with the
-# four narrow classes. Every accepted record is then an embargo case the mirror
-# labels before it reads the score, so the arm exercised neither threshold, and
-# row 5's fifth conjunct is what stops it confirming: arm E reads LOW on class 3
-# (round 10, finding 3 — the conjunct is a level verdict on arm E, so it refuses
-# this arm whatever arm A did on that class).
+# four narrow classes. Every accepted record is then a non-sanctioned SY
+# registration the mirror labels before it reads the score, so the arm exercised
+# neither threshold, and row 5's fifth conjunct is what stops it confirming: arm
+# E reads LOW on class 3 (round 10, finding 3 — the conjunct is a level verdict
+# on arm E, so it refuses this arm whatever arm A did on that class). Class 4 is
+# at (30, 30) here, well clear of the four-of-thirty floor row 2's LOW verdict
+# fires below (round 13, finding 2).
 INTERIOR_COLLAPSE = [(0, 0), (0, 0), (0, 0), (0, 0), (30, 30), (0, 0)]
 # Arm A, HIGH on five classes and NOT on class 3 (round 10, finding 3). The
 # round-9 conjunct was a CONTRAST, and a contrast against a baseline that is not

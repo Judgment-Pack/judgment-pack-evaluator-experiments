@@ -249,7 +249,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `14fd67160751e050c7a0275d2240490262cc8af24124f0724bc0aabf82679b72` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `834a15774f743153f3f9b502c725d4a1492adc06704d42cf8078ad4956fbc599` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -286,7 +286,7 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee` | §2.7 |
 | `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `c092a1fe301c0aafe35d24ee8eab632045440aee9df5b763c003d07d1fdeae9d` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
 | `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `a6c948951567caebdddb211161c89235ec08d113e63dec89c8a2e168908a7211` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `131874b014bd5e0107931b7dabd0f2e59aa3e1da82c0ddc91b097cff7515ed95` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `d8542722a4fba5ffdf38f0702620df18d2d1a1b57277c047d1215570637b0d1c` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -1284,6 +1284,17 @@ artifacts that ran" now means:
    and no way to change one file and re-record one digest: the manifest covers
    everything at once, so any edit invalidates it and the only way forward is
    another round with its own attestation.
+
+   Rule 3 terminates only because **no manifest-covered file records how many
+   review rounds there have been.** The count lives in `PREREG-REVIEW.md`,
+   which is a carrier and outside the manifest, so recording a round changes
+   carrier bytes only and the round being recorded is the round whose
+   attestation still stands. A count copied into a covered file — `README.md`
+   carried one from round 12 — makes the recording of round N a covered-byte
+   change, which this rule answers with round N+1, whose recording is the same
+   change again (round 13, finding 1). `harness/tests/test_review_status.py`
+   holds both halves: the record's own status line against its own round
+   headings, and `README.md` against the copy ever returning.
 4. Registered honestly, because this is a bound and not a proof: **the manifest
    is computed by this study's own code over this study's own worktree.** It
    binds the *reviewer's* attestation to a specific byte state, and it makes a
@@ -1933,13 +1944,18 @@ not the whole of it — `¬S ∧ country = SY` (§2.3) needs a **non-sanctioned 
 record, and a sanctions hit or a KP or IR registration matches it in no run — so
 an arm E whose accepted records are all **non-sanctioned SY registrations**
 reads `|Q| = 0`, covers class 4 in every run it produced an accepted record in
-and so keeps it clear of the **LOW** verdict row 2 fires on, places nothing in
-classes 0, 1, 2, 3 and 5, and would reach §5.3's row 5 having exercised neither
-number. The narrower premise is necessary and is registered here rather than
-left to a reader: an arm E of sanctions hits and KP/IR registrations alone
-covers class 4 in none of its thirty runs, reads **LOW** there, and row 2 stops
-it before row 5 as **E-DEGRADED-GENERALLY** — so the two repairs interlock, and
-the arm row 5's fifth conjunct is for is the SY one.
+and so — **in at least four of its thirty runs**, since *not LOW* at n = 30 is
+`k ≥ 4`, the same four-of-thirty floor registered below for class 3 — keeps it
+clear of the **LOW** verdict row 2 fires on, places nothing in classes 0, 1, 2,
+3 and 5, and would reach §5.3's row 5 having exercised neither number. Two
+premises are necessary here and both are registered rather than left to a
+reader. The record type: an arm E of sanctions hits and KP/IR registrations
+alone covers class 4 in none of its thirty runs, reads **LOW** there, and row 2
+stops it before row 5 as **E-DEGRADED-GENERALLY**. And the frequency: a
+non-sanctioned SY arm that produced accepted records in three runs or fewer
+covers class 4 at most three times of thirty, reads **LOW** there too, and row
+2 stops it in the same place. Only above that floor is the arm row 5's fifth
+conjunct is for the SY one, so that is where the two repairs interlock.
 Row 5's **fifth conjunct** is stated on that arm's own records: **arm E
 does not read LOW on class 3**, the interior review band `¬S ∧ ¬E ∧ T_low ≤ risk < T_high`, whose
 members are by definition scored *between* the two thresholds and are labelled

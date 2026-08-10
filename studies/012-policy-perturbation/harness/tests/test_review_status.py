@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
-"""Round 12, finding 9. `README.md`'s review-status block copies a count that
-another file holds, and a hand-copied count of a growing number goes stale:
-this block was flagged in rounds 5, 6, 8, 10 and 12, and `PREREG-REVIEW.md`'s
-own status line sat at "two rounds" through round 9 — it says so itself.
+"""Round 13, finding 1, and round 12's finding 9 kept in a home that can hold
+it. The count of review rounds is a value that moves once per round, and round
+12 put a copy of it in `README.md` — which `integrity.tree_manifest()` covers.
+Recording round N then changed a covered byte, §2.10 rule 3 answered that with
+round N+1, and recording THAT round was the same change again: a tree with this
+binding in it can never be frozen, because the act of writing down the round
+that would freeze it moves the digest that round attested.
 
-Nothing could ever catch it. `PREREG-REVIEW.md` is one of the two manifest
-carriers excluded inside `integrity.tree_manifest()`, so appending a round
-record moves no digest anywhere; the README's copy is inside the manifest but
-the fact that it copies is not. Only a test can see the two drift apart.
+So the count is not checked in a covered file — it is not written in one. The
+round headings in `PREREG-REVIEW.md` are the fact; `PREREG-REVIEW.md` is one of
+the two carriers `integrity.tree_manifest()` excludes; and every sentence that
+copies the count lives inside it, where appending a round moves no digest
+anywhere. `README.md` points at the record instead of copying it, and a lint
+here keeps the copy from coming back.
 
-So the count stops being maintained and starts being derived. The round
-headings in `PREREG-REVIEW.md` are the fact, and every status sentence is
-checked against them. This does more than detect staleness: it names the value
-the editing commit must write, which is the value AT THAT COMMIT — the commit
-that appends round N's record is the commit that must say N.
+What round 12 wanted is kept and costs nothing: the record's own status line is
+still diffed against the record's own round headings, both sides carrier bytes.
+Its status WORD is a registered set rather than a constant, because pinning it
+to `OPEN` put the only sayable status inside the manifest too — the record could
+not say it had closed without a covered edit, hence another round.
 """
 from __future__ import annotations
 import os
@@ -31,8 +36,22 @@ COUNT_WORDS = (
     "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
     "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
 )
-# The full-tree binding applies from round 3 on (§2.10 [D-20]).
-FIRST_POST_PORT_ROUND = 3
+# The record's status is the record's to set: OPEN while further rounds may be
+# commissioned, CLOSED once the final round has ended clean and the freeze binds
+# to its manifest. Registered as a set, checked as exactly one.
+STATUS_WORDS = ("OPEN", "CLOSED")
+# The idioms that carry a review-round count. README.md may contain none of
+# them; they are the four phrasings the covered copy has actually taken.
+REVIEW_COUNT_IDIOMS = (
+    r"rounds?\s+recorded",
+    r"rounds?\s+complete\b",
+    r"rounds\s+2\s*(?:-|–|through)\s*\d",
+    r"rounds\s+3\s*(?:-|–|through)\s*\d",
+)
+# The pointer that replaces the copy. Static: it names no round and no count, so
+# no review round can make it stale.
+README_POINTER = ("**Review status: [`PREREG-REVIEW.md`](PREREG-REVIEW.md) is "
+                  "the count.**")
 
 
 def _read(name):
@@ -57,34 +76,46 @@ def rounds_recorded():
     return len(numbers)
 
 
-def test_the_readme_review_status_equals_the_rounds_on_record():
-    total = rounds_recorded()
-    sentence = ("**Review status: %s rounds recorded, rounds 2-%d "
-                "cross-vendor.**" % (COUNT_WORDS[total], total))
-    assert sentence in _flowed(_read("README.md")), (
-        "README.md's review-status line is out of step with PREREG-REVIEW.md's "
-        "%d round headings. It must read exactly:\n%s" % (total, sentence))
-
-
-def test_the_readme_post_port_span_ends_at_the_last_round():
-    total = rounds_recorded()
-    span = ("rounds %d-%d over the complete post-port candidate tree"
-            % (FIRST_POST_PORT_ROUND, total))
-    assert span in _flowed(_read("README.md")), (
-        "README.md's post-port span is out of step; it must read: %s" % span)
-
-
 def test_the_records_own_status_line_equals_its_own_headings():
+    """Carrier against carrier: PREREG-REVIEW.md's status sentence against
+    PREREG-REVIEW.md's own round headings. Both sides are outside the manifest,
+    so this check is free — recording a round updates both and moves no
+    covered byte."""
     total = rounds_recorded()
-    sentence = ("**Status: OPEN. %s rounds complete, rounds 2 through %d "
-                "cross-vendor." % (COUNT_WORDS[total].capitalize(), total))
-    assert sentence in _flowed(_read("PREREG-REVIEW.md")), (
-        "PREREG-REVIEW.md's own status line is out of step with its own round "
-        "headings. It must read: %s" % sentence)
+    flowed = _flowed(_read("PREREG-REVIEW.md"))
+    wanted = ["**Status: %s. %s rounds complete, rounds 2 through %d "
+              "cross-vendor." % (word, COUNT_WORDS[total].capitalize(), total)
+              for word in STATUS_WORDS]
+    matched = [sentence for sentence in wanted if sentence in flowed]
+    assert len(matched) == 1, (
+        "PREREG-REVIEW.md's own status line is out of step with its own %d "
+        "round headings, or names an unregistered status. It must read exactly "
+        "one of:\n%s" % (total, "\n".join(wanted)))
+
+
+def test_the_readme_copies_no_review_count():
+    """README.md is inside the tree manifest. A review-round count in it makes
+    recording a round a covered-byte change, and §2.10 rule 3 answers a
+    covered-byte change with another review round — whose recording is the same
+    change again. The count may not live here at all."""
+    flowed = _flowed(_read("README.md"))
+    for pattern in REVIEW_COUNT_IDIOMS:
+        found = re.search(pattern, flowed, re.I)
+        assert found is None, (
+            "README.md is covered by the tree manifest and PREREG-REVIEW.md is "
+            "not, so the review-round count lives in the record and is pointed "
+            "at from here, never copied: %r (§2.10 rule 3, round 13 finding 1)"
+            % (found.group(0),))
+
+
+def test_the_readme_points_at_the_record():
+    assert README_POINTER in _flowed(_read("README.md")), (
+        "README.md must point at the review record where the count lives. It "
+        "must read: %s" % README_POINTER)
 
 
 def test_round_one_is_internal_and_round_two_is_the_first_cross_vendor():
-    """The literal 2 in both status sentences is a fact about the record, not a
+    """The literal 2 in the status sentence is a fact about the record, not a
     constant: round 1 is internal, round 2 is the first cross-vendor round."""
     headings = re.findall(r"^#{1,6} Round \d+ — .*$",
                           _read("PREREG-REVIEW.md"), re.M)

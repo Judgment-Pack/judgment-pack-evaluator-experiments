@@ -779,7 +779,7 @@ READING_TABLE = (
 # row's own condition asks for LOW on THREE of the four narrow numeric classes
 # — so the fourth is free to read HIGH, in every one of the thirty runs, on
 # both keyings at once. A zero was published of an arm that may have reached
-# thirty-six of its hundred and twenty narrow class-slots on each side. The
+# thirty-nine of its hundred and twenty narrow class-slots on each side. The
 # cell now states the BOUND the two LOW readings support, on the count the row
 # actually fires at: LOW bounds both keyings, it does not zero either. Row 3's
 # condition, `arm_d_outcome()` and the S10 intersection are again untouched;
@@ -4489,10 +4489,13 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     not the whole of it — `¬S ∧ country = SY`, so a sanctions hit or a KP/IR
     registration covers it in no run — so the degenerate arm is the narrower
     one: an arm E whose accepted records are all NON-SANCTIONED SY
-    registrations reads the ceiling, keeps class 4 clear of the LOW verdict row
-    2 fires on, and would have confirmed having exercised neither number. An
-    arm E of sanctions hits and KP/IR registrations alone reads LOW on class 4
-    and row 2 stops it one row earlier.
+    registrations reads the ceiling and, in AT LEAST FOUR of its thirty runs —
+    the not-LOW cut at `low_threshold(30) = 3`, so `k >= 4` — keeps class 4
+    clear of the LOW verdict row 2 fires on, and would have confirmed having
+    exercised neither number. The frequency premise is half the witness: an arm
+    E of sanctions hits and KP/IR registrations alone reads LOW on class 4 and
+    row 2 stops it one row earlier, and so does an SY arm that covered class 4
+    in three runs or fewer.
 
     Class 3 is the interior review band: its members are scored BETWEEN the two
     thresholds, so a record covered there is one the two numbers bracket and one
