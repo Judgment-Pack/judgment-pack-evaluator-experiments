@@ -338,6 +338,45 @@ def test_binding_reuse_catches_a_subject_call_under_an_inaction_commitment(cell_
     assert binding(cell)["code"] == "binding-reuse"
 
 
+def test_unbound_execution_catches_substituted_causation(cell_copy):
+    """Round 4's decisive construction: correct cardinality, wrong cause.
+
+    One bound approved call, one retained effect — but the effect was produced by a
+    different, unretained call with the same tuple. Counting alone cannot tell the two
+    histories apart, so the attestation names the staged call it came from and the
+    ceremony joins on that name.
+    """
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["effects"][0]["action"] = 99
+    dump_json(cell / "platform.json", platform)
+    assert binding(cell)["code"] == "unbound-execution"
+
+
+def test_unbound_execution_catches_a_changed_argument_governed_effect(cell_copy):
+    """The effect inventory is scoped by the governed tool and resource, not by the
+    derived arguments — round 4 found a changed-argument effect sat outside it."""
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    extra = json.loads(json.dumps(platform["effects"][0]))
+    extra["arguments"] = dict(extra["arguments"], requestType="something-else")
+    platform["effects"].append(extra)
+    dump_json(cell / "platform.json", platform)
+    assert binding(cell)["code"] == "unbound-execution"
+
+
+def test_binding_reuse_catches_an_orphan_governed_application(cell_copy):
+    """An approved governed ledger row with no staged call used to be invisible."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    orphan = json.loads(json.dumps(ledger[0]))
+    orphan["id"] = 2
+    orphan["action"] = 77
+    ledger.append(orphan)
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "binding-reuse"
+
+
 def test_unbound_execution_counts_surplus_effects(cell_copy):
     """A second attested effect must not hide behind one legitimate application."""
     cell = cell_copy("pos-baseline")

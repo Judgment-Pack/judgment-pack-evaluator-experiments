@@ -66,7 +66,7 @@ it does not.
 | Commitment carrier | none — no digest or signature over any record | none | **instrumentation**, wholly |
 | Simulation basis | not retained; `awaitDecision` is an inverted advisory hint | not retained (MCP hardcodes `awaitDecision: true`) | **removed from the schema** — unreachable for this connector (§4b) |
 | Connector outcome / retryability | not retained; the outer log has no failure state at all | yes (`error`, `retryable`), within a 100-record window | **instrumentation** at the outer layer |
-| External effect attestation | none — `approved` means an in-process call returned | first-party response only | **instrumentation**, wholly |
+| External effect attestation, **and the identity of the staged call that produced it** | none — `approved` means an in-process call returned | first-party response only | **instrumentation**, wholly; the call identity is what makes `unbound-execution` a causal join rather than a count |
 | Drain witness (stage-time rule set, pass identity, pass instant, applied ids, gatekeeper presence) | not retained; rules are hard-deleted with no tombstone (`overseer.ts:7762`) | n/a | **instrumentation, and self-asserted** — supplied by the same store under examination, so the verdict is consistency-with-the-witness, never historical lawfulness (§5) |
 | Record timestamps (`createdAt`, `appliedAt`) | **yes**, stock; `appliedAt` is stamped on approve *and* reject | n/a | the queue reconstruction; never read as evidence of application |
 | `autoApprovable`, action-kind tag/label | **yes**, stock, frozen in the persisted description | n/a | drain eligibility, read as-is |
@@ -350,10 +350,16 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
 12. `stage-revision-mismatch` — the revision recorded at staging is not the committed
     `boundResourceRevision`.
 13. `revision-drift` — the revision recorded at apply time is not the committed one.
-14. `unbound-execution` — a retained effect attestation matches the judged subject (same
-    resource, tool, and arguments digest) with no approved action record bound to this
-    commitment authorizing it, or more such effects are attested than there are approved
-    bound applications to account for them.
+14. `unbound-execution` — over the **governed inventory** (every attested effect on the tool
+    and resource the map governs, whatever arguments it carries): an effect exists with no
+    approved bound application; or more effects than approved bound applications; or an effect
+    whose named staged call is not the approved call bound to this commitment; or an effect on
+    the bound call whose arguments are not the authorized ones. The identity join is what makes
+    this a statement about *causation* rather than arithmetic — round 4 demonstrated that a
+    correct count can coexist with an effect produced by a different, unretained call with the
+    same tuple, so an attestation names the staged call that produced it (`gatekeeperId`,
+    `action`) and the ceremony joins on that name. That identity is instrumentation, like the
+    attestation itself: stock Cloudflare OS retains neither.
 15. `handoff-dropped` — the committed disposition carries handoff `requested` and `report.json`
     carries no handoff.
 16. `commit-overclaim` — `report.json` claims `effect-attested` while no matching effect

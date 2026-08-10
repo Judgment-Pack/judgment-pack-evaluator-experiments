@@ -303,20 +303,67 @@ class Context:
         return applied
 
     @property
-    def matching_effects(self):
-        """Effects attested against the judged subject (SPEC section 5)."""
-        if self.facts is None:
-            return []
-        expected = cmt.arguments_digest(cmt.action_arguments(self.facts))
+    def governed_effects(self):
+        """Every attested effect on the governed tool and resource.
+
+        Scoped like `subject_calls`, and for the same reason: round 4 found that
+        filtering effects by the exact derived arguments let a changed-argument effect
+        sit outside the inventory entirely. What the decision is answerable for is the
+        tool and resource the map governs; the arguments then say whether an effect is
+        *the judged action* or a different one on the same governed surface.
+        """
         matches = []
         for effect in self.platform.get("effects") or []:
             if effect.get("toolName") != cmt.ACTION_TOOL:
                 continue
             if effect.get("resourceUrl") != cmt.RESOURCE_URL:
                 continue
-            if cmt.arguments_digest(effect.get("arguments")) == expected:
-                matches.append(effect)
+            matches.append(effect)
         return matches
+
+    @property
+    def matching_effects(self):
+        """Governed effects whose arguments are the judged action's."""
+        if self.facts is None:
+            return []
+        expected = cmt.arguments_digest(cmt.action_arguments(self.facts))
+        return [
+            effect
+            for effect in self.governed_effects
+            if cmt.arguments_digest(effect.get("arguments")) == expected
+        ]
+
+    @property
+    def governed_applications(self):
+        """Every approved ledger action row on the governed tool and resource.
+
+        Counted from the LEDGER, not by joining through retained staged calls: round 4
+        found that an approved governed row with no staged call was simply invisible.
+        A row is governed when its own denormalized resource is the governed one and the
+        staged call it names — if any — is for the governed tool.
+        """
+        governed = []
+        by_identity = {
+            (call.get("gatekeeperId"), call.get("action")): call
+            for call in self.platform.get("stagedCalls") or []
+        }
+        for entry in self.ledger_actions:
+            if entry.get("state") != "approved":
+                continue
+            call = by_identity.get((entry.get("gatekeeperId"), entry.get("action")))
+            gatekeeper = self.gatekeeper(entry.get("gatekeeperId"))
+            resource = entry.get("resourceUrl") or (
+                gatekeeper.get("resourceUrl") if gatekeeper else None
+            )
+            if resource != cmt.RESOURCE_URL:
+                continue
+            if call is not None and call.get("toolName") != cmt.ACTION_TOOL:
+                continue
+            tag = ((entry.get("description") or {}).get("actionKind") or {}).get("tag")
+            if call is None and tag != cmt.action_kind_tag():
+                continue
+            governed.append(entry)
+        return governed
 
     def gatekeeper(self, gatekeeper_id):
         for candidate in self.platform.get("gatekeepers") or []:
@@ -711,18 +758,28 @@ def _check_binding_reuse(context):
             "authorizes %d; %d of them carry no or another commitment digest"
             % (len(subject), authorized, len(unbound)),
         )
-    applied_subject = [
-        record
-        for call in subject
-        for record in context.records_for(call)
-        if record.get("state") == "approved"
-    ]
-    if len(applied_subject) > authorized:
+    # Applications are inventoried from the ledger itself, so an approved governed row
+    # with no staged call cannot hide (round 4, blocker 1).
+    applications = context.governed_applications
+    if len(applications) > authorized:
         return (
             "binding-reuse",
-            "the store holds %d applied records against the judged subject where the "
-            "map authorizes %d" % (len(applied_subject), authorized),
+            "the store holds %d approved records on the governed resource where the map "
+            "authorizes %d" % (len(applications), authorized),
         )
+    if authorized and applications:
+        bound_ids = {
+            id(record) for _, record in context.applied_bound
+        }
+        orphans = [
+            record for record in applications if id(record) not in bound_ids
+        ]
+        if orphans:
+            return (
+                "binding-reuse",
+                "an approved record on the governed resource is not the one bound to "
+                "this commitment (ledger id %s)" % orphans[0].get("id"),
+            )
     return None
 
 
@@ -828,22 +885,44 @@ def _check_unbound_execution(context):
     Round 2's blocker: this returned success as soon as *any* legitimate application
     existed, so a surplus effect could hide behind it.
     """
-    effects = context.matching_effects
+    effects = context.governed_effects
     if not effects:
         return None
     authorized = len(context.applied_bound) if context.action is not None else 0
     if authorized == 0:
         return (
             "unbound-execution",
-            "an effect matching the judged subject is attested with no approved action "
+            "an effect on the governed resource is attested with no approved action "
             "record bound to this commitment",
         )
     if len(effects) > authorized:
         return (
             "unbound-execution",
-            "%d effects matching the judged subject are attested where %d approved "
-            "bound applications authorize them" % (len(effects), authorized),
+            "%d effects on the governed resource are attested where %d approved bound "
+            "applications authorize them" % (len(effects), authorized),
         )
+    # Identity, not arithmetic. Round 4 showed that matching counts alone cannot tell an
+    # effect caused by the bound call from one caused by an unretained call with the same
+    # tuple. A retaining deployment records which staged call produced the effect, so the
+    # attestation names it and the ceremony joins on that name rather than inferring it.
+    bound = {(call.get("gatekeeperId"), call.get("action")) for call, _ in context.applied_bound}
+    for effect in effects:
+        identity = (effect.get("gatekeeperId"), effect.get("action"))
+        if identity not in bound:
+            return (
+                "unbound-execution",
+                "an attested effect names staged call %r, which is not the approved call "
+                "bound to this commitment" % (identity,),
+            )
+        digest = cmt.arguments_digest(effect.get("arguments"))
+        if context.facts is not None and digest != cmt.arguments_digest(
+            cmt.action_arguments(context.facts)
+        ):
+            return (
+                "unbound-execution",
+                "an attested effect on the bound call carries arguments that are not the "
+                "authorized ones",
+            )
     return None
 
 

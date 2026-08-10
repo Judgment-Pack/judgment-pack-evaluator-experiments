@@ -264,9 +264,18 @@ class Timeline:
         self.apply_revisions["%s:%s" % (gatekeeper_id, action_key)] = revision
 
     def attest_effect(self, arguments, *, resource_url=cmt.RESOURCE_URL,
-                      tool_name=cmt.ACTION_TOOL):
+                      tool_name=cmt.ACTION_TOOL, gatekeeper_id=1, action_key=11):
+        # An attestation names the staged call it came from. Round 4: without a call
+        # identity the ceremony could only count effects, so a correct count could
+        # coexist with an effect produced by a different, unretained call.
         self.effects.append(
-            {"resourceUrl": resource_url, "toolName": tool_name, "arguments": arguments}
+            {
+                "resourceUrl": resource_url,
+                "toolName": tool_name,
+                "gatekeeperId": gatekeeper_id,
+                "action": action_key,
+                "arguments": arguments,
+            }
         )
 
     def platform_document(self):
@@ -504,7 +513,7 @@ class Builder:
         if auto:
             timeline.witness(at=record["appliedAt"], applied_ids=[1])
         if attest:
-            timeline.attest_effect(cmt.action_arguments(built["facts"]))
+            timeline.attest_effect(cmt.action_arguments(built["facts"]), action_key=11)
         return timeline
 
     def inaction_cell(self, case_key, *, report_mutator=None, envelope_bytes=None):

@@ -125,3 +125,42 @@ closed or explicitly declared open with reasons. The study does **not** freeze o
 three consecutive DO-NOT-FREEZE verdicts, and two limitations (unique execution lineage; the
 connector's real construction path) that a fourth round should decide on before anything is
 registered.
+
+
+## Round 4 — DO-NOT-FREEZE
+
+Reviewer: same configuration, static review only. Study tree reviewed at commit `de872dc`.
+Verbatim review: [`reviews/round-4/REVIEW.md`](reviews/round-4/REVIEW.md). Verdict:
+**DO-NOT-FREEZE**: four blockers, two majors, and a decision on each of the two limitations
+round 3 left open.
+
+Round 4 confirmed that R3-4's normative paragraph landed as promised and that the primary
+`describeCall` reconstruction now supplies the right *kinds* of inputs. Its remaining findings
+are narrower and sharper than any previous round's — the sign of convergence, not of a study
+that is nearly done.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R4-1 | **Blocker.** The governed-action inventory is not closed: effects were still filtered by the exact derived arguments, and approved applications were counted only by joining through retained staged calls, so a changed-argument effect and an orphan approved row were both invisible. | **Fixed.** Effects and applications now share `subject_calls`' scope — the tool and resource the map governs. Applications are inventoried from the ledger itself, so an approved governed row with no staged call is counted and, under an executable disposition, an approved governed row that is not the bound one fails. Three regression tests construct the orphan row, the changed-argument effect, and the surplus effect. |
+| R4-2 | **Blocker.** Lifecycle and report predicates remain source-incomplete: lifecycle tuples are validated only inside an engaged drain replay, several impossible ledger shapes are accepted, witnesses are neither schema-validated nor typechecked, and `m02` claims a retained private connector row it does not retain. | **Open.** The reviewer's table of nine accepted shapes is correct and is not disputed. Fixing it properly means validating lifecycle tuples globally in the binding layer (a new verdict code), schema-validating the witness, and either retaining the real private connector row or withdrawing the source-state reachability claim for the connector-outcome enum. Not attempted here rather than half-done. |
+| R4-3 | **Blocker.** Locked and holdout constructions contain incidental impossible fields: `b01`/`h03` retain prose generated from canonical arguments while staging changed ones; `b04`/`h04` use a second endpoint the Portal cannot host; `o01` hand-writes an observation no Portal path emits; rejected obstruction calls carry `committed`; manual approvals omit `autoApproved:false`. | **Open.** All correct. `h03` and `h04` being unfaithful to the authored prose is the most serious of these, because the holdout is the study's only prospective stratum, and it must be fixed before any registered run. |
+| R4-4 | **Blocker.** The declared lineage limitation contradicts governing claims: correct cardinality can coexist with substituted causation. | **Fixed, by adding the identity rather than the disclaimer.** Effect attestations are modeled instrumentation whose schema the study controls, so an attestation now names the staged call that produced it (`gatekeeperId`, `action`) and `unbound-execution` joins on that name. The reviewer's exact construction — one bound approved call, one retained effect produced by a different unretained call with the same tuple — now fails, and a regression test constructs it. SPEC §5 and the provenance table say the identity is instrumentation and why it exists. |
+| R4-5 | **Major.** Holdout isolation is narrower than advertised: artifact loading, pinning, manifest validity and publication are shared, so a malformed holdout artifact can suppress R1 publication. | **Open, and the reviewer's framing is accepted.** Treating those as attempt-scope preconditions is defensible, but the guarantee must then be stated as "holdout cell outcomes do not enter R1's arithmetic", not "nothing in the holdout can change R1". The wording correction is pending with R4-2. |
+| R4-6 | **Major.** Evidence, provenance, pin and typecheck absolutes remain false in several documents. | **Open.** A sweep of the remaining absolutes is pending. |
+
+### The two limitations round 3 left open
+
+- **No unique call→effect lineage** — the reviewer judged this **(iii), fatal as written**. It is
+  now closed by construction rather than by non-claim (R4-4).
+- **Fixtures bypass the connector's real path** — the reviewer judged this **(ii), must be fixed**,
+  while accepting that exact mechanical reconstruction can suffice in principle because
+  `session.ts` passes its inputs transparently to a pure `describeCall`. What remains is to
+  register the exact deployment inputs (portal name, upstream display name, workspace title),
+  validate scope and classification per call, and compare the whole generated description. Open
+  (R4-3), and the governing documents must say "synthetically reconstructed from registered
+  inputs" rather than "actually emits".
+
+**Standing after four rounds.** Rounds 1–3's blockers are closed. Of round 4's four, two are
+closed — including the one the reviewer called fatal — and two are open with precise remedies.
+The study does not freeze on this record, and should not: a fifth round should confirm R4-1 and
+R4-4 and re-examine R4-2 and R4-3 once addressed.
