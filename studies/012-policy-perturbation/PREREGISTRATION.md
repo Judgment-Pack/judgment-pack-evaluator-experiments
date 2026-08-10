@@ -249,7 +249,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `db4da9cdab652b0c4728ca6a3edc46f76806285983bcfaa07db1fb89bbda20a3` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `14fd67160751e050c7a0275d2240490262cc8af24124f0724bc0aabf82679b72` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -286,7 +286,7 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee` | §2.7 |
 | `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `c092a1fe301c0aafe35d24ee8eab632045440aee9df5b763c003d07d1fdeae9d` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
 | `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `a6c948951567caebdddb211161c89235ec08d113e63dec89c8a2e168908a7211` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `5d33c28b04ed8cf7806850d3835792cb04b75a0fa2c06bf8f8ed58f091a66439` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `131874b014bd5e0107931b7dabd0f2e59aa3e1da82c0ddc91b097cff7515ed95` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -1141,8 +1141,9 @@ arm, or a different arm E, is a separate study with its own registration.
 Mechanically, as in 011: the driver cannot compute coverage; the scorer refuses
 unless the batch is terminal; the driver refuses to create any slot in any arm
 once `RESULTS.json` exists; no invocation can plan a slot past global index
-150; and the registered scoring command takes the batch root and an optional
-record-emission directory and refuses every other argument.
+150; and the registered scoring command takes **no population root** ([D-23]):
+it derives the canonical `arms/` root from the harness's own location and
+refuses every argument but an optional record-emission directory.
 
 ### 2.9 What each slot retains
 
@@ -1578,8 +1579,12 @@ evaluator runs; no pack is evaluated; jpack never runs.
 - **A(r)** — the run's accepted records.
 - **H(r)** — records in A whose recorded `decision.outcome` equals
   `verdict(record.vendor, T_low_X, T_high_X)` for the run's arm X.
-- **Q(r)** — A \ H: records reaching a class with their own label wrong.
-  Retained as data, never dropped, never counted in H.
+- **Q(r)** — A \ H: **every** accepted record whose own label is wrong,
+  whether or not it satisfies any class predicate. Retained as data, never
+  dropped, never counted in H. The class-restricted quantity — the mislabelled
+  records that *do* reach a class — is §4.6's S2, not this set, so §4.6's S5
+  ceiling `|Q| = 0` is over **all** of A and one mislabelled record in no class
+  breaks it.
 - **class_i(r)** — the records in A satisfying arm X's `FAMILY.json` mutation
   *i*'s predicate under the ported `predicate_matches`.
 
@@ -1923,11 +1928,19 @@ mirror assigns it. It does **not** say the author derived either threshold.
 then at the embargo clause **before it reads `riskScore`**, so a record with a
 sanctions hit or a registration in KP/IR/SY is labelled correctly at every
 threshold pair, and a record far below both thresholds is labelled correctly at
-every pair above it. Class 4's predicate is exactly the first kind, so an arm E
-whose accepted records are all sanctions or embargo cases reads `|Q| = 0`,
-keeps class 4 clear of the **LOW** verdict row 2 fires on, places nothing in
+every pair above it. Class 4's predicate is *one* case of the first kind and
+not the whole of it — `¬S ∧ country = SY` (§2.3) needs a **non-sanctioned SY**
+record, and a sanctions hit or a KP or IR registration matches it in no run — so
+an arm E whose accepted records are all **non-sanctioned SY registrations**
+reads `|Q| = 0`, covers class 4 in every run it produced an accepted record in
+and so keeps it clear of the **LOW** verdict row 2 fires on, places nothing in
 classes 0, 1, 2, 3 and 5, and would reach §5.3's row 5 having exercised neither
-number. Row 5's **fifth conjunct** is stated on that arm's own records: **arm E
+number. The narrower premise is necessary and is registered here rather than
+left to a reader: an arm E of sanctions hits and KP/IR registrations alone
+covers class 4 in none of its thirty runs, reads **LOW** there, and row 2 stops
+it before row 5 as **E-DEGRADED-GENERALLY** — so the two repairs interlock, and
+the arm row 5's fifth conjunct is for is the SY one.
+Row 5's **fifth conjunct** is stated on that arm's own records: **arm E
 does not read LOW on class 3**, the interior review band `¬S ∧ ¬E ∧ T_low ≤ risk < T_high`, whose
 members are by definition scored *between* the two thresholds and are labelled
 by a mirror that has passed the sanctions and embargo clauses and read
@@ -2026,9 +2039,11 @@ of §4.3 for that arm's own rate, written `L_{i,X}` and `U_{i,X}`.
 | otherwise | **MID** |
 
 The rule applies unchanged to the **primary ITT rate** (§4.2, denominator N),
-to the **S1 raw-placement rate** (§4.6, denominator N), and to the
-**per-protocol rate** (S11, denominator `V_X`). Every level verdict in this
-file names which of the three it is a verdict on.
+to the **S1 raw-placement rate** (§4.6, denominator N), to the
+**per-protocol rate** (S11, denominator `V_X`), and to the **S10 old-edge
+cross-scored rate** (§4.6 S10, denominator N) — a fourth level endpoint,
+counted as its own family in §4's verdict surface and read by §5.3 (ii). Every
+level verdict in this file names which of the four it is a verdict on.
 
 The two cuts are symmetric about 0.5 and, at n = 30, land at: HIGH iff
 `k ≥ 27` (the arm missed at most 3 of 30), LOW iff `k ≤ 3` (the arm reached the
@@ -2295,10 +2310,13 @@ case the first outcome's exclusion names.
 > **The third outcome, registered:** if D's **new-keyed** verdicts are LOW on
 > the narrow numeric classes **and its old-keyed verdicts are LOW too**, that
 > is neither tracking nor old-edge preference. It is a **general degradation** —
-> no correctly-labelled coverage at D's own (45, 72) and no placement at arm
-> A's (40, 70) — and it is **published as one**, not read as evidence for or
-> against R1. **It does not say the records went nowhere** (round 11, finding 8;
-> disclosed in round 10 and decided here). The two keyings are asymmetric by
+> correctly-labelled coverage at D's own (45, 72) and raw placement at arm A's
+> (40, 70) read **LOW on at least 3 of the four narrow numeric classes on each
+> keying, each of those classes reached at most 3 times of 30 and the fourth
+> free to read HIGH: LOW bounds both, it does not zero either** — and it is
+> **published as one**, not read as evidence for or against R1. **It does not
+> say the records went nowhere** (round 11, finding 8; the bound restated round
+> 12, finding 2; disclosed in round 10 and decided in 11). The two keyings are
 > registration: the new-keyed side is the labelled **primary**, so an arm D that
 > placed its records correctly at its own pair and mislabelled them reads LOW on
 > both sides and reaches this row. **D's own S1 placement rates, published per
@@ -2396,7 +2414,7 @@ B TRACKING on ≥ 5 of 6 **and** arm C TRACKING on ≥ 5 of 6.
 | # | condition | outcome for R1 | published as |
 | --- | --- | --- | --- |
 | 1 | the batch is incomplete (§2.8), or any arm holds fewer than 30 scheduled slots, or a slot manifest or the ledger chain fails to verify (§2.9) | not adjudicated | **UNRESOLVED-BY-DESIGN** — descriptive publication only, no contrast reported |
-| 2 | arm E reads **LOW** on **class 4** | not adjudicated | **E-DEGRADED-GENERALLY** — the denamed text degraded authoring generally; every other reading of arm E is withdrawn |
+| 2 | arm E reads **LOW** on **class 4** | not adjudicated | **E-DEGRADED-GENERALLY** — every other reading of arm E is withdrawn, which arm E's own level establishes whatever arm A read; the name's attribution, that the denamed text degraded authoring generally, is a comparison and is established only where arm A reads **HIGH** on class 4, so the name states the reading this row makes available and not a proposition the row establishes |
 | 3 | `gate` is false | not adjudicated | **CONTROLS-FAILED** — arm E's verdicts published in full, with the weaker reading named: paraphrase-driven if B fell short, order-driven if C |
 | 4 | `nH ≥ 3` | **unsupported** | **R1-UNSUPPORTED** — §8's correction fires |
 | 5 | `nP ≥ 3` **and arm E's S5 labels are at the ceiling (§4.6) and arm E does not read LOW on class 3** | **confirmed for this instance** | **CONFIRMED** |

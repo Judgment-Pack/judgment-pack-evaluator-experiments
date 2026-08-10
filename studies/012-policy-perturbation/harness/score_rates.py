@@ -34,7 +34,7 @@ else:
      equality, the hash chain and the per-slot manifests of §2.9, and the
      complete-150 rule.
   4. **The §5 verdicts are computed here**, from the integers this file just
-     wrote, by the registered rules: §5.1's level verdicts on three endpoints,
+     wrote, by the registered rules: §5.1's level verdicts on four endpoints,
      §5.2's contrast, placement-contrast and COLLAPSE-DISJOINT verdicts, and
      §5.3's ordered decision table. The tables are module constants that mirror
      the preregistration's own tables member for member, because a harness test
@@ -533,11 +533,11 @@ LEVEL_TABLE = (
     ("otherwise, U_{i,X} <= 0.30", "LOW"),
     ("otherwise", "MID"),
 )
-# §5.1 registers THREE endpoints the level rule applies to unchanged, and every
-# level verdict names which one it is a verdict on. §4.6 S10 adds a fourth —
-# "level verdicts under S10 old-edge cross-scoring, up to 5 x 6 = 30" is one of
-# §4's counted verdict families — under the same rule, so it is named here
-# rather than left as an unlabelled column.
+# §5.1 registers FOUR endpoints the level rule applies to unchanged — the
+# primary ITT rate, S1's raw placement rate, S11's per-protocol rate and
+# §4.6 S10's old-edge cross-scored rate, "level verdicts under S10 old-edge
+# cross-scoring, up to 5 x 6 = 30", one of §4's counted verdict families —
+# and every level verdict names which one it is a verdict on.
 LEVEL_ENDPOINTS = ("primary", "placement", "perProtocol", "oldEdge")
 # §5.1: below V_X = 11 a perfect arm cannot read HIGH (L = 0.6915 at V = 10,
 # 0.7151 at V = 11), so the per-protocol verdicts are UNRESOLVED-BY-DESIGN
@@ -602,8 +602,12 @@ DECISION_TABLE = (
      "condition": "arm E reads LOW on class 4",
      "outcome": "not adjudicated",
      "publishedAs": "E-DEGRADED-GENERALLY",
-     "gloss": "the denamed text degraded authoring generally; every other "
-              "reading of arm E is withdrawn"},
+     "gloss": "every other reading of arm E is withdrawn, which arm E's own "
+              "level establishes whatever arm A read; the name's attribution, "
+              "that the denamed text degraded authoring generally, is a "
+              "comparison and is established only where arm A reads HIGH on "
+              "class 4, so the name states the reading this row makes "
+              "available and not a proposition the row establishes"},
     {"row": 3,
      "condition": "`gate` is false",
      "outcome": "not adjudicated",
@@ -768,6 +772,19 @@ READING_TABLE = (
 # silent about a D that reached its own pair too, which row 1's exclusion
 # already catches.
 #
+# Round 12, finding 2: the same cell said the QUANTITY wrong as well, and that
+# half is round 10 finding 2's defect on arm D's table. Round 11 corrected the
+# keying and carried "no coverage" and "no placement" through into the new
+# words, but §5.1 registers LOW as `k <= 3` at n = 30 and not `k = 0`, and the
+# row's own condition asks for LOW on THREE of the four narrow numeric classes
+# — so the fourth is free to read HIGH, in every one of the thirty runs, on
+# both keyings at once. A zero was published of an arm that may have reached
+# thirty-six of its hundred and twenty narrow class-slots on each side. The
+# cell now states the BOUND the two LOW readings support, on the count the row
+# actually fires at: LOW bounds both keyings, it does not zero either. Row 3's
+# condition, `arm_d_outcome()` and the S10 intersection are again untouched;
+# only the sentence beside them moved.
+#
 # Two counts the file does not spell, and where each comes from. §5.3 (ii)
 # states its conditions over "the narrow numeric classes" with no count —
 # round 2 recorded that gap and the decision table it built to close it covers
@@ -820,13 +837,17 @@ D_OUTCOME_TABLE = (
                   "verdicts are LOW on at least %d of them"
                   % (D_NARROW_MINIMUM, D_NARROW_MINIMUM),
      "publishedAs": "GENERAL-DEGRADATION",
-     "gloss": "no correctly-labelled coverage at D's own pair and no placement "
-              "at the old pair; published as one, and not read as evidence for "
-              "or against R1. It does not say the records went nowhere: the "
-              "new-keyed side is the labelled primary, so a D that placed "
-              "correctly at its own pair and mislabelled reads LOW on both "
-              "sides — D's own S1 placement rates are what separate that case "
-              "(round 11, finding 8)",
+     "gloss": "correctly-labelled coverage at D's own pair and raw placement "
+              "at the old pair read LOW on at least %d of the four narrow "
+              "numeric classes on each keying, each of those classes reached "
+              "at most 3 times of 30 and the fourth free to read HIGH: LOW "
+              "bounds both, it does not zero either; published as one, and "
+              "not read as evidence for or against R1. It does not say the "
+              "records went nowhere: the new-keyed side is the labelled "
+              "primary, so a D that placed correctly at its own pair and "
+              "mislabelled reads LOW on both sides — D's own S1 placement "
+              "rates are what separate that case (round 11, finding 8; the "
+              "bound restated round 12, finding 2)" % D_NARROW_MINIMUM,
      "explanations": ()},
     {"row": 4,
      "condition": "(else)",
@@ -4464,10 +4485,16 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     conjunct of the five-conjunct rule this function computes. `|Q| = 0` cannot
     see whether any accepted record exercised a threshold:
     `policy_mirror.verdict()` returns at the sanctions and embargo clauses
-    before it reads `riskScore`, so an arm E whose accepted records are all such
-    records reads the ceiling, keeps class 4 clear of the LOW verdict row 2
-    fires on, and would have confirmed having exercised neither number. Class 3
-    is the interior review band: its members are scored BETWEEN the two
+    before it reads `riskScore`. `EMBARGO_CLASS` is one case of that kind and
+    not the whole of it — `¬S ∧ country = SY`, so a sanctions hit or a KP/IR
+    registration covers it in no run — so the degenerate arm is the narrower
+    one: an arm E whose accepted records are all NON-SANCTIONED SY
+    registrations reads the ceiling, keeps class 4 clear of the LOW verdict row
+    2 fires on, and would have confirmed having exercised neither number. An
+    arm E of sanctions hits and KP/IR registrations alone reads LOW on class 4
+    and row 2 stops it one row earlier.
+
+    Class 3 is the interior review band: its members are scored BETWEEN the two
     thresholds, so a record covered there is one the two numbers bracket and one
     the mirror labelled after reading `riskScore`, and an arm that covers none
     of it has produced no such record. It establishes no comprehension, which is

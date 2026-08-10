@@ -1481,6 +1481,18 @@ def test_the_placement_contrast_does_not_imply_the_primary_one(arm_blocks, pins)
 D_NARROW_COLLAPSE = [(0, 0), (0, 0), (0, 0), (30, 30), (30, 30), (0, 0)]
 D_OLD_EDGES_HELD = [30, 30, 30, 30, 30, 30]
 D_OLD_EDGES_GONE = [0, 0, 0, 30, 30, 0]
+# Round 12, finding 2: arm D's missing equivalent of
+# `PLACEMENT_COLLAPSE_AT_THE_CUT`. Every row-3 fixture above sits at k = 0 on
+# all four narrow numeric classes on both keyings, which is why no test ever
+# contradicted the gloss's "no coverage … and no placement". Here the row fires
+# at §5.1's cut instead of under it — classes 0, 1 and 2 reached three times of
+# thirty, `low_threshold(30)` exactly — and with narrow class 5 reached in
+# EVERY run on both keyings, which the row's three-of-four minimum permits. The
+# cell has to be true of this arm too: LOW bounds both keyings, it does not
+# zero either.
+D_NARROW_COLLAPSE_AT_THE_CUT = [(3, 3), (3, 3), (3, 3), (30, 30), (30, 30),
+                                (30, 30)]
+D_OLD_EDGES_AT_THE_CUT = [3, 3, 3, 30, 30, 30]
 # Round 4, finding 6: the registered condition for the first outcome is
 # new-keyed HIGH on the narrow numeric classes with the old-keyed levels NOT
 # HIGH-patterned — it says nothing about the non-narrow classes. Arm D HIGH on
@@ -1507,7 +1519,8 @@ D_SCENARIOS = (
      "counts": {"newKeyedHigh": 0, "newKeyedLow": 4, "oldKeyedHigh": 4,
                 "oldKeyedLow": 0, "tracking": 2, "narrowMinimum": 3,
                 "classes": 6}},
-    {"why": "no coverage at either pair: a general degradation, published as one",
+    {"why": "no coverage at either pair, at k = 0 on all four narrow numeric "
+            "classes: a general degradation, published as one",
      "pattern": D_NARROW_COLLAPSE, "oldEdge": D_OLD_EDGES_GONE,
      "publishedAs": "GENERAL-DEGRADATION",
      "counts": {"newKeyedHigh": 0, "newKeyedLow": 4, "oldKeyedHigh": 0,
@@ -1525,6 +1538,23 @@ D_SCENARIOS = (
      "publishedAs": "GENERAL-DEGRADATION",
      "counts": {"newKeyedHigh": 0, "newKeyedLow": 4, "oldKeyedHigh": 0,
                 "oldKeyedLow": 4, "tracking": 2, "narrowMinimum": 3,
+                "classes": 6}},
+    # Round 12, finding 2: row 3 a THIRD time, at §5.1's cut rather than under
+    # it and on three of the four narrow classes rather than all four. The two
+    # scenarios above are both at k = 0 everywhere, so the row's gloss could
+    # say "no coverage" and "no placement" for eleven rounds without a fixture
+    # contradicting it. This arm reaches each of classes 0, 1 and 2 three times
+    # of thirty on both keyings and class 5 in every run on both, and the row
+    # still fires — which is the arm the cell's bound has to be true of.
+    {"why": "row 3 at §5.1's cut and on three of the four narrow classes: "
+            "classes 0, 1 and 2 reached three times of thirty on both keyings "
+            "and class 5 reached in every run on both, so the row fires while "
+            "one narrow class reads HIGH on each side",
+     "pattern": D_NARROW_COLLAPSE_AT_THE_CUT,
+     "oldEdge": D_OLD_EDGES_AT_THE_CUT,
+     "publishedAs": "GENERAL-DEGRADATION",
+     "counts": {"newKeyedHigh": 1, "newKeyedLow": 3, "oldKeyedHigh": 1,
+                "oldKeyedLow": 3, "tracking": 3, "narrowMinimum": 3,
                 "classes": 6}},
     # The case the old-keyed exclusion exists for, and the one the earlier code
     # published as the first outcome: arm D tracks arm A on all six classes AND
@@ -1606,6 +1636,22 @@ def test_arm_ds_registered_outcomes_all_fire_at_known_integers(scenario,
         for index in score_rates.NARROW_NUMERIC_CLASSES:
             assert levels["placement"][index] == "HIGH", index
             assert levels["primary"][index] == "LOW", index
+    # Round 12, finding 2: the same row at §5.1's cut, and what the gloss may
+    # therefore not call a zero. Three narrow classes are reached three times of
+    # thirty on each keying — `low_threshold(30)`, so LOW and not absent — and
+    # the fourth is reached in every run on both, which the three-of-four
+    # minimum allows. Both halves of the withdrawn "no coverage … no placement"
+    # are false of this arm, and the row fires on it all the same.
+    if scenario["pattern"] is D_NARROW_COLLAPSE_AT_THE_CUT:
+        levels = verdicts["levels"]["D"]
+        cut = score_rates.low_threshold(pins["batch"]["n"])
+        assert cut == 3
+        for index in (0, 1, 2):
+            assert levels["primary"][index] == "LOW", index
+            assert levels["oldEdge"][index] == "LOW", index
+        assert levels["primary"][5] == "HIGH"
+        assert levels["oldEdge"][5] == "HIGH"
+        assert outcome["row"] == 3
     # Arm D's outcome adjudicates nothing about R1: the decision-table row is
     # what it would have been without arm D in the batch at all.
     assert verdicts["decisionRow"]["row"] == 4        # arm E is PERFECT here

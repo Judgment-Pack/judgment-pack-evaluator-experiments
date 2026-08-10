@@ -9,10 +9,10 @@ The preregistration is a draft until it is frozen by merge after the final
 cross-vendor review round ends clean; it governs thereafter, and
 `DEVIATIONS.md` records every departure from it.
 
-**Review status: ten rounds recorded, rounds 2-10 cross-vendor.**
+**Review status: twelve rounds recorded, rounds 2-12 cross-vendor.**
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md) records them all — round 1 internal;
 round 2 the first cross-vendor round over the specification and arm texts;
-rounds 3-10 over the complete post-port candidate tree, each with every
+rounds 3-12 over the complete post-port candidate tree, each with every
 finding dispositioned by the maintainer and the dispositions implemented
 before the next round. The final round has not yet ended clean; the freeze
 binds to the manifest of the round that does.

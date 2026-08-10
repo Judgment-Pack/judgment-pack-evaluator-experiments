@@ -119,13 +119,23 @@ def test_the_level_table_is_the_scorers_level_table(preregistration):
     assert registered[2] == ("otherwise", "MID")
 
 
-def test_the_level_rule_applies_to_every_endpoint_it_is_registered_over():
+def test_the_level_rule_applies_to_every_endpoint_it_is_registered_over(
+        preregistration):
     """§5.1: the rule applies unchanged to the primary ITT rate, to the S1
-    raw-placement rate and to the per-protocol rate, and §4.6 S10 counts a
-    fourth family of level verdicts under the same rule. Every level verdict
-    names which of them it is a verdict on."""
+    raw-placement rate, to the per-protocol rate and to §4.6 S10's old-edge
+    cross-scored rate. Every level verdict names which of them it is a verdict
+    on.
+
+    Round 12, finding 6: §5.1 said THREE and this tuple has always held four,
+    for ten rounds, with nothing diffing the prose against the tuple. The count
+    is asserted on both sides here, because that is the only thing that stops
+    the pair drifting apart again.
+    """
     assert score_rates.LEVEL_ENDPOINTS == ("primary", "placement",
                                            "perProtocol", "oldEdge")
+    flat = " ".join(preregistration.split())
+    assert "names which of the four it is a verdict on" in flat
+    assert len(score_rates.LEVEL_ENDPOINTS) == 4
 
 
 def test_the_level_verdict_reads_bounds_and_not_observed_coverage():
@@ -484,6 +494,38 @@ WITHDRAWN_D_PLACEMENT_CLAIM = ("placed records at neither threshold pair",
 # gloss travels into `RATES.md` and `RESULTS.json`, the registered blockquote
 # travels nowhere, and a lint over the negative alone would let them drift.
 D_PLACEMENT_RESIDUAL = "It does not say the records went nowhere"
+# Round 12, finding 2: the same cell's other half, and the third round of one
+# defect. §5.1 registers LOW as `k <= 3` at n = 30 and the row fires at LOW on
+# THREE of the four narrow numeric classes, so "no coverage" and "no placement"
+# were a zero published of an arm that may have reached each of three classes
+# three times of thirty and the fourth in every run, on both keyings at once.
+# The lint is POSITIVE and derived from the two cuts, because rounds 10 and 11
+# both answered this family with a phrase blacklist and a replacement was
+# written past each of them — the bound has to be asserted, not merely the
+# absence of a word.
+D_ROW_THREE_BOUND = (
+    "LOW on at least %d of the four narrow numeric classes on each keying, "
+    "each of those classes reached at most %d times of 30 and the fourth "
+    "free to read HIGH: LOW bounds both, it does not zero either"
+    % (score_rates.D_NARROW_MINIMUM, score_rates.low_threshold(30)))
+# …with the two withdrawn zeroes kept beside it, as the negative half.
+WITHDRAWN_D_ZERO_CLAIM = ("no correctly-labelled coverage", "no placement at")
+# Round 12, finding 1: §5.3's row 2 publishes a NAME that is a past-tense
+# clause, and its gloss asserted that clause unconditionally one sentence after
+# the `why` that disconfirms it — "arm A reads MID there. the denamed text
+# degraded authoring generally". §5.3 (iv) registers that only the WITHDRAWAL
+# survives an unresolved baseline and the ATTRIBUTION does not, and that
+# paragraph travels nowhere while the gloss travels into `RESULTS.json` and
+# `RATES.md`. The gloss now carries the condition, in §5.3 (iv)'s own words and
+# as a NECESSARY one, so it adds no claim the registration does not already
+# make; this is round 11 finding 4's remedy applied to the table round 11 did
+# not sweep.
+E_ATTRIBUTION_RESIDUAL = "is established only where arm A reads HIGH on class 4"
+# The §5.3 (iv) sentence the gloss above is the published copy of. It was the
+# load-bearing prose of a registered override with no lint at all, unlike
+# `CEILING_LIMIT` and `NAMING_LIMIT` one section over.
+E_WITHDRAWAL_LIMIT = ("the withdrawal is a statement about arm E alone and is "
+                      "established whatever arm A read")
 
 
 def test_the_reading_cells_claim_no_mental_state(preregistration):
@@ -604,6 +646,48 @@ def test_the_label_collapse_cells_name_the_class_they_hold_of(preregistration):
     assert "at least one" in registered_gloss and floor in registered_gloss
     assert "at least one" in placement and floor in placement
     assert "at least one" in registered_reading
+
+
+def test_row_twos_gloss_does_not_assert_the_attribution(preregistration):
+    """Round 12, finding 1, and it is round 11's finding 4 one table over.
+
+    Round 11 made row 2 a LEVEL test on arm E and named arm A's own class-4
+    level in the published `why`, which is right and is not what this is about.
+    What did not follow is the published SENTENCE. `published()` copies the
+    gloss verbatim on every firing and `render_markdown()` prints it straight
+    after the `why`, so `RATES.md` read "arm E reads LOW on class 4, and arm A
+    reads MID there. the denamed text degraded authoring generally" — the fact
+    that disconfirms the attribution sitting beside it as an uninterpreted
+    datum. §5.3 (iv) registers the split (the withdrawal survives an unresolved
+    baseline, the attribution does not) in a blockquote that reaches no
+    published byte, and its own closing sentence — "nothing is asserted here
+    that the level cannot carry" — was false while the gloss stood.
+
+    The NAME is kept, as `LABEL-COLLAPSE-ONLY` was kept in the same table one
+    round earlier: it is registered pre-data, three scenarios key on it and ten
+    rounds of review prose describe the file by it. The condition travels in
+    the gloss instead, stated as a NECESSARY one so it asserts no sufficiency
+    the registration does not.
+
+    Linted on BOTH sides, and on §5.3 (iv) itself, because the parity diff asks
+    only that the two sides agree.
+    """
+    row = score_rates.DECISION_TABLE[1]
+    assert row["publishedAs"] == "E-DEGRADED-GENERALLY"
+    assert row["outcome"] == "not adjudicated"
+    assert E_ATTRIBUTION_RESIDUAL in row["gloss"], (
+        "row 2's gloss asserts the attribution unconditionally: §5.3 (iv) "
+        "registers that only the withdrawal survives an unresolved baseline "
+        "(round 12, finding 1): %r" % row["gloss"])
+    assert E_ATTRIBUTION_RESIDUAL in fixtures.plain(preregistration)
+    # The withdrawal is the half the level DOES carry, and it stays unqualified.
+    assert "every other reading of arm E is withdrawn" in row["gloss"]
+    # …and §5.3 (iv)'s own sentence, which the gloss is the published copy of.
+    quoted = fixtures.plain(" ".join(line.lstrip("> ")
+                                     for line in preregistration.splitlines()))
+    assert E_WITHDRAWAL_LIMIT in quoted
+    assert ("The row's outcome is not adjudicated in either direction, so "
+            "nothing is asserted here that the level cannot carry") in quoted
 
 
 def test_a_near_ceiling_accuracy_with_one_mislabelled_record_is_degraded():
@@ -759,6 +843,24 @@ def test_arm_ds_degradation_row_does_not_claim_the_records_went_nowhere(
         in degradation["condition"]
     assert ("old-keyed (S10) verdicts are LOW on at least %d of them"
             % score_rates.D_NARROW_MINIMUM) in degradation["condition"]
+    # Round 12, finding 2: the cell's other half. "No coverage" and "no
+    # placement" are zeroes, and neither keying reads zero — LOW is `k <= 3`
+    # and the row asks for it on three of the four classes, so the fourth is
+    # free to read HIGH in all thirty runs on both sides at once. The bound is
+    # asserted positively and derived from the two registered cuts, because a
+    # third blacklist entry is what the last two rounds already tried.
+    assert D_ROW_THREE_BOUND in degradation["gloss"], degradation["gloss"]
+    assert D_ROW_THREE_BOUND in quoted
+    for withdrawn in WITHDRAWN_D_ZERO_CLAIM:
+        assert withdrawn not in quoted, (
+            "§5.3 (ii) says %r of a row that fires at LOW on %d of the four "
+            "narrow numeric classes, and LOW is %d of 30 and not 0 (round 12, "
+            "finding 2)"
+            % (withdrawn, score_rates.D_NARROW_MINIMUM,
+               score_rates.low_threshold(30)))
+        for entry in score_rates.D_OUTCOME_TABLE:
+            for member in ("condition", "publishedAs", "gloss"):
+                assert withdrawn not in entry[member], (entry["row"], member)
 
 
 def test_arm_ds_outcome_is_computed_from_the_registered_levels():
@@ -965,25 +1067,29 @@ def test_the_power_to_reach_row_four_is_not_the_marginal(trials):
                                                  30: 0.7658}[trials]
 
 
-def test_the_joint_row_four_figures_are_checked_against_the_file_when_it_carries_them(
-        preregistration):
+def test_the_joint_row_four_figures_are_checked_against_the_file(preregistration):
     """The half of the previous test that binds the FILE.
 
-    §5.4 does not carry the joint row yet — the amendment round 3's finding 11
-    calls for is what adds it — so this asserts the mislabel is still the only
-    thing to fix and, the moment a row beginning "row 4 reached" appears, that
-    it carries the computed figures rather than a second transcription of them.
+    §5.4 CARRIES the joint row — the amendment round 3's finding 11 called for
+    is what added it, in the same commit as this test — so this requires the
+    row to BE there, exactly once, and to carry the computed figures rather
+    than a second transcription of them. Round 12, finding 3: the old `<= 1`
+    admitted zero rows and then looped over nothing, so deleting the registered
+    row passed here vacuously, and the pins above bind
+    `decision_operating_characteristics()` and not the file, so nothing else in
+    the suite would have noticed.
     """
     registered = operating_characteristics(preregistration)
     joint_rows = [rule for rule in registered if rule.startswith("row 4 reached")]
-    assert len(joint_rows) <= 1
-    for rule in joint_rows:
-        for trials in TRIALS:
-            computed = score_rates.decision_operating_characteristics(
-                trials)["joint"]["row4"]
-            assert abs(computed - registered[rule][trials]) < 5e-5, (
-                "§5.4's joint row 4 prints %s at N = %d; this file computes %.7f"
-                % (registered[rule][trials], trials, computed))
+    assert len(joint_rows) == 1, (
+        "§5.4 holds %d rules beginning %r" % (len(joint_rows), "row 4 reached"))
+    rule = joint_rows[0]
+    for trials in TRIALS:
+        computed = score_rates.decision_operating_characteristics(
+            trials)["joint"]["row4"]
+        assert abs(computed - registered[rule][trials]) < 5e-5, (
+            "§5.4's joint row 4 prints %s at N = %d; this file computes %.7f"
+            % (registered[rule][trials], trials, computed))
 
 
 # --- §5.4's containment companion (round 10, finding 4) ---------------------
