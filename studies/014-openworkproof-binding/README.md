@@ -1,9 +1,11 @@
 # Study 014 — decision-to-execution binding under an external receipt protocol
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** The
-preregistration is a draft awaiting cross-vendor review; anything executed before the
-freeze is harness validation under `pilots/`, labeled as such, and supports no claim
-beyond "the machinery works".
+**Status: FROZEN by the squash-merge of PR #49; nothing has run under the freeze.**
+Six pre-freeze cross-vendor review rounds closed with `freezable as written`
+(`PREREG-REVIEW.md`). Everything executed before the freeze is harness validation under
+`pilots/`, labeled as such, and supports no claim beyond "the machinery works". The
+first registered attempt is primary and is defined in the preregistration's freeze
+section.
 
 ## What it is
 

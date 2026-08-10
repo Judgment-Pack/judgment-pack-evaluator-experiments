@@ -58,17 +58,17 @@
   },
   "matrix": {
     "path": "harness/MATRIX.json",
-    "sha256": null,
+    "sha256": "35ecf3e3a008e972a056b77d6e36950c89d6f3c2ea66e537cde8b662e97ebb20",
     "note": "locked-replication cell expectations; digest filled at the freeze together with the preregistration digest. The frozen cell-id set is additionally asserted in harness/score.py, so a reduced registry cannot satisfy zero divergence"
   },
   "matrixHoldout": {
     "path": "harness/MATRIX-HOLDOUT.json",
-    "sha256": null,
+    "sha256": "3668d677d2a5a5416378ece95d42cf0dac1fbc575e4b306e13f00fd75fda6ebd",
     "note": "reviewer-authored holdout stratum, committed verbatim with attribution and never executed pre-freeze; digest filled at the freeze. score.py --include-holdout is refused mechanically while preregistration.sha256 is null AND while this digest is null, and enforced against these bytes once it is filled. It is the only route into the stratum: round 4 removed build_fixtures.py --holdout, so holdout bytes can only be produced inside an attempt, under <attempt>/holdout-fixtures/"
   },
   "studyManifest": {
     "path": "harness/STUDY-MANIFEST.sha256",
-    "sha256": null,
+    "sha256": "2bf3b688367def54abbd65a9a97a75ab6f11a4f8c3dbd67e2407eb5f590e94c8",
     "generator": "harness/make_manifest.py",
     "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, every adapter/*.py and harness/*.py (including owpflow.py, where the build-time entropy algorithm lives), harness/tests/*.py, and every fixtures/**/MANIFEST.sha256 outside fixtures/holdout/",
     "excludes": "harness/PINS.json (this file - it pins the manifest, so the manifest must not pin it) and fixtures/holdout/** (a standing guard: round 4 moved holdout construction into the attempt, so no holdout artifact is written under fixtures/ any more). See anchorOrder above; harness/make_manifest.py states both exclusions and a harness test asserts them.",
@@ -76,12 +76,12 @@
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",
-    "sha256": null,
+    "sha256": "a35029cf45ce1c2aa74a19e684a44666bb16447be435fb165459026d9f579eb6",
     "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; while it - or any other freeze pin - is null the attempt is a PILOT and cannot be REGISTERED."
   },
   "adapterSpec": {
     "path": "adapter/SPEC.md",
-    "sha256": null,
+    "sha256": "d5e2d818f56dfd078cfd55686f539ff974b1d56d30d7a4ed3dea5cb721fdf955",
     "note": "registered with the preregistration; digest filled at the freeze"
   }
 }

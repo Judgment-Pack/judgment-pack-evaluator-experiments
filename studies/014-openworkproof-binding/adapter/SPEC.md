@@ -1,6 +1,7 @@
 # The judgment commitment — binding a JPS judgment into an OpenWorkProof chain
 
-Status: DRAFT, registered by the Study 014 preregistration when frozen. This document is the
+Status: REGISTERED — pinned by the Study 014 preregistration at the freeze (the digest
+in `harness/PINS.json` governs). This document is the
 adapter's external contract: the commitment schema, where it binds into the OpenWorkProof
 chain, the verification ceremony, and the disposition→action map. The adapter modifies
 neither protocol; it composes them.

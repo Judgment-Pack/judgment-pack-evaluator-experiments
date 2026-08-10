@@ -1131,7 +1131,12 @@ def run(attempt_root, include_holdout=False):
                 )
 
         pins_path = STUDY / "harness" / "PINS.json"
-        pins = json.loads(pins_path.read_text(encoding="utf-8"))
+        # One parsed source of truth: the preflight read (when it succeeded)
+        # is the same registry the refusals above were judged on; the direct
+        # parse remains only as the failure path into the terminal record.
+        pins = preflight if preflight else json.loads(
+            pins_path.read_text(encoding="utf-8")
+        )
         # REGISTERED requires EVERY freeze pin filled, not the preregistration
         # digest alone (round 3): a null matrix, holdout, SPEC or study-manifest
         # digest leaves the registry the attempt adjudicates unpinned.

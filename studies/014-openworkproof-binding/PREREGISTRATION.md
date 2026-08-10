@@ -1,10 +1,14 @@
 # Preregistration — Study 014: decision-to-execution binding under an external receipt protocol
 
-**Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing thereafter.**
+**Status: FROZEN by the squash-merge of PR #49 to `main`; governing thereafter.** The
+merge commit of that pull request is the freeze commit — named by reference because a
+squash hash cannot exist before the merge; the repository history renders the reference
+unambiguous. Six pre-freeze cross-vendor review rounds closed with `freezable as
+written` (`PREREG-REVIEW.md`).
 
-**Nothing has run.** At the time of this draft no registered attempt exists; everything
-executed during harness development lands under `pilots/`, is labeled harness validation,
-and supports no claim. After the freeze this file is never edited; corrections go to
+**Nothing has run.** At the freeze no registered attempt exists; everything executed
+during harness development lands under `pilots/`, is labeled harness validation, and
+supports no claim. This file is now never edited; corrections go to
 [`DEVIATIONS.md`](DEVIATIONS.md).
 
 Three companion artifacts are registered *with* this document and pinned at the freeze:
@@ -14,6 +18,27 @@ machine-readable locked-replication cell registry the scorer adjudicates against
 [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json) (the reviewer-authored holdout
 stratum). Where prose here and those artifacts could diverge, the pinned artifacts govern
 and the divergence is a deviation.
+
+## The freeze and the primary attempt
+
+- **Freeze commit**: the squash-merge commit of PR #49 on `main`.
+- **Primary attempt root**: `results/primary-attempt-001` — literal, and it must not
+  exist at the freeze. The scorer refuses an existing root, so the first invocation of
+  the governing command below is the primary attempt, and it is primary even if it
+  crashes: a crash is that attempt's terminal pipeline-invalid record, not a reason to
+  re-run into a fresh root.
+- **Governing invocation** (the registered command; any other invocation is not the
+  study):
+
+      JPACK_BIN=<jpack v0.16.0 binary, sha256 7c11ebef…9325, digest-checked>
+      OWP_SOURCE=<clone of OpenWorkProof at 8eeca6f, tracked files clean>
+      <CPython 3.12.11, the interpreter PINS.json pins>
+        harness/score.py --attempt-root results/primary-attempt-001 --include-holdout
+
+  Holdout construction happens inside that attempt (§1a); both strata report in its
+  results; the locked stratum alone decides R1 and the holdout stratum reports
+  separately. Results land on a separate pull request; this freeze commit carries no
+  `results/` directory and no holdout fixtures.
 
 ## 1. Question
 

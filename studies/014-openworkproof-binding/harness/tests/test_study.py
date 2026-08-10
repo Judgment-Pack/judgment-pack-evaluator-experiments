@@ -450,10 +450,13 @@ def assert_refused_but_recorded(root, error, needle):
     assert not (FIXTURES / "holdout").exists(), "and nothing outside the attempt"
 
 
-def test_holdout_scoring_is_refused_while_the_preregistration_is_draft(tmp_path):
-    assert PINS["preregistration"]["sha256"] is None, (
-        "this test describes the pre-freeze state"
-    )
+def test_holdout_scoring_is_refused_while_the_preregistration_is_draft(
+    tmp_path, monkeypatch
+):
+    """The guard outlives the freeze: a draft registry still refuses the holdout."""
+    draft = json.loads(json.dumps(PINS))
+    draft["preregistration"]["sha256"] = None
+    monkeypatch.setattr(score, "preflight_pins", lambda: draft)
     root = tmp_path / "holdout-attempt"
     with pytest.raises(SystemExit) as error:
         score.run(root, include_holdout=True)
@@ -462,9 +465,9 @@ def test_holdout_scoring_is_refused_while_the_preregistration_is_draft(tmp_path)
 
 def test_holdout_scoring_is_refused_while_its_own_digest_is_null(tmp_path, monkeypatch):
     """Frozen preregistration is not enough: the holdout pin has to be filled."""
-    assert PINS["matrixHoldout"]["sha256"] is None
     frozen = json.loads(json.dumps(PINS))
     frozen["preregistration"]["sha256"] = "00" * 32
+    frozen["matrixHoldout"]["sha256"] = None
     monkeypatch.setattr(score, "preflight_pins", lambda: frozen)
     root = tmp_path / "holdout-attempt"
     with pytest.raises(SystemExit) as error:
@@ -493,11 +496,13 @@ def test_the_marker_precedes_pins_under_the_holdout_flag(tmp_path, monkeypatch):
 def test_holdout_construction_is_refused_while_any_freeze_pin_is_null(tmp_path):
     """The scorer's construction step carries the guard itself, not by assumption.
 
-    Called directly with the live (unfrozen) registry: it must refuse before it
+    Called directly with a draft-state registry: it must refuse before it
     imports the builder, so no hook can run. Nothing is constructed here.
     """
+    draft = json.loads(json.dumps(PINS))
+    draft["studyManifest"]["sha256"] = None
     with pytest.raises(score.PipelineInvalid) as error:
-        score.construct_holdout(tmp_path, HOLDOUT, PINS, jpack_bin())
+        score.construct_holdout(tmp_path, HOLDOUT, draft, jpack_bin())
     assert "refused while these freeze pins are null" in str(error.value)
     assert not score.holdout_fixture_root(tmp_path).exists()
     assert not (FIXTURES / "holdout").exists()
@@ -965,11 +970,9 @@ def test_an_interruption_inside_construction_lands_the_scorers_terminal_record(
     cells' worth of `harness-error`.
     """
     jpack_bin()
+    # The live registry is frozen: its real digests satisfy every pin check.
     frozen = json.loads(json.dumps(PINS))
-    for member in score.FREEZE_PIN_MEMBERS:
-        frozen[member]["sha256"] = "00" * 32
     monkeypatch.setattr(score, "preflight_pins", lambda: frozen)
-    monkeypatch.setattr(score, "unfilled_freeze_pins", lambda pins: [])
 
     def interrupt(*_args, **_kwargs):
         raise KeyboardInterrupt("interrupted inside construction")
@@ -1181,11 +1184,9 @@ def test_the_holdout_stratum_is_published_as_its_own_section(tmp_path):
 # --- R4-2: the holdout bytes are attempt-local and attempt-bound ----------
 
 def frozen_pins():
-    """A PINS copy with every freeze pin filled. Used to reach guarded paths."""
-    frozen = json.loads(json.dumps(PINS))
-    for member in score.FREEZE_PIN_MEMBERS:
-        frozen[member]["sha256"] = "00" * 32
-    return frozen
+    """A verbatim PINS copy. The live registry is frozen, so its real digests
+    satisfy every pin check and reach the guarded holdout paths."""
+    return json.loads(json.dumps(PINS))
 
 
 def test_holdout_construction_writes_inside_the_attempt_and_stamps_digests(
@@ -1502,10 +1503,14 @@ def test_the_study_manifest_excludes_holdout_fixtures(tmp_path, monkeypatch):
 
 def test_registered_requires_every_freeze_pin(tmp_path):
     """R3: a frozen preregistration alone must not authorize a REGISTERED run."""
-    assert score.attempt_label(PINS) == "PILOT"
-    assert set(score.unfilled_freeze_pins(PINS)) == set(score.FREEZE_PIN_MEMBERS)
+    assert score.attempt_label(PINS) == "REGISTERED", (
+        "the live registry is frozen: every freeze pin is filled"
+    )
+    assert score.unfilled_freeze_pins(PINS) == []
 
     partly = json.loads(json.dumps(PINS))
+    for member in score.FREEZE_PIN_MEMBERS:
+        partly[member]["sha256"] = None
     partly["preregistration"]["sha256"] = "00" * 32
     assert score.attempt_label(partly) == "PILOT", (
         "the preregistration digest alone must not make an attempt REGISTERED"
@@ -1518,8 +1523,12 @@ def test_registered_requires_every_freeze_pin(tmp_path):
     assert score.attempt_label(filled) == "REGISTERED"
 
 
-def test_a_pilot_attempt_is_labelled_pilot_in_its_marker(tmp_path):
+def test_a_pilot_attempt_is_labelled_pilot_in_its_marker(tmp_path, monkeypatch):
+    """A registry with any unfilled freeze pin labels its attempts PILOT."""
     jpack_bin()
+    draft = json.loads(json.dumps(PINS))
+    draft["studyManifest"]["sha256"] = None
+    monkeypatch.setattr(score, "preflight_pins", lambda: draft)
     root = tmp_path / "labelled"
     results = score.run(root)
     assert results["attemptLabel"] == "PILOT"
