@@ -23,11 +23,13 @@ Regime, inherited from Study 014:
   of the governing command after the freeze is the primary attempt, crash and
   all.
 - `--include-holdout` is refused mechanically while `preregistration.sha256`
-  or `matrixHoldout.sha256` is null. The holdout construction machinery lands
-  together with the reviewer-authored cells during the pre-freeze review
-  rounds (014's round-2 shape); until then a post-freeze holdout invocation
-  that finds registered holdout cells but no construction hooks is a recorded
-  terminal refusal, never a silent skip.
+  or `matrixHoldout.sha256` is null, and refused terminally on an empty
+  registered stratum. Post-freeze, the reviewer-authored cells are constructed
+  INSIDE the attempt (`<attempt>/holdout-fixtures/`, under a
+  `HoldoutAttemptContext` only this scorer mints), adjudicated against the
+  reviewer's registered expectations, stamped, re-hashed after adjudication,
+  and reported in their own section — no holdout outcome enters a
+  locked-stratum count and none can change the R1 verdict (014 §1a).
 """
 
 import argparse
@@ -385,27 +387,68 @@ def adjudicate(matrix, jpack_bin, work_root):
     return cells
 
 
-def _fork_structure(members):
-    """Structural fork validation from the two cells' snapshot bytes (R1-4).
+def _fork_structure(members, pins):
+    """Structural fork validation from the two cells' retained bytes (R1-4;
+    round-2 residual: authenticated, not label-compared).
 
-    A genuine split view means: identical genesis checkpoint record, identical
-    (unauthenticated but recorded) authority key id on the attestations, the
-    same attested position, and different heads. Anything less is two
-    registries that merely differ, and the pair report says so.
+    A genuine split view means: identical genesis checkpoint record; BOTH head
+    attestations cryptographically verifying under the SAME pinned authority
+    key (taken from the enforced registryAuthority pin — never from the
+    snapshots' unauthenticated key-id labels); identical per-series trust pins
+    across the two cells; the same attested position; different heads.
+    Anything less is two registries that merely differ, and the report says so.
     """
+    import base64
+    import rfc8785
+    from cryptography.exceptions import InvalidSignature
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
+    try:
+        raw = base64.b64decode(
+            (pins.get("registryAuthority") or {}).get("authorityPublicKey", ""),
+            validate=True,
+        )
+        pinned = Ed25519PublicKey.from_public_bytes(raw)
+    except (ValueError, TypeError):
+        return {"validated": False, "problem": "pinned authority key unreadable"}
+
     parsed = []
+    trust_bytes = []
     for cid in members:
-        path = build_fixtures.cell_directory(STUDY / "fixtures", cid) / "snapshot.json"
+        directory = build_fixtures.cell_directory(STUDY / "fixtures", cid)
         try:
-            parsed.append(json.loads(path.read_text(encoding="utf-8")))
+            parsed.append(
+                json.loads((directory / "snapshot.json").read_text(encoding="utf-8"))
+            )
+            config = json.loads(
+                (directory / "trustconfig.json").read_text(encoding="utf-8")
+            )
         except Exception:
-            return {"validated": False, "problem": "snapshot unreadable: " + cid}
+            return {"validated": False, "problem": "cell artifacts unreadable: " + cid}
+        trust_bytes.append(
+            (config.get("seriesId"), config.get("authorityPublicKey"),
+             config.get("genesisHead"))
+        )
+
+    def attests_under_pinned(snapshot):
+        payload = snapshot["attestation"]["payload"]
+        try:
+            pinned.verify(
+                base64.b64decode(snapshot["attestation"]["signature"], validate=True),
+                rfc8785.dumps({"domain": "jps-study016-currency/snapshot/1",
+                               "payload": payload}),
+            )
+            return True
+        except (InvalidSignature, ValueError, TypeError):
+            return False
+
     a, b = parsed
     checks = {
         "sameGenesisRecord": a["checkpoints"][0] == b["checkpoints"][0],
-        "sameAuthorityKeyId": (
-            a["attestation"]["authorityKeyId"] == b["attestation"]["authorityKeyId"]
+        "bothAttestationsVerifyUnderPinnedAuthority": (
+            attests_under_pinned(a) and attests_under_pinned(b)
         ),
+        "samePerSeriesTrustPins": trust_bytes[0] == trust_bytes[1],
         "samePosition": (
             a["attestation"]["payload"]["position"]
             == b["attestation"]["payload"]["position"]
@@ -417,16 +460,15 @@ def _fork_structure(members):
     return {"validated": all(checks.values()), "checks": checks}
 
 
-def pair_reports(matrix, cells):
+def pair_reports(matrix, cells, pins):
     reports = {}
     for name, members in (matrix.get("pairs") or {}).items():
         outcomes = {}
-        codes_reference_sibling = False
         for cid in members:
             record = cells.get(cid) or {}
             outcomes[cid] = (record.get("observed") or {}).get("currency")
         adjudicated = all((cells.get(cid) or {}).get("adjudicated") for cid in members)
-        structure = _fork_structure(members)
+        structure = _fork_structure(members, pins)
         reports[name] = {
             "members": list(members),
             "adjudicated": adjudicated,
@@ -445,6 +487,158 @@ def pair_reports(matrix, cells):
             ),
         }
     return reports
+
+
+HOLDOUT_PATH = STUDY / "harness" / "MATRIX-HOLDOUT.json"
+PREREG_PATH = STUDY / "PREREGISTRATION.md"
+
+
+def holdout_schema_problems(holdout):
+    """Per-cell schema of the reviewer stratum + a hook for every cell."""
+    problems = []
+    cells = holdout.get("cells")
+    if not isinstance(cells, list) or not cells:
+        return ["holdout registry carries no cell list"]
+    seen = set()
+    for cell in cells:
+        if not isinstance(cell, dict) or not isinstance(cell.get("id"), str):
+            problems.append("a holdout cell is not an object with a string id")
+            continue
+        cid = cell["id"]
+        if cid in seen:
+            problems.append("duplicate holdout cell id: " + cid)
+        seen.add(cid)
+        missing = CELL_REQUIRED_KEYS - set(cell)
+        if missing:
+            problems.append("%s lacks %s" % (cid, ", ".join(sorted(missing))))
+        if cell.get("role") not in ROLES:
+            problems.append("%s carries an unregistered role" % cid)
+        if cell.get("attackerCapability") not in CAPABILITIES:
+            problems.append("%s carries an unregistered attackerCapability" % cid)
+        if cell.get("variant") not in VARIANTS:
+            problems.append("%s carries an unregistered variant" % cid)
+        expected = cell.get("expected")
+        if not isinstance(expected, dict) or set(expected) != set(LAYERS):
+            problems.append("%s expected outcomes do not cover exactly the four layers" % cid)
+        if cid not in build_fixtures.HOLDOUT_HOOKS:
+            problems.append("no construction hook is registered for " + cid)
+    return problems
+
+
+def _stamp_holdout_fixtures(root, cells):
+    """Digest stamps for every construction output, taken before adjudication."""
+    stamps = {}
+    for cell in cells:
+        directory = Path(root) / cell["id"]
+        files = {}
+        for path in sorted(directory.rglob("*")):
+            if path.is_file():
+                files[path.relative_to(directory).as_posix()] = sha256_file(path)
+        stamps[cell["id"]] = files
+    return stamps
+
+
+def _holdout_integrity(root, stamps):
+    """Post-adjudication re-hash of every stamped artifact (014 round-5)."""
+    report = []
+    for cell_id, files in sorted(stamps.items()):
+        directory = Path(root) / cell_id
+        seen = set()
+        for relative, stamped in sorted(files.items()):
+            path = directory / relative
+            final = sha256_file(path) if path.is_file() else None
+            report.append({"cell": cell_id, "path": relative,
+                           "stampedSha256": stamped, "finalSha256": final,
+                           "match": final == stamped})
+            seen.add(relative)
+        for path in sorted(directory.rglob("*")):
+            if path.is_file():
+                relative = path.relative_to(directory).as_posix()
+                if relative not in seen:
+                    report.append({"cell": cell_id, "path": relative,
+                                   "stampedSha256": None,
+                                   "finalSha256": sha256_file(path),
+                                   "match": False})
+    return report
+
+
+def adjudicate_holdout(holdout, attempt_root, pins_raw_sha256, jpack_bin, work_root):
+    """Construct inside the attempt, adjudicate, report separately (014 §1a)."""
+    context = build_fixtures.HoldoutAttemptContext(
+        attempt_root=str(attempt_root),
+        pins_raw_sha256=pins_raw_sha256,
+        preregistration_sha256=sha256_file(PREREG_PATH),
+        matrix_holdout_sha256=sha256_file(HOLDOUT_PATH),
+    )
+    fixtures_root = Path(attempt_root) / "holdout-fixtures"
+    construction = build_fixtures.construct_holdout(
+        context, fixtures_root, holdout["cells"]
+    )
+    stamps = _stamp_holdout_fixtures(fixtures_root, holdout["cells"])
+    cells = {}
+    for cell in holdout["cells"]:
+        cid = cell["id"]
+        record = construction.get(cid, {})
+        if record.get("status") != "built":
+            cells[cid] = {
+                "role": cell["role"], "adjudicated": False,
+                "problems": ["construction status: %s" % record.get("status"),
+                             record.get("harnessError", "")],
+                "expected": cell["expected"],
+            }
+            continue
+        directory = fixtures_root / cid
+        problems = run_verify.manifest_problems(directory)
+        problems += run_verify.required_file_problems(directory, cell)
+        if problems:
+            cells[cid] = {"role": cell["role"], "adjudicated": False,
+                          "problems": problems, "expected": cell["expected"]}
+            continue
+        work_dir = Path(tempfile.mkdtemp(prefix=cid + "-", dir=str(work_root)))
+        outcome = run_verify.verify_cell(directory, jpack_bin, work_dir)
+        observed = {layer: outcome[layer]["outcome"] for layer in LAYERS}
+        divergent = sorted(
+            layer for layer in LAYERS if observed[layer] != cell["expected"][layer]
+        )
+        cells[cid] = {
+            "role": cell["role"], "adjudicated": True,
+            "expected": cell["expected"], "observed": observed,
+            "combined": outcome["combined"],
+            "divergentLayers": divergent, "divergent": bool(divergent),
+            "detail": {layer: outcome[layer].get("detail") for layer in LAYERS},
+        }
+    integrity = _holdout_integrity(fixtures_root, stamps)
+    gates = sorted(cid for cid, r in cells.items()
+                   if r["role"] == "control-gate"
+                   and (not r["adjudicated"] or r["divergent"]))
+    invalid = sorted(cid for cid, r in cells.items() if not r["adjudicated"])
+    divergent = sorted(cid for cid, r in cells.items()
+                       if r["adjudicated"] and r["divergent"]
+                       and r["role"] != "control-gate")
+    integrity_clean = all(item["match"] for item in integrity)
+    if invalid or not integrity_clean:
+        summary = "holdout inconclusive - validity problem"
+    elif gates:
+        summary = "holdout inconclusive - control gate failed"
+    elif divergent:
+        summary = "holdout DIVERGENT"
+    else:
+        summary = "holdout concordant - %d/%d adjudicated, 0 divergent" % (
+            len(cells), len(cells)
+        )
+    return {
+        "reviewer": holdout.get("reviewer"),
+        "construction": construction,
+        "fixtureDigests": stamps,
+        "cells": cells,
+        "postAdjudicationIntegrity": integrity,
+        "gatesFailed": gates,
+        "notAdjudicated": invalid,
+        "divergent": divergent,
+        "summary": summary,
+        "note": ("reported separately: no holdout outcome enters a locked-stratum "
+                 "count and none can change the R1 verdict"),
+    }
 
 
 def decide(cells):
@@ -467,7 +661,8 @@ def decide(cells):
     return "R1 falsified", divergent
 
 
-def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes):
+def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes,
+                              holdout_report=None):
     lines = [
         "# Detection matrix — Study 016 (%s)" % label,
         "",
@@ -511,6 +706,24 @@ def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes):
                 report["note"],
             )
         )
+    if holdout_report is not None:
+        lines += ["", "## Reviewer holdout (separate stratum)", "",
+                  "| Cell | Role | Layer | Expected | Observed |",
+                  "|---|---|---|---|---|"]
+        for cid in sorted(holdout_report["cells"]):
+            record = holdout_report["cells"][cid]
+            if not record["adjudicated"]:
+                lines.append("| %s | %s | — | — | NOT-ADJUDICATED: %s |"
+                             % (cid, record["role"],
+                                "; ".join(p for p in record["problems"] if p)))
+                continue
+            for layer in LAYERS:
+                expected = record["expected"][layer]
+                observed = record["observed"][layer]
+                marker = " ≠" if expected != observed else ""
+                lines.append("| %s | %s | %s | `%s` | `%s`%s |"
+                             % (cid, record["role"], layer, expected, observed, marker))
+        lines += ["", "**%s**" % holdout_report["summary"]]
     lines += ["", "## Verdict", "", "**%s**" % verdict]
     if causes:
         lines.append("")
@@ -540,8 +753,10 @@ def main(argv=None):
     # (round-1 R1-12): even a malformed PINS.json leaves an attempt record
     # tied to the exact registry bytes it saw.
     try:
-        pins_raw_sha256 = sha256_bytes(PINS_PATH.read_bytes())
+        pins_raw_bytes = PINS_PATH.read_bytes()
+        pins_raw_sha256 = sha256_bytes(pins_raw_bytes)
     except OSError:
+        pins_raw_bytes = None
         pins_raw_sha256 = None
     write_json(attempt_root / "ATTEMPT.json", {
         "attemptRoot": attempt_root.name,
@@ -562,12 +777,17 @@ def main(argv=None):
         return 2
 
     try:
-        pins = json.loads(PINS_PATH.read_text(encoding="utf-8"))
+        if pins_raw_bytes is None:
+            return terminal("the pin registry is unreadable")
+        # The SAME bytes the marker hashed are the bytes parsed here (round-2
+        # residual of R1-12): no second read, no hash/parse divergence window.
+        pins = json.loads(pins_raw_bytes.decode("utf-8"))
         label = "REGISTERED" if all(
             (pins.get(member) or {}).get("sha256") is not None
             for member in FREEZE_PINS
         ) else "PILOT"
 
+        holdout = None
         if arguments.include_holdout:
             if (pins.get("preregistration") or {}).get("sha256") is None or (
                 pins.get("matrixHoldout") or {}
@@ -586,11 +806,9 @@ def main(argv=None):
                     "leaves the postdictivity finding open - refused, never "
                     "silently adjudicated as locked-only (round-1 R1-11)"
                 )
-            return terminal(
-                "registered holdout cells exist but this scorer carries no "
-                "holdout construction machinery yet; the machinery lands "
-                "with the reviewer's cells before the freeze"
-            )
+            schema_problems = holdout_schema_problems(holdout)
+            if schema_problems:
+                return terminal("holdout registry enforcement failed", schema_problems)
 
         problems = pin_problems(pins, os.environ.get("JPACK_BIN"))
         if problems:
@@ -605,7 +823,17 @@ def main(argv=None):
             cells = adjudicate(matrix, os.environ.get("JPACK_BIN"), work_root)
         finally:
             shutil.rmtree(work_root, ignore_errors=True)
-        pairs = pair_reports(matrix, cells)
+        holdout_report = None
+        if holdout is not None:
+            work_root_holdout = Path(tempfile.mkdtemp(prefix="study016-holdout-"))
+            try:
+                holdout_report = adjudicate_holdout(
+                    holdout, attempt_root, pins_raw_sha256,
+                    os.environ.get("JPACK_BIN"), work_root_holdout,
+                )
+            finally:
+                shutil.rmtree(work_root_holdout, ignore_errors=True)
+        pairs = pair_reports(matrix, cells, pins)
         verdict, causes = decide(cells)
         summary = {
             "cells": len(cells),
@@ -624,19 +852,20 @@ def main(argv=None):
             "includeHoldout": bool(arguments.include_holdout),
             "pipelineInvalid": False,
             "pinsRawSha256": pins_raw_sha256,
-            "pinsSha256": sha256_file(PINS_PATH),
             "matrixSha256": sha256_file(MATRIX_PATH),
             "verdict": "%s (%s)" % (verdict, label),
             "verdictCells": causes,
             "summary": summary,
             "cells": {cid: cells[cid] for cid in sorted(cells)},
             "pairs": pairs,
+            "holdout": holdout_report,
         }
         write_json(attempt_root / "RESULTS.json", results)
         atomic_write_bytes(
             attempt_root / "DETECTION-MATRIX.md",
             detection_matrix_markdown(
-                label, matrix, cells, pairs, results["verdict"], causes
+                label, matrix, cells, pairs, results["verdict"], causes,
+                holdout_report,
             ).encode("utf-8"),
         )
         print(results["verdict"])

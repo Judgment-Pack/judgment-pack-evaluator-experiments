@@ -38,8 +38,33 @@ Post-revision state: 52 harness tests green; build pilot 02 (`pilots/2026-08-10-
 non-citable) adjudicates 22/22 with all control gates green, zero endpoint divergence, the
 fork structurally validated, and the two registered-undetected rows confirmed undetected.
 
-## Round 2 — pending
+## Round 2 — 2026-08-10
 
-Confirmation pass over R1-1..R1-15 against the revised tree, plus the reviewer-authored
-holdout stratum (committed verbatim with attribution, never executed pre-freeze; its
-construction machinery lands with the cells).
+Same reviewer (codex-cli 0.145.0 / gpt-5.6-sol / ultra / read-only). Verdict:
+**freezable after listed fixes** — 8 RESOLVED, 7 PARTIALLY RESOLVED (each with a precise
+residual), 1 new MINOR (R2-1), and the 10-cell holdout stratum authored. Prompt and
+findings verbatim in [`reviews/round-2/`](reviews/round-2/).
+
+Every residual **accepted and closed**; R2-1 **accepted**; the holdout **landed verbatim**:
+
+| Item | Disposition |
+| --- | --- |
+| R1-1 residual | **Closed.** No 014 directory ever enters `sys.path` and no bare import of a 014 name occurs: every module is loaded by `spec_from_file_location` from its authenticated absolute path, digest-checked immediately before execution, with the shared names pre-seeded (after collision refusal) so the frozen modules' own imports resolve to verified instances. Per-load identity/origin/bytes verification kept. |
+| R1-2 residual | **Closed.** The stale `cur-authz-rollback-accepted` reference and "e22-class rollback" wording purged from the preregistration; the builder's `rollback` identifier and salt renamed (`workorder-remint-016`), chains rebuilt. Remaining "rollback" strings are OWP's own `owp.rollback_patch` tool name and explanatory "not a rollback" prose. |
+| R1-3 residual | **Closed.** `layer_currency` now takes the trust-configuration BYTES and parses them with the same duplicate-member-rejecting strict reader; a malformed configuration is `currency-unavailable`. Vector added (holdout h01's premise, tested independently at the unit level). |
+| R1-4 residual | **Closed.** Fork validation is authenticated: both head attestations must verify cryptographically under the ENFORCED `registryAuthority` pinned key (never the snapshots' unauthenticated labels), with identical per-series trust pins, identical genesis record, same position, different heads. |
+| R1-7 residual | **Closed.** Exact-at-limit vectors added for all three limits: a snapshot at exactly `MAX_SNAPSHOT_BYTES` (inclusive boundary), a supported set at exactly 512, a checkpoint list at exactly 1024 — each must verify, with the one-past siblings refusing. |
+| R1-11 residual | **Closed.** The construction machinery landed WITH the authored cells: `HoldoutAttemptContext` minted only by the scorer and verified against live digests (any null freeze pin refuses, so pre-freeze execution is impossible); in-attempt construction under `<attempt>/holdout-fixtures/`; per-cell `CONSTRUCTION.json` (`built`/`harness-error` — no construction drives an upstream OWP path, so 014's `refused` class is inapplicable and the registry note says so); adjudication against the reviewer's expectations; digest stamps plus post-adjudication re-hash; a separate report section whose outcomes never touch R1. The empty-stratum refusal stands. Nothing has executed: harness tests assert only the refusal gates and static properties. |
+| R1-12 residual | **Closed.** The scorer reads the pin registry ONCE: the marker hashes exactly the bytes that are then parsed — no second read, no hash/parse divergence window. The `PINS.json` prose now names `pinsRawSha256` accurately, and the redundant post-parse `pinsSha256` stamp is dropped. |
+| R1-15 residual | **Closed.** README now says an executed action was taken in reliance on a judgment under the registered downstream mapping, and the research question asks about membership in the supported set at a pinned snapshot. |
+| R2-1 (MINOR) | **Accepted.** §1a now says 22 cells, matching §4 and the matrix. |
+| Holdout stratum | **Landed verbatim** in `harness/MATRIX-HOLDOUT.json` with attribution (`codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), round 2`): h01–h10, including three at-limit boundary cells (h07–h09) and the all-pass brittleness control (h10). Registered expectations untouched; first-ever execution is the registered primary attempt. |
+
+Post-revision state: 59 harness tests green; build pilot 03 (non-citable) adjudicates
+22/22, control gates green, zero endpoint divergence, the fork report authenticated, and
+the holdout member of `RESULTS.json` null — the stratum is untouched pre-freeze by
+construction.
+
+## Round 3 — pending
+
+Confirmation of the seven residual closures, R2-1, and the verbatim holdout landing.

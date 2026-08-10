@@ -140,12 +140,17 @@ def test_rebuild_is_deterministic_and_matches_committed_bytes(
 
 
 def test_split_view_pair_structure_is_validated_from_bytes():
-    """R1-4: the fork report is derived, not asserted."""
+    """R1-4 (round-2 residual): the fork report is derived and AUTHENTICATED —
+    both attestations verify under the enforced pinned authority key; the
+    unauthenticated key-id labels play no part."""
     matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
-    structure = score._fork_structure(matrix["pairs"]["split-view"])
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    structure = score._fork_structure(matrix["pairs"]["split-view"], pins)
     assert structure["validated"] is True
     assert structure["checks"] == {
-        "sameGenesisRecord": True, "sameAuthorityKeyId": True,
+        "sameGenesisRecord": True,
+        "bothAttestationsVerifyUnderPinnedAuthority": True,
+        "samePerSeriesTrustPins": True,
         "samePosition": True, "differentHeads": True,
     }
 
@@ -171,6 +176,41 @@ def test_scorer_is_deterministic_and_control_gates_hold(jpack_bin, tmp_path):
             if record["role"] == "control-gate":
                 assert record["adjudicated"] and not record["divergent"], cid
     assert outputs[0] == outputs[1]
+
+
+def test_holdout_registry_schema_and_hooks():
+    """The reviewer's cells validate and every cell has a construction hook —
+    which is all a pre-freeze test may touch: the stratum is never executed
+    before the freeze, and the context gate below enforces exactly that."""
+    holdout = json.loads(
+        (STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8")
+    )
+    assert score.holdout_schema_problems(holdout) == []
+    assert sorted(c["id"] for c in holdout["cells"]) == sorted(build_fixtures.HOLDOUT_HOOKS)
+    assert holdout["reviewer"].startswith("codex-cli")
+    roles = [c["role"] for c in holdout["cells"]]
+    assert "control-gate" in roles
+
+
+def test_holdout_construction_refuses_pre_freeze():
+    """No context: refused. A forged context: refused while any freeze pin is
+    null — so nothing can execute the stratum before the freeze."""
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures.construct_holdout(None, STUDY / "nowhere", [])
+    forged = build_fixtures.HoldoutAttemptContext(
+        attempt_root=str(STUDY), pins_raw_sha256="0" * 64,
+        preregistration_sha256="0" * 64, matrix_holdout_sha256="0" * 64,
+    )
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures.construct_holdout(forged, STUDY / "nowhere", [])
+    problems = build_fixtures.holdout_context_problems(forged)
+    assert any("freeze pin" in problem for problem in problems)
+
+
+def test_no_holdout_bytes_under_fixtures():
+    """Holdout artifacts are attempt-local only; fixtures/ never carries them."""
+    for cell_id in build_fixtures.HOLDOUT_HOOKS:
+        assert not (STUDY / "fixtures" / "cells" / cell_id).exists()
 
 
 def test_scorer_refuses_existing_attempt_root(tmp_path):

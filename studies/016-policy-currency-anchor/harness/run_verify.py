@@ -84,7 +84,7 @@ def verify_cell(cell_dir, jpack_bin, work_dir):
     currency = verify_currency.layer_currency(
         commitment,
         cell.read("snapshot.json"),
-        cell.json("trustconfig.json"),
+        cell.read("trustconfig.json"),
     )
     layers = {
         "owp": dict(three["owp"]),

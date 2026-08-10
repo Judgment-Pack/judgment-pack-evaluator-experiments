@@ -68,7 +68,7 @@ what any result here may be read to claim.
 ## 1a. Two strata
 
 The Study 014 remedy, inherited: the locked-replication stratum (`harness/MATRIX.json`,
-20 cells) is a conformance suite over behaviour the maintainer observed during harness
+22 cells) is a conformance suite over behaviour the maintainer observed during harness
 development — R1 has exactly the standing of a locked replication, falsifiable by
 regression, never a prospective prediction. The **reviewer holdout** stratum
 (`harness/MATRIX-HOLDOUT.json`) is authored by the cross-vendor reviewer during the
@@ -309,7 +309,7 @@ the shared registry implementation lineage (§1a); `effectiveFrom` as inert carr
 **Not prevented**: an attacker holding the authority key can mint any internally valid
 history — that is the point of the `authority-key` cells, and the split-view pair
 registers precisely what that capability buys undetected. An insider holding every chain
-fixture key can remint a coherent alternative chain (`cur-authz-rollback-accepted`), as
+fixture key can remint a coherent alternative chain (`cur-workorder-remint-accepted`), as
 in 014.
 
 ## 9. What this study cannot show
@@ -318,7 +318,7 @@ No policy truth and no fact truth — the registry states which versions an auth
 asserts in force, never that a policy or fact is true (binding/lineage ceiling, all four
 layers). No real-time staleness: every verdict is membership at a pinned snapshot
 (RFC 0011 R-7); "fully offline" and "detects staleness in real time" cannot both hold.
-No authorization-contract currency: `e22`-class rollback is registered to pass. No
+No authorization-contract currency: the `e22`-class work-order remint is registered to pass. No
 equivocation resistance: the split-view pair exists to prove its absence. No trust from
 nothing: the minimal verifier state is two out-of-band pins, and below the genesis it is
 trust-on-first-use. No format proposal and no interoperability claim for the registry: one

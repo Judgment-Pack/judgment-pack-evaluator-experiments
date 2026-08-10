@@ -3,8 +3,9 @@
 **Status: DRAFT. Nothing is frozen and nothing has run under a freeze.**
 
 Study 013 asked whether the application that acts on a judgment respects it at runtime
-(behavior). Study 014 asked whether a third party can prove, offline, which judgment
-authorized which executed action (provenance/binding) — and registered, in its §4c, a class
+(behavior). Study 014 asked whether a third party can prove, offline, which judgment an
+executed action was taken in reliance on, under its registered downstream mapping
+(provenance/binding) — and registered, in its §4c, a class
 nothing chain-internal can see: a decision carried under a pack version that is no longer in
 force. [RFC 0011](https://github.com/Judgment-Pack/judgment-pack-spec/blob/main/rfcs/0011-judgment-currency-anchor.md)
 is the design record for the missing anchor. This study operationalizes it at the lowest

@@ -1,7 +1,34 @@
+# Round-2 review (verbatim)
+
+Reviewer: codex-cli 0.145.0, model gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only sandbox.
+Run: 2026-08-10. Verdict: **freezable after listed fixes** (8 RESOLVED, 7 PARTIALLY RESOLVED, 1 new MINOR; 10-cell holdout stratum authored).
+
+## Confirmation
+
+- R1-1 — PARTIALLY RESOLVED — `harness/upstream014.py`: every cached/fresh load checks module identity, origin, and bytes and rejects pre-existing shared-name entries, but bare imports can still execute an earlier `sys.path` shadow before the post-import rejection; absolute-path private-alias loading remains required.
+- R1-2 — PARTIALLY RESOLVED — `harness/MATRIX.json`, `PREREGISTRATION.md`, `harness/build_fixtures.py`: the row is renamed, descriptive, and excluded from credit, but the preregistration still names `cur-authz-rollback-accepted` and calls e22 a rollback, while builder prose/identifiers retain rollback terminology.
+- R1-3 — PARTIALLY RESOLVED — `registry/verify_currency.py`, `harness/run_verify.py`, `studies/014-openworkproof-binding/adapter/verify.py`, `registry/SPEC.md`: snapshot attacks now land in the vocabulary, including duplicates, signed version 2, malformed minimum pins, non-canonicalizable values, and boolean integers; however raw `trustconfig.json` still passes through ordinary last-wins `json.loads`, so duplicate configuration members can pass contrary to the strict-input promise.
+- R1-4 — PARTIALLY RESOLVED — `harness/score.py`, `harness/MATRIX.json`, `PREREGISTRATION.md`, `README.md`: the current pair is a real fork, wording is narrowed, and the stateful arm is registered, but the scorer establishes “same authority” only by comparing the expressly unauthenticated `authorityKeyId` label rather than the pinned public keys and common target tuple.
+- R1-5 — RESOLVED — `registry/verify_currency.py`, `registry/checkpoint.py`, `registry/SPEC.md`, `harness/MATRIX.json`: the input is `minimumHeadPin`, consistently described as caller-provisioned prior-acceptance state; verifier persistence and atomic high-water updates are expressly not claimed.
+- R1-6 — RESOLVED — `registry/verify_currency.py`, `registry/SPEC.md`: verification uses the pinned key and one code, `snapshot-signature-invalid`; the unauthenticated key-id label affects detail only.
+- R1-7 — PARTIALLY RESOLVED — `registry/verify_currency.py`, `harness/tests/test_registry.py`: all three limits and `snapshot-limits-exceeded` are enforced with one-past tests, but the required exact-at-limit registered vectors are absent.
+- R1-8 — RESOLVED — `harness/MATRIX.json`, `harness/build_fixtures.py`, `PREREGISTRATION.md`: genuine BINDING- and REPLAY-failure controls were added, and the claim is narrowed to positive compatibility plus aliveness rather than replication of Study 014’s mutation stratum.
+- R1-9 — RESOLVED — `harness/MATRIX.json`, `harness/score.py`, `PREREGISTRATION.md`: the byte-identical endpoint duplication is removed; `cur-concurrent-set` is counted once and carries one scored and one analytic reading.
+- R1-10 — RESOLVED — `registry/verify_currency.py`, `harness/PINS.json`, `harness/score.py`, `harness/MATRIX.json`: trust is series-bound, both genesis roots are registered and recomputed, and the unknown-series cell honestly uses the second root as a config variant.
+- R1-11 — PARTIALLY RESOLVED — `harness/score.py`, `harness/MATRIX-HOLDOUT.json`: a post-freeze empty holdout is terminal-refused, but the current file remains empty and every nonempty holdout is still refused because construction, adjudication, and separate reporting machinery has not landed.
+- R1-12 — PARTIALLY RESOLVED — `harness/score.py`, `harness/PINS.json`: marker, terminal, and successful records carry `pinsRawSha256`, and `SystemExit` is terminal-recorded and re-raised; however the scorer hashes and parses separate reads of PINS, and PINS still falsely says every attempt record carries `pinsSha256`.
+- R1-13 — RESOLVED — `registry/verify_currency.py`, `registry/SPEC.md`, `harness/tests/test_registry.py`: repeated `add` never reactivates; only `reinstate` can re-enter a retired binding.
+- R1-14 — RESOLVED — `harness/score.py`, `harness/PINS.json`: both keypairs, key IDs, public keys, and genesis heads are mechanically re-derived and compared before adjudication.
+- R1-15 — PARTIALLY RESOLVED — `PREREGISTRATION.md`, `registry/SPEC.md`, `README.md`: governing prose is corrected, but README still says a judgment “authorized” an executed action and describes the class as a version “no longer in force.”
+
+## New findings
+
+- R2-1 — MINOR — `PREREGISTRATION.md` §1a: it says the locked matrix contains 20 cells, while §4 and `harness/MATRIX.json` establish 22, leaving the registered denominator contradictory. Fix: change 20 to 22 and add or derive a consistency assertion for published counts.
+
+## Holdout stratum (authored by the round-2 reviewer)
+
+```json
 {
-  "matrixVersion": "2",
-  "stratum": "reviewer-holdout",
-  "note": "The reviewer-authored holdout stratum (014 section 1a convention): cells authored by the round-2 cross-vendor reviewer, committed VERBATIM below with attribution, never executed before the freeze. The construction machinery (builder hooks in harness/build_fixtures.py, driven only by harness/score.py inside a post-freeze attempt under a HoldoutAttemptContext) landed together with these cells and has never been executed; the first-ever execution is the registered primary attempt, and these registered expectations are what it is scored against. Every construction is a deterministic byte or registry operation over the frozen locked fixtures and the registry writer - none drives an upstream OpenWorkProof publication path, so the 014 upstream-refusal classification is not applicable and construction statuses are built or harness-error only. Holdout outcomes report separately and never touch the locked stratum's R1 verdict.",
   "reviewer": "codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), round 2",
   "cells": [
     {
@@ -166,3 +193,6 @@
     }
   ]
 }
+```
+
+freezable after listed fixes

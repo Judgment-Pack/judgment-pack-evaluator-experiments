@@ -299,10 +299,27 @@ def fold_supported(payloads, series_id):
 # the ceremony
 # --------------------------------------------------------------------------
 
-def layer_currency(commitment, snapshot_bytes, trustconfig):
-    """The ordered ceremony (registry/SPEC.md section 3). First failure wins."""
+def layer_currency(commitment, snapshot_bytes, trustconfig_bytes):
+    """The ordered ceremony (registry/SPEC.md section 3). First failure wins.
+
+    All three inputs are what the cell retains: the parsed commitment from the
+    verified chain's signed binding point, the snapshot bytes, and the trust
+    configuration BYTES — parsed here, strictly, so a duplicate-member or
+    otherwise malformed configuration refuses at this layer rather than being
+    laundered through a lax reader upstream (round-2 residual of R1-3).
+    """
     # 1. The out-of-band pins: series binding, authority key, genesis head.
     #    A malformed configuration refuses; it never degrades to "no pin".
+    if snapshot_bytes is not None and not isinstance(snapshot_bytes, (bytes, bytearray)):
+        return _unavailable("snapshot input is not bytes")
+    if trustconfig_bytes is None:
+        return _unavailable("trust configuration is absent")
+    if not isinstance(trustconfig_bytes, (bytes, bytearray)):
+        return _unavailable("trust configuration input is not bytes")
+    try:
+        trustconfig = _strict_json(bytes(trustconfig_bytes))
+    except Exception as error:
+        return _unavailable("trust configuration is not strict JSON: %s" % error)
     problem = _trustconfig_problem(trustconfig)
     if problem is not None:
         return _unavailable(problem)

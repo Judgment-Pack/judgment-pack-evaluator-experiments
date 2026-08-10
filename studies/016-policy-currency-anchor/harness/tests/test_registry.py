@@ -43,12 +43,19 @@ def snap_bytes(records, key=AUTH, position=None):
 
 
 def trust(records, minimum=None, genesis=True, authority=True, series=SERIES):
-    return json.loads(cp.trustconfig_bytes(
+    return cp.trustconfig_bytes(
         series_id=series,
         authority_public_key=cp.public_key_b64(AUTH) if authority else None,
         genesis_head=records[0]["checkpointDigest"] if genesis else None,
         minimum_head_pin=minimum,
-    ).decode("utf-8"))
+    )
+
+
+def trust_edit(records, **edits):
+    """The standard trust bytes with named members replaced, re-serialized."""
+    config = json.loads(trust(records).decode("utf-8"))
+    config.update(edits)
+    return json.dumps(config).encode("utf-8")
 
 
 BASE = registry_events(("add", "0.1.0", D1, SERIES))
@@ -97,10 +104,22 @@ def test_series_mismatch_is_unavailable():
 
 
 def test_unbound_series_is_unavailable():
-    config = trust(BASE)
-    config["seriesId"] = ""
-    result = vc.layer_currency(commitment(), snap_bytes(BASE), config)
+    result = vc.layer_currency(
+        commitment(), snap_bytes(BASE), trust_edit(BASE, seriesId="")
+    )
     assert result["code"] == "currency-unavailable"
+
+
+def test_duplicate_trustconfig_member_is_unavailable():
+    """Round-2 residual of R1-3 (and holdout h01's premise): the configuration
+    is parsed strictly at this layer, so duplicate members refuse even when
+    last-wins parsing would preserve the same semantics."""
+    raw = trust(BASE).decode("utf-8")
+    doctored = raw.replace('"minimumHeadPin": null',
+                           '"minimumHeadPin": null, "minimumHeadPin": null', 1)
+    assert doctored != raw
+    result = vc.layer_currency(commitment(), snap_bytes(BASE), doctored.encode("utf-8"))
+    assert (result["verdict"], result["code"]) == ("unavailable", "currency-unavailable")
 
 
 def test_malformed_minimum_pin_refuses_rather_than_degrading():
@@ -109,9 +128,9 @@ def test_malformed_minimum_pin_refuses_rather_than_degrading():
                    {"head": "nope", "position": 1},
                    {"head": "sha256:" + "0" * 64, "position": True},
                    {"head": "sha256:" + "0" * 64, "position": 0}):
-        config = trust(BASE)
-        config["minimumHeadPin"] = broken
-        result = vc.layer_currency(commitment(), snap_bytes(BASE), config)
+        result = vc.layer_currency(
+            commitment(), snap_bytes(BASE), trust_edit(BASE, minimumHeadPin=broken)
+        )
         assert result["code"] == "currency-unavailable", broken
 
 
@@ -230,6 +249,35 @@ def test_byte_limit_refuses_before_parsing():
     assert outcome(result) == "fail:snapshot-limits-exceeded"
 
 
+def test_byte_limit_is_inclusive_at_the_boundary():
+    """Exactly MAX_SNAPSHOT_BYTES verifies; the limit refuses strictly above."""
+    raw = snap_bytes(BASE)
+    padded = raw + b" " * (vc.MAX_SNAPSHOT_BYTES - len(raw))
+    assert len(padded) == vc.MAX_SNAPSHOT_BYTES
+    assert outcome(vc.layer_currency(commitment(), padded, trust(BASE))) == "pass"
+
+
+def test_supported_set_at_limit_passes():
+    events = [("add", "0.0.%d" % n, D1, SERIES) for n in range(vc.MAX_SUPPORTED_SET)]
+    records = registry_events(*events)
+    assert outcome(vc.layer_currency(
+        commitment("0.0.0", D1), snap_bytes(records), trust(records)
+    )) == "pass"
+
+
+def test_checkpoint_count_at_limit_passes():
+    events = [("add", "0.0.%d" % n, D1, SERIES) for n in range(vc.MAX_SUPPORTED_SET)]
+    events += [("retire", "0.0.%d" % n, None, SERIES)
+               for n in range(vc.MAX_CHECKPOINTS - vc.MAX_SUPPORTED_SET)]
+    records = registry_events(*events)
+    assert len(records) == vc.MAX_CHECKPOINTS
+    data = snap_bytes(records)
+    assert len(data) <= vc.MAX_SNAPSHOT_BYTES
+    result = vc.layer_currency(commitment("0.0.511", D1), data, trust(records))
+    assert result["verdict"] in ("pass", "fail")
+    assert result["code"] != "snapshot-limits-exceeded"
+
+
 def test_checkpoint_count_limit_refuses():
     events = [("add", "0.0.%d" % n, D1, SERIES) for n in range(vc.MAX_CHECKPOINTS + 1)]
     records = registry_events(*events)
@@ -263,8 +311,9 @@ def test_resigned_broken_linkage_is_chain_inconsistent():
 
 
 def test_wrong_genesis_pin_is_chain_inconsistent():
-    config = trust(BASE)
-    config["genesisHead"] = "sha256:" + hashlib.sha256(b"other-genesis").hexdigest()
+    config = trust_edit(
+        BASE, genesisHead="sha256:" + hashlib.sha256(b"other-genesis").hexdigest()
+    )
     result = vc.layer_currency(commitment(), snap_bytes(BASE), config)
     assert outcome(result) == "fail:snapshot-chain-inconsistent"
 

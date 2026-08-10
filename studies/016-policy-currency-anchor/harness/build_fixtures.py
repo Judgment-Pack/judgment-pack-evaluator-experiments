@@ -8,8 +8,9 @@ machinery consumed as a pinned upstream (decision D-1, `harness/upstream014.py`)
   baseline    the v0.1.0 decision chain (014's pos-baseline construction,
               rebuilt under the v0.17.0 replay tuple);
   successor   the same scenario decided under pack v0.2.0;
-  rollback    the e22-analog: the baseline judgment commitment re-bound under a
-              different, validly signed work order (014's e22 construction);
+  remint      the e22-analog: the baseline judgment commitment re-bound under a
+              different, equally valid work order (014's e22 construction —
+              a remint, not a rollback: OWP has no contract ordering);
   neg-owp     the baseline bundle with one signature character flipped.
 
 Every other cell varies only the signed registry history and the verifier's
@@ -302,8 +303,8 @@ def build_payloads(jpack_bin, work_root, owp_source):
     # work order — 014's registered construction, rebuilt under this study's
     # replay tuple. A pack-version registry accepts it; that acceptance is the
     # registered scope boundary (RFC 0011 R-1).
-    rollback = bf14.flow_cell(
-        work_root, base, base_commitment, salt="authz-rollback-016",
+    remint = bf14.flow_cell(
+        work_root, base, base_commitment, salt="workorder-remint-016",
         owp_source=owp_source,
         work_order_updates={
             "quota_ceiling": {"tool_calls": 200, "repair_rounds": 2},
@@ -381,7 +382,7 @@ def build_payloads(jpack_bin, work_root, owp_source):
     # R1-2): OWP has no contract ordering, so nothing is "older". Descriptive,
     # excluded from R1 credit, exactly 014's e22 precedent.
     cells["cur-workorder-remint-accepted"] = cell_payload(
-        rollback, snapshots["current"], tc
+        remint, snapshots["current"], tc
     )
     cells["cur-split-view-a"] = cell_payload(baseline, snapshots["view-a"], tc)
     cells["cur-split-view-b"] = cell_payload(baseline, snapshots["view-b"], tc)
@@ -455,3 +456,310 @@ def main(argv=None):
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# --------------------------------------------------------------------------
+# the reviewer-authored holdout stratum — implemented, NEVER run pre-freeze
+# --------------------------------------------------------------------------
+#
+# Hooks for the round-2 reviewer's cells (harness/MATRIX-HOLDOUT.json,
+# committed verbatim with attribution). They are library entry points the
+# scorer alone drives, inside a post-freeze attempt: every route requires a
+# `HoldoutAttemptContext` whose digests are re-derived from disk and whose
+# validity requires every freeze pin non-null — so pre-freeze, any context
+# fails and nothing here can execute. There is deliberately no command-line
+# route (014 round-4's lesson). Every construction is a deterministic byte or
+# registry operation over the frozen locked fixtures and the registry writer;
+# none drives an upstream OWP publication path, so construction statuses are
+# `built` or `harness-error` only (the 014 upstream-refusal class does not
+# apply, stated in the holdout registry's note).
+
+import dataclasses  # noqa: E402
+
+
+@dataclasses.dataclass(frozen=True)
+class HoldoutAttemptContext:
+    """Minted by harness/score.py after its freeze gates pass; verified here."""
+    attempt_root: str
+    pins_raw_sha256: str
+    preregistration_sha256: str
+    matrix_holdout_sha256: str
+
+
+class HoldoutRefused(RuntimeError):
+    """The holdout route was driven without a valid post-freeze context."""
+
+
+def holdout_context_problems(context):
+    """Re-derive every digest from disk; refuse pre-freeze or forged contexts."""
+    if not isinstance(context, HoldoutAttemptContext):
+        return ["holdout construction requires a HoldoutAttemptContext"]
+    problems = []
+    pins_raw = (STUDY / "harness" / "PINS.json").read_bytes()
+    if hashlib.sha256(pins_raw).hexdigest() != context.pins_raw_sha256:
+        problems.append("context pins digest does not match the live registry")
+    pins = json.loads(pins_raw.decode("utf-8"))
+    for member in ("preregistration", "matrix", "matrixHoldout", "registrySpec",
+                   "studyManifest"):
+        if (pins.get(member) or {}).get("sha256") is None:
+            problems.append("freeze pin %s is null: the stratum executes only "
+                            "after the freeze" % member)
+    for attribute, relative in (
+        ("preregistration_sha256", "PREREGISTRATION.md"),
+        ("matrix_holdout_sha256", "harness/MATRIX-HOLDOUT.json"),
+    ):
+        live = hashlib.sha256((STUDY / relative).read_bytes()).hexdigest()
+        if getattr(context, attribute) != live:
+            problems.append("context %s does not match the live file" % attribute)
+    if not Path(context.attempt_root).is_dir():
+        problems.append("context attempt root does not exist")
+    return problems
+
+
+def _require_context(context):
+    problems = holdout_context_problems(context)
+    if problems:
+        raise HoldoutRefused("; ".join(problems))
+
+
+def _locked_cell_payload(cell_id):
+    """The frozen locked cell's bytes, verified against its own manifest."""
+    directory = cell_directory(STUDY / "fixtures", cell_id)
+    manifest = (directory / MANIFEST_NAME).read_text(encoding="utf-8")
+    payload = {}
+    listed = {}
+    for line in manifest.splitlines():
+        if line.strip():
+            digest, _, name = line.partition("  ")
+            listed[name] = digest
+    for name in CELL_FILES:
+        path = directory / name
+        if not path.is_file():
+            raise BuildError("%s: %s is absent" % (cell_id, name))
+        data = path.read_bytes()
+        if listed.get(name) != sha256_hex(data):
+            raise BuildError("%s: %s does not match its frozen manifest" % (cell_id, name))
+        payload[name] = data
+    return payload
+
+
+def _replace_once(data, old, new, what):
+    text = data.decode("utf-8")
+    if text.count(old) != 1:
+        raise BuildError("%s: expected exactly one occurrence of %r" % (what, old))
+    return text.replace(old, new).encode("utf-8")
+
+
+def _authority():
+    import checkpoint as registry
+    return registry, registry.private_key(registry.AUTHORITY_SEED)
+
+
+def _holdout_h01(context):
+    payload = _locked_cell_payload("pos-current")
+    payload["trustconfig.json"] = _replace_once(
+        payload["trustconfig.json"], '"minimumHeadPin": null',
+        '"minimumHeadPin": null,\n  "minimumHeadPin": null', "h01 trustconfig",
+    )
+    return payload
+
+
+def _holdout_h02(context):
+    payload = _locked_cell_payload("pos-current")
+    payload["snapshot.json"] = _replace_once(
+        payload["snapshot.json"], '"position": 1', '"position": true',
+        "h02 snapshot",
+    )
+    return payload
+
+
+def _holdout_h03(context):
+    registry, authority = _authority()
+    payload = _locked_cell_payload("pos-current")
+    d1 = "sha256:" + PACK_V1_SHA256
+    d2 = "sha256:" + PACK_V2_SHA256
+    presented = registry.build_registry(authority, [
+        event("add", "0.1.0", d1, T1), event("retire", "0.1.0", effective=T2),
+        event("add", "0.1.0", d2, T3),
+    ])
+    sibling = registry.build_registry(authority, [
+        event("add", "0.1.0", d1, T1), event("add", "0.2.0", d2, T2),
+    ])
+    payload["snapshot.json"] = registry.snapshot_bytes(
+        registry.snapshot_of(authority, presented)
+    )
+    payload["trustconfig.json"] = registry.trustconfig_bytes(
+        series_id=SERIES_ID,
+        authority_public_key=registry.public_key_b64(authority),
+        genesis_head=presented[0]["checkpointDigest"],
+        minimum_head_pin={"head": sibling[1]["checkpointDigest"], "position": 2},
+    )
+    return payload
+
+
+def _holdout_h04(context):
+    registry, authority = _authority()
+    payload = _locked_cell_payload("pos-current")
+    records = registry.build_registry(authority, [
+        event("add", "0.1.0", "sha256:" + PACK_V1_SHA256, T1),
+        event("add", "0.1.0", "sha256:" + PACK_V2_SHA256, T2),
+    ])
+    payload["snapshot.json"] = registry.snapshot_bytes(
+        registry.snapshot_of(authority, records)
+    )
+    payload["trustconfig.json"] = registry.trustconfig_bytes(
+        series_id=SERIES_ID,
+        authority_public_key=registry.public_key_b64(authority),
+        genesis_head=records[0]["checkpointDigest"],
+    )
+    return payload
+
+
+def _retiring_snapshot_and_trust():
+    registry, authority = _authority()
+    records = registry.build_registry(authority, [
+        event("add", "0.1.0", "sha256:" + PACK_V1_SHA256, T1),
+        event("add", "0.2.0", "sha256:" + PACK_V2_SHA256, T2),
+        event("retire", "0.1.0", effective=T3),
+    ])
+    snapshot = registry.snapshot_bytes(registry.snapshot_of(authority, records))
+    trust = registry.trustconfig_bytes(
+        series_id=SERIES_ID,
+        authority_public_key=registry.public_key_b64(authority),
+        genesis_head=records[0]["checkpointDigest"],
+    )
+    return snapshot, trust
+
+
+def _holdout_h05(context):
+    payload = _locked_cell_payload("neg-replay-alive")
+    payload["snapshot.json"], payload["trustconfig.json"] = _retiring_snapshot_and_trust()
+    return payload
+
+
+def _holdout_h06(context):
+    registry, authority = _authority()
+    payload = _locked_cell_payload("cur-successor-current")
+    records = registry.build_registry(authority, [
+        event("add", "0.1.0", "sha256:" + PACK_V1_SHA256, T1),
+    ])
+    payload["snapshot.json"] = registry.snapshot_bytes(
+        registry.snapshot_of(authority, records)
+    )
+    payload["trustconfig.json"] = registry.trustconfig_bytes(
+        series_id=SERIES_ID,
+        authority_public_key=registry.public_key_b64(authority),
+        genesis_head=records[0]["checkpointDigest"],
+    )
+    return payload
+
+
+def _holdout_h07(context):
+    registry, authority = _authority()
+    payload = _locked_cell_payload("pos-current")
+    d1 = "sha256:" + PACK_V1_SHA256
+    events = [event("add", "0.1.0", d1, T1)]
+    events += [event("add", "9.0.%d" % n, d1, T2) for n in range(1, 512)]
+    records = registry.build_registry(authority, events)
+    payload["snapshot.json"] = registry.snapshot_bytes(
+        registry.snapshot_of(authority, records)
+    )
+    payload["trustconfig.json"] = registry.trustconfig_bytes(
+        series_id=SERIES_ID,
+        authority_public_key=registry.public_key_b64(authority),
+        genesis_head=records[0]["checkpointDigest"],
+    )
+    return payload
+
+
+def _holdout_h08(context):
+    registry, authority = _authority()
+    payload = _locked_cell_payload("pos-current")
+    events = [event("add", "0.1.0", "sha256:" + PACK_V1_SHA256, T1)]
+    events += [
+        event("add", "1.0.%d" % n, OTHER_SERIES_DIGEST, T2, series=OTHER_SERIES_ID)
+        for n in range(1, 1024)
+    ]
+    records = registry.build_registry(authority, events)
+    snapshot = registry.snapshot_bytes(registry.snapshot_of(authority, records))
+    if len(records) != 1024:
+        raise BuildError("h08: expected exactly 1024 checkpoints")
+    payload["snapshot.json"] = snapshot
+    payload["trustconfig.json"] = registry.trustconfig_bytes(
+        series_id=SERIES_ID,
+        authority_public_key=registry.public_key_b64(authority),
+        genesis_head=records[0]["checkpointDigest"],
+    )
+    return payload
+
+
+def _holdout_h09(context):
+    payload = _locked_cell_payload("pos-current")
+    target = 1_048_576
+    snapshot = payload["snapshot.json"]
+    if len(snapshot) >= target:
+        raise BuildError("h09: baseline snapshot is not below the byte limit")
+    payload["snapshot.json"] = snapshot + b" " * (target - len(snapshot))
+    return payload
+
+
+def _holdout_h10(context):
+    payload = _locked_cell_payload("pos-current")
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    authority_id = pins["registryAuthority"]["authorityKeyId"]
+    foreign_id = pins["registryAuthority"]["foreignKeyId"]
+    text = payload["snapshot.json"].decode("utf-8")
+    if authority_id not in text:
+        raise BuildError("h10: authority key id not present in the snapshot")
+    payload["snapshot.json"] = text.replace(authority_id, foreign_id).encode("utf-8")
+    return payload
+
+
+HOLDOUT_HOOKS = {
+    "h01": _holdout_h01, "h02": _holdout_h02, "h03": _holdout_h03,
+    "h04": _holdout_h04, "h05": _holdout_h05, "h06": _holdout_h06,
+    "h07": _holdout_h07, "h08": _holdout_h08, "h09": _holdout_h09,
+    "h10": _holdout_h10,
+}
+
+
+def builder_version_digest():
+    return sha256_hex(Path(__file__).read_bytes())
+
+
+def construct_holdout(context, out_root, cells):
+    """Build every registered holdout cell inside the attempt. Scorer-only.
+
+    Returns per-cell construction records; every outcome is persisted as
+    `<out_root>/<id>/CONSTRUCTION.json` with status `built` or `harness-error`
+    (see the module note on why the 014 `refused` class does not apply here).
+    `SystemExit`/`KeyboardInterrupt` propagate to the scorer's terminal path.
+    """
+    _require_context(context)
+    out_root = Path(out_root)
+    if Path(context.attempt_root).resolve() not in out_root.resolve().parents:
+        raise HoldoutRefused("holdout output must live inside the context's attempt")
+    records = {}
+    for cell in cells:
+        cell_id = cell["id"]
+        directory = out_root / cell_id
+        record = {"cell": cell_id, "builderVersionDigest": builder_version_digest()}
+        hook = HOLDOUT_HOOKS.get(cell_id)
+        try:
+            if hook is None:
+                raise BuildError("no construction hook is registered for " + cell_id)
+            payload = hook(context)
+            write_cell(directory, payload)
+            record["status"] = "built"
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except BaseException as error:
+            record["status"] = "harness-error"
+            record["harnessError"] = "%s: %s" % (type(error).__name__, error)
+        directory.mkdir(parents=True, exist_ok=True)
+        _atomic_write(
+            directory / "CONSTRUCTION.json",
+            (json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8"),
+        )
+        records[cell_id] = record
+    return records
