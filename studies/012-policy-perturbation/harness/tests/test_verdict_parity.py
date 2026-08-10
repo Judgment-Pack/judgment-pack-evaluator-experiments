@@ -1409,6 +1409,46 @@ def test_the_nested_pairs_make_layer_one_unavailable(preregistration):
     # §2.1's registered DRIFT rule quotes its own false-positive rate, and the
     # containment moves that one by more than an order of magnitude because the
     # rule counts CLASSES and a nested pair carries two of them at once.
+    #
+    # Round 16, finding 5: the rendering check below is a SECOND assertion, not
+    # the guard. §2.1's rule has two limbs — four or more classes below HIGH,
+    # OR any one class LOW — and the code carried only the first. No 4dp or
+    # float-valued assertion could ever have caught that: the one-limb and
+    # two-limb figures are the SAME IEEE double at every registered N, so the
+    # existing check was incapable of failing on the missing limb at any
+    # precision. What holds the RULE is exact rational arithmetic, plus a
+    # marginal where the limbs visibly separate.
+    for trials in (20, 25, 30):
+        weights = tuple(len(group) for group in score_rates.class_groups())
+        high = score_rates.probability_at_least(
+            score_rates.high_threshold(trials), trials, score_rates.SCENARIO_P)
+        low = score_rates._tail_le(score_rates.low_threshold(trials), trials,
+                                   score_rates.SCENARIO_P)
+        both = score_rates._drift_suspected(weights, high, low)
+        one = score_rates._weighted_at_least(
+            score_rates.DRIFT_SUSPECTED_MINIMUM, weights, 1 - high)
+        # The second limb is really there, exactly…
+        assert both > one, trials
+        # …and this is WHY no printed digit moves: the two collapse to one
+        # double, which is the fact that made the old assertion vacuous.
+        assert "%.4f" % float(both) == "%.4f" % float(one), trials
+        assert float(score_rates.containment_operating_characteristics(
+            trials)["driftSuspected"]) == float(both), trials
+    # Visible rather than at 1e-31: at a marginal where a class is LOW one time
+    # in ten, the whole rule fires at 0.3536 and the four-of-six limb alone at
+    # 0.0528. An implementation carrying one limb fails here by a wide margin.
+    assert score_rates._drift_suspected(
+        (2, 2, 1, 1), Fraction(4, 5), Fraction(1, 10)) == Fraction(221, 625)
+    assert score_rates._weighted_at_least(
+        score_rates.DRIFT_SUSPECTED_MINIMUM, (2, 2, 1, 1),
+        Fraction(1, 5)) == Fraction(33, 625)
+    # And the power the second limb is FOR, which is why §2.1 registers it: a
+    # single class collapsed to p = 0.05 reads LOW nine times in ten and puts at
+    # most two of six classes below HIGH, so the four-of-six limb alone never
+    # fires on it.
+    collapsed = score_rates._tail_le(score_rates.low_threshold(30), 30,
+                                     score_rates.SCENARIO_P_COLLAPSED)
+    assert collapsed > Fraction(9, 10)
     for trials in (25, 30):
         drift = score_rates.containment_operating_characteristics(
             trials)["driftSuspected"]

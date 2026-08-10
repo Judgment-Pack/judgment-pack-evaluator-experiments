@@ -15,7 +15,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:3b858139d5a83b6ba8b740eacdfeb2d9a82954edc026e3945082f8df4830943a"
+    "sha256": "sha256:329a9b051a3aee6ba39d0090d1e5d6aa60eb749ea7e8ecb95c9a320c51d05907"
   },
   "codex": {
     "model": "gpt-5.6-sol",
@@ -164,6 +164,7 @@
       "DEVIATIONS.md",
       "CORRECTION.md",
       "arms/BATCH.json",
+      "arms/BATCH.json.partial",
       "arms/SHORTFALL.json",
       "transcription/GOLDEN-CONTEXT.json",
       "records/",
@@ -175,7 +176,7 @@
       "arms/D/authoring/",
       "arms/E/authoring/"
     ],
-    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set, at the paths the code actually writes (round 3, findings 1-2, dispositioned); the manifest's two carrier files (harness/PINS.json, PREREG-REVIEW.md) are excluded in integrity.tree_manifest() itself; an entry ending / is a tree and excludes everything beneath it, every other entry is exactly one path (round 9, finding 5). records/ is the destination README step 7's registered `score --emit-records` command writes and §8 requires published, and CORRECTION.md is the §8 correction venue this study's README points at, written by hand in every outcome; both are produced after the freeze, so both are exclusions rather than covered bytes (round 14, findings 1-2)."
+    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set, at the paths the code actually writes (round 3, findings 1-2, dispositioned); the manifest's two carrier files (harness/PINS.json, PREREG-REVIEW.md) are excluded in integrity.tree_manifest() itself; an entry ending / is a tree and excludes everything beneath it, every other entry is exactly one path (round 9, finding 5). records/ is the destination README step 7's registered `score --emit-records` command writes and §8 requires published, and CORRECTION.md is the §8 correction venue this study's README points at, written by hand in every outcome; both are produced after the freeze, so both are exclusions rather than covered bytes (round 14, findings 1-2). arms/BATCH.json.partial is the ledger's atomic-write temporary at the FIXED name batch.LEDGER_TEMP_NAME: an uncatchable kill between writing it and renaming it leaves it beside the ledger, and it is a FILE entry beside arms/BATCH.json so that a residue is an excluded path rather than a tracked one no entry can name — the driver refuses by name on the next run and the operator records the interruption in DEVIATIONS.md (round 16, finding 3)."
   },
   "registryOfRecord": "The committed harness/PINS.json is the registry of record: the wrapper stamps the digest of the registry it ran under, the scorer computes the committed file's digest itself, and any slot whose stamp differs is registry-mismatch. The scorer takes no registry argument at all (§2.10 [D-23]).",
   "thresholdDefinitionSentence": {

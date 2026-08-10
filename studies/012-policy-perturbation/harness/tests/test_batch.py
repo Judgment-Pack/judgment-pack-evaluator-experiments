@@ -133,7 +133,11 @@ RUNNING_REGISTERED = registered_interpreter()
     RUNNING_REGISTERED,
     "the wrapper refuses an interpreter harness/PINS.json does not register "
     "(§2.10), so no wrapper-driven case can run here")
-class Batch(unittest.TestCase):
+class BatchFixture(unittest.TestCase):
+    """The stand-in study, CLI, HOME and registry every wrapper-driven case
+    here runs against, and nothing else. It carries no test of its own: `Batch`
+    below holds the driver's behaviour and `PreCallGates` holds §7's pre-call
+    gate ledger, and both need this one fixture rather than a copy of it."""
 
     def setUp(self):
         self.root = fixtures.throwaway_root("s012-batch-")
@@ -199,26 +203,31 @@ class Batch(unittest.TestCase):
         every case here a function of how far the real ceremony has got — which
         §2.10 forbids a manifest-covered test expectation to be, and which rule
         3 would forbid repairing once the final round has read the file (round
-        15, finding 1). `test_no_case_here_depends_on_the_studys_stage` holds
-        it, so the next inherited member fails there rather than in a later
-        round's reading.
+        15, finding 1). `fixtures.stand_in_registry()` is where the writing
+        happens, for this builder and for `test_admission.py`'s alike, and it
+        is keyed off `integrity.POST_FREEZE_MEMBERS` so that a fifth member is
+        nulled here with no edit; `test_no_case_here_depends_on_the_studys_stage`
+        holds the constructor, and
+        `test_manifest.py::test_every_stand_in_registry_writes_every_lifecycle_member`
+        holds the fact that every builder goes through it.
+
+        Round 16, finding 4: the two freeze pins are written TOGETHER. This
+        builder used to fill `freeze.preregistrationSha256` and null
+        `freeze.treeManifestSha256` beside it, which is the one shape §2.10
+        says cannot exist and `integrity.verify_tree()` refuses by name — it
+        survived only because nothing on the driver's path reads the tree pin
+        off a supplied registry.
         """
         if committed is None:
             with open(REGISTRY) as handle:
                 committed = json.load(handle)
-        pins = json.loads(json.dumps(committed))
+        pins = fixtures.stand_in_registry(committed, {
+            ("freeze", "preregistrationSha256"):
+                batch._digest(os.path.join(STUDY, "PREREGISTRATION.md")),
+            ("freeze", "treeManifestSha256"): fixtures.STAND_IN_TREE_MANIFEST,
+        })
         pins["codex"]["binarySha256"] = batch._digest(self.cli)
         pins["codex"]["version"] = "codex-cli 0.145.0-fake"
-        pins["freeze"]["preregistrationSha256"] = batch._digest(
-            os.path.join(STUDY, "PREREGISTRATION.md"))
-        # §2.10's remaining three post-freeze members, at their pre-act state:
-        # the two this fixture's own acts advance, and the tree manifest, which
-        # no batch or scorer path reads from a registry it is handed — written
-        # anyway so the guard is total in `integrity.POST_FREEZE_MEMBERS`
-        # rather than a fourth list this file has to keep.
-        pins["freeze"]["treeManifestSha256"] = None
-        pins["golden"]["sha256"] = None
-        pins["isolationNegative"]["assent"] = None
         return pins
 
     def write_pins(self, pins: dict) -> None:
@@ -392,6 +401,16 @@ class Batch(unittest.TestCase):
     def attempt(self, index: int = 1) -> str:
         return os.path.join(self.captures, "attempt-%d" % index)
 
+    def unpinned_cli(self) -> str:
+        other = fixtures.write_fake_cli(os.path.join(self.root, "cli2"), PLAN,
+                                        sys.executable, HERE)
+        with open(other, "a") as handle:
+            handle.write("# a different binary\n")
+        return other
+
+
+class Batch(BatchFixture):
+
     # --- the fixture's own stage (round 15, finding 1) -----------------------
 
     def test_no_case_here_depends_on_the_studys_stage(self):
@@ -408,6 +427,14 @@ class Batch(unittest.TestCase):
         not the livelock §2.10 describes, which is why fourteen rounds of a
         green suite did not see it (round 15, finding 1).
 
+        Round 16, finding 4: the guard is over the shared CONSTRUCTOR as well
+        as over this builder, because round 15 closed this instance, declared
+        the sweep complete and was wrong — `test_admission.py`'s builder
+        inherited the tree pin. One behavioural guard over
+        `fixtures.stand_in_registry()` plus the source-level rule in
+        `test_manifest.py` that every builder goes through it is what replaces
+        a second copy of this case.
+
         What it does NOT cover, so the guard is not read for more than it is:
         the two other cases in this class that open `REGISTRY` themselves, the
         module-level interpreter check, and `IntervalScope` below. None of the
@@ -415,7 +442,11 @@ class Batch(unittest.TestCase):
         and the prompts, the spelling case reads member NAMES, the interpreter
         check reads `python`, and `fixtures.Population` writes its own
         preconditions with the study's three nulled — but that is reviewed and
-        not asserted here."""
+        not asserted here. Nor does it cover `CALL.json`'s `pinsSha256`
+        (`fixtures.py`), the live digest of the registry FILE and therefore a
+        function of all four members: that byte does move by stage, admission
+        recomputes the same digest on the other side, and it is an expectation
+        of neither side."""
         with open(REGISTRY) as handle:
             committed = json.load(handle)
         advanced = json.loads(json.dumps(committed))
@@ -424,6 +455,12 @@ class Batch(unittest.TestCase):
         self.assertNotEqual(advanced, committed)
         self.assertEqual(self.stand_in_registry(advanced),
                          self.stand_in_registry(committed))
+        # …and the constructor itself, which `test_admission.py` reaches
+        # through its own builder and not through this one.
+        self.assertEqual(fixtures.stand_in_registry(advanced),
+                         fixtures.stand_in_registry(committed))
+        with self.assertRaises(AssertionError):
+            fixtures.stand_in_registry(committed, {("freeze", "misspelled"): 1})
 
     # --- the registry the preflight reads (round 3 finding 3) ---------------
 
@@ -541,18 +578,31 @@ class Batch(unittest.TestCase):
     def test_a_registry_that_shrinks_n_never_reaches_a_call(self):
         """…and the same refusal through the registered command line, before a
         call is spent: [D-1]'s registered alternative of N = 25 is a different
-        study, and the 30-round order must not be runnable under it."""
+        study, and the 30-round order must not be runnable under it.
+
+        Round 16, finding 2: NAMED, and with every other gate satisfied first.
+        This case asserted a bare exit 1 while §6 C7's assent gate below
+        `check_registry()` was still unmet, so the refusal it read was that
+        gate's and the whole preflight call to `check_registry()` could be
+        deleted with the suite still green — the round-15 golden defect, one
+        gate over. `PreCallGates` below is the general form; this case is the
+        instance, kept because it is where a reader looks for [D-1]."""
         self.assertEqual(self.capture(), 0)
         self.register_golden()
+        self.record_negative_control()
         spent = self.calls_made()
         pins = json.loads(json.dumps(self.pins))
         pins["batch"]["n"] = 25
         path = os.path.join(self.root, "PINS-n25.json")
         with open(path, "w") as handle:
             json.dump(pins, handle, indent=2)
-        self.assertEqual(self.run_batch(["--runs", "1"], pins_path=path), 1)
+        self.assertIn("batch.n = 25",
+                      self.refusal(["--runs", "1"], pins_path=path))
         self.assertFalse(os.path.exists(self.arms_root))
         self.assertEqual(self.calls_made(), spent)
+        # The admitting half: the same command line, the registered N, a slot.
+        self.assertEqual(self.run_batch(["--runs", "1"]), 0)
+        self.assertTrue(os.path.isdir(self.slot(0)))
 
     # --- the golden gate ----------------------------------------------------
 
@@ -584,13 +634,41 @@ class Batch(unittest.TestCase):
         self.assertFalse(os.path.exists(self.arms_root))
 
     def test_a_batch_never_starts_against_an_unfrozen_preregistration(self):
+        """§2.10, and §7's claim about the CALLS: the freeze digest is a
+        precondition of the batch and not only of the scoring.
+
+        Round 16, finding 1: BOTH halves of the gate, both NAMED, with §6 C7's
+        record already on disk so the freeze is the only unmet gate. This case
+        used to assert a bare exit 1 without recording the control, so the
+        refusal it actually read was C7's assent gate — `require_freeze(pins)`
+        could be deleted from `preflight()` and the whole suite stayed green,
+        which is the §7 bullet at the top of this docstring going unenforced
+        with nothing to say so."""
         self.assertEqual(self.capture(), 0)
         self.register_golden()
+        self.record_negative_control()
+        spent = self.calls_made()
         unfrozen = self.alternate_registry(
             "PINS-unfrozen.json",
             freeze=dict(self.pins["freeze"], preregistrationSha256=None))
-        self.assertEqual(self.run_batch(["--runs", "1"], pins_path=unfrozen), 1)
+        self.assertIn("registers no freeze.preregistrationSha256",
+                      self.refusal(["--runs", "1"], pins_path=unfrozen))
         self.assertFalse(os.path.exists(self.arms_root))
+        self.assertEqual(self.calls_made(), spent)
+        # The gate's other half, which nothing exercised: a pin that is FILLED
+        # and no longer the file's. "Frozen" is a digest that still matches,
+        # not a non-null member.
+        edited = self.alternate_registry(
+            "PINS-edited.json",
+            freeze=dict(self.pins["freeze"],
+                        preregistrationSha256="sha256:" + "5" * 64))
+        self.assertIn("it was edited after the freeze",
+                      self.refusal(["--runs", "1"], pins_path=edited))
+        self.assertFalse(os.path.exists(self.arms_root))
+        self.assertEqual(self.calls_made(), spent)
+        # …and the admitting half, so the gate is not merely refusing.
+        self.assertEqual(self.run_batch(["--runs", "1"]), 0)
+        self.assertTrue(os.path.isdir(self.slot(0)))
 
     def test_a_golden_capture_is_never_derived_from_batch_slots(self):
         self.recapture_then_batch(extra=["--runs", "1"])
@@ -679,13 +757,6 @@ class Batch(unittest.TestCase):
                           for offset in range(3)])
         self.assertFalse(os.path.exists(self.arms_root))
         self.assertEqual(self.calls_made(), spent)
-
-    def unpinned_cli(self) -> str:
-        other = fixtures.write_fake_cli(os.path.join(self.root, "cli2"), PLAN,
-                                        sys.executable, HERE)
-        with open(other, "a") as handle:
-            handle.write("# a different binary\n")
-        return other
 
     def test_a_cli_that_is_not_the_pinned_one_never_reaches_a_call(self):
         code = batch.main(["batch.py", "run", "--scratch-parent", self.scratch,
@@ -1870,6 +1941,43 @@ class Batch(unittest.TestCase):
                           if name.startswith("BATCH.json")], ["BATCH.json"])
         self.assertEqual(len(self.ledger()["records"]), 3)
 
+    def test_a_stale_ledger_temporary_is_refused_by_name(self):
+        """Round 16, finding 3: the temporary has a FIXED, registered name, and
+        an uncatchable kill in the rename window leaves it behind.
+
+        Under `mkstemp` that residue was a `BATCH.json.<random>.partial` that
+        no `freeze.excluded` entry could name, that the writer scan could not
+        resolve, and that only an unread docstring note asked the operator to
+        remove — so a publication `git add -A` moved the manifest the final
+        round attested. `O_EXCL` makes it a refusal the next run names, and the
+        name is a registered exclusion, which is what makes the residue inert
+        rather than merely transient."""
+        self.recapture_then_batch(extra=["--runs", "1"])
+        ledger = os.path.join(self.arms_root, "BATCH.json")
+        stale = os.path.join(self.arms_root, batch.LEDGER_TEMP_NAME)
+        with open(stale, "w") as handle:
+            handle.write("half a ledger\n")
+        with open(ledger, "rb") as handle:
+            before = handle.read()
+        spent = self.calls_made()
+        self.assertIn("a previous run left the ledger's temporary behind",
+                      self.refusal(["--runs", "1", "--resume"]))
+        # Before a call is spent: the residue is checkable in preflight, so the
+        # refusal is not the atomic writer's, which would land after the first
+        # slot of the invocation had already run.
+        self.assertEqual(self.calls_made(), spent)
+        self.assertFalse(os.path.exists(self.slot(1)))
+        # The ledger the crash left is whole and untouched, and the residue is
+        # still there for the operator to record and remove.
+        with open(ledger, "rb") as handle:
+            self.assertEqual(handle.read(), before)
+        self.assertTrue(os.path.exists(stale))
+        # …and the admitting half.
+        os.unlink(stale)
+        self.assertEqual(self.run_batch(["--runs", "1", "--resume"]), 0)
+        self.assertEqual(len(self.ledger()["records"]), 2)
+        self.assertFalse(os.path.exists(stale))
+
     # --- the shortfall declaration (round 3 finding 15) ---------------------
 
     def test_a_whole_round_is_declared_as_one_completed_round(self):
@@ -2056,6 +2164,1196 @@ class Batch(unittest.TestCase):
                          ledger[-1]["globalIndex"])
         self.assertEqual(declared["lastSlot"], ledger[-1]["path"])
         self.assertEqual(declared["completedSlots"], len(ledger))
+
+
+# --- §7's pre-call gates, derived (round 16, findings 1 and 2) ---------------
+#
+# The class three rounds have now repaired one instance at a time: a gate that
+# `preflight()` runs before the first call, a test that drives the registered
+# command line and asserts a bare exit 1, and a LATER gate that supplies that
+# exit 1 for its own reason. Delete the call and the suite stays green. Round
+# 15 closed it on the golden gate; round 16's sweep found ten of preflight's
+# fourteen gates in the same state, and `require_freeze()` — a §7 enforcement
+# claim about the CALLS — removable at all five of its call sites at once.
+#
+# What follows is the class rather than the eleventh instance. The gate set is
+# READ OUT OF `batch.py` by `ast`; `PRE_CALL_GATES` is required to be exactly
+# it, so a gate added to the driver, or a command that starts calling one, is a
+# missing ledger row and fails by name. Three tests stand on that one
+# derivation: A that the ledger is complete, B that each row's needle is really
+# a refusal that gate raises and that no OTHER gate raises it unrecorded, and C
+# that with every other gate satisfied and this one alone unmet the registered
+# command line refuses BY THAT NAME, spends no call, writes no artifact and
+# leaves the ledger where it was — and admits once the gate is satisfied.
+#
+# What it cannot do is in `PreCallGates`'s own docstring, in full. The short
+# version: it is author-VISIBLE, not author-proof. Deleting a gate and its
+# ledger row together is green; what the mechanism converts is a silent
+# deletion into an edit of the file whose only job is to record the gate set.
+
+
+def _batch_tree() -> ast.Module:
+    """`batch.py`'s own source. Read from `batch.__file__`, so this is the file
+    the tests import and `integrity.verify()` pins, not a second copy."""
+    with open(batch.__file__.replace(".pyc", ".py"), "rb") as handle:
+        return ast.parse(handle.read().decode("utf-8"))
+
+
+def _module_functions(tree: ast.Module) -> dict:
+    return {node.name: node for node in tree.body
+            if isinstance(node, ast.FunctionDef)}
+
+
+def _is_batch_error(node: ast.Raise) -> bool:
+    if node.exc is None:
+        return False
+    raised = node.exc.func if isinstance(node.exc, ast.Call) else node.exc
+    return isinstance(raised, ast.Name) and raised.id == "BatchError"
+
+
+def _raised_literal(node: ast.Raise):
+    """The refusal STRING a `raise BatchError(...)` carries, or None.
+
+    `"…%s…" % (values)` is read down to its literal left side: the needle a
+    test asserts can only ever be a constant fragment of the message."""
+    if not isinstance(node.exc, ast.Call) or not node.exc.args:
+        return None
+    argument = node.exc.args[0]
+    while isinstance(argument, ast.BinOp) and isinstance(argument.op, ast.Mod):
+        argument = argument.left
+    if isinstance(argument, ast.Constant) and isinstance(argument.value, str):
+        return argument.value
+    return None
+
+
+def _raises_batch_error(name: str, functions: dict, seen=frozenset()) -> bool:
+    """Whether calling `name` can raise `BatchError`, directly or through
+    another module-level function of `batch.py`."""
+    node = functions.get(name)
+    if node is None or name in seen:
+        return False
+    for inner in ast.walk(node):
+        if isinstance(inner, ast.Raise) and _is_batch_error(inner):
+            return True
+        if isinstance(inner, ast.Call) and isinstance(inner.func, ast.Name) \
+                and _raises_batch_error(inner.func.id, functions,
+                                        seen | {name}):
+            return True
+    return False
+
+
+def gate_functions() -> tuple:
+    """The gate FUNCTIONS: `preflight()`'s own direct callees that can refuse.
+
+    Derived, never listed. Today it is `verify_ported_bytes`, `require_freeze`,
+    `check_registry`, `require_golden` and `require_isolation_negative`; a
+    sixth arrives here by being called, not by being written down."""
+    functions = _module_functions(_batch_tree())
+    return tuple(sorted(
+        {node.func.id for node in ast.walk(functions["preflight"])
+         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+         and node.func.id in functions
+         and _raises_batch_error(node.func.id, functions)}))
+
+
+def _sites_in(function: ast.FunctionDef, gates: tuple) -> list:
+    """[(kind, label, line, prompt_kind, literal)] for one function body.
+
+    `kind` is "gate" for a call to one of the gate functions, "inline" for a
+    `raise BatchError` the function makes itself, "preflight" for the call that
+    delegates to the shared preflight, and "invoke" for the first spent call.
+
+    An inline gate's LABEL is the source of the `if` that guards it, unparsed.
+    A line number would move under every edit above it and a message would make
+    test B circular; the condition is what a reader identifies the gate by, and
+    rewording it is an edit to this ledger — which is the point.
+
+    `prompt_kind` carries the ONE branch that decides which command reaches a
+    site: `preflight()` runs a registered-batch arm and a probe arm. Every
+    other `if` is part of a gate's own condition, not of the path."""
+    found = []
+
+    def visit(statements, prompt_kind, guard):
+        for statement in statements:
+            if isinstance(statement, ast.Raise):
+                if _is_batch_error(statement):
+                    found.append(("inline", guard, statement.lineno, prompt_kind,
+                                  _raised_literal(statement)))
+                continue
+            if isinstance(statement, ast.If):
+                test = statement.test
+                if isinstance(test, ast.Compare) \
+                        and isinstance(test.left, ast.Name) \
+                        and test.left.id == "prompt_kind" \
+                        and len(test.ops) == 1 \
+                        and isinstance(test.ops[0], ast.Eq) \
+                        and isinstance(test.comparators[0], ast.Constant):
+                    kind = test.comparators[0].value
+                    visit(statement.body, kind, guard)
+                    visit(statement.orelse, "!" + kind, guard)
+                    continue
+                visit(statement.body, prompt_kind, ast.unparse(test))
+                visit(statement.orelse, prompt_kind,
+                      "not (%s)" % ast.unparse(test))
+                continue
+            if isinstance(statement, (ast.For, ast.While, ast.With)):
+                visit(statement.body, prompt_kind, guard)
+                visit(getattr(statement, "orelse", []) or [], prompt_kind, guard)
+                continue
+            if isinstance(statement, ast.Try):
+                visit(statement.body, prompt_kind, guard)
+                for handler in statement.handlers:
+                    visit(handler.body, prompt_kind, guard)
+                visit(statement.orelse, prompt_kind, guard)
+                visit(statement.finalbody, prompt_kind, guard)
+                continue
+            for inner in ast.walk(statement):
+                if isinstance(inner, ast.Raise) and _is_batch_error(inner):
+                    found.append(("inline", guard, inner.lineno, prompt_kind,
+                                  _raised_literal(inner)))
+                if not isinstance(inner, ast.Call) \
+                        or not isinstance(inner.func, ast.Name):
+                    continue
+                if inner.func.id in gates:
+                    found.append(("gate", inner.func.id, inner.lineno,
+                                  prompt_kind, None))
+                elif inner.func.id == "preflight":
+                    argument = (inner.args[5] if len(inner.args) > 5 else None)
+                    if not isinstance(argument, ast.Constant):
+                        raise AssertionError(
+                            "batch.py:%d calls preflight() with a prompt_kind "
+                            "this derivation cannot read: the branch that "
+                            "decides which command reaches which gate has to "
+                            "be a literal at the call site" % inner.lineno)
+                    found.append(("preflight", argument.value, inner.lineno,
+                                  prompt_kind, None))
+                elif inner.func.id == "invoke":
+                    found.append(("invoke", None, inner.lineno, prompt_kind,
+                                  None))
+    visit(function.body, None, "<unguarded>")
+    return found
+
+
+def command_entries() -> dict:
+    """{command: entry function}, read out of `main()`'s own dispatch.
+
+    Every member of `batch.COMMANDS` must land somewhere: the dispatch's `if
+    command == "…"` arms name four of them and the fall-through return names
+    the fifth, and a command that reaches neither fails here rather than
+    quietly leaving its gates underived."""
+    functions = _module_functions(_batch_tree())
+    main = functions["main"]
+    entries = {}
+    for node in ast.walk(main):
+        if not isinstance(node, ast.If) or not isinstance(node.test, ast.Compare):
+            continue
+        test = node.test
+        if not (isinstance(test.left, ast.Name) and test.left.id == "command"
+                and len(test.ops) == 1 and isinstance(test.ops[0], ast.Eq)
+                and isinstance(test.comparators[0], ast.Constant)):
+            continue
+        for inner in node.body:
+            if isinstance(inner, ast.Return) \
+                    and isinstance(inner.value, ast.Call) \
+                    and isinstance(inner.value.func, ast.Name) \
+                    and inner.value.func.id in functions:
+                entries[test.comparators[0].value] = inner.value.func.id
+    remaining = [name for name in batch.COMMANDS if name not in entries]
+    # The fall-through: the last statement of `main()`'s dispatch block, which
+    # is the command no `if` arm names.
+    body = [node for node in main.body if isinstance(node, ast.Try)]
+    tail = body[-1].body[-1] if body else None
+    if len(remaining) != 1 or not isinstance(tail, ast.Return) \
+            or not isinstance(tail.value, ast.Call) \
+            or not isinstance(tail.value.func, ast.Name) \
+            or tail.value.func.id not in functions:
+        raise AssertionError(
+            "main() dispatches %r and batch.COMMANDS is %r: this derivation "
+            "reads one fall-through command at the end of the dispatch and %d "
+            "are unaccounted for" % (sorted(entries), list(batch.COMMANDS),
+                                     len(remaining)))
+    entries[remaining[0]] = tail.value.func.id
+    return entries
+
+
+def derived_pre_call_gates() -> dict:
+    """{(command, host, kind, label): line} — every gate the driver runs
+    BEFORE it spends a call, per command.
+
+    A site counts when it is in `preflight()`, or in a command's own entry
+    function above that entry's first `invoke()`. `preflight()`'s sites are
+    attributed to each command that reaches them: the registered-batch arm to
+    the commands that call it with `"registered"`, the probe arm to the ones
+    that call it with `"probe"`, and the unguarded ones to both.
+
+    KEYED ON (command, gate) and not on the gate alone, because that is the
+    distinction the round-16 sweep turned on: `require_freeze()` is called at
+    five sites across four commands, and a (gate, needle) table would have
+    declared the whole of it covered by the single `run` case that touches
+    one."""
+    tree = _batch_tree()
+    functions = _module_functions(tree)
+    gates = gate_functions()
+    shared = _sites_in(functions["preflight"], gates)
+    cells = {}
+    for command, entry in sorted(command_entries().items()):
+        rows = _sites_in(functions[entry], gates)
+        first_call = min([row[2] for row in rows if row[0] == "invoke"],
+                         default=None)
+        for kind, label, line, _prompt, _literal in rows:
+            if kind == "invoke" or (first_call is not None and line >= first_call):
+                continue
+            if kind == "preflight":
+                for inner_kind, inner_label, inner_line, prompt, _lit in shared:
+                    if prompt is None or prompt == label \
+                            or (prompt.startswith("!") and prompt[1:] != label):
+                        cells[(command, "preflight", inner_kind,
+                               inner_label)] = inner_line
+                continue
+            cells[(command, entry, kind, label)] = line
+    return cells
+
+
+def gate_identity(site: tuple) -> tuple:
+    """The gate a site IS, with the host dropped where the host is not part of
+    its identity. A gate FUNCTION is one gate however many callers it has —
+    that is why `require_freeze` is one row of `SATISFY` and five cells of the
+    ledger — while an inline `if … raise` belongs to the function it is written
+    in, and two functions can guard on the same condition."""
+    host, kind, label = site
+    return ("gate", label) if kind == "gate" else ("inline", host, label)
+
+
+def gate_refusal_literals() -> dict:
+    """{gate identity: (refusal string, …)} — the messages each gate raises,
+    read out of `batch.py`. A gate FUNCTION owns every `raise BatchError` in
+    its body; an inline gate owns the raises its own `if` guards."""
+    tree = _batch_tree()
+    functions = _module_functions(tree)
+    gates = gate_functions()
+    literals = {}
+    # Inline gates live in `preflight()` and in the command entries; a raise
+    # inside a gate FUNCTION belongs to that gate and is collected below, not
+    # twice.
+    for host in sorted({"preflight"} | set(command_entries().values())):
+        for kind, label, _line, _prompt, literal in _sites_in(functions[host],
+                                                              gates):
+            if kind != "inline" or literal is None:
+                continue
+            literals.setdefault(("inline", host, label), []).append(literal)
+    for gate in gates:
+        literals[("gate", gate)] = [
+            text for text in
+            (_raised_literal(node) for node in ast.walk(functions[gate])
+             if isinstance(node, ast.Raise) and _is_batch_error(node))
+            if text]
+    return {key: tuple(value) for key, value in literals.items()}
+
+
+class Gate:
+    """One row of the ledger: how a cell is held, and by what name.
+
+    `how` is "command" when the cell is driven through the registered command
+    line — the strongest form, because deleting the gate makes that command
+    SUCCEED; "preflight" when the command line cannot reach the state because a
+    gate in the entry function refuses first, so the cell is driven by calling
+    `batch.preflight()` itself and `why` names the gate above it; and
+    "residual" when the cell is derived but not driven, in which case `why`
+    states what does hold it today. A residual row is a DECLARED gap: the
+    derivation still refuses to let the cell disappear.
+
+    `recipe` is the method that leaves this one gate unmet. `None` means the
+    ceremony step in `SATISFY` is simply not taken — the strictly better form,
+    since then the only difference between the refusing run and the admitting
+    one is the registered act itself.
+
+    `shared` names the other gates whose refusal messages also contain this
+    row's needle. It is almost always empty; where it is not, the collision is
+    recorded rather than discovered later, because a needle another gate can
+    supply is how a case goes vacuous (round 16, finding 2)."""
+
+    def __init__(self, how, named=None, recipe=None, shared=(), why=None):
+        self.how = how
+        self.named = named
+        self.recipe = recipe
+        self.shared = tuple(shared)
+        self.why = why
+
+
+# The ceremony act that leaves each gate SATISFIED, keyed on the gate itself
+# rather than on the command, and asserted total against the derivation by
+# `test_every_derived_gate_has_a_way_to_satisfy_it` — so a gate added to the
+# driver arrives with a way to meet it, not only with a way to break it.
+# `satisfied_by_the_fixture` is the honest name for a gate the stand-in study
+# already meets (its wrapper is on disk, its scratch parent is a directory, its
+# CLI is the pinned one); those are broken by a `recipe` instead.
+SATISFY = {
+    ("preflight", "gate", "verify_ported_bytes"): "satisfied_by_the_fixture",
+    ("preflight", "inline", "not slots"): "satisfied_by_the_fixture",
+    ("preflight", "inline", "not os.path.isfile(SCRIPT)"):
+        "satisfied_by_the_fixture",
+    ("preflight", "inline", "not os.path.isdir(scratch_parent)"):
+        "satisfied_by_the_fixture",
+    ("preflight", "gate", "require_freeze"): "freeze_the_preregistration",
+    ("preflight", "inline", "not entries"): "satisfied_by_the_fixture",
+    ("preflight", "inline",
+     "entries[-1]['globalIndex'] > REGISTERED_SLOTS"):
+        "satisfied_by_the_fixture",
+    ("preflight", "gate", "check_registry"): "satisfied_by_the_fixture",
+    ("preflight", "inline", "not pinned"): "satisfied_by_the_fixture",
+    ("preflight", "inline", "not _matches(actual, pinned)"):
+        "satisfied_by_the_fixture",
+    ("preflight", "inline", "not os.path.isfile(cli_override)"):
+        "satisfied_by_the_fixture",
+    ("preflight", "inline",
+     "not _matches(override_digest, pins['codex']['binarySha256'])"):
+        "satisfied_by_the_fixture",
+    ("preflight", "inline", "os.path.exists(RESULTS)"):
+        "satisfied_by_the_fixture",
+    ("preflight", "inline", "os.path.lexists(temporary)"):
+        "satisfied_by_the_fixture",
+    ("preflight", "gate", "require_golden"): "register_the_golden",
+    ("preflight", "gate", "require_isolation_negative"):
+        "record_negative_control",
+    ("preflight", "inline", "existing"): "satisfied_by_the_fixture",
+
+    ("run_batch", "inline", "records and (not resume)"):
+        "satisfied_by_the_fixture",
+    ("run_batch", "inline", "os.path.exists(RESULTS)"):
+        "satisfied_by_the_fixture",
+    ("run_batch", "gate", "verify_ported_bytes"): "satisfied_by_the_fixture",
+    ("run_batch", "gate", "require_freeze"): "freeze_the_preregistration",
+    ("run_batch", "inline", "resume and (not records)"):
+        "satisfied_by_the_fixture",
+    ("run_batch", "inline", "not remaining"): "satisfied_by_the_fixture",
+    ("run_batch", "inline", "runs < 1"): "satisfied_by_the_fixture",
+    ("run_batch", "inline", "runs > len(remaining)"):
+        "satisfied_by_the_fixture",
+
+    ("run_capture", "inline", "os.path.exists(out_path)"):
+        "satisfied_by_the_fixture",
+    ("run_capture", "inline", "runs < MIN_CAPTURE_SLOTS"):
+        "satisfied_by_the_fixture",
+
+    ("capture_golden", "inline", "not out_path"): "satisfied_by_the_fixture",
+    ("capture_golden", "inline", "os.path.exists(out_path)"):
+        "satisfied_by_the_fixture",
+    ("capture_golden", "inline", "min_slots < MIN_CAPTURE_SLOTS"):
+        "satisfied_by_the_fixture",
+    ("capture_golden", "gate", "verify_ported_bytes"):
+        "satisfied_by_the_fixture",
+    ("capture_golden", "gate", "require_freeze"): "freeze_the_preregistration",
+    ("capture_golden", "inline", "not probe_pin"): "satisfied_by_the_fixture",
+    ("capture_golden", "inline",
+     "call.get('promptKind') != 'probe' or call.get('promptSha256') "
+     "!= probe_pin"): "satisfied_by_the_fixture",
+    ("capture_golden", "inline", "len(usable) < required"):
+        "capture_two_agreeing_probes",
+    ("capture_golden", "inline", "context != first"):
+        "satisfied_by_the_fixture",
+
+    ("capture_isolation_negative", "gate", "verify_ported_bytes"):
+        "satisfied_by_the_fixture",
+    ("capture_isolation_negative", "gate", "require_freeze"):
+        "freeze_the_preregistration",
+    ("capture_isolation_negative", "inline", "assent != 'granted'"):
+        "grant_the_assent",
+    ("capture_isolation_negative", "inline",
+     "not os.path.isdir(scratch_parent)"): "satisfied_by_the_fixture",
+    ("capture_isolation_negative", "gate", "require_golden"):
+        "register_the_golden",
+    ("capture_isolation_negative", "inline", "os.path.exists(out_dir)"):
+        "satisfied_by_the_fixture",
+    ("capture_isolation_negative", "inline", "os.path.exists(raw)"):
+        "satisfied_by_the_fixture",
+
+    ("declare_shortfall", "gate", "verify_ported_bytes"):
+        "satisfied_by_the_fixture",
+    ("declare_shortfall", "inline", "os.path.exists(RESULTS)"):
+        "satisfied_by_the_fixture",
+    ("declare_shortfall", "inline", "os.path.exists(out_path)"):
+        "satisfied_by_the_fixture",
+    ("declare_shortfall", "inline", "not reason"): "satisfied_by_the_fixture",
+    ("declare_shortfall", "gate", "require_freeze"):
+        "freeze_the_preregistration",
+    ("declare_shortfall", "inline", "present >= REGISTERED_SLOTS"):
+        "satisfied_by_the_fixture",
+    ("declare_shortfall", "inline", "present != len(records)"):
+        "satisfied_by_the_fixture",
+}
+
+# Two refusals the driver spells the same way in two gates. Recorded here, and
+# asserted to be EXACTLY these two, because a needle a second gate can supply
+# is how a named case goes quietly vacuous — the defect one layer up from the
+# one this ledger is for (round 16, finding 2).
+_SHARED_RUNS = (("inline", "run_batch", "runs < 1"),)
+_SHARED_SCRATCH = (("inline", "capture_isolation_negative",
+                    "not os.path.isdir(scratch_parent)"),)
+
+# Every derived (command, gate) cell, and how it is held. The keys are checked
+# against the derivation in both directions, so this table cannot silently
+# omit a gate and cannot silently name one the driver does not run.
+PRE_CALL_GATES = {
+    # -- `run`, through the shared preflight ---------------------------------
+    ("run", "preflight", "gate", "verify_ported_bytes"): Gate(
+        "command", "the ported bytes are not the registered ones",
+        recipe="break_the_ported_bytes"),
+    ("run", "preflight", "inline", "not slots"): Gate(
+        "preflight", "a batch needs at least one run",
+        recipe="empty_slot_list", shared=_SHARED_RUNS,
+        why="`run` cannot reach preflight with an empty slot list: run_batch's "
+            "own `runs < 1` refuses first, with the same words. The gate is "
+            "therefore driven at `preflight()` itself, where its own refusal "
+            "is the one under test, and the collision is declared above."),
+    ("run", "preflight", "inline", "not os.path.isfile(SCRIPT)"): Gate(
+        "command", "no authoring wrapper at", recipe="hide_the_wrapper"),
+    ("run", "preflight", "inline", "not os.path.isdir(scratch_parent)"): Gate(
+        "command", "is not a directory", recipe="scratch_parent_that_is_not",
+        shared=_SHARED_SCRATCH),
+    ("run", "preflight", "gate", "require_freeze"): Gate(
+        "command", "registers no freeze.preregistrationSha256"),
+    ("run", "preflight", "inline", "not entries"): Gate(
+        "preflight", "no schedule entries were given for",
+        recipe="slots_without_entries",
+        why="`run` derives its entries and its slots from one expansion, so no "
+            "command line reaches preflight with slots and no entries — "
+            "batch.py's own comment above the §2.8 bound calls this and the "
+            "index bound below it belt-and-braces. Driven at `preflight()`, "
+            "which is where the claim is made."),
+    ("run", "preflight", "inline",
+     "entries[-1]['globalIndex'] > REGISTERED_SLOTS"): Gate(
+        "preflight", "no invocation may plan a slot past the registered order",
+        recipe="entries_past_the_registered_order",
+        why="the same: `run_batch` slices the expansion and refuses `--runs` "
+            "past what remains (`runs > len(remaining)`), so the command line "
+            "cannot present preflight with an out-of-range entry. §2.8's bound "
+            "is checked anyway, and is driven here at the function."),
+    ("run", "preflight", "gate", "check_registry"): Gate(
+        "command", "registers batch.n = ", recipe="registry_that_shrinks_n"),
+    ("run", "preflight", "inline", "not os.path.isfile(cli_override)"): Gate(
+        "command", "no CLI at", recipe="cli_override_that_is_not_there"),
+    ("run", "preflight", "inline",
+     "not _matches(override_digest, pins['codex']['binarySha256'])"): Gate(
+        "command", "the CLI at ", recipe="cli_override_that_is_not_pinned"),
+    ("run", "preflight", "inline", "os.path.exists(RESULTS)"): Gate(
+        "command", "no slot may be created in any arm after a",
+        recipe="publish_a_rate"),
+    ("run", "preflight", "inline", "os.path.lexists(temporary)"): Gate(
+        "command", "a previous run left the ledger's temporary behind",
+        recipe="a_stale_ledger_temporary"),
+    ("run", "preflight", "gate", "require_golden"): Gate(
+        "command", "registers no golden.sha256"),
+    ("run", "preflight", "gate", "require_isolation_negative"): Gate(
+        "command",
+        "§6 C7 runs before the batch and the registry records the assent"),
+    ("run", "preflight", "inline", "existing"): Gate(
+        "command", "already exist and are never rewritten",
+        recipe="a_slot_that_already_exists"),
+
+    # -- `run`, in `run_batch` itself: the crash-window recovery -------------
+    ("run", "run_batch", "gate", "verify_ported_bytes"): Gate(
+        "command", "the ported bytes are not the registered ones",
+        recipe="break_the_ported_bytes_over_a_crash_window",
+        why="preflight's own copy of this gate carries the same words, so the "
+            "needle alone cannot say which fired. What separates them is the "
+            "LEDGER: this site stands above the recovery's `write_ledger()`, "
+            "so with it deleted the interrupted record is appended before "
+            "preflight refuses. Every case here asserts the ledger is byte "
+            "unchanged after a refusal, and that is the assertion this row "
+            "turns on."),
+    ("run", "run_batch", "gate", "require_freeze"): Gate(
+        "command", "registers no freeze.preregistrationSha256",
+        recipe="open_a_crash_window",
+        why="the same, for the freeze: one of the five call sites §7's "
+            "enforcement claim rests on, and the only one whose deletion "
+            "preflight's copy would otherwise mask (round 16, finding 1)."),
+    ("run", "run_batch", "inline", "records and (not resume)"): Gate(
+        "residual",
+        why="a plain `run` over a ledger that already records slots. Held "
+            "today by `test_a_batch_is_continued_with_resume_and_never_"
+            "restarted`, which asserts exit 1 and that no slot was added, but "
+            "not the name; converting it is the next command's work and is "
+            "recorded here rather than left invisible."),
+    ("run", "run_batch", "inline", "os.path.exists(RESULTS)"): Gate(
+        "residual",
+        why="§2.8's no-new-slots marker, on the recovery path. The same "
+            "constant is driven on the slot path and the shortfall path by "
+            "`test_the_published_marker_refuses_new_slots_and_a_shortfall`; "
+            "reaching THIS one needs a crash window and a published rate at "
+            "once, and it is not driven."),
+    ("run", "run_batch", "inline", "resume and (not records)"): Gate(
+        "residual",
+        why="`--resume` with an empty ledger. Driven by the first half of "
+            "`test_a_batch_is_continued_with_resume_and_never_restarted`, "
+            "which asserts exit 1 and that the first slot was not created — "
+            "unnamed, and recorded."),
+    ("run", "run_batch", "inline", "not remaining"): Gate(
+        "residual",
+        why="the completed order: it needs 150 recorded slots, which no case "
+            "in this file builds. §2.8's other end — an invocation planning "
+            "past the order — is driven by `test_a_plan_that_would_reach_past_"
+            "the_registered_order_refuses`."),
+    ("run", "run_batch", "inline", "runs < 1"): Gate(
+        "residual",
+        why="`--runs 0`. Not driven, and its message is the one preflight's "
+            "`not slots` gate also raises — the collision is declared on that "
+            "row rather than left for a later round to find."),
+    ("run", "run_batch", "inline", "runs > len(remaining)"): Gate(
+        "residual",
+        why="held by `test_a_plan_that_would_reach_past_the_registered_order_"
+            "refuses`, which drives the registered command line and asserts "
+            "exit 1 and that no slot was created — unnamed, and recorded."),
+
+    # -- `capture`: the probe arm of the same preflight ----------------------
+    ("capture", "preflight", "gate", "verify_ported_bytes"): Gate(
+        "command", "the ported bytes are not the registered ones",
+        recipe="break_the_ported_bytes"),
+    ("capture", "preflight", "gate", "require_freeze"): Gate(
+        "command", "registers no freeze.preregistrationSha256"),
+    ("capture", "preflight", "inline", "not pinned"): Gate(
+        "command", "registers no probePrompt.sha256",
+        recipe="registry_with_no_probe_pin"),
+    ("capture", "preflight", "inline", "not _matches(actual, pinned)"): Gate(
+        "command", ", not the pinned ", recipe="registry_with_a_wrong_probe_pin",
+        shared=(("inline", "preflight",
+                 "not _matches(override_digest, "
+                 "pins['codex']['binarySha256'])"),
+                ("gate", "check_registry")),
+        why="§3.2's probe-prompt pin, and the one gate on the `capture` path "
+            "that had no negative case at all (round 16, finding 2). Its "
+            "message shares `, not the pinned ` with the CLI gate above it and "
+            "with `check_registry()`'s arm-prompt refusal; both are satisfied "
+            "in this state, and the collision is declared rather than assumed "
+            "away."),
+    ("capture", "preflight", "inline", "not slots"): Gate(
+        "residual",
+        why="the same preflight site as `run`'s, which is driven above. "
+            "`capture` reaches it through the one `preflight()` call the "
+            "derivation reads, so a per-command bypass would fail test A "
+            "rather than pass silently here."),
+    ("capture", "preflight", "inline", "not os.path.isfile(SCRIPT)"): Gate(
+        "residual", why="the same preflight site as `run`'s, driven above."),
+    ("capture", "preflight", "inline",
+     "not os.path.isdir(scratch_parent)"): Gate(
+        "residual", why="the same preflight site as `run`'s, driven above."),
+    ("capture", "preflight", "inline",
+     "not os.path.isfile(cli_override)"): Gate(
+        "residual", why="the same preflight site as `run`'s, driven above."),
+    ("capture", "preflight", "inline",
+     "not _matches(override_digest, pins['codex']['binarySha256'])"): Gate(
+        "residual", why="the same preflight site as `run`'s, driven above."),
+    ("capture", "preflight", "inline", "existing"): Gate(
+        "residual",
+        why="the same preflight site as `run`'s, driven above; a capture "
+            "attempt directory is numbered, so the state is reached by hand "
+            "rather than by a repeat."),
+    ("capture", "run_capture", "inline", "os.path.exists(out_path)"): Gate(
+        "residual",
+        why="held by `test_a_registered_capture_is_never_rewritten`, which "
+            "drives `capture-golden` at an existing `--out` and asserts exit "
+            "1 — the same refusal string, from `capture_golden()`'s own row "
+            "below, and not this one."),
+    ("capture", "run_capture", "inline", "runs < MIN_CAPTURE_SLOTS"): Gate(
+        "residual",
+        why="held by `test_one_capture_cannot_derive_a_golden`, which drives "
+            "`capture --runs 1` and asserts exit 1 before a call is spent — "
+            "unnamed, and recorded."),
+
+    # -- `capture-golden` ----------------------------------------------------
+    ("capture-golden", "capture_golden", "gate", "verify_ported_bytes"): Gate(
+        "command", "the ported bytes are not the registered ones",
+        recipe="break_the_ported_bytes"),
+    ("capture-golden", "capture_golden", "gate", "require_freeze"): Gate(
+        "command", "registers no freeze.preregistrationSha256"),
+    ("capture-golden", "capture_golden", "inline", "not out_path"): Gate(
+        "residual",
+        why="`--out` omitted. `test_capture_golden_writes_only_where_it_is_"
+            "told` drives it and asserts the study's own capture is byte "
+            "unchanged — the property that matters — without naming the "
+            "refusal."),
+    ("capture-golden", "capture_golden", "inline",
+     "os.path.exists(out_path)"): Gate(
+        "residual",
+        why="held by `test_a_registered_capture_is_never_rewritten`; exit 1, "
+            "unnamed. Its message is also `run_capture`'s, which is why that "
+            "row points here."),
+    ("capture-golden", "capture_golden", "inline",
+     "min_slots < MIN_CAPTURE_SLOTS"): Gate(
+        "residual",
+        why="held by `test_the_derivation_itself_refuses_a_single_capture_"
+            "slot`; exit 1, unnamed."),
+    ("capture-golden", "capture_golden", "inline", "not probe_pin"): Gate(
+        "residual",
+        why="the same registry member the `capture` row above drives through "
+            "preflight, checked a second time here because this command takes "
+            "no preflight at all. Not driven."),
+    ("capture-golden", "capture_golden", "inline",
+     "call.get('promptKind') != 'probe' or call.get('promptSha256') "
+     "!= probe_pin"): Gate(
+        "residual",
+        why="held by `test_a_derivation_from_registered_prompt_captures_"
+            "refuses`, which builds a capture from an arm's prompt and asserts "
+            "exit 1 — unnamed."),
+    ("capture-golden", "capture_golden", "inline",
+     "len(usable) < required"): Gate(
+        "residual",
+        why="held by `test_the_derivation_itself_refuses_a_single_capture_"
+            "slot` and `test_two_agreeing_captures_must_be_two_calls`; exit 1, "
+            "unnamed."),
+    ("capture-golden", "capture_golden", "inline", "context != first"): Gate(
+        "residual",
+        why="held by `test_a_capture_that_does_not_reproduce_refuses_the_"
+            "derivation`; exit 1, unnamed."),
+
+    # -- `capture-isolation-negative` ----------------------------------------
+    ("capture-isolation-negative", "capture_isolation_negative", "gate",
+     "verify_ported_bytes"): Gate(
+        "command", "the ported bytes are not the registered ones",
+        recipe="break_the_ported_bytes"),
+    ("capture-isolation-negative", "capture_isolation_negative", "gate",
+     "require_freeze"): Gate(
+        "command", "registers no freeze.preregistrationSha256"),
+    ("capture-isolation-negative", "capture_isolation_negative", "gate",
+     "require_golden"): Gate("command", "registers no golden.sha256"),
+    ("capture-isolation-negative", "capture_isolation_negative", "inline",
+     "assent != 'granted'"): Gate(
+        "residual",
+        why="held by `test_the_negative_control_runs_on_the_registered_assent_"
+            "member_only`, which drives the command with the assent recorded "
+            "at the round-3 member name and asserts exit 1 — unnamed, and its "
+            "message shares its first clause with `require_isolation_"
+            "negative()`'s, which is driven by name on the `run` row above."),
+    ("capture-isolation-negative", "capture_isolation_negative", "inline",
+     "not os.path.isdir(scratch_parent)"): Gate(
+        "residual",
+        why="the same words as preflight's scratch gate, which is driven on "
+            "the `run` row; this command does not go through preflight, so "
+            "the check is its own and is not driven."),
+    ("capture-isolation-negative", "capture_isolation_negative", "inline",
+     "os.path.exists(out_dir)"): Gate(
+        "residual",
+        why="§6 C7 runs ONCE; the record is never rewritten. Not driven — the "
+            "canonical path is [D-23]'s and every case here moves the "
+            "constant."),
+    ("capture-isolation-negative", "capture_isolation_negative", "inline",
+     "os.path.exists(raw)"): Gate(
+        "residual",
+        why="a scratch slot left by a previous control at the same pid. Not "
+            "reachable from a command line inside one process."),
+
+    # -- `shortfall` ---------------------------------------------------------
+    ("shortfall", "declare_shortfall", "gate", "verify_ported_bytes"): Gate(
+        "command", "the ported bytes are not the registered ones",
+        recipe="break_the_ported_bytes"),
+    ("shortfall", "declare_shortfall", "gate", "require_freeze"): Gate(
+        "command", "registers no freeze.preregistrationSha256"),
+    ("shortfall", "declare_shortfall", "inline",
+     "os.path.exists(RESULTS)"): Gate(
+        "residual",
+        why="held by `test_the_published_marker_refuses_new_slots_and_a_"
+            "shortfall`, which drives it AND its counterfactual — exit 1 with "
+            "no declaration written, then exit 0 once the marker is gone. "
+            "Unnamed, and the only residual here with an admitting half."),
+    ("shortfall", "declare_shortfall", "inline",
+     "os.path.exists(out_path)"): Gate(
+        "residual",
+        why="held by `test_a_shortfall_is_declared_once_and_names_a_reason`; "
+            "exit 1, unnamed. Its message is `%s already exists`, which "
+            "`capture_isolation_negative()`'s raw-slot gate also raises."),
+    ("shortfall", "declare_shortfall", "inline", "not reason"): Gate(
+        "residual",
+        why="`--reason` omitted. Driven by `test_a_shortfall_is_declared_once_"
+            "and_names_a_reason`, which gives the command line without "
+            "`--reason` and asserts exit 1 with no declaration written, then "
+            "the admitting half — unnamed, and recorded. Measured: deleting "
+            "this gate turns that case red on its own, which is why the "
+            "residual rows are not the same thing as uncovered gates."),
+    ("shortfall", "declare_shortfall", "inline",
+     "present >= REGISTERED_SLOTS"): Gate(
+        "residual",
+        why="held by `test_a_shortfall_may_not_be_declared_over_a_batch_that_"
+            "is_not_short`, which puts the whole registered order on disk and "
+            "asserts exit 1 with no declaration written — unnamed."),
+    ("shortfall", "declare_shortfall", "inline",
+     "present != len(records)"): Gate(
+        "residual",
+        why="held by `test_a_shortfall_refuses_when_the_slots_and_the_ledger_"
+            "disagree`; exit 1, unnamed."),
+}
+
+
+@unittest.skipUnless(
+    RUNNING_REGISTERED,
+    "the wrapper refuses an interpreter harness/PINS.json does not register "
+    "(§2.10), so no wrapper-driven case can run here")
+class PreCallGates(BatchFixture):
+    """§7's claim that no call is spent before every registered precondition
+    holds — as a property of the SUITE and not of one gate at a time.
+
+    WHAT THIS CAN SHOW.
+      * Deleting any ledgered gate call turns the suite red. With that gate
+        alone unmet the command either runs to a slot or refuses with another
+        gate's words, and the named assertion catches both.
+      * A gate added to `preflight()` or to a command entry, or a command that
+        starts calling one, is a key the derivation produces and the ledger
+        does not: test A fails and names it.
+      * Rewording a refusal fails test B. That is deliberate. The message is
+        the only thing that says WHICH gate refused, and every claim here rests
+        on it.
+      * Moving a gate below the first `invoke()` takes its cell out of the
+        derived set, which fails test A, and spends a call, which fails the
+        `calls_made()` invariant every case carries.
+
+    WHAT THIS CANNOT SHOW, so that it is not read as a proof.
+      * It says nothing about a gate being CORRECT. An inverted predicate still
+        fires on a fixture built to trip it, which is why every driven row also
+        carries an admitting half.
+      * It sees statically resolved calls to module-level names in `batch.py`
+        only. `integrity.verify()` is in scope because `verify_ported_bytes()`
+        wraps it; `transcription/authoring_call.sh`'s own gates are outside it
+        entirely, the same Python-only residual round 15 recorded for the
+        writer scan.
+      * It cannot tell a redundant gate from a load-bearing one. §2.8's index
+        bound is checked after `run_batch` has already bounded the slice, and
+        `batch.py` says so itself; such rows carry a `why` naming the gate
+        above them, or they would be permanent silent green.
+      * It is author-VISIBLE, not author-proof. Deleting a gate AND its ledger
+        row is green. What it converts is a silent deletion into an edit of the
+        file whose only job is to record the gate set — a diff a reviewer sees.
+      * It says nothing about ORDER beyond "above the first call". §6 C7's "the
+        control ran BEFORE the batch" is a separate property, held by the
+        control's own record and not by this.
+      * It is a claim about `batch.py`'s pre-call region. §7's other
+        enforcement bullets, and `score_rates.verify_preconditions()`, are
+        untouched by it — the scorer's own ordered table in
+        `test_admission.py` is hand-kept and has the same silent-omission
+        property, named here so the next round inherits it rather than
+        rediscovering it.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.undo = []
+        # Overrides the ADMITTING drive keeps — a recipe that reaches its state
+        # through a flag (`--resume` over a crash window) says so here, because
+        # dropping that flag would make the admitting half a different command.
+        self.keep = {}
+        # The study at README step 2: ported bytes verified, wrapper on disk,
+        # CLI pinned — and none of steps 3, 4 and 5 taken. Each ceremony act in
+        # `SATISFY` is one of those steps, so "this gate alone unmet" is
+        # "this step alone not taken".
+        pins = json.loads(json.dumps(self.pins))
+        pins["freeze"]["preregistrationSha256"] = None
+        self.write_pins(pins)
+        # `shortfall` writes into the population root the batch creates, so the
+        # root exists here as it would after any batch. It is not a gate — no
+        # `raise BatchError` guards it — and the derivation therefore never
+        # sees it.
+        os.makedirs(self.arms_root, exist_ok=True)
+        # The capture is a file from the start and its PIN is the ceremony act:
+        # §6 C7's record is written with the capture's digest, so a state where
+        # the capture does not exist at all cannot also carry a C7 record, and
+        # the gate under test would not be the only unmet one.
+        with open(self.golden, "w") as handle:
+            json.dump({"contextVersion": "1", "entries": [],
+                       "capturedFrom": ["a stand-in for the §3.2 capture"]},
+                      handle)
+
+    def fresh(self):
+        """One cell's fixture, from scratch. `doCleanups()` unwinds the last
+        cell's throwaway root, patched constants and stand-in HOME, and
+        `setUp()` builds the next — so no cell can be satisfied by a state
+        another cell left behind."""
+        for undo in reversed(self.undo):
+            undo()
+        self.undo = []
+        self.doCleanups()
+        self.setUp()
+
+    # --- the ceremony acts, one per gate that has one -----------------------
+
+    def satisfied_by_the_fixture(self):
+        """The stand-in study already meets this gate: the committed wrapper is
+        on disk, the scratch parent is a directory, the CLI is the one the
+        stand-in registry pins, no rate is published and no slot exists. Such a
+        gate is broken by its row's `recipe`, never by omission."""
+
+    def freeze_the_preregistration(self):
+        """README step 3."""
+        pins = json.loads(json.dumps(self.pins))
+        pins["freeze"]["preregistrationSha256"] = batch._digest(
+            os.path.join(STUDY, "PREREGISTRATION.md"))
+        self.write_pins(pins)
+
+    def register_the_golden(self):
+        """README step 4's second half: the capture's digest replaces the null.
+        The capture itself is on disk from `setUp`."""
+        self.register_golden()
+
+    def grant_the_assent(self):
+        """README step 5's authorization, without the record — which is what
+        `capture-isolation-negative` needs before it may run at all."""
+        pins = json.loads(json.dumps(self.pins))
+        pins["isolationNegative"]["assent"] = "granted"
+        self.write_pins(pins)
+
+    def capture_two_agreeing_probes(self):
+        """The §3.2 recapture, run for real, so `capture-golden` has an attempt
+        directory to derive from. Two calls of the stand-in CLI.
+
+        The recapture is itself gated on the freeze, so this act freezes for
+        the length of its own two calls and puts the pin back where it found
+        it. That is the ceremony's real order — step 3 precedes step 4 — and
+        without it the freeze gate could not be the ONE unmet gate of a
+        `capture-golden` that has slots to derive from."""
+        before = self.pins["freeze"]["preregistrationSha256"]
+        self.freeze_the_preregistration()
+        self.assertEqual(self.capture(out=os.path.join(self.root, "FIRST.json")),
+                         0)
+        pins = json.loads(json.dumps(self.pins))
+        pins["freeze"]["preregistrationSha256"] = before
+        self.write_pins(pins)
+
+    # --- the break recipes --------------------------------------------------
+
+    def break_the_ported_bytes(self) -> dict:
+        def refuse(*arguments, **keywords):
+            raise integrity.IntegrityError("harness/policy_mirror.py is sha256:dead…")
+
+        patched = mock.patch.object(integrity, "verify", refuse)
+        patched.start()
+        self.undo.append(patched.stop)
+        return {}
+
+    def open_a_crash_window(self) -> dict:
+        """A slot sealed and not yet in the ledger — §2.9's kill window, which
+        is the only state that reaches `run_batch`'s own copies of the ported
+        bytes and freeze gates. Built by running the REAL driver and dropping
+        the tail record, so the slot on disk was sealed by the driver."""
+        self.freeze_the_preregistration()
+        self.register_the_golden()
+        self.record_negative_control()
+        self.assertEqual(self.run_batch(["--runs", "2"]), 0)
+        path = os.path.join(self.arms_root, "BATCH.json")
+        with open(path) as handle:
+            ledger = json.load(handle)
+        ledger["records"] = ledger["records"][:1]
+        with open(path, "w") as handle:
+            json.dump(ledger, handle, indent=2)
+        # …and back to step 2, so the gate under test is the unmet one again.
+        pins = json.loads(json.dumps(self.pins))
+        pins["freeze"]["preregistrationSha256"] = None
+        self.write_pins(pins)
+        self.undo.append(self.freeze_the_preregistration)
+        # The admitting drive keeps `--resume`: without it the same command
+        # line means "restart a recorded batch", which is a different refusal.
+        self.keep = {"extra": ["--resume"]}
+        return {"extra": ["--resume"]}
+
+    def break_the_ported_bytes_over_a_crash_window(self) -> dict:
+        overrides = self.open_a_crash_window()
+        self.freeze_the_preregistration()
+        self.break_the_ported_bytes()
+        return overrides
+
+    def empty_slot_list(self) -> dict:
+        return {"entries": ENTRIES[:1], "slots": []}
+
+    def slots_without_entries(self) -> dict:
+        return {"entries": [], "slots": [batch.slot_path(ENTRIES[0])]}
+
+    def entries_past_the_registered_order(self) -> dict:
+        past = dict(ENTRIES[0], globalIndex=batch.REGISTERED_SLOTS + 1)
+        return {"entries": [past], "slots": [batch.slot_path(past)]}
+
+    def hide_the_wrapper(self) -> dict:
+        patched = mock.patch.object(batch, "SCRIPT",
+                                    os.path.join(self.root, "no-wrapper.sh"))
+        patched.start()
+        self.undo.append(patched.stop)
+        return {}
+
+    def scratch_parent_that_is_not(self) -> dict:
+        return {"scratch": os.path.join(self.root, "no-such-scratch")}
+
+    def registry_that_shrinks_n(self) -> dict:
+        return {"pins": self.alternate_registry(
+            "PINS-n25.json", batch=dict(self.pins["batch"], n=25))}
+
+    def registry_with_no_probe_pin(self) -> dict:
+        return {"pins": self.alternate_registry("PINS-no-probe.json",
+                                                probePrompt={"sha256": None})}
+
+    def registry_with_a_wrong_probe_pin(self) -> dict:
+        return {"pins": self.alternate_registry(
+            "PINS-probe.json", probePrompt={"sha256": "sha256:" + "7" * 64})}
+
+    def cli_override_that_is_not_there(self) -> dict:
+        return {"cli": os.path.join(self.root, "no-such-cli")}
+
+    def cli_override_that_is_not_pinned(self) -> dict:
+        return {"cli": self.unpinned_cli()}
+
+    def publish_a_rate(self) -> dict:
+        with open(batch.RESULTS, "w") as handle:
+            handle.write("{}\n")
+        self.undo.append(lambda: os.unlink(batch.RESULTS))
+        return {}
+
+    def a_stale_ledger_temporary(self) -> dict:
+        path = os.path.join(self.arms_root, batch.LEDGER_TEMP_NAME)
+        with open(path, "w") as handle:
+            handle.write("half a ledger a kill left behind\n")
+        self.undo.append(lambda: os.unlink(path))
+        return {}
+
+    def a_slot_that_already_exists(self) -> dict:
+        slot = self.slot(0)
+        os.makedirs(os.path.dirname(slot))
+        os.symlink(os.path.join(self.root, "nowhere"), slot)
+        self.undo.append(lambda: shutil.rmtree(self.arms_root, True))
+        return {}
+
+    # --- driving one registered command line --------------------------------
+
+    def command_line(self, command: str, **overrides) -> list:
+        scratch = overrides.get("scratch", self.scratch)
+        pins = overrides.get("pins", self.pins_path)
+        cli = overrides.get("cli", self.cli)
+        extra = list(overrides.get("extra", ()))
+        if command == "run":
+            return ["batch.py", "run", "--scratch-parent", scratch,
+                    "--pins", pins, "--golden", self.golden,
+                    "--cli-override", cli, "--runs", "1"] + extra
+        if command == "capture":
+            return ["batch.py", "capture", "--scratch-parent", scratch,
+                    "--captures", self.captures, "--out", self.artifact(command),
+                    "--pins", pins, "--cli-override", cli] + extra
+        if command == "capture-golden":
+            return ["batch.py", "capture-golden", "--pins", pins,
+                    "--slots", self.attempt(), "--out",
+                    self.artifact(command)] + extra
+        if command == "capture-isolation-negative":
+            return ["batch.py", "capture-isolation-negative",
+                    "--scratch-parent", scratch, "--out", self.artifact(command),
+                    "--pins", pins, "--golden", self.golden,
+                    "--cli-override", cli] + extra
+        return ["batch.py", "shortfall", "--reason",
+                "the stand-in CLI batch was cut short on purpose",
+                "--pins", pins] + extra
+
+    def artifact(self, command: str) -> str:
+        """The one path the command would have written. Every refusing case
+        asserts it is absent, which is the "and nothing was made" half of
+        "before a call is spent"."""
+        if command == "run":
+            return self.slot(0)
+        if command == "capture":
+            return os.path.join(self.root, "CAPTURED.json")
+        if command == "capture-golden":
+            return os.path.join(self.root, "DERIVED.json")
+        if command == "capture-isolation-negative":
+            return os.path.join(self.root, "c7-record")
+        return os.path.join(self.arms_root, "SHORTFALL.json")
+
+    def ledger_bytes(self):
+        path = os.path.join(self.arms_root, "BATCH.json")
+        if not os.path.exists(path):
+            return None
+        with open(path, "rb") as handle:
+            return handle.read()
+
+    def drive(self, command: str, **overrides) -> tuple:
+        """(exit status, stderr) for one registered command line. `batch.main()`
+        prints every `BatchError` as `refused: …` and returns 1, so this is the
+        operator's own view of the refusal and not an exception a test caught
+        inside the module."""
+        captured = io.StringIO()
+        with contextlib.redirect_stderr(captured), \
+                contextlib.redirect_stdout(io.StringIO()):
+            status = batch.main(self.command_line(command, **overrides))
+        return status, captured.getvalue()
+
+    def ladder(self, command: str) -> list:
+        """The gates this command runs, in the order `batch.py` runs them."""
+        derived = derived_pre_call_gates()
+        return [key[1:] for key, _line in
+                sorted(((key, line) for key, line in derived.items()
+                        if key[0] == command),
+                       key=lambda row: (row[0][1] != "preflight", row[1]))]
+
+    # --- A: the ledger is the derivation ------------------------------------
+
+    def test_the_ledger_names_exactly_the_gates_the_driver_runs(self):
+        """The omission test, in both directions.
+
+        A gate added to `preflight()` or to a command entry above its first
+        call, or an existing gate reached by a command that did not reach it
+        before, is a key here that `PRE_CALL_GATES` does not carry — and a row
+        naming a gate the driver no longer runs is a key the derivation does
+        not produce. Either is a failure that names the cell. This is the test
+        that makes the other two total rather than a list someone kept."""
+        derived = set(derived_pre_call_gates())
+        self.assertEqual(
+            derived - set(PRE_CALL_GATES), set(),
+            "batch.py runs these gates before a call and PRE_CALL_GATES does "
+            "not record them")
+        self.assertEqual(
+            set(PRE_CALL_GATES) - derived, set(),
+            "PRE_CALL_GATES records gates batch.py does not run before a call")
+        # …and the derivation is live, not an empty set agreeing with an empty
+        # table: every registered command carries gates, and the five gate
+        # FUNCTIONS are the ones preflight itself calls.
+        self.assertEqual(sorted({key[0] for key in derived}),
+                         sorted(batch.COMMANDS))
+        self.assertEqual(gate_functions(),
+                         ("check_registry", "require_freeze", "require_golden",
+                          "require_isolation_negative", "verify_ported_bytes"))
+
+    def test_every_derived_gate_has_a_way_to_satisfy_it(self):
+        """The ladder that makes the behavioural test constructible is derived
+        too: every gate the driver runs before a call carries a ceremony act
+        that meets it, so a new gate arrives with a way to SATISFY it and not
+        only with a way to break it. Without this, "every other gate satisfied"
+        would quietly become "every other gate this file happens to know"."""
+        sites = {key[1:] for key in derived_pre_call_gates()}
+        self.assertEqual(sites - set(SATISFY), set(),
+                         "these gates have no act in SATISFY")
+        self.assertEqual(set(SATISFY) - sites, set(),
+                         "SATISFY carries acts for gates the driver does not "
+                         "run before a call")
+        for site, act in sorted(SATISFY.items()):
+            self.assertTrue(callable(getattr(self, act, None)),
+                            "%r names no act on this fixture" % (site,))
+
+    def test_every_ledger_row_is_driven_or_says_why_not(self):
+        """A residual is a DECLARED gap. A row that drives nothing has to say
+        what holds the gate today, so the residue is named in the file the
+        reviewer reads rather than being the absence of a case."""
+        for key, row in sorted(PRE_CALL_GATES.items()):
+            with self.subTest(gate=key):
+                self.assertIn(row.how, ("command", "preflight", "residual"))
+                if row.how == "residual":
+                    self.assertIsNone(row.named)
+                    self.assertTrue(row.why and len(row.why) > 40, key)
+                else:
+                    self.assertTrue(row.named, key)
+                    if row.how == "preflight":
+                        self.assertTrue(row.why, key)
+
+    # --- B: the needle is that gate's own refusal ---------------------------
+
+    def test_every_named_refusal_is_one_the_gate_actually_raises(self):
+        """The spelling test. A needle that no `raise BatchError` in that gate
+        carries would make its case pass for the wrong reason, and a needle a
+        SECOND gate also raises is how a case goes vacuous — which is the
+        defect this whole ledger is a repair of, one layer up. Both are read
+        out of `batch.py`'s own source.
+
+        The `shared` field is the honest form of the second half: where two
+        gates genuinely spell one refusal the same way, the ledger records
+        exactly which, and a NEW collision fails here."""
+        literals = gate_refusal_literals()
+        for key, row in sorted(PRE_CALL_GATES.items()):
+            if row.how == "residual":
+                continue
+            site = gate_identity(key[1:])
+            with self.subTest(gate=key):
+                own = literals.get(site, ())
+                self.assertTrue(own, "%r raises no BatchError this scan can "
+                                     "read" % (site,))
+                self.assertTrue(
+                    any(row.named in text for text in own),
+                    "%r is not a fragment of any refusal %r raises: %r"
+                    % (row.named, site, own))
+                carriers = {other for other, texts in literals.items()
+                            if any(row.named in text for text in texts)
+                            and other != site}
+                self.assertEqual(
+                    carriers, set(row.shared),
+                    "%r is also raised by %r; a needle a second gate can "
+                    "supply cannot say which gate refused"
+                    % (row.named, sorted(carriers - set(row.shared))))
+
+    # --- C: the gate refuses, by name, before anything happens --------------
+
+    def test_each_gate_refuses_by_name_with_every_other_gate_satisfied(self):
+        """The behavioural half, one subtest per driven cell.
+
+        For each, the ceremony is taken up to the point where this gate — and
+        only this gate — is unmet, the registered command line is given, and
+        the run has to refuse BY THIS GATE'S NAME, spend no call, write no
+        artifact and leave the ledger byte unchanged. Then the gate is
+        satisfied and the same command line has to ADMIT, because a gate that
+        refuses everything proves nothing.
+
+        This is what a deleted gate call fails: with every other precondition
+        met the command does not refuse for someone else's reason, it runs.
+        """
+        for key, row in sorted(PRE_CALL_GATES.items()):
+            if row.how == "residual":
+                continue
+            command, site = key[0], key[1:]
+            with self.subTest(gate=key):
+                self.fresh()
+                for other in self.ladder(command):
+                    # The omitted ceremony act IS the break — and it is omitted
+                    # wherever it appears, because one registered step can meet
+                    # more than one gate (§2.10's freeze is checked in
+                    # `preflight()` and again in `run_batch()`'s recovery) and
+                    # a step half-taken is not a state the ceremony has.
+                    if row.recipe is None and SATISFY[other] == SATISFY[site]:
+                        continue
+                    getattr(self, SATISFY[other])()
+                overrides = (getattr(self, row.recipe)() if row.recipe else {})
+                if row.how == "preflight":
+                    self.refuses_at_preflight(row, overrides)
+                    continue
+                artifact = self.artifact(command)
+                before = (self.calls_made(), self.ledger_bytes(),
+                          os.path.lexists(artifact), os.path.isdir(artifact))
+                status, stderr = self.drive(command, **overrides)
+                self.assertEqual(status, 1, stderr)
+                self.assertIn(row.named, stderr)
+                self.assertEqual(self.calls_made(), before[0], "a call was spent")
+                self.assertEqual(self.ledger_bytes(), before[1],
+                                 "the refused command moved the ledger")
+                # Nothing the command would have written appeared, and nothing
+                # that was already there changed shape. "Absent" is the usual
+                # case; the two rows that build a crash window, and the one
+                # that plants a dangling link at a planned slot, start from a
+                # state the command must also leave alone.
+                self.assertEqual((os.path.lexists(artifact),
+                                  os.path.isdir(artifact)), before[2:],
+                                 "the refused command wrote its artifact")
+                # …and the admitting half.
+                for undo in reversed(self.undo):
+                    undo()
+                self.undo = []
+                if row.recipe is None:
+                    getattr(self, SATISFY[site])()
+                status, stderr = self.drive(command, **self.keep)
+                self.assertEqual(status, 0, stderr)
+                self.assertTrue(os.path.lexists(artifact))
+
+    def refuses_at_preflight(self, row, overrides: dict) -> None:
+        """The three gates no registered command line can reach, because a
+        gate in `run_batch` refuses the same command first. Driven at
+        `preflight()` itself, where the claim is made — the row's `why` names
+        the gate above it, so a redundant gate is recorded as redundant rather
+        than sitting green forever."""
+        spent = self.calls_made()
+        with self.assertRaises(batch.BatchError) as caught:
+            batch.preflight(overrides["entries"], overrides["slots"],
+                            self.scratch, self.pins_path, self.cli,
+                            "registered", self.golden)
+        self.assertIn(row.named, str(caught.exception))
+        self.assertEqual(self.calls_made(), spent)
+        self.assertFalse(os.path.exists(self.slot(0)))
+        # The admitting half, at the same function: the registered slice.
+        self.assertTrue(batch.preflight(
+            ENTRIES[:1], [batch.slot_path(ENTRIES[0])], self.scratch,
+            self.pins_path, self.cli, "registered", self.golden))
 
 
 class ImportDiscipline(unittest.TestCase):

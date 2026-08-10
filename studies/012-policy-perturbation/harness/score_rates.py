@@ -1177,10 +1177,21 @@ SCENARIO_P_COLLAPSED = Fraction(1, 20)
 # indicators.
 NESTED_CLASS_PAIRS = ((0, 1), (2, 3))
 
-# §2.1 [D-19]'s numeric drift rule: arm A is DRIFT-SUSPECTED iff it reads below
-# HIGH on four or more of its six classes. No scorer path applies it — §2.1
-# reports it — but §2.1 quotes the rate at which it fires by sampling alone, and
-# that rate is a §5.4 quantity like any other.
+# §2.1 [D-19]'s numeric drift rule, both limbs: arm A is DRIFT-SUSPECTED iff it
+# reads below HIGH on four or more of its six classes, OR reads LOW on any one
+# of them. No scorer path applies it — §2.1 reports it — but §2.1 quotes the
+# rate at which it fires by sampling alone, and that rate is a §5.4 quantity
+# like any other.
+#
+# Round 16, finding 5: this comment carried the first limb only, and so did the
+# code. LOW is a subset of below-HIGH, so the second limb adds only the patterns
+# too small to fire the first — below 1e-30 at the §5.4 scenario, which is why
+# no printed figure moves — but it is the limb that carries ALL of the rule's
+# power against a single collapsed class: P(LOW | p = 0.05, n = 30) = 0.9392,
+# while one collapsed class puts at most TWO of six classes below HIGH and can
+# therefore never fire the four-of-six limb. Narrowing §2.1's sentence to the
+# implemented limb would have traded the rule's whole single-class detection
+# away to avoid computing a 1e-31 term.
 DRIFT_SUSPECTED_MINIMUM = 4
 
 
@@ -1232,6 +1243,35 @@ def _weighted_at_least(minimum: int, weights, p: Fraction) -> Fraction:
             continue
         total += p ** len(chosen) * (1 - p) ** (len(weights) - len(chosen))
     return total
+
+
+def _drift_suspected(weights, high: Fraction, low: Fraction) -> Fraction:
+    """§2.1 [D-19]'s drift rule, BOTH limbs, exactly.
+
+    `_weighted_at_least()` cannot express this: its indicators are two-state
+    and this rule reads a THREE-state group — HIGH, below-HIGH-but-not-LOW, and
+    LOW — so the union is taken by complement. The rule does NOT fire when no
+    group is LOW and the classes below HIGH weigh less than
+    `DRIFT_SUSPECTED_MINIMUM`; everything else fires.
+
+    It adds no assumption. The groups, their weights and the two marginals are
+    the ones `containment_operating_characteristics()` already has in scope —
+    `high` is P(group HIGH) and `low` is P(group LOW) at the intact marginal —
+    and the enumeration is over the same 2^k patterns as its sibling above.
+    Returns a Fraction, so a test can compare the two limbs exactly: they are
+    the same IEEE double at every registered N, which is why no float-valued or
+    string-rendered assertion could ever have caught the missing limb (round
+    16, finding 5).
+    """
+    weights = tuple(weights)
+    middle = 1 - high - low
+    safe = Fraction(0)
+    for pattern in range(1 << len(weights)):
+        chosen = [index for index in range(len(weights)) if pattern >> index & 1]
+        if sum(weights[index] for index in chosen) >= DRIFT_SUSPECTED_MINIMUM:
+            continue
+        safe += middle ** len(chosen) * high ** (len(weights) - len(chosen))
+    return 1 - safe
 
 
 def _ordered_placement(minimum: int, weights, nested_weight: int,
@@ -1413,8 +1453,10 @@ def containment_operating_characteristics(n: int) -> dict:
     row_four *= marginal_h
     # §2.1's registered DRIFT rule, whose false-positive rate moves by more than
     # an order of magnitude here: a single group below HIGH puts TWO classes
-    # below HIGH, and the rule counts classes.
-    drift = _weighted_at_least(DRIFT_SUSPECTED_MINIMUM, weights, 1 - q)
+    # below HIGH, and the rule counts classes. BOTH limbs (round 16, finding 5):
+    # the four-of-six count and "LOW on any one", as one union rather than one
+    # of them under the whole rule's name.
+    drift = _drift_suspected(weights, q, intact_low)
     # One coherent coupling in the other direction, so the companion is visibly
     # not a bound: the three arms' group indicators comonotone, which makes
     # every class A reads HIGH TRACKING in both control arms, so the gate is

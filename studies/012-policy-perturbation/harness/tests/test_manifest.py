@@ -119,6 +119,10 @@ def test_the_registered_exclusions_keep_their_registered_shape(pins):
     assert files == {
         "RESULTS.json", "RATES.md", "CENSUS.md", "ANALYSIS.md",
         "DEVIATIONS.md", "CORRECTION.md", "arms/BATCH.json",
+        # The ledger's atomic-write temporary, at `batch.LEDGER_TEMP_NAME` — a
+        # FILE entry beside the ledger, so it adds no tree and the round-9
+        # widening class is untouched (round 16, finding 3).
+        "arms/BATCH.json.partial",
         "arms/SHORTFALL.json", "transcription/GOLDEN-CONTEXT.json"}
     assert trees == {
         "records/",
@@ -336,7 +340,7 @@ def test_no_tracked_path_hides_under_a_file_entry(study, pins):
     every one of the study's tracked paths (round 9, finding 5)."""
     members = tuple(pins["freeze"]["excluded"]) + integrity.MANIFEST_CARRIERS
     files = [name for name in members if not name.endswith("/")]
-    assert len(files) == 11
+    assert len(files) == 12
     hidden = [(name, entry) for entry in files for name in _tracked(study)
               if name.startswith(entry + "/")]
     assert hidden == []
@@ -344,17 +348,39 @@ def test_no_tracked_path_hides_under_a_file_entry(study, pins):
 
 # --- the writers' own destinations (round 15, finding 2) ---------------------
 
-# The primitives that CREATE A FILE. Directory creation is deliberately absent:
-# a directory is not a tracked file and never enters the manifest.
+# The primitives that CREATE A FILE, and the argument each names it with.
+# Directory creation is deliberately absent: a directory is not a tracked file
+# and never enters the manifest.
 FILE_WRITERS = {
-    "open": 0, "os.rename": 1, "os.replace": 1, "os.symlink": 1, "os.link": 1,
+    "open": 0, "os.open": 0, "os.rename": 1, "os.replace": 1,
+    "os.symlink": 1, "os.link": 1,
     "shutil.copyfile": 1, "shutil.copy": 1, "shutil.copy2": 1,
     "shutil.copytree": 1, "shutil.move": 1,
     "_write_json": 0, "_write_json_atomic": 0,
 }
-# Module-local functions that ARE one of the primitives above: their bodies are
-# that primitive's implementation, not destinations of their own.
-WRITER_HELPERS = ("_write_json", "_write_json_atomic")
+
+# Round 16, finding 3: the scan's vocabulary is FINITE, and until this round it
+# skipped anything outside it in silence — so `tempfile.mkstemp()` writing a
+# study path was invisible while the docstring below said the scan fails closed.
+# It fails closed now: a call to `open` or into one of these namespaces must be
+# a known creator or a known non-creator, and a third thing is an OFFENDER that
+# says "classify this call".
+FS_NAMESPACES = ("os", "shutil", "tempfile", "pathlib", "io")
+
+# The calls in those namespaces that create no FILE. `os.path.*` is exempt by
+# rule rather than by list — it computes and inspects paths and creates
+# nothing — and directory creation is here for the reason above.
+NON_CREATING = {
+    "os.close", "os.fdopen", "os.fsync", "os.getpid", "os.listdir",
+    "os.lstat", "os.makedirs", "os.stat", "os.unlink", "os.walk",
+    "shutil.rmtree", "io.StringIO", "tempfile.TemporaryDirectory",
+}
+
+# Namespaces whose members must be reached through the namespace, so that
+# `_dotted()`'s spelling match cannot be defeated by a rebinding. `import
+# subprocess as _subprocess` at batch.py:224 shows aliasing is house style, so
+# the assumption is enforced rather than assumed.
+IMPORT_DISCIPLINE = FS_NAMESPACES
 
 # Every executable that writes anything, and nothing else is scanned — a module
 # added here is scanned, and a module that starts writing and is not here is
@@ -366,6 +392,19 @@ WRITING_MODULES = (score_rates, batch, records_compile, arm_assembly)
 # it is not covered bytes; a parameter root that is not in this table FAILS, so
 # a new writer cannot be added without an entry.
 PARAMETER_ROOTS = {
+    ("batch", "_write_json", "path"):
+        "the atomic-write primitives are themselves in FILE_WRITERS, so every "
+        "CALL SITE's destination is resolved and checked above and their own "
+        "bodies name no destination a caller does not. Round 16, finding 3: "
+        "this replaces a blanket skip of both bodies, whose stated reason — "
+        "\"their bodies are that primitive's implementation, not destinations "
+        "of their own\" — was FALSE of `_write_json_atomic`, which used to "
+        "name a `mkstemp` sibling no caller named.",
+    ("batch", "_write_json_atomic", "path"): "the same primitive.",
+    ("batch", "_write_json_atomic", "temp_path"):
+        "the ledger's atomic-write temporary, passed in as "
+        "`batch.LEDGER_TEMP_NAME` from `write_ledger()`, where this scan "
+        "resolves and checks it like any other destination.",
     ("score_rates", "_emit_records", "out_dir"):
         "the `--emit-records DIR` target. `_check_records_target()` requires it "
         "outside the population, README step 7 names `records`, and "
@@ -403,18 +442,137 @@ def _dotted(node):
     return None
 
 
+class Unclassified(Exception):
+    """A call this scan cannot decide about. Raised, never swallowed: the
+    docstring below claims the scan fails CLOSED, and round 16 found three
+    independent ways it failed OPEN."""
+
+
+def _flag_names(node) -> list:
+    """Every dotted name in a flags expression (`os.O_WRONLY | os.O_CREAT`),
+    or `Unclassified` if the expression holds anything else."""
+    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.BitOr, ast.Add)):
+        return _flag_names(node.left) + _flag_names(node.right)
+    name = _dotted(node)
+    if name is None:
+        raise Unclassified("os.open() flags are not a readable expression")
+    return [name.rsplit(".", 1)[-1]]
+
+
 def _creates(call) -> bool:
-    """`open()` in a mode that creates a file; every other primitive always
-    does."""
-    if _dotted(call.func) != "open":
+    """Whether a known primitive creates a file at this call site.
+
+    `open()` creates in a writing mode; `os.open()` creates with `O_CREAT`;
+    every other member of `FILE_WRITERS` always does. Round 16, finding 3: a
+    mode or a flag set the scan cannot READ raises rather than returning False.
+    The old form classified `open(path, mode)` with a variable mode as
+    NON-creating, which is a fail-open dressed as a limitation."""
+    name = _dotted(call.func)
+    if name == "os.open":
+        if len(call.args) < 2:
+            raise Unclassified("os.open() without flags")
+        return "O_CREAT" in _flag_names(call.args[1])
+    if name != "open":
         return True
     mode = None
-    if len(call.args) > 1 and isinstance(call.args[1], ast.Constant):
-        mode = call.args[1].value
+    if len(call.args) > 1:
+        mode = call.args[1]
     for keyword in call.keywords:
-        if keyword.arg == "mode" and isinstance(keyword.value, ast.Constant):
-            mode = keyword.value.value
-    return bool(mode) and any(letter in mode for letter in "wax+")
+        if keyword.arg == "mode":
+            mode = keyword.value
+    if mode is None:
+        return False                       # the default is "r"
+    if not isinstance(mode, ast.Constant) or not isinstance(mode.value, str):
+        raise Unclassified("open() mode is not a literal, so whether this call "
+                           "creates a file cannot be read from the source")
+    return any(letter in mode.value for letter in "wax+")
+
+
+def _classify(call) -> str:
+    """A call is a creator, is non-creating, or is `Unclassified` — the
+    fail-closed half.
+
+    Anything named `open` or reached through one of `FS_NAMESPACES` has to be
+    one of the two. A new filesystem API therefore arrives as a failure that
+    says which call to classify, instead of as a destination nobody sees."""
+    name = _dotted(call.func)
+    if name in FILE_WRITERS:
+        return "creator"
+    if name in NON_CREATING:
+        return "non-creating"
+    if name is not None and name.startswith("os.path."):
+        # `os.path` computes and inspects paths; it creates no entry.
+        return "non-creating"
+    if name == "open" or (name is not None
+                          and name.split(".")[0] in FS_NAMESPACES):
+        raise Unclassified(
+            "%s is a filesystem call this scan does not classify: put it in "
+            "FILE_WRITERS with the argument that names its destination, or in "
+            "NON_CREATING" % name)
+    return "non-creating"
+
+
+def import_offenders(module_name: str, tree: ast.Module) -> list:
+    """The spelling assumption `_dotted()` rests on, enforced.
+
+    `_dotted()` matches a call by the name it is WRITTEN with, so `from os
+    import replace`, `import tempfile as t` or a local `open = …` defeats the
+    whole scan silently. There is no instance today — verified — and the point
+    is that there cannot be one tomorrow without a red suite."""
+    offenders = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) \
+                and (node.module or "").split(".")[0] in IMPORT_DISCIPLINE:
+            offenders.append(
+                "%s.py:%d imports names out of %r. The writer scan matches "
+                "filesystem calls by their dotted spelling, so a bare name "
+                "defeats it: reach them through the module"
+                % (module_name, node.lineno, node.module))
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name.split(".")[0] in IMPORT_DISCIPLINE and alias.asname:
+                    offenders.append(
+                        "%s.py:%d imports %s as %s. The writer scan matches "
+                        "filesystem calls by their dotted spelling, so an "
+                        "alias defeats it"
+                        % (module_name, node.lineno, alias.name, alias.asname))
+        rebound = []
+        if isinstance(node, ast.Assign):
+            rebound = [target.id for target in node.targets
+                       if isinstance(target, ast.Name)]
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            rebound = [node.name]
+        if "open" in rebound:
+            offenders.append(
+                "%s.py:%d rebinds the name `open`, which this scan reads as "
+                "the builtin" % (module_name, node.lineno))
+    return offenders
+
+
+def _scope_calls(tree: ast.Module) -> list:
+    """[(scope name, scope node, call)] for EVERY call in a module, each in the
+    nearest function that encloses it.
+
+    Round 16, finding 3: the old collection walked `ast.FunctionDef` only, so a
+    write at module level, in a class body, in a lambda or in an async function
+    was never visited — and, because `ast.walk()` yields nested definitions
+    too, a write inside a nested function was visited twice. This is a
+    partition: every call is attributed once, and `"<module>"` is a scope like
+    any other."""
+    found = []
+
+    def descend(node, scope_name, scope_node):
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                  ast.Lambda)):
+                descend(child, getattr(child, "name", "<lambda>"), child)
+                continue
+            if isinstance(child, ast.Call):
+                found.append((scope_name, scope_node, child))
+            descend(child, scope_name, scope_node)
+
+    descend(tree, "<module>", tree)
+    return found
 
 
 def _resolve(node, assignments, depth=0, seen=frozenset()):
@@ -461,34 +619,48 @@ def _resolve(node, assignments, depth=0, seen=frozenset()):
     return ("<%s>" % type(node).__name__, [])
 
 
-def write_sites(module) -> list:
-    """[(line, function, root symbol, [tail parts])] for every file-creating
-    write in a writing module, read out of its own source."""
-    with open(module.__file__, encoding="utf-8") as handle:
-        tree = ast.parse(handle.read())
+def scan_source(module_name: str, source: str) -> tuple:
+    """(write sites, offenders) for one module's source text.
+
+    Sites are `(line, scope, root symbol, [tail parts])` for every
+    file-creating write. Offenders are the calls this scan cannot classify,
+    the modes and flag sets it cannot read, and the import spellings that would
+    defeat it — everything that used to be a silent skip.
+
+    Takes SOURCE rather than a module so that
+    `test_the_writer_scan_fails_closed_on_what_it_cannot_read` can splice a
+    write into a copy and require it to be caught."""
+    tree = ast.parse(source)
+    offenders = import_offenders(module_name, tree)
     sites = []
-    for function in [node for node in ast.walk(tree)
-                     if isinstance(node, ast.FunctionDef)]:
-        if function.name in WRITER_HELPERS:
+    for scope_name, scope_node, node in _scope_calls(tree):
+        try:
+            kind = _classify(node)
+            if kind != "creator" or not _creates(node):
+                continue
+        except Unclassified as why:
+            offenders.append("%s.py:%d %s(): %s"
+                             % (module_name, node.lineno, scope_name, why))
             continue
         assignments = {}
-        for node in ast.walk(function):
-            if isinstance(node, ast.Assign) and len(node.targets) == 1 \
-                    and isinstance(node.targets[0], ast.Name):
-                assignments.setdefault(node.targets[0].id, node.value)
-        for node in ast.walk(function):
-            if not isinstance(node, ast.Call):
-                continue
-            name = _dotted(node.func)
-            if name not in FILE_WRITERS or not _creates(node):
-                continue
-            index = FILE_WRITERS[name]
-            if len(node.args) <= index:
-                sites.append((node.lineno, function.name, "<no-argument>", []))
-                continue
-            root, tail = _resolve(node.args[index], assignments)
-            sites.append((node.lineno, function.name, root, tail))
-    return sorted(sites)
+        for inner in ast.walk(scope_node):
+            if isinstance(inner, ast.Assign) and len(inner.targets) == 1 \
+                    and isinstance(inner.targets[0], ast.Name):
+                assignments.setdefault(inner.targets[0].id, inner.value)
+        index = FILE_WRITERS[_dotted(node.func)]
+        if len(node.args) <= index:
+            sites.append((node.lineno, scope_name, "<no-argument>", []))
+            continue
+        root, tail = _resolve(node.args[index], assignments)
+        sites.append((node.lineno, scope_name, root, tail))
+    return sorted(sites), offenders
+
+
+def write_sites(module) -> list:
+    """[(line, scope, root symbol, [tail parts])] for every file-creating write
+    in a writing module, read out of its own source."""
+    with open(module.__file__, encoding="utf-8") as handle:
+        return scan_source(module.__name__, handle.read())[0]
 
 
 def _module_string(module, name):
@@ -525,19 +697,37 @@ def test_every_study_destination_a_writer_names_is_an_excluded_path(study, pins)
       * It is Python-only. `transcription/authoring_call.sh` writes into
         `$SLOT`, an excluded tree, and into the scratch parent outside the
         study; that is named here rather than parsed.
-      * It fails CLOSED on anything it cannot resolve, so a future writer with
-        a computed destination needs a constant or an entry.
+      * It fails CLOSED on anything it cannot resolve OR cannot classify: an
+        unresolvable destination, an `open()` whose mode is not a literal, an
+        `os.open()` whose flags are not readable, and a filesystem call outside
+        `FILE_WRITERS` and `NON_CREATING` are each an offender that names the
+        line. Round 16, finding 3 is why that sentence is worded this way: it
+        used to say the scan failed closed on anything it could not resolve and
+        it failed OPEN in three independent ways — an unknown API was skipped,
+        a variable `open()` mode was read as non-creating, and the whole bodies
+        of `_write_json`/`_write_json_atomic` were skipped, which hid the one
+        real unexcluded destination the study had.
+      * The residual it does NOT close, stated rather than implied: the
+        vocabulary is finite. A creator that is neither `open` nor a member of
+        `FS_NAMESPACES` — a C extension, a vendored helper, a `subprocess` that
+        shells out — is classified as non-creating and is invisible here. What
+        bounds that is the import discipline (nothing may be reached under
+        another name) plus the fact that `WRITING_MODULES` is itself checked by
+        `test_every_writing_module_is_scanned`; it is not a proof.
 
     What it does buy is that the classification is CHECKED against the code: an
-    unresolvable destination and an unclassified root both fail here, so a
-    writer cannot quietly acquire a covered destination.
+    unresolvable destination, an unclassified root and an unclassified call all
+    fail here, so a writer cannot quietly acquire a covered destination.
     """
     registered = tuple(pins["freeze"]["excluded"])
     study_root = os.path.realpath(study)
     offenders = []
     for module in WRITING_MODULES:
         name = module.__name__
-        for line, function, root, tail in write_sites(module):
+        with open(module.__file__, encoding="utf-8") as handle:
+            sites, unreadable = scan_source(name, handle.read())
+        offenders.extend(unreadable)
+        for line, function, root, tail in sites:
             anchor = _module_string(module, root)
             if anchor is None:
                 key = (name, function, root)
@@ -576,7 +766,19 @@ def test_every_study_destination_a_writer_names_is_an_excluded_path(study, pins)
 def test_every_writing_module_is_scanned(study):
     """`WRITING_MODULES` is the scan's own scope, so a module that starts
     writing outside it would be invisible. Every harness module is parsed here
-    and one that holds a file-creating write must be in the list."""
+    and one that holds a file-creating write must be in the list.
+
+    Round 16, finding 3: through the SAME scanner as the destination case
+    above, not a second copy of its vocabulary. It used to re-implement the
+    `FILE_WRITERS`/`_creates()` pair inline, so a new module writing only
+    through `tempfile.mkstemp` passed here as "not a writing module" — the
+    identical fail-open one level up, which is the level that decides what gets
+    scanned at all.
+
+    Its directory scope is `harness/` top level and is stated rather than
+    widened: `analysis/` and `transcription/` hold no Python that writes today
+    (`transcription/authoring_call.sh` is bash and is named in the case above),
+    and a Python writer appearing there is outside this case."""
     harness = os.path.join(study, "harness")
     missing = []
     scanned = {os.path.realpath(module.__file__) for module in WRITING_MODULES}
@@ -587,12 +789,261 @@ def test_every_writing_module_is_scanned(study):
         if os.path.realpath(path) in scanned:
             continue
         with open(path, encoding="utf-8") as handle:
-            tree = ast.parse(handle.read())
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call) \
-                    and _dotted(node.func) in FILE_WRITERS and _creates(node):
-                missing.append("%s:%d" % (name, node.lineno))
+            sites, offenders = scan_source(name[:-3], handle.read())
+        missing.extend("%s:%d creates a file" % (name, line)
+                       for line, _scope, _root, _tail in sites)
+        missing.extend(offenders)
     assert missing == [], (
-        "these harness modules create files and are outside WRITING_MODULES, "
-        "so their destinations are checked against freeze.excluded by nothing: "
-        "%r" % (missing,))
+        "these harness modules create files, or make a filesystem call this "
+        "scan cannot classify, and are outside WRITING_MODULES — so their "
+        "destinations are checked against freeze.excluded by nothing: %r"
+        % (missing,))
+
+
+# --- stand-in registries and the study's stage (round 16, finding 4) ---------
+
+# The one constructor every stand-in registry has to go through, and the
+# spellings that name the COMMITTED registry. A path built from a PARAMETER is
+# some throwaway copy and is not this rule's subject; a path built from a
+# module constant is the registry of record.
+STAND_IN_CONSTRUCTOR = "stand_in_registry"
+REGISTRY_NAMES = ("REGISTRY", "REGISTRY_OF_RECORD", "score_rates.REGISTRY_OF_RECORD")
+
+
+def _names_the_committed_registry(node, constants: dict) -> bool:
+    """Whether an `open()` argument names `harness/PINS.json` itself."""
+    name = _dotted(node)
+    if name in REGISTRY_NAMES:
+        return True
+    if isinstance(node, ast.Call) and _dotted(node.func) == "os.path.join":
+        parts = node.args
+        if not parts or not isinstance(parts[-1], ast.Constant) \
+                or parts[-1].value != "PINS.json":
+            return False
+        # …rooted at a module constant. A parameter root is a copy of the tree
+        # under a throwaway root (`test_manifest._registry_edit`), not the
+        # registry of record.
+        return _dotted(parts[0]) in constants
+    return False
+
+
+def _registry_loaders(tree: ast.Module, constants: dict) -> dict:
+    """{scope name: [names bound to the committed registry or a copy of it]}"""
+    loaded = {}
+    for scope_name, scope_node, call in _scope_calls(tree):
+        if _dotted(call.func) not in ("json.load", "json.loads"):
+            continue
+        argument = call.args[0] if call.args else None
+        source = argument
+        if isinstance(source, ast.Call) and _dotted(source.func) == "open":
+            source = source.args[0] if source.args else None
+        if source is None or not _names_the_committed_registry(source, constants):
+            # `json.load(handle)` — follow the handle back to its `with open()`.
+            if not isinstance(argument, ast.Name):
+                continue
+            opened = [item.context_expr for node in ast.walk(scope_node)
+                      if isinstance(node, ast.With)
+                      for item in node.items
+                      if isinstance(item.optional_vars, ast.Name)
+                      and item.optional_vars.id == argument.id
+                      and isinstance(item.context_expr, ast.Call)
+                      and _dotted(item.context_expr.func) == "open"]
+            if not any(_names_the_committed_registry(one.args[0], constants)
+                       for one in opened if one.args):
+                continue
+        for node in ast.walk(scope_node):
+            if isinstance(node, ast.Assign) and node.value is call \
+                    and len(node.targets) == 1 \
+                    and isinstance(node.targets[0], ast.Name):
+                loaded.setdefault(scope_name, []).append(node.targets[0].id)
+    # …and every name that is a COPY of one of those, because a builder that
+    # copies before it assigns inherits exactly as much as one that does not.
+    for scope_name, scope_node, call in _scope_calls(tree):
+        bound = loaded.get(scope_name, [])
+        if not bound:
+            continue
+        for node in ast.walk(scope_node):
+            if not isinstance(node, ast.Assign) or len(node.targets) != 1 \
+                    or not isinstance(node.targets[0], ast.Name):
+                continue
+            inner = {_dotted(item) for item in ast.walk(node.value)
+                     if isinstance(item, ast.Name)}
+            if inner & set(bound) and any(
+                    _dotted(item.func) in ("json.loads", "copy.deepcopy", "dict")
+                    or (isinstance(item.func, ast.Attribute)
+                        and item.func.attr == "copy")
+                    for item in ast.walk(node.value)
+                    if isinstance(item, ast.Call)):
+                bound.append(node.targets[0].id)
+    return loaded
+
+
+def stand_in_offenders(name: str, source: str) -> list:
+    """The rule below, over one file's source."""
+    tree = ast.parse(source)
+    required = set(integrity.POST_FREEZE_MEMBERS)
+    constants = {node.targets[0].id for node in tree.body
+                 if isinstance(node, ast.Assign) and len(node.targets) == 1
+                 and isinstance(node.targets[0], ast.Name)}
+    offenders = []
+    for scope_name, bound in sorted(_registry_loaders(tree, constants).items()):
+        scope = [node for node in ast.walk(tree)
+                 if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                 and node.name == scope_name] or [tree]
+        written, assigns_into, delegates, looped = set(), False, False, False
+        for node in ast.walk(scope[0]):
+            if isinstance(node, ast.Call) \
+                    and (_dotted(node.func) or "").endswith(
+                        STAND_IN_CONSTRUCTOR) \
+                    and any(isinstance(argument, ast.Name)
+                            and argument.id in bound
+                            for argument in node.args):
+                delegates = True
+            if isinstance(node, ast.For) \
+                    and _dotted(node.iter) == "integrity.POST_FREEZE_MEMBERS":
+                looped = True
+            if not isinstance(node, (ast.Assign, ast.AugAssign)):
+                continue
+            targets = (node.targets if isinstance(node, ast.Assign)
+                       else [node.target])
+            for target in targets:
+                if not isinstance(target, ast.Subscript):
+                    continue
+                parent = target.value
+                root = parent.value if isinstance(parent, ast.Subscript) else None
+                if not isinstance(root, ast.Name) or root.id not in bound:
+                    continue
+                assigns_into = True
+                if isinstance(parent.slice, ast.Constant) \
+                        and isinstance(target.slice, ast.Constant):
+                    written.add((parent.slice.value, target.slice.value))
+        if not assigns_into or delegates or looped:
+            continue
+        if required - written:
+            offenders.append(
+                "%s %s() loads the committed registry and writes %r, "
+                "inheriting %r: a stand-in registry writes every member of "
+                "integrity.POST_FREEZE_MEMBERS or goes through "
+                "fixtures.stand_in_registry(), or every case standing on it is "
+                "a function of the study's stage (§2.10)"
+                % (name, scope_name, sorted(written), sorted(required - written)))
+    return offenders
+
+
+# The two builders this rule replaces, as they stood before their rounds — the
+# positive control, so the lint is one that has been seen to fire.
+INHERITING_BUILDERS = (
+    ("round 16's: three of the four members written, the tree pin inherited",
+     "import json\nimport score_rates\n"
+     "def _stand_in_registry(root, golden):\n"
+     "    with open(score_rates.REGISTRY_OF_RECORD) as handle:\n"
+     "        pins = json.load(handle)\n"
+     "    pins['golden']['sha256'] = golden\n"
+     "    pins['freeze']['preregistrationSha256'] = 'x'\n"
+     "    pins['isolationNegative']['assent'] = 'granted'\n"
+     "    return pins\n"),
+    ("round 15's: the copy assigned into, two members inherited",
+     "import json\nREGISTRY = '/x/harness/PINS.json'\n"
+     "def stand_in_registry():\n"
+     "    with open(REGISTRY) as handle:\n"
+     "        committed = json.load(handle)\n"
+     "    pins = json.loads(json.dumps(committed))\n"
+     "    pins['freeze']['preregistrationSha256'] = 'x'\n"
+     "    pins['freeze']['treeManifestSha256'] = None\n"
+     "    return pins\n"),
+)
+
+
+def test_every_stand_in_registry_writes_every_lifecycle_member(study):
+    """§2.10: a test expectation may not be a function of the study's STAGE.
+
+    Round 15 fixed `test_batch.py`'s builder and recorded in PREREG-REVIEW.md
+    that it was the only fixture inheriting a lifecycle member. That was false:
+    `test_admission.py`'s near-identically named `_stand_in_registry()`
+    inherited `freeze.treeManifestSha256`. Two hand-kept builders and two
+    hand-kept guards is the pattern this sequence has now repeated three times,
+    so the guard is a RULE over the sources instead:
+
+      every function under `harness/tests/` that loads the COMMITTED registry
+      and then assigns into it — or into a copy of it — must write every
+      member of `integrity.POST_FREEZE_MEMBERS`, or hand the loaded object to
+      `fixtures.stand_in_registry()`, which writes them all by looping over
+      that same tuple.
+
+    It discovers builders rather than listing them, it is keyed off the member
+    tuple so a fifth member is covered without an edit, and it does NOT fire on
+    the fixtures' own ceremony acts (`register_golden()`,
+    `record_negative_control()`), which advance one member over a registry that
+    is already a stand-in and never load the committed one.
+
+    What it does not cover, said rather than implied: a builder that reads the
+    committed registry through something other than `open`/`json.load` — for
+    instance `integrity.normalized_pins()`, which nulls all four members and is
+    therefore stage-invariant by construction — and `CALL.json`'s `pinsSha256`
+    (`fixtures.py`), the live digest of the registry FILE. That byte IS a
+    function of all four members and does move by stage; it is deliberate, and
+    invariant as an EXPECTATION because `admit()` recomputes the same digest on
+    the other side.
+    """
+    tests = os.path.dirname(os.path.abspath(__file__))
+    offenders = []
+    for name in sorted(os.listdir(tests)):
+        if not name.endswith(".py"):
+            continue
+        with open(os.path.join(tests, name), encoding="utf-8") as handle:
+            offenders.extend(stand_in_offenders(name, handle.read()))
+    assert offenders == [], "\n".join(offenders)
+    # …and the rule is LIVE, against the shape round 16 found and the shape
+    # round 15 fixed. A source lint asserted only over sources that satisfy it
+    # is a lint nobody has seen fire.
+    for what, source in INHERITING_BUILDERS:
+        assert stand_in_offenders("stand-in.py", source), what
+
+
+# The three shapes round 16, finding 3 demonstrated the old scan staying GREEN
+# under. Each is spliced onto a copy of a writing module's source and must come
+# back as a NAMED offender: a fail-closed claim that is not itself tested is the
+# same sentence in a docstring the round before.
+FAIL_CLOSED_SPLICES = (
+    ("an API outside the vocabulary",
+     "def _sneak_one(root):\n"
+     "    return tempfile.mkstemp(dir=root, prefix='SNEAK', suffix='.md')\n"),
+    ("an open() whose mode is not a literal",
+     "def _sneak_two(root, mode):\n"
+     "    return open(os.path.join(root, 'SNEAK2.md'), mode)\n"),
+    ("a write at module level",
+     "_SNEAK_THREE = open(os.path.join('/sneak', 'SNEAK3.md'), 'w')\n"),
+    ("a writer reached under another name",
+     "from tempfile import mkstemp\n"),
+)
+
+
+def test_the_writer_scan_fails_closed_on_what_it_cannot_read():
+    """The enforcement, so "it fails CLOSED" is a property and not a sentence.
+
+    Round 16, finding 3 spliced three covered-byte writes into a writing module
+    and both scan cases stayed green: an unknown creator was skipped, a
+    variable `open()` mode was classified as non-creating, and module level was
+    never walked. A fourth shape — reaching a creator under a bare name —
+    defeats the dotted-spelling match the whole scan rests on. Each is required
+    to produce an offender naming the line it was spliced at."""
+    for module in WRITING_MODULES:
+        with open(module.__file__, encoding="utf-8") as handle:
+            source = handle.read()
+        original = len(source.splitlines())
+        base_sites, base_offenders = scan_source(module.__name__, source)
+        # The fixture is live: the unspliced module is classifiable throughout.
+        assert base_offenders == [], module.__name__
+        for what, splice in FAIL_CLOSED_SPLICES:
+            sites, offenders = scan_source(module.__name__,
+                                           source + "\n\n" + splice)
+            # Caught either as an unclassifiable call or as a write site the
+            # destination case then has to resolve — and at a line past the
+            # module's own last one, so it is the SPLICE that was caught and
+            # not something the module already carried.
+            lines = [int(offender.split(":")[1].split(" ")[0])
+                     for offender in offenders]
+            lines += [line for line, _scope, _root, _tail in sites
+                      if (line, _scope, _root, _tail) not in base_sites]
+            assert lines and max(lines) > original, (module.__name__, what,
+                                                     offenders, sites)

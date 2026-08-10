@@ -52,6 +52,7 @@ import tempfile
 from decimal import Decimal
 
 import batch
+import integrity
 import score_rates
 import transcript_check
 
@@ -653,6 +654,52 @@ def _registry_of_record() -> str:
     `admit()` runs its registry check against the value `main()` would compute
     and no scoring here needs the library override."""
     return score_rates.file_digest(score_rates.REGISTRY_OF_RECORD)
+
+
+# The tree pin a stand-in registry carries when its freeze pins are FILLED.
+# Nothing on any driver or scorer path reads this member off a supplied
+# registry — `integrity.verify_tree()` reads it off the COMMITTED one — so a
+# literal is the honest value: it exists so that §2.10's two freeze pins land
+# together, which is the only shape `verify_tree()` accepts, and deriving it
+# would shell out to git and hash the whole tree for a member nothing reads.
+STAND_IN_TREE_MANIFEST = "sha256:" + "f" * 64
+
+
+def stand_in_registry(committed: dict, written: dict = None) -> dict:
+    """A copy of the committed registry with EVERY member of
+    `integrity.POST_FREEZE_MEMBERS` WRITTEN rather than inherited.
+
+    §2.10: a manifest-covered test expectation may not be a function of how far
+    the real ceremony has got. A registry copied from the committed file
+    inherits whichever of the four lifecycle members are already filled, so a
+    case standing on it silently changes meaning at the freeze, at the golden
+    recapture, at §6 C7's assent and at the tree binding — and rule 3 forbids
+    repairing the file once the final round has read it. Round 15 closed that
+    on `test_batch.py`'s builder and recorded that it was the only one; round
+    16 found `test_admission.py`'s, which inherited `freeze.treeManifestSha256`.
+    ONE constructor keyed off the member list is what stops there being a
+    third: a fifth post-freeze member is nulled in every stand-in registry with
+    no edit here or in either caller.
+
+    `written` maps a `(parent, member)` pair to the value this caller's own
+    acts have reached; anything unnamed is the pre-act null. A pair that is not
+    a post-freeze member raises rather than silently adding a key, which is the
+    round-3 spelling class one level down.
+
+    The two freeze pins are the caller's to write, and §2.10 requires them
+    written TOGETHER — `integrity.verify_tree()` refuses a registry with one
+    filled and the other null. `STAND_IN_TREE_MANIFEST` above is what a caller
+    that fills the preregistration pin pairs it with.
+    """
+    pins = json.loads(json.dumps(committed))
+    written = dict(written or {})
+    for pair in integrity.POST_FREEZE_MEMBERS:
+        pins.setdefault(pair[0], {})[pair[1]] = written.pop(pair, None)
+    if written:
+        raise AssertionError(
+            "%r are not members of integrity.POST_FREEZE_MEMBERS, so writing "
+            "them here would add keys no registry carries" % (sorted(written),))
+    return pins
 
 
 def _write_json(path: str, body) -> None:

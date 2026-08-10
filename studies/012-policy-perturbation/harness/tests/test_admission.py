@@ -2541,7 +2541,10 @@ def test_the_scoring_refuses_before_it_reads_a_slot():
     C7's assent at step 5 — so an expectation read off whichever moment the
     tree has reached is an expectation the next lifecycle act falsifies, in a
     file §2.10's manifest covers and rule 3 forbids correcting afterwards. The
-    order does not move; the stage does.
+    order does not move; the stage does. That became true of these four
+    registries only in round 16: `_stand_in_registry()` wrote three of §2.10's
+    four members and INHERITED the tree pin, so a study that had been frozen
+    would have moved them — see that helper's own docstring.
 
     It stops at the fourth refusal deliberately. §6 C7's record lives at a
     DERIVED path ([D-23], under the real study) rather than at an argument this
@@ -2696,20 +2699,33 @@ def _stand_in_registry(root: str, golden: str, *, name: str = "PINS.json",
     registered call order, the five arms' pinned digests — so the population
     below goes through the REAL `verify_preconditions()` and not a relaxed one.
 
-    The three lifecycle members are keyword arguments so that a test can WRITE
-    the stage it is about instead of reading whichever stage the committed tree
-    has reached; `name` puts more than one registry under a single root. The
-    defaults are the population case above — all three filled — so a caller
-    that wants a scoreable registry says nothing extra.
+    The lifecycle members are keyword arguments so that a test can WRITE the
+    stage it is about instead of reading whichever stage the committed tree has
+    reached; `name` puts more than one registry under a single root. The
+    defaults are the population case above — all four filled — so a caller that
+    wants a scoreable registry says nothing extra.
+
+    Round 16, finding 4: the fourth member, `freeze.treeManifestSha256`, used
+    to be INHERITED here — round 15 fixed the near-identically-named builder in
+    `test_batch.py` and recorded that it was the only one, which was false. It
+    is written now, through the one constructor both builders share
+    (`fixtures.stand_in_registry()`), so a fifth post-freeze member needs no
+    edit here. `freeze` writes BOTH freeze pins or nulls both: §2.10 lands them
+    together, `integrity.verify_tree()` refuses a registry carrying one of
+    them, and this helper used to hand the scorer exactly that shape.
     """
     with open(score_rates.REGISTRY_OF_RECORD) as handle:
-        pins = json.load(handle)
-    pins["golden"]["sha256"] = (score_rates.file_digest(golden)
-                                if pin_golden else None)
-    pins["freeze"]["preregistrationSha256"] = (
-        score_rates.file_digest(os.path.join(STUDY, "PREREGISTRATION.md"))
-        if freeze else None)
-    pins["isolationNegative"]["assent"] = assent
+        committed = json.load(handle)
+    pins = fixtures.stand_in_registry(committed, {
+        ("golden", "sha256"): score_rates.file_digest(golden) if pin_golden
+                              else None,
+        ("freeze", "preregistrationSha256"):
+            score_rates.file_digest(os.path.join(STUDY, "PREREGISTRATION.md"))
+            if freeze else None,
+        ("freeze", "treeManifestSha256"):
+            fixtures.STAND_IN_TREE_MANIFEST if freeze else None,
+        ("isolationNegative", "assent"): assent,
+    })
     path = os.path.join(root, name)
     with open(path, "w") as handle:
         json.dump(pins, handle, indent=2)

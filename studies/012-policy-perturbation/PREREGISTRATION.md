@@ -226,7 +226,21 @@ the rule counts *classes* and a single group below HIGH puts two classes below
 HIGH at once, which is why this rate multiplies by more than twenty where the
 gate merely falls by a tenth. **The larger figure is the one to quote:** the
 rule fires by sampling alone about **four times in a thousand** runs of this
-study at the registered N, and about two in a hundred at the alternative. Even
+study at the registered N, and about two in a hundred at the alternative.
+
+The four figures above are labelled by the FIRST limb, and they are the rate
+for the WHOLE rule to every digit printed here: LOW is a subset of below-HIGH,
+so the second limb adds only the patterns too small to fire the first, and at
+this scenario that is below 1e-30 at either N — the two limbs are the same IEEE
+double at N = 20, 25 and 30. The second limb is nonetheless where the rule's
+power against a single collapsed class lives: a class truly collapsed to
+p = 0.05 reads LOW with probability 0.9392 at N = 30, while one collapsed class
+puts at most two of six classes below HIGH and so can never fire the four-of-six
+limb. `score_rates._drift_suspected()` computes both limbs as one union, exactly,
+and `test_verdict_parity.py` asserts the union is strictly larger than the
+four-of-six limb in exact rational arithmetic and pins the two apart at a
+marginal where they visibly separate — because no assertion over a rendered
+figure could distinguish them here at any precision (round 16, finding 5). Even
 when it fires it is
 reported as **a finding about the contemporaneous baseline, not as a
 measurement of drift**, which this design cannot make: there is no second
@@ -256,7 +270,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `3b858139d5a83b6ba8b740eacdfeb2d9a82954edc026e3945082f8df4830943a` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `329a9b051a3aee6ba39d0090d1e5d6aa60eb749ea7e8ecb95c9a320c51d05907` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -292,8 +306,8 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt, and (round 5, finding 7) a completion that does not decode raises its own exception class so the scorer can name `completion-unreadable`; no other check logic changes |
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee` | §2.7 |
 | `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `c092a1fe301c0aafe35d24ee8eab632045440aee9df5b763c003d07d1fdeae9d` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `a6c948951567caebdddb211161c89235ec08d113e63dec89c8a2e168908a7211` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `35fc7e5c4301c661884d36a69a7ea6c1b1731a376dce23af0bd966e92c14426b` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `9ec5f84cc9bbed53ca5553a846977987431a7967fc8a1afe17cf0b0bc555f0eb` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `b811eeb16793eafeb41ae138270e2d9fe637b3abcdddbb7373436998e8b444c4` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -1314,7 +1328,27 @@ artifacts that ran" now means:
    the same livelock in code, because the suite turns red at the act and rule
    3 forbids the edit that would fix it. `harness/tests/test_manifest.py`
    asserts the property directly, by applying each registered act to a copy of
-   the tree and requiring the manifest to be identical.
+   the tree and requiring the manifest to be identical, and — round 16, finding
+   4 — over the source rule that no stand-in registry a test builds may INHERIT
+   one of the four members from the committed file rather than write it.
+
+   And the rule that makes a pre-call gate more than a line of code:
+   **every gate the driver runs before it spends a call is enumerated from
+   `harness/batch.py`'s own source by the harness tests, per registered
+   command, and each is either driven through that command line by a case that
+   asserts the gate's OWN refusal message — with every other gate satisfied, no
+   call spent and nothing written — or carries a registered reason saying what
+   holds it instead.** A deleted gate call is then a red suite, and a new gate
+   with no entry is a named failure, rather than a check silently dropped. This
+   is registered because rounds 13 and 15 both show that a rule living only in
+   test docstrings gets re-broken: three consecutive rounds repaired one
+   instance of the same class, and round 16's sweep found ten of `preflight()`'s
+   fourteen gates removable with the suite still green and §2.10's own freeze
+   gate removable at all five of its call sites at once.
+   `harness/tests/test_batch.py`'s `PreCallGates` carries the derivation, the
+   ledger and the three tests, and states in full what the mechanism cannot
+   show — it is author-visible, not author-proof, and says nothing about a
+   gate being correct.
 4. Registered honestly, because this is a bound and not a proof: **the manifest
    is computed by this study's own code over this study's own worktree.** It
    binds the *reviewer's* attestation to a specific byte state, and it makes a
@@ -3737,7 +3771,16 @@ Beyond that:
   one**, with every byte the run left in them and nothing removed, in one of
   Study 011 §8's four registered slot shapes, each with its
   `SLOT-MANIFEST.json`; beside them the chained ledger `BATCH.json` and
-  `SHORTFALL.json` if one is declared. Nothing in the tree is `.gitignore`d;
+  `SHORTFALL.json` if one is declared. Nothing the study PRODUCES is
+  `.gitignore`d — `.gitignore` holds `__pycache__/` and `*.pyc` and nothing
+  else, which round 4's untracked-and-ignored-bytecode finding required, and
+  no artifact, slot, control record, ledger or output is hidden from
+  `git status` or from §2.10's tree manifest by it (round 16, finding 3: this
+  sentence read "Nothing in the tree is `.gitignore`d" and the two bytecode
+  patterns had been there since round 4). The ledger's atomic-write temporary
+  is handled the other way, as a registered `freeze.excluded` entry at a fixed
+  name, so a crash residue stays visible to `git status` and is refused by name
+  on the next run;
 - **the expanded 150-slot registered call order and its realised transition
   census**, so a reader can check §2.8's balance claims against what actually
   ran rather than against the construction;
@@ -3984,7 +4027,7 @@ D-24 and re-adjudicated D-1, D-4, D-5, D-7, D-9, D-10, D-13, D-16 and D-18.
 | **D-16** | The preamble's study reference (§2.1, §2.5, §2.6, §5.3 i) | **replace `Study 010` with `this study` in all five arms**, as the registered `PREAMBLE_DELTA` at its single occurrence in 010's locked bytes, with the assembled preamble pinned by its own sha256. This removes the one textual hook by which any arm points at a public text stating 40 and 70 | **keep the preamble byte-identical to 010's** (the round-1 proposal) and register the recall channel it leaves open. Round 2's finding: with the name in place, an arm E that maintained coverage was being labelled an unconditional falsification of R1 while the text handed the author a pointer to the answer — recall does not falsify a causal proposition about denaming. The adopted option costs **a second registered delta from 010's locked text**, on top of D-15's, and it buys strictly less than it appears to: it removes the *pointer*, not residual memorization of a corpus public since 2026-08-06, which is why §5.3 (i) publishes maintained coverage as **contamination-compatible** rather than as a clean falsification | round 1; adopted round 2 |
 | **D-17** | The contrast rule (§5.2) | **the level-gated rule, plus COLLAPSE-DISJOINT (`U_X < L_A`) reported beside it and never substituted for it**, and the same level-gated rule computed on S1 as the **PLACEMENT contrast**. All computable from the same integers; none needs a distribution for a difference of proportions, so the estimation-first posture is preserved | **the level-gated rule alone**, accepting that a class where E reads LOW and A reads MID is published as INDETERMINATE despite widely disjoint intervals in the predicted direction. Round 1's finding: the contrast rule is the study's second-most consequential registered choice after the level cuts, and the draft registered thirteen decisions without it | round 1; placement contrast added round 2 |
 | **D-18** | Arm D's threshold pair (§2.4, §5.3 ii, §9) | **(45, 72)** — no single **additive shift** explains it, which is the confound this pair was chosen to exclude. Round 2 corrected the claim's wording: unequal moves exclude a translation, **not** an affine map (`0.9x + 9` sends 40 → 45 and 70 → 72), and the wider claim is withdrawn | **(50, 80)** — salience-matched (both decade-round, as 40 and 70 are) and width-preserving (class 3 stays 30 wide, where (45, 72) narrows it to 27), at the cost of being exactly a +10 additive shift of (40, 70). The two candidates trade one confound against the other and the review picks which one this study would rather not be able to rule out. Under either, §5.3 (ii)'s second outcome is published as **OLD-EDGE-PREFERENCE** with contamination *and* round-number salience as two explanations this study cannot separate, and the third — new-keyed LOW *and* old-keyed LOW, a general degradation — stays registered | round 1; terminology and outcome name fixed round 2 |
-| **D-19** | How drift is classified (§2.1) | **numeric: arm A is DRIFT-SUSPECTED iff it reads below HIGH on four or more of its six classes, or LOW on any one.** Everything else, including three classes below HIGH, is an unresolved baseline on those classes and nothing more | **remove the drift classification entirely** and report only unresolved baselines, which costs the study its one registered way of naming a baseline that has plainly moved. The round-1 wording — "several classes at once, or a class far below the cut" — is **not** an option: it is an unregistered rule wearing a registered one's clothes, since "several" and "far below" are the analyst's to set after the data. Round 2's finding. Under the registered scenario the numeric rule fires by sampling alone with probability 0.0002 at N = 30 — **0.0041 under the containment-respecting companion** (round 10, finding 4), the larger figure and the one §2.1 quotes, because a nested pair below HIGH puts two of the six classes below HIGH at once | round 2 |
+| **D-19** | How drift is classified (§2.1) | **numeric: arm A is DRIFT-SUSPECTED iff it reads below HIGH on four or more of its six classes, or LOW on any one.** Everything else, including three classes below HIGH, is an unresolved baseline on those classes and nothing more | **remove the drift classification entirely** and report only unresolved baselines, which costs the study its one registered way of naming a baseline that has plainly moved. The round-1 wording — "several classes at once, or a class far below the cut" — is **not** an option: it is an unregistered rule wearing a registered one's clothes, since "several" and "far below" are the analyst's to set after the data. Round 2's finding. Under the registered scenario the numeric rule fires by sampling alone with probability 0.0002 at N = 30 — **0.0041 under the containment-respecting companion** (round 10, finding 4), the larger figure and the one §2.1 quotes, because a nested pair below HIGH puts two of the six classes below HIGH at once. Round 16, finding 5: the quoted rates are labelled by the four-of-six limb and are the whole rule's rate to every digit printed, and the scorer now computes both limbs — see §2.1's paragraph on why the second limb costs nothing here and carries all the power against a single collapsed class | round 2 |
 | **D-20** | Review-to-freeze binding and the port ordering (§2.2, §2.10, §7, §8) | **the final cross-vendor round reviews the complete post-port candidate tree and attests an exact commit and tree manifest**; the manifest digest is pinned and recomputed at the freeze; any byte change requires a new round; the port therefore happens **before** the final review, not after it | **an externally signed attestation** — the reviewer signing the manifest digest with a key this repository does not hold — which is strictly stronger and is not available in this environment. The round-1 binding is **not** an option: it covered only the five arm texts and was self-authenticating, since `PREREG-REVIEW.md`, Appendix A, the policies and `PINS.json` could all move together in one commit and every specified equality would still pass. Cost of the adopted option: the final round is a much larger review, and any finding that changes a byte repeats both the port and the round | round 2 |
 | **D-21** | What an incomplete batch may return (§2.8, §7, §9) | **nothing: descriptive-only, every verdict `UNRESOLVED-BY-DESIGN`, no contrast, at any round, for any reason** | **verdicts above a floor** — the round-1 rule, no verdict below eleven valid runs plus a recorded wall clock. Round 2's finding: a floor does not remove optional stopping, it relocates it to round 11, and an operator holding a directional prediction can read arm E in process (§7) and stop when the picture is favourable. A timestamp is not a pre-commitment. Cost of the adopted option, paid in advance: a batch that dies at round 29 for reasons nobody chose publishes a full descriptive surface and no conclusion | round 2 |
 | **D-22** | How a crashed batch resumes (§2.8, §6 C5) | **by global schedule index**: `--resume` continues at the ledger's next index after verifying the recorded prefix against §2.8's registered order, slot for slot | `--start-round K`, the round-1 form, which is **not** an option: it cannot resume a partly completed round without either overlapping recorded slots or silently omitting the rest of that round, and a round number alone makes neither detectable afterwards | round 2 |

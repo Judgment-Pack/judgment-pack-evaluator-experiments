@@ -198,7 +198,6 @@ import shutil
 import stat
 import subprocess
 import sys
-import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
@@ -301,6 +300,15 @@ DEFAULT_GOLDEN = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
 PROBE_PROMPT = os.path.join(STUDY, "transcription", "PROBE-PROMPT.txt")
 RESULTS = os.path.join(STUDY, "RESULTS.json")
 LEDGER_NAME = "BATCH.json"
+# The ledger's atomic-write temporary, at a FIXED name (round 16, finding 3).
+# It used to be `mkstemp`'s `BATCH.json.<random>.partial`, which no exclusion
+# entry could name and no static reader of this file could resolve — so a crash
+# in the rename window left a tracked, unexcluded path in the study tree, and
+# the next `git add -A` moved the manifest §2.10 rule 3 answers with another
+# review round. A constant is a destination `freeze.excluded` can carry and
+# `tests/test_manifest.py`'s writer scan can check, which is why the name is
+# here rather than computed at the write.
+LEDGER_TEMP_NAME = "BATCH.json.partial"
 SHORTFALL_NAME = "SHORTFALL.json"
 MANIFEST_NAME = "SLOT-MANIFEST.json"
 
@@ -435,7 +443,7 @@ def _write_json(path: str, body: dict) -> None:
         handle.write((json.dumps(body, indent=2, sort_keys=True) + "\n").encode("utf-8"))
 
 
-def _write_json_atomic(path: str, body: dict) -> None:
+def _write_json_atomic(path: str, temp_path: str, body: dict) -> None:
     """The same bytes, written so that no reader ever sees half of them: a
     temporary file in the SAME directory, flushed and fsynced, then `os.replace`,
     then the directory entry fsynced too.
@@ -455,27 +463,47 @@ def _write_json_atomic(path: str, body: dict) -> None:
     slot the ledger does not yet name, and a slot whose seal is half-written is
     refused rather than merged. The ledger is the one file this driver rewrites.
 
-    What a crash can still leave is a `BATCH.json.…partial` beside the ledger,
-    if it lands between the temporary file and the rename. That file is inert —
-    nothing reads it, and the ledger itself is whole either way — and removing
-    it is a housekeeping note in `DEVIATIONS.md`, not a recovery.
+    What a crash can still leave is `temp_path`, if it lands between the
+    temporary file and the rename. `temp_path` is the caller's REGISTERED
+    constant — `arms/BATCH.json.partial` for the ledger — and not a random
+    name, for three reasons that round 16, finding 3 found the old `mkstemp`
+    failing all of (the name was `BATCH.json.<random>.partial`):
+
+      * `harness/PINS.json` can EXCLUDE it, so a residue does not move §2.10's
+        tree manifest the moment anything stages it. A random name cannot be
+        an exclusion entry, and the study's `.gitignore` deliberately holds
+        nothing but bytecode (§8);
+      * `tests/test_manifest.py` resolves every destination this module NAMES
+        out of its source and requires it excluded. A destination `mkstemp`
+        computes is not statically readable, so the scan that claims to find
+        every file-creating write silently did not find this one;
+      * `O_EXCL` below turns a residue into a NAMED refusal on the next run
+        rather than an unread note. It is a real state — an uncatchable kill in
+        a window entered once per slot, 150 times per batch — and the operator
+        records it in `DEVIATIONS.md` and removes it, which is what the note
+        used to ask for and nothing used to ask for at the right moment.
     """
     directory = os.path.dirname(path) or "."
-    handle_fd, temporary = tempfile.mkstemp(
-        dir=directory, prefix=os.path.basename(path) + ".", suffix=".partial")
+    try:
+        handle_fd = os.open(temp_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                            0o644)
+    except FileExistsError:
+        raise BatchError(
+            "%s already exists and this run did not create it: the atomic "
+            "write never overwrites a temporary it did not open. `preflight()` "
+            "refuses this before a call is spent; reaching it here means the "
+            "residue appeared during the batch. Record it in DEVIATIONS.md and "
+            "remove it" % os.path.relpath(temp_path, STUDY))
     try:
         with os.fdopen(handle_fd, "wb") as handle:
             handle.write((json.dumps(body, indent=2, sort_keys=True)
                           + "\n").encode("utf-8"))
             handle.flush()
             os.fsync(handle.fileno())
-        # `mkstemp` creates at 0600; the committed ledger is a published
-        # artifact and is readable like every other file in the tree.
-        os.chmod(temporary, 0o644)
-        os.replace(temporary, path)
+        os.replace(temp_path, path)
     except BaseException:
-        if os.path.lexists(temporary):
-            os.unlink(temporary)
+        if os.path.lexists(temp_path):
+            os.unlink(temp_path)
         raise
     directory_fd = os.open(directory, os.O_RDONLY)
     try:
@@ -782,6 +810,20 @@ def preflight(entries: list, slots: list, scratch_parent: str, pins_path: str,
             # prediction about one of the arms.
             raise BatchError("%s exists: no slot may be created in any arm after a "
                              "rate has been computed" % RESULTS)
+        # Round 16, finding 3: `_write_json_atomic()` refuses to write over the
+        # ledger's temporary, and that refusal would land AFTER a call had been
+        # spent — the first slot of the invocation runs, seals, and only then
+        # finds the residue. The state is checkable before the first call, so
+        # it is checked before the first call, like everything else here.
+        temporary = os.path.join(ARMS_ROOT, LEDGER_TEMP_NAME)
+        if os.path.lexists(temporary):
+            raise BatchError(
+                "%s: a previous run left the ledger's temporary behind, which "
+                "is the residue of a kill between writing the ledger and "
+                "renaming it into place. The ledger itself is whole — the "
+                "rename is atomic — so record the interrupted run in "
+                "DEVIATIONS.md, remove that file, and run again"
+                % os.path.relpath(temporary, STUDY))
         golden = require_golden(pins, golden_path)
         # LAST in the registered branch, and after the golden gate: §6 C7's
         # record is bound to the capture, so the capture is verified before the
@@ -1416,7 +1458,8 @@ def write_ledger(records: list, pins: dict, cli_override: str) -> None:
     # Atomically (round 6, finding 6): this file is rewritten in full after
     # every slot, and a kill during the rewrite used to be able to leave a
     # truncated one — losing the only record of every slot that ran before it.
-    _write_json_atomic(os.path.join(ARMS_ROOT, LEDGER_NAME), {
+    _write_json_atomic(os.path.join(ARMS_ROOT, LEDGER_NAME),
+                       os.path.join(ARMS_ROOT, LEDGER_TEMP_NAME), {
         "batchVersion": "3",
         "registeredRunsPerArm": RUNS_PER_ARM,
         "registeredSlots": REGISTERED_SLOTS,
