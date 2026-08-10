@@ -1,0 +1,6 @@
+{
+  "attemptRoot": "primary-attempt-001",
+  "includeHoldout": true,
+  "study": "016-policy-currency-anchor",
+  "pinsRawSha256": "ef88f3a4291025f1e0c47069c99f096e4c6615e32c01c0dc015f1f96335a0a49"
+}
