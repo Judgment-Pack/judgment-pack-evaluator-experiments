@@ -4502,9 +4502,14 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     `split_records()` compares the RECORDED `decision.outcome` against the
     mirror's verdict, so a non-sanctioned SY record recorded as `clear` or
     `manual-review` is in Q, the arm reads `degraded` and `reading_verdict()`
-    hands row 5 no confirming reading, and the record is outside H, so §4.2
-    does not count its run into class 4's primary `k` either and row 2 stops
-    the arm after all.
+    hands row 5 no confirming reading. ONE such record anywhere in the arm does
+    that, because §4.1 takes Q over all of A — and it does nothing else. `k`
+    counts a run where H MEETS the class (§4.2), so the run keeps class 4 while
+    any one of its class-4 records is labelled correctly, and row 2 reads the
+    AGGREGATE level, LOW at `low_threshold(30) = 3` of thirty. The premise
+    closes row 5's S5 conjunct and does not move row 2's gate: an arm E off the
+    ceiling with its class-4 coverage intact reaches the LAST row as a
+    comprehension collapse.
 
     Class 3 is the interior review band: its members are scored BETWEEN the two
     thresholds, so a record covered there is one the two numbers bracket and one

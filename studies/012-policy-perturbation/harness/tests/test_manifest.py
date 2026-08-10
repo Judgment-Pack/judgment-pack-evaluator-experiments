@@ -24,7 +24,7 @@ Six assertions:
    the two `MANIFEST_CARRIERS`, which the same widening covered;
 2. a tree-shaped entry excludes its subtree, does NOT excuse its own bare name,
    and does not reach a sibling whose name it merely prefixes (`arms/AA/`);
-3. the registered list keeps its registered SHAPE — eight files and seven
+3. the registered list keeps its registered SHAPE — nine files and eight
    trees — so a later edit that drops a slash, silently widening the exclusion
    again, fails here rather than in a reviewer's recomputation;
 4. `tree_manifest()` itself honours the distinction, end to end over a throwaway
@@ -36,9 +36,12 @@ Six assertions:
 6. and the property the exclusions exist to buy — the manifest is IDENTICAL
    after every registered act of the study's lifecycle, from recording a review
    round through the freeze, the golden recapture, §6 C7, the batch, the
-   scoring and the publication. That is what makes §2.10 rule 3 terminate, and
-   it is asserted here by applying each act to a copy of the tree rather than
-   argued in prose.
+   scoring and the publication. The scoring act is the whole registered
+   command, `--emit-records` included, at the destination README step 7 names
+   rather than at a stand-in this file chose; the publication act includes
+   `CORRECTION.md`, which §8 requires written in every outcome. That is what
+   makes §2.10 rule 3 terminate, and it is asserted here by applying each act
+   to a copy of the tree rather than argued in prose.
 
 Tests 4 and 6 are the only tests in the suite that run `git`. They are offline,
 they run inside `fixtures.throwaway_root()` and write nothing into the
@@ -50,6 +53,7 @@ only inside its own throwaway root.
 from __future__ import annotations
 import json
 import os
+import re
 import shutil
 import subprocess
 
@@ -99,9 +103,10 @@ def test_the_registered_exclusions_keep_their_registered_shape(pins):
     trees = {name for name in registered if name.endswith("/")}
     assert files == {
         "RESULTS.json", "RATES.md", "CENSUS.md", "ANALYSIS.md",
-        "DEVIATIONS.md", "arms/BATCH.json", "arms/SHORTFALL.json",
-        "transcription/GOLDEN-CONTEXT.json"}
+        "DEVIATIONS.md", "CORRECTION.md", "arms/BATCH.json",
+        "arms/SHORTFALL.json", "transcription/GOLDEN-CONTEXT.json"}
     assert trees == {
+        "records/",
         "controls/recapture/", "controls/isolation-negative/",
         "arms/A/authoring/", "arms/B/authoring/", "arms/C/authoring/",
         "arms/D/authoring/", "arms/E/authoring/"}
@@ -167,6 +172,37 @@ def _registry_edit(root: str, section: str, member: str, value) -> None:
     pins[section][member] = value
     with open(os.path.join(root, "harness", "PINS.json"), "w") as handle:
         json.dump(pins, handle, indent=2)
+
+
+RECORDS_FLAG = re.compile(r"score_rates\.py score --emit-records (\S+)")
+
+
+def registered_records_dir(study: str) -> str:
+    """The emission destination README step 7 actually registers, read out of
+    the README rather than restated here (round 14, finding 1). A stand-in
+    would let this file assert a lifecycle the ceremony does not run."""
+    with open(os.path.join(study, "README.md"), encoding="utf-8") as handle:
+        found = RECORDS_FLAG.findall(handle.read())
+    assert len(found) == 1, ("README registers %d emission destinations"
+                             % len(found))
+    return found[0].rstrip("/")
+
+
+def test_the_registered_record_destination_is_an_excluded_tree(study, pins):
+    """§8 requires the compiled record trees published, and README step 7 emits
+    them INSIDE the study tree, where `git ls-files` sees them. The destination
+    therefore has to be a registered exclusion, or the publication act moves the
+    digest the final round attested (round 14, finding 1). Read from the
+    README, so changing the flag's value without changing `freeze.excluded`
+    fails here."""
+    destination = registered_records_dir(study)
+    registered = tuple(pins["freeze"]["excluded"])
+    assert destination + "/" in registered, (
+        "README emits records into %r, which harness/PINS.json does not exclude"
+        % destination)
+    for name in ("%s/A/run-001/RECORDS.md" % destination,
+                 "%s/A/run-001/records/CASE-001.json" % destination):
+        assert integrity.manifest_excluded(name, registered) is True, name
 
 
 def test_the_manifest_is_identical_after_every_registered_lifecycle_act(study,
@@ -243,8 +279,18 @@ def test_the_manifest_is_identical_after_every_registered_lifecycle_act(study,
 
         def score_and_publish():
             for name in ("RESULTS.json", "RATES.md", "CENSUS.md",
-                         "ANALYSIS.md", "DEVIATIONS.md"):
+                         "ANALYSIS.md", "DEVIATIONS.md", "CORRECTION.md"):
                 _write(root, name, "the run's output\n")
+            # `score --emit-records <dest>`, at the destination README step 7
+            # registers and in the layout `_emit_records()` writes:
+            # <dest>/<arm>/<slot>/ with the compiler's own RECORDS.md and
+            # records/<case>.json beneath it. §8 requires these published, so
+            # they are committed with everything else (round 14, finding 1).
+            destination = registered_records_dir(study)
+            for arm in ("A", "B", "C", "D", "E"):
+                slot = "%s/%s/run-001" % (destination, arm)
+                _write(root, slot + "/RECORDS.md", "| case | outcome |\n")
+                _write(root, slot + "/records/CASE-001.json", "{}\n")
 
         for act in (record_a_review_round, freeze, recapture_the_golden,
                     run_the_isolation_negative, run_the_batch,
@@ -271,7 +317,7 @@ def test_no_tracked_path_hides_under_a_file_entry(study, pins):
     every one of the study's tracked paths (round 9, finding 5)."""
     members = tuple(pins["freeze"]["excluded"]) + integrity.MANIFEST_CARRIERS
     files = [name for name in members if not name.endswith("/")]
-    assert len(files) == 10
+    assert len(files) == 11
     hidden = [(name, entry) for entry in files for name in _tracked(study)
               if name.startswith(entry + "/")]
     assert hidden == []

@@ -15,7 +15,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:3f8b82b74bafe4f8b0f07a76ad832aeb25ca0c6e0957f4ebadbf48c5a871c07d"
+    "sha256": "sha256:3b858139d5a83b6ba8b740eacdfeb2d9a82954edc026e3945082f8df4830943a"
   },
   "codex": {
     "model": "gpt-5.6-sol",
@@ -162,9 +162,11 @@
       "CENSUS.md",
       "ANALYSIS.md",
       "DEVIATIONS.md",
+      "CORRECTION.md",
       "arms/BATCH.json",
       "arms/SHORTFALL.json",
       "transcription/GOLDEN-CONTEXT.json",
+      "records/",
       "controls/recapture/",
       "controls/isolation-negative/",
       "arms/A/authoring/",
@@ -173,7 +175,7 @@
       "arms/D/authoring/",
       "arms/E/authoring/"
     ],
-    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set, at the paths the code actually writes (round 3, findings 1-2, dispositioned); the manifest's two carrier files (harness/PINS.json, PREREG-REVIEW.md) are excluded in integrity.tree_manifest() itself; an entry ending / is a tree and excludes everything beneath it, every other entry is exactly one path (round 9, finding 5)."
+    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set, at the paths the code actually writes (round 3, findings 1-2, dispositioned); the manifest's two carrier files (harness/PINS.json, PREREG-REVIEW.md) are excluded in integrity.tree_manifest() itself; an entry ending / is a tree and excludes everything beneath it, every other entry is exactly one path (round 9, finding 5). records/ is the destination README step 7's registered `score --emit-records` command writes and §8 requires published, and CORRECTION.md is the §8 correction venue this study's README points at, written by hand in every outcome; both are produced after the freeze, so both are exclusions rather than covered bytes (round 14, findings 1-2)."
   },
   "registryOfRecord": "The committed harness/PINS.json is the registry of record: the wrapper stamps the digest of the registry it ran under, the scorer computes the committed file's digest itself, and any slot whose stamp differs is registry-mismatch. The scorer takes no registry argument at all (§2.10 [D-23]).",
   "thresholdDefinitionSentence": {

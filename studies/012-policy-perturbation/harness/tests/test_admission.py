@@ -1031,9 +1031,12 @@ E_EMBARGO_AT_THE_CUT = [(0, 0), (0, 0), (0, 0), (30, 30), (3, 3), (0, 0)]
 # at (30, 30) here — k_H as well as k_raw, which is the labelling premise the
 # witness needs beside its record type: the type fixes what the mirror returns
 # and not what the arm recorded, and a mislabelled one of these records sits in
-# Q, degrades the arm's S5 and drops its run out of class 4's k_H, so row 2's
-# LOW verdict stops the arm after all — well clear of the four-of-thirty floor
-# here (round 13, finding 2, and the arm-labelling residual that round named).
+# Q and degrades the arm's S5, which is what costs row 5 its confirming reading
+# — the `mislabelled` scenario below is that arm. It does NOT cost the run its
+# class-4 k_H: §4.2 counts a run where H meets the class, so a run keeps class
+# 4 while any one of its class-4 records is right, and row 2 reads the
+# aggregate — LOW at three of thirty, which an arm at (30, 30) is well clear of
+# (round 13, finding 2, and the arm-labelling residual that round named).
 INTERIOR_COLLAPSE = [(0, 0), (0, 0), (0, 0), (0, 0), (30, 30), (0, 0)]
 # Arm A, HIGH on five classes and NOT on class 3 (round 10, finding 3). The
 # round-9 conjunct was a CONTRAST, and a contrast against a baseline that is not

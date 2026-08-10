@@ -104,14 +104,23 @@ gate each adjudicate R1 in **neither** direction. The condition that matters
 most:
 
 > **If arm E maintains coverage, R1 is published as UNSUPPORTED, with the same
-> prominence as the claim** — in `ANALYSIS.md`'s first paragraph, in this
-> README, in the venue `CLAIM.md` records, and as a correction banner at the
+> prominence as the claim** — in `ANALYSIS.md`'s first paragraph,
+> at the head of [`CORRECTION.md`](CORRECTION.md), linked from this block,
+> in the venue `CLAIM.md` records, and as a correction banner at the
 > head of Study 011's `DIVERSITY.md`. What is retracted is R1; the census's
 > descriptive sentence about its own corpus stands regardless. **And the
 > correction says one more thing in the same paragraph: this study does not
 > thereby establish the opposite.** Maintained coverage is compatible with the
 > author deriving the boundaries *and* with the author reproducing a policy
 > family it has seen before, and this design separates neither.
+>
+> `CORRECTION.md` is written in **every** outcome and is one of
+> `harness/PINS.json`'s `freeze.excluded` outputs, so this link is frozen
+> before the data and cannot be dropped afterwards without moving the digest
+> the final review round attested — and an absent `CORRECTION.md` is a visible
+> failure to publish rather than an outcome. This README is inside that
+> manifest, which is why the correction is written there and pointed at from
+> here (§8, §2.10 rule 3).
 
 Arm A is re-run rather than read off Study 011 for one reason, and it is not
 elapsed time: 011's 49 runs were produced on 2026-08-07 — the same day this
@@ -394,11 +403,15 @@ outright rather than merely narrowing it.
    roster, **every attempt including every failed one**, and the per-arm
    280-cell agreement table. Read it beside `arms/` — it is the one pre-data
    check that can tell "denamed" from "written to be hard".
-7. `DEVIATIONS.md` — empty until something departs.
-8. `RESULTS.json`, `RATES.md`, `CENSUS.md` and `ANALYSIS.md` — the run's
-   outputs, written by steps 7 and 8 of the ceremony above and by nothing
-   earlier. Every one of them is in `harness/PINS.json`'s `freeze.excluded`,
-   so none is covered by the tree manifest.
+7. `DEVIATIONS.md` — empty until something departs — and
+   [`CORRECTION.md`](CORRECTION.md), written in every outcome, naming the
+   decision-table row the scorer computed and, on §5.3 (i) row 4, carrying the
+   R1-UNSUPPORTED correction the block above commits to.
+8. `RESULTS.json`, `RATES.md`, `CENSUS.md`, `ANALYSIS.md`, `CORRECTION.md` and
+   the compiled record trees under `records/` — the run's outputs, written by
+   steps 7 and 8 of the ceremony above and by nothing earlier. Every one of
+   them is in `harness/PINS.json`'s `freeze.excluded`, so none is covered by
+   the tree manifest.
 
 Byte-lineage, not truth: this study measures where independently authored
 records land when the policy's surface form is perturbed and its decision

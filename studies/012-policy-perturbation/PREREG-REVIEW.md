@@ -7,7 +7,7 @@ verbatim where one exists, every finding faithfully summarized, and what was
 done about each one. Nothing is discarded. It follows Study 011's per-round,
 per-finding disposition format.
 
-**Status: OPEN. Thirteen rounds complete, rounds 2 through 13 cross-vendor. Nothing
+**Status: OPEN. Fourteen rounds complete, rounds 2 through 14 cross-vendor. Nothing
 is frozen and nothing has run.** (This line said "two rounds" through round 9,
 having been written in round 2 and never advanced; a status line that stops
 tracking its own subject is the defect this file exists to catch, so it is
@@ -2679,6 +2679,267 @@ is what this round's fix bought.
 Unchanged since round 2, and unchanged by every disposition above:
 
 | arm | bytes | sha256 of the arm text as reviewed in round 13 |
+|---|---|---|
+| **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
+| **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |
+| **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
+| **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
+| **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+## Round 14 — the freeze question, asked of the tree the pre-freeze repair left
+
+- Reviewing model: OpenAI Codex CLI v0.145.0, model `gpt-5.6-sol`, reasoning
+  effort ultra, 2026-08-09; drafting as recorded in rounds 1-13
+- Reviewed commit: `bfbfdb6`
+- Tree manifest, the reviewer's computation:
+  `ed58300605bd2101026fa7b26c39babef01137ba86c510f75959338bfd5b8f5e` — 86
+  entries, matching the maintainer's own computation
+- Runs: one review run, completed; no run discarded, no classifier refusal
+- **Verdict: NOT READY TO FREEZE**, on two blocking findings
+- **What this round was given to review, stated plainly in its own brief.**
+  Round 13 named two hazards to close before the final round, since rule 3
+  forbids editing a covered byte afterward. Closing them was maintainer-initiated
+  work between rounds, and no reviewer had seen any of it — so the brief put that
+  unreviewed surface first and said so
+- Reviewer's verification first: integrity exit 0; 294 passed in 346.99s;
+  worktree clean. Round 13's three dispositions genuinely implemented. The five
+  sentences the pre-freeze repair deliberately left untouched are **confirmed
+  correctly classified** as conditional, historical, role-defining or pinned
+  quotations. Independent rederivations reconciled all five Appendix assemblies
+  and prompt equations, the 948-byte header, all twenty pinned artifacts, all
+  five 280-cell grids, arm C's permutation, the complete schedule and its five
+  balances, §3.3's partition, §4's vectors, §5's tables and C1-C10; `CLAIM.md`
+  matches its pinned Study 011 source; the retained C10 attempts reconcile
+  through prompt, extraction, mirror, chronology and reported grids
+- The reviewer's own summary of what is and is not at stake: **"The scientific
+  rates and decision machinery do not presently claim an unearned result. What
+  the frozen-and-published study would not have earned is its claimed
+  review-to-publication byte binding"**
+
+### Prompt (verbatim)
+
+```
+You are performing a verification review — round 14 — of Study 012, a preregistered research study in a repository we own and maintain. This is documentation-and-code auditing of our own work before we freeze it and run it. Prior rounds' records, findings and maintainer dispositions are in `PREREG-REVIEW.md` in the study directory.
+
+Repository root: <worktree root>
+Study directory: <worktree root>/studies/012-policy-perturbation
+Reviewed commit: bfbfdb6 on branch study-012-perturbation
+
+**The question in front of you is: is this tree ready to freeze?** A clean verdict is a real outcome, and saying so plainly is the most useful thing you can do if the bytes earn it. Manufacturing a finding to justify the round would be worse than finding nothing.
+
+**What has happened since the last round, stated plainly because it changes what you should look at.** Round 13 answered NOT READY on one blocking finding: a livelock the maintainer had created in round 12 while fixing a recurring nit — a test bound a manifest-covered file to a round count that had to advance every round, so recording a round changed covered bytes, §2.10 rule 3 then required another round, and the study could never be frozen. Round 13's dispositions removed it and registered the lesson in §2.10: *a rule requiring review of every byte change makes any self-updating value in a covered file unfreezable; the record-keeping act must touch only carriers.*
+
+Round 13 also named two hazards to close **before** the final round, since rule 3 forbids editing a covered byte afterward. Closing them was maintainer-initiated work between rounds, and **no reviewer has seen any of it** — it is the largest untested surface at this commit and deserves your attention first. Sweeping the first hazard turned it into a defect *class* with a blocking member:
+
+- Manifest-covered files asserted **where the study stands** — `DRAFT`, `freeze pending`, `Nothing has run`, `none of it is frozen`, `None exists yet`, `no arm artifact has been frozen`. Every one goes false at the freeze or at the run, and rule 3 then locks it false permanently. This is round 12's livelock one act later: the recording act was fixed and the freezing act was not. All are now read from the registry's four lifecycle members, which are carrier bytes nulled in the manifest's normalized projection.
+- The blocking member was **executable, not prose**: a test asserted a refusal message the tree stops producing at README step 4 (the golden capture, which is *after* the freeze), so CI would go red on the commit that registers the capture, with the fix rule-3-locked. A twelfth instance of the same shape was then found in `test_batch.py`, where a stand-in registry inherited the very member its null case was about.
+- Three tests were added to close the class rather than its instances: the tree manifest asserted invariant under every registered lifecycle act; a lint forbidding lifecycle-status idioms in covered files (which registers honestly that a phrase list cannot be complete); and the rule that no test expectation may be a function of the study's stage.
+- Five sentences that resemble the same defect were deliberately **left untouched** as registration-time statements, correct as written — including `CLAIM.md`'s pinned quotation, whose correction §1 forbids.
+- Separately, §4.6's witness gained the arm-labelling premise round 13 had named and left open.
+
+## How to work
+
+Read the files and reason about them. Run the study's own test suite and its own verification command. You may write small scratch scripts **outside** the repository (under your working directory) to recompute a digest, re-derive a table, or check arithmetic independently. Driving the scorer's own public API on synthetic per-class integers is ordinary use of the study's instrument, not attack tooling.
+
+**Do not write, generate, or run code that imitates hostile software** — no files designed to defeat a check, no code that hides its own presence, no simulated attacker tooling. If you judge that a check is incomplete, **say so in prose**: name the file and line, state what the check currently establishes, state what it does not, and state what a complete check would have to do. A described gap is the deliverable; a working demonstration of one is not, and is out of scope for this review.
+
+Environment notes: modify no tracked file in the repository. The ceremony runs under `PYTHONSAFEPATH=1` (README step 0) and every path-invoked entry file refuses without it. Run the suite with the pinned interpreter `~/.pyenv/versions/3.12.11/bin/python3`, with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider` so no cache is written into the tree.
+
+## Scope, in order
+
+**1. The unreviewed pre-freeze repair — the priority of this round.** Nothing above has been through a review. Judge it:
+
+- **Is the lifecycle-staleness class actually closed?** Sweep every manifest-covered file yourself for any sentence, status, count, date or claim that is true now and false after the freeze, after the batch runs, or after publication. The maintainer's sweep found eleven prose hits and two executable ones; find what it missed, in either direction. Say explicitly whether any *further* covered byte is a function of the study's own stage.
+- **Are the five untouched sentences correctly classified?** They were judged registration-time statements that must not be "fixed". If any is in fact a live self-updating value, that is a finding; if any was fixed that should not have been, that is also a finding.
+- **Do the three new tests do what they claim?** The manifest-invariance test, the lifecycle-status lint, and the two rewritten stage-dependent tests. Would each fail if the property it names stopped holding? The lint is a blacklist and says so — judge whether its registered statement of its own strength is honest.
+- **Verify the freeze and run really move no covered byte.** Take the registry's four lifecycle members and `freeze.excluded`, and satisfy yourself that no registered act — freeze, golden capture, C7, the 150-call batch, scoring, publication — changes anything the manifest covers. This is the property rule 3's termination depends on, so check it from the registration rather than from the maintainer's summary.
+
+**2. Verify round 13's three dispositions**, listed in `PREREG-REVIEW.md`'s round-13 section: the livelock removal, the class-4 witness frequency premise, and the arm-D arithmetic correction. Is each genuinely implemented?
+
+**3. The registered content — a fresh sweep, with freeze in view.** Rounds 9 through 13 found their sharpest results in the study rather than the harness. Read as though the next act is the freeze.
+
+- `PREREGISTRATION.md` in full. It is the registration; everything else answers to it.
+- §2.3's six semantic classes, §2.4's arm-D substitution and 280-cell landmark grid, §2.6's document structure and the prompt equation, Appendix A's assembly rule against the twenty committed arm artifacts. Re-derive at least two independently.
+- §2.8's schedule and its five balance properties; §3.3's partition; §4's endpoints and the §4.3 interval vectors; §5's level, contrast and decision tables against `harness/score_rates.py`'s encodings; §6's controls C1-C10 against `harness/integrity.py` and the test suite.
+- `CLAIM.md` against its cited source in `studies/011-authorship-coverage-rates/MIRROR-AGREEMENT.md`; `MIRROR-AGREEMENT.md` against the retained attempts under `analysis/mirror2-attempts/`.
+- Ask the question no checklist covers: **is there a registered sentence that no code makes true, a control that cannot fail, a test that asserts less than it appears to, or a claim in the records that the artifacts do not support?**
+
+**4. The suite, at 294, and the residuals the record names.** The record names these as open on purpose: `verify_mirror2()` has no direct unit test; `verify_tree()` and `normalized_pins()` are covered only for `tree_manifest()`; `_write_outputs()` is pinned only at its override gate; `_epoch()` validates punctuation but not calendar ranges; §4.6's reading keys on levels while the scorer keys on contrasts (registered as conservative); §4.1's Q sentence has no test; §2.2's two digest cells are hand transcriptions no assertion covers; and after README step 5 the tree stops producing the C7 refusal message with no test asserting it. Confirm each is as described, then ask what **else** the suite asserts less than it appears to.
+
+**5. The freeze question, asked directly.** §2.10 registers what the freeze binds and §7 registers what is mechanically enforced against what is merely recorded. Read both against the tree as it stands and answer: **if this tree were frozen at this commit and the batch run tomorrow, what would the study publish that it has not earned?** If the answer is nothing, say so.
+
+**6. Run the suite and the verification command**, and report both results. If any test fails, report it with its output rather than re-running until it passes; one test has shown load-sensitivity once and the record says so.
+
+**7. Compute the tree manifest yourself**, as §2.10 registers it: over every git-tracked regular file under the study directory, excluding the paths in `harness/PINS.json` `freeze.excluded` and the two carriers (`harness/PINS.json`, `PREREG-REVIEW.md`), build the sorted list of lines `<path> <bytes> <sha256>` with paths relative to the study directory; then append the registry's normalized-projection entry — `PINS.json` parsed, `freeze.treeManifestSha256`, `freeze.preregistrationSha256`, `golden.sha256` and `isolationNegative.assent` set to null, serialized with `json.dumps(sort_keys=True, ensure_ascii=True, separators=(",",":"))` plus a newline, hashed and listed as `harness/PINS.json#normalized <bytes> <sha256>` — sort all lines together, join with newlines plus a trailing newline, and take the sha256 of that text. Confirm `integrity.tree_manifest()` implements the same recipe.
+
+## Final message
+
+A numbered findings list — each with file:line, what the record says, what the code does, and severity (blocking, should-fix, nit) — then:
+
+- an overall verdict line, which must state explicitly whether you judge the tree **ready to freeze**;
+- the line `Reviewed commit: bfbfdb6`;
+- the line `Tree manifest (my computation): <hex digest>`;
+- then the single line `CODEX-012-R14-DONE`.
+
+If you find nothing blocking, say so plainly — a clean verdict is a real outcome and this study is ready to be frozen when it earns one.
+```
+
+### Complete unedited final message
+
+(The absolute paths the reviewer's markdown links carried are rendered as the
+`file:line` anchors they point at; no other byte of the message is altered.)
+
+1. **Required compiled records invalidate the frozen manifest — severity: blocking.**
+
+   - **Record:** README.md:303 registers `score --emit-records records`; PREREGISTRATION.md:3715 requires those compiled trees to be published.
+   - **Code:** score_rates.py:4632 invokes `_emit_records()`, which writes `<out>/<arm>/<slot>/...` at score_rates.py:5108. The exclusions at PINS.json:159 omit `records/`. Once those files are tracked for required publication, the manifest changes.
+   - test_manifest.py:244 simulates only five excluded documents, so its “every registered lifecycle act” claim is false of the registered scoring command. Closure requires binding the actual record destination to an excluded tree, or forcing emission outside the study, and testing that real destination.
+
+2. **The conditional R1 correction requires editing manifest-covered README bytes — severity: blocking.**
+
+   - **Record:** PREREGISTRATION.md:3669 and README.md:106 require an observed R1-UNSUPPORTED result to be published as a correction in this README, not merely in generated outputs.
+   - **Code/tree:** README is manifest-covered, and rule 3 forbids changing it after the final review. The lifecycle test again models publication solely through excluded files at `test_manifest.py:244-247`; it never models the required correction.
+   - A row-4 result therefore forces a choice between changing covered bytes after freeze and violating the registered publication commitment. The publication mechanism or commitment must be made freeze-compatible before review.
+
+3. **§4.6 overstates what one wrong class-4 label does — severity: should-fix.**
+
+   - **Record:** PREREGISTRATION.md:1974 and score_rates.py:4500 say any one mislabel removes that run’s primary class-4 coverage and makes row 2 stop the arm.
+   - **Code:** Coverage is existential within a run—any correctly labelled class-4 record preserves it at score_rates.py:3215. Even if the run is lost, row 2 fires only when aggregate class-4 coverage is LOW at score_rates.py:4593. A public-API check confirmed 29/30 remains HIGH and degraded labels can route to row 7, not row 2.
+   - test_verdict_parity.py:584 changes both synthetic records together and never calls the level or decision functions, so it does not establish its claimed consequence. The operative decision table is correct; the explanatory witness and test are not.
+
+4. **The lifecycle-status lint silently omits normalized PINS — severity: should-fix.**
+
+   - **Record/test:** test_review_status.py:143 removes both carriers and therefore skips all of `harness/PINS.json`. Its stated exclusions at lines 171–173 mention only `arms/` and the test itself.
+   - **Code:** integrity.py:1031 binds normalized PINS with everything except four lifecycle values byte-significant. A stale-status phrase in a PINS note would therefore evade the lint.
+   - The lint honestly discloses that its phrase blacklist is incomplete; this separate scope omission is not disclosed. Current normalized PINS contains no stale assertion, so this is not itself blocking. A complete lint must also scan the normalized projection.
+
+Verification summary:
+
+- The five untouched statements are correctly classified as conditional, historical, role-defining, or pinned quotations: `PREREGISTRATION.md:3-4`, `:22-28`, `README.md:16-18`, `PREREGISTRATION.md:3950-3956`, and `CLAIM.md:53-56`.
+- Round 13’s livelock removal, four-of-thirty frequency premise, and arm-D `39/120` correction are genuinely implemented.
+- Independent rederivations reconciled all five Appendix assemblies and prompt equations, the 948-byte header, all 20 pinned artifacts, all five 280-cell grids, arm C’s permutation, the complete schedule and five balances, §3.3’s partition, §4 vectors, §5 tables, and C1–C10.
+- `CLAIM.md` matches its pinned Study 011 source; the retained C10 attempts reconcile through prompt, extraction, mirror, chronology, and reported grids.
+- All named residuals are accurately described. The additional cases where tests assert less than they appear are findings 1, 3, and 4.
+- Suite: `294 passed, 54050 warnings, 9 subtests passed in 346.99s (0:05:46)`.
+- Verification command: exit 0; it verified 11 ports, all arms, the 948-byte header, mirrors A–E, CPython 3.12.11, and reported the expected pre-freeze unbound manifest.
+- My independent recipe produced 86 sorted entries including normalized PINS; `integrity.tree_manifest()` returned the identical digest.
+- The scientific rates and decision machinery do not presently claim an unearned result. What the frozen-and-published study would not have earned is its claimed review-to-publication byte binding: required `records/` publication moves the manifest, and a row-4 result requires a locked README edit.
+
+**Overall verdict: NOT READY — I do not judge this tree ready to freeze.**
+
+Reviewed commit: bfbfdb6
+
+Tree manifest (my computation): ed58300605bd2101026fa7b26c39babef01137ba86c510f75959338bfd5b8f5e
+
+CODEX-012-R14-DONE
+
+### Dispositions
+
+All four findings **ACCEPTED**, all four independently confirmed against the
+bytes at `bfbfdb6`. This is the same defect class at its **third act** —
+recording (round 12), freezing (the pre-round-14 repair), and now **publishing**
+— and the disposition records that pattern rather than the three instances,
+because the pattern is the finding.
+
+**Finding 2 is the sharpest result of the whole sequence: the study could not
+publish the one outcome it exists to be able to publish.** §8 commits that if
+arm E maintains coverage, R1 is published as UNSUPPORTED "with the same
+prominence as the claim" — and one of the four named venues is this study's
+README, which §2.10's manifest covers and rule 3 forbids editing after the final
+review. So the **falsification** path — the entire point of a study built as a
+falsifier — ran through a byte the study's own integrity rule locks. The
+maintainer would have faced three bad horns, and the verification named a third
+the reviewer had missed and which is the worst: re-pinning after publication is
+**manifest-neutral**, because `freeze.treeManifestSha256` is nulled in the
+normalized projection, so the binding would silently re-anchor to a post-data
+tree. That is exactly the self-authenticating binding round 2 killed. A defect
+whose most convenient remedy is invisible is worse than one whose remedy is
+merely wrong.
+
+The fix had one governing constraint: **the commitment must not weaken.** Moving
+a falsification to a quieter venue, making it conditional, or dropping one would
+be precisely the post-hoc softening §8 exists to prevent, and a later reader
+would be right to read it that way. So: all four venues kept; "with the same
+prominence as the claim" byte-identical in all three registered statements;
+§8's "No re-cutting … no relegation to a limitations section" byte-identical;
+the two-part correction — the withdrawal and *this study does not thereby
+establish the opposite*, same paragraph, not a footnote — byte-identical.
+Nothing deleted; both files grew. Only one venue's **mechanism** changed: the
+README now carries a **frozen, pre-data pointer** to `CORRECTION.md`, a new
+top-level document in `freeze.excluded`.
+
+Two things make the pointer *stronger* than the sentence it replaces, and both
+are registered so the change cannot be read as convenience. `CORRECTION.md` is
+written in **every** outcome, naming the row the scorer computed — so the link
+is permanent and an absent `CORRECTION.md` is a visible failure to publish
+rather than a legitimate outcome. And the pointer is frozen bytes written before
+the data: dropping the venue now moves the attested digest, where a
+post-hoc-edited README venue could simply never be written. A lint fails if the
+link is removed, before any digest moves.
+
+**Finding 1 is the same class, and it caught a test I wrote to close that very
+class.** `records/` — the destination the registered `score --emit-records
+records` command writes, whose compiled trees §8 *requires* published — was
+absent from `freeze.excluded`, so publishing them would move the frozen manifest
+and make `integrity.py` refuse permanently. The lifecycle-invariance test added
+in the pre-round-14 repair claimed to cover "every registered lifecycle act"
+while modelling five excluded documents and never the registered scoring
+command: it asserted less than its name claimed, which is the standing target of
+five rounds. The corrected test now reads the destination **out of the README's
+own command literal** and writes the real emitted layout, so it models the act
+rather than a stand-in — and it fails on the pre-fix bytes at exactly that act.
+A registered sentence was also false and is now true without being edited:
+§2.10's claim that every act from the freeze to publication moves carrier or
+excluded bytes only became true the moment `records/` entered the exclusion list.
+
+**Finding 3 is the pre-round-14 repair overshooting.** Closing round 13's named
+residual, the added labelling premise claimed that one wrong class-4 label
+removes that run's coverage and lets row 2 stop the arm. Coverage is
+**existential** within a run — any correctly labelled class-4 record preserves it
+— and row 2 fires only on the **aggregate** level. The premise closes row 5's
+ceiling, not row 2's gate, and now says so at all four loci, one of which the
+reviewer missed. Its test asserted a consequence it never exercised, calling
+neither the level nor the decision functions; the replacement calls both, and
+was shown to fail under two separate mutations that would each have made the old
+false sentence true.
+
+**Finding 4** is the lint from the same repair disclosing one weakness and not
+another: it registered honestly that a phrase blacklist cannot be complete, and
+silently skipped the normalized PINS projection, which is manifest-bound with
+note fields byte-significant. It now scans the projection, and the disclosure
+names **both** weaknesses.
+
+Two process notes worth keeping. The verification again **contradicted a report
+this round relied on** — two of the four claimed no ported executable moves;
+`score_rates.py` is ported, and the cascade was run. And a garbled registered
+sentence in §4.6, predating this round and covered by no finding, was repaired
+rather than carried into a freeze: it had two finite verbs and no antecedent,
+and shipping ungrammatical registered prose because no reviewer filed it would
+be the wrong kind of discipline.
+
+Verification after the dispositions: `harness/integrity.py` exit 0; the pinned
+suite **297 passed**; tracked status clean; `arms/`, `analysis/`, `CLAIM.md` and
+`MIRROR-AGREEMENT.md` untouched. Demonstrated rather than asserted: emitting the
+**real** registered record destination and staging it now leaves the manifest
+identical where it previously moved, and writing `CORRECTION.md` — in the row-4
+outcome and in every other — leaves it identical too. The post-disposition tree
+manifest, the maintainer's computation, is
+`77f1e1fb1a90cd547b949b19aff6d6689d89d5db812871958f86e6f370b51223` — round 15
+attests it, and under §2.10 rule 3 that round is required, because these
+dispositions changed bytes.
+
+Two residuals are named rather than closed: `_emit_records()` and
+`_check_records_target()` still have no direct suite coverage, which is why the
+destination went unmodelled for fourteen rounds; and `CORRECTION.md` is
+deliberately **not** created now, because it is a post-data excluded output and
+writing it before the data would be a covered-byte lie of the same family as the
+one this round closed.
+
+## Arm text digests, as reviewed in this round
+
+Unchanged since round 2, and unchanged by every disposition above:
+
+| arm | bytes | sha256 of the arm text as reviewed in round 14 |
 |---|---|---|
 | **A** | 1815 | `d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6` |
 | **B** | 1880 | `f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6` |

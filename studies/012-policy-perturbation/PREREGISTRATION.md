@@ -256,7 +256,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `3f8b82b74bafe4f8b0f07a76ad832aeb25ca0c6e0957f4ebadbf48c5a871c07d` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `3b858139d5a83b6ba8b740eacdfeb2d9a82954edc026e3945082f8df4830943a` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -293,7 +293,7 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee` | §2.7 |
 | `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `c092a1fe301c0aafe35d24ee8eab632045440aee9df5b763c003d07d1fdeae9d` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
 | `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `a6c948951567caebdddb211161c89235ec08d113e63dec89c8a2e168908a7211` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `984c50271dbbdd899dad7b49bcfbe0906c065fbdb4038ba5b4875b6f8c4c87a6` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `35fc7e5c4301c661884d36a69a7ea6c1b1731a376dce23af0bd966e92c14426b` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -1280,8 +1280,9 @@ artifacts that ran" now means:
    `harness/PINS.json`**, and `harness/integrity.py` recomputes the manifest
    over the frozen tree and refuses unless it matches — excluding only the
    files that cannot exist yet by construction (`RESULTS.json`, `RATES.md`,
-   `CENSUS.md`, `ANALYSIS.md`, `DEVIATIONS.md`, and the slot trees), which are
-   named in the registry as an explicit exclusion list rather than left to a
+   `CENSUS.md`, `ANALYSIS.md`, `DEVIATIONS.md`, `CORRECTION.md`, the emitted
+   record trees and the slot trees), which are named in the registry as an
+   explicit exclusion list rather than left to a
    pattern. An entry ending in `/` names a tree and excludes it and everything
    beneath it; every other entry names exactly one file and excludes that path
    and nothing under it, so an unlisted tracked file that merely sits below an
@@ -1973,16 +1974,22 @@ reader. The record type: an arm E of sanctions hits and KP/IR registrations
 alone covers class 4 in none of its thirty runs, reads **LOW** there, and row 2
 stops it before row 5 as **E-DEGRADED-GENERALLY**. The labelling: the record
 type fixes what the mirror returns and not what the author recorded, so the
-witness needs the labels too — an arm E of those same registrations that
-recorded `clear` or `manual-review` on any one of them has that record in
+witness needs the labels too — an arm E of **non-sanctioned SY registrations**
+that recorded `clear` or `manual-review` on any one of them has that record in
 **Q**, which §4.1 takes over **all** of A, so its labels read **degraded**
-rather than at the ceiling; and §4.2 counts a run into `k` only where H meets
-the class, so that run leaves class 4's **primary** coverage as well — the
-endpoint §5.4 registers row 2's verdict on — and row 2 stops the arm after all.
+rather than at the ceiling, §4.6's second row reads the arm as a
+**comprehension collapse**, and row 5's reading conjunct refuses it: one such
+record in one of thirty runs is enough for that. It is enough for nothing
+else. §4.2 counts a run into `k` where `H(s) ∩ class_i(s) ≠ ∅`, so the run
+keeps class 4's **primary** coverage while any one of its class-4 records
+carries the mirror's own answer, and row 2 reads the **aggregate** level —
+**LOW**, three of thirty. The premise closes row 5's ceiling and not row 2's
+gate: an arm E off the ceiling with its class-4 coverage intact is refused at
+the last row as a comprehension collapse, not stopped at row 2.
 And the frequency: a non-sanctioned SY arm that produced accepted records in
 three runs or fewer covers class 4 at most three times of thirty, reads **LOW**
-there too, and row 2 stops it in the same place. Only above that floor is the
-arm row 5's fifth conjunct is for the SY one, so that is where the two repairs
+there too, and row 2 stops it in the same place. Only above that floor is the SY
+arm the one row 5's fifth conjunct is for, so that is where the two repairs
 interlock.
 Row 5's **fifth conjunct** is stated on that arm's own records: **arm E
 does not read LOW on class 3**, the interior review band `¬S ∧ ¬E ∧ T_low ≤ risk < T_high`, whose
@@ -2236,9 +2243,10 @@ gates of the decision table below**:
 > **Non-support, registered [D-10]:** if arm E's primary level verdict is
 > **HIGH for three or more of the four narrow numeric classes**, the collapse
 > R1 predicted **did not occur**, and R1 is published as **UNSUPPORTED** with
-> the same prominence as the claim — in `ANALYSIS.md`'s headline, in this
-> study's README, in the venue `CLAIM.md` records, and as a correction banner
-> at the head of
+> the same prominence as the claim — in `ANALYSIS.md`'s headline, at the head
+> of `CORRECTION.md`, which this study's README links from the block that
+> states this commitment and which is written in every outcome, in the venue
+> `CLAIM.md` records, and as a correction banner at the head of
 > `studies/011-authorship-coverage-rates/DIVERSITY.md`. It is stated as a
 > correction, not as a nuance. What is withdrawn is **R1**; the census's
 > descriptive sentence about its own corpus stands regardless, and §8 says so.
@@ -3672,12 +3680,35 @@ and not as a sentiment:
 
 > **If arm E maintains coverage — HIGH on three or more of the four narrow
 > numeric classes, §5.3 (i) row 4 — `R1` is published as UNSUPPORTED, with the
-> same prominence as the claim: in `ANALYSIS.md`'s first paragraph, in this
-> study's README, in the venue and at the URL `CLAIM.md` records, and as a
-> correction banner at the head of
+> same prominence as the claim: in `ANALYSIS.md`'s first paragraph, at the head
+> of `CORRECTION.md`, which this study's README links from the block that
+> states this commitment and which is written in every outcome, in the venue
+> and at the URL `CLAIM.md` records, and as a correction banner at the head of
 > `studies/011-authorship-coverage-rates/DIVERSITY.md`.** No re-cutting of §5's
 > thresholds, no "the effect was smaller than expected", no relegation to a
 > limitations section.
+
+**Why one venue is a pointer, registered here rather than settled once the row
+is known.** The four venues are the four this commitment has always had, and
+one of them changes only in mechanism. `README.md` is inside §2.10's tree
+manifest; `CORRECTION.md` is a registered `freeze.excluded` output, the
+standing `DEVIATIONS.md` already has and for the same reason — a document whose
+registered moment falls after the freeze cannot be a covered file. Writing "R1
+is UNSUPPORTED" into the README after the data would be a covered-byte change,
+which rule 3 answers with another review round, **and** a covered file stating
+where the study stands, which rule 3's second clause forbids outright; so the
+venue in its first form could be discharged only by breaking the binding that
+makes the discharge checkable, and a study cannot register a commitment whose
+honest performance breaks its own freeze. The pointer is the stronger form and
+not the softer one, in three ways. The link is written **before** the data and
+frozen with the rest of the manifest, where the sentence it points at would
+have been written after the maintainer knew the answer. It cannot be quietly
+dropped afterwards: removing it moves the digest the final round attested.
+And `CORRECTION.md` is written in **every** outcome, so a missing one is a
+dangling frozen link and a visible failure to publish — where a README nobody
+edited is indistinguishable from a study whose row 4 did not fire. Nothing else
+about the commitment moves: four venues, the same prominence as the claim, both
+halves of the correction in one paragraph, and the two sentences below.
 
 **The correction says two things, and the second is not optional.** First: the
 prediction R1 made did not happen — the coverage R1 said rests on the literals
@@ -3732,15 +3763,30 @@ Beyond that:
   rule each builder ran under, each builder's own report of what it consulted,
   and the per-arm 280-cell agreement table, following Study 011's format;
 - `DEVIATIONS.md` for every departure from this file, written as it happens;
+- **`CORRECTION.md`**, written by hand in **every** outcome from the decision
+  row `RESULTS.json` records, and named in `harness/PINS.json`'s
+  `freeze.excluded` so that writing it moves no covered byte. Its first line
+  names the row the scorer computed. When that row is row 4 it carries the
+  correction at its head, with the same prominence as the claim and with both
+  halves the paragraphs above require — R1 withdrawn, and *this study does not
+  thereby establish the opposite* in the same paragraph and not in a footnote —
+  and it is the document this study's README links from the block that states
+  the commitment. When the row is any other, it records the computed row and
+  says that row 4 did not fire. Writing it in every outcome is what makes the
+  README's link permanent: an absent `CORRECTION.md` is a failure to publish,
+  visible as one, and never an outcome;
 - **`PREREG-REVIEW.md`** — the complete pre-freeze review record, following
   Study 011's per-round, per-finding disposition format, carrying **per round
   the sha256 of each of the five arm texts as that round reviewed them** and,
   **from round 3 onward, that round's whole-tree manifest digest** (§2.10
   [D-20]). `harness/integrity.py` refuses unless the manifest it recomputes
   over the frozen tree equals the one the final round recorded, so nothing the
-  manifest covers can change between the last review and the freeze — not a
+  manifest covers can change between the last review and publication — not a
   clause of arm E with Appendix A updated to match, not the scorer, not this
-  file. **The review record itself is outside the manifest**, because it
+  file, and not a correction written into the README once the row is known
+  (round 14, finding 2; rule 3 is stated over that whole span at §2.10 and this
+  sentence used to name only the freeze).
+  **The review record itself is outside the manifest**, because it
   carries the attestation (§2.10): what stands in a digest's place there is the
   cross-check that the freeze pin equal the **last** attestation digest
   recorded in it, so defeating the binding requires rewriting the review record

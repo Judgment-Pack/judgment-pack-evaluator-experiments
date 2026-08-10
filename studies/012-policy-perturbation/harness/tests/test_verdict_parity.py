@@ -583,17 +583,22 @@ def test_the_reading_cells_claim_no_mental_state(preregistration):
 
 def test_the_ceiling_witness_carries_its_labelling_premise(preregistration,
                                                           pins, study):
-    """Round 13's second named residual, and the third round on one witness.
+    """Round 13's second named residual, and the fourth round on one witness.
 
     §4.6's degenerate arm E — every accepted record a non-sanctioned SY
     registration — was registered as reading `|Q| = 0` from its record TYPE.
     `split_records()` compares the RECORDED `decision.outcome` against the
     mirror's verdict, so the type fixes one side of that comparison and nothing
     about the other: the same vendors recorded as anything but the mirror's own
-    answer are Q, the arm's labels read `degraded`, and §4.2 counts a run into
-    `k` only where H meets the class, so class 4's primary — the endpoint §5.4
-    registers row 2's verdict on — loses the run as well and row 2 stops the
-    arm after all.
+    answer are Q and the arm's labels read `degraded`.
+
+    What that costs the arm is row 5's ceiling and nothing else (round 14,
+    finding 3). Coverage is EXISTENTIAL within a run — §4.2 counts a run into
+    `k` where `H(s) ∩ class_i(s) != {}` — so the run keeps class 4 while any
+    one of its class-4 records carries the mirror's own answer, and row 2 reads
+    the AGGREGATE level and fires only at LOW. So the MIXED labelling is the
+    row this witness has to get right, and the consequence is taken from
+    `level_verdict()` and `decision_row()` rather than asserted about them.
 
     The prose is held by one string in BOTH registered statements; the
     arithmetic is driven at arm E's own registered pair and predicates rather
@@ -614,26 +619,33 @@ def test_the_ceiling_witness_carries_its_labelling_premise(preregistration,
                                      definition["tHigh"])
     assert mirrored == "reject"
 
-    def population(outcome):
+    def population(*outcomes):
         return {"sy-%d" % index: {"caseId": "sy-%d" % index, "vendor": vendor,
                                   "decision": {"outcome": outcome}}
-                for index in (1, 2)}
+                for index, outcome in enumerate(outcomes, 1)}
 
-    for outcome, quarantined, branch, in_primary in (
-            (mirrored, 0, "at the ceiling", 2), ("clear", 2, "degraded", 0)):
-        accepted = population(outcome)
+    # Three populations of one run: the labels move and the record type does
+    # not. `in_primary` is §4.2's own test — H meets the class — so the MIXED
+    # row is the one the witness has to get right: the ceiling is gone and the
+    # run's coverage is not.
+    for outcomes, quarantined, branch, in_primary in (
+            ((mirrored, mirrored), 0, "at the ceiling", 2),
+            ((mirrored, "clear"), 1, "degraded", 1),
+            (("clear", "manual-review"), 2, "degraded", 0)):
+        accepted = population(*outcomes)
         high, quarantine = score_rates.split_records(
             accepted, definition["tLow"], definition["tHigh"])
-        assert len(quarantine) == quarantined, outcome
+        assert len(quarantine) == quarantined, outcomes
         assert score_rates.label_branch(
             {"rate": len(high) / len(accepted), "h": len(high),
-             "q": len(quarantine)})["branch"] == branch, outcome
-        # The record TYPE reaches class 4 on either labelling; only the labels
-        # decide whether §4.2's `k` counts the run.
+             "q": len(quarantine)})["branch"] == branch, outcomes
+        # The record TYPE reaches class 4 on every labelling; only the labels
+        # decide whether §4.2's `k` counts the run, and ONE right record is
+        # enough for it to.
         assert len(score_rates.class_members(accepted, sorted(accepted),
-                                             predicate)) == 2, outcome
+                                             predicate)) == 2, outcomes
         assert len(score_rates.class_members(accepted, high,
-                                             predicate)) == in_primary, outcome
+                                             predicate)) == in_primary, outcomes
         # …and it reaches no other class either way, which is the witness's
         # "places nothing in classes 0, 1, 2, 3 and 5" — a predicate fact that
         # needs no labelling premise, unlike the two above it.
@@ -641,6 +653,32 @@ def test_the_ceiling_witness_carries_its_labelling_premise(preregistration,
                 if index != score_rates.EMBARGO_CLASS
                 and score_rates.class_members(accepted, sorted(accepted),
                                               entry["predicate"])] == []
+
+    # …and what the premise COSTS the arm, from the two functions that decide
+    # it rather than from a sentence. Losing a whole run of thirty leaves class
+    # 4 HIGH; row 2 wants LOW, which §5.1 puts at `low_threshold(n)`.
+    n = pins["batch"]["n"]
+    kept = score_rates.level_verdict(score_rates.rate_block(n - 1, n, "N"))
+    lost = score_rates.level_verdict(
+        score_rates.rate_block(score_rates.low_threshold(n), n, "N"))
+    assert (kept, lost) == ("HIGH", "LOW")
+
+    def row(embargo_level, branch):
+        counts = {"nP": 4, "nC": 4, "nH": 0}
+        levels = {arm: {"primary": ["HIGH"] * len(definition["classes"])}
+                  for arm in fixtures.ARMS}
+        levels["E"]["primary"][score_rates.EMBARGO_CLASS] = embargo_level
+        return score_rates.decision_row(
+            True, True, {}, {"passed": True}, counts,
+            reading=score_rates.reading_verdict(counts, branch), levels=levels)
+
+    at_ceiling, degraded = score_rates.S5_BRANCHES
+    # The ceiling is what the premise takes, and taking it costs the arm row 5…
+    assert row(kept, at_ceiling)["row"] == 5
+    assert row(kept, degraded)["row"] == 7
+    # …while row 2 is bought by the AGGREGATE alone, on either labelling.
+    assert row(lost, at_ceiling)["row"] == 2
+    assert row(lost, degraded)["row"] == 2
 
 
 def test_the_reading_cells_bound_placement_rather_than_zeroing_it(preregistration):
