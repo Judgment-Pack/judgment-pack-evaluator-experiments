@@ -1539,6 +1539,46 @@ def test_pins_are_enforced_and_the_live_environment_matches():
     assert score.pin_problems(PINS, jpack_bin()) == []
 
 
+# --- R7-1: dependency metadata resolves from sanitized roots only ---------
+
+def test_metadata_roots_exclude_every_study_tree_entry(monkeypatch):
+    """The scorer's own sys.path additions must never serve dist metadata."""
+    monkeypatch.syspath_prepend(str(score.STUDY / "harness"))
+    monkeypatch.syspath_prepend(str(score.STUDY / "adapter"))
+    study = str(score.STUDY.resolve())
+    roots = score.sanitized_metadata_roots()
+    assert roots, "sanitization must not empty the metadata path"
+    assert all(not root.startswith(study) for root in roots)
+
+
+def test_a_shadow_dist_info_is_a_refusal_not_a_choice(tmp_path):
+    """R7-1: a second sighting of a locked package refuses rather than picks.
+
+    The shadow is staged in a tmp root and handed to the digest explicitly:
+    together with the sanitizer test above (study-tree entries never reach
+    resolution at all), this closes the laundering path the round-7 review
+    named — a shadow that does reach resolution is an ambiguity refusal, and
+    one inside the study tree is never consulted.
+    """
+    shadow = tmp_path / "rfc8785-9.9.9.dist-info"
+    shadow.mkdir()
+    (shadow / "METADATA").write_text(
+        "Metadata-Version: 2.1\nName: rfc8785\nVersion: 9.9.9\n"
+    )
+    with pytest.raises(score.PipelineInvalid) as error:
+        score.locked_dependency_digest(
+            roots=score.sanitized_metadata_roots() + [str(tmp_path)]
+        )
+    assert "resolves ambiguously" in str(error.value)
+    assert "rfc8785" in str(error.value)
+
+
+def test_the_locked_dependency_digest_is_stable_over_explicit_roots():
+    assert score.locked_dependency_digest(
+        roots=score.sanitized_metadata_roots()
+    ) == score.locked_dependency_digest()
+
+
 def test_a_wrong_pin_makes_the_attempt_terminally_invalid(tmp_path):
     """The scorer must refuse to adjudicate, and must still leave a record."""
     broken = json.loads(json.dumps(PINS))

@@ -134,11 +134,25 @@ not an insider boundary; ungated `publish_holdout` accepted as unable to drive a
 and **no new material findings**. Verbatim record: `reviews/round-6/PROMPT.md`,
 `reviews/round-6/REVIEW.md`.
 
-The verdict's condition is the freeze-PR mechanical set (round-3 checklist items 10–14),
-performed at freeze time in this order: remove the DRAFT banners; name the freeze commit;
-designate the literal primary attempt root; register the governing invocation
-(CPython 3.12.11, `JPACK_BIN`, pinned `OWP_SOURCE`, post-freeze holdout construction,
-`--include-holdout`, the root); fill every null freeze pin (preregistration, matrix,
-matrixHoldout, adapterSpec, studyManifest) in a non-circular order and verify integrity;
-keep the freeze commit clean of holdout fixtures and primary-attempt results. Review
-rounds closed at six: 14 → 9 → 5 → 4 → 0 findings.
+## Round 7 — 2026-08-10
+
+Reviewer: codex-cli 0.145.0 / gpt-5.6-sol / reasoning effort ultra / read-only sandbox.
+A single-change confirmation on the post-round-6 dependency-pin fix (CI had exposed that
+hashing raw `pip freeze` output pinned the minting machine's paths, not the set).
+Verdict: **freezable after listed fixes** — scope verified clean (matrices, schema,
+ceremony, fixtures, holdout all byte-identical; the honest 46-package mapping reproduces
+the pinned digest), with one finding. Verbatim record: `reviews/round-7/PROMPT.md`,
+`reviews/round-7/REVIEW.md`.
+
+| # | Sev | Disposition | Action |
+|---|---|---|---|
+| R7-1 | MAJOR | **Accepted.** `importlib.metadata` consulted the live `sys.path`, which the scorer itself prepends study directories onto — an untracked shadow `.dist-info` inside the study tree could launder a locked-version drift. | Distribution metadata resolves only from `sanitized_metadata_roots()` (`sys.path` minus every study-tree entry); a locked name sighted at two distinct versions or locations is an ambiguity refusal, never a choice; shadow-`.dist-info` and sanitizer regression tests added. The digest value is unchanged — the sanitized resolution reproduces the same 46 pairs. |
+
+The freeze-PR mechanical set (round-3 checklist items 10–14) was performed in the
+reviewer's non-circular order — banners lifted, freeze commit named by reference as the
+squash-merge of PR #49, primary root `results/primary-attempt-001` designated, the
+governing invocation registered, every freeze pin filled — and the R7-1 closure landed
+with the pinned digest value unchanged. Review record closed at seven rounds:
+14 → 9 → 5 → 4 → 0 findings across the adversarial rounds, plus two single-change
+confirmations (the round-6 verdict and the round-7 pin-computation check). The merge of
+PR #49 is the freeze.

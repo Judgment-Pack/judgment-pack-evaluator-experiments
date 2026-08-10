@@ -68,7 +68,7 @@
   },
   "studyManifest": {
     "path": "harness/STUDY-MANIFEST.sha256",
-    "sha256": "99bbf88b23df5d24800a4f1977527b7e9efd13d819e243cab88f162f895f620d",
+    "sha256": "fe93e8eb719b9d53154aeccd59d0004b9594ad104daa415158bc16488175f229",
     "generator": "harness/make_manifest.py",
     "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, every adapter/*.py and harness/*.py (including owpflow.py, where the build-time entropy algorithm lives), harness/tests/*.py, and every fixtures/**/MANIFEST.sha256 outside fixtures/holdout/",
     "excludes": "harness/PINS.json (this file - it pins the manifest, so the manifest must not pin it) and fixtures/holdout/** (a standing guard: round 4 moved holdout construction into the attempt, so no holdout artifact is written under fixtures/ any more). See anchorOrder above; harness/make_manifest.py states both exclusions and a harness test asserts them.",

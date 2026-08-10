@@ -272,17 +272,8 @@ def canonical_dependency_name(name):
     return re.sub(r"[-_.]+", "-", name).lower()
 
 
-def locked_dependency_digest():
-    """SHA-256 over the installed versions of exactly the lockfile's packages.
-
-    Hashing raw `pip freeze` output pinned the machine, not the dependency set:
-    a local install's freeze line embeds its filesystem path, and test-time
-    tools drift per environment. The lockfile names the set; this digest pins
-    that every locked package is installed at its locked version, resolved
-    through `importlib.metadata` in the running interpreter. OpenWorkProof is
-    not in the lockfile and is pinned by content (`installedPackageDigest`),
-    which is strictly stronger than any freeze line.
-    """
+def locked_dependency_names():
+    """Canonical names of exactly the lockfile's packages."""
     names = set()
     for line in LOCKFILE.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
@@ -292,14 +283,70 @@ def locked_dependency_digest():
         if "==" not in head:
             continue
         names.add(canonical_dependency_name(head.split("==")[0].split("[")[0]))
-    pairs = []
-    for name in sorted(names):
+    return names
+
+
+def sanitized_metadata_roots():
+    """`sys.path` minus every entry inside the study tree.
+
+    The scorer prepends `harness/` and `adapter/` to `sys.path` for its own
+    imports, and `importlib.metadata` consults the live path — so an untracked
+    shadow `.dist-info` inside the study tree could report a pinned version
+    while the interpreter imports another (round 7). Distribution metadata is
+    therefore resolved only from roots outside the study.
+    """
+    study = STUDY.resolve()
+    roots = []
+    for entry in sys.path:
         try:
-            version = importlib.metadata.version(name)
-        except importlib.metadata.PackageNotFoundError:
+            resolved = Path(entry or ".").resolve()
+        except OSError:
+            continue
+        if resolved == study or study in resolved.parents:
+            continue
+        roots.append(str(resolved))
+    return roots
+
+
+def locked_dependency_digest(roots=None):
+    """SHA-256 over the installed versions of exactly the lockfile's packages.
+
+    Hashing raw `pip freeze` output pinned the machine, not the dependency set:
+    a local install's freeze line embeds its filesystem path, and test-time
+    tools drift per environment. The lockfile names the set; this digest pins
+    that every locked package is installed at its locked version, resolved
+    through `importlib.metadata` over sanitized roots (above). A locked name
+    found at two distinct locations or versions is a refusal, not a choice.
+    OpenWorkProof is not in the lockfile and is pinned by content
+    (`installedPackageDigest`), which is strictly stronger than any freeze
+    line.
+    """
+    locked = locked_dependency_names()
+    found = {}
+    for dist in importlib.metadata.distributions(
+        path=sanitized_metadata_roots() if roots is None else list(roots)
+    ):
+        raw_name = dist.metadata["Name"] if dist.metadata else None
+        if not raw_name:
+            continue
+        name = canonical_dependency_name(raw_name)
+        if name not in locked:
+            continue
+        location = str(dist.locate_file(""))
+        found.setdefault(name, set()).add((dist.version, location))
+    pairs = []
+    for name in sorted(locked):
+        sightings = found.get(name)
+        if not sightings:
             raise PipelineInvalid(
                 "locked dependency %s is not installed in this interpreter" % name
             )
+        if len(sightings) > 1:
+            raise PipelineInvalid(
+                "locked dependency %s resolves ambiguously (%s)"
+                % (name, "; ".join(sorted("%s at %s" % s for s in sightings)))
+            )
+        ((version, _location),) = sightings
         pairs.append("%s==%s" % (name, version))
     return hashlib.sha256(("\n".join(pairs) + "\n").encode("ascii")).hexdigest()
 
