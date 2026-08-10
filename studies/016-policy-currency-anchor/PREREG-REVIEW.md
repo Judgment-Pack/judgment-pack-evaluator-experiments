@@ -81,6 +81,21 @@ output; four narrow residuals and one new MAJOR. Prompt and findings verbatim in
 | R1-15 residual | **Closed.** The README lineage sentence now reads "outside the series' supported set at a pinned registry snapshot"; the only remaining "no longer in force" is the preregistration's explicit disavowal of that phrasing. |
 | R3-1 (MAJOR) | **Accepted.** The whole-study manifest had gone stale against post-generation review-record edits — exactly the drift the anchor exists to catch. The manifest is regenerated after all record edits, and manifest freshness is now a standing suite assertion (`test_study_manifest_is_fresh`), so CI refuses a stale anchor long before the freeze pin is filled. |
 
-## Round 4 — pending
+## Round 4 — 2026-08-10
 
-Confirmation of the round-3 closures.
+Same reviewer. Verdict: **freezable after listed fixes** — R1-1, R1-2, R1-7, R1-11, R3-1
+RESOLVED; R1-15 NOT RESOLVED (one remaining positive "no longer in force" in the README
+lineage sentence, outside a disavowal); one new MINOR. Prompt and findings verbatim in
+[`reviews/round-4/`](reviews/round-4/). Both **accepted and closed**:
+
+| Item | Disposition |
+| --- | --- |
+| R1-15 residual | **Closed.** The README's §4c description now reads "outside the series' supported set as the registry's history later stands"; the study tree's only remaining "no longer in force" is the preregistration sentence that explicitly disavows the phrasing. |
+| R4-1 (MINOR) | **Accepted.** The builder docstring said four chains and omitted `neg-replay`; it now inventories all five, matching the preregistration. |
+
+Manifest regenerated after the edits; the freshness assertion and the full suite are
+green.
+
+## Round 5 — pending
+
+Confirmation of the two round-4 closures.

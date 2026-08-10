@@ -1,7 +1,7 @@
 """One-time deterministic fixture construction for every registered cell.
 
 A Study 016 cell is `(chain, retained artifacts, registry snapshot, verifier
-trust configuration)`. The chain-build surface is deliberately tiny — four
+trust configuration)`. The chain-build surface is deliberately tiny — five
 chains serve the whole matrix, all built through Study 014's frozen build
 machinery consumed as a pinned upstream (decision D-1, `harness/upstream014.py`):
 
@@ -11,6 +11,8 @@ machinery consumed as a pinned upstream (decision D-1, `harness/upstream014.py`)
   remint      the e22-analog: the baseline judgment commitment re-bound under a
               different, equally valid work order (014's e22 construction —
               a remint, not a rollback: OWP has no contract ordering);
+  neg-replay  a validly re-signed chain whose commitment forges the executable
+              digest (014's e23 construction; the REPLAY aliveness control);
   neg-owp     the baseline bundle with one signature character flipped.
 
 Every other cell varies only the signed registry history and the verifier's
