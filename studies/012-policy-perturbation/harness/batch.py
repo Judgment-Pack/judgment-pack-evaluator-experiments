@@ -1938,6 +1938,12 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int,
     if os.path.exists(out_path):
         raise BatchError("%s already exists; a registered capture is never rewritten"
                          % out_path)
+    # Round 17, finding 1: `--out` is an operator-named destination, and
+    # README step 5's "leave --out at its default" was prose and not a check —
+    # so `--out analysis/GOLDEN.json` wrote manifest-covered bytes. The rule is
+    # §2.10's own and is enforced for every operator-named destination at once,
+    # in `score_rates`, rather than a fifth time at the instance in front of us.
+    score_rates.require_lawful_destination(out_path, "--out", is_file=True)
     if min_slots < MIN_CAPTURE_SLOTS:
         raise BatchError(
             "a golden capture is derived from at least %d agreeing captures and "
@@ -2119,6 +2125,10 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
     if os.path.exists(out_dir):
         raise BatchError("%s already exists; a registered control is never rewritten"
                          % out_dir)
+    # The same operator-named destination rule as `capture-golden`'s (round 17,
+    # finding 1). A TREE here, not a file: C7's record is a directory, so every
+    # path beneath it has to be covered by a registered exclusion tree.
+    score_rates.require_lawful_destination(out_dir, "--out")
     raw = os.path.join(scratch_parent, "s012-c7-raw-%d" % os.getpid())
     if os.path.exists(raw):
         raise BatchError("%s already exists" % raw)

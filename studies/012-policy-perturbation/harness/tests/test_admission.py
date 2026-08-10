@@ -67,6 +67,7 @@ import pytest
 
 import batch
 import fixtures
+import gatescan
 import records_compile
 import score_rates
 
@@ -2520,6 +2521,320 @@ def test_the_registered_command_reports_a_refusal_and_not_a_traceback(monkeypatc
 
 # --- C5's population rules the fixtures stand on ----------------------------
 
+# --- the scorer's pre-read gate ledger (round 17, finding 3) -----------------
+#
+# The mirror of `test_batch.py`'s pre-call ledger, over the scorer's side of
+# §7. Round 16 built the driver's ledger and recorded that
+# `score_rates.verify_preconditions()` "is still hand-written and retains the
+# identical silent-omission property, with three scorer gates measured as
+# silently removable". Round 17 measured the surface: TWELVE of its
+# twenty-three refusal sites can be neutered together with `harness/
+# integrity.py` exiting 0 and the pinned suite unmoved — four times the
+# recorded number, and the recorded number appears nowhere in the tree, so the
+# only quantified claim about the scorer's exposure was unverifiable in a study
+# whose whole method is verifiable claims.
+#
+# The derivation is `gatescan.py`, shared with the driver's ledger rather than
+# copied: three copies of one AST walk is the same shape as the two hand-kept
+# builders and two hand-kept guards `test_manifest.py` already names as this
+# sequence's signature defect. A THIRD site is sized and named in the limits
+# below.
+
+def _scorer_tree() -> ast.Module:
+    return gatescan.parse(score_rates.__file__)
+
+
+def scorer_gate_functions() -> tuple:
+    """`verify_preconditions()`'s own direct module-level callees that can
+    raise `ScoreError`. Depth one, the same rule the driver's ledger uses."""
+    functions = gatescan.module_functions(_scorer_tree())
+    return gatescan.callee_gates(functions["verify_preconditions"], functions,
+                                 "ScoreError")
+
+
+def derived_pre_read_gates() -> dict:
+    """{(host, kind, label): line} — every gate the scorer runs before it reads
+    a slot, derived from `score_rates.py`'s own source.
+
+    One host today. `score()`'s pre-read region does not stop here —
+    `collect_slots`, `terminality`, `load_ledger` and `check_population` run
+    twenty more refusal sites before any slot is read — and that is stated in
+    the limits below rather than left for the next round to discover."""
+    functions = gatescan.module_functions(_scorer_tree())
+    gates = scorer_gate_functions()
+
+    def classify(call):
+        if isinstance(call.func, ast.Name) and call.func.id in gates:
+            return ("gate", call.func.id)
+        return None
+
+    cells = {}
+    for kind, label, line, _context, _literal in gatescan.sites_in(
+            functions["verify_preconditions"], "ScoreError", classify):
+        key = ("verify_preconditions", kind, label)
+        if key in cells and cells[key] != line and kind != "gate":
+            raise AssertionError(
+                "score_rates.py:%d and :%d both derive the cell %r: two "
+                "refusals under one guard are one ledger row, so deleting "
+                "either is invisible" % (cells[key], line, key))
+        cells[key] = min(cells.get(key, line), line)
+    return cells
+
+
+def scorer_refusal_literals() -> dict:
+    """{gate identity: (refusal string, …)} for the scorer, over the union gate
+    set and the one host."""
+    functions = gatescan.module_functions(_scorer_tree())
+    gates = scorer_gate_functions()
+
+    def classify(call):
+        if isinstance(call.func, ast.Name) and call.func.id in gates:
+            return ("gate", call.func.id)
+        return None
+
+    return gatescan.refusal_literals(
+        {"verify_preconditions": functions["verify_preconditions"]},
+        gates, functions, "ScoreError", classify)
+
+
+# Each cell, and how it is held. `recipe` names a builder below that leaves
+# this one gate unmet with everything above it satisfied.
+PRE_READ_GATES = {
+    ("verify_preconditions", "inline", "except integrity.IntegrityError"):
+        gatescan.Gate(
+            "residual",
+            why="the three-level ported-byte chain, on the SCORER's side. §7 "
+                "registers it as checked before the driver creates a slot AND "
+                "before the scorer reads one; the driver's half is driven by "
+                "name in test_batch.py and this half is exercised by nothing "
+                "— no case patches `integrity.verify` while calling the "
+                "scorer, though test_batch.py does exactly that for the "
+                "driver. Drivable the same way; not driven here."),
+    ("verify_preconditions", "inline",
+     "not mirror_pin or mirror_digest != mirror_pin"): gatescan.Gate(
+        "residual",
+        why="§7's single registered mirror module at its registered digest. "
+            "It is NOT redundant with integrity.py's own mirror check: "
+            "integrity always reads the COMMITTED registry and this reads the "
+            "SUPPLIED one, so a stand-in registry with a bad mirror pin "
+            "refuses by this message alone. Measured as silently removable; "
+            "no case names it."),
+    ("verify_preconditions", "gate", "registered_schedule"): gatescan.Gate(
+        "residual",
+        why="§2.8's call order, rebuilt from this module's own constants "
+            "before it is compared with the registry's. Refusal-capable "
+            "through `williams()`/`schedule()`; it is a structural invariant "
+            "over registered constants rather than a ceremony gate, and every "
+            "scoring in this file runs it."),
+    ("verify_preconditions", "inline", "not isinstance(order_pin, dict)"):
+        gatescan.Gate(
+            "residual",
+            why="the registry's `batch.order` object. One of the twelve "
+                "measured as removable together with the suite green; held by "
+                "nothing but this ledger's refusal to let the cell vanish."),
+    ("verify_preconditions", "inline",
+     "list(order_pin.get('firstRow') or ()) != list(WILLIAMS_FIRST_ROW)"):
+        gatescan.Gate(
+            "residual",
+            why="§2.8's Williams first row. Removable with the suite green, "
+                "and one of the three whose DELETION (rather than neutering) "
+                "turns test_batch.py's spelling-parity case red for a reason "
+                "that has nothing to do with whether the gate refuses — it "
+                "removes the scorer's only `.get(\"firstRow\")`."),
+    ("verify_preconditions", "inline",
+     "[list(block) for block in order_pin.get('blocks') or ()] != "
+     "[list(block) for block in BLOCKS]"): gatescan.Gate(
+        "residual",
+        why="§2.8's block orders. Removable with the suite green; the same "
+            "spelling-parity artefact as the row above, through "
+            "`.get(\"blocks\")`."),
+    ("verify_preconditions", "inline", "len(set(per_arm.values())) != 1"):
+        gatescan.Gate(
+            "residual",
+            why="equal allocation across the arms. UNREACHABLE by "
+                "construction from any argument: it reads only "
+                "`WILLIAMS_FIRST_ROW` and `BLOCK_ORDERS`, this module's own "
+                "constants, so no supplied registry can trip it. The one cell "
+                "here that is residual because it cannot be driven rather "
+                "than because it is not."),
+    ("verify_preconditions", "inline", "registered_n != per_arm[ARMS[0]]"):
+        gatescan.Gate(
+            "residual",
+            why="N, against the call order's own per-arm count. Removable "
+                "with the suite green; no case names this message."),
+    ("verify_preconditions", "inline",
+     "pins.get('batch', {}).get('slots') != len(schedule)"): gatescan.Gate(
+        "residual",
+        why="the registered slot count. Removable with the suite green, and "
+            "the third whose deletion moves the spelling-parity case through "
+            "`.get(\"slots\")`."),
+    ("verify_preconditions", "inline",
+     "not isinstance(arm_pins, dict) or sorted(arm_pins) != sorted(ARMS)"):
+        gatescan.Gate(
+            "residual",
+            why="the registered arm set. Removable with the suite green; no "
+                "case names this message."),
+    ("verify_preconditions", "inline", "not os.path.isfile(golden_path)"):
+        gatescan.Gate("command", "no golden context",
+                      recipe="a_registry_before_the_recapture"),
+    ("verify_preconditions", "inline", "not golden_pin"): gatescan.Gate(
+        "command", "registers no golden.sha256",
+        recipe="a_capture_with_no_pin"),
+    ("verify_preconditions", "inline", "golden_digest != golden_pin"):
+        gatescan.Gate(
+            "residual",
+            why="§3.2's capture at its registered digest. Removable with the "
+                "suite green: every case that reaches this line pins the "
+                "digest of the capture it wrote, so nothing drives the "
+                "mismatch."),
+    ("verify_preconditions", "inline", "not prereg_pin"): gatescan.Gate(
+        "command", "registers no freeze.preregistrationSha256",
+        recipe="a_registry_before_the_freeze"),
+    ("verify_preconditions", "inline", "not os.path.isfile(prereg_path)"):
+        gatescan.Gate(
+            "residual",
+            why="the preregistration itself, missing from the tree. Not "
+                "drivable from an argument — the path is derived from the "
+                "module's own location — and removable with the suite "
+                "green."),
+    ("verify_preconditions", "inline", "prereg_digest != prereg_pin"):
+        gatescan.Gate(
+            "residual",
+            why="THE sharpest of the twelve. §2.10 says a post-freeze edit to "
+                "the preregistration is detectable because this digest is "
+                "checked; the DRIVER's copy of that refusal is covered by "
+                "name in test_batch.py and the scorer's is covered by "
+                "nothing, so at the moment of the freeze the suite could not "
+                "tell whether this gate was still there."),
+    ("verify_preconditions", "inline", "c7_assent != 'granted'"):
+        gatescan.Gate("command", "isolationNegative.assent",
+                      recipe="a_registry_before_the_control"),
+    ("verify_preconditions", "inline", "not os.path.isfile(c7_path)"):
+        gatescan.Gate(
+            "residual",
+            why="§6 C7's record, absent. Driven behaviourally by "
+                "`test_the_scorer_refuses_a_control_record_that_is_not_this_"
+                "studys`, which moves REGISTERED_ISOLATION_NEGATIVE — but "
+                "unnamed: its only assertion is that \"VERDICT.json\" appears, "
+                "and every message in this block carries it."),
+    ("verify_preconditions", "inline", "except ValueError"): gatescan.Gate(
+        "residual",
+        why="C7's record unreadable as duplicate-free JSON. Same case, same "
+            "shared needle: ten damage rows prove the block refuses and none "
+            "of them can say which gate did. That is round 16 finding 2's "
+            "vacuity mode surviving at the second site, and it is what test B "
+            "would force out if these rows were named."),
+    ("verify_preconditions", "inline", "not isinstance(c7, dict)"):
+        gatescan.Gate(
+            "residual",
+            why="C7's verdict is an object. Driven unnamed by the same case, "
+                "through the same shared \"VERDICT.json\" needle."),
+    ("verify_preconditions", "inline", "c7.get('outcome') not in C7_OUTCOMES"):
+        gatescan.Gate(
+            "residual",
+            why="C7's outcome is one of the three registered. Driven unnamed "
+                "by the same case; verified individually to turn it red."),
+    ("verify_preconditions", "inline", "c7.get('assent') != c7_assent"):
+        gatescan.Gate(
+            "residual",
+            why="the record's assent is the registry's. Driven unnamed by the "
+                "same case; verified individually to turn it red."),
+    ("verify_preconditions", "inline",
+     "c7.get('goldenSha256') != golden_digest"): gatescan.Gate(
+        "residual",
+        why="the control was compared against THIS batch's capture. Driven "
+            "unnamed by the same case; verified individually to turn it red."),
+    ("verify_preconditions", "inline", "shape"): gatescan.Gate(
+        "residual",
+        why="`c7_record_shape_problems()`, the one predicate the driver's "
+            "preflight and the scorer's precondition share. Driven unnamed by "
+            "the same case, through the same shared needle."),
+    ("verify_preconditions", "gate", "load_arm"): gatescan.Gate(
+        "residual",
+        why="each arm's own definition and family, loaded and checked before "
+            "any slot is read. Refusal-capable through the arm loaders; "
+            "exercised by every scoring in this file and named by none of "
+            "them."),
+}
+
+PRE_READ_CENSUS = {"cells": 25, "command": 4, "residual": 21}
+
+
+def test_the_scorer_ledger_names_exactly_the_gates_it_runs():
+    """The omission test for the SCORER, in both directions — the half round 16
+    disclosed and did not build.
+
+    A gate added to `verify_preconditions()`, or one it stops running, is a key
+    the derivation produces and this table does not, or the reverse. Either is
+    a failure that names the cell. Without it, twelve of the twenty-three
+    refusal sites could be removed together with `harness/integrity.py` exiting
+    0 and the pinned suite unmoved — measured at 62054fd, against a record that
+    said three.
+
+    THE `except` LABELLING IS LOAD-BEARING HERE. `verify_preconditions()` has
+    two top-level `except` raises. Under the derivation as round 16 wrote it
+    both would inherit the enclosing guard, twenty-three raise sites would
+    collapse to twenty-two keys, and one gate would disappear silently — the
+    mirror reproducing, at the second site, the defect it exists to abolish.
+    `gatescan.sites_in()` labels a handler body by its handler, and the count
+    below is what says so."""
+    derived = set(derived_pre_read_gates())
+    assert derived - set(PRE_READ_GATES) == set(), (
+        "score_rates.verify_preconditions() runs these gates before it reads a "
+        "slot and PRE_READ_GATES does not record them: %r"
+        % sorted(derived - set(PRE_READ_GATES), key=str))
+    assert set(PRE_READ_GATES) - derived == set(), (
+        "PRE_READ_GATES records gates the scorer does not run: %r"
+        % sorted(set(PRE_READ_GATES) - derived, key=str))
+    # …and the derivation is live rather than an empty set agreeing with an
+    # empty table.
+    assert scorer_gate_functions() == ("load_arm", "registered_schedule")
+    counted = {"cells": len(PRE_READ_GATES)}
+    for how in ("command", "residual"):
+        counted[how] = sum(1 for row in PRE_READ_GATES.values()
+                           if row.how == how)
+    assert counted == PRE_READ_CENSUS, counted
+    assert sum(PRE_READ_CENSUS[how] for how in ("command", "residual")) \
+        == PRE_READ_CENSUS["cells"]
+    for key, row in sorted(PRE_READ_GATES.items(), key=str):
+        assert row.how in ("command", "residual"), key
+        if row.how == "residual":
+            assert row.named is None, key
+            assert row.why and len(row.why) > 40, key
+        else:
+            assert row.named and row.recipe, key
+
+
+def test_every_named_scorer_refusal_is_one_that_gate_actually_raises():
+    """The spelling test, mirrored. A needle no `raise ScoreError` in that gate
+    carries would make its case pass for the wrong reason, and a needle a
+    SECOND gate also raises is how a case goes vacuous.
+
+    That second half is not hypothetical in this module: the eight §6 C7 rows
+    are all driven by one case whose only assertion is that "VERDICT.json"
+    appears in the message, and all eight messages carry it — ten damage rows
+    proving the block refuses and none of them able to say which gate did.
+    Those rows are `residual` and say so; this case is what stops a NAMED row
+    from being written that way."""
+    literals = scorer_refusal_literals()
+    for key, row in sorted(PRE_READ_GATES.items(), key=str):
+        if row.how == "residual":
+            continue
+        site = gatescan.gate_identity(key)
+        own = literals.get(site, ())
+        assert own, "%r raises no ScoreError this scan can read" % (site,)
+        assert any(row.named in text for text in own), (
+            "%r is not a fragment of any refusal %r raises: %r"
+            % (row.named, site, own))
+        carriers = {other for other, texts in literals.items()
+                    if any(row.named in text for text in texts)
+                    and other != site}
+        assert carriers == set(row.shared), (
+            "%r is also raised by %r; a needle a second gate can supply "
+            "cannot say which gate refused"
+            % (row.named, sorted(carriers - set(row.shared), key=str)))
+
+
 def test_the_scoring_refuses_before_it_reads_a_slot():
     """§6 C5 / §2.10: the preconditions bind the study's own committed
     artifacts — the ported bytes, the registered interpreter, the golden pin,
@@ -2546,40 +2861,70 @@ def test_the_scoring_refuses_before_it_reads_a_slot():
     four members and INHERITED the tree pin, so a study that had been frozen
     would have moved them — see that helper's own docstring.
 
-    It stops at the fourth refusal deliberately. §6 C7's record lives at a
-    DERIVED path ([D-23], under the real study) rather than at an argument this
-    test supplies, so an assertion about the refusal below this one would be a
-    function of the stage all over again.
+    Round 17, finding 3: the four are LEDGER ROWS now, not a tuple beside the
+    ledger. Two hand-kept tables for one rule is the pattern `test_manifest.py`
+    records as this sequence's signature defect, and a fifth named refusal
+    added here without a ledger row — or a ledger row with no drive — is a
+    named failure rather than a quiet omission.
+
+    It stops at the fourth refusal deliberately, and the stated reason for that
+    is no longer the whole truth. §6 C7's record lives at a DERIVED path
+    ([D-23]) rather than at an argument this test supplies — but
+    `test_the_scorer_refuses_a_control_record_that_is_not_this_studys`
+    monkeypatches that very constant three hundred lines below, so the
+    obstacle is fixture work and not impossibility. The twenty-one cells this
+    case does not reach are residual rows carrying what holds each one.
     """
+    driven = sorted(((key, row) for key, row in PRE_READ_GATES.items()
+                     if row.how == "command"),
+                    key=lambda pair: derived_pre_read_gates()[pair[0]])
     root = fixtures.throwaway_root()
     try:
         golden = os.path.join(root, "GOLDEN-CONTEXT.json")
         with open(golden, "w") as handle:
             json.dump({"stand-in": "a capture this test wrote"}, handle)
-        never_captured = os.path.join(root, "never-captured.json")
-        assert not os.path.exists(never_captured)
-        # The registered order, one registry per step, each written to fail at
-        # exactly one member with everything above it satisfied.
-        registered_order = (
-            (_stand_in_registry(root, golden, name="PINS-1.json",
-                                pin_golden=False, freeze=False, assent=None),
-             never_captured, "no golden context"),
-            (_stand_in_registry(root, golden, name="PINS-2.json",
-                                pin_golden=False, freeze=False, assent=None),
-             golden, "registers no golden.sha256"),
-            (_stand_in_registry(root, golden, name="PINS-3.json",
-                                freeze=False, assent=None),
-             golden, "registers no freeze.preregistrationSha256"),
-            (_stand_in_registry(root, golden, name="PINS-4.json", assent=None),
-             golden, "isolationNegative.assent"),
-        )
-        for registry, golden_path, named in registered_order:
+        for index, (key, row) in enumerate(driven):
+            registry, golden_path = globals()[
+                "_" + row.recipe](root, golden, index)
             with pytest.raises(score_rates.ScoreError) as caught:
                 score_rates.verify_preconditions(
                     registry, score_rates.REGISTERED_ARMS, golden_path)
-            assert named in str(caught.value), (named, str(caught.value))
+            assert row.named in str(caught.value), (key, str(caught.value))
     finally:
         shutil.rmtree(root, True)
+
+
+# The four builders the driven rows name, each writing the stage at which
+# exactly one gate is unmet and everything above it is satisfied.
+
+def _a_registry_before_the_recapture(root, golden, index):
+    """README step 4 not taken: no capture on disk at all."""
+    never_captured = os.path.join(root, "never-captured.json")
+    assert not os.path.exists(never_captured)
+    return (_stand_in_registry(root, golden, name="PINS-%d.json" % index,
+                               pin_golden=False, freeze=False, assent=None),
+            never_captured)
+
+
+def _a_capture_with_no_pin(root, golden, index):
+    """The capture exists and its digest has not replaced the null."""
+    return (_stand_in_registry(root, golden, name="PINS-%d.json" % index,
+                               pin_golden=False, freeze=False, assent=None),
+            golden)
+
+
+def _a_registry_before_the_freeze(root, golden, index):
+    """README step 3 not taken."""
+    return (_stand_in_registry(root, golden, name="PINS-%d.json" % index,
+                               freeze=False, assent=None),
+            golden)
+
+
+def _a_registry_before_the_control(root, golden, index):
+    """README step 5's assent not recorded."""
+    return (_stand_in_registry(root, golden, name="PINS-%d.json" % index,
+                               assent=None),
+            golden)
 
 
 def test_the_population_root_and_the_registry_are_derived_not_supplied():

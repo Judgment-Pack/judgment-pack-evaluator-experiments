@@ -1185,13 +1185,22 @@ NESTED_CLASS_PAIRS = ((0, 1), (2, 3))
 #
 # Round 16, finding 5: this comment carried the first limb only, and so did the
 # code. LOW is a subset of below-HIGH, so the second limb adds only the patterns
-# too small to fire the first — below 1e-30 at the §5.4 scenario, which is why
-# no printed figure moves — but it is the limb that carries ALL of the rule's
-# power against a single collapsed class: P(LOW | p = 0.05, n = 30) = 0.9392,
-# while one collapsed class puts at most TWO of six classes below HIGH and can
-# therefore never fire the four-of-six limb. Narrowing §2.1's sentence to the
-# implemented limb would have traded the rule's whole single-class detection
-# away to avoid computing a 1e-31 term.
+# too small to fire the first — 1.2e-27 at N = 25 and 1.0e-31 at N = 30 in the
+# §5.4 scenario under the containment companion, and 1.9e-27 and 1.6e-31 under
+# the independence layer, which is why no printed figure moves — but it is the
+# limb that carries ALL of the rule's power against a single collapsed class:
+# P(LOW | p = 0.05, n = 30) = 0.9392, while one collapsed class puts at most TWO
+# of six classes below HIGH and can therefore never fire the four-of-six limb.
+# Narrowing §2.1's sentence to the implemented limb would have traded the rule's
+# whole single-class detection away to avoid computing a 1e-31 term at N = 30.
+#
+# Round 17, finding 7: the magnitude above was ONE bound written over both N —
+# "below 1e-30 at the §5.4 scenario" — computed at N = 30 and stated without an
+# N. It is false at N = 25 by three orders of magnitude and at N = 20 by seven.
+# The four increments are stated per N and per layer now, and
+# `test_verdict_parity.py` renders them from these same rationals and requires
+# them to appear in §2.1, so a magnitude claim about a §5.4 quantity is bound
+# the way every other §5.4 figure is.
 DRIFT_SUSPECTED_MINIMUM = 4
 
 
@@ -1452,8 +1461,10 @@ def containment_operating_characteristics(n: int) -> dict:
                          collapsed_low, intact_low))
     row_four *= marginal_h
     # §2.1's registered DRIFT rule, whose false-positive rate moves by more than
-    # an order of magnitude here: a single group below HIGH puts TWO classes
-    # below HIGH, and the rule counts classes. BOTH limbs (round 16, finding 5):
+    # an order of magnitude AT N = 30 — 22.2x — and by six at N = 25: a single
+    # group below HIGH puts TWO classes below HIGH, and the rule counts classes.
+    # (Round 17, finding 7: the comparative was written without an N, computed
+    # at one.) BOTH limbs (round 16, finding 5):
     # the four-of-six count and "LOW on any one", as one union rather than one
     # of them under the whole rule's name.
     drift = _drift_suspected(weights, q, intact_low)
@@ -5073,6 +5084,82 @@ def render_markdown(results: dict) -> str:
     return "\n".join(lines)
 
 
+def require_lawful_destination(path: str, what: str, is_file: bool = False) -> None:
+    """Any path this harness is asked to WRITE is outside the study, or wholly
+    inside a registered `freeze.excluded` tree (§2.10 rule 3, §7).
+
+    This introduces NO new rule. PREREGISTRATION.md §2.10 already registers
+    that every act from the freeze to publication moves carrier or excluded
+    bytes only; what was missing was a place where the code enforces it for a
+    destination the OPERATOR names. Round 17, finding 1: `--emit-records DIR`
+    was checked against the POPULATION and against nothing else, so
+    `--emit-records analysis/records` — or `harness/records`, or a sibling
+    called `records2` — was accepted and would have written manifest-covered
+    bytes. Post-freeze that makes `integrity.py` refuse permanently, and §2.10
+    rule 3 answers a covered-byte move with another review round whose own
+    subject the same act breaks again.
+
+    It is written GENERALLY on purpose. This was the FOURTH instance of one
+    shape — `records/` absent from the exclusion list (round 14, finding 1),
+    `CORRECTION.md` (round 14, finding 2), `arms/BATCH.json.partial` (round 16,
+    finding 3), and this — and each of the first three was repaired at the
+    instance in front of it. `batch.py capture-golden --out` and
+    `capture-isolation-negative --out` were the same hole through a different
+    flag, held by README's prose "leave `--out` at its default" and by nothing
+    else, so they call this too.
+
+    FAILS CLOSED ON WHAT IT CANNOT DECIDE. A target lexically outside the study
+    that nonetheless shares a directory OBJECT with it — a bind mount, a host
+    re-exposure, a symlink to an ancestor — has no computable study-relative
+    path, so its coverage cannot be decided and it refuses. That is the same
+    reasoning `_check_records_target()` already applies to the population, and
+    it uses the same `_identity_overlap()`.
+
+    WHAT IT DOES NOT DO, said rather than implied. It gates the ROOT a writer
+    is handed, not what the writer joins onto it. For `_emit_records()` that is
+    checked and clean: the names it joins are `RECORDS.md` and
+    `records/<caseId>.json`, and `caseId` must satisfy
+    `records_compile.KEBAB` = `[a-z0-9]+(-[a-z0-9]+)*`, so no dot and no slash
+    from the model's own output can traverse out of the target. And it is a
+    rule about COVERED BYTES and not about good taste: `--emit-records
+    controls/recapture` is accepted, because that tree is excluded and the act
+    moves no covered byte, which is all the manifest rule asks. Refusing it too
+    would be a SECOND rule and would need registering as its own sentence
+    rather than being smuggled in here.
+    """
+    excluded = tuple(load_json(REGISTRY_OF_RECORD)["freeze"]["excluded"])
+    study = os.path.normpath(os.path.realpath(STUDY))
+    target = os.path.normpath(os.path.realpath(path))
+    if target != study and not target.startswith(study + os.sep):
+        if _identity_overlap(study, target):
+            raise ScoreError(
+                "%s %s (%s) is outside the study by name and shares a directory "
+                "with it by filesystem identity (device and inode, up each "
+                "ancestor chain): a second mount name for the study, or for a "
+                "tree containing it, has no study-relative path, so whether the "
+                "bytes written there are manifest-covered cannot be decided. "
+                "This refuses rather than guessing (§2.10 rule 3, §7)."
+                % (what, path, target))
+        return                                 # genuinely outside the study
+    relative = "" if target == study else os.path.relpath(target, study)
+    if relative and (integrity.excluded_tree_covers(relative, excluded)
+                     or (is_file
+                         and integrity.manifest_excluded(relative, excluded))):
+        return
+    raise ScoreError(
+        "%s %s resolves to %s inside the study tree, which harness/PINS.json "
+        "does not exclude: every file written there is a byte the §2.10 tree "
+        "manifest covers, so the act that writes it moves the manifest the "
+        "final review round attested and §2.10 rule 3 answers that with "
+        "another round. A destination is either outside the study or wholly "
+        "inside a registered exclusion TREE — a file-shaped exclusion entry "
+        "does not swallow descendants. The registered trees are: %s. Name one "
+        "of those, or a directory outside the study (§7)."
+        % (what, path, relative or ".",
+           ", ".join(sorted(member for member in excluded
+                            if member.endswith("/"))) or "(none)"))
+
+
 def _check_records_target(arms_root: str, records_dir: str) -> None:
     """`--emit-records DIR` may not write anywhere inside the population (§7).
 
@@ -5096,6 +5183,14 @@ def _check_records_target(arms_root: str, records_dir: str) -> None:
     identity: the (device, inode) of each side against the other side's
     existing-ancestor chain (`_identity_overlap`), which is the mount-blind twin
     of the `startswith` test and needs no privileges to check.
+
+    OUTSIDE THE POPULATION IS NOT THE RULE — IT IS HALF OF IT (round 17,
+    finding 1). §2.10 says every act from the freeze to publication moves
+    carrier or excluded bytes only, and this function enforced only the half
+    that keeps a record tree out of a scored batch. The other half is that the
+    target must also be a place the manifest does not cover, and it is the last
+    thing checked here: `require_lawful_destination()`, which is general and is
+    called from `batch.py`'s two `--out` flags as well.
     """
     population = os.path.normpath(os.path.realpath(arms_root))
     target = os.path.normpath(os.path.realpath(records_dir))
@@ -5112,6 +5207,7 @@ def _check_records_target(arms_root: str, records_dir: str) -> None:
             "chain), so a symlink alias OR a second mount name for either one is the "
             "same directory here. Name a directory outside the arms tree."
             % (records_dir, target, arms_root, population))
+    require_lawful_destination(records_dir, "--emit-records")
 
 
 def _object_id(path: str):

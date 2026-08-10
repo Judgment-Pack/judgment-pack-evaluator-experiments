@@ -1407,8 +1407,10 @@ def test_the_nested_pairs_make_layer_one_unavailable(preregistration):
     assert "%.4f" % score_rates.containment_operating_characteristics(
         30)["comonotoneGate"] in section
     # §2.1's registered DRIFT rule quotes its own false-positive rate, and the
-    # containment moves that one by more than an order of magnitude because the
-    # rule counts CLASSES and a nested pair carries two of them at once.
+    # containment moves that one by more than an order of magnitude AT N = 30
+    # (22.2x) and by six at N = 25, because the rule counts CLASSES and a
+    # nested pair carries two of them at once. Round 17, finding 7: the
+    # comparative used to be written without an N and is false at N = 25.
     #
     # Round 16, finding 5: the rendering check below is a SECOND assertion, not
     # the guard. §2.1's rule has two limbs — four or more classes below HIGH,
@@ -1434,6 +1436,28 @@ def test_the_nested_pairs_make_layer_one_unavailable(preregistration):
         assert "%.4f" % float(both) == "%.4f" % float(one), trials
         assert float(score_rates.containment_operating_characteristics(
             trials)["driftSuspected"]) == float(both), trials
+        # …and the INDEPENDENCE layer's pair of the same two limbs. §2.1
+        # asserts of FOUR figures that they are the rate for the whole rule,
+        # and until round 17 finding 7 only two of them were bound to any
+        # arithmetic: `decision_operating_characteristics()` returns no drift
+        # key and its docstring forbids repairing layer 1 in place, so the
+        # independence pair 0.0002/0.0032 was correct by transcription. It is
+        # computed here from the same primitives instead.
+        indep_both = score_rates._drift_suspected((1,) * 6, high, low)
+        indep_one = score_rates._binomial_at_least(
+            score_rates.DRIFT_SUSPECTED_MINIMUM, 6, 1 - high)
+        assert indep_both > indep_one, trials
+        assert "%.4f" % float(indep_both) == "%.4f" % float(indep_one), trials
+        if trials in (25, 30):
+            assert "%.4f" % float(indep_one) in preregistration, trials
+            # A magnitude claim about a §5.4 quantity is a §5.4 quantity, and
+            # §2.1 stated one bound over both N, computed at one (round 17,
+            # finding 7). Rendered from the scorer's rationals, per N and per
+            # layer, and required to appear in the registration — the same
+            # binding every rate figure in this paragraph already has.
+            assert "%.1e" % float(both - one) in preregistration, trials
+            assert "%.1e" % float(indep_both - indep_one) in preregistration, \
+                trials
     # Visible rather than at 1e-31: at a marginal where a class is LOW one time
     # in ten, the whole rule fires at 0.3536 and the four-of-six limb alone at
     # 0.0528. An implementation carrying one limb fails here by a wide margin.
@@ -1449,10 +1473,138 @@ def test_the_nested_pairs_make_layer_one_unavailable(preregistration):
     collapsed = score_rates._tail_le(score_rates.low_threshold(30), 30,
                                      score_rates.SCENARIO_P_COLLAPSED)
     assert collapsed > Fraction(9, 10)
+    # --- the CALL SITES, not only the helpers (round 17, finding 6) ----------
+    #
+    # Everything above proves `_drift_suspected()` and `_ordered_placement()`.
+    # Neither proved that `containment_operating_characteristics()` still
+    # CALLS them: `float()` at the publication boundary collapses both repairs
+    # to the pre-repair double at every registered N, so restoring round 11's
+    # product form or round 16's one-limb expression at the call site left the
+    # whole suite green — measured, 309 passed and integrity 0, identical to
+    # baseline. That is round 16's own defect one level out: the unit was
+    # verified and the wiring the unit was added for was not.
+    #
+    # n = 11 and n = 12 are the only trial counts in 1..60 where the two forms
+    # are DIFFERENT IEEE doubles (`low_threshold(11) = 0` puts P(class LOW) at
+    # 4.9e-15 instead of 2.6e-32). There is no VISIBLE sentinel: at both counts
+    # the figures still render identically at four places and part in the
+    # thirteenth significant digit, so exact float equality is the only
+    # comparison that binds — which is the comparison the block above already
+    # uses. Driving the public function at an unregistered parameter is this
+    # file's own practice (`containment_joint_figures(30, Fraction("0.98"))`).
+    for trials in (11, 12):
+        weights = tuple(len(group) for group in score_rates.class_groups())
+        high = score_rates.probability_at_least(
+            score_rates.high_threshold(trials), trials, score_rates.SCENARIO_P)
+        low = score_rates._tail_le(score_rates.low_threshold(trials), trials,
+                                   score_rates.SCENARIO_P)
+        both = score_rates._drift_suspected(weights, high, low)
+        one = score_rates._weighted_at_least(
+            score_rates.DRIFT_SUSPECTED_MINIMUM, weights, 1 - high)
+        # The sentinel's own liveness check: if a cut, a threshold or the group
+        # shape ever moves these back onto one double, this says so instead of
+        # leaving the assertion below vacuous the way the registered N leave it.
+        assert float(both) != float(one), (
+            "n = %d no longer separates §2.1 [D-19]'s two limbs in IEEE "
+            "doubles, so the call-site assertion below has gone vacuous and "
+            "needs a new sentinel" % trials)
+        published = score_rates.containment_operating_characteristics(
+            trials)["driftSuspected"]
+        assert published == float(both), (
+            "containment_operating_characteristics(%d) publishes %.17g: the "
+            "four-of-six limb ALONE is %.17g and §2.1 [D-19]'s union is "
+            "%.17g, so the call site computes half the registered rule"
+            % (trials, published, float(one), float(both)))
     for trials in (25, 30):
         drift = score_rates.containment_operating_characteristics(
             trials)["driftSuspected"]
         assert "%.4f" % drift in preregistration, trials
+
+
+def _row_five_both_ways(trials: int) -> tuple:
+    """§5.4's row-5 pattern sum, computed twice from the scorer's own
+    primitives: once with the nested pair's two LOW indicators COUPLED, which
+    is what §2.3's containment forces and what round 11 finding 2 repaired, and
+    once with them MULTIPLIED, which is the form it replaced.
+
+    Recomputed here rather than read off the scorer, because the whole point is
+    to have a value the call site did not produce to compare the call site's
+    against."""
+    q = score_rates.probability_at_least(
+        score_rates.high_threshold(trials), trials, score_rates.SCENARIO_P)
+    low_k = score_rates.low_threshold(trials)
+    collapsed_low = (score_rates._tail_le(low_k, trials,
+                                          score_rates.SCENARIO_P_COLLAPSED)
+                     if low_k >= 0 else Fraction(0))
+    intact_low = (score_rates._tail_le(low_k, trials, score_rates.SCENARIO_P)
+                  if low_k >= 0 else Fraction(0))
+    groups = score_rates.class_groups()
+    weights = tuple(len(group) for group in groups)
+    narrow = tuple(len(set(group) & set(score_rates.NARROW_NUMERIC_CLASSES))
+                   for group in groups)
+    interior = [index for index, group in enumerate(groups)
+                if score_rates.INTERIOR_CLASS in group][0]
+    coupled = product = Fraction(0)
+    for pattern in range(1 << len(groups)):
+        chosen = [index for index in range(len(groups)) if pattern >> index & 1]
+        weight = q ** len(chosen) * (1 - q) ** (len(groups) - len(chosen))
+        passes = score_rates._weighted_at_least(
+            score_rates.CONTROL_GATE_MINIMUM,
+            [weights[index] for index in chosen], q) ** 2
+        others = [narrow[index] for index in chosen
+                  if narrow[index] and index != interior]
+        nested = narrow[interior] if interior in chosen else 0
+        head = weight * passes * (1 - intact_low)
+        coupled += head * score_rates._ordered_placement(
+            score_rates.PATTERN_MINIMUM, others, nested,
+            collapsed_low, intact_low)
+        # The form round 11 replaced: P(nP >= 3) times P(class 3 not LOW) as
+        # though the two were independent — which they are not, because {class
+        # 3 LOW} is a SUBSET of {class 2 LOW} and class 2 is one of the
+        # indicators `nP` counts.
+        product += head * (1 - intact_low) * score_rates._weighted_at_least(
+            score_rates.PATTERN_MINIMUM,
+            others + ([nested] if nested else []), collapsed_low)
+    return coupled, product
+
+
+def test_the_ordered_placement_call_site_is_the_coupled_form():
+    """Round 11 finding 2's repair, bound at its CALL SITE.
+
+    `test_the_unequal_marginal_pair_is_coupled_and_not_multiplied` proves
+    `_ordered_placement()` on synthetic rationals and says so in its own
+    docstring — "the repair is invisible in doubles … so this binds the SHAPE
+    instead of the digits". The shape is the helper's. Nothing bound row 5's
+    call site, and reverting it to the pre-round-11 PRODUCT form gives 309
+    passed and integrity 0, identical to baseline (round 17, finding 6, which
+    found this while disposing of the same gap one repair over).
+
+    The same two sentinel trial counts separate this pair too, and for the same
+    reason: `low_threshold` is degenerate below n = 13, so the coupled and
+    multiplied forms part in the thirteenth significant digit instead of the
+    thirty-second."""
+    for trials in (11, 12):
+        published = score_rates.containment_operating_characteristics(
+            trials)["joint"]["row5"]
+        coupled, product = _row_five_both_ways(trials)
+        assert float(coupled) != float(product), (
+            "n = %d no longer separates round 11 finding 2's coupled form from "
+            "the product it replaced, so this sentinel has gone vacuous" % trials)
+        assert published == float(coupled), (
+            "containment_operating_characteristics(%d)'s row 5 publishes "
+            "%.17g: the PRODUCT form is %.17g and the coupled form §2.3 "
+            "requires is %.17g, so the call site multiplies two indicators "
+            "one of which contains the other" % (trials, published,
+                                                 float(product), float(coupled)))
+    # …and the registered N, where the same two forms are ONE double — which is
+    # why this test needs the sentinel and why the existing row-5 case says in
+    # its own docstring that it binds the shape and not the digits.
+    for trials in (20, 25, 30):
+        coupled, product = _row_five_both_ways(trials)
+        assert coupled != product, trials
+        assert float(coupled) == float(product), trials
+        assert score_rates.containment_operating_characteristics(
+            trials)["joint"]["row5"] == float(coupled), trials
 
 
 def test_the_joint_figures_tables_are_the_scorers_arithmetic(preregistration):

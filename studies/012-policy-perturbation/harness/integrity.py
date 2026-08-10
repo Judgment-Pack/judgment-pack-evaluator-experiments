@@ -1028,6 +1028,27 @@ def manifest_excluded(name: str, members: tuple) -> bool:
     return False
 
 
+def excluded_tree_covers(relative: str, members: tuple) -> bool:
+    """The DIRECTORY form of `manifest_excluded()`: True when a registered TREE
+    entry covers `relative`, and therefore everything a writer puts beneath it.
+
+    `manifest_excluded()` decides ONE file, which is the question the manifest
+    asks. A destination is a directory that usually does not exist yet, so the
+    question is whether EVERY file written under it is excluded — and only a
+    tree entry can answer that. A file-shaped entry does not swallow
+    descendants (round 9, finding 5), so `RESULTS.json` covers `RESULTS.json`
+    and says nothing about a directory of that name.
+
+    Round 17, finding 1: added because §2.10's rule that every registered act
+    from the freeze to publication moves carrier or excluded bytes only was
+    enforced nowhere for a destination the OPERATOR names. It was true of
+    README step 7's literal value and false of the interface that step
+    registers."""
+    prefix = relative.replace(os.sep, "/").strip("/") + "/"
+    return any(member.endswith("/") and prefix.startswith(member)
+               for member in members)
+
+
 def normalized_pins(pins: dict) -> bytes:
     """The registry as the manifest binds it: the four members that are
     edited at registered moments after the freeze set to null, everything

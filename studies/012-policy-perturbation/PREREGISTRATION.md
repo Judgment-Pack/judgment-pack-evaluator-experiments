@@ -223,24 +223,40 @@ Under the scenario above, P(four or more of six below HIGH) is **0.0002** at
 N = 30 and **0.0032** at N = 25 under the independence layer, and **0.0041** and
 **0.0197** under the containment-respecting companion (round 10, finding 4) —
 the rule counts *classes* and a single group below HIGH puts two classes below
-HIGH at once, which is why this rate multiplies by more than twenty where the
-gate merely falls by a tenth. **The larger figure is the one to quote:** the
+HIGH at once, which is why this rate multiplies by more than twenty at N = 30,
+where the containment-respecting gate falls by an eighth; at N = 25 it
+multiplies by six and the gate is all but unmoved (round 17, finding 7: the
+comparative was stated over both N and computed at one). **The larger figure is
+the one to quote:** the
 rule fires by sampling alone about **four times in a thousand** runs of this
 study at the registered N, and about two in a hundred at the alternative.
 
 The four figures above are labelled by the FIRST limb, and they are the rate
 for the WHOLE rule to every digit printed here: LOW is a subset of below-HIGH,
-so the second limb adds only the patterns too small to fire the first, and at
-this scenario that is below 1e-30 at either N — the two limbs are the same IEEE
-double at N = 20, 25 and 30. The second limb is nonetheless where the rule's
+so the second limb adds only the patterns too small to fire the first — at this
+scenario it adds 1.2e-27 at N = 25 and 1.0e-31 at N = 30 under the containment
+companion, and 1.9e-27 and 1.6e-31 under the independence layer, which is why
+the two limbs are the same IEEE double at N = 20, 25 and 30. (Round 17,
+finding 7: this magnitude was one bound written over both N — "below 1e-30 at
+either N" — computed at N = 30 and false at N = 25 by three orders of
+magnitude. Each increment is rendered from the scorer's own exact rationals and
+required to appear here, so it is bound the way every other §5.4 figure is.)
+The second limb is nonetheless where the rule's
 power against a single collapsed class lives: a class truly collapsed to
 p = 0.05 reads LOW with probability 0.9392 at N = 30, while one collapsed class
 puts at most two of six classes below HIGH and so can never fire the four-of-six
 limb. `score_rates._drift_suspected()` computes both limbs as one union, exactly,
 and `test_verdict_parity.py` asserts the union is strictly larger than the
-four-of-six limb in exact rational arithmetic and pins the two apart at a
+four-of-six limb in exact rational arithmetic, pins the two apart at a
 marginal where they visibly separate — because no assertion over a rendered
-figure could distinguish them here at any precision (round 16, finding 5). Even
+figure could distinguish them here at any precision (round 16, finding 5) —
+and drives `containment_operating_characteristics()` itself at a sentinel trial
+count where the two limbs are different IEEE doubles, so the PUBLISHED figure
+is bound to the union and not only to the helper. Round 17, finding 6: the
+round-16 repair was proved on the helper and its call site was bound by
+nothing, so restoring the one-limb expression there left the whole suite green;
+the same sentinel now binds round 11 finding 2's call site, which was
+measurably unbound in the same way. Even
 when it fires it is
 reported as **a finding about the contemporaneous baseline, not as a
 measurement of drift**, which this design cannot make: there is no second
@@ -270,7 +286,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `329a9b051a3aee6ba39d0090d1e5d6aa60eb749ea7e8ecb95c9a320c51d05907` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `0eafa7a30d3ab571f26cb44c068811d65ed681c4758b9e892f5208c71e5368a5` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -305,9 +321,9 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `harness/records_compile.py` | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | **011's own bytes** (011 adapted it from 010's `e58edce3…`) | `6de92175b3f93d563b7e79c60a2e3fd641d96f40cc594fb8c3753c3655c90a1c` | none — byte-identical if the port takes it unchanged; the output-root parameter 011 added already suffices |
 | `harness/transcript_check.py` | `0c9d7c798fc8738acb05dada3230251c9fba6109e15ed5b6b5ee8a4b2e708218` | **011's own bytes** (011 adapted it from 010's `42d977c4…`) | `64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2` | the registered-prompt-terminal gate takes **the arm's** prompt bytes instead of one fixed prompt, and (round 5, finding 7) a completion that does not decode raises its own exception class so the scorer can name `completion-unreadable`; no other check logic changes |
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee` | §2.7 |
-| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `c092a1fe301c0aafe35d24ee8eab632045440aee9df5b763c003d07d1fdeae9d` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
-| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `9ec5f84cc9bbed53ca5553a846977987431a7967fc8a1afe17cf0b0bc555f0eb` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `b811eeb16793eafeb41ae138270e2d9fe637b3abcdddbb7373436998e8b444c4` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `98e11a14f931e47ece6b5c975afe46a18ef784d8824785fab8632083c5014af1` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
+| `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `f06b590ec9a77e6c8355375c8b1a33af5c4cac1d3b5eb19338253abe6c801d26` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `38bd1dbf82e46a4c6c32d058ca2aae3d1f729d5e9e4ea5d48cc741c8bbcb4455` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -1330,25 +1346,54 @@ artifacts that ran" now means:
    asserts the property directly, by applying each registered act to a copy of
    the tree and requiring the manifest to be identical, and — round 16, finding
    4 — over the source rule that no stand-in registry a test builds may INHERIT
-   one of the four members from the committed file rather than write it.
+   one of the four members from the committed file rather than write it. That
+   rule is over the SOURCES and is author-visible, not author-proof: it fires
+   when a loaded registry ESCAPES its scope — returned, stored on an attribute
+   or a subscript, or written out — and a registry reached other than by
+   `open`/`json.load`, handed to a helper that stores it, or bound at run time
+   is outside it and is reviewed instead. Round 17, finding 5: the sentence
+   above was registered without that clause while the check was triggered by a
+   two-level constant subscript assignment, which is false of every builder in
+   the tree, so the rule fired on nothing at all — a builder that loaded the
+   committed registry and simply returned it inherited all four members in
+   silence.
 
    And the rule that makes a pre-call gate more than a line of code:
    **every gate the driver runs before it spends a call is enumerated from
    `harness/batch.py`'s own source by the harness tests, per registered
-   command, and each is either driven through that command line by a case that
-   asserts the gate's OWN refusal message — with every other gate satisfied, no
-   call spent and nothing written — or carries a registered reason saying what
-   holds it instead.** A deleted gate call is then a red suite, and a new gate
-   with no entry is a named failure, rather than a check silently dropped. This
-   is registered because rounds 13 and 15 both show that a rule living only in
+   command, and every gate the scorer runs before it reads a slot is enumerated
+   from `harness/score_rates.py`'s own source in the same way; and each is
+   either driven through the registered interface by a case that asserts the
+   gate's OWN refusal message — with every other gate satisfied, no call spent
+   and nothing written — or carries a registered reason saying what holds it
+   instead.** A deleted gate call is then a red suite, and a new gate with no
+   entry is a named failure, rather than a check silently dropped. This is
+   registered because rounds 13 and 15 both show that a rule living only in
    test docstrings gets re-broken: three consecutive rounds repaired one
    instance of the same class, and round 16's sweep found ten of `preflight()`'s
    fourteen gates removable with the suite still green and §2.10's own freeze
    gate removable at all five of its call sites at once.
-   `harness/tests/test_batch.py`'s `PreCallGates` carries the derivation, the
-   ledger and the three tests, and states in full what the mechanism cannot
-   show — it is author-visible, not author-proof, and says nothing about a
-   gate being correct.
+   `harness/tests/test_batch.py`'s `PreCallGates` carries the driver's
+   derivation, ledger and three tests; `harness/tests/test_admission.py`'s
+   `PRE_READ_GATES` carries the scorer's, through the same
+   `harness/tests/gatescan.py`; and both state in full what the mechanism
+   cannot show.
+
+   Registered with its reach, because the reach is what round 17 found wrong.
+   The driver's derivation runs over `main()`'s own pre-dispatch region, over
+   `preflight()`, and over each command entry above its first spent call, at
+   DEPTH ONE per host — a callee's own callees are what make it
+   refusal-capable, not gates in their own right. Round 17, finding 2: it used
+   to run over `preflight()` alone, so a gate added to a command entry the
+   ordinary way produced no cell and could be deleted with the suite green,
+   while this paragraph said it became a named failure; the mechanism is
+   extended to match the sentence rather than the sentence narrowed to match
+   the mechanism, and the derived set goes from fifty-eight cells to
+   eighty-two. What remains outside it, and is not claimed: a callee reached
+   under a module name rather than its own (`score_rates.x(…)`), a refusal
+   raised one level inside a gate, and a pre-call bound that is textual rather
+   than executional. It is author-VISIBLE, not author-proof, and says nothing
+   about a gate being correct.
 4. Registered honestly, because this is a bound and not a proof: **the manifest
    is computed by this study's own code over this study's own worktree.** It
    binds the *reviewer's* attestation to a specific byte state, and it makes a
@@ -1388,7 +1433,14 @@ batch.py shortfall --reason TEXT
 and **`--slots` does not exist on either**. The canonical `arms/` root is
 `harness/../arms`, resolved from the harness's own location; anything else
 refuses. `--emit-records` survives because its target must be *outside* the
-population and is checked to be (§7).
+population **and either outside the study or wholly inside a registered
+`freeze.excluded` tree**, and is checked to be on both counts (§7). Round 17,
+finding 1: only the first half was enforced, so the one destination flag [D-23]
+left standing accepted `analysis/records`, `harness/records` or a sibling
+called `records2` — every byte of which the §2.10 manifest covers. The clause
+was true of README step 7's literal value and false of the interface this line
+registers, and the same rule now gates `capture-golden --out` and
+`capture-isolation-negative --out`, which had no such check at all.
 
 `PINS.json` is **not edited between the batch and the scoring**. The freeze
 digest is filled at the freeze, the golden digest before round 1, and after
@@ -3497,7 +3549,13 @@ or in both:
 - the record-emission directory disjoint from every arm's slot tree, checked on
   both sides' resolved paths **and** their filesystem identity, so publishing
   the derived record trees cannot add a slot to a population that was just
-  published;
+  published; and, more generally, **every destination the operator names —
+  `score --emit-records DIR`, `capture-golden --out PATH`,
+  `capture-isolation-negative --out DIR` — either outside the study or wholly
+  inside a registered `freeze.excluded` tree**, so no registered act can write
+  a byte the §2.10 manifest covers (round 17, finding 1: the emission target
+  was checked against the population and against nothing else, and the other
+  two were held by README's prose alone);
 - the golden recapture derived from at least two **distinct sessions**, checked
   on raw retained evidence, from **probe** calls at the pinned probe-prompt
   digest, under the same ported-bytes, interpreter and freeze preflight the
