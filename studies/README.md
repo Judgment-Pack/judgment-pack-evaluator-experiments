@@ -25,6 +25,7 @@ and agreement tracks are kept separate and why.
 | [013](013-agent-eval-forge-integration/) | Can an independently developed agent-regression harness see the judgment/integration boundary? | Interoperability | Agent Eval Forge | Frozen + run — R1 holds (both strata) |
 | [014](014-openworkproof-binding/) | Can an independently developed receipt protocol bind an executed action to the exact judgment that authorized it? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
 | [015](015-cloudflare-os-boundary/) | Can a third party prove offline which judgment authorized which staged action on a governed-agent platform — and what can neither system see? | Interoperability | Cloudflare OS | **Draft — five review rounds, not frozen** |
+| [016](016-policy-currency-anchor/) | Can a signed pack-version currency registry detect a retired-version decision offline — and where must it fail? | Interoperability | OpenWorkProof | **Draft — preregistration in review** |
 
 Study 012 (policy-surface perturbation) is preregistered on its own branch and not yet
 merged. Study 015 is merged as a **draft**: five consecutive cross-vendor review rounds
@@ -48,7 +49,7 @@ with Judgment Pack — that independence is the point of the studies that use th
 | RuleArena | [001](001-policy-representation/) | [SkyRiver-2000/RuleArena](https://github.com/SkyRiver-2000/RuleArena) | `3b9e2256` | MIT |
 | τ²-bench | [002](002-qualitative-policy/), [003](003-escape-census/) | [sierra-research/tau2-bench](https://github.com/sierra-research/tau2-bench) | `1d244f5d` | MIT |
 | Agent Eval Forge | [013](013-agent-eval-forge-integration/) | [deghosal-2026/agent-eval-forge](https://github.com/deghosal-2026/agent-eval-forge) | `8925cacc` | MIT © Debashish Ghosal |
-| OpenWorkProof | [014](014-openworkproof-binding/) | [dengyier/OpenWorkProof](https://github.com/dengyier/OpenWorkProof) | `8eeca6ff` | Apache-2.0 (per `LICENSE`) |
+| OpenWorkProof | [014](014-openworkproof-binding/), [016](016-policy-currency-anchor/) | [dengyier/OpenWorkProof](https://github.com/dengyier/OpenWorkProof) | `8eeca6ff` | Apache-2.0 (per `LICENSE`) |
 | Cloudflare OS | [015](015-cloudflare-os-boundary/) | [cloudflare/cloudflare-os](https://github.com/cloudflare/cloudflare-os) | `b2a51b54` | Apache-2.0 (per `LICENSE`) |
 
 The evaluator under test is the [judgment-pack-runtime](https://github.com/Judgment-Pack/judgment-pack-runtime)

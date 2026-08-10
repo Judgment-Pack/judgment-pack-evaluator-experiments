@@ -1,0 +1,6 @@
+{
+  "attemptRoot": "2026-08-10-build-pilot-03",
+  "includeHoldout": false,
+  "study": "016-policy-currency-anchor",
+  "pinsRawSha256": "d31dea0c9fb7c07b4ba8cafb729786c879b086c747efe5620d3c180d0185e159"
+}

@@ -1,0 +1,147 @@
+{
+  "matrixVersion": "2",
+  "stratum": "locked-replication",
+  "note": "Registered cell expectations for Study 016, locked-replication stratum, revised at review round 1 (see PREREG-REVIEW.md; matrixVersion 1 is the pre-review draft). Layers: owp = openworkproof.acceptance.verify_acceptance_bundle unchanged, run by Study 014's frozen adapter; binding = Study 014 adapter Layer BINDING; replay = Study 014 adapter Layer REPLAY; currency = this study's Layer CURRENCY (registry/SPEC.md section 3). Expected values are adjudicated layer OUTCOME strings and nothing else: 'pass', 'fail' (owp only - upstream reports one composite verdict), 'fail:<code>' with an exact registered code, or 'unavailable' (on the currency layer definitionally the pair verdict=unavailable, code=currency-unavailable). combined is derived: pass iff every layer outcome is pass. Roles: endpoint rows decide R1; control-gate rows are validity gates evaluated first; demonstration and descriptive rows are published, never counted. registeredUndetected: true marks cells whose all-pass outcome is itself the registered finding - on an endpoint a detection there is a divergence that falsifies R1 (decision D-3, now scoped to cur-split-view-a alone; cur-workorder-remint-accepted is descriptive per 014's e22 precedent and round-1 finding R1-2). attackerCapability: none = no key and no signed byte touched; tamper = signed bytes changed without re-signing; authority-key = the registry authority's own key signs the construction (the single-operator threat); full-keys = an insider holding every chain fixture key. variant: registry = only the registry snapshot varies from pos-current; config = only the trust configuration varies; chain = a different flowed chain; artifact = a retained artifact edited, nothing signed touched; tampered = signed bytes changed without re-signing; resigned = rebuilt validly with fixture keys; none = the untouched positive composition. identityGroups registers deliberate byte-identity: every cell file in a group is byte-identical across the group's members, verified by the scorer - the audit-vs-reuse indistinguishability exhibit is this identity, not a separate construction. pairs.split-view names the fork exhibit: the scorer validates the fork STRUCTURALLY from the two cells' snapshot bytes (same pinned genesis record, same authority key id, same attested position, different heads) and derives the pair report from the adjudicated outcomes; nothing is hardcoded (round-1 R1-4).",
+  "identityGroups": [
+    ["cur-retired-reuse", "dem-freshness-legit", "dem-freshness-stale"]
+  ],
+  "pairs": {
+    "split-view": ["cur-split-view-a", "cur-split-view-b"]
+  },
+  "cells": [
+    {"id": "pos-current", "category": "control-positive", "variant": "none",
+     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "baseline v0.1.0-decision chain; registry [add 0.1.0]; series, authority and genesis pinned",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "pass"},
+     "note": "validity gate: the positive composition must verify through all four layers before any endpoint row is read"},
+
+    {"id": "unchanged", "category": "control-positive", "variant": "none",
+     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "byte-copy of pos-current adjudicated mid-matrix (013/014 within-run control convention)",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "pass"},
+     "note": "validity gate: the apparatus must not manufacture detections on untouched bytes"},
+
+    {"id": "neg-owp-alive", "category": "control-negative", "variant": "tampered",
+     "role": "control-gate", "attackerCapability": "tamper", "registeredAbsences": [],
+     "construction": "baseline bundle with one acceptance_receipt.signature character flipped; registry current",
+     "expected": {"owp": "fail", "binding": "pass", "replay": "pass", "currency": "pass"},
+     "note": "validity gate: the OWP layer is alive in this harness and the currency layer records independently of an OWP failure (four-layer attribution)"},
+
+    {"id": "neg-binding-alive", "category": "control-negative", "variant": "artifact",
+     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "retained pack bytes edited after the decision (threshold 5000 -> 6000; baseline facts still approve) - 014's a01 construction under the v0.17.0 tuple; registry current",
+     "expected": {"owp": "pass", "binding": "fail:pack-digest-mismatch", "replay": "pass", "currency": "pass"},
+     "note": "validity gate (round-1 R1-8): the BINDING layer fires under this study's toolchain - without this cell every BINDING expectation in the matrix is pass and a hardcoded layer would satisfy it. replay passes because the drifted pack still approves these facts (014 a01 precedent)"},
+
+    {"id": "neg-replay-alive", "category": "control-negative", "variant": "resigned",
+     "role": "control-gate", "attackerCapability": "full-keys", "registeredAbsences": [],
+     "construction": "validly re-signed chain whose commitment forges executableDigest and evaluatorRelease (0.16.0) - 014's e23 construction under the v0.17.0 tuple; registry current",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "fail:replay-executable-mismatch", "currency": "pass"},
+     "note": "validity gate (round-1 R1-8): the REPLAY layer fires under this study's toolchain; the currency layer passes because the committed pack identity is genuine - layer independence again"},
+
+    {"id": "neg-snapshot-signature", "category": "control-negative", "variant": "tampered",
+     "role": "control-gate", "attackerCapability": "tamper", "registeredAbsences": [],
+     "construction": "the pos-current snapshot with one head-attestation signature character flipped",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:snapshot-signature-invalid"},
+     "note": "validity gate: the currency verifier exercises the attestation signature under the pinned key"},
+
+    {"id": "neg-authority-unpinned", "category": "control-negative", "variant": "registry",
+     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "an impostor registry for the same series, validly signed end-to-end by a different key; the verifier pins the real authority",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:snapshot-signature-invalid"},
+     "note": "validity gate: internal consistency proving itself is refused. Registered honestly per round-1 R1-6: to a single-pinned-key offline verifier a wrong signer is indistinguishable from a corrupted signature, so this cell and neg-snapshot-signature share one code; the unauthenticated key-id label is reported in detail only"},
+
+    {"id": "neg-chain-break", "category": "control-negative", "variant": "resigned",
+     "role": "control-gate", "attackerCapability": "authority-key", "registeredAbsences": [],
+     "construction": "checkpoint 2 validly re-signed by the authority over a previousCheckpointDigest that is not checkpoint 1's; attestation over the doctored head",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:snapshot-chain-inconsistent"},
+     "note": "validity gate: chain linkage is checked structurally, not assumed from valid signatures"},
+
+    {"id": "cur-retired-reuse", "category": "R-registry-state", "variant": "registry",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "baseline chain unchanged; registry [add 0.1.0, add 0.2.0, retire 0.1.0] at position 3",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:not-current-at-snapshot"},
+     "note": "the core positive result: the same chain bytes as pos-current, refused purely by registry state - currency is a relation between the artifact and a world that moved, exactly what Study 014 section 4c could not observe. The verdict is membership at the pinned snapshot, nothing more"},
+
+    {"id": "cur-successor-current", "category": "R-registry-state", "variant": "chain",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "a chain decided under pack v0.2.0; the same retiring registry at position 3",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "pass"},
+     "note": "retirement does not poison the successor: the anchor discriminates rather than refusing everything after a retirement"},
+
+    {"id": "cur-concurrent-set", "category": "R-registry-state", "variant": "registry",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "baseline chain; the position-2 snapshot [add 0.1.0, add 0.2.0] - both versions current; no minimum head pin",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "pass"},
+     "note": "one adjudication, two registered readings (round-1 R1-9): (1) membership in a concurrent supported set - never latest-version arithmetic (RFC 0011 R-8); (2) the freshness-floor reading, ANALYTIC and not separately scored: these bytes are also exactly what a verifier holding no minimum head pin would see if a newer retiring snapshot were withheld - the bytes carry no evidence either way, which is the registered indistinguishability, not an empirical withholding detection. The design point's other arm is cur-older-snapshot-pinned"},
+
+    {"id": "cur-reinstated", "category": "R-registry-state", "variant": "registry",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "baseline chain; registry [add 0.1.0, retire 0.1.0, reinstate 0.1.0] at position 3",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "pass"},
+     "note": "an authorized reinstatement is a signed lifecycle event, distinguished from a prefix rewrite by signature and head-consistency, not version arithmetic. reinstate is the ONLY re-entry event: a re-add of a bound version is refused (round-1 R1-13)"},
+
+    {"id": "cur-rebind-refused", "category": "R-registry-state", "variant": "resigned",
+     "role": "endpoint", "attackerCapability": "authority-key", "registeredAbsences": [],
+     "construction": "registry [add 0.1.0 digest-A, retire 0.1.0, add 0.1.0 digest-B], validly signed throughout",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:binding-rebound"},
+     "note": "(version, digest) bindings are immutable once added, across retirement; even the authority key cannot rebind - a history defect distinct from ordinary inconsistency"},
+
+    {"id": "cur-series-unknown", "category": "R-registry-state", "variant": "config",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "baseline chain; a valid registry log carrying events only for a different series; the trust configuration binds the expense series but pins that log's genesis (the SECOND registered trust root - PINS.json registryAuthority.otherSeriesGenesisHead; round-1 R1-10)",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:series-unknown-at-snapshot"},
+     "note": "never-registered is not retired (decision D-4): a registry that answers nothing for the pinned series is an empty answer, distinct from a retirement and from a chain defect. The two trust roots are both registered; the one-genesis-serves-the-matrix claim from the draft is withdrawn"},
+
+    {"id": "cur-workorder-remint-accepted", "category": "S-scope-boundary", "variant": "chain",
+     "role": "descriptive", "attackerCapability": "full-keys", "registeredAbsences": [],
+     "registeredUndetected": true,
+     "construction": "Study 014's e22 construction rebuilt under this study's replay tuple: the identical judgment commitment re-bound under a different, equally valid work order; registry has 0.1.0 current",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "pass"},
+     "note": "descriptive, excluded from R1 credit - exactly 014's e22 status (round-1 R1-2: this is a REMINT, not a rollback; OWP has no contract ordering, so nothing is 'older', and no anchor keyed on pack identity can see it - the commitment tuple is unchanged, RFC 0011 R-1). Its all-pass outcome is published as the registered scope boundary; authorization-contract currency belongs to the receipt protocol"},
+
+    {"id": "cur-split-view-a", "category": "S-scope-boundary", "variant": "registry",
+     "role": "endpoint", "attackerCapability": "authority-key", "registeredAbsences": [],
+     "registeredUndetected": true, "pair": "split-view",
+     "construction": "one authority, one pinned genesis, continuation A: [genesis add 0.1.0, add 0.2.0] - internally valid; the fresh verifier holds only its per-series pins and no minimum head pin",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "pass"},
+     "note": "the load-bearing exhibit, half A: this view verifies clean. What is registered impossible is detection by a FRESH, STATELESS, two-pin verifier given exactly one view (round-1 R1-4 narrowed wording) - not by every offline verifier: the stateful arm below refuses the sibling. The scorer validates the fork structurally from bytes"},
+
+    {"id": "cur-split-view-b", "category": "S-scope-boundary", "variant": "registry",
+     "role": "endpoint", "attackerCapability": "authority-key", "registeredAbsences": [],
+     "pair": "split-view",
+     "construction": "the same authority and genesis, continuation B: [genesis add 0.1.0, retire 0.1.0] - equally valid, contradicting A at the same position",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:not-current-at-snapshot"},
+     "note": "half B: the same chain reads not-current under this view. Each verdict is internally correct; the equivocation lives only across the pair, which no single fresh stateless run can observe"},
+
+    {"id": "cur-split-view-b-stateful", "category": "S-scope-boundary", "variant": "config",
+     "role": "endpoint", "attackerCapability": "authority-key", "registeredAbsences": [],
+     "construction": "view B presented to a verifier provisioned with view A's position-2 head as its minimum head pin - the state a sequential verifier that had accepted A would have persisted (round-1 R1-4/R1-5)",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:snapshot-behind-pinned-minimum-head"},
+     "note": "the arm that bounds the split-view finding: prior-acceptance state converts the silent fork into a refusal by prefix containment (same length, different head). The fresh-verifier silence in the pair is exactly statelessness, and cross-verifier comparison or witnessing - out of the registered trust model - is what the transparency-log direction would add"},
+
+    {"id": "cur-older-snapshot-pinned", "category": "V-verifier-config", "variant": "config",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "the position-2 prefix snapshot of the retiring history (byte-identical snapshot to cur-concurrent-set's) presented to a verifier provisioned with the position-3 head as its minimum head pin",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:snapshot-behind-pinned-minimum-head"},
+     "note": "the design point, decided against its sibling reading on cur-concurrent-set: the identical presentation is refused if and only if the verifier holds prior-acceptance state. The pin is caller-provisioned, registered as the state a production verifier would persist (round-1 R1-5: this layer holds no storage and returns no state update - a durable high-water lifecycle is future work, not claimed)"},
+
+    {"id": "cur-genesis-unpinned", "category": "V-verifier-config", "variant": "config",
+     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "a fresh verifier with the series and authority key pinned but no genesis head; the registry itself is the valid current one",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "unavailable"},
+     "note": "the two-pin minimum: below a pinned genesis the verifier is trust-on-first-use and must refuse to call anything current - fail-closed, never a pass, never a detection"},
+
+    {"id": "dem-freshness-legit", "category": "D-demonstration", "variant": "registry",
+     "role": "demonstration", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "byte-copy of cur-retired-reuse; scenario: the decision was made and acted on while 0.1.0 was current, and is audited after retirement",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:not-current-at-snapshot"},
+     "note": "disclosed designed demonstration (m28 convention), published and never counted: the scenario label lives only in this registry entry - no retained byte differs from dem-freshness-stale, so the verdict provably cannot carry the distinction (RFC 0011 R-7)"},
+
+    {"id": "dem-freshness-stale", "category": "D-demonstration", "variant": "registry",
+     "role": "demonstration", "attackerCapability": "none", "registeredAbsences": [],
+     "construction": "byte-copy of cur-retired-reuse; scenario: the decision is genuinely reused after 0.1.0 retired",
+     "expected": {"owp": "pass", "binding": "pass", "replay": "pass", "currency": "fail:not-current-at-snapshot"},
+     "note": "the pair's other half: membership at a pinned snapshot is the whole verdict - 'not current at snapshot', never 'stale when used'"}
+  ]
+}

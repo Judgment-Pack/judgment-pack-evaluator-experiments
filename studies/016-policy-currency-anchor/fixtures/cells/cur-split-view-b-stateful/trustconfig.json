@@ -1,0 +1,10 @@
+{
+  "trustConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/expense-approval",
+  "authorityPublicKey": "BNR2lWLk9WwjFE9XgI15Cy0s5tu/XeqlEffYr/PX+MY=",
+  "genesisHead": "sha256:f5cf4273076426256d7790bd9c453bb6209545e6d1571d511ba185074c311e3b",
+  "minimumHeadPin": {
+    "head": "sha256:0f843f8bcde63cc95447123df2918029c66cfaba3ea2e3c1da3303c12e0e3804",
+    "position": 2
+  }
+}

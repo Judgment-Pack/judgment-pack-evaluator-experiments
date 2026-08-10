@@ -1,0 +1,109 @@
+{
+  "pinsVersion": "1",
+  "note": "Pin registry, 011-convention as extended by Study 014: every non-null member is ENFORCED before adjudication, not merely declared. harness/score.py compares the preregistration, matrix, matrixHoldout, registrySpec and studyManifest digests when filled, the jpack binary digest always, both vendored pack fixtures always, every study014.files digest always (harness/upstream014.py refuses to import a mismatching source, and re-verifies each LOADED module's resolved origin and bytes on every load - round-1 R1-1), every registryAuthority member below always (keys re-derived from the seed labels, both genesis heads recomputed from the registered genesis events - round-1 R1-14), openworkproof.installedPackageDigest always, harnessPython.version exactly, and openworkproof.lockedDependencyDigest against the lockfile's packages as installed (name==version pairs resolved through importlib.metadata), and refuses to adjudicate on any mismatch.",
+  "anchorOrder": "LINEAR, the 014 round-3 order: (1) harness/STUDY-MANIFEST.sha256 covers the protocol documents, both matrix strata, every registry/ and harness/ source file, the harness tests, both vendored pack fixtures and every per-cell fixture manifest of the locked stratum, and covers NEITHER itself NOR this file; (2) this file pins that manifest's digest in studyManifest.sha256; (3) the freeze commit - together with the pinsRawSha256 stamp every attempt record carries (SHA-256 of this file's raw bytes, computed before the parse) - anchors this file.",
+  "registeredLabelRule": "harness/score.py labels an attempt REGISTERED only when EVERY freeze pin is non-null - preregistration, matrix, matrixHoldout, registrySpec, studyManifest. Any null makes it a PILOT. The non-null ones are enforced under both labels.",
+  "study014": {
+    "path": "../014-openworkproof-binding",
+    "note": "Decision D-1: Study 014's frozen sources are consumed exactly the way 014 consumes OpenWorkProof - as a pinned upstream, unmodified. harness/upstream014.py enforces every digest below before importing anything; 014's own STUDY-MANIFEST pins the same bytes from the other side, so a drift in either study refuses the run. adapter/verify.py runs layers OWP/BINDING/REPLAY unchanged; adapter/commitment.py is the shared commitment implementation; harness/owpflow.py and harness/build_fixtures.py are BUILD PATH ONLY (chain construction drives 014's flow machinery, which enforces 014's own OWP_SOURCE pins from harness/PINS.json - pinned here for exactly that reason); the pack fixture is the byte source for this study's vendored v0.1.0 pack.",
+    "files": {
+      "adapter/verify.py": "fe2093a382c3ae9a1dd257b53bfa18164a1ec3fae35e35efb8212bea3e9ce4bf",
+      "adapter/commitment.py": "e4f0d9ea41868539fe043b183ed72d61a17404ba8d8c5871b53d30357162d123",
+      "harness/owpflow.py": "d81f7839c5bd37802df33fcac29eb05faf401fbf7236a27d005b7e366000eb0b",
+      "harness/build_fixtures.py": "8fbf2744fc3e35d28c6ef89db8a645de47fc9a235523ea542a9388f3c41b7189",
+      "harness/PINS.json": "4cabdcfec0007b2b81f8cebf2092964c4e2b73b8b0b312d9b080a734086b0480",
+      "fixtures/minimal-expense-approval.pack.json": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60"
+    }
+  },
+  "openworkproof": {
+    "repo": "https://github.com/dengyier/OpenWorkProof",
+    "commit": "8eeca6fff4a246374f9d64f4dc1af6ace42118d5",
+    "license": "LICENSE file: Apache-2.0 (Copyright 2026 Chengdu Xinghuo Linghang Technology Co., Ltd.); packaging metadata (pyproject.toml, mcp.json) still declares MIT - inconsistency recorded as found, not resolved here",
+    "install": "git clone <repo> && git -C OpenWorkProof checkout 8eeca6f && pip install -r upstream/requirements-lock-pypi.txt && pip install --no-deps ./OpenWorkProof",
+    "lockfileNote": "upstream/requirements-lock-pypi.txt is byte-identical to Study 014's (the upstream requirements-lock.txt with its --index-url mirror line removed); both digests in upstream/MANIFEST.sha256.",
+    "venvPython": "3.12.11",
+    "lockedDependencyDigest": "236d5bd72e87bff2efd2aad9c51efbd6e44a0ae68a4057cfa0fc48d3ae236a2f",
+    "installedPackageDigest": "913001cdd440dbc74695b4bf5a85701cd003f22e51f675d234be78494a8c6458",
+    "installedPackageDigestAlgorithm": "sha256 over the installed `openworkproof` package directory resolved through importlib: every file that is not a __pycache__ artefact, sorted by package-relative POSIX path, hashed as `path \\0 bytes \\0`. Same algorithm and same value as Study 014's pin - the apparatus is byte-identical.",
+    "sourceUnmodified": true,
+    "buildTimeEntropyPin": "chain construction runs through Study 014's harness/owpflow.py, whose secrets.token_hex patch (build path only) is pinned by digest in study014.files above; no verification path involves entropy"
+  },
+  "jpack": {
+    "version": "0.17.0",
+    "releaseTag": "v0.17.0",
+    "releaseCommit": "da28fc6b8ca851dca4c24bb03c9eb64903400166",
+    "releaseAsset": "judgment-pack_0.17.0_linux_amd64.tar.gz",
+    "archiveSha256": "4046a101e3b638eee87f5d3f2f17b8337d2e4be35a34d45060789639b816d8dc",
+    "archiveVerified": "matches checksums.txt from the same release",
+    "binarySha256": "42f35f7900bea6dfce215631b50729ab22dd347289e1bde3412604fb043a22e9",
+    "reproducibleBuild": "reproduced byte-for-byte from the v0.17.0 tag before adoption: go1.26.5, CGO_ENABLED=0 GOAMD64=v1 go build -trimpath -ldflags '-s -w -X github.com/Judgment-Pack/judgment-pack-runtime/internal/result.CLIVersion=0.17.0' ./cmd/jpack, VCS stamping on (full clone at the tag)",
+    "evaluatorSpecVersion": "0.2.0-draft",
+    "dispositionParity": "verified before adoption: the v0.17.0 envelope is shape-identical to the 014-era v0.16.0 envelope on the baseline scenario and its canonical disposition bytes are equal; only tool.version differs, which is exactly what the commitment records",
+    "env": "JPACK_BIN"
+  },
+  "packs": {
+    "v1": {
+      "name": "minimal-expense-approval 0.1.0",
+      "source": "byte-for-byte from Study 014's vendored fixture (digest also pinned under study014.files)",
+      "sha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+      "packId": "https://example.com/judgment-packs/expense-approval",
+      "packVersion": "0.1.0",
+      "specVersion": "0.2.0-draft",
+      "path": "fixtures/packs/minimal-expense-approval-0.1.0.pack.json"
+    },
+    "v2": {
+      "name": "minimal-expense-approval 0.2.0",
+      "source": "deterministic transform of v1: version 0.1.0 -> 0.2.0, approval threshold 5000 -> 6000; the successor release of the same series",
+      "sha256": "fc7896121e98d840ca7ba30505e4dc4c63bf5ae0ec7ac9a9c8bdd0529af42c70",
+      "packId": "https://example.com/judgment-packs/expense-approval",
+      "packVersion": "0.2.0",
+      "specVersion": "0.2.0-draft",
+      "path": "fixtures/packs/minimal-expense-approval-0.2.0.pack.json"
+    }
+  },
+  "registryAuthority": {
+    "note": "Study-minted, fixed-seed Ed25519 - a trust root of the apparatus, stated as such (the authority's independence is asserted by no one; the seeds are public deterministic fixtures, and nothing anywhere depends on their secrecy). Seeds: sha256 of the labels below. TWO trust roots are registered (round-1 R1-10; the draft's one-genesis-serves-the-matrix claim is withdrawn): genesisHead is the digest of the canonical [add expense-approval 0.1.0 @2026-01-01] checkpoint, shared by every expense-series history in the matrix; otherSeriesGenesisHead is the digest of the other-policy log's genesis, pinned by cur-series-unknown's trust configuration. Trust configurations are per-series (trustconfig.seriesId binds which series the pins confer authority over) and their minimumHeadPin member is caller-provisioned prior-acceptance state, not verifier-persisted storage (round-1 R1-5). Every member here is mechanically recomputed and compared by the scorer before adjudication.",
+    "authoritySeedLabel": "study-016/currency-authority/1",
+    "authorityPublicKey": "BNR2lWLk9WwjFE9XgI15Cy0s5tu/XeqlEffYr/PX+MY=",
+    "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
+    "foreignSeedLabel": "study-016/foreign-authority/1",
+    "foreignPublicKey": "89WkVDF3JpD/XNnXDibknS2elx4t7gSyQVIq8+VFqLo=",
+    "foreignKeyId": "ed25519:2c0ec5c84bfb0b94e2dfafce3134a1cf83dde871f0259d952838aab9f9526865",
+    "genesisHead": "sha256:f5cf4273076426256d7790bd9c453bb6209545e6d1571d511ba185074c311e3b",
+    "otherSeriesGenesisHead": "sha256:b1b2b53f0801e2984af07fb6de15f06c57dea570d7aa983433ea5be00d0a08af"
+  },
+  "harnessPython": {
+    "implementation": "CPython",
+    "series": "3.12",
+    "version": "3.12.11",
+    "note": "harness code runs in the same venv as the openworkproof package; the registry modules use rfc8785 and cryptography from that venv"
+  },
+  "matrix": {
+    "path": "harness/MATRIX.json",
+    "sha256": "e9f1b16f0b794b2b5f89cd9891f98bca524919054164270fb214ac62015d0d3a",
+    "note": "locked-replication cell expectations; digest filled at the freeze together with the preregistration digest. The frozen cell-id set is additionally asserted in harness/score.py, so a reduced registry cannot satisfy zero divergence"
+  },
+  "matrixHoldout": {
+    "path": "harness/MATRIX-HOLDOUT.json",
+    "sha256": "38a56c53811844b8c1775b6ec754e22c339ff7a8d48714e5c2b858fc61e1b8bd",
+    "note": "reviewer-authored holdout stratum, to be authored during the cross-vendor review rounds and committed verbatim with attribution, never executed pre-freeze; digest filled at the freeze. score.py --include-holdout is refused mechanically while preregistration.sha256 is null AND while this digest is null"
+  },
+  "registrySpec": {
+    "path": "registry/SPEC.md",
+    "sha256": "242cc73c19698978aa903856487e2b3ce52e42e17661bcbcafac8b59b13052e6",
+    "note": "the registered checkpoint/snapshot schema and Layer CURRENCY ceremony; registered with the preregistration, digest filled at the freeze"
+  },
+  "studyManifest": {
+    "path": "harness/STUDY-MANIFEST.sha256",
+    "sha256": "14c9665f2c78bd4eb14c7638894796767f3c60fb53f11b5e1bc174c828053fd6",
+    "generator": "harness/make_manifest.py",
+    "covers": "README.md, PREREGISTRATION.md, PREREG-REVIEW.md, registry/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, every registry/*.py and harness/*.py, harness/tests/*.py, upstream/*, fixtures/packs/*, and every fixtures/cells/*/MANIFEST.sha256",
+    "excludes": "harness/PINS.json (this file - it pins the manifest, so the manifest must not pin it)",
+    "note": "exact-set whole-study manifest; regenerated during drafting, pinned at the freeze"
+  },
+  "preregistration": {
+    "path": "PREREGISTRATION.md",
+    "sha256": "c4a52833b97599eca98d55e90dcda933162e085df37cea795fa258e7bc398f56",
+    "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; while it - or any other freeze pin - is null the attempt is a PILOT and cannot be REGISTERED."
+  }
+}

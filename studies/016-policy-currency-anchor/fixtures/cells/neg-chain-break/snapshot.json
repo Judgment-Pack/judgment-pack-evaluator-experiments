@@ -1,0 +1,44 @@
+{
+  "snapshotVersion": "1",
+  "checkpoints": [
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 1,
+        "seriesId": "https://example.com/judgment-packs/expense-approval",
+        "event": "add",
+        "packVersion": "0.1.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": null,
+        "packDigest": "sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60"
+      },
+      "checkpointDigest": "sha256:f5cf4273076426256d7790bd9c453bb6209545e6d1571d511ba185074c311e3b",
+      "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
+      "signature": "Z1lfjJbJftTx+Utq1GdPOAcIsB+/ERT8tnq5VwaR9OfGTntWzuiWSRsTNyqeIbx/XuZ8TPHfkCLhXppvP8eLDQ=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 2,
+        "seriesId": "https://example.com/judgment-packs/expense-approval",
+        "event": "add",
+        "packVersion": "0.2.0",
+        "effectiveFrom": "2026-01-15T00:00:00Z",
+        "previousCheckpointDigest": "sha256:dda54c7599877c9dc7d007b9f4c97a7a3d940f4098d2e0cd6aced4afd6cd71fb",
+        "packDigest": "sha256:fc7896121e98d840ca7ba30505e4dc4c63bf5ae0ec7ac9a9c8bdd0529af42c70"
+      },
+      "checkpointDigest": "sha256:9c23522d9b8683b0b6f9419e78b87d798b35179e83a5d3baad19a5d806b29273",
+      "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
+      "signature": "AupjNtCAXaJuxIoJvnER7ENWnOZk3bq032YcgZnBcT/0F0CwHZIys+lTkrSTRGnxNcLPwfUHvS+LsIx+MyJtBw=="
+    }
+  ],
+  "attestation": {
+    "payload": {
+      "snapshotVersion": "1",
+      "head": "sha256:9c23522d9b8683b0b6f9419e78b87d798b35179e83a5d3baad19a5d806b29273",
+      "position": 2
+    },
+    "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
+    "signature": "0AkvUQc2/dYQCuEiLxFSUAutWFlA1tazQd/QWOAB9S+TcYUVcb+q7sxAy4ykrBuBulfBWVUhQW3+B6SdlgrQAg=="
+  }
+}

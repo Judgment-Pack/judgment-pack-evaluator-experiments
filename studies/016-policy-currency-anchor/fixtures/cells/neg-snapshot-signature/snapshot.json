@@ -1,0 +1,29 @@
+{
+  "snapshotVersion": "1",
+  "checkpoints": [
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 1,
+        "seriesId": "https://example.com/judgment-packs/expense-approval",
+        "event": "add",
+        "packVersion": "0.1.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": null,
+        "packDigest": "sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60"
+      },
+      "checkpointDigest": "sha256:f5cf4273076426256d7790bd9c453bb6209545e6d1571d511ba185074c311e3b",
+      "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
+      "signature": "Z1lfjJbJftTx+Utq1GdPOAcIsB+/ERT8tnq5VwaR9OfGTntWzuiWSRsTNyqeIbx/XuZ8TPHfkCLhXppvP8eLDQ=="
+    }
+  ],
+  "attestation": {
+    "payload": {
+      "snapshotVersion": "1",
+      "head": "sha256:f5cf4273076426256d7790bd9c453bb6209545e6d1571d511ba185074c311e3b",
+      "position": 1
+    },
+    "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
+    "signature": "d+clKyotcg99itmPzphRCKkJkR+UQK4WDIlkVZ70zeJjtvAAV33OFvDmAHXi6mFOB/S6iykqtfFeZp2x14V2Dg=="
+  }
+}
