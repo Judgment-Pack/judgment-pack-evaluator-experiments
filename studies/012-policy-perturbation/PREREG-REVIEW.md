@@ -3683,3 +3683,72 @@ Unchanged since round 2, and unchanged by every disposition above:
 | **C** | 1815 | `77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a` |
 | **D** | 1815 | `bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5` |
 | **E** | 2082 | `8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e` |
+
+## The stopping rule, registered before round 18 was commissioned
+
+**Registered 2026-08-10, over commit `477b702`, with the tree manifest at
+`cf9c57383d9108ab79965c2943e06762814df98ebaf430de657bbb63d2a6e821` — before
+round 18 was commissioned and therefore before its findings were known.** The
+ordering is the point and it is checkable: the commit carrying this section
+precedes the commit carrying round 18's record in this repository's history.
+
+**The rule. The freeze binds to the manifest of the first review round that
+returns no finding the reviewer assigns the severity `blocking`.** Severity is
+the reviewing round's to assign, not the maintainer's to argue down; a round
+that returns should-fix and nit findings and no blocking finding ends clean for
+this purpose.
+
+**At that round, non-blocking findings are recorded as accepted residuals and
+are not fixed.** This is not laxity, it is the only terminating form: a
+disposition changes bytes, §2.10 rule 3 answers a covered-byte change with
+another round, and that round's own dispositions would do the same. Rounds 13
+through 15 made the record and the registry carriers precisely so the closing
+acts — writing this record, filling `freeze.preregistrationSha256` and
+`freeze.treeManifestSha256` — move no covered byte. The freezing round's
+attested manifest is therefore still the manifest of the frozen tree.
+
+**Why this bar rather than zero findings.** Nine rounds ran between 2026-08-08
+and 2026-08-10 with blocking counts 2, 4, 1, 0, 1, 2, 1, 2, 2. Across all nine,
+every independent re-derivation of the scientific instrument reconciled — the
+twenty arm artifacts and prompt equations, the six classes and 280-cell grids,
+the schedule balances, §3.3's partition, the interval vectors, the level,
+contrast and decision tables, C1-C10, `CLAIM.md` against its source, and the
+five retained clean-room mirrors — and every round from 12 onward said in its
+own words that the study's results would not overclaim their data if frozen.
+What kept failing was one layer up: whether the suite proves the harness's gates
+work, and whether this record described the suite's strength accurately.
+
+That is a real defect class and it is also unbounded. Round 17 demonstrated why:
+the mechanism built in round 16 to end scope-overclaim was itself found to
+overclaim its scope. "This check does not reach as far as its docstring says" is
+available at every level, including the checks that check the checks, so a
+zero-findings bar has no reason to terminate by iteration.
+
+**Two costs of not stopping, recorded so the choice is legible.** The policy
+family's clause wording, country codes and outcome vocabulary have been public
+in this repository since 2026-08-06. §9 registers contamination as a bound on
+interpretation: if arm E maintains coverage, "the author recognises this policy
+family" competes with "the author derives boundaries," and that competitor
+strengthens with every day the corpus stays public and unread. Polishing
+verification strength while the study's central ambiguity widens is the wrong
+trade. And each round costs roughly 400,000 to 650,000 reviewer tokens plus its
+verification; rounds 16 and 17 together needed six commissionings because of
+vendor failures unrelated to the study.
+
+**What is being accepted, named rather than implied.** The residuals stand as
+this record measures them: 21 of the scorer's 25 ledger cells derived and
+omission-proof but not behaviourally driven, including the gate §2.10 leans on;
+`score()`'s other pre-read region, roughly twenty sites, named and uncovered;
+the driver ledger's gate depth of one and its textual rather than executional
+pre-call bound; both ledgers author-visible rather than author-proof; the writer
+scan Python-only; `verify_mirror2()`, `verify_tree()` and `normalized_pins()`
+without full direct tests; §2.2's digest restatements checked by nothing; and
+§4.6's reading keyed on levels where the scorer keys on contrasts, registered as
+conservative. A reader who objects to freezing over any of these can object to a
+sentence that is written down.
+
+**If round 18 returns a blocking finding**, it is dispositioned as every round
+has been and the rule carries to round 19 unchanged. **If a blocking finding
+touches the arms, the endpoints, the decision rules or the claim** — the
+scientific instrument rather than the verification of it — this rule does not
+apply to it and the study does not freeze on that round whatever the count says.
