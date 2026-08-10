@@ -1,0 +1,87 @@
+{
+  "pinsVersion": "1",
+  "note": "Pin registry, 011-convention. It is a pin, not an attestation - but every non-null member here is now ENFORCED before adjudication, not merely declared: harness/score.py compares the preregistration, matrix, matrixHoldout, studyManifest and adapterSpec digests when they are filled, the jpack binary digest always, the vendored pack bytes always, openworkproof.installedPackageDigest always, harnessPython.version exactly, and openworkproof.lockedDependencyDigest against the lockfile's packages as installed in the running interpreter (name==version pairs resolved through importlib.metadata - a raw pip-freeze hash pinned the minting machine's filesystem paths, not the dependency set), and refuses to adjudicate on any mismatch. openworkproof.upstreamHelpers is enforced by harness/owpflow.py before it imports anything from the clone.",
+  "anchorOrder": "LINEAR, and in this order (round 3). Round 2 made the study manifest cover this file while this file stored that manifest's digest - a cycle that would resist laundering but cannot be initialized without a SHA-256 fixed point. Now: (1) harness/STUDY-MANIFEST.sha256 covers the code, the protocol documents and the locked stratum's per-cell fixture manifests, and covers NEITHER itself NOR this file; (2) this file pins that manifest's digest in studyManifest.sha256; (3) the freeze commit - together with the pinsSha256 stamp every attempt record carries - anchors this file. Each link is fillable in one pass, and after the freeze harness/make_manifest.py can still rewrite the manifest but cannot rewrite the digest pinned here. Holdout fixtures are outside the manifest because they are not under fixtures/ at all (round 4): they are constructed after the freeze into <attempt>/holdout-fixtures/<id>/, and their integrity travels via matrixHoldout.sha256, the per-cell MANIFEST.sha256 and CONSTRUCTION.json written inside the attempt, and the digests of both stamped into that attempt's record.",
+  "registeredLabelRule": "harness/score.py labels an attempt REGISTERED only when EVERY freeze pin below is non-null - preregistration, matrix, matrixHoldout, adapterSpec, studyManifest. Any null makes it a PILOT. Round 3 found a registered run was reachable with only the preregistration digest filled, which left the registry the attempt adjudicated unpinned. The non-null ones are enforced under both labels.",
+  "openworkproof": {
+    "repo": "https://github.com/dengyier/OpenWorkProof",
+    "commit": "8eeca6fff4a246374f9d64f4dc1af6ace42118d5",
+    "license": "LICENSE file: Apache-2.0 (Copyright 2026 Chengdu Xinghuo Linghang Technology Co., Ltd.); packaging metadata (pyproject.toml, mcp.json) still declares MIT - inconsistency recorded as found, not resolved here",
+    "install": "git clone <repo> && git -C OpenWorkProof checkout 8eeca6f && pip install -r upstream/requirements-lock-pypi.txt && pip install --no-deps ./OpenWorkProof",
+    "lockfileNote": "upstream/requirements-lock-pypi.txt is the upstream requirements-lock.txt with its --index-url line (a pinned PyPI mirror) removed; all package hashes byte-identical. Both digests in upstream/MANIFEST.sha256.",
+    "venvPython": "3.12.11",
+    "lockedDependencyDigest": "236d5bd72e87bff2efd2aad9c51efbd6e44a0ae68a4057cfa0fc48d3ae236a2f",
+    "installedPackageDigest": "913001cdd440dbc74695b4bf5a85701cd003f22e51f675d234be78494a8c6458",
+    "installedPackageDigestAlgorithm": "sha256 over the installed `openworkproof` package directory resolved through importlib: every file that is not a __pycache__ artefact, sorted by package-relative POSIX path, hashed as `path \\0 bytes \\0`. Enforced on every run, filled during drafting rather than at the freeze - the `pip freeze` line records this package only as a mutable local-file URL, so nothing else pins the bytes the verification path imports.",
+    "sourceUnmodified": true,
+    "buildHelperImports": "harness/owpflow.py (build path only) imports upstream test helpers read-only from the pinned clone via OWP_SOURCE, so upstream test bytes are never vendored into this repo. The verification path (adapter/, run_verify, score) imports only the installed package.",
+    "upstreamHelpers": {
+      "note": "Round 3: the builder used to import these after checking only that tests/conftest.py existed, so OWP_SOURCE could name any working tree. harness/owpflow.py:load_upstream now refuses unless the clone's HEAD equals `commit`, `git status --porcelain` reports no modified TRACKED file (untracked paths are ignored - an adjacent build/ directory changes nothing this builder reads), and every file below matches its digest. The list is exactly the upstream files owpflow imports or reads: nothing else is pinned, and a pin here for a file the builder does not import is itself a refusal.",
+      "commit": "8eeca6fff4a246374f9d64f4dc1af6ace42118d5",
+      "files": {
+        "tests/conftest.py": "b47adf181580a65b7ed315262ff71bd75271b5110ff2f5b334e2f0ce96cc3dc5",
+        "tests/test_delivery_m2.py": "e77c46412284c2a11bb30f9b629032a39dcf74dd93aa4085b2139de54640bc51",
+        "tests/test_independent_recomposition.py": "45f8837ffae0b7f1507a2865b2715fc1dc60656f6c624d4b116188ebf1d30811",
+        "tests/test_mcp_server.py": "cb45548477dc73eae1c2b7c7650eaef459413a29c129a33e282b3d050c3d1970",
+        "tests/test_receipt_chain.py": "f70ca2db861af411de9bf9244f167a257b7e736d4b0a7cd0b2ef6bfc06c396ff"
+      }
+    },
+    "buildTimeEntropyPin": "harness/build_fixtures.py patches secrets.token_hex with a counter-derived generator while constructing fixtures, because upstream receipt_id mixing has no injection seam. Build path only; no verification path involves entropy. The frozen fixture bytes, not the builder, are what the study scores."
+  },
+  "jpack": {
+    "version": "0.16.0",
+    "releaseTag": "v0.16.0",
+    "releaseCommit": "8fc375de09044c040baac0d94bc853dd6e5813ca",
+    "releaseAsset": "judgment-pack_0.16.0_linux_amd64.tar.gz",
+    "archiveSha256": "1a12503ca96061da3a8d5657528cea643668ef53a00a9b336e94755e2437ed59",
+    "archiveVerified": "matches checksums.txt from the same release",
+    "binarySha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "reproducibleBuild": "same pins Study 013 froze, including its reproducible-build corroboration (local v0.16.0 tag build reproduced the binary digest)",
+    "evaluatorSpecVersion": "0.2.0-draft",
+    "env": "JPACK_BIN"
+  },
+  "pack": {
+    "name": "minimal-expense-approval",
+    "source": "judgment-pack-spec examples/minimal-expense-approval.json (byte-identical in conformance/valid/ and the runtime 0.2.0-draft artifacts)",
+    "sha256": "76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60",
+    "packId": "https://example.com/judgment-packs/expense-approval",
+    "packVersion": "0.1.0",
+    "specVersion": "0.2.0-draft",
+    "path": "fixtures/minimal-expense-approval.pack.json",
+    "note": "vendored byte-for-byte under fixtures/; the study never fetches it, so nothing but this pin would notice a substitution - harness/score.py therefore compares the vendored bytes against this digest on every run, not only at the freeze"
+  },
+  "harnessPython": {
+    "implementation": "CPython",
+    "series": "3.12",
+    "version": "3.12.11",
+    "note": "harness code runs in the same venv as the openworkproof package; adapter uses rfc8785 from that venv for JCS"
+  },
+  "matrix": {
+    "path": "harness/MATRIX.json",
+    "sha256": "35ecf3e3a008e972a056b77d6e36950c89d6f3c2ea66e537cde8b662e97ebb20",
+    "note": "locked-replication cell expectations; digest filled at the freeze together with the preregistration digest. The frozen cell-id set is additionally asserted in harness/score.py, so a reduced registry cannot satisfy zero divergence"
+  },
+  "matrixHoldout": {
+    "path": "harness/MATRIX-HOLDOUT.json",
+    "sha256": "3668d677d2a5a5416378ece95d42cf0dac1fbc575e4b306e13f00fd75fda6ebd",
+    "note": "reviewer-authored holdout stratum, committed verbatim with attribution and never executed pre-freeze; digest filled at the freeze. score.py --include-holdout is refused mechanically while preregistration.sha256 is null AND while this digest is null, and enforced against these bytes once it is filled. It is the only route into the stratum: round 4 removed build_fixtures.py --holdout, so holdout bytes can only be produced inside an attempt, under <attempt>/holdout-fixtures/"
+  },
+  "studyManifest": {
+    "path": "harness/STUDY-MANIFEST.sha256",
+    "sha256": "fe93e8eb719b9d53154aeccd59d0004b9594ad104daa415158bc16488175f229",
+    "generator": "harness/make_manifest.py",
+    "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, every adapter/*.py and harness/*.py (including owpflow.py, where the build-time entropy algorithm lives), harness/tests/*.py, and every fixtures/**/MANIFEST.sha256 outside fixtures/holdout/",
+    "excludes": "harness/PINS.json (this file - it pins the manifest, so the manifest must not pin it) and fixtures/holdout/** (a standing guard: round 4 moved holdout construction into the attempt, so no holdout artifact is written under fixtures/ any more). See anchorOrder above; harness/make_manifest.py states both exclusions and a harness test asserts them.",
+    "note": "exact-set whole-study manifest; regenerated during drafting, pinned at the freeze. The manifest covers neither itself nor this registry, so filling this digest at the freeze anchors the freeze outside the regenerable set: after the freeze, regenerating the manifest changes this digest and the scorer refuses to adjudicate"
+  },
+  "preregistration": {
+    "path": "PREREGISTRATION.md",
+    "sha256": "29c7bcc9ef0a86ed5ffff756c18d08c71a44d8faab8cead02d9a026b7d66ee92",
+    "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; while it - or any other freeze pin - is null the attempt is a PILOT and cannot be REGISTERED."
+  },
+  "adapterSpec": {
+    "path": "adapter/SPEC.md",
+    "sha256": "d5e2d818f56dfd078cfd55686f539ff974b1d56d30d7a4ed3dea5cb721fdf955",
+    "note": "registered with the preregistration; digest filled at the freeze"
+  }
+}

@@ -70,6 +70,52 @@ jobs:
         working-directory: evidence-sufficiency
         run: python -m unittest test_replay -v
 
+  study-014-harness:
+    name: Study 014 · deterministic harness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          # The exact pinned interpreter, not the series: harness/PINS.json
+          # records 3.12.11 and harness/score.py refuses to adjudicate under
+          # anything else.
+          python-version: "3.12.11"
+      - name: Install OpenWorkProof at the pinned commit
+        # Hash-checked lockfile (upstream's, mirror index removed - see
+        # studies/014-openworkproof-binding/upstream/MANIFEST.sha256), then the
+        # package itself with no dependency resolution. Source is never vendored.
+        run: |
+          git clone https://github.com/dengyier/OpenWorkProof /tmp/OpenWorkProof
+          git -C /tmp/OpenWorkProof checkout --quiet 8eeca6fff4a246374f9d64f4dc1af6ace42118d5
+          python -m pip install --disable-pip-version-check -r studies/014-openworkproof-binding/upstream/requirements-lock-pypi.txt
+          python -m pip install --disable-pip-version-check --no-deps /tmp/OpenWorkProof
+          python -m pip install --disable-pip-version-check pytest
+      - name: Fetch the pinned jpack release and verify its digests
+        # The replay tuple's executable leg: archive and binary digests are the
+        # ones harness/PINS.json records; a mismatch fails the job.
+        run: |
+          curl -sSL -o /tmp/jpack.tar.gz https://github.com/Judgment-Pack/judgment-pack-runtime/releases/download/v0.16.0/judgment-pack_0.16.0_linux_amd64.tar.gz
+          echo "1a12503ca96061da3a8d5657528cea643668ef53a00a9b336e94755e2437ed59  /tmp/jpack.tar.gz" | sha256sum --check
+          mkdir -p /tmp/jpack-bin && tar -xzf /tmp/jpack.tar.gz -C /tmp/jpack-bin jpack
+          echo "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325  /tmp/jpack-bin/jpack" | sha256sum --check
+      - name: Run the adapter, control and fixture suite
+        # Deterministic and offline once the toolchain is staged: the suite
+        # verifies frozen fixture manifests, the whole-study manifest, the
+        # SPEC/code verdict vocabulary sync and per-code reachability, the
+        # upstream probes, a full rebuild of every cell, two byte-compared
+        # scorer runs, and the registered controls. Both OWP_SOURCE and
+        # JPACK_BIN are required - the suite fails rather than skips without
+        # them, which is why the clone staged above is exported here. The matrix
+        # adjudication itself is an attempt, not a test, and never runs here.
+        working-directory: studies/014-openworkproof-binding
+        env:
+          JPACK_BIN: /tmp/jpack-bin/jpack
+          OWP_SOURCE: /tmp/OpenWorkProof
+        run: python -m pytest harness/tests -q
+
   python:
     name: ${{ matrix.os }} · Python ${{ matrix.python }}
     strategy:

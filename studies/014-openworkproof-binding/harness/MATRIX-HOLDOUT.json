@@ -1,0 +1,138 @@
+{
+  "matrixVersion": "2",
+  "stratum": "reviewer-holdout",
+  "status": "AUTHORED-UNEXECUTED",
+  "note": "Authored verbatim by OpenAI Codex / GPT-5 / Study 014 round-2 cross-vendor adversarial reviewer. These cells were specified without execution and must remain unexecuted until the preregistration freezes. Holdout results must be reported separately from the locked-replication stratum.",
+  "cells": [
+    {
+      "id": "h01-retained-commitment-noncanonical",
+      "category": "A-judgment-artifact",
+      "variant": "artifact",
+      "role": "endpoint",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "construction": "Starting from baseline, append exactly one byte 0x0a to commitment.json and change no other artifact or signed byte; regenerate only the cell manifest.",
+      "expected": {
+        "owp": "pass",
+        "binding": "fail:commitment-schema-invalid",
+        "replay": "pass"
+      },
+      "note": "The retained document parses to the same object but is not the exact JCS byte string; replay still sources the canonical signed objective. This isolates the retained half of the byte-level rule.",
+      "author": "OpenAI Codex / GPT-5 / Study 014 round 2"
+    },
+    {
+      "id": "h02-objective-lone-surrogate",
+      "category": "E-replay-drift",
+      "variant": "resigned",
+      "role": "endpoint",
+      "attackerCapability": "full-keys",
+      "registeredAbsences": [],
+      "construction": "Full fixture-key rebuild using baseline artifacts and the baseline execution marker, but set WorkOrder.objective to the baseline commitment text after replacing the inner JSON substring \"expense-approval\" with \"expense-\\uD800approval\" using the six ASCII escape bytes; retain canonical baseline commitment.json and rebuild every OWP receipt, report, and acceptance artifact consistently around the signed WorkOrder.",
+      "expected": {
+        "owp": "pass",
+        "binding": "fail:commitment-schema-invalid",
+        "replay": "unavailable"
+      },
+      "note": "The signed objective is syntactically JSON but not I-JSON because its decoded string contains an unpaired surrogate. The binding layer must return its registered schema code rather than crash; no conforming signed commitment remains for replay.",
+      "author": "OpenAI Codex / GPT-5 / Study 014 round 2"
+    },
+    {
+      "id": "h03-duplicate-supported-extension",
+      "category": "E-replay-drift",
+      "variant": "resigned",
+      "role": "endpoint",
+      "attackerCapability": "full-keys",
+      "registeredAbsences": [],
+      "construction": "Full fixture-key rebuild of baseline after setting judgment.supportedExtensions to [\"https://example.com/ext/unused\", \"https://example.com/ext/unused\"]; JCS-serialize the commitment into WorkOrder.objective, bind its derived commitment digest into the executing request and correlation factors, and rebuild the whole OWP chain while leaving retained judgment artifacts unchanged.",
+      "expected": {
+        "owp": "pass",
+        "binding": "fail:commitment-schema-invalid",
+        "replay": "unavailable"
+      },
+      "note": "Expectation treats SPEC section 1's supported-extension set as a set, so duplicate members are invalid. Ambiguity deliberately exposed: the current validator checks ordering but not uniqueness and would pass the same CLI flag twice. This is expected to diverge from the current implementation unless R2-8 is fixed before freeze.",
+      "author": "OpenAI Codex / GPT-5 / Study 014 round 2"
+    },
+    {
+      "id": "h04-implicit-empty-evidence-replay",
+      "category": "E-replay-drift",
+      "variant": "resigned",
+      "role": "endpoint",
+      "attackerCapability": "full-keys",
+      "registeredAbsences": [
+        "evidence"
+      ],
+      "construction": "Starting from baseline, omit evidence.json, set judgment.evidenceDigest to null, retain the baseline approve evaluator envelope and baseline non-null action, rebuild both commitment binding points, and rebuild the entire OWP chain with fixture keys. Do not otherwise alter pack.json or facts.json.",
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "fail:replay-disposition-mismatch"
+      },
+      "note": "This isolates Core's implicit-empty evidence case. Binding is internally consistent with the declared null and registered absence, but replay without the evidence that supported approval must reject the stale committed disposition.",
+      "author": "OpenAI Codex / GPT-5 / Study 014 round 2"
+    },
+    {
+      "id": "h05-evaluator-spec-version-only",
+      "category": "E-replay-drift",
+      "variant": "resigned",
+      "role": "endpoint",
+      "attackerCapability": "full-keys",
+      "registeredAbsences": [],
+      "construction": "Full fixture-key rebuild of baseline changing only judgment.evaluatorSpecVersion to \"0.9.9-draft\"; keep executableDigest, evaluatorRelease, pack specVersion, dispositionDigest, and every retained judgment artifact at baseline values, and rebind both commitment points consistently.",
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "fail:replay-spec-version-mismatch"
+      },
+      "note": "Separates evaluatorSpecVersion from e23's earlier executableDigest/evaluatorRelease first failure and pins the replay-code boundary for this tuple member.",
+      "author": "OpenAI Codex / GPT-5 / Study 014 round 2"
+    },
+    {
+      "id": "h06-cross-execution-evaluation-artifact",
+      "category": "C-disposition",
+      "variant": "artifact",
+      "role": "endpoint",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "construction": "Copy baseline byte-for-byte, then replace only evaluation.json with evaluation.json from c10-reject-executed; leave bundle.json, commitment.json, pack.json, facts.json, and evidence.json unchanged and regenerate only the cell manifest.",
+      "expected": {
+        "owp": "pass",
+        "binding": "fail:disposition-digest-mismatch-retained",
+        "replay": "pass"
+      },
+      "note": "A cross-execution swap at the retained-envelope boundary: OWP does not consume this adapter artifact, binding must reject it, and replay from the still-baseline signed tuple must remain green.",
+      "author": "OpenAI Codex / GPT-5 / Study 014 round 2"
+    },
+    {
+      "id": "h07-self-consistent-wrong-action",
+      "category": "D-action",
+      "variant": "resigned",
+      "role": "endpoint",
+      "attackerCapability": "full-keys",
+      "registeredAbsences": [],
+      "construction": "Full fixture-key rebuild of baseline executing a canonical patch that creates decision-actions/disburse-other.json. Recompute commitment.action.argumentsDigest from that alternate target's exact ApplyPatchArguments so the commitment and executing receipt match each other, bind the resulting commitment at both points, and apply the patch through the real upstream executor.",
+      "expected": {
+        "owp": "pass",
+        "binding": "fail:action-map-violation",
+        "replay": "pass"
+      },
+      "note": "Unlike d16, the receipt and committed arguments agree. The failure must therefore occur at the registered disposition-to-action map, which permits only decision-actions/disburse.json, not at action-arguments-mismatch.",
+      "author": "OpenAI Codex / GPT-5 / Study 014 round 2"
+    },
+    {
+      "id": "h08-semantic-facts-remint-control",
+      "category": "control-positive",
+      "variant": "resigned",
+      "role": "control-gate",
+      "attackerCapability": "full-keys",
+      "registeredAbsences": [],
+      "construction": "Append exactly one byte 0x0a to baseline facts.json, evaluate those exact bytes with the pinned evaluator, recompute factsDigest, dispositionDigest, and the canonical action from the parsed facts, then rebuild the complete OWP chain and both commitment points through the real patch executor.",
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass"
+      },
+      "note": "Holdout negative control: a semantic-preserving JSON whitespace change is allowed when every exact-byte digest, replay artifact, action, and receipt is coherently rebound.",
+      "author": "OpenAI Codex / GPT-5 / Study 014 round 2"
+    }
+  ]
+}
