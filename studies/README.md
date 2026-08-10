@@ -1,0 +1,63 @@
+# Studies index
+
+Preregistered experiments about the Judgment Pack evaluator. Each study answers one
+question, pins its inputs by digest, and reports its result whichever way it lands —
+negative and undetected results are kept, not dropped. Nothing here is normative: a study
+is empirical evidence *about* the specification, authored deliberately outside the
+specification repository. See the [repository README](../README.md) for how the efficacy
+and agreement tracks are kept separate and why.
+
+## The studies
+
+| № | Question | Theme | External source | Status |
+| --- | --- | --- | --- | --- |
+| [001](001-policy-representation/) | Does representing a policy as a judgment pack change how reliably a model applies it? | Expressiveness / efficacy | RuleArena | Run — expressiveness result |
+| [002](002-qualitative-policy/) | Does the determination boundary reproduce on a *qualitative* policy? | Expressiveness | τ²-bench | Run — expressiveness result |
+| [003](003-escape-census/) | The escape census: across twelve real decisions, how often does judgment escape the pack? | Expressiveness | τ²-bench | Run — 12/12 decisions |
+| [004](004-composition-closure/) | Does declared composition close the census's cross-decision escape? | Composition | — | Preregistered, not yet run |
+| [005](005-semantic-source-discovery/) | Semantic source discovery. | Trustworthy input | — | Run |
+| [006](006-evidence-lineage-gate/) | The evidence-lineage gate: can a fabricated fact reach evaluation? | Trustworthy input | — | Run |
+| [007](007-evidence-lineage-model-replication/) | Evidence-lineage model replication. | Trustworthy input | — | Run (frozen) |
+| [008](008-portable-derivation-admission/) | Portable-derivation admission. | Trustworthy input | — | Run (frozen) |
+| [009](009-transcribed-oracle-matrix/) | The transcribed-oracle matrix — a constructed existence witness. | Blinded authorship | codex-cli (author) | Run (frozen) |
+| [010](010-blinded-oracle/) | The blinded oracle. | Blinded authorship | codex-cli (author) | Run (frozen) |
+| [011](011-authorship-coverage-rates/) | Coverage rates for blinded record authorship. | Blinded authorship | codex-cli (author) | Run (frozen) |
+| [013](013-agent-eval-forge-integration/) | Can an independently developed agent-regression harness see the judgment/integration boundary? | Interoperability | Agent Eval Forge | Frozen + run — R1 holds (both strata) |
+| [014](014-openworkproof-binding/) | Can an independently developed receipt protocol bind an executed action to the exact judgment that authorized it? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
+
+Study 012 (policy-surface perturbation) is preregistered on its own branch and not yet
+merged. "Frozen + run" marks the studies that passed a preregistration through
+cross-vendor adversarial review, froze it, and executed the registered primary attempt;
+each study's own `PREREGISTRATION.md`, `PREREG-REVIEW.md`, and results carry the detail
+the status column compresses.
+
+## Independent open-source projects these studies build on
+
+Third-party projects the studies pin and test against, credited with their exact pinned
+state and license. Every study also records these in its own `PINS.json` / `upstream/`;
+this table is a rollup, not the source of truth. None of these projects is affiliated
+with Judgment Pack — that independence is the point of the studies that use them.
+
+| Project | Used by | Repository | Pinned commit | License |
+| --- | --- | --- | --- | --- |
+| RuleArena | [001](001-policy-representation/) | [SkyRiver-2000/RuleArena](https://github.com/SkyRiver-2000/RuleArena) | `3b9e2256` | MIT |
+| τ²-bench | [002](002-qualitative-policy/), [003](003-escape-census/) | [sierra-research/tau2-bench](https://github.com/sierra-research/tau2-bench) | `1d244f5d` | MIT |
+| Agent Eval Forge | [013](013-agent-eval-forge-integration/) | [deghosal-2026/agent-eval-forge](https://github.com/deghosal-2026/agent-eval-forge) | `8925cacc` | MIT © Debashish Ghosal |
+| OpenWorkProof | [014](014-openworkproof-binding/) | [dengyier/OpenWorkProof](https://github.com/dengyier/OpenWorkProof) | `8eeca6ff` | Apache-2.0 (per `LICENSE`) |
+
+The evaluator under test is the [judgment-pack-runtime](https://github.com/Judgment-Pack/judgment-pack-runtime)
+release binary, pinned by release tag and executable digest per study. The blinded-authorship
+and interoperability studies use [codex-cli](https://github.com/openai/codex) as an
+independent-vendor author or adversarial reviewer, pinned by version; that
+cross-vendor separation is what makes those studies evidence rather than self-report.
+
+## Reading a study
+
+Every study directory carries, at minimum: a `README.md` (what it is), a
+`PREREGISTRATION.md` (the registered protocol, frozen before results), a `DEVIATIONS.md`
+(corrections after the freeze, never by editing the preregistration), and its results.
+Interoperability and blinded-authorship studies additionally carry a `PREREG-REVIEW.md`
+with the verbatim cross-vendor review rounds and their dispositions. The invariant across
+all of them: preregistration and public harness first, results second, and the ceiling
+stated plainly — these studies establish binding, lineage, and expressiveness, never that
+a policy or a fact is true.
