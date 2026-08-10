@@ -1,0 +1,60 @@
+{
+  "gatekeepers": [
+    {
+      "id": 1,
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "resourceUrl": "https://other-tracker.example/mcp#server=other",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "other_create_work_item",
+          "description": "Create a work item in the tracker.",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    }
+  ],
+  "autoApproveTags": [],
+  "stagedCalls": [
+    {
+      "gatekeeperId": 2,
+      "action": 21,
+      "toolName": "other_create_work_item",
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      },
+      "resourceRevisionAtStage": "rev-7",
+      "connectorOutcome": "committed",
+      "commitmentDigest": "de7c68b143e09ece0e88450d17ea690b0a82a7612c9e59a0e2dfc2c18a7049a2"
+    }
+  ],
+  "observedCalls": [],
+  "drainWitnesses": [],
+  "world": {
+    "resourceRevisionAtApply": {
+      "2:21": "rev-7"
+    }
+  },
+  "effects": []
+}

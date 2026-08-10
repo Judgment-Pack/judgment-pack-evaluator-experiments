@@ -24,9 +24,14 @@ and agreement tracks are kept separate and why.
 | [011](011-authorship-coverage-rates/) | Coverage rates for blinded record authorship. | Blinded authorship | codex-cli (author) | Run (frozen) |
 | [013](013-agent-eval-forge-integration/) | Can an independently developed agent-regression harness see the judgment/integration boundary? | Interoperability | Agent Eval Forge | Frozen + run — R1 holds (both strata) |
 | [014](014-openworkproof-binding/) | Can an independently developed receipt protocol bind an executed action to the exact judgment that authorized it? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
+| [015](015-cloudflare-os-boundary/) | Can a third party prove offline which judgment authorized which staged action on a governed-agent platform — and what can neither system see? | Interoperability | Cloudflare OS | **Draft — five review rounds, not frozen** |
 
 Study 012 (policy-surface perturbation) is preregistered on its own branch and not yet
-merged. "Frozen + run" marks the studies that passed a preregistration through
+merged. Study 015 is merged as a **draft**: five consecutive cross-vendor review rounds
+each returned DO-NOT-FREEZE, every blocker they raised is closed, and the remaining open
+items are listed in its `PREREG-REVIEW.md`. It is registered evidence of a boundary and of
+a review process, not a frozen result, and nothing in it may be cited as one.
+"Frozen + run" marks the studies that passed a preregistration through
 cross-vendor adversarial review, froze it, and executed the registered primary attempt;
 each study's own `PREREGISTRATION.md`, `PREREG-REVIEW.md`, and results carry the detail
 the status column compresses.
@@ -44,6 +49,7 @@ with Judgment Pack — that independence is the point of the studies that use th
 | τ²-bench | [002](002-qualitative-policy/), [003](003-escape-census/) | [sierra-research/tau2-bench](https://github.com/sierra-research/tau2-bench) | `1d244f5d` | MIT |
 | Agent Eval Forge | [013](013-agent-eval-forge-integration/) | [deghosal-2026/agent-eval-forge](https://github.com/deghosal-2026/agent-eval-forge) | `8925cacc` | MIT © Debashish Ghosal |
 | OpenWorkProof | [014](014-openworkproof-binding/) | [dengyier/OpenWorkProof](https://github.com/dengyier/OpenWorkProof) | `8eeca6ff` | Apache-2.0 (per `LICENSE`) |
+| Cloudflare OS | [015](015-cloudflare-os-boundary/) | [cloudflare/cloudflare-os](https://github.com/cloudflare/cloudflare-os) | `b2a51b54` | Apache-2.0 (per `LICENSE`) |
 
 The evaluator under test is the [judgment-pack-runtime](https://github.com/Judgment-Pack/judgment-pack-runtime)
 release binary, pinned by release tag and executable digest per study. The blinded-authorship

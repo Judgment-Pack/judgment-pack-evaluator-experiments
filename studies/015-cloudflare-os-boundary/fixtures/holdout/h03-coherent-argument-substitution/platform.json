@@ -1,0 +1,44 @@
+{
+  "gatekeepers": [
+    {
+      "id": 1,
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    }
+  ],
+  "autoApproveTags": [],
+  "stagedCalls": [
+    {
+      "gatekeeperId": 1,
+      "action": 11,
+      "toolName": "tracker_create_work_item",
+      "arguments": {
+        "kind": "someone-else-entirely",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      },
+      "resourceRevisionAtStage": "rev-7",
+      "connectorOutcome": "committed",
+      "commitmentDigest": "18f608abf046015c640713b285ca8581394bc7e64b316e78d39e06f5f2bb9130"
+    }
+  ],
+  "observedCalls": [],
+  "drainWitnesses": [],
+  "world": {
+    "resourceRevisionAtApply": {
+      "1:11": "rev-7"
+    }
+  },
+  "effects": []
+}

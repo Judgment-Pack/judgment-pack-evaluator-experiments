@@ -1,0 +1,11 @@
+{
+  "commitmentDigest": "ea6a2b66cf1f16b6480721ea2ee717618dc43fbe0b40d44b6707cd67ad069a0b",
+  "decision": {
+    "kind": "outcome",
+    "outcomeId": "proceed",
+    "reasons": [],
+    "handoffState": "none"
+  },
+  "execution": "effect-attested",
+  "note": ""
+}

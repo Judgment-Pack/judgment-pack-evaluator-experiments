@@ -1,0 +1,13 @@
+{
+  "commitmentDigest": "83dd29f481b5e8b79c4f4330beeb849439eab46f115a46b8eeab39d4ceaf69f8",
+  "decision": {
+    "kind": "not-applicable",
+    "outcomeId": null,
+    "reasons": [
+      "not-applicable"
+    ],
+    "handoffState": "requested"
+  },
+  "execution": "effect-attested",
+  "note": ""
+}

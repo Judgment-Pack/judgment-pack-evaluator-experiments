@@ -1,0 +1,142 @@
+{
+  "matrixVersion": "1",
+  "stratum": "reviewer-holdout",
+  "note": "Authored by the Study 015 pre-freeze cross-vendor reviewer from static inspection only. No holdout construction was executed.",
+  "reviewer": "OpenAI Codex — Study 015 pre-freeze adversarial review, 2026-08-09",
+  "cells": [
+    {
+      "id": "h01-clarify-bound-execution",
+      "category": "S-semantic-collapse",
+      "variant": "bridge-behavior",
+      "role": "endpoint",
+      "attackerCapability": "bridge",
+      "registeredAbsences": [],
+      "platformChecksEngaged": [],
+      "construction": "Start from the registered clarify disposition used by b06. Instead of leaving the out-of-band execution unbound, place the canonical proceed action into the staged-call queue, rebuild the commitment with that non-null action, put the same commitment digest at both binding points, add a manually approved ledger row at resource revision 7, add the matching effect attestation, and report execution as effect-attested.",
+      "expected": {
+        "cf": "pass",
+        "binding": "fail:action-map-violation",
+        "replay": "pass"
+      },
+      "note": "Exercises clarify-with-bound-execution. It differs from b06 because the execution is fully bound to the bridge commitment."
+    },
+    {
+      "id": "h02-approval-digest-laundered-as-artifact",
+      "category": "S-semantic-collapse",
+      "variant": "bridge-behavior",
+      "role": "endpoint",
+      "attackerCapability": "bridge",
+      "registeredAbsences": [],
+      "platformChecksEngaged": [],
+      "construction": "Start from the honest manual proceed case. Compute SHA-256 over the JCS bytes of the first approval-ledger record, use the resulting sha256 reference as evidenceBacking.sponsor with kind artifact, retain no sponsor artifact having those bytes, rebuild the commitment and both binding points, and otherwise retain the canonical staged call, ledger state, effect, and report.",
+      "expected": {
+        "cf": "pass",
+        "binding": "pass",
+        "replay": "pass"
+      },
+      "note": "Predicted blind spot: the verifier checks the artifact label and digest shape but not existence or preimage."
+    },
+    {
+      "id": "h03-coherent-argument-substitution",
+      "category": "B-binding-integrity",
+      "variant": "coherent-rebuild",
+      "role": "endpoint",
+      "attackerCapability": "store",
+      "registeredAbsences": [],
+      "platformChecksEngaged": [],
+      "construction": "Start from the honest manual proceed case. In the canonical action arguments, locate the lexicographically first JSON Pointer whose value is a string and replace that value with the literal someone-else-entirely. Recompute the JCS arguments digest, rebuild the commitment, update both commitment binding points, and make the staged call and manually approved ledger row carry the substituted arguments. Retain no effect and report execution as applied.",
+      "expected": {
+        "cf": "pass",
+        "binding": "pass",
+        "replay": "pass"
+      },
+      "note": "All binding records agree with one another, but the action is no longer the registered deterministic action derived from the unchanged facts."
+    },
+    {
+      "id": "h04-coherent-target-and-kind-substitution",
+      "category": "B-binding-integrity",
+      "variant": "coherent-rebuild",
+      "role": "endpoint",
+      "attackerCapability": "store",
+      "registeredAbsences": [],
+      "platformChecksEngaged": [],
+      "construction": "Start from the honest manual proceed case. Add a second gatekeeper and resource with a catalog entry for create_work_item. Change every target-bearing commitment, staged-call, and ledger field to that second gatekeeper/resource; change actionKindTag to the literal reviewer-forged-scope:create_work_item; rebuild the commitment and both binding points; retain canonical arguments and resource revision 7; retain no effect and report execution as applied.",
+      "expected": {
+        "cf": "pass",
+        "binding": "pass",
+        "replay": "pass"
+      },
+      "note": "Predicted blind spot: target and action-kind semantics are checked only for downstream self-consistency, not derived from the unchanged facts or upstream scope rule."
+    },
+    {
+      "id": "h05-phantom-staged-report",
+      "category": "B-binding-integrity",
+      "variant": "bridge-behavior",
+      "role": "endpoint",
+      "attackerCapability": "bridge",
+      "registeredAbsences": [],
+      "platformChecksEngaged": [],
+      "construction": "Start from the honest proceed judgment and retain its non-null canonical action commitment. Retain platform.json and ledger.json as present files but set stagedCalls and action records to empty arrays. Retain the commitment digest in report.json and report execution as staged.",
+      "expected": {
+        "cf": "pass",
+        "binding": "pass",
+        "replay": "pass"
+      },
+      "note": "Predicted blind spot: report state staged is not required to have a corresponding staged call."
+    },
+    {
+      "id": "h06-autoapproval-rule-removed-after-apply",
+      "category": "M-annotation-trust",
+      "variant": "environment",
+      "role": "endpoint",
+      "attackerCapability": "environment",
+      "registeredAbsences": [],
+      "platformChecksEngaged": [
+        "classifyTool",
+        "AutoApprovalDrainer"
+      ],
+      "construction": "Start from the honest auto-approved baseline after its action has been applied and effect-attested. Modify only the retained final platform snapshot by removing the matching auto-approval rule or tag; leave the tool catalog, action row, autoApproved flag, staged call, commitment, effect, and report unchanged.",
+      "expected": {
+        "cf": "fail:drain-order-violation",
+        "binding": "pass",
+        "replay": "pass"
+      },
+      "note": "A legitimate historical approval becomes a replay failure because the ceremony uses current rule state rather than stage-time state."
+    },
+    {
+      "id": "h07-drain-final-state-erases-manual-gate",
+      "category": "B-binding-integrity",
+      "variant": "coherent-rebuild",
+      "role": "endpoint",
+      "attackerCapability": "store",
+      "registeredAbsences": [],
+      "platformChecksEngaged": [
+        "classifyTool",
+        "AutoApprovalDrainer"
+      ],
+      "construction": "Start from the honest auto-approved baseline. On the same gatekeeper, prepend a lower-numbered action for a cataloged tool that requires manual approval. Give that lower action final state rejected with its resolution timestamp later than the higher action's claimed auto-approval timestamp. Leave the higher bound action autoApproved and effect-attested with the live matching rule. The lower rejected action has no commitment binding and no effect.",
+      "expected": {
+        "cf": "pass",
+        "binding": "pass",
+        "replay": "pass"
+      },
+      "note": "Historically the drainer could not cross the lower pending manual gate. Reset replay leaves it rejected and therefore erases the obstruction."
+    },
+    {
+      "id": "h08-outcome-unknown-reported-applied",
+      "category": "M-annotation-trust",
+      "variant": "bridge-behavior",
+      "role": "endpoint",
+      "attackerCapability": "bridge",
+      "registeredAbsences": [],
+      "platformChecksEngaged": [],
+      "construction": "Start from the canonical manually staged proceed action with valid commitment binding. Leave its outer ledger row pending with no resolvedBy and no appliedAt, retain no effect attestation, and put the literal connector outcome unknown in the report note. Set report execution to applied rather than applied-unproven.",
+      "expected": {
+        "cf": "pass",
+        "binding": "pass",
+        "replay": "pass"
+      },
+      "note": "Supplies the missing applied-unproven-to-applied overclaim endpoint using the outer state that pinned source can actually retain after a thrown outcome-unknown failure."
+    }
+  ]
+}

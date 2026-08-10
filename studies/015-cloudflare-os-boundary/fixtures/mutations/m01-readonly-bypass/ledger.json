@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "gatekeeperId": 1,
+    "resourceTitle": "Tracker",
+    "resourceUrl": "https://tracker.example/mcp#server=tracker",
+    "caller": {
+      "from": "agent",
+      "chatId": 1
+    },
+    "createdAt": "2026-08-01T00:01:00.000Z",
+    "state": "approved",
+    "type": "observation",
+    "description": {
+      "title": "tracker portal / tracker: trackercreateworkitem",
+      "description": "**tracker portal / tracker** → `tracker_create_work_item`\n\n> Create a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"provision-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp`\n\nThe server declares this tool read-only, so it runs without approval. That claim comes from the server itself."
+    }
+  }
+]

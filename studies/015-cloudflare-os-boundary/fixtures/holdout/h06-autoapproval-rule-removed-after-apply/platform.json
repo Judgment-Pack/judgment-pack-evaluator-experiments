@@ -1,0 +1,80 @@
+{
+  "gatekeepers": [
+    {
+      "id": 1,
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    }
+  ],
+  "autoApproveTags": [],
+  "stagedCalls": [
+    {
+      "gatekeeperId": 1,
+      "action": 11,
+      "toolName": "tracker_create_work_item",
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      },
+      "resourceRevisionAtStage": "rev-7",
+      "connectorOutcome": "committed",
+      "commitmentDigest": "1a9c46e9e7fa280f1c9df9a7e2322447324fe6e37a61012826cdeb035fec3d96"
+    }
+  ],
+  "observedCalls": [],
+  "drainWitnesses": [
+    {
+      "gatekeeperId": 1,
+      "pass": 1,
+      "at": "2026-08-01T00:31:00.000Z",
+      "appliedActionIds": [
+        1
+      ],
+      "rules": [
+        {
+          "gatekeeperId": 1,
+          "actionKind": {
+            "tag": "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker:tracker_create_work_item",
+            "label": "tracker_create_work_item"
+          },
+          "enabledBy": {
+            "type": "user",
+            "id": "governor@example.invalid",
+            "name": "Governor"
+          }
+        }
+      ],
+      "gatekeeperPresent": true
+    }
+  ],
+  "world": {
+    "resourceRevisionAtApply": {
+      "1:11": "rev-7"
+    }
+  },
+  "effects": [
+    {
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "toolName": "tracker_create_work_item",
+      "gatekeeperId": 1,
+      "action": 11,
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      }
+    }
+  ]
+}

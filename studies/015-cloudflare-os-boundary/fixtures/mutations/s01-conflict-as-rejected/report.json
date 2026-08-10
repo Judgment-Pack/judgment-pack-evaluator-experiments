@@ -1,0 +1,11 @@
+{
+  "commitmentDigest": "06fefddc441739c99a0e5131685608250a053d74e3d437df8cc7798f9ce51dee",
+  "decision": {
+    "kind": "outcome",
+    "outcomeId": "rejected",
+    "reasons": [],
+    "handoffState": "requested"
+  },
+  "execution": "none",
+  "note": "request rejected by the judgment"
+}

@@ -1,0 +1,145 @@
+{
+  "pinsVersion": "1",
+  "note": "Pin registry, 011-convention. Round 2 found the earlier blanket claim that 'every non-null pin is enforced' was false, so every member is now classified explicitly by `enforcement`: SCORER (compared against the live artefact by harness/score.py before anything is adjudicated; a mismatch is terminal pipeline-invalidity), CI (enforced by the workflow's install steps, not by the scorer), or DESCRIPTIVE (recorded provenance the scorer does not check). Only SCORER members are load-bearing at adjudication time.",
+  "cloudflareOs": {
+    "repo": "https://github.com/cloudflare/cloudflare-os",
+    "commit": "b2a51b5426398c8353d9d4dd984bd525121ab5f2",
+    "license": "Apache-2.0 (LICENSE at the pin); the repository is described by Cloudflare as a v2 early-access rewrite with no tagged release, so the commit is the only available behavioral baseline",
+    "install": "git clone <repo> && git -C cloudflare-os checkout b2a51b5 && corepack-pinned pnpm install --frozen-lockfile --ignore-scripts (upstream's own pnpm-lock.yaml; no postinstall scripts exist in the workspace; --ignore-scripts additionally keeps dependency build scripts inert — the probes execute none of them)",
+    "lockfileSha256": "3bc179348c4030be4484b8298a69d8ac9aa675084506b5b0d2d01e6df9906765",
+    "pnpmVersion": "11.17.0",
+    "sourceUnmodified": true,
+    "env": "CFOS_SOURCE",
+    "probedFiles": {
+      "packages/mcp-shared/src/tools.ts": "657214f3b8d0bd568ab4fcfd9cf1905d26aa8783410d76c3ce3a2d90985f5112",
+      "packages/mcp-shared/src/util.ts": "08219a2050d99e7551be2b930c1ec42d7395679b9eb99ba95ce0dc967103db18",
+      "packages/workshop-backend/src/auto-approval.ts": "94583ec27d7a4ecde63c0a2cfc2346b70d32d6851c2042c2ab3d4e675f8f3dfe",
+      "packages/workshop-backend/__tests__/mock-storage.ts": "34fa561202c1fdcd5a375677f31bc00380fc8b264b4c582234def7086d431e8d",
+      "packages/typed-storage/src/index.ts": "4277fc48d1f03650ec7a604ae060e416c71859d37b119aa8d3157178b79bac0c",
+      "packages/workshop-shared/src/gatekeeper.ts": "a88783c6e98bad865b2afdfb049f73ec77e2d8672595c42b9487e3cf29fd80d2",
+      "packages/workshop-shared/src/api.ts": "bf72dca8cf86fe62474f660f82b5dde182fcf34661dba24a23245b7ea7a5bf11",
+      "packages/workshop-backend/src/overseer.ts": "866e9f3b70aa91993476ef72f458e83c4d1b77cdb3c3e422191c3a8556c5e78d"
+    },
+    "importNote": "The probes import tools.ts, auto-approval.ts, mock-storage.ts and typed-storage/src/index.ts as live code from the pinned clone (never vendored), bundled per invocation by the clone's own esbuild (upstream's vitest path needs a newer glibc than this apparatus provides — same pinned sources either way) and run under the pinned node. overseer.ts supplies the ActionRecord and AutoApproveTagRecord types harness/typecheck.py holds every retained record to, via the clone's own typescript under the backend package's own tsconfig. cloudflare:workers is aliased to probes/stubs/cloudflare-workers.ts, whose only runtime export used is an inert tracing object — the study's single injected seam, on the observability path only.",
+    "upstreamCiNode": "22.14.0 (the upstream repository's own CI pin, recorded as context; the harness pin below is what is enforced)",
+    "backendTypecheckFinding": "WITHDRAWN. An earlier draft recorded that binding fixtures to the server-side ActionRecord was not reproducible from the committed tree because the backend needed a wrangler-regenerated worker-configuration.d.ts. That was wrong: the file is tracked at the pin (git ls-files packages/workshop-backend/worker-configuration.d.ts), and `node scripts/build-format-blueprints.mjs` (run from the package directory, as the package's own test script does) followed by tsc -p packages/workshop-backend/tsconfig.json --noEmit exits 0 with zero diagnostics and leaves the tracked tree clean. The gate binds the real server-side type accordingly; see DEVIATIONS.md.",
+    "runtimeValidationNote": "The platform DOES validate at its live RPC boundary: ApprovalQueueImpl carries @validateRpc() (overseer.ts:9428), so submitAction's arguments — including the declared structure of ActionDescription — are checked on arrival by validators generated from the pinned TypeScript types at build time. What it ships no part of is OFFLINE verification of a retained or exported action record: those validators are inline closures inside the built Worker, bound to a live service method, structural only (every semantic commitment is an unconstrained string), and there is no digest, signature or action-log export anywhere in the pinned source. The study's load-bearing claim is the second sentence, and only the second.",
+    "connector": "The registered deployment is packages/gatekeeper-mcp-portal with MCP_PORTAL_TRUST_ANNOTATIONS=true. Round 2 established this is forced: the generic MCP connector hardwires `const TRUST: ServerTrust = \"byo\"` (gatekeeper-mcp/src/mcp.ts:77) with no deployment knob, and classifyTool requires `vetted` for auto-approval (mcp-shared/src/tools.ts:66-69), so a vetted auto-approvable write exists only on the portal (gatekeeper-mcp-portal/src/config.ts:34-36)."
+  },
+  "jpack": {
+    "version": "0.16.0",
+    "releaseTag": "v0.16.0",
+    "releaseCommit": "8fc375de09044c040baac0d94bc853dd6e5813ca",
+    "releaseAsset": "judgment-pack_0.16.0_linux_amd64.tar.gz",
+    "archiveSha256": "1a12503ca96061da3a8d5657528cea643668ef53a00a9b336e94755e2437ed59",
+    "archiveVerified": "matches checksums.txt from the same release",
+    "binarySha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "reproducibleBuild": "same pins Studies 013 and 014 froze, including Study 013's reproducible-build corroboration (local v0.16.0 tag build reproduced the binary digest)",
+    "evaluatorSpecVersion": "0.2.0-draft",
+    "env": "JPACK_BIN"
+  },
+  "pack": {
+    "name": "data-request-intake-triage",
+    "source": "judgment-pack-spec conformance/evaluation/packs/data-request-intake-triage.json at spec commit 15c3f1b28d87821f36ddbb0a637d9033a74b09da, vendored byte-for-byte under fixtures/; the study never fetches it",
+    "sha256": "5bdf53e5c283b5a7c7a04373cfa66a488b021c1e098254424c0de7a963ea8aca",
+    "packId": "https://example.invalid/judgment-packs/data-request-intake-triage",
+    "packVersion": "0.1.0",
+    "specVersion": "0.2.0-draft",
+    "conformanceCases": "facts and evidence-availability documents are taken verbatim from the same corpus's manifest.json (sha256 d2c8bf03285f5f3478f1c9074dcf0dfb2257211eba009879cd5d9f02cbb545b1) so every fixture disposition is a disposition the specification's own seed suite registers",
+    "conformanceCasesSha256": "d2c8bf03285f5f3478f1c9074dcf0dfb2257211eba009879cd5d9f02cbb545b1"
+  },
+  "harnessPython": {
+    "implementation": "CPython",
+    "series": "3.12",
+    "version": "3.12.11",
+    "pipFreezeSha256": "d4fd4a2f00cfa86c1eff880ae1137fbf74327bbf3a44d2f4d323c09a2b8fdc5d",
+    "requirements": "harness/requirements.txt (rfc8785 for JCS, pytest for the suite); the venv holds nothing else",
+    "note": "adapter uses rfc8785 from this venv for JCS; there is no OWP-style upstream Python dependency in this study"
+  },
+  "harnessNode": {
+    "version": "v22.23.1",
+    "note": "the node that runs the cf probe runner; self-reported by the runner per attempt and compared here by the scorer. Upstream pins 22.14.0 in its own CI; the divergence is recorded in cloudflareOs.upstreamCiNode and the probes depend on no 22.14-vs-22.23 behavior"
+  },
+  "matrix": {
+    "path": "harness/MATRIX.json",
+    "sha256": null,
+    "note": "locked-replication cell expectations; digest filled at the freeze together with the preregistration digest. The frozen cell-id set is additionally asserted in harness/score.py, so a reduced registry cannot satisfy zero divergence"
+  },
+  "matrixHoldout": {
+    "path": "harness/MATRIX-HOLDOUT.json",
+    "sha256": null,
+    "note": "reviewer-authored holdout stratum, committed verbatim with attribution and never executed pre-freeze; score.py --include-holdout is refused mechanically while preregistration.sha256 is null"
+  },
+  "studyManifest": {
+    "path": "harness/STUDY-MANIFEST.sha256",
+    "generator": "harness/make_manifest.py",
+    "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/PINS.json, harness/requirements.txt, the vendored pack and conformance-case bytes, every adapter/*.py and harness/*.py (tests included), every probes/*.ts and probes/stubs/*.ts, and every fixtures/**/MANIFEST.sha256 across both strata",
+    "note": "exact-set whole-study manifest; regenerated during drafting, pinned at the freeze. No digest is recorded here because this file is inside the manifest's own coverage"
+  },
+  "preregistration": {
+    "path": "PREREGISTRATION.md",
+    "sha256": null,
+    "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; the scorer refuses a registered (non-pilot) run while null."
+  },
+  "adapterSpec": {
+    "path": "adapter/SPEC.md",
+    "sha256": null,
+    "note": "registered with the preregistration; digest filled at the freeze"
+  },
+  "probeToolchain": {
+    "esbuild": "0.28.1",
+    "typescript": "5.9.3",
+    "note": "The two clone-provided tools that transform or check study inputs: esbuild bundles every probe entrypoint, typescript runs the fixture typecheck. Both are resolved from the pinned clone's own lockfile and both are self-reported per attempt by the upstream runner and compared here by the scorer — round 1 found esbuild was self-reported and never pinned."
+  },
+  "enforcement": {
+    "scorer": [
+      "preregistration.sha256",
+      "matrix.sha256",
+      "matrixHoldout.sha256",
+      "adapterSpec.sha256",
+      "jpack.binarySha256",
+      "pack.sha256",
+      "pack.conformanceCasesSha256",
+      "harnessPython.version",
+      "harnessPython.pipFreezeSha256",
+      "harnessNode.version",
+      "probeToolchain.esbuild",
+      "probeToolchain.typescript",
+      "cloudflareOs.commit",
+      "cloudflareOs.lockfileSha256",
+      "cloudflareOs.probedFiles",
+      "studyManifest (as an exact set)",
+      "the pinned clone's tracked tree being clean"
+    ],
+    "ci": [
+      "jpack.archiveSha256",
+      "jpack.releaseAsset",
+      "cloudflareOs.install",
+      "cloudflareOs.pnpmVersion"
+    ],
+    "descriptive": [
+      "cloudflareOs.repo",
+      "cloudflareOs.license",
+      "cloudflareOs.importNote",
+      "cloudflareOs.backendTypecheckFinding",
+      "cloudflareOs.runtimeValidationNote",
+      "cloudflareOs.upstreamCiNode",
+      "jpack.version",
+      "jpack.releaseTag",
+      "jpack.releaseCommit",
+      "jpack.archiveVerified",
+      "jpack.reproducibleBuild",
+      "jpack.evaluatorSpecVersion",
+      "pack.name",
+      "pack.source",
+      "pack.packId",
+      "pack.packVersion",
+      "pack.specVersion",
+      "pack.conformanceCases",
+      "harnessPython.implementation",
+      "harnessPython.series",
+      "harnessPython.requirements",
+      "every `note` member"
+    ]
+  }
+}

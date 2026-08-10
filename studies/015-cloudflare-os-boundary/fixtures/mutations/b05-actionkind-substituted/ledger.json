@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "gatekeeperId": 1,
+    "resourceTitle": "Tracker",
+    "resourceUrl": "https://tracker.example/mcp#server=tracker",
+    "caller": {
+      "from": "agent",
+      "chatId": 1
+    },
+    "createdAt": "2026-08-01T00:01:00.000Z",
+    "state": "approved",
+    "type": "action",
+    "action": 11,
+    "description": {
+      "title": "tracker portal / tracker: trackerdeleteworkitem",
+      "description": "**tracker portal / tracker** → `tracker_delete_work_item`\n\n> Delete a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"expunge-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp`\n\nTreated as an action because the server did not declare it read-only. Nothing has been sent yet.",
+      "implementsRevert": false,
+      "awaitDecision": true,
+      "autoApprovable": false,
+      "actionKind": {
+        "tag": "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker:tracker_delete_work_item",
+        "label": "tracker_delete_work_item"
+      }
+    },
+    "resolvedBy": {
+      "type": "user",
+      "id": "approver@example.invalid",
+      "name": "Approver"
+    },
+    "appliedAt": "2026-08-01T00:31:00.000Z",
+    "autoApproved": false
+  }
+]

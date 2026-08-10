@@ -1,0 +1,11 @@
+{
+  "commitmentDigest": "eab3444f1c897dc1d871a22188e83abf4a3d9292012d27d86ef5abd7509bd032",
+  "decision": {
+    "kind": "outcome",
+    "outcomeId": "clarify-return",
+    "reasons": [],
+    "handoffState": "none"
+  },
+  "execution": "effect-attested",
+  "note": ""
+}

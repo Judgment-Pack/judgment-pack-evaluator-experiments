@@ -1,0 +1,69 @@
+{
+  "gatekeepers": [
+    {
+      "id": 1,
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        },
+        {
+          "name": "tracker_get_intake_form",
+          "description": "Create a work item in the tracker.",
+          "annotations": {
+            "readOnlyHint": true
+          }
+        }
+      ]
+    }
+  ],
+  "autoApproveTags": [],
+  "stagedCalls": [
+    {
+      "gatekeeperId": 1,
+      "action": 11,
+      "toolName": "tracker_create_work_item",
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      },
+      "resourceRevisionAtStage": "rev-7",
+      "connectorOutcome": "committed",
+      "commitmentDigest": "d9c5baa16d3e7d9e62a213aa9b9b4f639fd885e4943c31bd65131652a088232b"
+    }
+  ],
+  "observedCalls": [
+    {
+      "gatekeeperId": 1,
+      "ledgerId": 1,
+      "toolName": "tracker_get_intake_form"
+    }
+  ],
+  "drainWitnesses": [],
+  "world": {
+    "resourceRevisionAtApply": {
+      "1:11": "rev-7"
+    }
+  },
+  "effects": [
+    {
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "toolName": "tracker_create_work_item",
+      "gatekeeperId": 1,
+      "action": 11,
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      }
+    }
+  ]
+}
