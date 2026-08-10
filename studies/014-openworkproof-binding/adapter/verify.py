@@ -23,7 +23,11 @@ Every layer returns the same structured record — `{"verdict", "code", "detail"
 — and `outcome()` is the only string anything adjudicates on. `detail` is for
 humans and never enters a comparison: that is what keeps a decorated runtime
 string (`replay-refused: pack-not-conformant`) from becoming an unregistered
-verdict.
+verdict. The registered vocabulary is the `{verdict, code}` **pair** table
+(`LAYER_VERDICT_CODES`), checked before any normalization: an unknown verdict
+carrying a known code, or a bare `unavailable` with no code, is reported as an
+out-of-vocabulary outcome and lands on the scorer's validity channel rather
+than being rounded into a registered failure.
 
 The commitment REPLAY and BINDING work from is the one at the signed
 authorization-time binding point (`WorkOrder.objective`); a chain that carries no
@@ -92,18 +96,73 @@ REPLAY_CODES = (
 # it, so a chain carrying one is not carrying an execution of a judged action.
 ACTION_CLASS_TOOLS = (ACTION_TOOL,)
 
+# The registered `{verdict, code}` PAIRS, per layer. Round 2 found that an
+# unknown verdict paired with a known code was being normalized into a
+# registered `fail:<code>` outcome, and that `pass`/`unavailable` swallowed
+# arbitrary codes — so a bare `unavailable` was indistinguishable from the
+# registered (`unavailable`, `replay-unavailable`) pair. The pair, not the
+# verdict and not the code alone, is what the vocabulary registers.
+#
+# On the OWP layer upstream reports bundle-level failure as one composite
+# verdict, so its only registered code is `None`. On the replay layer
+# `replay-unavailable` is the code of the `unavailable` verdict and of nothing
+# else: it is deliberately absent from the `fail` pairs.
+LAYER_VERDICT_CODES = {
+    "owp": (("pass", None), ("fail", None), ("unavailable", None)),
+    "binding": (("pass", None),) + tuple(("fail", code) for code in BINDING_CODES),
+    "replay": (("pass", None), ("unavailable", "replay-unavailable"))
+    + tuple(
+        ("fail", code) for code in REPLAY_CODES if code != "replay-unavailable"
+    ),
+}
+REGISTERED_PAIRS = frozenset(
+    pair for pairs in LAYER_VERDICT_CODES.values() for pair in pairs
+)
+
+# The prefix an unregistered pair is reported under. It is deliberately outside
+# every layer's outcome vocabulary, so the scorer's validity channel refuses it
+# instead of the detection channel counting it.
+UNREGISTERED_PREFIX = "unregistered"
+
 
 def result(verdict, code=None, detail=None):
     """The one shape every layer returns."""
     return {"verdict": verdict, "code": code, "detail": detail}
 
 
-def outcome(layer_result):
-    """The adjudicated string for a layer record — code only, never detail."""
-    verdict = layer_result["verdict"]
+def pair_problem(layer, layer_result):
+    """None when `(verdict, code)` is registered for `layer`, else why not."""
+    pairs = LAYER_VERDICT_CODES.get(layer)
+    if pairs is None:
+        return "layer %r is not a registered layer" % (layer,)
+    pair = (layer_result.get("verdict"), layer_result.get("code"))
+    if pair in pairs:
+        return None
+    return (
+        "layer %s returned the unregistered verdict/code pair (%r, %r)"
+        % (layer, pair[0], pair[1])
+    )
+
+
+def outcome(layer_result, layer=None):
+    """The adjudicated string for a layer record — code only, never detail.
+
+    An unregistered pair is *not* normalized: it becomes an out-of-vocabulary
+    string that the scorer refuses on the validity channel. Nothing outside the
+    registered pair table can be laundered into a registered outcome. With
+    `layer` the check is that layer's own table (which is what the ceremony
+    uses, and what makes a bare replay `unavailable` unregistered); without it,
+    the union — the weakest form, for callers that only hold a record.
+    """
+    verdict = layer_result.get("verdict")
+    code = layer_result.get("code")
+    registered = LAYER_VERDICT_CODES.get(layer, REGISTERED_PAIRS) if layer else (
+        REGISTERED_PAIRS
+    )
+    if (verdict, code) not in registered:
+        return "%s:%s/%s" % (UNREGISTERED_PREFIX, verdict, code)
     if verdict in ("pass", "unavailable"):
         return verdict
-    code = layer_result.get("code")
     return "fail" if code is None else "fail:" + code
 
 
@@ -336,9 +395,9 @@ def commitment_at_binding_point(cell):
     try:
         candidate = parse_commitment_bytes(raw)
         validate_commitment(candidate)
+        if canonical_encoding_problem(raw, candidate) is not None:
+            return None
     except CommitmentSchemaError:
-        return None
-    if canonical_encoding_problem(raw, candidate) is not None:
         return None
     return candidate
 
@@ -359,12 +418,13 @@ def _commitment_from_objective(cell):
         return _fail("commitment-objective-missing", str(error))
     try:
         validate_commitment(candidate)
+        problem = canonical_encoding_problem(raw, candidate)
+        if problem is not None:
+            return _fail("commitment-schema-invalid", problem)
+        canonical = commitment_bytes(candidate)
     except CommitmentSchemaError as error:
         return _fail("commitment-schema-invalid", str(error))
-    problem = canonical_encoding_problem(raw, candidate)
-    if problem is not None:
-        return _fail("commitment-schema-invalid", problem)
-    return candidate, commitment_bytes(candidate)
+    return candidate, canonical
 
 
 def _retained_commitment_problem(cell, candidate, canonical):
@@ -435,7 +495,10 @@ def layer_binding(cell):
     if problem is not None:
         return problem
 
-    digest = commitment_digest(candidate)
+    try:
+        digest = commitment_digest(candidate)
+    except CommitmentSchemaError as error:
+        return _fail("commitment-schema-invalid", str(error))
     judgment = candidate["judgment"]
     action = candidate["action"]
 
@@ -651,7 +714,7 @@ def verify_cell(cell_dir, jpack_bin, work_dir):
         "binding": layer_binding(cell),
         "replay": layer_replay(cell, jpack_bin, work_dir),
     }
-    outcomes = {name: outcome(record) for name, record in layers.items()}
+    outcomes = {name: outcome(record, name) for name, record in layers.items()}
     combined = "pass" if all(value == "pass" for value in outcomes.values()) else "fail"
     return {
         "cell": cell.name,

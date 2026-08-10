@@ -35,3 +35,29 @@ become validity gates outside R1; M28 stays descriptive (R1-14).
 
 Round 2 asks: verify the round-1 dispositions landed as described, author the holdout
 cells (R1-3), and re-issue a verdict.
+
+## Round 2 — 2026-08-09
+
+Reviewer: codex-cli 0.145.0 / gpt-5.6-sol / reasoning effort ultra / read-only sandbox.
+Verdict: **freezable after listed fixes**. Verbatim record: `reviews/round-2/PROMPT.md`,
+`reviews/round-2/REVIEW.md`. Part-1 tally: R1-1/-5/-7/-10/-12/-14 RESOLVED;
+R1-2/-3/-6/-8/-9/-11/-13 PARTIALLY RESOLVED; R1-4 NOT RESOLVED. Every residual maps onto
+a numbered round-2 finding and closes with it. The reviewer authored the holdout stratum:
+`harness/MATRIX-HOLDOUT.json` landed **byte-for-byte** from the review output (8 cells,
+h01–h08, attributed, never executed pre-freeze).
+
+| # | Sev | Disposition | Action |
+|---|---|---|---|
+| R2-1 | BLOCKER | **Accepted.** The whole-study manifest could be regenerated to launder a drift, and several pins were unverified. | `PINS.json` gains `studyManifest.sha256`, `matrixHoldout.sha256` (both null until freeze — at freeze the manifest digest is pinned inside the registry the scorer already stamps into every attempt), plus an `installedPackageDigest` over the installed `openworkproof` package files, computed now and enforced always; the pack pin is enforced against the vendored bytes; `pin_problems()` covers all of them. |
+| R2-2 | BLOCKER | **Accepted.** `--include-holdout` refused correctly but could never adjudicate. | Post-freeze holdout path implemented end to end: loads `MATRIX-HOLDOUT.json`, validates schema and id-disjointness, builds nothing pre-freeze, adjudicates `fixtures/holdout/<id>/` into a separate stratum section of the results (never merged into locked counts, holdout gates handled per-role). Holdout builder hooks for h01–h08 are implemented **unexecuted**; a preregistration rule records that a holdout construction upstream refuses to publish is a constructibility finding + NOT-ADJUDICATED, never a silent drop. |
+| R2-3 | MAJOR | **Accepted.** `d18`'s construction text overstated its mechanism (cloned receipt, outer-only re-sign, nested-claim mismatch fires first). | Construction/note corrected to the true mechanism; a focused live-path retry-episode probe (rollback → start_retry → second read → second patch) is added to the upstream probes — its recorded outcome (publishable or dead end) settles before freeze whether a live-path `d18` variant exists; the registered cell is not changed on speculation. |
+| R2-4 | MAJOR | **Accepted.** | Every JCS canonicalization error inside commitment parsing maps to `commitment-schema-invalid`; escaped lone surrogates are rejected as non-I-JSON; vector added. This is also what h02 registers. |
+| R2-5 | MAJOR | **Accepted.** | Exact `{verdict, code}` pair validation before any normalization (unknown pair → NOT-ADJUDICABLE); competing-defect ordering fixtures per ordered check; the source-grep meta-test replaced with a vocabulary-derived assertion. |
+| R2-6 | MAJOR | **Accepted.** | `ATTEMPT.json` written before PINS parsing; provenance hashing, freeze gates, and `write_outputs` inside the terminal catch; all output writes atomic (tmp + rename). |
+| R2-7 | MAJOR | **Accepted.** | Grant-window probe rebuilt: instant inside the WorkOrder window but before a later `valid_from` on an internally consistent grant, so the grant-authority branch itself fires. |
+| R2-8 | MINOR | **Accepted.** | `supportedExtensions` uniqueness enforced (SPEC §1 states set semantics explicitly); makes h03's registered expectation the implemented behavior. |
+| R2-9 | MINOR | **Accepted.** | `e19` re-labeled `selective-keys` per the registry's own taxonomy. |
+
+Round 3 asks: confirm the round-2 closures, confirm the holdout stratum landed verbatim
+and unexecuted with a working (but refused) post-freeze path, and state what, if
+anything, remains between this draft and a freeze-ready PR.

@@ -47,8 +47,9 @@ Field semantics and digest conventions:
   two fields are adapter-owned by necessity, and the study says so.
 - `evidenceDigest` is `null` iff no evidence-availability document was supplied
   (Core §8.2's implicit-empty case). The baseline always supplies one.
-- `supportedExtensions`: the sorted supported-extension set passed to the evaluator
-  (completes the §8.2 input tuple).
+- `supportedExtensions`: the supported-extension **set** passed to the evaluator
+  (completes the §8.2 input tuple) — a JSON array carrying set semantics, so it MUST be
+  sorted and its members MUST be unique; a duplicate member is `commitment-schema-invalid`.
 - `evaluatorRelease` + `executableDigest` (+ `evaluatorSpecVersion`): the replay tuple of
   `docs/building-with-packs.md` — release that ran, digest of the binary that ran, contract
   applied. Without them the disposition cannot be deterministically recomputed.

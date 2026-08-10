@@ -18,8 +18,14 @@ Determinism: fixed keys, fixed clocks, caller-supplied nonces, and a build-time
 `secrets.token_hex` patch (see `harness/owpflow.py`). Running this twice from
 scratch yields byte-identical trees; a harness test asserts it.
 
+The reviewer-authored holdout stratum has builder hooks here too (`--holdout`),
+implemented but never executed: the flag is refused mechanically while
+`PINS.json` carries a null preregistration digest, exactly as the scorer refuses
+`--include-holdout`.
+
 Run:
     JPACK_BIN=... OWP_SOURCE=... python harness/build_fixtures.py [--out DIR] [--force]
+    JPACK_BIN=... OWP_SOURCE=... python harness/build_fixtures.py --holdout   # post-freeze
 """
 
 import argparse
@@ -462,9 +468,11 @@ def build_payloads(jpack_bin, work_root, owp_source):
 
     # d18: the surplus arm of exact-set totality. A second live patch round is
     # not constructible at this commit (three independent upstream refusals,
-    # recorded in harness/owpflow.py), so the extra unbound execution is inserted
-    # post-hoc and re-signed with the Sidecar key alone - the same shape e21, f23
-    # and f25 already use, and the OWP-layer refusal is registered, not hidden.
+    # recorded in harness/owpflow.py; the deferred retry route dead-ends as
+    # well, per the retry-episode probe), so the extra execution is a CLONE of
+    # the executing receipt inserted post-hoc with the outer envelope alone
+    # re-signed - the same shape e21, f23 and f25 already use. Upstream refuses
+    # it at the nested-claim/outer mismatch, and that refusal is registered.
     cells["d18-approve-extra-execution"] = with_bundle(
         baseline, extra_execution_bundle(bundle_of(baseline))
     )
@@ -659,16 +667,25 @@ def replace_receipt(bundle, tool_name, mutate):
 
 
 def extra_execution_bundle(bundle):
-    """Insert a second, unbound `owp.apply_patch` receipt after the real one.
+    """Clone the executing receipt into a second, unbound action-class receipt.
 
     The insert is the same execution again — same patch bytes, same committed
-    evidence, same arguments digest — under a fresh receipt id and nonce, chained
-    to the real executing receipt and re-signed with the Sidecar key alone, with
-    its request's `context_source_digest` left unbound. That keeps the evidence
-    set coherent while the chain carries two action-class receipts for one
-    commitment. A live second round is refused by upstream three ways over (see
-    `harness/owpflow.py`), so the OWP layer is expected to refuse this too; the
-    binding layer's surplus arm is what the cell is registered for.
+    evidence, same arguments digest, the same nested `AgentRequest` — under a
+    fresh receipt id, nonce and sequence, chained to the real executing receipt,
+    with `context_source_digest` overwritten to an unbound value in *both* the
+    nested claim and the correlation factors, and the **outer envelope alone**
+    re-signed with the Sidecar key.
+
+    What that leaves behind is the cell's true mechanism, and the registry says
+    so: the Developer's signature over the nested request is stale and
+    `nested_claim_digest` still names the original request, so upstream refuses
+    at model integrity ("outer Agent receipt does not match nested claim")
+    before it reaches any signature, causality or single-active-patch check. The
+    OWP-layer refusal is registered rather than engineered away; the binding
+    layer's surplus arm — two action-class receipts under one commitment — is
+    what the cell is registered for. A live second round is refused by upstream
+    three ways over, and the deferred retry route dead-ends too (see
+    `harness/owpflow.py` and the retry-episode probe in `harness/tests/`).
     """
     from openworkproof.models import ACTION_RECEIPT_ADAPTER
     from openworkproof.signing import sign_payload
@@ -731,10 +748,349 @@ def cell_directory(out_root, cell_id):
     return Path(out_root) / "mutations" / cell_id
 
 
+def holdout_cell_directory(out_root, cell_id):
+    return Path(out_root) / "holdout" / cell_id
+
+
+# --------------------------------------------------------------------------
+# the reviewer-authored holdout stratum — implemented, NEVER run pre-freeze
+# --------------------------------------------------------------------------
+#
+# These hooks exist so that the holdout is a buildable specification rather than
+# a promise, and they are gated by the same mechanical guard the scorer uses:
+# `--holdout` is refused while `PINS.json`'s `preregistration.sha256` is null.
+# Nothing in this repository has executed them. Each hook takes the shared build
+# context and returns either a cell payload or a `ConstructibilityRefusal` — a
+# registered construction upstream declines to publish is a finding under
+# PREREGISTRATION section 1a, recorded as such, never a silent drop and never a
+# crash.
+
+HOLDOUT_IDS = (
+    "h01-retained-commitment-noncanonical",
+    "h02-objective-lone-surrogate",
+    "h03-duplicate-supported-extension",
+    "h04-implicit-empty-evidence-replay",
+    "h05-evaluator-spec-version-only",
+    "h06-cross-execution-evaluation-artifact",
+    "h07-self-consistent-wrong-action",
+    "h08-semantic-facts-remint-control",
+)
+
+# h02's objective is JSON but not I-JSON: the six ASCII bytes `\uD800` inside a
+# string. Python's own UTF-8 encoder refuses the decoded value, so the WorkOrder
+# may not be signable at all — which is the exact case the try/report shape below
+# exists for.
+LONE_SURROGATE_ESCAPE = "\\uD800"
+
+
+class ConstructibilityRefusal:
+    """A registered holdout construction upstream refused to produce.
+
+    Carried out of the builder as a value, not an exception: the preregistration
+    records such a refusal as a constructibility finding attached to the cell,
+    and the scorer then reports the cell NOT-ADJUDICATED because its fixture
+    directory is absent.
+    """
+
+    def __init__(self, cell_id, detail):
+        self.cell_id = cell_id
+        self.detail = detail
+
+    def as_record(self):
+        return {
+            "cell": self.cell_id,
+            "finding": "constructibility-refusal",
+            "detail": self.detail,
+        }
+
+    def __repr__(self):  # pragma: no cover - diagnostic only
+        return "ConstructibilityRefusal(%r, %r)" % (self.cell_id, self.detail)
+
+
+def _holdout_context(jpack_bin, work_root, owp_source):
+    """Everything the hooks share: the pinned decisions and the baseline cell."""
+    executable_digest = "sha256:" + verify.sha256_file(jpack_bin)
+    pack_bytes = PACK_PATH.read_bytes()
+    judgments = Path(tempfile.mkdtemp(prefix="study014-holdout-jps-", dir=str(work_root)))
+    base = decide(jpack_bin, judgments, pack_bytes, FACTS_BASE, EVIDENCE_PRESENT)
+    return {
+        "jpack_bin": jpack_bin,
+        "work_root": work_root,
+        "owp_source": owp_source,
+        "judgments": judgments,
+        "pack_bytes": pack_bytes,
+        "executable_digest": executable_digest,
+        "base": base,
+        "base_commitment": commitment_for(base, executable_digest),
+    }
+
+
+def _baseline_payload(context, salt="pos-baseline"):
+    """A freshly built baseline cell — the starting point of the artifact hooks."""
+    return flow_cell(
+        context["work_root"],
+        context["base"],
+        context["base_commitment"],
+        salt=salt,
+        owp_source=context["owp_source"],
+    )
+
+
+def holdout_h01(context):
+    """h01 — one 0x0a appended to the retained commitment document only."""
+    payload = _baseline_payload(context, salt="h01")
+    return dict(payload, **{"commitment.json": payload["commitment.json"] + b"\n"})
+
+
+def holdout_h02(context):
+    """h02 — a signed objective whose decoded string carries a lone surrogate.
+
+    The objective is the baseline commitment text with `expense-approval`
+    replaced by `expense-\\uD800approval` in its escaped form, so the signed
+    bytes are ASCII JSON that no I-JSON consumer may accept. Upstream may refuse
+    to sign or even to model-validate it; that refusal is reported, not raised.
+    """
+    canonical = commitment_bytes(context["base_commitment"]).decode("utf-8")
+    objective = canonical.replace(
+        "expense-approval", "expense-" + LONE_SURROGATE_ESCAPE + "approval"
+    )
+    if objective == canonical:
+        return ConstructibilityRefusal(
+            "h02-objective-lone-surrogate",
+            "the baseline commitment text no longer carries the substring the "
+            "registered construction edits",
+        )
+    try:
+        payload = flow_cell(
+            context["work_root"],
+            context["base"],
+            context["base_commitment"],
+            salt="h02",
+            objective=objective,
+            binding_digest=commitment_digest(context["base_commitment"]),
+            owp_source=context["owp_source"],
+        )
+    except Exception as error:
+        return ConstructibilityRefusal(
+            "h02-objective-lone-surrogate",
+            "OpenWorkProof refused to publish a work order whose objective is "
+            "not I-JSON: %s: %s" % (type(error).__name__, error),
+        )
+    return payload
+
+
+def holdout_h03(context):
+    """h03 — a full rebuild whose commitment repeats one supported extension."""
+    duplicate = [
+        "https://example.com/ext/unused",
+        "https://example.com/ext/unused",
+    ]
+    candidate = commitment_for(
+        context["base"],
+        context["executable_digest"],
+        overrides={"supportedExtensions": duplicate},
+    )
+    try:
+        return flow_cell(
+            context["work_root"],
+            context["base"],
+            candidate,
+            salt="h03",
+            owp_source=context["owp_source"],
+        )
+    except Exception as error:
+        return ConstructibilityRefusal(
+            "h03-duplicate-supported-extension",
+            "the chain could not be rebuilt around a duplicate supported "
+            "extension: %s: %s" % (type(error).__name__, error),
+        )
+
+
+def holdout_h04(context):
+    """h04 — Core's implicit-empty evidence case: no evidence document at all."""
+    decision = dict(context["base"], evidence=None)
+    candidate = commitment_for(decision, context["executable_digest"])
+    payload = flow_cell(
+        context["work_root"],
+        decision,
+        candidate,
+        salt="h04",
+        owp_source=context["owp_source"],
+    )
+    return dict(payload, **{"evidence.json": None})
+
+
+def holdout_h05(context):
+    """h05 — evaluatorSpecVersion alone forged; every other field honest."""
+    candidate = commitment_for(
+        context["base"],
+        context["executable_digest"],
+        overrides={"evaluatorSpecVersion": "0.9.9-draft"},
+    )
+    return flow_cell(
+        context["work_root"],
+        context["base"],
+        candidate,
+        salt="h05",
+        owp_source=context["owp_source"],
+    )
+
+
+def holdout_h06(context):
+    """h06 — the retained evaluator envelope swapped in from `c10`."""
+    payload = _baseline_payload(context, salt="h06")
+    foreign = cell_directory(STUDY / "fixtures", "c10-reject-executed") / "evaluation.json"
+    if not foreign.is_file():
+        return ConstructibilityRefusal(
+            "h06-cross-execution-evaluation-artifact",
+            "the registered source cell c10-reject-executed is not built, so its "
+            "evaluator envelope cannot be swapped in",
+        )
+    return dict(payload, **{"evaluation.json": foreign.read_bytes()})
+
+
+def holdout_h07(context):
+    """h07 — a self-consistent execution of a target the map does not authorize.
+
+    The commitment's `argumentsDigest` is recomputed from the alternate target's
+    own arguments, so receipt and commitment agree and the failure has to land
+    on the section 4 map rather than on `action-arguments-mismatch`.
+    """
+    target = ["decision-actions/disburse-other.json"]
+    facts = json.loads(context["base"]["facts"].decode("utf-8"))
+    arguments = action_arguments(facts, target_paths=target)
+    candidate = commitment_for(
+        context["base"],
+        context["executable_digest"],
+        action={
+            "toolName": ACTION_TOOL,
+            "argumentsDigest": action_arguments_digest(arguments),
+        },
+    )
+    try:
+        return flow_cell(
+            context["work_root"],
+            context["base"],
+            candidate,
+            salt="h07",
+            target_paths=target,
+            owp_source=context["owp_source"],
+        )
+    except Exception as error:
+        return ConstructibilityRefusal(
+            "h07-self-consistent-wrong-action",
+            "the alternate action target could not be executed through the "
+            "upstream patch executor: %s: %s" % (type(error).__name__, error),
+        )
+
+
+def holdout_h08(context):
+    """h08 — the holdout's own control: a whitespace remint, coherently rebound."""
+    facts = FACTS_BASE + b"\n"
+    decision = decide(
+        context["jpack_bin"],
+        context["judgments"],
+        context["pack_bytes"],
+        facts,
+        EVIDENCE_PRESENT,
+    )
+    candidate = commitment_for(decision, context["executable_digest"])
+    return flow_cell(
+        context["work_root"],
+        decision,
+        candidate,
+        salt="h08",
+        owp_source=context["owp_source"],
+    )
+
+
+HOLDOUT_BUILDERS = {
+    "h01-retained-commitment-noncanonical": holdout_h01,
+    "h02-objective-lone-surrogate": holdout_h02,
+    "h03-duplicate-supported-extension": holdout_h03,
+    "h04-implicit-empty-evidence-replay": holdout_h04,
+    "h05-evaluator-spec-version-only": holdout_h05,
+    "h06-cross-execution-evaluation-artifact": holdout_h06,
+    "h07-self-consistent-wrong-action": holdout_h07,
+    "h08-semantic-facts-remint-control": holdout_h08,
+}
+
+
+def build_holdout_payloads(jpack_bin, work_root, owp_source, cell_ids=None):
+    """Every holdout cell's payload or constructibility refusal, keyed by id.
+
+    Never called before the freeze: `main()` refuses `--holdout` while
+    `PINS.json` carries a null preregistration digest.
+    """
+    context = _holdout_context(jpack_bin, work_root, owp_source)
+    payloads = {}
+    for cell_id in cell_ids or HOLDOUT_IDS:
+        builder = HOLDOUT_BUILDERS.get(cell_id)
+        if builder is None:
+            payloads[cell_id] = ConstructibilityRefusal(
+                cell_id, "no holdout builder is registered for this cell"
+            )
+            continue
+        payloads[cell_id] = builder(context)
+    return payloads
+
+
+def holdout_refusal(pins):
+    """The mechanical pre-freeze guard on `--holdout`, or None once frozen."""
+    if (pins.get("preregistration") or {}).get("sha256") is None:
+        return (
+            "--holdout is refused: harness/PINS.json carries a null "
+            "preregistration digest, so the preregistration is still DRAFT and "
+            "the reviewer-authored holdout stratum may not be built"
+        )
+    return None
+
+
+def build_holdout(jpack_bin, out_root, force, owp_source):
+    """Write the holdout cells, reporting every constructibility refusal."""
+    registry = json.loads(
+        (STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8")
+    )
+    registered = [cell["id"] for cell in registry["cells"]]
+    existing = [
+        cell_id
+        for cell_id in registered
+        if holdout_cell_directory(out_root, cell_id).is_dir()
+    ]
+    if existing and not force:
+        raise SystemExit(
+            "holdout fixtures already exist under %s; pass --force to rebuild"
+            % (Path(out_root) / "holdout")
+        )
+    work_root = Path(tempfile.mkdtemp(prefix="study014-holdout-"))
+    try:
+        payloads = build_holdout_payloads(jpack_bin, work_root, owp_source, registered)
+    finally:
+        shutil.rmtree(work_root, ignore_errors=True)
+    refusals = []
+    built = 0
+    for cell_id in registered:
+        payload = payloads[cell_id]
+        if isinstance(payload, ConstructibilityRefusal):
+            refusals.append(payload.as_record())
+            continue
+        write_cell(holdout_cell_directory(out_root, cell_id), payload)
+        built += 1
+    print("built %d of %d holdout cells under %s" % (built, len(registered), out_root))
+    for record in refusals:
+        print("  constructibility refusal %s: %s" % (record["cell"], record["detail"]))
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--out", default=str(STUDY / "fixtures"))
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--holdout",
+        action="store_true",
+        help="build harness/MATRIX-HOLDOUT.json's cells (refused before the freeze)",
+    )
     arguments = parser.parse_args(argv)
 
     jpack_bin = os.environ.get("JPACK_BIN")
@@ -743,6 +1099,13 @@ def main(argv=None):
     pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
     if verify.sha256_file(jpack_bin) != pins["jpack"]["binarySha256"]:
         raise SystemExit("JPACK_BIN does not match the pinned binary digest")
+
+    if arguments.holdout:
+        refusal = holdout_refusal(pins)
+        if refusal is not None:
+            raise SystemExit(refusal)
+        return build_holdout(jpack_bin, Path(arguments.out), arguments.force,
+                             os.environ.get("OWP_SOURCE"))
 
     out_root = Path(arguments.out)
     existing = sorted((out_root / "mutations").glob("*")) if out_root.is_dir() else []

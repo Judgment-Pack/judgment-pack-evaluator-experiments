@@ -46,15 +46,28 @@ registered here:
   and it cannot be read as a prospective prediction.
 - **Reviewer holdout** (`harness/MATRIX-HOLDOUT.json`). Cells authored by the cross-vendor
   reviewer, committed verbatim with attribution, and **never executed before the freeze**.
-  `harness/score.py --include-holdout` refuses mechanically while
-  `harness/PINS.json`'s `preregistration.sha256` is null, and a harness test asserts that
-  refusal. Holdout results are reported separately and never merged into the locked
-  stratum's counts.
+  `harness/score.py --include-holdout` and `harness/build_fixtures.py --holdout` both
+  refuse mechanically while `harness/PINS.json`'s `preregistration.sha256` is null (the
+  scorer additionally refuses while `matrixHoldout.sha256` is null, so the stratum it
+  adjudicates is the one the freeze pinned), and harness tests assert both refusals.
+  **Holdout results are reported separately**, in their own section of `RESULTS.json` and
+  `DETECTION-MATRIX.md`, with their own control gates and their own concordance summary:
+  no holdout outcome enters a locked-stratum count and none can change the R1 verdict.
 
-At this draft the holdout stratum is an empty scaffold. **An empty holdout is not a passing
-holdout**: a round-2 verdict that adopts the round-1 dispositions without authoring cells
-there leaves the postdictivity finding open, and this study says so rather than counting
-the locked replication as if it were a prediction.
+The reviewer authored eight cells (`h01`–`h08`) at round 2 and they landed byte-for-byte
+with attribution; `h08` is the holdout's own control gate. Builder hooks for all eight
+exist in `harness/build_fixtures.py`, unexecuted.
+
+**A holdout construction that upstream refuses to publish is a constructibility finding,
+not a silent drop**: the builder reports the refusal as a record rather than crashing, no
+fixture is written, and the scorer reports that cell **NOT-ADJUDICATED** on the validity
+channel with the constructibility note attached — never a detection, never a miss, and
+never quietly absent from the published stratum.
+
+**An empty holdout is not a passing holdout**: a round-2 verdict that adopted the round-1
+dispositions without authoring cells there would have left the postdictivity finding open,
+and this study says so rather than counting the locked replication as if it were a
+prediction.
 
 Builder and verifier still share one commitment/digest implementation
 (`adapter/commitment.py`), so the locked stratum also has no independent mutation oracle.
@@ -78,16 +91,21 @@ Recorded as a standing limitation, not repaired this round.
   specVersion `0.2.0-draft`.
 - Interpreter, venv, and every other pin: `harness/PINS.json`.
 - **Pins are enforced, not declared.** Before any cell is adjudicated the scorer compares
-  every non-null pin against the live artefact — preregistration, matrix and SPEC digests
-  when filled; the `jpack` binary digest always; the interpreter version exactly; the
-  installed dependency set through `pip freeze` — and verifies
+  every non-null pin against the live artefact — preregistration, matrix, holdout-matrix,
+  study-manifest and SPEC digests when filled; the `jpack` binary digest always; the
+  vendored pack bytes always; `openworkproof.installedPackageDigest`, a SHA-256 over the
+  installed package's own files as `importlib` resolves them, always; the interpreter
+  version exactly; the installed dependency set through `pip freeze` — and verifies
   `harness/STUDY-MANIFEST.sha256`, an exact-set manifest covering the protocol documents,
   the pin registry, both matrix strata, every adapter and harness source file (including
   `harness/owpflow.py`, where the build-time entropy algorithm lives) and every per-cell
   fixture manifest. It also asserts the frozen cell-id set and the per-cell schema of the
   loaded matrix, so a reduced registry cannot satisfy zero divergence by shrinking the
   denominator. Any mismatch is terminal: the attempt is pipeline-invalid and nothing is
-  adjudicated.
+  adjudicated. `studyManifest.sha256` is the anchor **outside** the regenerable set —
+  `harness/make_manifest.py` can rewrite the manifest, but after the freeze it cannot
+  rewrite the digest this registry pins it at, so editing covered code and regenerating no
+  longer satisfies the scorer.
 
 ## 3. Baseline scenario (deterministic, no models)
 
@@ -161,7 +179,12 @@ describe, and each refusal is recorded as a protocol finding in its own right:
   ("a second active patch is not allowed") absent a full needs_rework → rollback → retry
   episode. OWP's own single-active-patch rule therefore already bounds a work order to one
   execution — which is why the surplus-execution attack has to leave the live path, and why
-  `d18` is registered with an OWP-layer refusal rather than an OWP-layer pass.
+  `d18` is registered with an OWP-layer refusal rather than an OWP-layer pass. A round-2
+  live-path probe settled the deferred retry question: rollback and `start_retry` publish,
+  but a second `repo_read` fails tip extension, and a second `apply_patch` that does name
+  the retry tip publishes and then fails exact causal replay — the retry route dead-ends
+  too (probe retained in `harness/tests/test_upstream_probes.py`; it widens only the
+  fixture's developer quota so the answer is the protocol's, not the fixture's).
 
 `e21`, `f23` and `f25` are additionally **relabeled as generic upstream-corruption cells**.
 Round 1 established that they do not reach the mechanisms they are named for: `e21` trips
@@ -298,11 +321,14 @@ registered code can be unreachable prose.
 
 ## 8. What is enforced, what is recorded, what is not prevented
 
-Enforced by machinery: fixture manifests; the whole-study exact-set manifest; every
-non-null pin (prereg/matrix/SPEC digests, `jpack` binary digest, interpreter version,
-`pip freeze` digest); the frozen cell-id set and per-cell schema; the SPEC/code
-verdict-vocabulary sync **and** per-code reachability tests; the holdout refusal before the
-freeze; upstream OWP bytes never imported into the repo (package install only); missing
+Enforced by machinery: fixture manifests; the whole-study exact-set manifest, itself
+anchored by `studyManifest.sha256` in the pin registry; every non-null pin
+(prereg/matrix/holdout-matrix/study-manifest/SPEC digests, `jpack` binary digest, vendored
+pack bytes, installed-`openworkproof` package digest, interpreter version, `pip freeze`
+digest); the frozen cell-id set and per-cell schema; the SPEC/code verdict-vocabulary sync,
+the registered `{verdict, code}` pair table **and** per-code reachability tests with
+competing-defect ordering; the holdout refusals (scorer and builder) before the freeze;
+upstream OWP bytes never imported into the repo (package install only); missing
 `OWP_SOURCE` or `JPACK_BIN` failing the determinism tests rather than skipping them.
 
 Recorded, not enforced: the build-time `secrets.token_hex` patch (the single deliberate

@@ -349,12 +349,22 @@ def _checkpoint_for(files, head_commit):
     )
 
 
-def _case(upstream, tmp_path, work_order, keys, now, *, salt, parsed):
+DEVELOPER_QUOTA = {"tool_calls": 3, "repair_rounds": 0}
+
+
+def _case(upstream, tmp_path, work_order, keys, now, *, salt, parsed,
+          developer_quota=None):
     """Ledger, activated root grant, verifier and developer grants, checkpoint.
 
     Modelled on the upstream `_m2_case`; the developer grant additionally carries
     the study's action write root, and the checkpoint is the real candidate
     workspace's rather than a hand-built manifest.
+
+    `developer_quota` exists for the upstream retry-episode probe alone: every
+    registered cell builds on `DEVELOPER_QUOTA` (three tool calls, no repair
+    rounds), which is exactly what the nine-step chain spends, so a probe asking
+    whether upstream admits a *second* patch has to widen it or it only ever
+    rediscovers the fixture's own quota. No fixture passes this argument.
     """
     from openworkproof.policy import AuthorizationLedgerPrefix, derive_authorization_context
 
@@ -401,7 +411,7 @@ def _case(upstream, tmp_path, work_order, keys, now, *, salt, parsed):
             "allowed_tools": ["owp.apply_patch", "owp.repo_read", "owp.rollback_patch"],
             "allowed_read_roots": list(READ_ROOTS),
             "allowed_write_roots": list(WRITE_ROOTS),
-            "quota": {"tool_calls": 3, "repair_rounds": 0},
+            "quota": dict(developer_quota or DEVELOPER_QUOTA),
         },
     )
     developer_issuance = chain._issue_child(

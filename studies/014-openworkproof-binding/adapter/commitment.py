@@ -51,9 +51,33 @@ class CommitmentSchemaError(ValueError):
     """A candidate object does not satisfy SPEC section 1."""
 
 
+class CommitmentEncodingError(CommitmentSchemaError):
+    """The bytes carry a conforming commitment in a non-canonical encoding."""
+
+
 def jcs(value):
     """RFC 8785 canonical bytes."""
     return rfc8785.dumps(value)
+
+
+def canonical_bytes(value):
+    """JCS bytes with every canonicalization failure mapped to the schema error.
+
+    `rfc8785.dumps` raises its own `CanonicalizationError` on input JSON that is
+    not I-JSON — most importantly a string carrying an unpaired surrogate, which
+    `json.loads` will happily produce from a `\\uD800` escape. Round 2 found that
+    exception escaping the registered failure path, so every canonicalization on
+    the parse path goes through here and lands as `commitment-schema-invalid`.
+    """
+    try:
+        return jcs(value)
+    except CommitmentSchemaError:
+        raise
+    except Exception as error:
+        raise CommitmentEncodingError(
+            "value is not canonicalizable under RFC 8785: %s: %s"
+            % (type(error).__name__, error)
+        ) from error
 
 
 def sha256_hex(payload):
@@ -195,7 +219,7 @@ def disposition_canonical_bytes(envelope):
     already canonical; re-serializing the parsed member with JCS reproduces those
     bytes exactly for the section 8.3 value space (objects, arrays, strings).
     """
-    return jcs(envelope_disposition(envelope))
+    return canonical_bytes(envelope_disposition(envelope))
 
 
 def disposition_digest(envelope):
@@ -243,16 +267,14 @@ def build_commitment(
 
 def commitment_bytes(commitment):
     """The compact JCS text bound into `WorkOrder.objective` (SPEC section 3)."""
-    return jcs(commitment)
+    return canonical_bytes(commitment)
 
 
 def commitment_digest(commitment):
     """SPEC section 2: sha256 hex over the domain-separated JCS payload."""
-    return sha256_hex(jcs({"domain": COMMITMENT_DOMAIN, "payload": commitment}))
-
-
-class CommitmentEncodingError(CommitmentSchemaError):
-    """The bytes carry a conforming commitment in a non-canonical encoding."""
+    return sha256_hex(
+        canonical_bytes({"domain": COMMITMENT_DOMAIN, "payload": commitment})
+    )
 
 
 def _no_duplicate_keys(pairs):
@@ -270,13 +292,46 @@ def _no_duplicate_keys(pairs):
     return dict(pairs)
 
 
+def _surrogate_problem(value):
+    """The first non-I-JSON string in a parsed document, or None.
+
+    RFC 8785 canonicalizes Unicode *scalar* values; a JSON document may still
+    escape a lone surrogate (`"\\uD800"`), which `json.loads` decodes into a
+    Python string no UTF-8 encoder will accept. Such a document is JSON but not
+    I-JSON, it has no canonical form, and round 2 found it reaching the JCS
+    encoder as an uncaught exception. It is refused at parse time instead.
+    """
+    if isinstance(value, str):
+        for character in value:
+            if 0xD800 <= ord(character) <= 0xDFFF:
+                return (
+                    "commitment carries an unpaired surrogate (U+%04X) and is "
+                    "therefore not I-JSON" % ord(character)
+                )
+        return None
+    if isinstance(value, dict):
+        for name, item in value.items():
+            problem = _surrogate_problem(name) or _surrogate_problem(item)
+            if problem is not None:
+                return problem
+        return None
+    if isinstance(value, list):
+        for item in value:
+            problem = _surrogate_problem(item)
+            if problem is not None:
+                return problem
+    return None
+
+
 def parse_commitment_bytes(raw):
     """Strictly parse commitment bytes: UTF-8, no duplicate keys, version 1.
 
     Encoding is *not* checked here — `canonical_encoding_problem` owns the
     byte-level rule, so a caller can tell a non-canonical encoding of the right
     commitment (`commitment-schema-invalid`) from a different commitment
-    (`binding-point-divergence`).
+    (`binding-point-divergence`). Strings that are not sequences of Unicode
+    scalar values *are* refused here: they have no canonical encoding at all, so
+    the byte-level rule has nothing to compare against.
     """
     if isinstance(raw, str):
         raise CommitmentSchemaError("commitment must be parsed from exact bytes")
@@ -297,12 +352,20 @@ def parse_commitment_bytes(raw):
         or candidate.get("commitmentVersion") != COMMITMENT_VERSION
     ):
         raise CommitmentSchemaError("object is not a version 1 commitment")
+    problem = _surrogate_problem(candidate)
+    if problem is not None:
+        raise CommitmentEncodingError(problem)
     return candidate
 
 
 def canonical_encoding_problem(raw, candidate):
-    """None when `raw` is exactly the canonical JCS bytes of `candidate`."""
-    if bytes(raw) == jcs(candidate):
+    """None when `raw` is exactly the canonical JCS bytes of `candidate`.
+
+    A candidate that cannot be canonicalized at all raises
+    `CommitmentEncodingError` (a `CommitmentSchemaError`) rather than escaping
+    as an untyped canonicalizer exception.
+    """
+    if bytes(raw) == canonical_bytes(candidate):
         return None
     return "commitment bytes are not the canonical JCS encoding of their own content"
 
@@ -353,6 +416,10 @@ def validate_commitment(candidate):
         raise CommitmentSchemaError("judgment.supportedExtensions must be a string array")
     if list(extensions) != sorted(extensions):
         raise CommitmentSchemaError("judgment.supportedExtensions must be sorted")
+    if len(set(extensions)) != len(extensions):
+        raise CommitmentSchemaError(
+            "judgment.supportedExtensions is a set: duplicate members are invalid"
+        )
 
     action = candidate["action"]
     if action is None:

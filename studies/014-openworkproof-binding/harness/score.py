@@ -3,13 +3,18 @@
 Adjudicates every registered cell in `harness/MATRIX.json` by deterministic
 recomputation from frozen fixture bytes, and writes one attempt record:
 
-    ATTEMPT.json         written before any cell runs, so an attempt that dies
-                         mid-flight is still a recorded attempt
+    ATTEMPT.json         written before PINS.json is even parsed, so an attempt
+                         that dies anywhere is still a recorded attempt
     RESULTS.json         per-cell layer outcomes, the registered expectation,
                          divergence flags, the pins stamp, and a validity section
                          kept strictly separate from the detection section
     DETECTION-MATRIX.md  the per-layer table, published in full whichever way it
                          lands (PREREGISTRATION section 10)
+
+Every output write is atomic (temporary file in the same directory, then
+`os.replace`), and every step from PINS parsing through provenance hashing, the
+freeze gates, adjudication and publication runs inside one terminal catch, so no
+failure path can leave an attempt without a record.
 
 Decision rule (PREREGISTRATION section 5, ordered and exhaustive):
 
@@ -25,24 +30,30 @@ in full, and counted toward nothing.
 
 Freeze integrity is enforced, not declared. Before any cell runs the scorer
 compares every non-null pin in `PINS.json` against the live artefact — the
-preregistration, matrix and SPEC digests when they are filled, the `jpack`
-binary digest always, the interpreter version exactly, and the installed
-dependency set through `pip freeze` — verifies `harness/STUDY-MANIFEST.sha256`
-as an exact set, and asserts the frozen cell-id set and per-cell schema of the
-loaded matrix. Any mismatch is terminal: the attempt is pipeline-invalid and no
-detection is adjudicated. Nothing in the published outputs is a timestamp or an
-absolute path, so two runs of the same frozen tree are byte-identical.
+preregistration, matrix, holdout-matrix, study-manifest and SPEC digests when
+they are filled, the `jpack` binary digest always, the vendored pack bytes
+always, a digest over the *installed* `openworkproof` package's own files
+always, the interpreter version exactly, and the installed dependency set
+through `pip freeze` — verifies `harness/STUDY-MANIFEST.sha256` as an exact set,
+and asserts the frozen cell-id set and per-cell schema of the loaded matrix. Any
+mismatch is terminal: the attempt is pipeline-invalid and no detection is
+adjudicated. Nothing in the published outputs is a timestamp or an absolute
+path, so two runs of the same frozen tree are byte-identical.
 
 While `PINS.json` carries a null preregistration digest the attempt is labelled
 PILOT and can never be labelled REGISTERED (PREREGISTRATION section 6), and
 `--include-holdout` is refused mechanically: the reviewer-authored holdout
-stratum may not be executed before the freeze.
+stratum may not be executed before the freeze. After the freeze the flag
+adjudicates `harness/MATRIX-HOLDOUT.json` into a **separate** stratum section —
+its own gates, its own concordance summary, its own rows — that never touches
+the locked stratum's counts or the R1 verdict.
 
 Run: JPACK_BIN=... python harness/score.py --attempt-root <new directory>
 """
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import platform
@@ -90,6 +101,9 @@ CELL_FIELDS = (
     "expected",
     "note",
 )
+# The holdout stratum is authored by the cross-vendor reviewer, so every cell
+# additionally carries its attribution. Same validator otherwise.
+HOLDOUT_CELL_FIELDS = CELL_FIELDS + ("author",)
 ARTIFACT_FILES = {
     "bundle": "bundle.json",
     "commitment": "commitment.json",
@@ -154,9 +168,78 @@ def cell_directory(cell_id):
     return STUDY / "fixtures" / "mutations" / cell_id
 
 
+def holdout_cell_directory(cell_id):
+    """Where a reviewer-authored holdout cell's fixture would live if built."""
+    return STUDY / "fixtures" / "holdout" / cell_id
+
+
+# --------------------------------------------------------------------------
+# atomic publication
+# --------------------------------------------------------------------------
+
+def atomic_write_bytes(path, payload):
+    """Write `payload` to `path` through a same-directory temp file + rename.
+
+    A finalization crash must not be able to leave a half-written RESULTS.json
+    that reads as an attempt outcome.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle, temporary = tempfile.mkstemp(
+        prefix="." + path.name + ".", dir=str(path.parent)
+    )
+    try:
+        with os.fdopen(handle, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        # `mkstemp` is 0600 by design; published attempt records are ordinary
+        # readable artefacts, so the mode is restored before the rename.
+        os.chmod(temporary, 0o644)
+        os.replace(temporary, path)
+    except BaseException:
+        Path(temporary).unlink(missing_ok=True)
+        raise
+
+
+def atomic_write_text(path, text):
+    atomic_write_bytes(path, text.encode("utf-8"))
+
+
 # --------------------------------------------------------------------------
 # freeze integrity (validity channel, before any cell runs)
 # --------------------------------------------------------------------------
+
+def installed_package_digest(name="openworkproof"):
+    """A deterministic digest over the *installed* package's own source files.
+
+    Round 2's blocker: every OWP pin was either a mutable local-file URL (the
+    `pip freeze` line) or an unverified declaration (the commit string), so the
+    package the verification path actually imports was never checked. This walks
+    the installed package directory resolved through `importlib`, sorts by
+    study-relative path, and hashes `path \\0 bytes \\0` for every file that is
+    not a `__pycache__` artefact — so a byte edit anywhere inside the installed
+    package, including a schema JSON, changes the value.
+    """
+    spec = importlib.util.find_spec(name)
+    if spec is None or not spec.origin:
+        raise PipelineInvalid("the %s package is not importable" % name)
+    root = Path(spec.origin).resolve().parent
+    if not root.is_dir():
+        raise PipelineInvalid("the %s package directory is not readable" % name)
+    relatives = sorted(
+        path.relative_to(root).as_posix()
+        for path in root.rglob("*")
+        if path.is_file() and "__pycache__" not in path.parts
+    )
+    digest = hashlib.sha256()
+    for relative in relatives:
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update((root / relative).read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
 
 def pip_freeze_sha256():
     """SHA-256 of `pip freeze` in the interpreter that is running the scorer."""
@@ -168,15 +251,30 @@ def pip_freeze_sha256():
     return hashlib.sha256(completed.stdout).hexdigest()
 
 
+PINNED_DIGEST_MEMBERS = (
+    ("preregistration", "PREREGISTRATION.md"),
+    ("matrix", "harness/MATRIX.json"),
+    ("matrixHoldout", "harness/MATRIX-HOLDOUT.json"),
+    ("studyManifest", "harness/STUDY-MANIFEST.sha256"),
+    ("adapterSpec", "adapter/SPEC.md"),
+)
+PACK_PATH = STUDY / "fixtures" / "minimal-expense-approval.pack.json"
+
+
 def pin_problems(pins, jpack_bin):
-    """Every non-null pin compared against the live artefact. Hard, not advisory."""
+    """Every non-null pin compared against the live artefact. Hard, not advisory.
+
+    Two pins are unconditional rather than fill-at-freeze: the vendored pack
+    bytes (the study never fetches the pack, so nothing else would notice a
+    substitution) and `openworkproof.installedPackageDigest` (the freeze has to
+    be anchored to the package the verification path imports, not to a mutable
+    local-file URL in a `pip freeze` line). `studyManifest.sha256` is the anchor
+    outside the regenerable set: `make_manifest.py` can rewrite the manifest, but
+    after the freeze it cannot rewrite the digest the registry pins it at.
+    """
     problems = []
 
-    for member, relative in (
-        ("preregistration", "PREREGISTRATION.md"),
-        ("matrix", "harness/MATRIX.json"),
-        ("adapterSpec", "adapter/SPEC.md"),
-    ):
+    for member, relative in PINNED_DIGEST_MEMBERS:
         expected = (pins.get(member) or {}).get("sha256")
         if expected is None:
             continue
@@ -185,6 +283,28 @@ def pin_problems(pins, jpack_bin):
             problems.append("pinned artefact is absent: " + relative)
         elif verify.sha256_file(path) != expected:
             problems.append("pinned digest does not match: " + relative)
+
+    expected_pack = (pins.get("pack") or {}).get("sha256")
+    if expected_pack is None:
+        problems.append("PINS.json carries no pack digest")
+    elif not PACK_PATH.is_file():
+        problems.append("the vendored pack artefact is absent")
+    elif verify.sha256_file(PACK_PATH) != expected_pack:
+        problems.append("the vendored pack bytes do not match the pinned digest")
+
+    expected_package = (pins.get("openworkproof") or {}).get("installedPackageDigest")
+    if not expected_package:
+        problems.append("PINS.json carries no installed openworkproof package digest")
+    else:
+        try:
+            actual_package = installed_package_digest()
+        except Exception as error:
+            problems.append("the installed openworkproof package is unreadable: %s" % error)
+        else:
+            if actual_package != expected_package:
+                problems.append(
+                    "the installed openworkproof package does not match its pinned digest"
+                )
 
     expected_binary = (pins.get("jpack") or {}).get("binarySha256")
     if not jpack_bin or not Path(jpack_bin).is_file():
@@ -214,25 +334,15 @@ def pin_problems(pins, jpack_bin):
     return problems
 
 
-def matrix_problems(registry):
-    """The frozen cell-id set and the per-cell schema, asserted not assumed."""
+def cell_schema_problems(cells, required_fields, label):
+    """The per-cell schema of a registry stratum, asserted not assumed."""
     problems = []
-    cells = registry.get("cells")
-    if not isinstance(cells, list):
-        return ["matrix carries no cell list"]
     ids = [cell.get("id") for cell in cells]
     if len(ids) != len(set(ids)):
-        problems.append("matrix cell ids are not unique")
-    if tuple(ids) != REGISTERED_CELL_IDS:
-        missing = [item for item in REGISTERED_CELL_IDS if item not in ids]
-        extra = [item for item in ids if item not in REGISTERED_CELL_IDS]
-        problems.append(
-            "matrix cell set is not the frozen set: missing=%s unregistered=%s "
-            "ordered=%s" % (missing, extra, list(ids) == list(REGISTERED_CELL_IDS))
-        )
+        problems.append("%s cell ids are not unique" % label)
     for cell in cells:
         cell_id = cell.get("id", "<unnamed>")
-        missing_fields = [field for field in CELL_FIELDS if field not in cell]
+        missing_fields = [field for field in required_fields if field not in cell]
         if missing_fields:
             problems.append("%s: missing required fields %s" % (cell_id, missing_fields))
             continue
@@ -260,6 +370,58 @@ def matrix_problems(registry):
                     "%s: expected %s outcome %r is out of vocabulary"
                     % (cell_id, layer, expected[layer])
                 )
+    return problems
+
+
+def matrix_problems(registry):
+    """The frozen cell-id set and the per-cell schema, asserted not assumed."""
+    cells = registry.get("cells")
+    if not isinstance(cells, list):
+        return ["matrix carries no cell list"]
+    problems = []
+    ids = [cell.get("id") for cell in cells]
+    if tuple(ids) != REGISTERED_CELL_IDS:
+        missing = [item for item in REGISTERED_CELL_IDS if item not in ids]
+        extra = [item for item in ids if item not in REGISTERED_CELL_IDS]
+        problems.append(
+            "matrix cell set is not the frozen set: missing=%s unregistered=%s "
+            "ordered=%s" % (missing, extra, list(ids) == list(REGISTERED_CELL_IDS))
+        )
+    problems.extend(cell_schema_problems(cells, CELL_FIELDS, "matrix"))
+    return problems
+
+
+def holdout_problems(registry, locked_ids=REGISTERED_CELL_IDS):
+    """The holdout stratum's own schema gate: same validator, plus attribution.
+
+    Two extra properties the locked stratum does not need. Every cell carries an
+    `author` (the stratum exists to be attributable to the cross-vendor reviewer,
+    and a cell without attribution is not a holdout cell), and no holdout id may
+    collide with a locked id — an overlap would let a holdout row be read as a
+    replication of a locked one, or vice versa.
+    """
+    cells = registry.get("cells")
+    if not isinstance(cells, list):
+        return ["holdout matrix carries no cell list"]
+    problems = []
+    if registry.get("stratum") != "reviewer-holdout":
+        problems.append("holdout matrix is not labelled the reviewer-holdout stratum")
+    if not cells:
+        problems.append(
+            "holdout matrix carries no cells: an empty holdout is not a passing holdout"
+        )
+    problems.extend(cell_schema_problems(cells, HOLDOUT_CELL_FIELDS, "holdout"))
+    for cell in cells:
+        author = cell.get("author")
+        if not isinstance(author, str) or not author.strip():
+            problems.append(
+                "%s: holdout cells must carry their author" % cell.get("id", "<unnamed>")
+            )
+    overlap = sorted(
+        {cell.get("id") for cell in cells} & set(locked_ids)
+    )
+    if overlap:
+        problems.append("holdout cell ids collide with the locked stratum: %s" % overlap)
     return problems
 
 
@@ -317,10 +479,21 @@ def adjudicate(observed, expectation):
 
 
 def vocabulary_problems(cell_id, observed):
-    """An out-of-vocabulary observation is non-adjudicable, never a divergence."""
+    """An out-of-vocabulary observation is non-adjudicable, never a divergence.
+
+    Two independent gates, both on the validity channel. The registered
+    `{verdict, code}` pair is checked *before* the outcome string, so an unknown
+    verdict carrying a known code cannot be normalized into a registered
+    `fail:<code>` and a bare `unavailable` cannot stand in for the registered
+    (`unavailable`, `replay-unavailable`) pair.
+    """
     problems = []
     for layer in LAYERS:
-        seen = observed[layer]["outcome"]
+        record = observed[layer]
+        problem = verify.pair_problem(layer, record)
+        if problem is not None:
+            problems.append(problem)
+        seen = record["outcome"]
         if seen not in LAYER_OUTCOMES[layer]:
             problems.append(
                 "layer %s returned an outcome outside the registered vocabulary: %s"
@@ -333,28 +506,22 @@ def vocabulary_problems(cell_id, observed):
 # publication
 # --------------------------------------------------------------------------
 
-def detection_matrix(rows):
+def matrix_table(rows):
     lines = [
-        "# Detection matrix — Study 014",
-        "",
-        "Per-cell, per-layer outcome adjudicated against `harness/MATRIX.json`",
-        "(locked-replication stratum). Every registered cell appears; nothing is",
-        "excluded. Only `endpoint` rows count toward R1; `control-gate` rows are",
-        "validity gates, `demonstration` and `descriptive` rows count toward nothing.",
-        "",
         "| Cell | Role | Attacker | OWP | BINDING | REPLAY | Combined | Registered | Divergence |",
         "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in rows:
         if row["status"] == NOT_ADJUDICATED:
             lines.append(
-                "| `%s` | %s | %s | — | — | — | %s | %s | pipeline-invalid |"
+                "| `%s` | %s | %s | — | — | — | %s | %s | %s |"
                 % (
                     row["cell"],
                     row["role"],
                     row["attackerCapability"],
                     NOT_ADJUDICATED,
                     "expected " + json.dumps(row["expected"]),
+                    "; ".join(row["problems"]) or "pipeline-invalid",
                 )
             )
             continue
@@ -378,16 +545,56 @@ def detection_matrix(rows):
                 or "—",
             )
         )
+    return lines
+
+
+def detection_matrix(rows, holdout=None):
+    lines = [
+        "# Detection matrix — Study 014",
+        "",
+        "## Locked-replication stratum",
+        "",
+        "Per-cell, per-layer outcome adjudicated against `harness/MATRIX.json`",
+        "(locked-replication stratum). Every registered cell appears; nothing is",
+        "excluded. Only `endpoint` rows count toward R1; `control-gate` rows are",
+        "validity gates, `demonstration` and `descriptive` rows count toward nothing.",
+        "",
+    ]
+    lines.extend(matrix_table(rows))
+    if holdout is not None:
+        lines.extend(
+            [
+                "",
+                "## Reviewer-holdout stratum",
+                "",
+                "Adjudicated against `harness/MATRIX-HOLDOUT.json`, authored by the",
+                "cross-vendor reviewer and never executed before the freeze. This stratum",
+                "is scored **separately**: its control-gate rows gate this stratum alone,",
+                "its outcomes enter no locked-stratum count, and it never changes the R1",
+                "verdict. Stratum summary: **%s** — %d cell(s), %d adjudicated, %d"
+                % (
+                    holdout["summary"],
+                    holdout["cells"],
+                    holdout["adjudicated"],
+                    len(holdout["endpointDivergentCells"]),
+                ),
+                "endpoint divergence(s).",
+                "",
+            ]
+        )
+        lines.extend(matrix_table(holdout["rows"]))
     return "\n".join(lines) + "\n"
 
 
-def write_outputs(attempt_root, results, rows):
+def write_outputs(attempt_root, results, rows, holdout=None):
+    attempt_root = Path(attempt_root)
     attempt_root.mkdir(parents=True, exist_ok=True)
-    (attempt_root / "RESULTS.json").write_text(
-        json.dumps(results, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    atomic_write_text(
+        attempt_root / "RESULTS.json",
+        json.dumps(results, indent=2, ensure_ascii=False) + "\n",
     )
-    (attempt_root / "DETECTION-MATRIX.md").write_text(
-        detection_matrix(rows), encoding="utf-8"
+    atomic_write_text(
+        attempt_root / "DETECTION-MATRIX.md", detection_matrix(rows, holdout)
     )
 
 
@@ -413,140 +620,274 @@ def terminal_invalid(attempt_root, label, problems, provenance):
 # the attempt
 # --------------------------------------------------------------------------
 
+def preflight_pins():
+    """PINS read for the argument-surface refusals alone, before anything exists.
+
+    A refusal here must not create an attempt directory, so this read is
+    deliberately outside the terminal record: if it fails, `run()` creates the
+    attempt and lets the terminal path record the same failure properly.
+    """
+    try:
+        return json.loads(
+            (STUDY / "harness" / "PINS.json").read_text(encoding="utf-8")
+        )
+    except Exception:
+        return None
+
+
+def holdout_summary(rows):
+    """The holdout stratum's own concordance verdict, scored on its own gates."""
+    invalid = [row for row in rows if row["status"] == NOT_ADJUDICATED]
+    gates = [row for row in rows if row["role"] == "control-gate"]
+    endpoints = [row for row in rows if row["role"] == "endpoint"]
+    failed_gates = [row for row in gates if row["divergences"]]
+    diverged_endpoints = [row for row in endpoints if row["divergences"]]
+    diverged = [row for row in rows if row["divergences"]]
+    if invalid:
+        summary = "holdout inconclusive — pipeline-invalid"
+    elif failed_gates:
+        summary = "holdout inconclusive — control gate failed"
+    elif not diverged_endpoints:
+        summary = "holdout concordant"
+    else:
+        summary = "holdout divergent"
+    return {
+        "stratum": "reviewer-holdout",
+        "summary": summary,
+        "cells": len(rows),
+        "adjudicated": len(rows) - len(invalid),
+        "endpointCells": len(endpoints),
+        "pipelineInvalidCells": [row["cell"] for row in invalid],
+        "controlGateFailures": [row["cell"] for row in failed_gates],
+        "endpointDivergentCells": [row["cell"] for row in diverged_endpoints],
+        "divergentCells": [row["cell"] for row in diverged],
+        "rows": rows,
+    }
+
+
+def adjudicate_holdout(registry, jpack_bin, work_root, validity):
+    """Adjudicate the holdout stratum into rows of its own. Never merged."""
+    rows = []
+    for cell in registry["cells"]:
+        rows.append(
+            adjudicate_cell(
+                cell,
+                jpack_bin,
+                work_root,
+                validity,
+                directory=holdout_cell_directory(cell["id"]),
+                scope="holdout",
+            )
+        )
+    return holdout_summary(rows)
+
+
 def run(attempt_root, include_holdout=False):
     attempt_root = Path(attempt_root)
     if attempt_root.exists():
         raise SystemExit("attempt root already exists: %s" % attempt_root)
 
-    pins_path = STUDY / "harness" / "PINS.json"
-    pins = json.loads(pins_path.read_text(encoding="utf-8"))
-    frozen = (pins.get("preregistration") or {}).get("sha256") is not None
-    label = "REGISTERED" if frozen else "PILOT"
+    # Argument-surface refusals come first, so a refused invocation creates
+    # nothing at all. Everything after the marker lands in a terminal record.
+    preflight = preflight_pins() or {}
+    if include_holdout:
+        if (preflight.get("preregistration") or {}).get("sha256") is None:
+            raise SystemExit(
+                "--include-holdout is refused: harness/PINS.json carries a null "
+                "preregistration digest, so the preregistration is still DRAFT and "
+                "the reviewer-authored holdout stratum may not be executed"
+            )
+        if (preflight.get("matrixHoldout") or {}).get("sha256") is None:
+            raise SystemExit(
+                "--include-holdout is refused: harness/PINS.json carries a null "
+                "matrixHoldout digest, so the holdout stratum the scorer would "
+                "adjudicate is not the one the freeze pinned"
+            )
 
-    if include_holdout and not frozen:
-        raise SystemExit(
-            "--include-holdout is refused: harness/PINS.json carries a null "
-            "preregistration digest, so the preregistration is still DRAFT and "
-            "the reviewer-authored holdout stratum may not be executed"
-        )
-
-    # The attempt marker lands before anything else runs, so an attempt that
-    # dies mid-flight is still a recorded attempt rather than a silent absence.
+    # The attempt marker lands before PINS.json is even parsed, so an attempt
+    # that dies anywhere is still a recorded attempt rather than a silent absence.
     attempt_root.mkdir(parents=True)
-    (attempt_root / "ATTEMPT.json").write_text(
+    atomic_write_text(
+        attempt_root / "ATTEMPT.json",
         json.dumps(
             {
                 "study": "014-openworkproof-binding",
                 "stratum": "locked-replication",
-                "attemptLabel": label,
                 "includeHoldout": bool(include_holdout),
                 "marker": "written before any cell ran",
             },
             indent=2,
         )
         + "\n",
-        encoding="utf-8",
     )
 
-    jpack_bin = os.environ.get("JPACK_BIN")
-    provenance = {
-        "pinsSha256": verify.sha256_file(pins_path),
-        "matrixSha256": verify.sha256_file(STUDY / "harness" / "MATRIX.json"),
-        "matrixHoldoutSha256": verify.sha256_file(
-            STUDY / "harness" / "MATRIX-HOLDOUT.json"
-        ),
-        "specSha256": verify.sha256_file(STUDY / "adapter" / "SPEC.md"),
-        "preregistrationSha256": verify.sha256_file(STUDY / "PREREGISTRATION.md"),
-        "studyManifestSha256": (
-            verify.sha256_file(make_manifest.MANIFEST_PATH)
-            if make_manifest.MANIFEST_PATH.is_file()
-            else None
-        ),
-        "jpackSha256": (
-            verify.sha256_file(jpack_bin)
-            if jpack_bin and Path(jpack_bin).is_file()
-            else None
-        ),
-        "harnessPython": platform.python_version(),
-    }
-
+    label = "PILOT"
+    provenance = {}
     try:
-        registry = json.loads(
-            (STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8")
-        )
-    except Exception as error:
-        return terminal_invalid(
-            attempt_root, label, ["matrix is unreadable: %s" % error], provenance
+        pins_path = STUDY / "harness" / "PINS.json"
+        pins = json.loads(pins_path.read_text(encoding="utf-8"))
+        frozen = (pins.get("preregistration") or {}).get("sha256") is not None
+        label = "REGISTERED" if frozen else "PILOT"
+        # The label is only knowable once PINS parses; the marker is rewritten
+        # atomically rather than being withheld until then.
+        atomic_write_text(
+            attempt_root / "ATTEMPT.json",
+            json.dumps(
+                {
+                    "study": "014-openworkproof-binding",
+                    "stratum": "locked-replication",
+                    "attemptLabel": label,
+                    "includeHoldout": bool(include_holdout),
+                    "marker": "written before any cell ran",
+                },
+                indent=2,
+            )
+            + "\n",
         )
 
-    gate_problems = []
-    gate_problems.extend(pin_problems(pins, jpack_bin))
-    gate_problems.extend(make_manifest.manifest_problems())
-    gate_problems.extend(matrix_problems(registry))
-    if gate_problems:
-        return terminal_invalid(attempt_root, label, gate_problems, provenance)
+        jpack_bin = os.environ.get("JPACK_BIN")
+        provenance = {
+            "pinsSha256": verify.sha256_file(pins_path),
+            "matrixSha256": verify.sha256_file(STUDY / "harness" / "MATRIX.json"),
+            "matrixHoldoutSha256": verify.sha256_file(
+                STUDY / "harness" / "MATRIX-HOLDOUT.json"
+            ),
+            "specSha256": verify.sha256_file(STUDY / "adapter" / "SPEC.md"),
+            "preregistrationSha256": verify.sha256_file(STUDY / "PREREGISTRATION.md"),
+            "studyManifestSha256": (
+                verify.sha256_file(make_manifest.MANIFEST_PATH)
+                if make_manifest.MANIFEST_PATH.is_file()
+                else None
+            ),
+            "installedPackageDigest": installed_package_digest(),
+            "jpackSha256": (
+                verify.sha256_file(jpack_bin)
+                if jpack_bin and Path(jpack_bin).is_file()
+                else None
+            ),
+            "harnessPython": platform.python_version(),
+        }
 
-    validity = []
-    rows = []
-    work_root = Path(tempfile.mkdtemp(prefix="study014-score-"))
-    try:
-        for cell in registry["cells"]:
-            row = adjudicate_cell(cell, jpack_bin, work_root, validity)
-            rows.append(row)
-    except Exception as error:
+        try:
+            registry = json.loads(
+                (STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8")
+            )
+        except Exception as error:
+            return terminal_invalid(
+                attempt_root, label, ["matrix is unreadable: %s" % error], provenance
+            )
+
+        holdout_registry = None
+        gate_problems = []
+        gate_problems.extend(pin_problems(pins, jpack_bin))
+        gate_problems.extend(make_manifest.manifest_problems())
+        gate_problems.extend(matrix_problems(registry))
+        if include_holdout:
+            try:
+                holdout_registry = json.loads(
+                    (STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(
+                        encoding="utf-8"
+                    )
+                )
+            except Exception as error:
+                gate_problems.append("holdout matrix is unreadable: %s" % error)
+            else:
+                gate_problems.extend(holdout_problems(holdout_registry))
+        if gate_problems:
+            return terminal_invalid(attempt_root, label, gate_problems, provenance)
+
+        validity = []
+        rows = []
+        holdout = None
+        work_root = Path(tempfile.mkdtemp(prefix="study014-score-"))
+        try:
+            for cell in registry["cells"]:
+                rows.append(adjudicate_cell(cell, jpack_bin, work_root, validity))
+            if holdout_registry is not None:
+                holdout = adjudicate_holdout(
+                    holdout_registry, jpack_bin, work_root, validity
+                )
+        except Exception as error:
+            return terminal_invalid(
+                attempt_root,
+                label,
+                [item["problem"] for item in validity]
+                + [
+                    "harness crashed while adjudicating: %s: %s"
+                    % (type(error).__name__, error)
+                ],
+                provenance,
+            )
+        finally:
+            shutil.rmtree(work_root, ignore_errors=True)
+
+        invalid = [row for row in rows if row["status"] == NOT_ADJUDICATED]
+        diverged = [row for row in rows if row["divergences"]]
+        gates = [row for row in rows if row["role"] == "control-gate"]
+        endpoints = [row for row in rows if row["role"] == "endpoint"]
+        failed_gates = [row for row in gates if row["divergences"]]
+        diverged_endpoints = [row for row in endpoints if row["divergences"]]
+
+        if invalid:
+            verdict = VERDICT_INVALID
+        elif failed_gates:
+            verdict = VERDICT_VOID
+        elif not diverged_endpoints:
+            verdict = VERDICT_HOLDS
+        else:
+            verdict = VERDICT_FALSIFIED
+
+        results = {
+            "study": "014-openworkproof-binding",
+            "stratum": "locked-replication",
+            "attemptLabel": label,
+            "verdict": verdict,
+            "matrixVersion": registry["matrixVersion"],
+            "provenance": provenance,
+            "validity": {
+                "pipelineInvalidCells": [row["cell"] for row in invalid],
+                "controlGateFailures": [row["cell"] for row in failed_gates],
+                "records": validity,
+            },
+            "detection": {
+                "cells": len(rows),
+                "adjudicated": len(rows) - len(invalid),
+                "endpointCells": len(endpoints),
+                "endpointDivergentCells": [row["cell"] for row in diverged_endpoints],
+                "divergentCells": [row["cell"] for row in diverged],
+                "rows": rows,
+            },
+        }
+        if holdout is not None:
+            # A separate section, never merged: the R1 verdict above is computed
+            # from the locked rows alone and is not recomputed here.
+            results["holdout"] = holdout
+        write_outputs(attempt_root, results, rows, holdout)
+        return results
+    except (SystemExit, KeyboardInterrupt):
+        raise
+    except BaseException as error:
         return terminal_invalid(
             attempt_root,
             label,
-            [item["problem"] for item in validity]
-            + ["harness crashed while adjudicating: %s: %s" % (type(error).__name__, error)],
+            [
+                "the scorer failed outside cell adjudication: %s: %s"
+                % (type(error).__name__, error)
+            ],
             provenance,
         )
-    finally:
-        shutil.rmtree(work_root, ignore_errors=True)
-
-    invalid = [row for row in rows if row["status"] == NOT_ADJUDICATED]
-    diverged = [row for row in rows if row["divergences"]]
-    gates = [row for row in rows if row["role"] == "control-gate"]
-    endpoints = [row for row in rows if row["role"] == "endpoint"]
-    failed_gates = [row for row in gates if row["divergences"]]
-    diverged_endpoints = [row for row in endpoints if row["divergences"]]
-
-    if invalid:
-        verdict = VERDICT_INVALID
-    elif failed_gates:
-        verdict = VERDICT_VOID
-    elif not diverged_endpoints:
-        verdict = VERDICT_HOLDS
-    else:
-        verdict = VERDICT_FALSIFIED
-
-    results = {
-        "study": "014-openworkproof-binding",
-        "stratum": "locked-replication",
-        "attemptLabel": label,
-        "verdict": verdict,
-        "matrixVersion": registry["matrixVersion"],
-        "provenance": provenance,
-        "validity": {
-            "pipelineInvalidCells": [row["cell"] for row in invalid],
-            "controlGateFailures": [row["cell"] for row in failed_gates],
-            "records": validity,
-        },
-        "detection": {
-            "cells": len(rows),
-            "adjudicated": len(rows) - len(invalid),
-            "endpointCells": len(endpoints),
-            "endpointDivergentCells": [row["cell"] for row in diverged_endpoints],
-            "divergentCells": [row["cell"] for row in diverged],
-            "rows": rows,
-        },
-    }
-    write_outputs(attempt_root, results, rows)
-    return results
 
 
-def adjudicate_cell(cell, jpack_bin, work_root, validity):
-    """One cell. Never raises: a crash here is a NOT-ADJUDICATED row."""
+def adjudicate_cell(cell, jpack_bin, work_root, validity, directory=None, scope=None):
+    """One cell. Never raises: a crash here is a NOT-ADJUDICATED row.
+
+    `directory` and `scope` are the holdout stratum's only difference: its cells
+    live under `fixtures/holdout/<id>/` and their validity records are tagged so
+    a holdout problem can never be read as a locked-stratum problem. A holdout
+    fixture directory that does not exist is a **constructibility finding**
+    (PREREGISTRATION §1a) recorded as NOT-ADJUDICATED, never a silent drop and
+    never a detection.
+    """
     shared = {
         "cell": cell["id"],
         "category": cell["category"],
@@ -555,17 +896,33 @@ def adjudicate_cell(cell, jpack_bin, work_root, validity):
         "expected": expected_tuple(cell["expected"]),
         "registeredUndetected": bool(cell.get("registeredUndetected")),
     }
+    if scope is not None:
+        shared["stratum"] = scope
+    if cell.get("author"):
+        shared["author"] = cell["author"]
     try:
-        directory = cell_directory(cell["id"])
-        problems = pipeline_problems(directory, cell)
-        if not problems:
-            observed = verify.verify_cell(directory, jpack_bin, work_root)
-            problems = vocabulary_problems(cell["id"], observed)
+        directory = cell_directory(cell["id"]) if directory is None else Path(directory)
+        if scope == "holdout" and not directory.is_dir():
+            problems = [
+                "holdout fixture is absent: the registered construction was not "
+                "built, which is a constructibility finding under PREREGISTRATION "
+                "section 1a and NOT-ADJUDICATED — never a silent drop"
+            ]
+            observed = None
+        else:
+            problems = pipeline_problems(directory, cell)
+            if not problems:
+                observed = verify.verify_cell(directory, jpack_bin, work_root)
+                problems = vocabulary_problems(cell["id"], observed)
     except Exception as error:
         problems = ["harness raised while verifying: %s: %s" % (type(error).__name__, error)]
         observed = None
     if problems:
-        validity.extend({"scope": cell["id"], "problem": problem} for problem in problems)
+        validity.extend(
+            {"scope": cell["id"], "stratum": scope or "locked-replication",
+             "problem": problem}
+            for problem in problems
+        )
         return dict(
             shared,
             status=NOT_ADJUDICATED,
@@ -616,6 +973,31 @@ def main(argv=None):
                 "  divergence %s (%s) %s: expected %s, observed %s"
                 % (row["cell"], row["role"], item["layer"], item["expected"], item["observed"])
             )
+    holdout = results.get("holdout")
+    if holdout is not None:
+        print(
+            "holdout stratum: %s — %d cells, %d adjudicated, %d endpoint-divergent, "
+            "%d pipeline-invalid"
+            % (
+                holdout["summary"],
+                holdout["cells"],
+                holdout["adjudicated"],
+                len(holdout["endpointDivergentCells"]),
+                len(holdout["pipelineInvalidCells"]),
+            )
+        )
+        for row in holdout["rows"]:
+            for item in row["divergences"]:
+                print(
+                    "  holdout divergence %s (%s) %s: expected %s, observed %s"
+                    % (
+                        row["cell"],
+                        row["role"],
+                        item["layer"],
+                        item["expected"],
+                        item["observed"],
+                    )
+                )
     return 0
 
 
