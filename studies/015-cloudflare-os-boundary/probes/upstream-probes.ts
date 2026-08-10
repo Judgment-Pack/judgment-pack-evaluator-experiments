@@ -157,6 +157,43 @@ suite("AutoApprovalDrainer — the neg-drain-skip/s02 branches (auto-approval.ts
   });
 });
 
+suite("the registered scenario's foreclosures, read from pinned source", () => {
+  // PREREGISTRATION section 4c and SPEC section 4a rest on these two source facts. They
+  // are assertions about the pinned TEXT, not about behaviour: the study never runs the
+  // connector, and this suite says so rather than implying a behavioural demonstration.
+  const clone = (): string => {
+    const source = process.env.CFOS_SOURCE;
+    if (!source) throw new Error("CFOS_SOURCE must be set");
+    return source;
+  };
+
+  test("the pinned MCP connector opts out of simulation and awaits the decision", () => {
+    const session = readFileSync(
+      join(clone(), "packages/mcp-shared/src/session.ts"),
+      "utf-8",
+    );
+    assert.ok(
+      session.includes("Nothing about a queued call is simulated"),
+      "the connector's own statement that it does not simulate is missing",
+    );
+    assert.ok(
+      session.includes("awaitDecision: true"),
+      "the connector's awaitDecision opt-out is missing",
+    );
+  });
+
+  test("the generic contract makes simulation advisory, not required", () => {
+    const contract = readFileSync(
+      join(clone(), "packages/workshop-shared/src/gatekeeper.ts"),
+      "utf-8",
+    );
+    assert.ok(
+      contract.includes("there is no strict requirement that a gatekeeper does such"),
+      "the contract's own opt-out language is missing",
+    );
+  });
+});
+
 suite("catalog identity helpers", () => {
   test("actionKindFor derives the policy tag from scope and tool name", () => {
     const kind = actionKindFor("jps-tracker", "create_work_item");

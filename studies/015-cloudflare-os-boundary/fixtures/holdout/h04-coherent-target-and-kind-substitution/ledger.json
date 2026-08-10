@@ -13,14 +13,15 @@
     "type": "action",
     "action": 21,
     "description": {
-      "title": "Provision intake request",
-      "description": "Create the tracker work item for the judged intake request.",
+      "title": "tracker: trackercreateworkitem",
+      "description": "**tracker** → `tracker_create_work_item`\n\n> Create a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"provision-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp#server=tracker`\n\nTreated as an action because the server did not declare it read-only. Nothing has been sent yet.",
       "implementsRevert": false,
+      "awaitDecision": true,
+      "autoApprovable": true,
       "actionKind": {
         "tag": "reviewer-forged-scope:create_work_item",
-        "label": "create_work_item"
-      },
-      "autoApprovable": true
+        "label": "tracker_create_work_item"
+      }
     },
     "resolvedBy": {
       "type": "user",

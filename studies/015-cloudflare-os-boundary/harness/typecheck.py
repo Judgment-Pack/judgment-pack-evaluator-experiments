@@ -85,10 +85,16 @@ def generated_source(cells, overseer_module):
     return "\n".join(lines) + "\n"
 
 
-def fixture_cells():
-    """Every constructed cell in both strata, locked first."""
+def fixture_cells(include_holdout=False):
+    """The constructed cells of the requested strata, locked first.
+
+    The holdout is scanned only when it is being adjudicated. Round 2's blocker: an
+    unconditional scan meant a malformed holdout fixture could fail the locked stratum's
+    own precondition, which is precisely the leak the separation is supposed to forbid.
+    """
+    parents = ["mutations"] + (["holdout"] if include_holdout else [])
     roots = [STUDY / "fixtures" / "baseline"]
-    for parent in ("mutations", "holdout"):
+    for parent in parents:
         directory = STUDY / "fixtures" / parent
         if directory.is_dir():
             roots.extend(sorted(path for path in directory.iterdir() if path.is_dir()))
@@ -133,7 +139,7 @@ def _codegen_problems(source):
     return []
 
 
-def typecheck_problems():
+def typecheck_problems(include_holdout=False):
     source = cf_runner.source_root()
     tsc = tsc_path(source)
     if not tsc.is_file():
@@ -147,7 +153,8 @@ def typecheck_problems():
         scratch = Path(scratch)
         generated = scratch / "fixtures.gen.ts"
         generated.write_text(
-            generated_source(fixture_cells(), str(overseer)), encoding="utf-8"
+            generated_source(fixture_cells(include_holdout), str(overseer)),
+            encoding="utf-8",
         )
         tsconfig = {
             "extends": str(backend / "tsconfig.json"),
@@ -179,7 +186,7 @@ def typecheck_problems():
 
 
 def main():
-    problems = typecheck_problems()
+    problems = typecheck_problems(include_holdout=True)
     for problem in problems:
         print(problem)
     print(

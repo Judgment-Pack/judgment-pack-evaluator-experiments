@@ -45,8 +45,9 @@ never runs, and when a construction gives those functions nothing to decide the 
 `not-engaged`, not `pass`. That distinction carries the central R2 fact cell by cell: the
 platform's policy reads an author Boolean, a user rule, and a server's self-annotations —
 no field of it carries a disposition, so a bridge that stages an action under an unresolved
-judgment passes the platform's own live checks and only the binding layer can say why that
-is wrong.
+judgment passes both offline-replayed policy functions without objection, and only the
+binding layer can say why that is wrong. (The live Durable Object path never runs here, so
+nothing in this study reports what the platform would do at runtime.)
 
 What a green ceremony means, stated narrowly: **the retained store is internally
 consistent, the action it records is the one the registered map derives from the recorded
@@ -62,8 +63,13 @@ ceiling, stated up front.
 Neither system is modified. Cloudflare OS is consumed as a read-only clone at a pinned
 commit with upstream's own lockfile (probes are bundled by the clone's own esbuild; the
 one injected seam is an inert `cloudflare:workers` tracing stub on the observability
-path); jpack as a pinned release binary. Every retained record is held to the pinned
-**server-side** `ActionRecord` by the clone's own TypeScript compiler, and `adapter/SPEC.md`
+path); jpack as a pinned release binary. The registered deployment is the pinned **MCP
+Portal** connector with `MCP_PORTAL_TRUST_ANNOTATIONS=true` — the only pinned connector
+that can be `vetted`, and therefore the only one on which an auto-approvable write exists
+at all — and every identifier in the fixtures is the shape that connector actually emits.
+Every retained **ledger record and auto-approval rule** is held to the pinned server-side
+`ActionRecord` and `AutoApproveTagRecord` by the clone's own TypeScript compiler (the
+modeled gatekeeper-side store has no upstream type to be held to), and `adapter/SPEC.md`
 §0a publishes a field-by-field provenance table saying, for every datum the ceremony reads,
 whether stock Cloudflare OS retains it at all.
 
@@ -72,8 +78,9 @@ whether stock Cloudflare OS retains it at all.
 - **Study 014** bound a judgment to an *execution receipt protocol* that ships its own
   offline verifier and signs everything. 015 is the same question against the opposite
   kind of neighbor: a platform with rich *live* controls — it validates its own RPC
-  boundary — but **no offline verification of a retained record**: no signature, no
-  digest, no action-log export, and every semantic commitment an unconstrained string.
+  boundary, and exposes its log to authorized clients — but **no signed, complete,
+  offline-verifiable record export**: no signature, no digest, and every semantic
+  commitment an unconstrained string.
   The asymmetry is the finding: everything 014 could anchor into signed slots, 015's
   adapter must carry itself, and says so.
 - **Study 013** asked whether an application *behaves* consistently with the judgment,

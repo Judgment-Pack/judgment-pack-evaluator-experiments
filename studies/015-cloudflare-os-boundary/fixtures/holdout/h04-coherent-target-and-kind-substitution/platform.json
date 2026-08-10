@@ -2,11 +2,12 @@
   "gatekeepers": [
     {
       "id": 1,
-      "resourceUrl": "https://tracker.example/mcp",
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
       "serverTrust": "vetted",
       "tools": [
         {
-          "name": "create_work_item",
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
           "annotations": {
             "readOnlyHint": false,
             "destructiveHint": false,
@@ -21,7 +22,8 @@
       "serverTrust": "vetted",
       "tools": [
         {
-          "name": "create_work_item",
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
           "annotations": {
             "readOnlyHint": false,
             "destructiveHint": false,
@@ -36,19 +38,17 @@
     {
       "gatekeeperId": 2,
       "action": 21,
-      "toolName": "create_work_item",
+      "toolName": "tracker_create_work_item",
       "arguments": {
         "kind": "provision-intake",
         "requestType": "new-data-pipeline",
         "source": "jps-triage"
       },
       "resourceRevisionAtStage": "rev-7",
-      "simulationBasis": [],
       "connectorOutcome": "committed",
-      "commitmentDigest": "62bc7c568481dc5da5bfe3b4bb7e313805edb82f3ba43e04caa7672095ed8b35"
+      "commitmentDigest": "bff4a7699fc4304c3291b0ccf3e30893630903ff94d90c2efefcf63d9fa9ccc7"
     }
   ],
-  "simulations": [],
   "observedCalls": [],
   "drainWitnesses": [],
   "world": {

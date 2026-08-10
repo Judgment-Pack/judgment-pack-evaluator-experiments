@@ -24,10 +24,13 @@ The platform validates at its live RPC boundary — `ApprovalQueueImpl` carries 
 types at build time. What it ships no part of is **offline verification of a retained or
 exported action record**: those validators are inline closures inside the built Worker, bound to
 a live service method and structural only (every semantic commitment — which tag, which prose,
-which gatekeeper — is an unconstrained string); there is no digest, no signature, and no
-action-log export anywhere in the pinned source. A third party handed a workspace's records has
-nothing from the platform with which to check them. That second sentence is this study's
-load-bearing claim about the platform, and the only one.
+which gatekeeper — is an unconstrained string). The platform does expose its log to authorized
+clients — `listActions()` (`workshop-shared/src/api.ts:1422`, implemented at
+`overseer.ts:7548`) projects the stored records — but that projection is neither signed nor
+digested, and it deliberately strips the fields that would let a holder join to a connector's
+private store. What is absent is a **signed, complete, offline-verifiable record export**: a
+third party handed a workspace's records has nothing from the platform with which to check them.
+That last sentence is this study's load-bearing claim about the platform, and the only one.
 
 The study therefore fixes a retained-record model: one directory per cell holding the exact
 bytes an offline third party is assumed to have been handed.
@@ -56,16 +59,19 @@ it does not.
 
 | Datum | Stock OUTER log | Stock MCP store | Study's use |
 |---|---|---|---|
-| Tool name | as prose in `description`, and structurally inside `description.actionKind.tag` (`tools.ts:94`) | yes, exact (`tool_name`) | bound structurally — **instrumentation** for a canonical form |
+| Tool name | **stock**: prose in `description`, exact in `description.actionKind.label`, and encoded in `.tag` (`tools.ts:94`) | yes, exact (`tool_name`) | bound structurally; a *canonical digest* over it is instrumentation |
 | Call arguments | prose only, JSON-stringified, fence-defused, truncated at 4000 chars (`tools.ts:208-234`) | yes, exact (`args_json`) | `argumentsDigest` over canonical args — **instrumentation** |
 | Resource revision at stage | not retained | not retained | **instrumentation** (some non-MCP connectors keep an analogue privately and destroy it at apply) |
 | Resource revision at apply | not retained | not retained | **instrumentation** |
 | Commitment carrier | none — no digest or signature over any record | none | **instrumentation**, wholly |
-| Simulation basis | not retained; `awaitDecision` is an inverted advisory hint | not retained (MCP hardcodes `awaitDecision: true`) | **instrumentation**; and see §4a — unreachable for this connector |
+| Simulation basis | not retained; `awaitDecision` is an inverted advisory hint | not retained (MCP hardcodes `awaitDecision: true`) | **removed from the schema** — unreachable for this connector (§4b) |
 | Connector outcome / retryability | not retained; the outer log has no failure state at all | yes (`error`, `retryable`), within a 100-record window | **instrumentation** at the outer layer |
 | External effect attestation | none — `approved` means an in-process call returned | first-party response only | **instrumentation**, wholly |
-| Drain witness (stage-time rules, pass identity) | not retained; rules are hard-deleted with no tombstone (`overseer.ts:7762`) | n/a | **instrumentation** (§5, `drain-order-violation`) |
-| Approval identity, auto-approval attribution | **yes**, stock (`resolvedBy`, `autoApproved`) | not retained | read as-is |
+| Drain witness (stage-time rule set, pass identity, pass instant, applied ids, gatekeeper presence) | not retained; rules are hard-deleted with no tombstone (`overseer.ts:7762`) | n/a | **instrumentation, and self-asserted** — supplied by the same store under examination, so the verdict is consistency-with-the-witness, never historical lawfulness (§5) |
+| Record timestamps (`createdAt`, `appliedAt`) | **yes**, stock; `appliedAt` is stamped on approve *and* reject | n/a | the queue reconstruction; never read as evidence of application |
+| `autoApprovable`, action-kind tag/label | **yes**, stock, frozen in the persisted description | n/a | drain eligibility, read as-is |
+| Catalog annotations and trust tier | **yes**, stock, but **untimestamped** | n/a | classification replay uses the *current* values; later drift could launder or falsely reject a historical classification — a registered limitation |
+| Approval identity, auto-approval attribution | **yes**, stock (`resolvedBy`, `autoApproved`) | not retained | `autoApproved` selects the drain replay; `resolvedBy` is compared against the enabler the pinned drainer attributes |
 | Action lifecycle state | **yes**, stock, three values | five values, divergent | read as-is |
 | Evidence artifacts | n/a | n/a | **instrumentation** (the acquiring system's, not the platform's) |
 
@@ -111,8 +117,7 @@ order.
     "toolName": "create_work_item",
     "actionKindTag": "jps-tracker:create_work_item",
     "argumentsDigest": "<64 lowercase hex, no prefix>",
-    "boundResourceRevision": "<opaque string>",
-    "simulationBasis": []
+    "boundResourceRevision": "<opaque string>"
   }
 }
 ```
@@ -136,16 +141,18 @@ Field semantics and digest conventions:
   The backing digests are adapter-carried assertions of *lineage*, not truth: nothing here
   inspects an artifact's content or vouches for its authenticity.
 - `action` is `null` iff the disposition authorizes no action under the §4 map.
-- **Derived members** — `gatekeeperId`, `resourceUrl`, `toolName`, `actionKindTag`,
-  `argumentsDigest` — are determined by the §4 map from the judgment alone, and the verifier
+- **Derived members** — `gatekeeperId`, `resourceUrl`, `serverTrust`, `toolName`,
+  `actionKindTag`, `argumentsDigest` — are determined by the §4 map from the judgment alone, and the verifier
   re-derives them rather than trusting them (§5, `action-derivation-mismatch`).
   `actionKindTag` is derived by reproducing the platform's own rule (`actionKindFor`,
   `tools.ts:94`) over the registered scope tag; a probe asserts the reproduction agrees with
   upstream.
-- **Contextual members** — `serverTrust`, `boundResourceRevision`, `simulationBasis` — are
-  deployment and staging state that no map can determine. They are never derived; each is
-  checked against the retained store (`target-mismatch`, `stage-revision-mismatch`,
-  `revision-drift`, `simulation-basis-invalid`).
+- **Contextual member** — `boundResourceRevision` alone — is staging state no map can
+  determine. It is never derived; it is checked against the retained store
+  (`stage-revision-mismatch`, `revision-drift`). Round 2 found `serverTrust` was wrongly
+  contextual (the map fixes the tier) and that `simulationBasis` could only ever be empty for
+  the registered connector, so the field is gone from the schema entirely and its verdict code
+  with it — a code that cannot fire is the unreachable prose this study forbids.
 - `action.argumentsDigest`: SHA-256 hex over
   `JCS({"domain": "jps-cloudflare-os-binding/arguments/1", "toolName": ..., "arguments": ...})`.
   Adapter-owned by necessity, and the asymmetry with Study 014 is deliberate content: OWP ships
@@ -187,7 +194,7 @@ Total over the disposition space of the pinned pack:
 
 | Disposition | Authorized action |
 |---|---|
-| `outcome` / `proceed`, handoff `none` | exactly one staged call of `create_work_item` on Gatekeeper 1 at `https://tracker.example/mcp`, arguments a deterministic function of the retained facts (`adapter/commitment.py`) |
+| `outcome` / `proceed`, handoff `none` | exactly one staged call of `tracker_create_work_item` on Gatekeeper 1 at `https://tracker.example/mcp#server=tracker`, arguments a deterministic function of the retained facts (`adapter/commitment.py`) |
 | `outcome` / `clarify-return` or `decline-redirect` | none (communications are not queue effects; the bridge may *report* them but stages nothing) |
 | `not-applicable` | none |
 | `unresolved` (any reason set) | none |
@@ -203,19 +210,46 @@ counterfactual ("would this deployment have staged it?") entering the ceremony. 
 **adapter-owned policy**, not a property of JPS or of the platform; a different deployment could
 map differently, and every S- and B-family attribution is a claim about *this* map.
 
-### 4a. What the pinned connector forecloses
+### 4a. Which connector, and what it forecloses
+
+The registered deployment is the pinned **MCP Portal** connector
+(`packages/gatekeeper-mcp-portal/`) configured with `MCP_PORTAL_TRUST_ANNOTATIONS=true`. Round 2
+established that no other choice is possible: the generic MCP connector hardwires
+`const TRUST: ServerTrust = "byo"` (`gatekeeper-mcp/src/mcp.ts:77`) with no deployment knob, and
+`classifyTool` requires `vetted` for auto-approval (`mcp-shared/src/tools.ts:66-69`), so a
+vetted, auto-approvable write is producible **only** through the portal
+(`gatekeeper-mcp-portal/src/config.ts:34-36`; the repository says so itself at
+`gatekeeper-mcp/README.md:165-167`).
+
+Every registered identifier is therefore the shape that connector actually emits, not a
+scenario-local placeholder: the resource is `https://tracker.example/mcp#server=tracker`, tool
+names carry the portal's `<upstream server id>_<tool>` wire form, and the action-kind tag is
+`actionKindFor("mcp-portal:<encoded endpoint>:portal-tracker", tool)` — which double-encodes,
+giving the deliberately ugly
+`mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker:tracker_create_work_item`.
+Every action record carries the exact field set `mcp-shared/src/session.ts:126-135` submits:
+`describeCall`-generated title and description, `implementsRevert: false`, `awaitDecision: true`
+(always), an explicit `autoApprovable` boolean, and the connector-derived action kind. An earlier
+draft used invented short prose, a bare endpoint, an invented `jps-tracker` scope and an omitted
+`awaitDecision`; none of that was producible, and it is corrected.
+
+### 4b. What the pinned connector forecloses
 
 The generic Gatekeeper contract suggests, but does not require, that a gatekeeper simulate
 unapproved actions so an agent can queue dependent work (`gatekeeper.ts:624-629`). The pinned
 MCP connector takes the contract's own opt-out instead: it simulates nothing and sets
-`awaitDecision: true` on every write (`mcp-shared/src/session.ts:131-133`), which suspends the
-agent's turn until the user decides. A dependent write staged against a fictional premise is
+`awaitDecision: true` on every write (`mcp-shared/src/session.ts:131-133`). That flag suspends
+the agent's turn only when the action is **not** auto-eligible at submit time
+(`overseer.ts:2905`): the registered baseline — vetted, rule enabled, `autoApprovable: true` — is
+precisely the case that does not suspend. Suspension is therefore not what forecloses the
+dependent-write hazard; the absence of simulation is. A dependent write staged against a fictional premise is
 therefore **not constructible in this study's registered scenario**, in either direction. Five
 other pinned connectors (Home Assistant, Notion, Confluence, Linear, Spotify) do implement
 simulation, so the hazard is real for the platform and simply absent from this deployment.
-`simulationBasis` and its verdict code remain registered as defence in depth for connectors that
-simulate; no endpoint cell exercises them, and PREREGISTRATION §4c records that as a limitation
-rather than a result.
+Because the basis could only ever be empty here, `simulationBasis` is **not** in the commitment
+schema at all and there is no verdict code for it: a field with one reachable value carries no
+information, and a code that cannot fire is unreachable prose. PREREGISTRATION §4c records the
+hazard analytically instead.
 
 ## 5. The verification ceremony
 
@@ -252,7 +286,7 @@ platform endorsing anything. When a construction gives them nothing to decide th
    platform destroys — the rule set in force at that instant, the pass identity, and that the
    gatekeeper resolved. The queue itself is reconstructed from the ledger's own immutable
    timestamps (`createdAt <= t` and not yet resolved at `t`), which is sound because `appliedAt`
-   is stamped on both approve (`overseer.ts:2495`) and reject (`overseer.ts:7729`) — it is a
+   is stamped on both approve (`overseer.ts:2495`) and reject (`overseer.ts:7730`) — it is a
    *resolution* stamp, never read here as evidence of application. A ledger that claims an
    auto-approval with no witness fails; so does a witness claiming an application the ledger
    does not record.
@@ -286,27 +320,29 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
    disposition (an action object under a non-executable disposition, null under `proceed`); an
    action-class record binds to a commitment to inaction; or a bound staged call took effect
    with no approved ledger record.
-9. `binding-reuse` — more than one staged call, more than one applied record, or more than one
-   ledger record for the bound call, all under one `commitmentDigest`.
+9. `binding-reuse` — more than one staged call, applied record, or ledger record claims one
+   `commitmentDigest`; **or** the store holds more staged calls or applied records against the
+   judged subject than the map authorizes, whatever digest they carry or omit. Subject identity
+   is the tool, resource and exact arguments the map derives — round 2 found that counting only
+   digest-labelled calls let an unlabelled twin execute a second time invisibly.
 10. `target-mismatch` — the bound staged call's gatekeeper, resource URL, trust tier, tool name,
     or the record's action-kind tag differs from the commitment's `action`.
 11. `argument-drift` — the staged call's arguments do not digest to `action.argumentsDigest`.
 12. `stage-revision-mismatch` — the revision recorded at staging is not the committed
     `boundResourceRevision`.
 13. `revision-drift` — the revision recorded at apply time is not the committed one.
-14. `simulation-basis-invalid` — the staged call's basis is not the committed basis, or some id
-    in it names a simulation whose underlying action is not `approved` in the retained ledger.
-15. `unbound-execution` — a retained effect attestation matches the judged subject (same
+14. `unbound-execution` — a retained effect attestation matches the judged subject (same
     resource, tool, and arguments digest) with no approved action record bound to this
-    commitment authorizing it.
-16. `handoff-dropped` — the committed disposition carries handoff `requested` and `report.json`
+    commitment authorizing it, or more such effects are attested than there are approved
+    bound applications to account for them.
+15. `handoff-dropped` — the committed disposition carries handoff `requested` and `report.json`
     carries no handoff.
-17. `commit-overclaim` — `report.json` claims `effect-attested` while no matching effect
+16. `commit-overclaim` — `report.json` claims `effect-attested` while no matching effect
     attestation is retained. The platform's `approved` state (its callback returned) is
     registered as *not* satisfying the claim, per its own at-most-once contract.
-18. `report-state-unsupported` — the report's execution state is out of vocabulary, or is not
+17. `report-state-unsupported` — the report's execution state is out of vocabulary, or is not
     supported by the retained store under the closed predicates below.
-19. `report-misattribution` — no report is retained, the report does not bind this commitment,
+18. `report-misattribution` — no report is retained, the report does not bind this commitment,
     or its decision is not the committed disposition verbatim (kind, outcomeId, reasons, handoff
     state).
 
@@ -336,7 +372,7 @@ predicate over the retained store** rather than a free-text claim — round 1 fo
 | `staged` | exactly one bound staged call, its ledger record (if any) still `pending`, no matching effect |
 | `applied` | one bound staged call with an `approved` ledger record, and the connector outcome is not `outcome-unknown` |
 | `applied-unproven` | one bound staged call whose retained connector outcome **is** `outcome-unknown`, with no matching effect — the ambiguity state, never a default |
-| `effect-attested` | an approved bound record **and** a matching retained effect attestation (§5 step 17) |
+| `effect-attested` | an approved bound record **and** a matching retained effect attestation (§5 step 16) |
 
 The connector outcome vocabulary is `pending`, `committed`, `failed`, `outcome-unknown`. The
 last is the platform's own at-most-once ambiguity: when an MCP dispatch's result is never

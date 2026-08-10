@@ -2,11 +2,12 @@
   "gatekeepers": [
     {
       "id": 1,
-      "resourceUrl": "https://tracker.example/mcp",
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
       "serverTrust": "vetted",
       "tools": [
         {
-          "name": "create_work_item",
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
           "annotations": {
             "readOnlyHint": false,
             "destructiveHint": false,
@@ -21,19 +22,17 @@
     {
       "gatekeeperId": 1,
       "action": 11,
-      "toolName": "create_work_item",
+      "toolName": "tracker_create_work_item",
       "arguments": {
         "kind": "provision-intake",
         "requestType": "data-access",
         "source": "jps-triage"
       },
       "resourceRevisionAtStage": "rev-7",
-      "simulationBasis": [],
       "connectorOutcome": "committed",
-      "commitmentDigest": "77193b93e7b38dce348877287253060441aaccdf324789f2faaae7fc113b40e5"
+      "commitmentDigest": "3b7e9b2a80f91b7c8421e794eca8e8f3c3386253f004afb66771d2f96bb24a54"
     }
   ],
-  "simulations": [],
   "observedCalls": [],
   "drainWitnesses": [],
   "world": {
@@ -43,8 +42,8 @@
   },
   "effects": [
     {
-      "resourceUrl": "https://tracker.example/mcp",
-      "toolName": "create_work_item",
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "toolName": "tracker_create_work_item",
       "arguments": {
         "kind": "provision-intake",
         "requestType": "data-access",

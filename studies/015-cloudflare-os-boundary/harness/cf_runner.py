@@ -33,6 +33,7 @@ ALIASES = {
     "cloudflare:workers": "{probes}/stubs/cloudflare-workers.ts",
     "@gadgets/typed-storage": "{source}/packages/typed-storage/src/index.ts",
     "@gadgets/mcp-shared/tools": "{source}/packages/mcp-shared/src/tools.ts",
+    "@gadgets/mcp-shared/scope": "{source}/packages/mcp-shared/src/scope.ts",
     "@gadgets/workshop-backend/auto-approval":
         "{source}/packages/workshop-backend/src/auto-approval.ts",
     "@gadgets/workshop-backend/mock-storage":

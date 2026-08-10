@@ -285,23 +285,31 @@ def test_revision_drift(cell_copy):
     assert binding(cell)["code"] == "revision-drift"
 
 
-def test_simulation_basis_invalid(cell_copy):
-    """Registered as defence in depth: no locked cell exercises it, because the pinned
-    MCP connector opts out of simulation (PREREGISTRATION section 4c). The code stays
-    reachable so the vocabulary carries no unreachable prose."""
+def test_binding_reuse_catches_an_unlabelled_second_subject_call(cell_copy):
+    """Round 2's blocker 1: a surplus call carrying no commitment digest was invisible."""
     cell = cell_copy("pos-baseline")
-    new_digest = rebuild_commitment(
-        cell, lambda c: c["action"].__setitem__("simulationBasis", [5])
-    )
     platform = load_json(cell / "platform.json")
-    platform["stagedCalls"][0]["commitmentDigest"] = new_digest
-    platform["stagedCalls"][0]["simulationBasis"] = [5]
-    platform["simulations"] = [{"id": 5, "actionLedgerId": 99}]
+    twin = json.loads(json.dumps(platform["stagedCalls"][0]))
+    twin["action"] = 12
+    twin.pop("commitmentDigest")
+    platform["stagedCalls"].append(twin)
     dump_json(cell / "platform.json", platform)
-    report = load_json(cell / "report.json")
-    report["commitmentDigest"] = new_digest
-    dump_json(cell / "report.json", report)
-    assert binding(cell)["code"] == "simulation-basis-invalid"
+    ledger = load_json(cell / "ledger.json")
+    row = json.loads(json.dumps(ledger[0]))
+    row["id"] = 2
+    row["action"] = 12
+    ledger.append(row)
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "binding-reuse"
+
+
+def test_unbound_execution_counts_surplus_effects(cell_copy):
+    """A second attested effect must not hide behind one legitimate application."""
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["effects"].append(json.loads(json.dumps(platform["effects"][0])))
+    dump_json(cell / "platform.json", platform)
+    assert binding(cell)["code"] == "unbound-execution"
 
 
 def test_unbound_execution(cell_copy):

@@ -29,6 +29,7 @@ STUDY = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(STUDY / "adapter"))
 sys.path.insert(0, str(STUDY / "harness"))
 
+import cf_runner  # noqa: E402
 import commitment as cmt  # noqa: E402
 
 FIXTURES = STUDY / "fixtures"
@@ -42,14 +43,29 @@ ENABLER = {"type": "user", "id": "governor@example.invalid", "name": "Governor"}
 APPROVER = {"type": "user", "id": "approver@example.invalid", "name": "Approver"}
 AGENT_CALLER = {"from": "agent", "chatId": 1}
 
+# The catalog the pinned MCP Portal connector would expose for this deployment. Tool
+# names carry the portal's `<upstream server id>_<tool>` wire form; annotations are what
+# the upstream server declares and what `classifyTool` reads.
 TRACKER_TOOL = {
-    "name": "create_work_item",
+    "name": cmt.ACTION_TOOL,
+    "description": "Create a work item in the tracker.",
     "annotations": {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": True},
 }
+# A genuinely non-auto-approvable write: unannotated, so `classifyTool` gives it
+# `mode: action, autoApprovable: false` on any tier (tools.ts:66-69). Round 2 found the
+# earlier manual gate was fabricated by omitting `autoApprovable` on a tool the connector
+# would have marked auto-approvable; this is a gate the pinned classifier actually makes.
+GATE_TOOL = {
+    "name": cmt.SECOND_TOOL,
+    "description": "Close a work item in the tracker.",
+    "annotations": {},
+}
 DELETE_TOOL = {
-    "name": "delete_work_item",
+    "name": "tracker_delete_work_item",
+    "description": "Delete a work item in the tracker.",
     "annotations": {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": True},
 }
+PORTAL_SERVER_NAME = "tracker"
 
 # The specification conformance seed cases each cell evaluates (facts + evidence verbatim).
 CASES = {
@@ -116,8 +132,12 @@ def evaluate_envelope(jpack_bin, facts_bytes, evidence_bytes):
 class Timeline:
     """One cell's records, assembled then serialized deterministically."""
 
-    def __init__(self, action_kind):
+    def __init__(self, action_kind, described=None):
         self.action_kind = action_kind
+        self.described = described or {
+            "title": "action",
+            "description": "action",
+        }
         self.gatekeepers = [
             {
                 "id": 1,
@@ -129,7 +149,6 @@ class Timeline:
         self.auto_rules = []
         self.ledger = []
         self.staged = []
-        self.simulations = []
         self.effects = []
         self.observed = []
         self.witnesses = []
@@ -164,16 +183,20 @@ class Timeline:
     # -- ledger --------------------------------------------------------
 
     def add_action(self, ledger_id, *, gatekeeper_id=1, action_key, state,
-                   auto=False, autoApprovable=True, kind=None, resolved_at=None):
+                   auto=False, autoApprovable=True, kind=None, resolved_at=None,
+                   described=None):
+        # The exact field set `mcp-shared/src/session.ts:126-135` submits: describeCall's
+        # title and description, implementsRevert false, awaitDecision ALWAYS true, an
+        # explicit autoApprovable boolean, and the connector-derived action kind.
         description = {
-            "title": "Provision intake request",
-            "description": "Create the tracker work item for the judged intake request.",
+            "title": (described or self.described)["title"],
+            "description": (described or self.described)["description"],
             "implementsRevert": False,
+            "awaitDecision": True,
+            "autoApprovable": bool(autoApprovable),
         }
         if kind is not False:
             description["actionKind"] = dict(kind or self.action_kind)
-        if autoApprovable:
-            description["autoApprovable"] = True
         record = {
             "id": ledger_id,
             "gatekeeperId": gatekeeper_id,
@@ -216,7 +239,7 @@ class Timeline:
     # -- gatekeeper-side store -----------------------------------------
 
     def stage(self, *, gatekeeper_id=1, action_key, tool_name, arguments,
-              commitment_digest=None, revision=BOUND_REVISION, basis=(),
+              commitment_digest=None, revision=BOUND_REVISION,
               connector_outcome="committed"):
         call = {
             "gatekeeperId": gatekeeper_id,
@@ -224,7 +247,6 @@ class Timeline:
             "toolName": tool_name,
             "arguments": arguments,
             "resourceRevisionAtStage": revision,
-            "simulationBasis": sorted(basis),
             "connectorOutcome": connector_outcome,
         }
         if commitment_digest is not None:
@@ -246,7 +268,6 @@ class Timeline:
             "gatekeepers": self.gatekeepers,
             "autoApproveTags": self.auto_rules,
             "stagedCalls": self.staged,
-            "simulations": self.simulations,
             "observedCalls": self.observed,
             "drainWitnesses": self.witnesses,
             "world": {"resourceRevisionAtApply": self.apply_revisions},
@@ -322,7 +343,38 @@ class Builder:
             "tag": cmt.action_kind_tag(tool_name=DELETE_TOOL["name"]),
             "label": DELETE_TOOL["name"],
         }
+        self.gate_kind = {
+            "tag": cmt.action_kind_tag(tool_name=GATE_TOOL["name"]),
+            "label": GATE_TOOL["name"],
+        }
+        self._descriptions = {}
         self._envelopes = {}
+
+    def describe(self, tool, tool_args, mode="action", classified_by="default"):
+        """The prose the pinned connector would submit, from upstream's own describeCall.
+
+        Round 2: the fixtures previously carried invented short prose, which no connector
+        emits. These are the real strings, generated by the pinned function.
+        """
+        key = json.dumps([tool["name"], tool_args, mode, classified_by], sort_keys=True)
+        if key not in self._descriptions:
+            helpers = cf_runner.build_helpers(
+                {
+                    "describeCalls": [
+                        {
+                            "label": "d",
+                            "serverName": PORTAL_SERVER_NAME,
+                            "endpoint": cmt.RESOURCE_URL,
+                            "tool": tool,
+                            "toolArgs": tool_args,
+                            "mode": mode,
+                            "classifiedBy": classified_by,
+                        }
+                    ]
+                }
+            )
+            self._descriptions[key] = helpers["describedCalls"]["d"]
+        return self._descriptions[key]
 
     def case_bytes(self, case_key):
         case = self.cases[CASES[case_key]]
@@ -397,7 +449,6 @@ class Builder:
             "actionKindTag": cmt.action_kind_tag(),
             "argumentsDigest": cmt.arguments_digest(cmt.action_arguments(facts)),
             "boundResourceRevision": BOUND_REVISION,
-            "simulationBasis": [],
         }
         action.update(overrides)
         return action
@@ -419,9 +470,20 @@ class Builder:
     # the standard executed baseline (proceed, applied, effected)
     # ------------------------------------------------------------------
 
+    def timeline(self, built=None, tool=None, tool_args=None):
+        """A Timeline whose default action prose is the connector's own for this call."""
+        if built is None:
+            described = self.describe(TRACKER_TOOL, {})
+        else:
+            described = self.describe(
+                tool or TRACKER_TOOL,
+                cmt.action_arguments(built["facts"]) if tool_args is None else tool_args,
+            )
+        return Timeline(self.action_kind, described)
+
     def executed_timeline(self, built, *, auto=True, revision=BOUND_REVISION,
                           attest=True, connector_outcome="committed"):
-        timeline = Timeline(self.action_kind)
+        timeline = self.timeline(built)
         if auto:
             timeline.enable_rule()
         record = timeline.add_action(1, action_key=11, state="approved", auto=auto)
@@ -441,7 +503,7 @@ class Builder:
 
     def inaction_cell(self, case_key, *, report_mutator=None, envelope_bytes=None):
         built = self.build(case_key=case_key, envelope_bytes=envelope_bytes)
-        timeline = Timeline(self.action_kind)
+        timeline = self.timeline(built)
         report = honest_report(built["envelope"], built["digest"], "none")
         if report_mutator:
             report_mutator(report)
@@ -470,9 +532,10 @@ def build_all():
     emit("pos-baseline", built, timeline,
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
-    # byo trust tier; the ledger still claims auto-approval.
-    byo_action = builder.forced_action("proceed", serverTrust="byo")
-    built = builder.build(case_key="proceed", action_override=byo_action)
+    # byo trust tier; the ledger still claims auto-approval. The commitment binds the
+    # tier the map fixes (vetted), because the map — not the store — determines it; the
+    # deployment's endpoint is byo, so the binding layer sees the divergence too.
+    built = builder.build(case_key="proceed")
     timeline = builder.executed_timeline(built)
     timeline.gatekeepers[0]["serverTrust"] = "byo"
     emit("neg-mcp-byo-autoapply", built, timeline,
@@ -489,13 +552,15 @@ def build_all():
     # resolved (rejected) only afterwards, so a final-state reading would miss it and the
     # stage-time reconstruction does not.
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.enable_rule()
+    timeline.gatekeepers[0]["tools"].append(copy.deepcopy(GATE_TOOL))
+    gate_arguments = {"itemId": "WI-1"}
     timeline.add_action(1, action_key=10, state="rejected", autoApprovable=False,
-                        resolved_at=timestamp(45))
-    timeline.stage(action_key=10, tool_name=cmt.ACTION_TOOL,
-                   arguments={"kind": "manual-batch", "requestType": "other",
-                              "source": "jps-triage"})
+                        kind=builder.gate_kind, resolved_at=timestamp(45),
+                        described=builder.describe(GATE_TOOL, gate_arguments))
+    timeline.stage(action_key=10, tool_name=GATE_TOOL["name"],
+                   arguments=gate_arguments)
     record = timeline.add_action(2, action_key=11, state="approved", auto=True,
                                  resolved_at=timestamp(32))
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
@@ -606,7 +671,7 @@ def build_all():
         "facts": json.loads(facts_bytes.decode("utf-8")),
         "artifacts": artifacts_for(evidence),
     }
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     emit("s03-opfail-as-unknown", built, timeline,
          honest_report(envelope, built["digest"], "none",
                        note="evaluation returned unknown; no action taken"))
@@ -637,7 +702,7 @@ def build_all():
     backing = backing_for(evidence)
     backing["intake-form"] = {"kind": "observation-record", "ref": "ledger:1"}
     built = builder.build(case_key="proceed", backing_override=backing)
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.add_observation(1, "Read intake form",
                              "Read the intake form through the tracker capability.")
     timeline.add_action(2, action_key=11, state="approved", auto=False)
@@ -651,7 +716,7 @@ def build_all():
 
     # ---- B: binding integrity ----------------------------------------------
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.add_action(1, action_key=11, state="approved", auto=False)
     timeline.add_action(2, action_key=12, state="approved", auto=False)
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
@@ -681,7 +746,7 @@ def build_all():
          honest_report(built["envelope"], built["digest"], "applied"))
 
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.gatekeepers.append(
         {"id": 2, "resourceUrl": OTHER_RESOURCE_URL, "serverTrust": "vetted",
          "tools": [copy.deepcopy(TRACKER_TOOL)]})
@@ -694,13 +759,15 @@ def build_all():
          honest_report(built["envelope"], built["digest"], "applied"))
 
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.gatekeepers[0]["tools"].append(copy.deepcopy(DELETE_TOOL))
     timeline.add_action(1, action_key=11, state="approved", auto=False,
                         kind=builder.delete_kind)
     delete_arguments = {"kind": "expunge-intake",
                         "requestType": built["facts"]["request"]["type"],
                         "source": "jps-triage"}
+    timeline.ledger[0]["description"].update(
+        builder.describe(DELETE_TOOL, delete_arguments))
     timeline.stage(action_key=11, tool_name=DELETE_TOOL["name"],
                    arguments=delete_arguments, commitment_digest=built["digest"])
     timeline.applied_at_revision(action_key=11, revision=BOUND_REVISION)
@@ -708,7 +775,7 @@ def build_all():
          honest_report(built["envelope"], built["digest"], "applied"))
 
     built = builder.build(case_key="clarify")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.attest_effect(cmt.action_arguments(built["facts"]))
     emit("b06-unbound-execution", built, timeline,
          honest_report(built["envelope"], built["digest"], "none"))
@@ -729,7 +796,7 @@ def build_all():
 
     # ---- M: annotation trust and commit ambiguity --------------------------
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.gatekeepers[0]["tools"][0]["annotations"] = {
         "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True}
     timeline.add_observation(
@@ -745,7 +812,7 @@ def build_all():
     # the inner connector action is failed/non-retryable and the OUTER workspace record
     # stays pending, because overseer.ts only transitions it after applyAction returns.
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.add_action(1, action_key=11, state="pending", autoApprovable=False)
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
                    arguments=cmt.action_arguments(built["facts"]),
@@ -808,7 +875,7 @@ def build_holdout(builder, emit):
         action_override=builder.forced_action(
             "proceed", argumentsDigest=cmt.arguments_digest(substituted)),
     )
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.add_action(1, action_key=11, state="approved", auto=False)
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL, arguments=substituted,
                    commitment_digest=built["digest"])
@@ -824,7 +891,7 @@ def build_holdout(builder, emit):
             "proceed", gatekeeperId=2, resourceUrl=OTHER_RESOURCE_URL,
             actionKindTag=forged_tag),
     )
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.gatekeepers.append(
         {"id": 2, "resourceUrl": OTHER_RESOURCE_URL, "serverTrust": "vetted",
          "tools": [copy.deepcopy(TRACKER_TOOL)]})
@@ -839,7 +906,7 @@ def build_holdout(builder, emit):
 
     # h05 — a non-null action commitment, an empty queue and ledger, reported `staged`.
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     emit("h05-phantom-staged-report", built, timeline,
          honest_report(built["envelope"], built["digest"], "staged"), stratum="holdout")
 
@@ -853,13 +920,15 @@ def build_holdout(builder, emit):
 
     # h07 — a lower-id manual gate, rejected only after the claimed auto-approval.
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.enable_rule()
+    timeline.gatekeepers[0]["tools"].append(copy.deepcopy(GATE_TOOL))
+    gate_arguments = {"itemId": "WI-1"}
     timeline.add_action(1, action_key=10, state="rejected", autoApprovable=False,
-                        resolved_at=timestamp(50))
-    timeline.stage(action_key=10, tool_name=cmt.ACTION_TOOL,
-                   arguments={"kind": "manual-batch", "requestType": "other",
-                              "source": "jps-triage"})
+                        kind=builder.gate_kind, resolved_at=timestamp(50),
+                        described=builder.describe(GATE_TOOL, gate_arguments))
+    timeline.stage(action_key=10, tool_name=GATE_TOOL["name"],
+                   arguments=gate_arguments)
     record = timeline.add_action(2, action_key=11, state="approved", auto=True,
                                  resolved_at=timestamp(32))
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
@@ -874,7 +943,7 @@ def build_holdout(builder, emit):
 
     # h08 — the outcome-unknown trace reported as a definite application.
     built = builder.build(case_key="proceed")
-    timeline = Timeline(builder.action_kind)
+    timeline = builder.timeline(built)
     timeline.add_action(1, action_key=11, state="pending", autoApprovable=False)
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
                    arguments=cmt.action_arguments(built["facts"]),

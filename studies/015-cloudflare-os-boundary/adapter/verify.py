@@ -12,8 +12,8 @@ Two properties the binding layer holds to, both round-1 findings:
   verifier to the *retained* judgment, and the commitment's action is compared against
   that derivation. A bridge that commits a different target, tool, action kind, or
   arguments is caught even when every downstream record agrees with its own commitment.
-  Only the contextual members (trust tier, stage-time revision, simulation basis) come
-  from the store, and each has its own check.
+  The one contextual member — the revision the resource stood at when the action was
+  staged — comes from the store and has its own checks.
 * **No silent suppression.** Every binding check runs; the first failure in registered
   order is the adjudicated code, and every other failing code is published alongside it
   as `suppressed`. "Exactly one layer" is then a statement about what was observed, not
@@ -62,7 +62,6 @@ BINDING_CODES = (
     "argument-drift",
     "stage-revision-mismatch",
     "revision-drift",
-    "simulation-basis-invalid",
     "unbound-execution",
     "handoff-dropped",
     "commit-overclaim",
@@ -245,6 +244,39 @@ class Context:
             for call in self.platform.get("stagedCalls") or []
             if call.get("commitmentDigest") == self.digest
         ]
+
+    @property
+    def subject_calls(self):
+        """Every staged call against the judged subject, *however it is labelled*.
+
+        Round 2's blocker: selecting calls by the commitment digest meant a second
+        same-subject call carrying a different digest, or none at all, was invisible to
+        every check — so a store could hold two executions under a map that authorizes
+        one.
+
+        Subject identity is the tool, the resource, and the exact arguments the map
+        derives from the judgment — not a label the store chose. Keying on arguments is
+        what separates a surplus execution of *this* decision from an unrelated call
+        that happens to use the same tool.
+        """
+        if self.derived is None:
+            return []
+        subject = []
+        for call in self.platform.get("stagedCalls") or []:
+            gatekeeper = self.gatekeeper(call.get("gatekeeperId"))
+            if call.get("toolName") != self.derived["toolName"]:
+                continue
+            if gatekeeper is None or gatekeeper.get("resourceUrl") != self.derived[
+                "resourceUrl"
+            ]:
+                continue
+            digest = cmt.arguments_digest(
+                call.get("arguments"), tool_name=call.get("toolName")
+            )
+            if digest != self.derived["argumentsDigest"]:
+                continue
+            subject.append(call)
+        return subject
 
     @property
     def ledger_actions(self):
@@ -485,12 +517,20 @@ def _check_disposition_digest(context):
 
 
 def _check_evidence_backing(context):
-    """Backing entries against the *retained artifact bytes*, not against their own shape.
+    """Backing entries against the retained artifact bytes.
 
-    Round 1's blocker: a digest-shaped reference proves nothing. Every `present` claim
-    must carry an `artifact` backing whose digest is the digest of an artifact actually
-    retained in this cell — so hashing an approval record, an observation record, or any
-    other convenient bytes and labelling the result `artifact` fails here.
+    What this establishes, exactly: **retained-preimage consistency** — every `present`
+    claim carries an `artifact` backing, that backing's digest has a preimage actually
+    retained in this cell, and the preimage hashes to it. Nothing more.
+
+    What it does NOT establish, per round 2: it cannot tell captured evidence from
+    arbitrary bytes. A bridge that stores approval-record bytes *under the requirement
+    id* and hashes those passes every check here. The cells that exercise this
+    (`s04`, `o01`) therefore register a `bridge` capability whose mutation constraint is
+    that the bridge declares its source honestly in `kind` — which is what a bridge
+    plumbing an approval record into an evidence field actually does. Detecting a bridge
+    that also lies about `kind` requires acquisition metadata outside the bridge's
+    control, which this study does not have and does not claim.
     """
     backing = context.judgment["evidenceBacking"]
     for requirement, availability in sorted(context.evidence.items()):
@@ -515,8 +555,10 @@ def _check_evidence_backing(context):
         if entry.get("kind") != "artifact":
             return (
                 "evidence-backing-invalid",
-                "backing for %s is a %r reference, not a captured-artifact digest — "
-                "resource access and human approval are not evidence"
+                "backing for %s declares kind %r, not a captured artifact — resource "
+                "access and human approval are not evidence. (This detects a bridge "
+                "that names its source honestly; it cannot detect one that stores "
+                "those bytes under the requirement id and calls them an artifact.)"
                 % (requirement, entry.get("kind")),
             )
         if set(entry) != {"kind", "digest"}:
@@ -619,6 +661,13 @@ def _check_action_map(context):
 
 
 def _check_binding_reuse(context):
+    """One decision, one action — counted over the judged SUBJECT, not over labels.
+
+    Two questions are asked. Is one commitment claimed by more than one call or record
+    (reuse in the narrow sense)? And does the store hold more calls or applications
+    against the judged subject than the map authorizes at all, whatever digest they
+    carry or omit? The second is round 2's blocker: an unlabelled twin was invisible.
+    """
     bound = context.bound_calls
     applied = context.applied_bound
     if len(bound) > 1 or len(applied) > 1:
@@ -633,6 +682,31 @@ def _check_binding_reuse(context):
                 "binding-reuse",
                 "more than one ledger record claims the bound staged call",
             )
+
+    subject = context.subject_calls
+    authorized = 1 if context.action is not None else 0
+    if len(subject) > authorized:
+        unbound = [
+            call for call in subject if call.get("commitmentDigest") != context.digest
+        ]
+        return (
+            "binding-reuse",
+            "the store holds %d staged calls against the judged subject where the map "
+            "authorizes %d; %d of them carry no or another commitment digest"
+            % (len(subject), authorized, len(unbound)),
+        )
+    applied_subject = [
+        record
+        for call in subject
+        for record in context.records_for(call)
+        if record.get("state") == "approved"
+    ]
+    if len(applied_subject) > authorized:
+        return (
+            "binding-reuse",
+            "the store holds %d applied records against the judged subject where the "
+            "map authorizes %d" % (len(applied_subject), authorized),
+        )
     return None
 
 
@@ -722,57 +796,30 @@ def _check_apply_revision(context):
     return None
 
 
-def _check_simulation_basis(context):
-    call, _ = _bound_pair(context)
-    if context.action is None:
-        return None
-    basis = context.action["simulationBasis"]
-    if call is not None and sorted(call.get("simulationBasis") or []) != list(basis):
-        return (
-            "simulation-basis-invalid",
-            "the staged call's simulation basis %r is not the committed basis %r"
-            % (call.get("simulationBasis"), basis),
-        )
-    simulations = {
-        simulation.get("id"): simulation
-        for simulation in context.platform.get("simulations") or []
-    }
-    for basis_id in basis:
-        simulation = simulations.get(basis_id)
-        premise = None
-        if simulation is not None:
-            premise = next(
-                (
-                    entry
-                    for entry in context.ledger_actions
-                    if entry.get("id") == simulation.get("actionLedgerId")
-                ),
-                None,
-            )
-        if simulation is None or premise is None or premise.get("state") != "approved":
-            return (
-                "simulation-basis-invalid",
-                "simulation basis %r rests on a premise that is %s"
-                % (
-                    basis_id,
-                    "absent"
-                    if simulation is None or premise is None
-                    else premise.get("state"),
-                ),
-            )
-    return None
-
-
 def _check_unbound_execution(context):
-    if not context.matching_effects:
+    """Every attested effect on the judged subject must be accounted for by an approved,
+    bound application — and counted, not merely witnessed.
+
+    Round 2's blocker: this returned success as soon as *any* legitimate application
+    existed, so a surplus effect could hide behind it.
+    """
+    effects = context.matching_effects
+    if not effects:
         return None
-    if context.action is not None and context.applied_bound:
-        return None
-    return (
-        "unbound-execution",
-        "an effect matching the judged subject is attested with no approved action "
-        "record bound to this commitment",
-    )
+    authorized = len(context.applied_bound) if context.action is not None else 0
+    if authorized == 0:
+        return (
+            "unbound-execution",
+            "an effect matching the judged subject is attested with no approved action "
+            "record bound to this commitment",
+        )
+    if len(effects) > authorized:
+        return (
+            "unbound-execution",
+            "%d effects matching the judged subject are attested where %d approved "
+            "bound applications authorize them" % (len(effects), authorized),
+        )
+    return None
 
 
 def _check_handoff(context):
@@ -949,7 +996,6 @@ BINDING_CHECKS = (
     ("argument-drift", _check_arguments),
     ("stage-revision-mismatch", _check_stage_revision),
     ("revision-drift", _check_apply_revision),
-    ("simulation-basis-invalid", _check_simulation_basis),
     ("unbound-execution", _check_unbound_execution),
     ("handoff-dropped", _check_handoff),
     ("commit-overclaim", _check_commit_overclaim),

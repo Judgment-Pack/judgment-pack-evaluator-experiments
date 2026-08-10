@@ -26,13 +26,20 @@ ARGUMENTS_DOMAIN = "jps-cloudflare-os-binding/arguments/1"
 # arguments is caught even when every downstream record agrees with its own commitment
 # (`action-derivation-mismatch`).
 GATEKEEPER_ID = 1
-RESOURCE_URL = "https://tracker.example/mcp"
+# The registered deployment is the pinned **MCP Portal** connector with
+# `MCP_PORTAL_TRUST_ANNOTATIONS=true`. Round 2 established that the earlier scenario was
+# not producible by any pinned connector: the generic MCP connector hardwires
+# `trust = "byo"` (gatekeeper-mcp/src/mcp.ts:77) so no write on it can ever be
+# auto-approvable, and the portal is the only connector that can be `vetted`
+# (gatekeeper-mcp-portal/src/config.ts:34-36). Every identifier below is therefore the
+# shape that connector actually emits, not a scenario-local placeholder.
+PORTAL_ENDPOINT = "https://tracker.example/mcp"
+UPSTREAM_SERVER_ID = "tracker"
+RESOURCE_URL = "%s#server=%s" % (PORTAL_ENDPOINT, UPSTREAM_SERVER_ID)
 SERVER_TRUST = "vetted"
-ACTION_TOOL = "create_work_item"
-# The scope tag the deployment assigns this binding; the action-kind tag is derived from
-# it by the platform's own rule (`actionKindFor`, tools.ts) — reproduced in
-# `action_kind_tag` below and pinned against upstream by a probe, never invented.
-SCOPE_TAG = "jps-tracker"
+# The portal's wire tool names are `<upstream server id>_<tool>`.
+ACTION_TOOL = "tracker_create_work_item"
+SECOND_TOOL = "tracker_close_work_item"
 
 JUDGMENT_FIELDS = (
     "packId",
@@ -56,7 +63,6 @@ ACTION_FIELDS = (
     "actionKindTag",
     "argumentsDigest",
     "boundResourceRevision",
-    "simulationBasis",
 )
 COMMITMENT_FIELDS = ("commitmentVersion", "judgment", "action")
 BACKING_KINDS = ("artifact",)
@@ -146,25 +152,55 @@ def encode_uri_component(value):
     return "".join(encoded)
 
 
-def action_kind_tag(scope_tag=SCOPE_TAG, tool_name=ACTION_TOOL):
-    """The platform's own action-kind tag rule, reproduced (tools.ts `actionKindFor`)."""
+def endpoint_of_resource_url(resource_url):
+    """`scope.ts:endpointOfResourceUrl` — the endpoint with its fragment stripped."""
+    return resource_url.split("#", 1)[0]
+
+
+def endpoint_tag(resource_url=RESOURCE_URL):
+    """`scope.ts:endpointTag` — the encoded whole-endpoint identity."""
+    return encode_uri_component(endpoint_of_resource_url(resource_url))
+
+
+def action_scope_tag(resource_url=RESOURCE_URL, server_id=UPSTREAM_SERVER_ID):
+    """The portal connector's own scope tag (`portal.ts:541-543`)."""
+    return "mcp-portal:%s:portal-%s" % (endpoint_tag(resource_url), server_id)
+
+
+def action_kind_tag(scope_tag=None, tool_name=ACTION_TOOL):
+    """The platform's own action-kind tag rule, reproduced (tools.ts `actionKindFor`).
+
+    Note the double encoding this produces in practice: the scope tag already contains a
+    percent-encoded endpoint, and `actionKindFor` encodes the whole scope tag again. The
+    resulting tag is ugly and exactly what the connector emits; a probe asserts the
+    reproduction against upstream.
+    """
+    if scope_tag is None:
+        scope_tag = action_scope_tag()
     return "%s:%s" % (encode_uri_component(scope_tag), encode_uri_component(tool_name))
 
 
 # The members of the action object the SPEC section 4 map *determines* — re-derivable by
 # the verifier from the retained judgment and the registered map, with no reference to
 # any record the bridge or the store wrote.
+#
+# Round 2 found `serverTrust` was wrongly listed as contextual: the registered scenario
+# fixes the trust tier, so treating it as store-supplied let a coherent rewrite move it.
+# `simulationBasis` is gone from the schema entirely — the registered connector cannot
+# produce a non-empty basis, so a field that could only ever be empty was carrying no
+# information and its verdict code could not fire (PREREGISTRATION section 4c).
 DERIVED_ACTION_FIELDS = (
     "gatekeeperId",
     "resourceUrl",
+    "serverTrust",
     "toolName",
     "actionKindTag",
     "argumentsDigest",
 )
-# The members that are contextual — deployment state and staging state that no map can
-# determine. These are never derived; they are checked against the retained store
-# (`target-mismatch`, `revision-drift`, `simulation-basis-invalid`).
-CONTEXTUAL_ACTION_FIELDS = ("serverTrust", "boundResourceRevision", "simulationBasis")
+# The one member that is genuinely contextual: the revision the resource stood at when
+# the action was staged. No map determines it; it is checked against the retained store
+# (`stage-revision-mismatch`, `revision-drift`).
+CONTEXTUAL_ACTION_FIELDS = ("boundResourceRevision",)
 
 
 def derived_action(disposition, facts):
@@ -172,13 +208,14 @@ def derived_action(disposition, facts):
 
     Returns only `DERIVED_ACTION_FIELDS`. This is the verifier's independent oracle for
     *which* action the judgment authorized; `authorized_action` below is the builder's
-    full object, which adds the contextual members.
+    full object, which adds the contextual member.
     """
     if not executable(disposition):
         return None
     return {
         "gatekeeperId": GATEKEEPER_ID,
         "resourceUrl": RESOURCE_URL,
+        "serverTrust": SERVER_TRUST,
         "toolName": ACTION_TOOL,
         "actionKindTag": action_kind_tag(),
         "argumentsDigest": arguments_digest(action_arguments(facts)),
@@ -186,7 +223,7 @@ def derived_action(disposition, facts):
 
 
 def authorized_action(disposition, facts, *, bound_resource_revision,
-                      simulation_basis=(), action_kind_tag_override=None):
+                      action_kind_tag_override=None):
     """The full authorized action object, or None for a commitment to inaction."""
     derived = derived_action(disposition, facts)
     if derived is None:
@@ -196,7 +233,6 @@ def authorized_action(disposition, facts, *, bound_resource_revision,
         action["actionKindTag"] = action_kind_tag_override
     action["serverTrust"] = SERVER_TRUST
     action["boundResourceRevision"] = bound_resource_revision
-    action["simulationBasis"] = sorted(simulation_basis)
     return action
 
 
@@ -448,11 +484,4 @@ def validate_commitment(candidate):
         raise CommitmentSchemaError("action.toolName is not the executable tool literal")
     if not _is_hex64(action["argumentsDigest"]):
         raise CommitmentSchemaError("action.argumentsDigest is not bare 64-hex")
-    basis = action["simulationBasis"]
-    if not isinstance(basis, list) or any(
-        not isinstance(item, int) or isinstance(item, bool) for item in basis
-    ):
-        raise CommitmentSchemaError("action.simulationBasis must be an integer array")
-    if list(basis) != sorted(set(basis)):
-        raise CommitmentSchemaError("action.simulationBasis must be sorted and unique")
     return candidate

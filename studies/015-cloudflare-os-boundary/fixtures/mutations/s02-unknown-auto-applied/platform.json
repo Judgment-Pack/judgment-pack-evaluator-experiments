@@ -2,11 +2,12 @@
   "gatekeepers": [
     {
       "id": 1,
-      "resourceUrl": "https://tracker.example/mcp",
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
       "serverTrust": "vetted",
       "tools": [
         {
-          "name": "create_work_item",
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
           "annotations": {
             "readOnlyHint": false,
             "destructiveHint": false,
@@ -20,8 +21,8 @@
     {
       "gatekeeperId": 1,
       "actionKind": {
-        "tag": "jps-tracker:create_work_item",
-        "label": "create_work_item"
+        "tag": "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker:tracker_create_work_item",
+        "label": "tracker_create_work_item"
       },
       "enabledBy": {
         "type": "user",
@@ -34,19 +35,17 @@
     {
       "gatekeeperId": 1,
       "action": 11,
-      "toolName": "create_work_item",
+      "toolName": "tracker_create_work_item",
       "arguments": {
         "kind": "provision-intake",
         "requestType": "dataset-onboarding",
         "source": "jps-triage"
       },
       "resourceRevisionAtStage": "rev-7",
-      "simulationBasis": [],
       "connectorOutcome": "committed",
-      "commitmentDigest": "0d026c8958d2bfd6cba9616a403ac53526c01ee9ecedbd18d80832b1a3639fae"
+      "commitmentDigest": "b0373cfa27d30454ceb5f867503cd241b8c730fd29ed205b58edbd88db982a41"
     }
   ],
-  "simulations": [],
   "observedCalls": [],
   "drainWitnesses": [
     {
@@ -60,8 +59,8 @@
         {
           "gatekeeperId": 1,
           "actionKind": {
-            "tag": "jps-tracker:create_work_item",
-            "label": "create_work_item"
+            "tag": "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker:tracker_create_work_item",
+            "label": "tracker_create_work_item"
           },
           "enabledBy": {
             "type": "user",
@@ -80,8 +79,8 @@
   },
   "effects": [
     {
-      "resourceUrl": "https://tracker.example/mcp",
-      "toolName": "create_work_item",
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "toolName": "tracker_create_work_item",
       "arguments": {
         "kind": "provision-intake",
         "requestType": "dataset-onboarding",

@@ -2,11 +2,12 @@
   "gatekeepers": [
     {
       "id": 1,
-      "resourceUrl": "https://tracker.example/mcp",
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
       "serverTrust": "vetted",
       "tools": [
         {
-          "name": "create_work_item",
+          "name": "tracker_create_work_item",
+          "description": "Create a work item in the tracker.",
           "annotations": {
             "readOnlyHint": false,
             "destructiveHint": false,
@@ -18,7 +19,6 @@
   ],
   "autoApproveTags": [],
   "stagedCalls": [],
-  "simulations": [],
   "observedCalls": [],
   "drainWitnesses": [],
   "world": {
@@ -26,8 +26,8 @@
   },
   "effects": [
     {
-      "resourceUrl": "https://tracker.example/mcp",
-      "toolName": "create_work_item",
+      "resourceUrl": "https://tracker.example/mcp#server=tracker",
+      "toolName": "tracker_create_work_item",
       "arguments": {
         "kind": "provision-intake",
         "requestType": "data-access",

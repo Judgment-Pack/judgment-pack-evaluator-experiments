@@ -172,9 +172,15 @@ def test_fixture_typecheck_is_clean(cfos_source):
 
 
 def test_typecheck_is_a_scorer_precondition():
-    """A published score may not call itself valid without the registered typecheck."""
+    """A published score may not call itself valid without the registered typecheck.
+
+    The locked stratum is checked before adjudication; the holdout's own fixtures are
+    checked only when the holdout is being adjudicated, so a holdout defect cannot make
+    the locked stratum inconclusive (round 2, blocker 5).
+    """
     source = (STUDY / "harness" / "score.py").read_text(encoding="utf-8")
-    assert "typecheck.typecheck_problems()" in source
+    assert "typecheck.typecheck_problems(include_holdout=False)" in source
+    assert "typecheck.typecheck_problems(include_holdout=True)" in source
 
 
 # ---------------------------------------------------------------------------
@@ -256,9 +262,38 @@ def test_probe_sources_never_read_the_matrix():
 # ---------------------------------------------------------------------------
 
 def test_action_kind_tag_matches_the_platform_rule():
-    # The literal the pinned `actionKindFor` produces for the registered scope and tool;
+    # The literal the pinned MCP Portal connector produces for the registered endpoint,
+    # upstream server id and tool — double-encoded, because the portal's scope tag is
+    # itself encoded and `actionKindFor` encodes the scope tag again.
     # `probes/upstream-probes.ts` asserts the same equality against upstream itself.
-    assert cmt.action_kind_tag() == "jps-tracker:create_work_item"
+    assert cmt.action_scope_tag() == (
+        "mcp-portal:https%3A%2F%2Ftracker.example%2Fmcp:portal-tracker"
+    )
+    assert cmt.action_kind_tag() == (
+        "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker"
+        ":tracker_create_work_item"
+    )
+
+
+def test_registered_scenario_is_connector_shaped():
+    """Round 2, blocker 2: every registered identifier must be one a pinned connector
+    actually emits. The generic MCP connector hardwires byo, so a vetted, auto-approvable
+    write is producible only through the portal."""
+    assert cmt.RESOURCE_URL.endswith("#server=tracker")
+    assert cmt.ACTION_TOOL.startswith("tracker_")
+    assert cmt.SERVER_TRUST == "vetted"
+    registry = load_json(STUDY / "harness" / "MATRIX.json")
+    for cell in registry["cells"]:
+        directory = score.cell_directory(cell)
+        ledger = json.loads((directory / "ledger.json").read_text(encoding="utf-8"))
+        for entry in ledger:
+            if entry.get("type") != "action":
+                continue
+            description = entry["description"]
+            # session.ts:126-135 always sets both.
+            assert description.get("awaitDecision") is True, cell["id"]
+            assert isinstance(description.get("autoApprovable"), bool), cell["id"]
+            assert description["implementsRevert"] is False, cell["id"]
 
 
 def test_derived_action_fields_are_disjoint_from_contextual_ones():

@@ -8,7 +8,8 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 
-import { actionKindFor, catalogRevision } from "@gadgets/mcp-shared/tools";
+import { actionKindFor, catalogRevision, describeCall } from "@gadgets/mcp-shared/tools";
+import { endpointTag } from "@gadgets/mcp-shared/scope";
 
 async function main(): Promise<void> {
   const requestPath = process.env.BUILD_REQUEST;
@@ -19,6 +20,16 @@ async function main(): Promise<void> {
   const request = JSON.parse(readFileSync(requestPath, "utf-8")) as {
     actionKinds?: Array<{ scopeTag: string; toolName: string }>;
     catalogs?: Record<string, unknown[]>;
+    endpointTags?: string[];
+    describeCalls?: Array<{
+      label: string;
+      serverName: string;
+      endpoint: string;
+      tool: unknown;
+      toolArgs: unknown;
+      mode: "read" | "action";
+      classifiedBy: "server-annotation" | "default";
+    }>;
   };
   const actionKinds = (request.actionKinds ?? []).map((item) => ({
     ...item,
@@ -28,7 +39,25 @@ async function main(): Promise<void> {
   for (const [name, tools] of Object.entries(request.catalogs ?? {})) {
     catalogs[name] = await catalogRevision(tools as never);
   }
-  writeFileSync(outPath, JSON.stringify({ actionKinds, catalogs }, null, 2) + "\n");
+  const endpointTags: Record<string, string> = {};
+  for (const endpoint of request.endpointTags ?? []) {
+    endpointTags[endpoint] = endpointTag(endpoint);
+  }
+  const describedCalls: Record<string, { title: string; description: string }> = {};
+  for (const item of request.describeCalls ?? []) {
+    describedCalls[item.label] = describeCall({
+      serverName: item.serverName,
+      endpoint: item.endpoint,
+      tool: item.tool as never,
+      toolArgs: item.toolArgs as never,
+      mode: item.mode,
+      classifiedBy: item.classifiedBy,
+    });
+  }
+  writeFileSync(
+    outPath,
+    JSON.stringify({ actionKinds, catalogs, endpointTags, describedCalls }, null, 2) + "\n",
+  );
 }
 
 main().catch((error) => {

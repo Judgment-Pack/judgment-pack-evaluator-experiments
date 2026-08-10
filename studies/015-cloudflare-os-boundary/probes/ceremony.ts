@@ -56,11 +56,27 @@ type LedgerEntry = {
   appliedAt?: string;
 };
 
-// One retained record of one auto-approval drain pass: the live state the platform
-// destroys as it goes (the rule set is hard-deleted with no tombstone; a pass's identity
-// and its apply outcome are never stored at all). Everything else the replay needs is
-// reconstructed from the ledger's own immutable timestamps, so a store writer cannot
-// erase an obstruction without contradicting the records it kept.
+// One retained record of one auto-approval drain pass.
+//
+// WHAT THIS IS NOT, stated first because round 2 found the earlier framing overclaimed
+// it: this witness is **self-asserted instrumentation supplied by the same retained
+// store the ceremony is examining**. It is not signed, not anchored outside the store,
+// and not something stock Cloudflare OS keeps. A store writer who adds a matching rule
+// here launders an auto-approval that no rule ever authorized, and no residue in stock
+// state contradicts them. The verdict this check supports is therefore
+// **consistency with the self-asserted witness**, never "the drain was historically
+// lawful".
+//
+// What it still buys, and why it is worth keeping: the queue is reconstructed from the
+// ledger's own immutable timestamps rather than from the witness, so an obstruction
+// cannot be erased by resolving it later without contradicting the records the store
+// kept. The witness supplies only what the platform destroys as it goes — the rule set
+// in force, the pass identity, and that the gatekeeper resolved.
+//
+// The replay is also not a general simulation of upstream: it models one pass with one
+// static rule set and an always-successful apply callback, so it does not reproduce a
+// throwing apply, a mid-pass rule change, the `fresh`-recheck `continue` branch, or
+// single-flight reruns. Constructions depending on those are out of its scope.
 type DrainWitness = {
   gatekeeperId: number;
   pass: number;
@@ -88,7 +104,6 @@ type PlatformStore = {
     toolName: string;
     arguments: unknown;
     resourceRevisionAtStage: string;
-    simulationBasis: number[];
     connectorOutcome?: string;
     commitmentDigest?: string;
   }>;
@@ -215,12 +230,19 @@ function makeStorage(): AutoApprovalStorage {
 // yet been resolved. `appliedAt` is stamped on BOTH approve and reject (overseer.ts:2495
 // and :7729), so it is a resolution timestamp — which is what makes this reconstruction
 // sound, and why a resolution stamp is never read as evidence of application.
-function pendingAt(entry: LedgerEntry, at: number): boolean {
+function pendingAt(entry: LedgerEntry, at: number): boolean | null {
   if (entry.type !== "action") return false;
   const created = Date.parse(entry.createdAt);
-  if (!(created <= at)) return false;
-  if (entry.appliedAt === undefined) return true;
-  return Date.parse(entry.appliedAt) >= at;
+  if (Number.isNaN(created)) return null; // unusable timestamp: refuse, never exclude
+  if (entry.appliedAt !== undefined) {
+    const resolved = Date.parse(entry.appliedAt);
+    if (Number.isNaN(resolved)) return null;
+    if (resolved < created) return null; // resolved before it existed
+    if (resolved < at) return false; // already resolved when the pass ran
+  } else if (entry.state !== "pending") {
+    return null; // resolved with no resolution stamp: not reconstructible
+  }
+  return created <= at;
 }
 
 async function drainCheck(
@@ -281,9 +303,25 @@ async function drainCheck(
     // The queue as it stood at that instant, reconstructed from the ledger's own
     // immutable timestamps rather than from its final states — an obstruction cannot be
     // erased by later resolving it.
-    const queue = ledger
-      .filter((entry) => entry.gatekeeperId === witness.gatekeeperId)
-      .filter((entry) => pendingAt(entry, at))
+    const candidates = ledger.filter(
+      (entry) => entry.gatekeeperId === witness.gatekeeperId,
+    );
+    const unreconstructable = candidates.filter(
+      (entry) => pendingAt(entry, at) === null,
+    );
+    if (unreconstructable.length > 0) {
+      return {
+        verdict: fail(
+          "drain-order-violation",
+          `pass ${witness.pass}: ledger records ` +
+            `[${unreconstructable.map((e) => e.id).join(", ")}] carry timestamps that ` +
+            `cannot be reconstructed to a queue state, so the pass is not checkable`,
+        ),
+        engaged: true,
+      };
+    }
+    const queue = candidates
+      .filter((entry) => pendingAt(entry, at) === true)
       .slice()
       .sort((a, b) => a.id - b.id);
     for (const entry of queue) {
@@ -299,8 +337,13 @@ async function drainCheck(
     }
 
     const applied: number[] = [];
-    const applyFn: ApplyPendingActionFn = async (record) => {
+    const attribution = new Map<number, string | undefined>();
+    const applyFn: ApplyPendingActionFn = async (record, resolvedBy) => {
       applied.push(record.id);
+      // Upstream persists the rule enabler as the audit attribution
+      // (auto-approval.ts:85 -> overseer.ts:2496); the replay records what the pinned
+      // drainer passed so a forged `resolvedBy` in the ledger is checkable.
+      attribution.set(record.id, (resolvedBy as { id?: string } | undefined)?.id);
       const fresh = storage.actions.get(record.id) as Record<string, unknown> | undefined;
       if (fresh && fresh.type === "action") {
         fresh.state = "approved";
@@ -321,6 +364,21 @@ async function drainCheck(
         ),
         engaged: true,
       };
+    }
+    for (const id of witnessed) {
+      const expected = attribution.get(id);
+      const recorded = ledger.find((entry) => entry.id === id);
+      const claimed = (recorded?.resolvedBy as { id?: string } | undefined)?.id;
+      if (expected !== undefined && claimed !== undefined && expected !== claimed) {
+        return {
+          verdict: fail(
+            "drain-order-violation",
+            `action ${id} records resolvedBy ${claimed}, but the pinned drainer ` +
+              `attributes an auto-approval under this witness to ${expected}`,
+          ),
+          engaged: true,
+        };
+      }
     }
     const seen = replayed.get(witness.gatekeeperId) ?? [];
     seen.push(...witnessed);

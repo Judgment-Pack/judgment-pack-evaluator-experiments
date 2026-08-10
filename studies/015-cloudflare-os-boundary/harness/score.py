@@ -111,7 +111,6 @@ MODELED_DEPENDENCIES = (
     "stageRevision",
     "applyRevision",
     "commitmentCarrier",
-    "simulationBasis",
     "connectorOutcome",
     "effectAttestation",
     "drainSnapshot",
@@ -670,6 +669,15 @@ def run(attempt_root, include_holdout=False):
     frozen = (pins.get("preregistration") or {}).get("sha256") is not None
     label = "REGISTERED" if frozen else "PILOT"
 
+    if frozen and not include_holdout:
+        # A registered publication must carry the holdout: round 2 found that omitting
+        # it produced a REGISTERED R1 with the prospective stratum silently absent.
+        raise SystemExit(
+            "a REGISTERED attempt must include the holdout: the preregistration is "
+            "frozen, so --include-holdout is required and its result is published "
+            "beside R1 (PREREGISTRATION section 1a)"
+        )
+
     if include_holdout and not frozen:
         raise SystemExit(
             "--include-holdout is refused: harness/PINS.json carries a null "
@@ -720,21 +728,24 @@ def run(attempt_root, include_holdout=False):
             include_holdout,
         )
 
+    # Locked gates only. A holdout defect must never make the locked stratum
+    # inconclusive (round 2, blocker 5), so the holdout's own gate runs separately and
+    # its problems land in the holdout's own validity records.
     gate_problems = []
     gate_problems.extend(pin_problems(pins, jpack_bin))
     gate_problems.extend(make_manifest.manifest_problems())
     gate_problems.extend(matrix_problems(registry))
-    if holdout is not None:
-        gate_problems.extend(holdout_problems(holdout))
     if gate_problems:
         return terminal_invalid(
             attempt_root, label, gate_problems, provenance, include_holdout
         )
 
+    holdout_gate = holdout_problems(holdout) if holdout is not None else []
+
     # The registered fixture typecheck is a scorer precondition, not only a test: a
     # published score may not call itself valid without it (round 1, finding 8).
     try:
-        typecheck_result = typecheck.typecheck_problems()
+        typecheck_result = typecheck.typecheck_problems(include_holdout=False)
     except Exception as error:
         typecheck_result = ["the fixture typecheck could not run: %s" % error]
     provenance["fixtureTypecheck"] = "clean" if not typecheck_result else "failed"
@@ -750,14 +761,16 @@ def run(attempt_root, include_holdout=False):
     locked_cells = [dict(cell, stratum="locked-replication") for cell in registry["cells"]]
     holdout_cells = (
         [dict(cell, stratum="reviewer-holdout") for cell in holdout.get("cells") or []]
-        if holdout is not None
+        if holdout is not None and not holdout_gate
         else []
     )
-    cells = locked_cells + holdout_cells
 
+    # Separate runner batches: a holdout fixture that crashes the runner must not take
+    # the locked attempt with it (round 2, blocker 5).
     try:
         upstream_verdicts = cf_runner.ceremony(
-            [(cell["id"], cell_directory(cell, cell["stratum"])) for cell in cells]
+            [(cell["id"], cell_directory(cell, "locked-replication"))
+             for cell in locked_cells]
         )
     except Exception as error:
         return terminal_invalid(
@@ -774,6 +787,31 @@ def run(attempt_root, include_holdout=False):
             attempt_root, label, apparatus_gate, provenance, include_holdout
         )
 
+    holdout_verdicts = None
+    holdout_runner_problem = None
+    if holdout_cells:
+        try:
+            holdout_verdicts = cf_runner.ceremony(
+                [(cell["id"], cell_directory(cell, "reviewer-holdout"))
+                 for cell in holdout_cells]
+            )
+        except Exception as error:
+            holdout_runner_problem = (
+                "the upstream runner failed over the holdout stratum: %s: %s"
+                % (type(error).__name__, error)
+            )
+        else:
+            try:
+                holdout_typecheck = typecheck.typecheck_problems(include_holdout=True)
+            except Exception as error:
+                holdout_typecheck = [
+                    "the holdout fixture typecheck could not run: %s" % error
+                ]
+            if holdout_typecheck:
+                holdout_runner_problem = "; ".join(holdout_typecheck)
+
+    cells = locked_cells + (holdout_cells if holdout_verdicts is not None else [])
+
     validity = []
     holdout_validity = []
     rows = []
@@ -783,7 +821,8 @@ def run(attempt_root, include_holdout=False):
         for cell in cells:
             is_holdout = cell["stratum"] == "reviewer-holdout"
             sink = holdout_validity if is_holdout else validity
-            row = adjudicate_cell(cell, jpack_bin, work_root, upstream_verdicts, sink)
+            verdicts = holdout_verdicts if is_holdout else upstream_verdicts
+            row = adjudicate_cell(cell, jpack_bin, work_root, verdicts, sink)
             (holdout_rows if is_holdout else rows).append(row)
     except Exception as error:
         return terminal_invalid(
@@ -816,11 +855,18 @@ def run(attempt_root, include_holdout=False):
     else:
         verdict = VERDICT_FALSIFIED
 
+    holdout_validity.extend(
+        {"scope": "holdout-gate", "problem": problem} for problem in holdout_gate
+    )
+    if holdout_runner_problem:
+        holdout_validity.append(
+            {"scope": "holdout-apparatus", "problem": holdout_runner_problem}
+        )
     holdout_invalid = [row for row in holdout_rows if row["status"] == NOT_ADJUDICATED]
     holdout_diverged = [row for row in holdout_rows if row["divergences"]]
     if holdout is None:
         holdout_verdict = HOLDOUT_NOT_RUN
-    elif holdout_invalid:
+    elif holdout_gate or holdout_runner_problem or holdout_invalid:
         holdout_verdict = HOLDOUT_INVALID
     elif holdout_diverged:
         holdout_verdict = HOLDOUT_DIVERGENT

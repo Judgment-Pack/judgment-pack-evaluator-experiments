@@ -3,7 +3,7 @@
     "id": 1,
     "gatekeeperId": 1,
     "resourceTitle": "Tracker",
-    "resourceUrl": "https://tracker.example/mcp",
+    "resourceUrl": "https://tracker.example/mcp#server=tracker",
     "caller": {
       "from": "agent",
       "chatId": 1
