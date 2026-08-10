@@ -1,0 +1,29 @@
+{
+  "snapshotVersion": "1",
+  "checkpoints": [
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 1,
+        "seriesId": "https://example.com/judgment-packs/other-policy",
+        "event": "add",
+        "packVersion": "1.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": null,
+        "packDigest": "sha256:c1472ccc6e20e14ee5b7efbd534b15f57cf6ef62987b6c8797a6361ccef81144"
+      },
+      "checkpointDigest": "sha256:b1b2b53f0801e2984af07fb6de15f06c57dea570d7aa983433ea5be00d0a08af",
+      "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
+      "signature": "dRuHJQjzWp79Qq+lRi0h1+UsoXXwXGhSzTMhKU4EC4V4EndoSb6/Gf0Q86YY2lm7OmH7G/zyUqxIsJ9AWcC5Aw=="
+    }
+  ],
+  "attestation": {
+    "payload": {
+      "snapshotVersion": "1",
+      "head": "sha256:b1b2b53f0801e2984af07fb6de15f06c57dea570d7aa983433ea5be00d0a08af",
+      "position": 1
+    },
+    "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
+    "signature": "sAq/tPwGdspBsexzhKERqw483FZLAZbBv2M6uG48SRnHce85qf8JukS4l2kmh++7rD2SfDK1NyoaAXZ3ePfJCQ=="
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "trustConfigVersion": "1",
+  "authorityPublicKey": "BNR2lWLk9WwjFE9XgI15Cy0s5tu/XeqlEffYr/PX+MY=",
+  "genesisHead": "sha256:b1b2b53f0801e2984af07fb6de15f06c57dea570d7aa983433ea5be00d0a08af",
+  "persistedMinimumHead": null
+}

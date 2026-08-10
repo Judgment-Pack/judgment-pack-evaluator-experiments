@@ -1,0 +1,7 @@
+{
+  "matrixVersion": "1",
+  "stratum": "reviewer-holdout",
+  "note": "The reviewer-authored holdout stratum (014 section 1a convention). Cells are authored by the cross-vendor reviewer during the pre-freeze review rounds, committed verbatim with attribution, and never executed before the freeze; the construction machinery lands together with the cells. harness/score.py --include-holdout is refused mechanically while the preregistration or holdout freeze pin is null, and a post-freeze invocation that finds registered cells but no construction machinery is a recorded terminal refusal, never a silent skip. An empty holdout is not a passing holdout: this file carrying zero cells at the freeze would leave the locked stratum's postdictivity finding open, and the study would say so rather than counting the locked replication as a prediction.",
+  "reviewer": null,
+  "cells": []
+}
