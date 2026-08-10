@@ -1028,8 +1028,12 @@ E_EMBARGO_AT_THE_CUT = [(0, 0), (0, 0), (0, 0), (30, 30), (3, 3), (0, 0)]
 # neither threshold, and row 5's fifth conjunct is what stops it confirming: arm
 # E reads LOW on class 3 (round 10, finding 3 — the conjunct is a level verdict
 # on arm E, so it refuses this arm whatever arm A did on that class). Class 4 is
-# at (30, 30) here, well clear of the four-of-thirty floor row 2's LOW verdict
-# fires below (round 13, finding 2).
+# at (30, 30) here — k_H as well as k_raw, which is the labelling premise the
+# witness needs beside its record type: the type fixes what the mirror returns
+# and not what the arm recorded, and a mislabelled one of these records sits in
+# Q, degrades the arm's S5 and drops its run out of class 4's k_H, so row 2's
+# LOW verdict stops the arm after all — well clear of the four-of-thirty floor
+# here (round 13, finding 2, and the arm-labelling residual that round named).
 INTERIOR_COLLAPSE = [(0, 0), (0, 0), (0, 0), (0, 0), (30, 30), (0, 0)]
 # Arm A, HIGH on five classes and NOT on class 3 (round 10, finding 3). The
 # round-9 conjunct was a CONTRAST, and a contrast against a baseline that is not
@@ -2513,27 +2517,63 @@ def test_the_registered_command_reports_a_refusal_and_not_a_traceback(monkeypatc
 
 # --- C5's population rules the fixtures stand on ----------------------------
 
-def test_the_scoring_refuses_before_it_reads_a_slot(pins_path, study):
+def test_the_scoring_refuses_before_it_reads_a_slot():
     """§6 C5 / §2.10: the preconditions bind the study's own committed
-    artifacts — the ported bytes, the registered interpreter, the golden pin
-    and the freeze digest — and they are not satisfied in the committed tree
-    until their registered moments arrive (§3.2, §2.10 [D-20]).
-
-    So no population, fixture or real, can be scored through the registered
-    interface until the capture is taken and the freeze is recorded, and the
-    fixtures above enter `score()`'s sequence at the line after this gate.
+    artifacts — the ported bytes, the registered interpreter, the golden pin,
+    the freeze digest and §6 C7's recorded control — so no population, fixture
+    or real, is scored through the registered interface while any one of them
+    is unmet, and the fixtures above enter `score()`'s sequence at the line
+    after this gate.
 
     Round 10, finding 5: the refusal is NAMED, because an unnamed one was read
-    as coverage of something it never reached. What actually stops the scoring
-    here is the FIRST precondition the committed tree fails — the golden
-    capture is not a file in the tree yet — which is many checks above §6 C7's
-    recorded control. The scorer's C7 gate has its own case below, over a
-    population that gets past this line.
+    as coverage of something it never reached. The golden capture refuses many
+    checks above §6 C7's recorded control, and the scorer's C7 gate has its own
+    case below, over a population that gets past this line. What is pinned here
+    is the registered ORDER of the four named refusals, which is the fact that
+    finding was about.
+
+    **The subject is registries this test WRITES, not the committed tree's own
+    stage.** Every one of these members is filled at a registered moment of the
+    ceremony — the golden capture at README step 4, the freeze at step 3, §6
+    C7's assent at step 5 — so an expectation read off whichever moment the
+    tree has reached is an expectation the next lifecycle act falsifies, in a
+    file §2.10's manifest covers and rule 3 forbids correcting afterwards. The
+    order does not move; the stage does.
+
+    It stops at the fourth refusal deliberately. §6 C7's record lives at a
+    DERIVED path ([D-23], under the real study) rather than at an argument this
+    test supplies, so an assertion about the refusal below this one would be a
+    function of the stage all over again.
     """
-    with pytest.raises(score_rates.ScoreError) as caught:
-        score_rates.verify_preconditions(pins_path, score_rates.REGISTERED_ARMS,
-                                         score_rates.REGISTERED_GOLDEN)
-    assert "no golden context" in str(caught.value)
+    root = fixtures.throwaway_root()
+    try:
+        golden = os.path.join(root, "GOLDEN-CONTEXT.json")
+        with open(golden, "w") as handle:
+            json.dump({"stand-in": "a capture this test wrote"}, handle)
+        never_captured = os.path.join(root, "never-captured.json")
+        assert not os.path.exists(never_captured)
+        # The registered order, one registry per step, each written to fail at
+        # exactly one member with everything above it satisfied.
+        registered_order = (
+            (_stand_in_registry(root, golden, name="PINS-1.json",
+                                pin_golden=False, freeze=False, assent=None),
+             never_captured, "no golden context"),
+            (_stand_in_registry(root, golden, name="PINS-2.json",
+                                pin_golden=False, freeze=False, assent=None),
+             golden, "registers no golden.sha256"),
+            (_stand_in_registry(root, golden, name="PINS-3.json",
+                                freeze=False, assent=None),
+             golden, "registers no freeze.preregistrationSha256"),
+            (_stand_in_registry(root, golden, name="PINS-4.json", assent=None),
+             golden, "isolationNegative.assent"),
+        )
+        for registry, golden_path, named in registered_order:
+            with pytest.raises(score_rates.ScoreError) as caught:
+                score_rates.verify_preconditions(
+                    registry, score_rates.REGISTERED_ARMS, golden_path)
+            assert named in str(caught.value), (named, str(caught.value))
+    finally:
+        shutil.rmtree(root, True)
 
 
 def test_the_population_root_and_the_registry_are_derived_not_supplied():
@@ -2641,7 +2681,9 @@ def _declaration_members(function: ast.FunctionDef) -> set:
 # crash leaves.
 
 
-def _stand_in_registry(root: str, golden: str) -> str:
+def _stand_in_registry(root: str, golden: str, *, name: str = "PINS.json",
+                       pin_golden: bool = True, freeze: bool = True,
+                       assent: str = "granted") -> str:
     """The committed registry, copied beside a fixture population with the
     pins §2.10, §3.2 and §6 C7 leave null until their registered moments: this
     population's own golden capture, the real preregistration's digest, and the
@@ -2650,14 +2692,22 @@ def _stand_in_registry(root: str, golden: str) -> str:
     Everything else is the committed registry's — N, the slot count, the
     registered call order, the five arms' pinned digests — so the population
     below goes through the REAL `verify_preconditions()` and not a relaxed one.
+
+    The three lifecycle members are keyword arguments so that a test can WRITE
+    the stage it is about instead of reading whichever stage the committed tree
+    has reached; `name` puts more than one registry under a single root. The
+    defaults are the population case above — all three filled — so a caller
+    that wants a scoreable registry says nothing extra.
     """
     with open(score_rates.REGISTRY_OF_RECORD) as handle:
         pins = json.load(handle)
-    pins["golden"]["sha256"] = score_rates.file_digest(golden)
-    pins["freeze"]["preregistrationSha256"] = score_rates.file_digest(
-        os.path.join(STUDY, "PREREGISTRATION.md"))
-    pins["isolationNegative"]["assent"] = "granted"
-    path = os.path.join(root, "PINS.json")
+    pins["golden"]["sha256"] = (score_rates.file_digest(golden)
+                                if pin_golden else None)
+    pins["freeze"]["preregistrationSha256"] = (
+        score_rates.file_digest(os.path.join(STUDY, "PREREGISTRATION.md"))
+        if freeze else None)
+    pins["isolationNegative"]["assent"] = assent
+    path = os.path.join(root, name)
     with open(path, "w") as handle:
         json.dump(pins, handle, indent=2)
     return path

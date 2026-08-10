@@ -78,12 +78,14 @@ as a set and the magnitude is regenerated from the code, so neither half can
 drift back into a transcription.
 """
 from __future__ import annotations
+import os
 import re
 from fractions import Fraction
 
 import pytest
 
 import fixtures
+import policy_mirror
 import score_rates
 
 VECTOR = re.compile(r"`k=(\d+) → \[(\d\.\d{4}), (\d\.\d{4})\]`")
@@ -526,6 +528,16 @@ E_ATTRIBUTION_RESIDUAL = "is established only where arm A reads HIGH on class 4"
 # `CEILING_LIMIT` and `NAMING_LIMIT` one section over.
 E_WITHDRAWAL_LIMIT = ("the withdrawal is a statement about arm E alone and is "
                       "established whatever arm A read")
+# The §4.6 ceiling witness needs a LABELLING premise beside its record-type and
+# frequency ones — round 13's second named residual. `|Q| = 0` is a claim about
+# what the AUTHOR recorded, and the record type fixes only the other side of
+# `split_records()`'s comparison. One string asserted in BOTH registered
+# statements, as `D_PLACEMENT_RESIDUAL` is, because rounds 12 and 13 each
+# corrected this witness and each left it short — and the behaviour is driven
+# beside the lint, because a phrase alone can be written past.
+WITNESS_LABELLING_PREMISE = (
+    "the record type fixes what the mirror returns and not what the author "
+    "recorded, so the witness needs the labels too")
 
 
 def test_the_reading_cells_claim_no_mental_state(preregistration):
@@ -567,6 +579,68 @@ def test_the_reading_cells_claim_no_mental_state(preregistration):
         for cell in row:
             for withdrawn in WITHDRAWN_READINGS:
                 assert withdrawn not in cell, (cell, withdrawn)
+
+
+def test_the_ceiling_witness_carries_its_labelling_premise(preregistration,
+                                                          pins, study):
+    """Round 13's second named residual, and the third round on one witness.
+
+    §4.6's degenerate arm E — every accepted record a non-sanctioned SY
+    registration — was registered as reading `|Q| = 0` from its record TYPE.
+    `split_records()` compares the RECORDED `decision.outcome` against the
+    mirror's verdict, so the type fixes one side of that comparison and nothing
+    about the other: the same vendors recorded as anything but the mirror's own
+    answer are Q, the arm's labels read `degraded`, and §4.2 counts a run into
+    `k` only where H meets the class, so class 4's primary — the endpoint §5.4
+    registers row 2's verdict on — loses the run as well and row 2 stops the
+    arm after all.
+
+    The prose is held by one string in BOTH registered statements; the
+    arithmetic is driven at arm E's own registered pair and predicates rather
+    than against a transcription of them.
+    """
+    assert WITNESS_LABELLING_PREMISE in fixtures.plain(preregistration)
+    assert WITNESS_LABELLING_PREMISE in fixtures.plain(
+        score_rates.decision_row.__doc__)
+
+    definition = score_rates.load_arm(os.path.join(study, "arms"), "E",
+                                      pins["arms"]["E"])
+    predicate = definition["classes"][score_rates.EMBARGO_CLASS]["predicate"]
+    vendor = {"legalName": "Damascus Freight", "sanctionsHit": False,
+              "registeredCountry": "SY", "handlesPersonalData": False,
+              "riskScore": "12.5"}
+    # Derived, not transcribed: the embargo clause answers before `riskScore`.
+    mirrored = policy_mirror.verdict(vendor, definition["tLow"],
+                                     definition["tHigh"])
+    assert mirrored == "reject"
+
+    def population(outcome):
+        return {"sy-%d" % index: {"caseId": "sy-%d" % index, "vendor": vendor,
+                                  "decision": {"outcome": outcome}}
+                for index in (1, 2)}
+
+    for outcome, quarantined, branch, in_primary in (
+            (mirrored, 0, "at the ceiling", 2), ("clear", 2, "degraded", 0)):
+        accepted = population(outcome)
+        high, quarantine = score_rates.split_records(
+            accepted, definition["tLow"], definition["tHigh"])
+        assert len(quarantine) == quarantined, outcome
+        assert score_rates.label_branch(
+            {"rate": len(high) / len(accepted), "h": len(high),
+             "q": len(quarantine)})["branch"] == branch, outcome
+        # The record TYPE reaches class 4 on either labelling; only the labels
+        # decide whether §4.2's `k` counts the run.
+        assert len(score_rates.class_members(accepted, sorted(accepted),
+                                             predicate)) == 2, outcome
+        assert len(score_rates.class_members(accepted, high,
+                                             predicate)) == in_primary, outcome
+        # …and it reaches no other class either way, which is the witness's
+        # "places nothing in classes 0, 1, 2, 3 and 5" — a predicate fact that
+        # needs no labelling premise, unlike the two above it.
+        assert [index for index, entry in enumerate(definition["classes"])
+                if index != score_rates.EMBARGO_CLASS
+                and score_rates.class_members(accepted, sorted(accepted),
+                                              entry["predicate"])] == []
 
 
 def test_the_reading_cells_bound_placement_rather_than_zeroing_it(preregistration):

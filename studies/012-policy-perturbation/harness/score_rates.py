@@ -4489,13 +4489,22 @@ def decision_row(complete: bool, sealed: bool, contrasts, gate, counts,
     not the whole of it — `¬S ∧ country = SY`, so a sanctions hit or a KP/IR
     registration covers it in no run — so the degenerate arm is the narrower
     one: an arm E whose accepted records are all NON-SANCTIONED SY
-    registrations reads the ceiling and, in AT LEAST FOUR of its thirty runs —
-    the not-LOW cut at `low_threshold(30) = 3`, so `k >= 4` — keeps class 4
+    registrations RECORDED AS `reject`, the outcome the mirror returns at the
+    embargo clause, reads the ceiling and, in AT LEAST FOUR of its thirty runs
+    — the not-LOW cut at `low_threshold(30) = 3`, so `k >= 4` — keeps class 4
     clear of the LOW verdict row 2 fires on, and would have confirmed having
-    exercised neither number. The frequency premise is half the witness: an arm
-    E of sanctions hits and KP/IR registrations alone reads LOW on class 4 and
-    row 2 stops it one row earlier, and so does an SY arm that covered class 4
-    in three runs or fewer.
+    exercised neither number. The record type is one of THREE premises and
+    supplies neither of the others. The frequency: an arm E of sanctions hits
+    and KP/IR registrations alone reads LOW on class 4 and row 2 stops it one
+    row earlier, and so does an SY arm that covered class 4 in three runs or
+    fewer. And the labelling: the record type fixes what the mirror returns and
+    not what the author recorded, so the witness needs the labels too —
+    `split_records()` compares the RECORDED `decision.outcome` against the
+    mirror's verdict, so a non-sanctioned SY record recorded as `clear` or
+    `manual-review` is in Q, the arm reads `degraded` and `reading_verdict()`
+    hands row 5 no confirming reading, and the record is outside H, so §4.2
+    does not count its run into class 4's primary `k` either and row 2 stops
+    the arm after all.
 
     Class 3 is the interior review band: its members are scored BETWEEN the two
     thresholds, so a record covered there is one the two numbers bracket and one

@@ -1,10 +1,18 @@
 # Study 012 — is the blinded author's test surface anchored to the policy's surface form?
 
-**Status: DRAFT, port complete, freeze pending. Nothing has run.** No
-authoring call, no batch, no rate, no verdict. The harness is built — the
-digest port from Study 011 that [`PREREGISTRATION.md`](PREREGISTRATION.md)
-specifies — the twenty arm artifacts are assembled and pinned, and §6 C10's
-five clean-room mirrors are commissioned and agreeing; none of it is frozen.
+**Where this study stands is read from `harness/PINS.json`, not asserted
+here.** Four registry members carry the lifecycle and each is null until its
+registered moment: `freeze.preregistrationSha256` and
+`freeze.treeManifestSha256` (the freeze, filled together or integrity
+refuses), `golden.sha256` (§3.2's capture), `isolationNegative.assent`
+(§6 C7). All four are nulled in the manifest's normalized projection, and the
+run's outputs are in `freeze.excluded`, so **no act that advances this study
+moves a byte this file is covered by** — which is the only reason §2.10 rule 3
+terminates, and why no status sentence lives here (round 13, finding 1). The
+harness is built — the digest port from Study 011 that
+[`PREREGISTRATION.md`](PREREGISTRATION.md) specifies — the twenty arm
+artifacts are assembled and pinned, and §6 C10's five clean-room mirrors are
+commissioned and agreeing.
 The preregistration is a draft until it is frozen by merge after the final
 cross-vendor review round ends clean; it governs thereafter, and
 `DEVIATIONS.md` records every departure from it.
@@ -18,8 +26,10 @@ of rounds is deliberately not copied into this file.** The record sits outside
 the tree manifest so that writing a round down moves no covered byte; a copy
 here would be covered, so recording a round would change the manifest and §2.10
 rule 3 would require a further round to attest it — and recording THAT round
-would be the same change again. The final round has not yet ended clean; the
-freeze binds to the manifest of the round that does.
+would be the same change again. The freeze binds to the manifest of the round
+that ends clean, and whether one has is recorded in that file's own status
+line — `OPEN` while further rounds may be commissioned, `CLOSED` once the
+final round has ended clean.
 
 ## What it is
 
@@ -386,7 +396,9 @@ outright rather than merely narrowing it.
    check that can tell "denamed" from "written to be hard".
 7. `DEVIATIONS.md` — empty until something departs.
 8. `RESULTS.json`, `RATES.md`, `CENSUS.md` and `ANALYSIS.md` — the run's
-   outputs. None exists yet.
+   outputs, written by steps 7 and 8 of the ceremony above and by nothing
+   earlier. Every one of them is in `harness/PINS.json`'s `freeze.excluded`,
+   so none is covered by the tree manifest.
 
 Byte-lineage, not truth: this study measures where independently authored
 records land when the policy's surface form is perturbed and its decision

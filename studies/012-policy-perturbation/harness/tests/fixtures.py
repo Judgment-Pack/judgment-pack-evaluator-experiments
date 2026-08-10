@@ -874,10 +874,12 @@ class Population:
         their registered moments arrive (§2.10, §3.2, §6 C7), so no fixture
         population can satisfy them and none should be able to.
         `test_admission.py::test_the_scoring_refuses_before_it_reads_a_slot`
-        asserts that the gate refuses on the FIRST of them the committed tree
-        fails — the golden capture is not a file yet — which is what that case
-        proves and all it proves (round 10, finding 5: it used to be cited here
-        as §6 C7's coverage, and it never reached §6 C7).
+        asserts the ORDER those preconditions refuse in — the golden capture
+        first, many checks above §6 C7's recorded control — over registries
+        that test writes rather than over whatever stage the committed tree has
+        reached, which is what that case proves and all it proves (round 10,
+        finding 5: it used to be cited here as §6 C7's coverage, and it never
+        reached §6 C7).
         `test_the_scorer_refuses_a_control_record_that_is_not_this_studys` is
         the C7 gate's own negative case, over a population that gets past this
         line; everything below it is the real thing, function for function and
@@ -978,10 +980,11 @@ class Population:
 
         A fixture cannot run the real preconditions and must not pretend to:
         they bind the study's own committed artifacts, and three of §2.10's
-        pins are null until the freeze and the golden capture arrive. So the
-        two digests this population really does have — the registered mirror
-        module and its own golden capture — are computed, and the three that
-        belong to a freeze this tree has not had are `None`. They reach the
+        pins are the study's own, filled at their registered moments and never
+        a fixture's to hold. So the two digests this population really does
+        have — the registered mirror module and its own golden capture — are
+        computed, and the three that belong to the study's freeze rather than
+        to this population are `None`. They reach the
         `cell` block and nothing else; no rate, no interval and no verdict
         reads one, and `publish()` marks the document unpublishable in the way
         the scorer's own writer checks.

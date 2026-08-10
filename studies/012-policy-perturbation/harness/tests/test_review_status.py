@@ -19,14 +19,27 @@ still diffed against the record's own round headings, both sides carrier bytes.
 Its status WORD is a registered set rather than a constant, because pinning it
 to `OPEN` put the only sayable status inside the manifest too — the record could
 not say it had closed without a covered edit, hence another round.
+
+The count was one instance of a wider class. A covered sentence about where the
+study STANDS is unfreezable for exactly the same reason: the act that falsifies
+it — the freeze, the golden recapture, the batch, the scoring — is a registered
+act, and rule 3 forbids the repair afterwards. The second lint below
+generalizes the first from the count to the status, and registers its own
+weakness where it stands.
 """
 from __future__ import annotations
 import os
 import re
+import subprocess
+
+import integrity
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HARNESS = os.path.dirname(HERE)
 STUDY = os.path.dirname(HARNESS)
+# This file's own path inside the study, because the list below is written out
+# here and a lint that reads its own vocabulary reports itself.
+SELF = "harness/tests/test_review_status.py"
 
 # The record's own heading convention: `# Round N — ...` at any depth (rounds
 # 1-2 are `#`, rounds 3 on are `##`).
@@ -52,6 +65,19 @@ REVIEW_COUNT_IDIOMS = (
 # no review round can make it stale.
 README_POINTER = ("**Review status: [`PREREG-REVIEW.md`](PREREG-REVIEW.md) is "
                   "the count.**")
+# The generalization of the same defect, from the count to the STATUS. Each of
+# these is a sentence about where the study stands that a registered act of the
+# ceremony falsifies; each was found in a covered file by the pre-freeze sweep,
+# and the act that falsifies it is named beside it.
+COVERED_LIFECYCLE_IDIOMS = (
+    "nothing has run",          # the golden recapture, then the batch
+    "freeze pending",           # the freeze
+    "none of it is frozen",     # the freeze
+    "none exists yet",          # the scoring and the publication
+    "has not yet ended clean",  # the final round ending clean
+    "this tree has not had",    # the freeze
+    "is not a file yet",        # the golden recapture
+)
 
 
 def _read(name):
@@ -112,6 +138,56 @@ def test_the_readme_points_at_the_record():
     assert README_POINTER in _flowed(_read("README.md")), (
         "README.md must point at the review record where the count lives. It "
         "must read: %s" % README_POINTER)
+
+
+def _covered(pins) -> list:
+    """§2.10's covered set, from the same three inputs the manifest uses: the
+    tracked list, the registry's `freeze.excluded`, and the two carriers."""
+    listing = subprocess.run(["git", "ls-files", "-z", "--", "."], cwd=STUDY,
+                             capture_output=True, check=True)
+    excluded = tuple(pins["freeze"]["excluded"]) + integrity.MANIFEST_CARRIERS
+    return [name for name in listing.stdout.decode("utf-8").split("\0")
+            if name and not integrity.manifest_excluded(name, excluded)]
+
+
+def test_no_covered_file_states_where_the_study_stands(pins):
+    """The count was one instance; the class is STATUS. §2.10 rule 3 forbids
+    correcting a covered byte after the final round, and every registered act
+    from the freeze to publication moves carrier or excluded bytes only — so a
+    covered sentence asserting where the study stands is false from the act
+    that falsifies it onward, with no lawful repair. The freeze falsifies
+    "freeze pending"; the golden recapture falsifies "nothing has run" one step
+    AFTER the freeze, when rule 3 already binds.
+
+    The register, honestly: **this is a blacklist and a blacklist cannot be
+    complete.** These are the seven idioms the pre-freeze sweep actually found
+    in covered files, and a replacement can be written past every one of them.
+    What closes the class is §2.10's own registered sentence, plus
+    `test_manifest.py`'s positive property that no registered act moves a
+    covered byte, plus the reviewer; this case is the cheap guard that stops
+    these seven from coming back, in the same file and for the same reason as
+    the review-count lint above.
+
+    Two exclusions, both stated rather than silent. `arms/` is locked bytes
+    whose inherited prose §2.6 and §9 register, and this file is skipped
+    because the vocabulary is written out here.
+    """
+    offenders = []
+    for name in _covered(pins):
+        if name.startswith("arms/") or name == SELF:
+            continue
+        path = os.path.join(STUDY, name)
+        if not os.path.isfile(path) or os.path.islink(path):
+            continue
+        with open(path, "rb") as handle:
+            body = _flowed(handle.read().decode("utf-8", "replace")).lower()
+        offenders += [(name, idiom) for idiom in COVERED_LIFECYCLE_IDIOMS
+                      if idiom in body]
+    assert offenders == [], (
+        "a manifest-covered file says where the study stands, and §2.10 rule "
+        "3 forbids correcting it once the final round has read it — point at "
+        "`harness/PINS.json`'s lifecycle members or at `PREREG-REVIEW.md`'s "
+        "status line instead: %r" % (offenders,))
 
 
 def test_round_one_is_internal_and_round_two_is_the_first_cross_vendor():

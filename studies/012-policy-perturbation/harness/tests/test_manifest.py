@@ -18,7 +18,7 @@ entry names exactly one path. The asymmetry is deliberate in both directions —
 a tracked file sitting at a tree entry's BARE name (no slash) is reviewed bytes
 and stays in the manifest, and so does a tracked file under a file entry's name.
 
-Five assertions:
+Six assertions:
 
 1. a file-shaped entry excludes that path and no descendant of it — including
    the two `MANIFEST_CARRIERS`, which the same widening covered;
@@ -31,16 +31,24 @@ Five assertions:
    git repo, because a rule asserted only against its own helper is the callee
    vouching for itself. This is the regression the fix pins: under the old
    prefix reading the `RESULTS.json/nested.txt` assertion fails;
-5. and the invariant that makes the change provably digest-neutral for THIS
-   tree: no tracked path in the committed study hides under a file-shaped entry.
+5. the invariant that makes the change provably digest-neutral for THIS tree:
+   no tracked path in the committed study hides under a file-shaped entry;
+6. and the property the exclusions exist to buy — the manifest is IDENTICAL
+   after every registered act of the study's lifecycle, from recording a review
+   round through the freeze, the golden recapture, §6 C7, the batch, the
+   scoring and the publication. That is what makes §2.10 rule 3 terminate, and
+   it is asserted here by applying each act to a copy of the tree rather than
+   argued in prose.
 
-Test 4 is the only test in the suite that runs `git`. It is offline, it runs
-inside `fixtures.throwaway_root()` and writes nothing into the committed tree,
-and it needs no git identity because only the index is ever read — `git add`
-without a commit is enough for `git ls-files`. Test 5 reads the committed tree
-through `git ls-files` and writes nothing.
+Tests 4 and 6 are the only tests in the suite that run `git`. They are offline,
+they run inside `fixtures.throwaway_root()` and write nothing into the
+committed tree, and they need no git identity because only the index is ever
+read — `git add` without a commit is enough for `git ls-files`. Tests 5 and 6
+read the committed tree through `git ls-files`; test 6 copies it and writes
+only inside its own throwaway root.
 """
 from __future__ import annotations
+import json
 import os
 import shutil
 import subprocess
@@ -141,6 +149,117 @@ def test_tree_manifest_honours_the_distinction(pins):
 
         # And the fixture is live: an ordinary tracked file moves it too.
         _write(root, "keep.txt", "reviewed, and edited\n")
+        assert integrity.tree_manifest(root, registered) != base
+    finally:
+        shutil.rmtree(root, True)
+
+
+def _stage(root: str) -> None:
+    """The index is what `tree_manifest()` reads, and the real ceremony commits
+    every file it writes, so each act is staged before the digest is taken."""
+    subprocess.run(["git", "add", "-A", "-f"], cwd=root, check=True,
+                   capture_output=True)
+
+
+def _registry_edit(root: str, section: str, member: str, value) -> None:
+    with open(os.path.join(root, "harness", "PINS.json")) as handle:
+        pins = json.load(handle)
+    pins[section][member] = value
+    with open(os.path.join(root, "harness", "PINS.json"), "w") as handle:
+        json.dump(pins, handle, indent=2)
+
+
+def test_the_manifest_is_identical_after_every_registered_lifecycle_act(study,
+                                                                        pins):
+    """§2.10 rule 3 terminates only if no registered act moves a covered byte,
+    and that is a property of the tree rather than a sentence about it.
+
+    Rule 3 answers any covered-byte change with another review round. So if any
+    act between the final round and publication — recording a round, the freeze
+    itself, the golden recapture, §6 C7, the batch, the scoring, the
+    publication — moved one covered byte, the study could never be frozen: the
+    round that attested the tree would be invalidated by the next registered
+    step, and the round attesting THAT step would be invalidated in turn. Round
+    13 found one instance of this livelock (a review-round count copied into
+    `README.md`) and closed it by hand.
+
+    This is the same property asserted mechanically, over the committed file
+    list rather than over a phrase list: every registered act is applied to a
+    throwaway copy of the tree and the manifest is required to be identical
+    after each. It is the positive half of the remedy — the lint in
+    `test_review_status.py` is the negative half, and a phrase list cannot be
+    complete. What this case adds is that a future output added without an
+    entry in `freeze.excluded` fails here, whatever it is called.
+
+    It is necessary and not sufficient. A covered file that asserts a lifecycle
+    status stays false-after-the-act without moving any digest here, because
+    the digest is over bytes and the defect is in what the bytes say.
+    """
+    registered = tuple(pins["freeze"]["excluded"])
+    root = fixtures.throwaway_root()
+    try:
+        for name in _tracked(study):
+            source = os.path.join(study, name)
+            if not os.path.isfile(source) or os.path.islink(source):
+                continue
+            target = os.path.join(root, name)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            shutil.copyfile(source, target)
+        subprocess.run(["git", "init", "-q"], cwd=root, check=True,
+                       capture_output=True)
+        _stage(root)
+        base = integrity.tree_manifest(root, registered)
+
+        def record_a_review_round():
+            with open(os.path.join(root, "PREREG-REVIEW.md"), "a",
+                      encoding="utf-8") as handle:
+                handle.write("\n## Round 99 — a stand-in heading\n")
+
+        def freeze():
+            # Both pins together or integrity refuses (§2.10, round 4 finding
+            # 1). Both are nulled by the normalized projection.
+            _registry_edit(root, "freeze", "preregistrationSha256",
+                           "sha256:" + "1" * 64)
+            _registry_edit(root, "freeze", "treeManifestSha256", base)
+
+        def recapture_the_golden():
+            _write(root, "transcription/GOLDEN-CONTEXT.json",
+                   '{"a": "recaptured context"}\n')
+            _write(root, "controls/recapture/attempt-1/CALL.json", "{}\n")
+            _registry_edit(root, "golden", "sha256", "sha256:" + "2" * 64)
+
+        def run_the_isolation_negative():
+            _write(root, "controls/isolation-negative/VERDICT.json",
+                   '{"outcome": "refused"}\n')
+            _registry_edit(root, "isolationNegative", "assent", "granted")
+
+        def run_the_batch():
+            for arm in ("A", "B", "C", "D", "E"):
+                slot = "arms/%s/authoring/run-001" % arm
+                _write(root, slot + "/CALL.json", "{}\n")
+                _write(root, slot + "/records.json", "[]\n")
+            _write(root, "arms/BATCH.json", "[]\n")
+            _write(root, "arms/SHORTFALL.json", "{}\n")
+
+        def score_and_publish():
+            for name in ("RESULTS.json", "RATES.md", "CENSUS.md",
+                         "ANALYSIS.md", "DEVIATIONS.md"):
+                _write(root, name, "the run's output\n")
+
+        for act in (record_a_review_round, freeze, recapture_the_golden,
+                    run_the_isolation_negative, run_the_batch,
+                    score_and_publish):
+            act()
+            _stage(root)
+            assert integrity.tree_manifest(root, registered) == base, (
+                "%s moved the tree manifest: §2.10 rule 3 answers a "
+                "covered-byte change with another review round, whose own "
+                "subject this act would break again" % act.__name__)
+
+        # And the fixture is live: an output this study has NOT registered as
+        # an exclusion is reviewed bytes, and moves the digest.
+        _write(root, "SUMMARY.md", "an output with no exclusion entry\n")
+        _stage(root)
         assert integrity.tree_manifest(root, registered) != base
     finally:
         shutil.rmtree(root, True)

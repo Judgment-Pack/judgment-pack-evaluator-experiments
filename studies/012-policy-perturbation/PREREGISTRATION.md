@@ -3,12 +3,19 @@
 **Status: DRAFT until frozen by merge after pre-freeze cross-vendor review;
 governing thereafter.**
 
-**Nothing has run.** No authoring call has been made for this study, no arm
-artifact has been frozen, no batch exists, no completion has been read, no rate
-has been computed. Every number below is either a pin copied from Study 011's
+**This file was written before anything ran, and §2.2 [D-20]'s registered
+order keeps it that way.** No authoring call had been made for this study, no
+arm artifact had been frozen, no batch existed, no completion had been read
+and no rate had been computed when it was drafted; the freeze precedes the
+first call, so every number below is either a pin copied from Study 011's
 committed artifacts, a registered test vector for the interval arithmetic, an
 operating characteristic computed from that arithmetic before any data exists,
-or a threshold chosen before any data exists. When the batch runs, results go
+or a threshold chosen before any data exists. **Where the study stands at any
+moment is read from `harness/PINS.json`** — the two freeze pins,
+`golden.sha256` and `isolationNegative.assent`, each null until its registered
+moment and each nulled in the manifest's normalized projection — and not from
+a sentence in this file, which §2.10's manifest covers and rule 3 forbids
+correcting once the final round has read it. When the batch runs, results go
 to `RESULTS.json`, `RATES.md`, `CENSUS.md` and `ANALYSIS.md`; departures from
 this file go to `DEVIATIONS.md`. After the freeze this file is never edited.
 
@@ -20,10 +27,10 @@ taken, and committed before the freeze — the port is taken and every cell is
 filled (§2.2 [D-20] step 2). A `(port time)` cell surviving into the frozen file
 is a defect, and `harness/integrity.py` refuses on it.
 
-**§10 is a register of the parameters this draft does not settle.** Where the
-design has a genuinely open choice, this file states a proposal, states the
-alternative, and marks it **[D-n]**. Those are the decisions the pre-freeze
-review is for. Everything not so marked is registered as written.
+**§10 is a register of the parameters this file did not settle at drafting.**
+Where the design has a genuinely open choice, this file states a proposal,
+states the alternative, and marks it **[D-n]**. Those are the decisions the
+pre-freeze review is for. Everything not so marked is registered as written.
 
 Predecessors: [`studies/011-authorship-coverage-rates`](../011-authorship-coverage-rates/)
 — its `PREREGISTRATION.md` is the source of every ported gate, every interval,
@@ -249,7 +256,7 @@ be rewritten after the review with nothing refusing. The registered digests:
 | Study 011 `harness/PINS.json` | `e0007697` `2377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79` | `harness/PINS.json`, verified by C1 before every batch and every scoring |
 | Study 011 `harness/PORTS.md` | `783cc9c3` `2f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3` | same |
 | Study 010 `PROTOCOL-LOCK.json` | `4966aa82` `1325417f2cbce24a1a6ce7a10a45eefcbe2ec8fc16a4b2f1113543b1` — the digest **011** pins for it, not one this study chooses | 011's `PINS.json`, verified transitively |
-| Study 012 `harness/PORTS.md` | `834a15774f743153f3f9b502c725d4a1492adc06704d42cf8078ad4956fbc599` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
+| Study 012 `harness/PORTS.md` | `3f8b82b74bafe4f8b0f07a76ad832aeb25ca0c6e0957f4ebadbf48c5a871c07d` | `harness/PINS.json`, and in the final review round's tree manifest (§2.10) |
 
 **Each row answers to the authority named in its own column, and C1 binds it
 to that authority and to no other** (§6 C1 states the three tiers as a table,
@@ -286,7 +293,7 @@ rebuilds it. Both digests remain pinned and verified in the roles just named.
 | `transcription/authoring_call.sh` | `6e1239f3ea425669e88878dc2b4d3f6eb41ff9ffe859c76479c9bb8dea41a90e` | **011's own bytes** (011 adapted it from 010's `3b8909aa…`) | `d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee` | §2.7 |
 | `harness/integrity.py` | `7cecea4b0e86c0f7593d8fe9caaa3e4770aa1ec829b0cda574668449acae2a1c` | 011's commit only | `c092a1fe301c0aafe35d24ee8eab632045440aee9df5b763c003d07d1fdeae9d` | the three-level chain above; the per-arm artifact checks of §6 C8 and C9 |
 | `harness/batch.py` | `fb513e9f30cc28dcb3748b502e679fea6ec9270d15b730334ac01936f0b1deb7` | 011's commit only | `a6c948951567caebdddb211161c89235ec08d113e63dec89c8a2e168908a7211` | §2.8's registered carryover-balanced call order and its global index; per-arm slot roots; the arm and schedule stamps in `CALL.json`; the chained ledger and per-slot manifests of §2.9 |
-| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `d8542722a4fba5ffdf38f0702620df18d2d1a1b57277c047d1215570637b0d1c` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
+| `harness/score_rates.py` | `b8239532d1a796b593a602c55126f0a1a363ffce325c8804581727aef2f81984` | 011's commit only | `984c50271dbbdd899dad7b49bcfbe0906c065fbdb4038ba5b4875b6f8c4c87a6` | per-arm scoring against that arm's mirror and family; the §5 level and contrast verdicts; the §4.5 census; the old-edge cross-scoring of §4.6 |
 | `harness/census.py` (from 011's `analysis/diversity.py`) | `16bad4a911ef49b8cc03fcda4ecbfe15f813eba067799c9017e7ba39be5ebf68` | 011's commit only | `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea` | promoted from a post-hoc script to a registered secondary: parameterized by the arm's edge set and family, distances bucketed as §4.5 registers, no clock and no randomness (unchanged) |
 
 **The port happens before the final cross-vendor review, not after it
@@ -1295,6 +1302,18 @@ artifacts that ran" now means:
    change again (round 13, finding 1). `harness/tests/test_review_status.py`
    holds both halves: the record's own status line against its own round
    headings, and `README.md` against the copy ever returning.
+
+   The same rule covers STATUS, not only counts: **no covered file states
+   where the study stands.** The lifecycle lives in the four registry members
+   the normalized projection nulls, in the `freeze.excluded` outputs, and in
+   `PREREG-REVIEW.md`'s own status line — all outside the manifest — so every
+   registered act from the freeze to publication moves carrier or excluded
+   bytes only. A covered file that asserts a status is the round-13 livelock
+   in prose; a covered TEST whose expectation is a function of that status is
+   the same livelock in code, because the suite turns red at the act and rule
+   3 forbids the edit that would fix it. `harness/tests/test_manifest.py`
+   asserts the property directly, by applying each registered act to a copy of
+   the tree and requiring the manifest to be identical.
 4. Registered honestly, because this is a bound and not a proof: **the manifest
    is computed by this study's own code over this study's own worktree.** It
    binds the *reviewer's* attestation to a specific byte state, and it makes a
@@ -1942,20 +1961,29 @@ threshold pair, and a record far below both thresholds is labelled correctly at
 every pair above it. Class 4's predicate is *one* case of the first kind and
 not the whole of it — `¬S ∧ country = SY` (§2.3) needs a **non-sanctioned SY**
 record, and a sanctions hit or a KP or IR registration matches it in no run — so
-an arm E whose accepted records are all **non-sanctioned SY registrations**
+an arm E whose accepted records are all **non-sanctioned SY registrations
+recorded as `reject`**, the outcome the mirror returns at the embargo clause,
 reads `|Q| = 0`, covers class 4 in every run it produced an accepted record in
 and so — **in at least four of its thirty runs**, since *not LOW* at n = 30 is
 `k ≥ 4`, the same four-of-thirty floor registered below for class 3 — keeps it
 clear of the **LOW** verdict row 2 fires on, places nothing in classes 0, 1, 2,
-3 and 5, and would reach §5.3's row 5 having exercised neither number. Two
-premises are necessary here and both are registered rather than left to a
+3 and 5, and would reach §5.3's row 5 having exercised neither number. Three
+premises are necessary here and all three are registered rather than left to a
 reader. The record type: an arm E of sanctions hits and KP/IR registrations
 alone covers class 4 in none of its thirty runs, reads **LOW** there, and row 2
-stops it before row 5 as **E-DEGRADED-GENERALLY**. And the frequency: a
-non-sanctioned SY arm that produced accepted records in three runs or fewer
-covers class 4 at most three times of thirty, reads **LOW** there too, and row
-2 stops it in the same place. Only above that floor is the arm row 5's fifth
-conjunct is for the SY one, so that is where the two repairs interlock.
+stops it before row 5 as **E-DEGRADED-GENERALLY**. The labelling: the record
+type fixes what the mirror returns and not what the author recorded, so the
+witness needs the labels too — an arm E of those same registrations that
+recorded `clear` or `manual-review` on any one of them has that record in
+**Q**, which §4.1 takes over **all** of A, so its labels read **degraded**
+rather than at the ceiling; and §4.2 counts a run into `k` only where H meets
+the class, so that run leaves class 4's **primary** coverage as well — the
+endpoint §5.4 registers row 2's verdict on — and row 2 stops the arm after all.
+And the frequency: a non-sanctioned SY arm that produced accepted records in
+three runs or fewer covers class 4 at most three times of thirty, reads **LOW**
+there too, and row 2 stops it in the same place. Only above that floor is the
+arm row 5's fifth conjunct is for the SY one, so that is where the two repairs
+interlock.
 Row 5's **fifth conjunct** is stated on that arm's own records: **arm E
 does not read LOW on class 3**, the interior review band `¬S ∧ ¬E ∧ T_low ≤ risk < T_high`, whose
 members are by definition scored *between* the two thresholds and are labelled

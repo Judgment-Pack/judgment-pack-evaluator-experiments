@@ -1187,13 +1187,21 @@ class Batch(unittest.TestCase):
         `isolationNegative.assent` is null or withheld, and — the half that
         makes it a fix rather than a rename — a registry that grants assent
         under the member the reviewed driver READ (`operatorAssent`) and not
-        under the one the registry REGISTERS still refuses."""
+        under the one the registry REGISTERS still refuses.
+
+        Each of the three registries WRITES the member it is about. The null
+        case used to inherit its null from the committed registry, which is a
+        stage and not a fixture: README step 5 records the assent, so the case
+        would have stopped being the null case one step after the freeze, with
+        §2.10 rule 3 forbidding the repair."""
         self.assertEqual(self.capture(), 0)
         self.register_golden()
         out = os.path.join(self.root, "isolation-negative")
-        for name, member in (("PINS-null.json", {}),
-                             ("PINS-withheld.json", {"assent": "withheld"}),
-                             ("PINS-old-name.json", {"operatorAssent": "granted"})):
+        for name, member in (
+                ("PINS-null.json", {"assent": None}),
+                ("PINS-withheld.json", {"assent": "withheld"}),
+                ("PINS-old-name.json", {"assent": None,
+                                        "operatorAssent": "granted"})):
             path = self.alternate_registry(
                 name, isolationNegative=dict(self.pins["isolationNegative"],
                                              **member))
@@ -2313,9 +2321,10 @@ class IntervalScope(unittest.TestCase):
 
         The writer's return is one dict literal, so its keys are the published
         members and `ast` can say what they are without running a registered
-        scoring — which no test can run, because §2.10's freeze pin is null
-        until the freeze. A list kept by hand in this file would agree with the
-        writer only until someone changed one of them.
+        scoring, which no test runs: the registered interface publishes into
+        the study itself and its preconditions bind committed artifacts no
+        fixture owns (§2.10). A list kept by hand in this file would agree with
+        the writer only until someone changed one of them.
         """
         with open(score_rates.__file__) as handle:
             tree = ast.parse(handle.read())
