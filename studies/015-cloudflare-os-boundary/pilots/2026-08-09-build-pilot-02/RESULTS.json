@@ -10,7 +10,7 @@
     "matrixHoldoutSha256": "afff2cbc9e458ec68a1bc8a2f6e34827bdce65754a0c8e4a1b84ff4c8fb560e6",
     "specSha256": "76bd7393908a8f3747a03fe4e40a654bff68e8843a46bfa6fd772dced9931c5f",
     "preregistrationSha256": "5124bb95b518c3d09a71b66111685132689918d87487c7523a8b7f5ce1aec903",
-    "studyManifestSha256": "dab0eb9896cfb8bee65929e8a47eaf0916d609facb0d36ebb015ba52fd1d1bb1",
+    "studyManifestSha256": "401b8c703eef2fe1b1382cced2a2bf80144e46fdbbc0287383b13db0b70cfedf",
     "jpackSha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
     "harnessPython": "3.12.11",
     "cfApparatus": {

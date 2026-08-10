@@ -241,6 +241,59 @@ def apparatus_problems(pins, apparatus):
     return problems
 
 
+def cell_schema_problems(cells, scope):
+    """Per-cell schema, asserted not assumed — for both strata."""
+    problems = []
+    for cell in cells:
+        cell_id = cell.get("id", "<unnamed>")
+        missing_fields = [field for field in CELL_FIELDS if field not in cell]
+        if missing_fields:
+            problems.append(
+                "%s%s: missing required fields %s" % (scope, cell_id, missing_fields)
+            )
+            continue
+        if cell["role"] not in ROLES:
+            problems.append(
+                "%s%s: role %r is out of vocabulary" % (scope, cell_id, cell["role"])
+            )
+        if cell["variant"] not in VARIANTS:
+            problems.append(
+                "%s%s: variant %r is out of vocabulary" % (scope, cell_id, cell["variant"])
+            )
+        if cell["attackerCapability"] not in ATTACKER_CAPABILITIES:
+            problems.append(
+                "%s%s: attackerCapability %r is out of vocabulary"
+                % (scope, cell_id, cell["attackerCapability"])
+            )
+        absences = cell["registeredAbsences"]
+        if not isinstance(absences, list) or any(
+            name not in ARTIFACT_FILES for name in absences
+        ):
+            problems.append(
+                "%s%s: registeredAbsences %r is invalid" % (scope, cell_id, absences)
+            )
+        engaged = cell["platformChecksEngaged"]
+        if not isinstance(engaged, list) or any(
+            name not in PLATFORM_CHECKS for name in engaged
+        ):
+            problems.append(
+                "%s%s: platformChecksEngaged %r is invalid" % (scope, cell_id, engaged)
+            )
+        expected = cell["expected"]
+        if not isinstance(expected, dict) or tuple(sorted(expected)) != tuple(
+            sorted(LAYERS)
+        ):
+            problems.append("%s%s: expected is not a three-layer object" % (scope, cell_id))
+            continue
+        for layer in LAYERS:
+            if expected[layer] not in LAYER_OUTCOMES[layer]:
+                problems.append(
+                    "%s%s: expected %s outcome %r is out of vocabulary"
+                    % (scope, cell_id, layer, expected[layer])
+                )
+    return problems
+
+
 def matrix_problems(registry):
     """The frozen cell-id set and the per-cell schema, asserted not assumed."""
     problems = []
@@ -257,47 +310,20 @@ def matrix_problems(registry):
             "matrix cell set is not the frozen set: missing=%s unregistered=%s "
             "ordered=%s" % (missing, extra, list(ids) == list(REGISTERED_CELL_IDS))
         )
-    for cell in cells:
-        cell_id = cell.get("id", "<unnamed>")
-        missing_fields = [field for field in CELL_FIELDS if field not in cell]
-        if missing_fields:
-            problems.append("%s: missing required fields %s" % (cell_id, missing_fields))
-            continue
-        if cell["role"] not in ROLES:
-            problems.append("%s: role %r is out of vocabulary" % (cell_id, cell["role"]))
-        if cell["variant"] not in VARIANTS:
-            problems.append(
-                "%s: variant %r is out of vocabulary" % (cell_id, cell["variant"])
-            )
-        if cell["attackerCapability"] not in ATTACKER_CAPABILITIES:
-            problems.append(
-                "%s: attackerCapability %r is out of vocabulary"
-                % (cell_id, cell["attackerCapability"])
-            )
-        absences = cell["registeredAbsences"]
-        if not isinstance(absences, list) or any(
-            name not in ARTIFACT_FILES for name in absences
-        ):
-            problems.append("%s: registeredAbsences %r is invalid" % (cell_id, absences))
-        engaged = cell["platformChecksEngaged"]
-        if not isinstance(engaged, list) or any(
-            name not in PLATFORM_CHECKS for name in engaged
-        ):
-            problems.append(
-                "%s: platformChecksEngaged %r is invalid" % (cell_id, engaged)
-            )
-        expected = cell["expected"]
-        if not isinstance(expected, dict) or tuple(sorted(expected)) != tuple(
-            sorted(LAYERS)
-        ):
-            problems.append("%s: expected is not a three-layer object" % cell_id)
-            continue
-        for layer in LAYERS:
-            if expected[layer] not in LAYER_OUTCOMES[layer]:
-                problems.append(
-                    "%s: expected %s outcome %r is out of vocabulary"
-                    % (cell_id, layer, expected[layer])
-                )
+    problems.extend(cell_schema_problems(cells, ""))
+    return problems
+
+
+def holdout_problems(holdout):
+    """Holdout schema gate: same per-cell shape, ids disjoint from the locked set."""
+    problems = []
+    cells = holdout.get("cells")
+    if not isinstance(cells, list):
+        return ["holdout carries no cell list"]
+    overlap = [cell.get("id") for cell in cells if cell.get("id") in REGISTERED_CELL_IDS]
+    if overlap:
+        problems.append("holdout reuses locked cell ids: %s" % overlap)
+    problems.extend(cell_schema_problems(cells, "holdout "))
     return problems
 
 
@@ -384,15 +410,16 @@ def detection_matrix(rows, stratum="locked-replication"):
         "excluded. Only `endpoint` rows count toward R1; `control-gate` rows are",
         "validity gates, `demonstration` and `descriptive` rows count toward nothing.",
         "",
-        "| Cell | Role | Attacker | Engaged | CF | BINDING | REPLAY | Combined | Registered | Divergence |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| Cell | Stratum | Role | Attacker | Engaged | CF | BINDING | REPLAY | Combined | Registered | Divergence |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for row in rows:
         if row["status"] == NOT_ADJUDICATED:
             lines.append(
-                "| `%s` | %s | %s | — | — | — | — | %s | %s | pipeline-invalid |"
+                "| `%s` | %s | %s | %s | — | — | — | — | %s | %s | pipeline-invalid |"
                 % (
                     row["cell"],
+                    row["stratum"],
                     row["role"],
                     row["attackerCapability"],
                     NOT_ADJUDICATED,
@@ -402,9 +429,10 @@ def detection_matrix(rows, stratum="locked-replication"):
             continue
         seen = row["observedOutcomes"]
         lines.append(
-            "| `%s` | %s | %s | %s | `%s` | `%s` | `%s` | `%s` | %s | %s |"
+            "| `%s` | %s | %s | %s | %s | `%s` | `%s` | `%s` | `%s` | %s | %s |"
             % (
                 row["cell"],
+                row["stratum"],
                 row["role"],
                 row["attackerCapability"],
                 ", ".join(row["cfEngaged"]) or "—",
@@ -534,6 +562,8 @@ def run(attempt_root, include_holdout=False):
     gate_problems.extend(pin_problems(pins, jpack_bin))
     gate_problems.extend(make_manifest.manifest_problems())
     gate_problems.extend(matrix_problems(registry))
+    if holdout is not None:
+        gate_problems.extend(holdout_problems(holdout))
     if gate_problems:
         return terminal_invalid(attempt_root, label, gate_problems, provenance)
 

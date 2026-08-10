@@ -21,6 +21,8 @@ preregistration is never edited again.
   (`backendTypecheckFinding`) and `harness/typecheck.py`.
 - **Build pilots.** `pilots/2026-08-09-build-pilot-01` ran before ledger records carried
   `resourceTitle`/`resourceUrl` (added for contract fidelity when the typecheck gate
-  landed); `build-pilot-02` is the same registry over the rebuilt fixtures. Both
-  pilot attempts adjudicated every cell exactly as registered; no registry expectation
-  has been corrected against a pilot observation so far. Both are retained in full.
+  landed); `build-pilot-02` is the same registry over the rebuilt fixtures, re-run once
+  after a scorer publication change (the holdout schema gate and the stratum column in
+  the detection table — no adjudication logic touched). Every pilot attempt adjudicated
+  every cell exactly as registered; no registry expectation has been corrected against a
+  pilot observation so far. Both pilots are retained in full.
