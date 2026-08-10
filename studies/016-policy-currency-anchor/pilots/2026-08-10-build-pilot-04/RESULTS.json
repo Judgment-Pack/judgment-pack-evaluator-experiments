@@ -1,0 +1,620 @@
+{
+  "attemptRoot": "2026-08-10-build-pilot-04",
+  "label": "PILOT",
+  "includeHoldout": false,
+  "pipelineInvalid": false,
+  "pinsRawSha256": "d31dea0c9fb7c07b4ba8cafb729786c879b086c747efe5620d3c180d0185e159",
+  "matrixSha256": "e9f1b16f0b794b2b5f89cd9891f98bca524919054164270fb214ac62015d0d3a",
+  "verdict": "R1 holds (PILOT)",
+  "verdictCells": [],
+  "summary": {
+    "cells": 22,
+    "adjudicated": 22,
+    "endpoints": 11,
+    "endpointDivergences": 0,
+    "registeredUndetectedConfirmed": [
+      "cur-split-view-a",
+      "cur-workorder-remint-accepted"
+    ]
+  },
+  "cells": {
+    "cur-concurrent-set": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 2"
+      }
+    },
+    "cur-genesis-unpinned": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "unavailable"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "unavailable"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "no genesis head is pinned: below the genesis pin this verifier is trust-on-first-use and refuses to call anything current"
+      }
+    },
+    "cur-older-snapshot-pinned": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-behind-pinned-minimum-head"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-behind-pinned-minimum-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "the snapshot does not contain the pinned minimum head at its position"
+      }
+    },
+    "cur-rebind-refused": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:binding-rebound"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:binding-rebound"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "the history rebinds a version to a different digest"
+      }
+    },
+    "cur-reinstated": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 3"
+      }
+    },
+    "cur-retired-reuse": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 3"
+      }
+    },
+    "cur-series-unknown": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:series-unknown-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:series-unknown-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "the snapshot carries no events for this series"
+      }
+    },
+    "cur-split-view-a": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 2"
+      }
+    },
+    "cur-split-view-b": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 2"
+      }
+    },
+    "cur-split-view-b-stateful": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-behind-pinned-minimum-head"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-behind-pinned-minimum-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "the snapshot does not contain the pinned minimum head at its position"
+      }
+    },
+    "cur-successor-current": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 3"
+      }
+    },
+    "cur-workorder-remint-accepted": {
+      "role": "descriptive",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "dem-freshness-legit": {
+      "role": "demonstration",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 3"
+      }
+    },
+    "dem-freshness-stale": {
+      "role": "demonstration",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:not-current-at-snapshot"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "(0.1.0, sha256:76651c8aa6ba9862650fcdf4e34537dd41381d534d39d118bce71b247e641d60) is not in the supported set at snapshot position 3"
+      }
+    },
+    "neg-authority-unpinned": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-signature-invalid"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-signature-invalid"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "snapshot head attestation does not verify under the pinned authority key (record labels an unpinned key id — label is unauthenticated)"
+      }
+    },
+    "neg-binding-alive": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "fail:pack-digest-mismatch",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "fail:pack-digest-mismatch",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": "retained pack bytes are not the committed pack",
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "neg-chain-break": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-chain-inconsistent"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-chain-inconsistent"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "checkpoint 2 does not bind its predecessor"
+      }
+    },
+    "neg-owp-alive": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "fail",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "fail",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": "AcceptanceTransactionError: acceptance signature does not match the bound Acceptor",
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "neg-replay-alive": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "fail:replay-executable-mismatch",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "fail:replay-executable-mismatch",
+        "currency": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": "executable digest is not the recorded one",
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "neg-snapshot-signature": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-signature-invalid"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "fail:snapshot-signature-invalid"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "snapshot head attestation does not verify under the pinned authority key"
+      }
+    },
+    "pos-current": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    },
+    "unchanged": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "observed": {
+        "owp": "pass",
+        "binding": "pass",
+        "replay": "pass",
+        "currency": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "owp": null,
+        "binding": null,
+        "replay": null,
+        "currency": "current at snapshot position 1"
+      }
+    }
+  },
+  "pairs": {
+    "split-view": {
+      "members": [
+        "cur-split-view-a",
+        "cur-split-view-b"
+      ],
+      "adjudicated": true,
+      "forkStructure": {
+        "validated": true,
+        "checks": {
+          "sameGenesisRecord": true,
+          "bothAttestationsVerifyUnderPinnedAuthority": true,
+          "samePerSeriesTrustPins": true,
+          "samePosition": true,
+          "differentHeads": true
+        }
+      },
+      "currencyOutcomes": {
+        "cur-split-view-a": "pass",
+        "cur-split-view-b": "fail:not-current-at-snapshot"
+      },
+      "contradictoryVerdicts": true,
+      "note": "derived, not asserted: forkStructure is recomputed from the two snapshot artifacts, and the outcomes above are the adjudicated ones. What the pair registers as impossible is detection by a fresh, stateless, per-series-pinned verifier given exactly one view; the stateful arm (cur-split-view-b-stateful) shows prior-acceptance state converting the silence into a refusal"
+    }
+  },
+  "holdout": null
+}

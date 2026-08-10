@@ -83,8 +83,30 @@ def _verified_path(relative):
     return path
 
 
+def _strip_014_sys_path():
+    """Remove entries the frozen 014 modules install at exec time.
+
+    The frozen sources (unmodifiable by definition) prepend their own
+    directories to `sys.path` when executed; nothing in this study resolves
+    imports through them, so they are stripped immediately after every load —
+    no 014 path stays installed (round-3 residual of R1-1).
+    """
+    for entry in list(sys.path):
+        try:
+            resolved = Path(entry or ".").resolve()
+        except OSError:
+            continue
+        if resolved == STUDY_014 or STUDY_014 in resolved.parents:
+            sys.path.remove(entry)
+
+
 def _load_by_path(name, relative):
     """Digest-check, then execute from the authenticated absolute path."""
+    if name in sys.modules and name not in _OWNED_MODULES:
+        raise Upstream014Error(
+            "module name %r appeared in sys.modules since the first gate; "
+            "refusing to overwrite it" % name
+        )
     path = _verified_path(relative)
     spec = importlib.util.spec_from_file_location(name, str(path))
     module = importlib.util.module_from_spec(spec)
@@ -94,6 +116,8 @@ def _load_by_path(name, relative):
     except BaseException:
         sys.modules.pop(name, None)
         raise
+    finally:
+        _strip_014_sys_path()
     return module
 
 

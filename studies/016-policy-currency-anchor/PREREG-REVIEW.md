@@ -65,6 +65,22 @@ Post-revision state: 59 harness tests green; build pilot 03 (non-citable) adjudi
 the holdout member of `RESULTS.json` null — the stratum is untouched pre-freeze by
 construction.
 
-## Round 3 — pending
+## Round 3 — 2026-08-10
 
-Confirmation of the seven residual closures, R2-1, and the verbatim holdout landing.
+Same reviewer. Verdict: **freezable after listed fixes** — R1-3, R1-4, R1-12, R2-1
+RESOLVED; the holdout landing confirmed **byte-identical** against the reviewer's round-2
+output; four narrow residuals and one new MAJOR. Prompt and findings verbatim in
+[`reviews/round-3/`](reviews/round-3/). All **accepted and closed**:
+
+| Item | Disposition |
+| --- | --- |
+| R1-1 residual | **Closed.** The frozen 014 sources prepend their own directories to `sys.path` at exec time (unmodifiable by definition); the loader now strips every 014 path immediately after every load, so none stays installed, and a shared name that appears in `sys.modules` between gates is refused rather than overwritten. |
+| R1-2 residual | **Closed.** The builder docstring's stale `cur-older-snapshot-unpinned` identifier and obsolete identity claim replaced with the round-1 R1-9 one-cell/two-readings statement. |
+| R1-7 residual | **Closed.** The one-past byte vector is exactly `MAX_SNAPSHOT_BYTES + 1`; the at-limit checkpoint vector now REQUIRES `pass` (retire all but the last-added version, reinstate the first, query a current member — deterministic, exactly 1024 records). |
+| R1-11 residual | **Closed.** Every exposed holdout hook now verifies its own context before constructing a byte — a direct call with no context, a forged one, or any null freeze pin refuses at the hook itself, not only at the scorer's gate. Pilots 01–02 predate the holdout member and are left as the records of what ran; pilot 03+ carry `holdout: null` pre-freeze. |
+| R1-15 residual | **Closed.** The README lineage sentence now reads "outside the series' supported set at a pinned registry snapshot"; the only remaining "no longer in force" is the preregistration's explicit disavowal of that phrasing. |
+| R3-1 (MAJOR) | **Accepted.** The whole-study manifest had gone stale against post-generation review-record edits — exactly the drift the anchor exists to catch. The manifest is regenerated after all record edits, and manifest freshness is now a standing suite assertion (`test_study_manifest_is_fresh`), so CI refuses a stale anchor long before the freeze pin is filled. |
+
+## Round 4 — pending
+
+Confirmation of the round-3 closures.

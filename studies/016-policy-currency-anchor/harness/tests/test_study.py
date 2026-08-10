@@ -101,6 +101,14 @@ def test_fixture_manifests_verify():
         assert run_verify.required_file_problems(directory, cell) == [], cell["id"]
 
 
+def test_study_manifest_is_fresh():
+    """Round-3 finding R3-1: the whole-study manifest must always match the
+    tree it covers — a stale manifest would terminal-refuse the registered
+    attempt the moment its pin is filled at the freeze."""
+    import make_manifest
+    assert make_manifest.verify_problems() == []
+
+
 def test_registered_identity_groups_hold():
     matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
     assert score.identity_group_problems(matrix) == {}

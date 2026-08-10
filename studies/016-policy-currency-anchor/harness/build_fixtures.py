@@ -18,13 +18,12 @@ out-of-band pins over the baseline chain's bytes — the study's central design
 move: the world-that-moved is itself a retained, signed, pinned artifact, which
 is what makes currency observable where Study 014's section 4c could not.
 
-Byte-identity is registered, not accidental: `cur-concurrent-set` and
-`cur-older-snapshot-unpinned` are the same bytes (the freshness floor — an
-offline verifier cannot distinguish a withheld newer snapshot from a world that
-genuinely stopped), and the two `dem-freshness-*` cells are byte-copies of
-`cur-retired-reuse` (the verdict provably cannot carry the legitimate-audit vs
-stale-reuse distinction). `harness/MATRIX.json` registers the identity groups
-and the scorer re-verifies them.
+Byte-identity is registered, not accidental: the two `dem-freshness-*` cells
+are byte-copies of `cur-retired-reuse` (the verdict provably cannot carry the
+legitimate-audit vs stale-reuse distinction), registered in
+`harness/MATRIX.json` as an identity group the scorer re-verifies.
+`cur-concurrent-set` is ONE adjudicated cell carrying two registered readings
+(round-1 R1-9) — the freshness-floor reading is analytic, not a second cell.
 
 Run:
     JPACK_BIN=... OWP_SOURCE=... python harness/build_fixtures.py [--out DIR] [--force]
@@ -715,11 +714,24 @@ def _holdout_h10(context):
     return payload
 
 
+def _gated(hook):
+    """Every exposed hook verifies its context itself (round-3 residual of
+    R1-11): a direct call with no context, a forged one, or any null freeze
+    pin refuses before a byte is constructed — the scorer's gate is not the
+    only gate."""
+    def gated_hook(context):
+        _require_context(context)
+        return hook(context)
+    gated_hook.__name__ = hook.__name__
+    return gated_hook
+
+
 HOLDOUT_HOOKS = {
-    "h01": _holdout_h01, "h02": _holdout_h02, "h03": _holdout_h03,
-    "h04": _holdout_h04, "h05": _holdout_h05, "h06": _holdout_h06,
-    "h07": _holdout_h07, "h08": _holdout_h08, "h09": _holdout_h09,
-    "h10": _holdout_h10,
+    "h01": _gated(_holdout_h01), "h02": _gated(_holdout_h02),
+    "h03": _gated(_holdout_h03), "h04": _gated(_holdout_h04),
+    "h05": _gated(_holdout_h05), "h06": _gated(_holdout_h06),
+    "h07": _gated(_holdout_h07), "h08": _gated(_holdout_h08),
+    "h09": _gated(_holdout_h09), "h10": _gated(_holdout_h10),
 }
 
 

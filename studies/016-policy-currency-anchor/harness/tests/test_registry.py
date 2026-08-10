@@ -243,8 +243,10 @@ def test_boolean_sequence_is_refused_by_schema():
 
 # ---- limits (R1-7): every limit independently reachable ---------------------
 
-def test_byte_limit_refuses_before_parsing():
-    oversized = b"[" + b" " * vc.MAX_SNAPSHOT_BYTES + b"]"
+def test_byte_limit_refuses_exactly_one_past():
+    """Round-3 residual of R1-7: the one-past sibling is MAX + 1 exactly."""
+    oversized = b" " * (vc.MAX_SNAPSHOT_BYTES + 1)
+    assert len(oversized) == vc.MAX_SNAPSHOT_BYTES + 1
     result = vc.layer_currency(commitment(), oversized, trust(BASE))
     assert outcome(result) == "fail:snapshot-limits-exceeded"
 
@@ -266,16 +268,18 @@ def test_supported_set_at_limit_passes():
 
 
 def test_checkpoint_count_at_limit_passes():
+    """Round-3 residual of R1-7: exactly MAX_CHECKPOINTS must PASS, not merely
+    avoid the limit code — retire all but the last-added version, then
+    reinstate the first, leaving a current member to query."""
     events = [("add", "0.0.%d" % n, D1, SERIES) for n in range(vc.MAX_SUPPORTED_SET)]
     events += [("retire", "0.0.%d" % n, None, SERIES)
-               for n in range(vc.MAX_CHECKPOINTS - vc.MAX_SUPPORTED_SET)]
+               for n in range(vc.MAX_SUPPORTED_SET - 1)]
+    events += [("reinstate", "0.0.0", None, SERIES)]
     records = registry_events(*events)
     assert len(records) == vc.MAX_CHECKPOINTS
     data = snap_bytes(records)
     assert len(data) <= vc.MAX_SNAPSHOT_BYTES
-    result = vc.layer_currency(commitment("0.0.511", D1), data, trust(records))
-    assert result["verdict"] in ("pass", "fail")
-    assert result["code"] != "snapshot-limits-exceeded"
+    assert outcome(vc.layer_currency(commitment("0.0.0", D1), data, trust(records))) == "pass"
 
 
 def test_checkpoint_count_limit_refuses():
