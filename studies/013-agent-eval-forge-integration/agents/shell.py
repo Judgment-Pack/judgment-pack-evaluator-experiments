@@ -173,11 +173,20 @@ def run_with(payload, config):
             )
     else:
         decision = config["decider"](case_public, facts, evidence, action_map)
-        disposition = decision["disposition"]
-        decider_target = decision.get("handoffTarget")
-        action = map_disposition_to_action(
-            case_id, disposition, decider_target, action_map
-        )
+        if decision.get("error"):
+            # RQ3 amendment, additive: a decider that cannot produce a
+            # decision (model failure) abstains exactly like an evaluation
+            # error — it never becomes an action. RQ1 is closed; this branch
+            # is unreachable for the scripted deciders.
+            disposition = None
+            decider_target = None
+            action = error_action(case_id, decision["error"])
+        else:
+            disposition = decision["disposition"]
+            decider_target = decision.get("handoffTarget")
+            action = map_disposition_to_action(
+                case_id, disposition, decider_target, action_map
+            )
 
     if "post_action" in hooks:
         action = hooks["post_action"](case_public, disposition, action, action_map)

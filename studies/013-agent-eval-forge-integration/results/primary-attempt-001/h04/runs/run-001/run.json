@@ -1,0 +1,30 @@
+{
+  "run_id": "run-001",
+  "pack": {
+    "name": "study-013-cohort2",
+    "version": "0.1.0",
+    "description": "JPS decision cases expressed as Agent Eval Forge scenarios (generated from cases.json)",
+    "min_evalforge": null
+  },
+  "trust": "local",
+  "pack_hash": "fa96413df313162c",
+  "agent": {
+    "type": "python",
+    "module": "mut_h04",
+    "function": "run"
+  },
+  "selected_tags": [
+    "pack-xsuppress"
+  ],
+  "timestamps": {
+    "start": "2026-08-09T18:42:15.186790+00:00",
+    "end": "2026-08-09T18:42:15.213806+00:00",
+    "duration_ms": 27
+  },
+  "scenario_ids": [
+    "x02-suppressed-no-match"
+  ],
+  "artifacts": {
+    "x02-suppressed-no-match": "artifacts/x02-suppressed-no-match.json"
+  }
+}

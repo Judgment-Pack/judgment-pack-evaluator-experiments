@@ -1,0 +1,132 @@
+{
+  "id": "run-001-f04-just-above",
+  "scenario_id": "f04-just-above",
+  "agent": {
+    "type": "python",
+    "module": "mut_m15a",
+    "function": "run",
+    "run_id": "run-001"
+  },
+  "timestamp": {
+    "start": "2026-08-09T18:42:23.611822+00:00",
+    "end": "2026-08-09T18:42:23.635630+00:00",
+    "duration_ms": 24
+  },
+  "output": {
+    "final": "case f04-just-above: record_decision via b",
+    "structured": {
+      "case_id": "f04-just-above",
+      "arm": "b",
+      "mutation": "m15a",
+      "evaluation_error": "pack-not-conformant",
+      "disposition": null,
+      "handoff_target": null,
+      "tool_version": null,
+      "action": {
+        "tool": "record_decision",
+        "args": {
+          "case_id": "f04-just-above",
+          "kind": "error",
+          "reasons": "pack-not-conformant"
+        }
+      }
+    }
+  },
+  "trajectory": [
+    {
+      "type": "tool_call",
+      "tool": "fetch_case_facts",
+      "args": {
+        "case_id": "f04-just-above"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_case_facts",
+      "args": null,
+      "result": {
+        "request": {
+          "amount": "1000.01"
+        }
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "fetch_evidence_availability",
+      "args": {
+        "case_id": "f04-just-above"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_evidence_availability",
+      "args": null,
+      "result": {},
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "note",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "jpack evaluation: {\"outputVersion\":\"2\",\"tool\":{\"name\":\"jpack\",\"version\":\"0.16.0\"},\"command\":\"experimental evaluate\",\"status\":\"error\",\"evaluationError\":{\"class\":\"pack-not-conformant\",\"phase\":\"preflight\",\"evaluatorSpecVersion\":\"0.2.0-draft\"},\"diagnostics\":[{\"code\":\"JPS-EVALUATION-PACK-SPEC-VERSION\",\"codeStability\":\"provisional\",\"layer\":\"operation\",\"severity\":\"error\",\"instancePath\":\"\",\"message\":\"The pack is not evaluated because it declares specVersion \\\"0.1.0-draft\\\" and this evaluator applies the JPS Core 0.2.0-draft evaluator contract, whose conformance claim is stated in CONFORMANCE.md. JPS §11 makes the declared value exact: an unedited 0.1.0-draft pack is not structurally conforming to 0.2.0-draft and must be re-declared before an implementation claiming this draft evaluates it. Re-declaring is one edit — the specVersion string — and nothing else in the document changes, because §11 says 0.2.0-draft changes no part of the document format: every member, every cross-field rule, and every document-conformance verdict of §§3.1-3.3 stays the same. The 0.1.0-draft schema remains published, and spec validate still validates the pack as it stands. To REPLAY a decision this pack already made, do not re-declare it: fetch the evaluator release that made it and verify its digest first — the replay tuple, docs/building-with-packs.md \\\"Replaying a decision: pin the tuple, not the pack\\\".\"}]}\n",
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "record_decision",
+      "args": {
+        "case_id": "f04-just-above",
+        "kind": "error",
+        "reasons": "pack-not-conformant"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "record_decision",
+      "args": null,
+      "result": {
+        "status": "recorded"
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "response",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "case f04-just-above: record_decision via b",
+      "duration_ms": null,
+      "error": null
+    }
+  ],
+  "cost": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "status": "completed",
+  "error": null,
+  "error_category": null
+}

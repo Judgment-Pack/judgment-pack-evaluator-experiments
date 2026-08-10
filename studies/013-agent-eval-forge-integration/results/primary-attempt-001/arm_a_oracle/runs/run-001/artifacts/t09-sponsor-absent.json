@@ -1,0 +1,145 @@
+{
+  "id": "run-001-t09-sponsor-absent",
+  "scenario_id": "t09-sponsor-absent",
+  "agent": {
+    "type": "python",
+    "module": "arm_a_oracle",
+    "function": "run",
+    "run_id": "run-001"
+  },
+  "timestamp": {
+    "start": "2026-08-09T18:42:13.114411+00:00",
+    "end": "2026-08-09T18:42:13.121299+00:00",
+    "duration_ms": 7
+  },
+  "output": {
+    "final": "case t09-sponsor-absent: open_review via a-oracle",
+    "structured": {
+      "case_id": "t09-sponsor-absent",
+      "arm": "a-oracle",
+      "mutation": null,
+      "evaluation_error": null,
+      "disposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        }
+      },
+      "handoff_target": {
+        "kind": "human-role",
+        "name": "Intake reviewer"
+      },
+      "tool_version": null,
+      "action": {
+        "tool": "open_review",
+        "args": {
+          "case_id": "t09-sponsor-absent",
+          "kind": "unresolved",
+          "reasons": "missing-required-evidence",
+          "target": "Intake reviewer"
+        }
+      }
+    }
+  },
+  "trajectory": [
+    {
+      "type": "tool_call",
+      "tool": "fetch_case_facts",
+      "args": {
+        "case_id": "t09-sponsor-absent"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_case_facts",
+      "args": null,
+      "result": {
+        "request": {
+          "appropriateness": "pass",
+          "completeness": "complete",
+          "embargoedInformationToUnauthorizedRecipients": false,
+          "type": "data-access"
+        }
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "fetch_evidence_availability",
+      "args": {
+        "case_id": "t09-sponsor-absent"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "fetch_evidence_availability",
+      "args": null,
+      "result": {
+        "intake-form": "present",
+        "sponsor-endorsement": "absent"
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_call",
+      "tool": "open_review",
+      "args": {
+        "case_id": "t09-sponsor-absent",
+        "kind": "unresolved",
+        "reasons": "missing-required-evidence",
+        "target": "Intake reviewer"
+      },
+      "result": null,
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "tool_result",
+      "tool": "open_review",
+      "args": null,
+      "result": {
+        "status": "recorded"
+      },
+      "content": null,
+      "duration_ms": null,
+      "error": null
+    },
+    {
+      "type": "response",
+      "tool": null,
+      "args": null,
+      "result": null,
+      "content": "case t09-sponsor-absent: open_review via a-oracle",
+      "duration_ms": null,
+      "error": null
+    }
+  ],
+  "cost": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "status": "completed",
+  "error": null,
+  "error_category": null
+}

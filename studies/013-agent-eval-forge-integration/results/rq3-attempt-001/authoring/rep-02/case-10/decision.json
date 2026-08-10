@@ -1,0 +1,11 @@
+{
+  "handoff": "requested",
+  "kind": "unresolved",
+  "reasons": [
+    "missing-required-evidence"
+  ],
+  "target": {
+    "kind": "human-role",
+    "name": "Intake reviewer"
+  }
+}
