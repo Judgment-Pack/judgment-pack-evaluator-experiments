@@ -40,7 +40,7 @@ bytes an offline third party is assumed to have been handed.
 | `pack.json` | The Judgment Pack evaluated | JPS (vendored spec corpus bytes) |
 | `facts.json` | The §8.2 facts document | JPS |
 | `evidence.json` | The §8.2 evidence-availability document | JPS |
-| `evidence-artifacts.json` | The captured evidence artifacts themselves, base64 by requirement id — the preimages a backing digest must actually have | acquiring system (**instrumentation**) |
+| `evidence-artifacts.json` | The bytes retained under each evidence requirement id, base64 — the preimages a backing digest must actually have (retained-preimage consistency only; nothing here establishes that they *are* the captured evidence) | acquiring system (**instrumentation**) |
 | `evaluation.json` | The pinned evaluator's compact `--format json` envelope | jpack |
 | `commitment.json` | This SPEC's §1 object, canonical JCS bytes | adapter |
 | `ledger.json` | The workspace action log: an ordered list of platform `ActionRecord` entries (Date fields as RFC 3339 strings) | platform (held to the pinned **server-side** `ActionRecord` by the clone's own compiler: `harness/typecheck.py`) |
@@ -139,8 +139,11 @@ Field semantics and digest conventions:
   observation record ("the resource was read, therefore the evidence is present") is not an
   artifact digest; and a digest with no retained preimage is a bare assertion, which the
   ceremony refuses just as firmly. Requirements claimed `absent` or `unknown` must not appear.
-  The backing digests are adapter-carried assertions of *lineage*, not truth: nothing here
-  inspects an artifact's content or vouches for its authenticity.
+  **What this establishes is retained-preimage consistency and nothing more**: that the store
+  holds bytes under the requirement id which hash to the committed digest. It is not proof of
+  capture, not lineage, not authenticity, and not sufficiency — a bridge that stores an approval
+  record's own bytes under an evidence requirement and calls them an artifact passes every check
+  here, and the study says so rather than implying otherwise.
 - `action` is `null` iff the disposition authorizes no action under the §4 map.
 - **Derived members** — `gatekeeperId`, `resourceUrl`, `serverTrust`, `toolName`,
   `actionKindTag`, `argumentsDigest` — are determined by the §4 map from the judgment alone, and the verifier
@@ -288,9 +291,24 @@ platform endorsing anything. When a construction gives them nothing to decide th
    gatekeeper resolved. The queue itself is reconstructed from the ledger's own immutable
    timestamps (`createdAt <= t` and not yet resolved at `t`), which is sound because `appliedAt`
    is stamped on both approve (`overseer.ts:2495`) and reject (`overseer.ts:7730`) — it is a
-   *resolution* stamp, never read here as evidence of application. A ledger that claims an
-   auto-approval with no witness fails; so does a witness claiming an application the ledger
-   does not record.
+   *resolution* stamp, never read here as evidence of application. A row whose state and
+   resolution stamp disagree is refused outright rather than excluded, and a witnessed
+   auto-approval that records no `resolvedBy` fails, because upstream always attributes one.
+   A ledger that claims an auto-approval with no witness fails; so does a witness claiming an
+   application the ledger does not record.
+
+   **What this verdict does and does not establish, normatively.** The witness is
+   *self-asserted*: it is supplied by the same retained store the ceremony is examining, is
+   unsigned, and is not anchored outside that store. A writer who adds a matching rule to the
+   witness launders an auto-approval that no rule ever authorized, and no residue in stock
+   platform state contradicts them. The verdict is therefore **consistency with the
+   self-asserted witness**, never "the drain was historically lawful". The replay is also not a
+   general simulation of upstream: it models one pass per witness with one static rule set and
+   an always-successful apply callback, so it reproduces neither a throwing apply, nor a
+   mid-pass rule change, nor the `fresh`-recheck `continue` branch, nor single-flight reruns.
+   Constructions that depend on those are outside its scope. What it does buy is that the
+   *queue* is reconstructed from the ledger's own records rather than from the witness, so an
+   obstruction cannot be erased by resolving it later.
 
 ### Layer `binding` — the adapter ceremony
 

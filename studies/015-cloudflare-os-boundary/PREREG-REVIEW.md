@@ -94,3 +94,34 @@ verified independently against source. That verification **confirmed the reviewe
 scripted edit had silently failed to apply because its anchor no longer matched, and the commit
 message asserted a check that did not exist. The probes are now really there and really run
 (12/12).
+
+
+## Round 3 — DO-NOT-FREEZE
+
+Reviewer: same configuration, static review only. Study tree reviewed at commit `08cae95`.
+Verbatim review: [`reviews/round-3/REVIEW.md`](reviews/round-3/REVIEW.md). Verdict:
+**DO-NOT-FREEZE**; all eleven round-2 dispositions audited "partial", four new blockers.
+
+**Convergence, and what it means.** An adversarial self-audit of the same tree ran in parallel
+with this round, holding the study to the standard the reviewers use. It independently found
+several of round 3's blockers — the inaction-half hole in subject cardinality, the invented
+`describeCall` context, the `autoApprovable` values that contradict the pinned classifier, and
+the missing `observedCalls` provenance — and its fixes landed in `adefe9b` while the reviewer
+was still reading `08cae95`. Two independent adversarial passes converging on the same defects
+is evidence about the defects, not a defence; every one is fixed, and the ones the self-audit
+found first are marked below.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R3-1 | **Blocker.** Zero-action histories bypass subject cardinality: `subject_calls` is empty whenever the map authorizes nothing, and a changed-argument twin falls outside the exact-arguments filter. | **Fixed (inaction half found independently by the self-audit, `adefe9b`; the changed-argument half is round 3's).** The authorization *scope* is now the tool and resource the map governs — every call to them, whatever digest or arguments it carries — and is not conditioned on the disposition being executable. Exact arguments still identify the judged action for effect matching, but no longer bound what the decision is answerable for. Two regression tests construct both attack shapes. |
+| R3-2 | **Blocker.** Action identity and execution attribution are unbound: `records_for` joins only on `(gatekeeperId, action)`, identifiers are not unique, and the ledger's own `resourceUrl` and action-kind `label` are never corroborated. | **Partially fixed, and the remainder is declared.** Identifier uniqueness is now enforced across staged calls and ledger records, and the ledger row's denormalized `resourceUrl` and `actionKind.label` are corroborated against the committed target. A unique call→record→connector-result→effect lineage is **not** established — retained effect attestations carry no call identity, so the check remains a cardinality argument. That is now stated as a limitation rather than implied to be lineage. |
+| R3-3 | **Blocker.** The Portal scenario is still not connector-produced: invented `describeCall` context, `autoApprovable` values the classifier contradicts, unscoped second resources. | **Fixed (context and `m02`/`h08` found independently by the self-audit, `adefe9b`).** `describeCall` now receives the portal's two-part scope label and the bare endpoint; `b05`'s destructive tool carries `autoApprovable: false`; the second resource is portal-scoped. The reviewer's deeper remedy — constructing descriptions through the connector's actual facet/session path and asserting full description bytes — is **not** done: the builder still calls `describeCall` directly with reconstructed inputs. Recorded as an open limitation. |
+| R3-4 | **Blocker.** The narrowed drain oracle still accepts contradictory source states, attribution is optional, and SPEC §5 lacks the limitations the round-2 disposition claimed for it. | **Fixed.** `pendingAt` now enforces strict lifecycle equivalence — a row whose state and resolution stamp disagree is refused outright rather than excluded, which was the obstruction-erasure path — and a witnessed auto-approval with no `resolvedBy` fails, because upstream always attributes one. SPEC §5 now carries the full normative statement: self-asserted witness, laundering by rule insertion, and the four upstream behaviours the replay does not model. |
+| B4 residual | **Major.** SPEC/PREREGISTRATION/`commitment.py` kept "captured artifact"/"lineage" language after the claim was narrowed. | **Fixed.** The SPEC now says retained-preimage consistency establishes only that the store holds bytes under the requirement id hashing to the committed digest — not capture, not lineage, not authenticity, not sufficiency — and names the laundering path explicitly. |
+| B5 residual | **Major.** Global pin/manifest/parse gates can still erase R1; the holdout typecheck is neither holdout-only nor a precondition. | **Open, and declared.** The holdout's *own* gate, runner batch, typecheck and verdict are separated, but a failure of the shared apparatus (pins, manifest, registry parse) still voids the whole attempt including R1. That is arguably correct — those are attempt-scope preconditions, not holdout faults — but the reviewer is right that it is not what "nothing in the holdout can change R1" says without qualification. Recorded as an open item for round 4 rather than claimed fixed. |
+
+**Standing after three rounds.** Every blocker from rounds 1 and 2 is closed; round 3's four are
+closed or explicitly declared open with reasons. The study does **not** freeze on this record:
+three consecutive DO-NOT-FREEZE verdicts, and two limitations (unique execution lineage; the
+connector's real construction path) that a fourth round should decide on before anything is
+registered.

@@ -254,29 +254,24 @@ class Context:
         every check — so a store could hold two executions under a map that authorizes
         one.
 
-        Subject identity is the tool, the resource, and the exact arguments the map
-        derives from the *facts* — not a label the store chose, and **not** conditioned on
-        the judgment being executable. Keying on arguments is what separates a surplus
-        execution of this decision from an unrelated call that happens to use the same
-        tool; keying on the facts alone is what keeps the check alive under a commitment
-        to inaction, where the map authorizes zero calls and any subject call at all is
-        the violation. An earlier version returned nothing whenever no action was derived,
-        which silently disabled the whole check on the inaction half of the map.
+        This is the **authorization scope**: every call to the tool and resource the map
+        governs, whatever digest it carries or omits, and whatever arguments it renders.
+        Scope must not be narrowed by the arguments, because an attacker chooses those —
+        round 3 found that an exact-arguments filter let a changed-argument twin sit
+        outside the count. Nor may it be conditioned on the judgment being executable: a
+        commitment to inaction authorizes zero calls, so any call in scope is the
+        violation, and an earlier version that keyed on the derived action silently
+        disabled the whole check on that half of the map.
+
+        Exact arguments still identify *the judged action* — that is `matching_effects`'
+        job — but they do not bound what the decision is answerable for.
         """
-        if self.facts is None:
-            return []
-        expected = cmt.arguments_digest(cmt.action_arguments(self.facts))
         subject = []
         for call in self.platform.get("stagedCalls") or []:
             gatekeeper = self.gatekeeper(call.get("gatekeeperId"))
             if call.get("toolName") != cmt.ACTION_TOOL:
                 continue
             if gatekeeper is None or gatekeeper.get("resourceUrl") != cmt.RESOURCE_URL:
-                continue
-            digest = cmt.arguments_digest(
-                call.get("arguments"), tool_name=call.get("toolName")
-            )
-            if digest != expected:
                 continue
             subject.append(call)
         return subject
@@ -686,6 +681,24 @@ def _check_binding_reuse(context):
                 "more than one ledger record claims the bound staged call",
             )
 
+    calls = context.platform.get("stagedCalls") or []
+    identities = [(call.get("gatekeeperId"), call.get("action")) for call in calls]
+    if len(identities) != len(set(identities)):
+        return (
+            "binding-reuse",
+            "two staged calls share one (gatekeeperId, action) identity, so no call can "
+            "be joined to its ledger record unambiguously",
+        )
+    ledger_identities = [
+        (entry.get("gatekeeperId"), entry.get("action"))
+        for entry in context.ledger_actions
+    ]
+    if len(ledger_identities) != len(set(ledger_identities)):
+        return (
+            "binding-reuse",
+            "two ledger action records share one (gatekeeperId, action) identity",
+        )
+
     subject = context.subject_calls
     authorized = 1 if context.action is not None else 0
     if len(subject) > authorized:
@@ -741,6 +754,15 @@ def _check_target(context):
         mismatches.append("toolName")
     if record is not None and record_tag != action["actionKindTag"]:
         mismatches.append("actionKindTag")
+    # The ledger row carries its own denormalized target fields and the connector's own
+    # action-kind label; a store that renders a different resource or label there is
+    # describing a different action to any human reading the log (round 3, finding 2).
+    if record is not None:
+        if record.get("resourceUrl") != action["resourceUrl"]:
+            mismatches.append("ledger.resourceUrl")
+        label = ((record.get("description") or {}).get("actionKind") or {}).get("label")
+        if label is not None and label != action["toolName"]:
+            mismatches.append("ledger.actionKind.label")
     if mismatches:
         return (
             "target-mismatch",

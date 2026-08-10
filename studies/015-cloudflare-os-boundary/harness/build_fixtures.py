@@ -35,7 +35,9 @@ import commitment as cmt  # noqa: E402
 FIXTURES = STUDY / "fixtures"
 PACK_PATH = FIXTURES / "data-request-intake-triage.pack.json"
 
-OTHER_RESOURCE_URL = "https://other-tracker.example/mcp"
+# A second portal-scoped resource: the portal rejects unscoped grants, so the
+# substitution target must carry a `#server=` scope like the first (round 3).
+OTHER_RESOURCE_URL = "https://other-tracker.example/mcp#server=other"
 BOUND_REVISION = "rev-7"
 DRIFTED_REVISION = "rev-9"
 
@@ -765,8 +767,10 @@ def build_all():
     built = builder.build(case_key="proceed")
     timeline = builder.timeline(built)
     timeline.gatekeepers[0]["tools"].append(copy.deepcopy(DELETE_TOOL))
+    # A destructive tool: the pinned classifier makes it non-auto-approvable on any
+    # tier, so the record must carry `false` (round 3, finding 3).
     timeline.add_action(1, action_key=11, state="approved", auto=False,
-                        kind=builder.delete_kind)
+                        autoApprovable=False, kind=builder.delete_kind)
     delete_arguments = {"kind": "expunge-intake",
                         "requestType": built["facts"]["request"]["type"],
                         "source": "jps-triage"}

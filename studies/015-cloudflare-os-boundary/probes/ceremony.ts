@@ -234,13 +234,19 @@ function pendingAt(entry: LedgerEntry, at: number): boolean | null {
   if (entry.type !== "action") return false;
   const created = Date.parse(entry.createdAt);
   if (Number.isNaN(created)) return null; // unusable timestamp: refuse, never exclude
-  if (entry.appliedAt !== undefined) {
-    const resolved = Date.parse(entry.appliedAt);
+  // Strict lifecycle equivalence: upstream stamps `appliedAt` and `resolvedBy` exactly
+  // when a record leaves `pending` (overseer.ts:2495-2496, :7729-7731). A row that is
+  // still `pending` yet carries a resolution stamp — or is resolved without one — is a
+  // state the platform cannot produce, and round 3 found the earlier version silently
+  // excluded such a row from the queue, erasing an obstruction.
+  const resolvedStamped = entry.appliedAt !== undefined;
+  const resolvedState = entry.state !== "pending";
+  if (resolvedStamped !== resolvedState) return null;
+  if (resolvedStamped) {
+    const resolved = Date.parse(entry.appliedAt as string);
     if (Number.isNaN(resolved)) return null;
     if (resolved < created) return null; // resolved before it existed
     if (resolved < at) return false; // already resolved when the pass ran
-  } else if (entry.state !== "pending") {
-    return null; // resolved with no resolution stamp: not reconstructible
   }
   return created <= at;
 }
@@ -369,6 +375,20 @@ async function drainCheck(
       const expected = attribution.get(id);
       const recorded = ledger.find((entry) => entry.id === id);
       const claimed = (recorded?.resolvedBy as { id?: string } | undefined)?.id;
+      // Attribution is MANDATORY for a witnessed automatic resolution: upstream always
+      // persists the rule enabler (auto-approval.ts:85 -> overseer.ts:2496), so a
+      // missing `resolvedBy` is itself a state the platform does not produce. Round 3
+      // found that an optional comparison let deletion pass.
+      if (expected !== undefined && claimed === undefined) {
+        return {
+          verdict: fail(
+            "drain-order-violation",
+            `action ${id} is claimed auto-approved but records no resolvedBy; upstream ` +
+              `always attributes an auto-approval to the rule enabler`,
+          ),
+          engaged: true,
+        };
+      }
       if (expected !== undefined && claimed !== undefined && expected !== claimed) {
         return {
           verdict: fail(

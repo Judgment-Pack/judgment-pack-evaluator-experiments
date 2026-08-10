@@ -17,7 +17,7 @@
       "description": "**tracker portal / tracker** → `tracker_delete_work_item`\n\n> Delete a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"expunge-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp`\n\nTreated as an action because the server did not declare it read-only. Nothing has been sent yet.",
       "implementsRevert": false,
       "awaitDecision": true,
-      "autoApprovable": true,
+      "autoApprovable": false,
       "actionKind": {
         "tag": "mcp-portal%3Ahttps%253A%252F%252Ftracker.example%252Fmcp%3Aportal-tracker:tracker_delete_work_item",
         "label": "tracker_delete_work_item"

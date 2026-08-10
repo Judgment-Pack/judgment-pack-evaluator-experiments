@@ -18,7 +18,7 @@
     },
     {
       "id": 2,
-      "resourceUrl": "https://other-tracker.example/mcp",
+      "resourceUrl": "https://other-tracker.example/mcp#server=other",
       "serverTrust": "vetted",
       "tools": [
         {
