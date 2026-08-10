@@ -287,9 +287,13 @@ Three properties, all mechanical:
 
 - **Validity and detection are independent.** Permitted absences are read from the cell's own
   `registeredAbsences` field and from nothing else.
-- **Nothing fails silently.** `ATTEMPT.json` is written before anything else runs — including
-  before the pin registry is parsed — and every failure path persists a terminal
-  pipeline-invalid `RESULTS.json`.
+- **Nothing fails silently, with two stated exceptions.** `ATTEMPT.json` is written before
+  anything else runs — including before the pin registry is parsed — and every failure path that
+  reaches adjudication persists a terminal pipeline-invalid `RESULTS.json`. The two paths that
+  deliberately do not are usage refusals rather than attempts: an attempt root that already
+  exists (the scorer exits before creating anything, so no record is overwritten), and a
+  pre-freeze `--include-holdout` (the marker is written, nothing is published). Round 2 found the
+  earlier unqualified promise was false; this is the corrected statement.
 - **The registered typecheck is a scorer precondition**, not merely a test: a published score
   cannot call itself valid without it.
 
@@ -323,10 +327,12 @@ one could invoke a layer function directly; it is a claim about what this study 
 
 ## 8. What is enforced, what is recorded, what is not prevented
 
-Enforced by machinery: fixture manifests; the whole-study exact-set manifest; every non-null pin
-(protocol digests when filled, the `jpack` binary digest, the vendored pack and conformance-case
-digests, interpreter version, `pip freeze` digest, node/esbuild/typescript identity, clone commit
-and cleanliness, probed-file digests); the frozen cell-id set and per-cell schema for both
+Enforced by machinery: fixture manifests; the whole-study exact-set manifest; every pin the pin
+registry's own `enforcement` map classes as SCORER (protocol digests when filled, the `jpack`
+binary digest, the vendored pack and conformance-case digests, interpreter version, `pip freeze`
+digest, node/esbuild/typescript identity, clone commit and cleanliness, probed-file digests) —
+members classed CI or DESCRIPTIVE are not scorer-checked and the registry says which are which,
+because round 2 found the earlier blanket "every non-null pin" claim was false; the frozen cell-id set and per-cell schema for both
 strata; the holdout's non-emptiness, attribution, id-disjointness and fixture existence; the
 SPEC/code vocabulary sync, per-code reachability, and SPEC/implementation order equality; the
 pre-freeze holdout refusal; the fixture typecheck against the pinned server-side types; upstream
