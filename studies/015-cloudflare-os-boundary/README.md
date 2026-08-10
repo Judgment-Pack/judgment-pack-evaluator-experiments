@@ -71,10 +71,11 @@ whether stock Cloudflare OS retains it at all.
 
 - **Study 014** bound a judgment to an *execution receipt protocol* that ships its own
   offline verifier and signs everything. 015 is the same question against the opposite
-  kind of neighbor: a platform with rich runtime controls and **no offline verification
-  surface at all** — no signatures, no digests, no schema validation, action records as
-  TypeScript types and prose. The asymmetry is the finding: everything 014 could anchor
-  into signed slots, 015's adapter must carry itself, and says so.
+  kind of neighbor: a platform with rich *live* controls — it validates its own RPC
+  boundary — but **no offline verification of a retained record**: no signature, no
+  digest, no action-log export, and every semantic commitment an unconstrained string.
+  The asymmetry is the finding: everything 014 could anchor into signed slots, 015's
+  adapter must carry itself, and says so.
 - **Study 013** asked whether an application *behaves* consistently with the judgment,
   live. 015, like 014, asks what a third party can later *prove* from retained bytes.
   No runtime-behavior claim is made here: the platform's Durable Object never runs.
