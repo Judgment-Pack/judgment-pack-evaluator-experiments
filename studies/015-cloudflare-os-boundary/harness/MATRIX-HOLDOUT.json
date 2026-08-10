@@ -11,10 +11,10 @@
       "role": "endpoint",
       "attackerCapability": "bridge",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
+      "upstreamChecksReplayed": [],
       "construction": "Start from the registered clarify disposition used by b06. Instead of leaving the out-of-band execution unbound, place the canonical proceed action into the staged-call queue, rebuild the commitment with that non-null action, put the same commitment digest at both binding points, add a manually approved ledger row at resource revision 7, add the matching effect attestation, and report execution as effect-attested.",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:action-map-violation",
         "replay": "pass"
       },
@@ -27,10 +27,10 @@
       "role": "endpoint",
       "attackerCapability": "bridge",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
+      "upstreamChecksReplayed": [],
       "construction": "Start from the honest manual proceed case. Compute SHA-256 over the JCS bytes of the first approval-ledger record, use the resulting sha256 reference as evidenceBacking.sponsor with kind artifact, retain no sponsor artifact having those bytes, rebuild the commitment and both binding points, and otherwise retain the canonical staged call, ledger state, effect, and report.",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "pass"
       },
@@ -43,10 +43,10 @@
       "role": "endpoint",
       "attackerCapability": "store",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
+      "upstreamChecksReplayed": [],
       "construction": "Start from the honest manual proceed case. In the canonical action arguments, locate the lexicographically first JSON Pointer whose value is a string and replace that value with the literal someone-else-entirely. Recompute the JCS arguments digest, rebuild the commitment, update both commitment binding points, and make the staged call and manually approved ledger row carry the substituted arguments. Retain no effect and report execution as applied.",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "pass"
       },
@@ -59,10 +59,10 @@
       "role": "endpoint",
       "attackerCapability": "store",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
+      "upstreamChecksReplayed": [],
       "construction": "Start from the honest manual proceed case. Add a second gatekeeper and resource with a catalog entry for create_work_item. Change every target-bearing commitment, staged-call, and ledger field to that second gatekeeper/resource; change actionKindTag to the literal reviewer-forged-scope:create_work_item; rebuild the commitment and both binding points; retain canonical arguments and resource revision 7; retain no effect and report execution as applied.",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "pass"
       },
@@ -75,10 +75,10 @@
       "role": "endpoint",
       "attackerCapability": "bridge",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
+      "upstreamChecksReplayed": [],
       "construction": "Start from the honest proceed judgment and retain its non-null canonical action commitment. Retain platform.json and ledger.json as present files but set stagedCalls and action records to empty arrays. Retain the commitment digest in report.json and report execution as staged.",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "pass"
       },
@@ -91,13 +91,13 @@
       "role": "endpoint",
       "attackerCapability": "environment",
       "registeredAbsences": [],
-      "platformChecksEngaged": [
+      "upstreamChecksReplayed": [
         "classifyTool",
         "AutoApprovalDrainer"
       ],
       "construction": "Start from the honest auto-approved baseline after its action has been applied and effect-attested. Modify only the retained final platform snapshot by removing the matching auto-approval rule or tag; leave the tool catalog, action row, autoApproved flag, staged call, commitment, effect, and report unchanged.",
       "expected": {
-        "cf": "fail:drain-order-violation",
+        "upstream": "fail:drain-order-violation",
         "binding": "pass",
         "replay": "pass"
       },
@@ -110,13 +110,13 @@
       "role": "endpoint",
       "attackerCapability": "store",
       "registeredAbsences": [],
-      "platformChecksEngaged": [
+      "upstreamChecksReplayed": [
         "classifyTool",
         "AutoApprovalDrainer"
       ],
       "construction": "Start from the honest auto-approved baseline. On the same gatekeeper, prepend a lower-numbered action for a cataloged tool that requires manual approval. Give that lower action final state rejected with its resolution timestamp later than the higher action's claimed auto-approval timestamp. Leave the higher bound action autoApproved and effect-attested with the live matching rule. The lower rejected action has no commitment binding and no effect.",
       "expected": {
-        "cf": "pass",
+        "upstream": "pass",
         "binding": "pass",
         "replay": "pass"
       },
@@ -129,14 +129,15 @@
       "role": "endpoint",
       "attackerCapability": "bridge",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
+      "upstreamChecksReplayed": [],
       "construction": "Start from the canonical manually staged proceed action with valid commitment binding. Leave its outer ledger row pending with no resolvedBy and no appliedAt, retain no effect attestation, and put the literal connector outcome unknown in the report note. Set report execution to applied rather than applied-unproven.",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "pass"
       },
       "note": "Supplies the missing applied-unproven-to-applied overclaim endpoint using the outer state that pinned source can actually retain after a thrown outcome-unknown failure."
     }
-  ]
+  ],
+  "schemaMigration": "Committed verbatim as authored (preserved byte-for-byte at reviews/round-1/MATRIX-HOLDOUT.authored.json), then migrated MECHANICALLY to the post-round-1 cell schema: layer key cf -> upstream, field platformChecksEngaged -> upstreamChecksReplayed, and — for cells registering no replayed checks — the authored upstream outcome 'pass' -> 'not-engaged', because the reviewed apparatus reported non-engagement as pass and the reviewer's 'pass' on those cells means 'this layer did not object'. No expectation was otherwise revised, and none was revised to follow a fix: the reviewer's instruction was that these predict the REVIEWED apparatus, so a post-fix divergence is a primary result. Cells h03, h04, h02, h05 and h08 predict blind spots that the round-1 fixes are intended to close; they are expected to diverge and that divergence is the point."
 }

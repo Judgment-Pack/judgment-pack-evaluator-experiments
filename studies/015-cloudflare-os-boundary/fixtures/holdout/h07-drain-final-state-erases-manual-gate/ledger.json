@@ -11,7 +11,7 @@
     "createdAt": "2026-08-01T00:01:00.000Z",
     "state": "rejected",
     "type": "action",
-    "action": 11,
+    "action": 10,
     "description": {
       "title": "Provision intake request",
       "description": "Create the tracker work item for the judged intake request.",
@@ -25,7 +25,8 @@
       "type": "user",
       "id": "approver@example.invalid",
       "name": "Approver"
-    }
+    },
+    "appliedAt": "2026-08-01T00:50:00.000Z"
   },
   {
     "id": 2,
@@ -39,7 +40,7 @@
     "createdAt": "2026-08-01T00:02:00.000Z",
     "state": "approved",
     "type": "action",
-    "action": 12,
+    "action": 11,
     "description": {
       "title": "Provision intake request",
       "description": "Create the tracker work item for the judged intake request.",
@@ -52,9 +53,10 @@
     },
     "resolvedBy": {
       "type": "user",
-      "id": "approver@example.invalid",
-      "name": "Approver"
+      "id": "governor@example.invalid",
+      "name": "Governor"
     },
-    "appliedAt": "2026-08-01T00:32:00.000Z"
+    "appliedAt": "2026-08-01T00:32:00.000Z",
+    "autoApproved": true
   }
 ]

@@ -1,23 +1,31 @@
-// The cf layer — the platform's own executable policy surface, run as pinned upstream
-// code over the retained records of each cell (adapter/SPEC.md section 5, layer `cf`).
+// The `upstream` layer — the platform's own policy FUNCTIONS, replayed offline by this
+// harness over the retained records (adapter/SPEC.md section 5).
+//
+// What this is, stated exactly, because round 1 found the earlier name overclaimed it:
+// `classifyTool` and `AutoApprovalDrainer` below are the pinned upstream functions,
+// imported from the read-only clone and never reimplemented. Everything around them —
+// which records to feed them, how to join a ledger row to a staged call, how to
+// reconstruct a queue, the apply callback, and the verdict codes — is study-authored.
+// The Durable Object enforcement path never runs. A `pass` here therefore means "the
+// platform's replayed policy functions did not object", never "the platform endorsed
+// this"; and when a construction gives them nothing to decide the verdict is
+// `not-engaged`, which is a distinct outcome from `pass`.
 //
 // This entrypoint is bundled by the pinned clone's own esbuild (harness/cf_runner.py)
 // with the upstream imports resolved into the clone, then executed under plain Node. It
 // reads CF_CELLS (a JSON file listing {id, dir} pairs) and writes CF_OUT: one verdict
 // object per cell plus an apparatus self-report the Python scorer enforces against
-// harness/PINS.json. Nothing here reads MATRIX.json — expectations never enter the layer.
+// harness/PINS.json. Nothing here reads the registry — expectations never enter a layer.
 //
 // Ordering within the layer (SPEC section 5, first failure wins):
 //   1. classification-refused   — classifyTool over every routing decision the ledger claims
-//   2. drain-order-violation    — AutoApprovalDrainer replay over the retained records
-//
-// Engagement is reported per cell: a check that evaluated nothing does not appear, so a
-// vacuous pass is visible as vacuous (PREREGISTRATION section 4c).
+//   2. drain-order-violation    — AutoApprovalDrainer replayed against the stage-time witness
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+
 import { classifyTool } from "@gadgets/mcp-shared/tools";
 import type { ServerTrust } from "@gadgets/mcp-shared/tools";
 import {
@@ -28,7 +36,11 @@ import {
 import { makeMockStorage } from "@gadgets/workshop-backend/mock-storage";
 import { collection, createTypedStorage } from "@gadgets/typed-storage";
 
-type Verdict = { verdict: "pass" | "fail"; code: string | null; detail: string | null };
+type Verdict = {
+  verdict: "pass" | "fail" | "not-engaged";
+  code: string | null;
+  detail: string | null;
+};
 
 type LedgerEntry = {
   id: number;
@@ -44,6 +56,24 @@ type LedgerEntry = {
   appliedAt?: string;
 };
 
+// One retained record of one auto-approval drain pass: the live state the platform
+// destroys as it goes (the rule set is hard-deleted with no tombstone; a pass's identity
+// and its apply outcome are never stored at all). Everything else the replay needs is
+// reconstructed from the ledger's own immutable timestamps, so a store writer cannot
+// erase an obstruction without contradicting the records it kept.
+type DrainWitness = {
+  gatekeeperId: number;
+  pass: number;
+  at: string;
+  appliedActionIds: number[];
+  rules: Array<{
+    gatekeeperId: number;
+    actionKind: { tag: string; label: string };
+    enabledBy: { type: string; id: string; name: string };
+  }>;
+  gatekeeperPresent: boolean;
+};
+
 type PlatformStore = {
   gatekeepers: Array<{
     id: number;
@@ -51,11 +81,7 @@ type PlatformStore = {
     serverTrust: ServerTrust;
     tools: Array<{ name: string; annotations?: Record<string, unknown> }>;
   }>;
-  autoApproveTags: Array<{
-    gatekeeperId: number;
-    actionKind: { tag: string; label: string };
-    enabledBy: { type: string; id: string; name: string };
-  }>;
+  autoApproveTags: DrainWitness["rules"];
   stagedCalls: Array<{
     gatekeeperId: number;
     action: number;
@@ -63,8 +89,10 @@ type PlatformStore = {
     arguments: unknown;
     resourceRevisionAtStage: string;
     simulationBasis: number[];
+    connectorOutcome?: string;
     commitmentDigest?: string;
   }>;
+  drainWitnesses?: DrainWitness[];
   observedCalls?: Array<{ gatekeeperId: number; ledgerId: number; toolName: string }>;
 };
 
@@ -73,6 +101,7 @@ function fail(code: string, detail: string): Verdict {
 }
 
 const PASS: Verdict = { verdict: "pass", code: null, detail: null };
+const NOT_ENGAGED: Verdict = { verdict: "not-engaged", code: null, detail: null };
 
 function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, "utf-8"));
@@ -92,8 +121,12 @@ function classificationCheck(
   );
   let engaged = false;
 
-  const routings: Array<{ label: string; gatekeeperId: number; toolName: string;
-                          claimed: "auto-action" | "read" }> = [];
+  const routings: Array<{
+    label: string;
+    gatekeeperId: number;
+    toolName: string;
+    claimed: "auto-action" | "read";
+  }> = [];
   for (const entry of ledger) {
     if (entry.type === "action" && entry.autoApproved === true) {
       const call = staged.get(`${entry.gatekeeperId}:${entry.action}`);
@@ -163,7 +196,7 @@ function classificationCheck(
 }
 
 // ---------------------------------------------------------------------------
-// check 2 — drain replay (pinned AutoApprovalDrainer over the retained records)
+// check 2 — drain replay against the stage-time witness
 // ---------------------------------------------------------------------------
 
 function makeStorage(): AutoApprovalStorage {
@@ -178,65 +211,145 @@ function makeStorage(): AutoApprovalStorage {
   }) as unknown as AutoApprovalStorage;
 }
 
+// A record was pending at instant t exactly when it had been created by then and had not
+// yet been resolved. `appliedAt` is stamped on BOTH approve and reject (overseer.ts:2495
+// and :7729), so it is a resolution timestamp — which is what makes this reconstruction
+// sound, and why a resolution stamp is never read as evidence of application.
+function pendingAt(entry: LedgerEntry, at: number): boolean {
+  if (entry.type !== "action") return false;
+  const created = Date.parse(entry.createdAt);
+  if (!(created <= at)) return false;
+  if (entry.appliedAt === undefined) return true;
+  return Date.parse(entry.appliedAt) >= at;
+}
+
 async function drainCheck(
   ledger: LedgerEntry[],
   platform: PlatformStore,
 ): Promise<{ verdict: Verdict | null; engaged: boolean }> {
-  const claimedByGatekeeper = new Map<number, number[]>();
+  const claimed = new Map<number, number[]>();
   for (const entry of ledger) {
     if (entry.type === "action" && entry.autoApproved === true) {
-      const claimed = claimedByGatekeeper.get(entry.gatekeeperId) ?? [];
-      claimed.push(entry.id);
-      claimedByGatekeeper.set(entry.gatekeeperId, claimed);
+      const list = claimed.get(entry.gatekeeperId) ?? [];
+      list.push(entry.id);
+      claimed.set(entry.gatekeeperId, list);
     }
   }
-  if (claimedByGatekeeper.size === 0) {
+  if (claimed.size === 0) {
     return { verdict: null, engaged: false };
   }
 
-  for (const [gatekeeperId, claimed] of claimedByGatekeeper) {
+  const witnesses = platform.drainWitnesses ?? [];
+  if (witnesses.length === 0) {
+    return {
+      verdict: fail(
+        "drain-order-violation",
+        "the ledger claims auto-applied actions but no stage-time drain witness is " +
+          "retained; a final snapshot cannot establish that the drain was lawful",
+      ),
+      engaged: true,
+    };
+  }
+
+  const replayed = new Map<number, number[]>();
+  for (const witness of witnesses.slice().sort((a, b) => a.pass - b.pass)) {
+    if (!witness.gatekeeperPresent) {
+      return {
+        verdict: fail(
+          "drain-order-violation",
+          `pass ${witness.pass}: the witness records that gatekeeper ` +
+            `${witness.gatekeeperId} was absent, so no apply could have succeeded`,
+        ),
+        engaged: true,
+      };
+    }
+    const at = Date.parse(witness.at);
+    if (Number.isNaN(at)) {
+      return {
+        verdict: fail(
+          "drain-order-violation",
+          `pass ${witness.pass}: the witness carries no usable instant`,
+        ),
+        engaged: true,
+      };
+    }
+
     const storage = makeStorage();
-    for (const rule of platform.autoApproveTags) {
+    for (const rule of witness.rules) {
       storage.autoApproveTags.put(rule as never);
     }
-    for (const entry of ledger) {
+    // The queue as it stood at that instant, reconstructed from the ledger's own
+    // immutable timestamps rather than from its final states — an obstruction cannot be
+    // erased by later resolving it.
+    const queue = ledger
+      .filter((entry) => entry.gatekeeperId === witness.gatekeeperId)
+      .filter((entry) => pendingAt(entry, at))
+      .slice()
+      .sort((a, b) => a.id - b.id);
+    for (const entry of queue) {
       const record: Record<string, unknown> = {
         ...entry,
         createdAt: new Date(entry.createdAt),
+        state: "pending",
       };
-      if (entry.appliedAt !== undefined) {
-        record.appliedAt = new Date(entry.appliedAt);
-      }
-      if (entry.type === "action" && entry.autoApproved === true) {
-        record.state = "pending";
-        delete record.resolvedBy;
-        delete record.autoApproved;
-        delete record.appliedAt;
-      }
+      delete record.resolvedBy;
+      delete record.autoApproved;
+      delete record.appliedAt;
       storage.actions.put(record as never);
     }
 
     const applied: number[] = [];
-    const applyFn: ApplyPendingActionFn = async (record, resolvedBy, autoApproved) => {
+    const applyFn: ApplyPendingActionFn = async (record) => {
       applied.push(record.id);
       const fresh = storage.actions.get(record.id) as Record<string, unknown> | undefined;
       if (fresh && fresh.type === "action") {
         fresh.state = "approved";
-        fresh.resolvedBy = resolvedBy;
-        fresh.autoApproved = autoApproved;
         storage.actions.put(fresh as never);
       }
     };
-    await new AutoApprovalDrainer(storage, applyFn).drain(gatekeeperId);
+    await new AutoApprovalDrainer(storage, applyFn).drain(witness.gatekeeperId);
 
-    const claimedSorted = [...claimed].sort((a, b) => a - b);
-    if (JSON.stringify(applied) !== JSON.stringify(claimedSorted)) {
+    const witnessed = witness.appliedActionIds.slice().sort((a, b) => a - b);
+    if (JSON.stringify(applied) !== JSON.stringify(witnessed)) {
       return {
         verdict: fail(
           "drain-order-violation",
-          `gatekeeper ${gatekeeperId}: ledger claims auto-applied ` +
-            `[${claimedSorted.join(", ")}] but the pinned drainer replay applies ` +
+          `pass ${witness.pass} on gatekeeper ${witness.gatekeeperId}: the witness ` +
+            `claims [${witnessed.join(", ")}] were auto-applied, but replaying the ` +
+            `pinned drainer over the queue as it stood at ${witness.at} applies ` +
             `[${applied.join(", ")}]`,
+        ),
+        engaged: true,
+      };
+    }
+    const seen = replayed.get(witness.gatekeeperId) ?? [];
+    seen.push(...witnessed);
+    replayed.set(witness.gatekeeperId, seen);
+  }
+
+  // Every claimed auto-approval must be accounted for by some witnessed pass, and no
+  // pass may claim an application the ledger does not record.
+  for (const [gatekeeperId, ids] of claimed) {
+    const seen = (replayed.get(gatekeeperId) ?? []).slice().sort((a, b) => a - b);
+    const expected = ids.slice().sort((a, b) => a - b);
+    if (JSON.stringify(seen) !== JSON.stringify(expected)) {
+      return {
+        verdict: fail(
+          "drain-order-violation",
+          `gatekeeper ${gatekeeperId}: the ledger claims [${expected.join(", ")}] were ` +
+            `auto-applied but the witnessed passes account for [${seen.join(", ")}]`,
+        ),
+        engaged: true,
+      };
+    }
+  }
+  for (const gatekeeperId of replayed.keys()) {
+    if (!claimed.has(gatekeeperId)) {
+      return {
+        verdict: fail(
+          "drain-order-violation",
+          `gatekeeper ${gatekeeperId}: a drain witness claims applications the ledger ` +
+            `does not record as auto-approved`,
         ),
         engaged: true,
       };
@@ -258,6 +371,7 @@ function selfReport(source: string) {
     "packages/typed-storage/src/index.ts",
     "packages/workshop-shared/src/gatekeeper.ts",
     "packages/workshop-shared/src/api.ts",
+    "packages/workshop-backend/src/overseer.ts",
   ];
   const digests: Record<string, string> = {};
   for (const relative of probed) {
@@ -267,6 +381,13 @@ function selfReport(source: string) {
   }
   const git = (...args: string[]) =>
     execFileSync("git", ["-C", source, ...args], { encoding: "utf-8" }).trim();
+  const packageVersion = (relative: string): string | null => {
+    try {
+      return JSON.parse(readFileSync(join(source, relative), "utf-8")).version ?? null;
+    } catch {
+      return null;
+    }
+  };
   return {
     nodeVersion: process.version,
     cloneCommit: git("rev-parse", "HEAD"),
@@ -274,6 +395,9 @@ function selfReport(source: string) {
     lockfileSha256: createHash("sha256")
       .update(readFileSync(join(source, "pnpm-lock.yaml")))
       .digest("hex"),
+    typescriptVersion: packageVersion(
+      "node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/package.json",
+    ),
     probedFiles: digests,
   };
 }
@@ -320,7 +444,8 @@ async function main(): Promise<void> {
     }
     const drain = await drainCheck(ledger, platform);
     if (drain.engaged) engaged.push("AutoApprovalDrainer");
-    results[cell.id] = { ...(drain.verdict ?? PASS), engaged };
+    const settled = drain.verdict ?? (engaged.length === 0 ? NOT_ENGAGED : PASS);
+    results[cell.id] = { ...settled, engaged };
   }
 
   writeFileSync(

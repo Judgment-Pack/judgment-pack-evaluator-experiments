@@ -17,11 +17,13 @@
       "packages/workshop-backend/__tests__/mock-storage.ts": "34fa561202c1fdcd5a375677f31bc00380fc8b264b4c582234def7086d431e8d",
       "packages/typed-storage/src/index.ts": "4277fc48d1f03650ec7a604ae060e416c71859d37b119aa8d3157178b79bac0c",
       "packages/workshop-shared/src/gatekeeper.ts": "a88783c6e98bad865b2afdfb049f73ec77e2d8672595c42b9487e3cf29fd80d2",
-      "packages/workshop-shared/src/api.ts": "bf72dca8cf86fe62474f660f82b5dde182fcf34661dba24a23245b7ea7a5bf11"
+      "packages/workshop-shared/src/api.ts": "bf72dca8cf86fe62474f660f82b5dde182fcf34661dba24a23245b7ea7a5bf11",
+      "packages/workshop-backend/src/overseer.ts": "866e9f3b70aa91993476ef72f458e83c4d1b77cdb3c3e422191c3a8556c5e78d"
     },
-    "importNote": "probes import tools.ts, auto-approval.ts, mock-storage.ts and typed-storage/src/index.ts as live code from the pinned clone (never vendored), bundled per invocation by the clone's own esbuild (upstream's vitest path needs a newer glibc than this apparatus provides — same pinned sources either way) and run under the pinned node; gatekeeper.ts and api.ts contribute the contract types harness/typecheck.py holds every ledger record to, via the clone's own typescript. cloudflare:workers is aliased to probes/stubs/cloudflare-workers.ts, whose only runtime export used is an inert tracing object — recorded as the study's single injected seam, on the observability path only",
+    "importNote": "The probes import tools.ts, auto-approval.ts, mock-storage.ts and typed-storage/src/index.ts as live code from the pinned clone (never vendored), bundled per invocation by the clone's own esbuild (upstream's vitest path needs a newer glibc than this apparatus provides — same pinned sources either way) and run under the pinned node. overseer.ts supplies the ActionRecord and AutoApproveTagRecord types harness/typecheck.py holds every retained record to, via the clone's own typescript under the backend package's own tsconfig. cloudflare:workers is aliased to probes/stubs/cloudflare-workers.ts, whose only runtime export used is an inert tracing object — the study's single injected seam, on the observability path only.",
     "upstreamCiNode": "22.14.0 (the upstream repository's own CI pin, recorded as context; the harness pin below is what is enforced)",
-    "backendTypecheckFinding": "holding fixtures to the server-side ActionRecord type directly is not reproducible from the committed tree: the backend graph typechecks only against a wrangler-regenerated worker-configuration.d.ts (Env bindings, text-module declarations, Uint8Array codec types), so the committed snapshot cannot standalone-typecheck its own backend; the gate therefore holds records to the published contract layer (ActionLogEntry) and says so"
+    "backendTypecheckFinding": "WITHDRAWN. An earlier draft recorded that binding fixtures to the server-side ActionRecord was not reproducible from the committed tree because the backend needed a wrangler-regenerated worker-configuration.d.ts. That was wrong: the file is tracked at the pin (git ls-files packages/workshop-backend/worker-configuration.d.ts), and `node scripts/build-format-blueprints.mjs` (run from the package directory, as the package's own test script does) followed by tsc -p packages/workshop-backend/tsconfig.json --noEmit exits 0 with zero diagnostics and leaves the tracked tree clean. The gate binds the real server-side type accordingly; see DEVIATIONS.md.",
+    "runtimeValidationNote": "The platform DOES validate at its live RPC boundary: ApprovalQueueImpl carries @validateRpc() (overseer.ts:9428), so submitAction's arguments — including the declared structure of ActionDescription — are checked on arrival by validators generated from the pinned TypeScript types at build time. What it ships no part of is OFFLINE verification of a retained or exported action record: those validators are inline closures inside the built Worker, bound to a live service method, structural only (every semantic commitment is an unconstrained string), and there is no digest, signature or action-log export anywhere in the pinned source. The study's load-bearing claim is the second sentence, and only the second."
   },
   "jpack": {
     "version": "0.16.0",
@@ -42,7 +44,8 @@
     "packId": "https://example.invalid/judgment-packs/data-request-intake-triage",
     "packVersion": "0.1.0",
     "specVersion": "0.2.0-draft",
-    "conformanceCases": "facts and evidence-availability documents are taken verbatim from the same corpus's manifest.json (sha256 d2c8bf03285f5f3478f1c9074dcf0dfb2257211eba009879cd5d9f02cbb545b1) so every fixture disposition is a disposition the specification's own seed suite registers"
+    "conformanceCases": "facts and evidence-availability documents are taken verbatim from the same corpus's manifest.json (sha256 d2c8bf03285f5f3478f1c9074dcf0dfb2257211eba009879cd5d9f02cbb545b1) so every fixture disposition is a disposition the specification's own seed suite registers",
+    "conformanceCasesSha256": "d2c8bf03285f5f3478f1c9074dcf0dfb2257211eba009879cd5d9f02cbb545b1"
   },
   "harnessPython": {
     "implementation": "CPython",
@@ -69,7 +72,7 @@
   "studyManifest": {
     "path": "harness/STUDY-MANIFEST.sha256",
     "generator": "harness/make_manifest.py",
-    "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/PINS.json, harness/requirements.txt, the vendored pack and conformance-case bytes, every adapter/*.py and harness/*.py (tests included), every probes/*.ts and probes/stubs/*.ts, and every fixtures/**/MANIFEST.sha256",
+    "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/PINS.json, harness/requirements.txt, the vendored pack and conformance-case bytes, every adapter/*.py and harness/*.py (tests included), every probes/*.ts and probes/stubs/*.ts, and every fixtures/**/MANIFEST.sha256 across both strata",
     "note": "exact-set whole-study manifest; regenerated during drafting, pinned at the freeze. No digest is recorded here because this file is inside the manifest's own coverage"
   },
   "preregistration": {
@@ -81,5 +84,10 @@
     "path": "adapter/SPEC.md",
     "sha256": null,
     "note": "registered with the preregistration; digest filled at the freeze"
+  },
+  "probeToolchain": {
+    "esbuild": "0.28.1",
+    "typescript": "5.9.3",
+    "note": "The two clone-provided tools that transform or check study inputs: esbuild bundles every probe entrypoint, typescript runs the fixture typecheck. Both are resolved from the pinned clone's own lockfile and both are self-reported per attempt by the upstream runner and compared here by the scorer — round 1 found esbuild was self-reported and never pinned."
   }
 }

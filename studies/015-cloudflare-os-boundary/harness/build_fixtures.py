@@ -4,10 +4,16 @@ Every cell derives from one shared deterministic timeline. The JPS side is real:
 `evaluation.json` is the exact stdout of the pinned evaluator (JPACK_BIN) over the cell's
 retained facts and evidence bytes, which are themselves the JCS serialization of verbatim
 cases from the specification's conformance seed manifest (vendored digests in PINS.json).
-The platform-identity values (action-kind tags, catalog fingerprints) come from the pinned
-upstream's own functions via the build-helper probe (CFOS_SOURCE) — never reimplemented.
+The platform-identity values are derived by the adapter's reproduction of the platform's
+own rule and pinned against upstream `actionKindFor` by a probe.
 
-All clocks are fixed constants. Run:  JPACK_BIN=... CFOS_SOURCE=... python harness/build_fixtures.py
+Both strata are constructed here. Construction is not adjudication: the holdout fixtures
+are BUILT before the freeze — they must exist for the scorer's holdout gate to pass — but
+no layer verdict is ever computed over them until `--include-holdout` is allowed, which
+the scorer refuses while the preregistration digest is null.
+
+All clocks are fixed constants. Run:
+    JPACK_BIN=... CFOS_SOURCE=... python harness/build_fixtures.py
 """
 
 import copy
@@ -23,13 +29,11 @@ STUDY = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(STUDY / "adapter"))
 sys.path.insert(0, str(STUDY / "harness"))
 
-import cf_runner  # noqa: E402
 import commitment as cmt  # noqa: E402
 
 FIXTURES = STUDY / "fixtures"
 PACK_PATH = FIXTURES / "data-request-intake-triage.pack.json"
 
-SCOPE_TAG = "jps-tracker"
 OTHER_RESOURCE_URL = "https://other-tracker.example/mcp"
 BOUND_REVISION = "rev-7"
 DRIFTED_REVISION = "rev-9"
@@ -57,8 +61,9 @@ CASES = {
     "not-applicable": "not-applicable-request-type",
 }
 
-# Deterministic "captured artifact" bytes behind every present evidence claim. The study
-# never inspects these; their digests are the backing lineage assertions (SPEC section 1).
+# The captured evidence artifacts an acquiring system retains. Their bytes are frozen in
+# each cell (`evidence-artifacts.json`) so a backing digest has a checkable preimage; the
+# study never inspects their content and asserts nothing about their authenticity.
 EVIDENCE_ARTIFACTS = {
     "intake-form": cmt.jcs({"artifact": "intake-form", "capture": "fixture-capture-01"}),
     "sponsor-endorsement": cmt.jcs(
@@ -103,7 +108,7 @@ def evaluate_envelope(jpack_bin, facts_bytes, evidence_bytes):
         )
     if completed.returncode != 0:
         raise SystemExit(
-            "pinned evaluator refused a fixture case: " + completed.stderr.decode()
+            "the pinned evaluator refused a fixture case: " + completed.stderr.decode()
         )
     return completed.stdout
 
@@ -127,19 +132,39 @@ class Timeline:
         self.simulations = []
         self.effects = []
         self.observed = []
+        self.witnesses = []
         self.apply_revisions = {}
 
-    def enable_rule(self, kind=None):
-        self.auto_rules.append(
+    # -- platform-side state -------------------------------------------
+
+    def rule(self, kind=None, gatekeeper_id=1):
+        return {
+            "gatekeeperId": gatekeeper_id,
+            "actionKind": dict(kind or self.action_kind),
+            "enabledBy": dict(ENABLER),
+        }
+
+    def enable_rule(self, kind=None, gatekeeper_id=1):
+        self.auto_rules.append(self.rule(kind, gatekeeper_id))
+
+    def witness(self, *, gatekeeper_id=1, pass_index=1, at, applied_ids, rules=None):
+        """The stage-time drain witness for one pass (SPEC section 0)."""
+        self.witnesses.append(
             {
-                "gatekeeperId": 1,
-                "actionKind": dict(kind or self.action_kind),
-                "enabledBy": dict(ENABLER),
+                "gatekeeperId": gatekeeper_id,
+                "pass": pass_index,
+                "at": at,
+                "appliedActionIds": sorted(applied_ids),
+                "rules": [dict(rule) for rule in (rules if rules is not None
+                                                  else self.auto_rules)],
+                "gatekeeperPresent": True,
             }
         )
 
+    # -- ledger --------------------------------------------------------
+
     def add_action(self, ledger_id, *, gatekeeper_id=1, action_key, state,
-                   auto=False, autoApprovable=True, kind=None, applied=True):
+                   auto=False, autoApprovable=True, kind=None, resolved_at=None):
         description = {
             "title": "Provision intake request",
             "description": "Create the tracker work item for the judged intake request.",
@@ -164,10 +189,12 @@ class Timeline:
         }
         if state in ("approved", "rejected"):
             record["resolvedBy"] = dict(ENABLER if auto else APPROVER)
+            # `appliedAt` is a RESOLUTION stamp upstream: overseer.ts sets it on approve
+            # (:2495) and on reject (:7729). The study never reads it as evidence of
+            # application — only `state == "approved"` means applied.
+            record["appliedAt"] = resolved_at or timestamp(30 + ledger_id)
         if state == "approved" and auto:
             record["autoApproved"] = True
-        if state == "approved" and applied:
-            record["appliedAt"] = timestamp(30 + ledger_id)
         self.ledger.append(record)
         return record
 
@@ -186,8 +213,11 @@ class Timeline:
             }
         )
 
+    # -- gatekeeper-side store -----------------------------------------
+
     def stage(self, *, gatekeeper_id=1, action_key, tool_name, arguments,
-              commitment_digest=None, revision=BOUND_REVISION, basis=()):
+              commitment_digest=None, revision=BOUND_REVISION, basis=(),
+              connector_outcome="committed"):
         call = {
             "gatekeeperId": gatekeeper_id,
             "action": action_key,
@@ -195,6 +225,7 @@ class Timeline:
             "arguments": arguments,
             "resourceRevisionAtStage": revision,
             "simulationBasis": sorted(basis),
+            "connectorOutcome": connector_outcome,
         }
         if commitment_digest is not None:
             call["commitmentDigest"] = commitment_digest
@@ -217,6 +248,7 @@ class Timeline:
             "stagedCalls": self.staged,
             "simulations": self.simulations,
             "observedCalls": self.observed,
+            "drainWitnesses": self.witnesses,
             "world": {"resourceRevisionAtApply": self.apply_revisions},
             "effects": self.effects,
         }
@@ -250,6 +282,14 @@ def backing_for(evidence):
     }
 
 
+def artifacts_for(evidence):
+    return {
+        requirement: EVIDENCE_ARTIFACTS[requirement]
+        for requirement, availability in evidence.items()
+        if availability == "present"
+    }
+
+
 def honest_report(envelope, digest, execution, note=""):
     disposition = envelope["disposition"]
     return {
@@ -271,22 +311,17 @@ class Builder:
         if not jpack_bin or not Path(jpack_bin).is_file():
             raise SystemExit("JPACK_BIN must point at the pinned evaluator")
         self.jpack_bin = jpack_bin
-        self.executable_digest = "sha256:" + cmt.sha256_hex(
-            Path(jpack_bin).read_bytes()
-        )
+        self.executable_digest = "sha256:" + cmt.sha256_hex(Path(jpack_bin).read_bytes())
         self.pack_bytes = PACK_PATH.read_bytes()
         self.cases = load_cases()
-        helpers = cf_runner.build_helpers(
-            {
-                "actionKinds": [
-                    {"scopeTag": SCOPE_TAG, "toolName": cmt.ACTION_TOOL},
-                    {"scopeTag": SCOPE_TAG, "toolName": DELETE_TOOL["name"]},
-                ]
-            }
-        )
-        kinds = {item["toolName"]: item["kind"] for item in helpers["actionKinds"]}
-        self.action_kind = kinds[cmt.ACTION_TOOL]
-        self.delete_kind = kinds[DELETE_TOOL["name"]]
+        self.action_kind = {
+            "tag": cmt.action_kind_tag(),
+            "label": cmt.ACTION_TOOL,
+        }
+        self.delete_kind = {
+            "tag": cmt.action_kind_tag(tool_name=DELETE_TOOL["name"]),
+            "label": DELETE_TOOL["name"],
+        }
         self._envelopes = {}
 
     def case_bytes(self, case_key):
@@ -306,7 +341,8 @@ class Builder:
     # ------------------------------------------------------------------
 
     def build(self, *, case_key, envelope_bytes=None, action_override=None,
-              backing_override=None, executable_digest=None):
+              backing_override=None, artifacts_override=None,
+              executable_digest=None, judgment_override=None):
         """Retained JPS artifacts + the commitment for one cell."""
         facts_bytes, evidence_bytes = self.case_bytes(case_key)
         raw_envelope = (
@@ -315,16 +351,17 @@ class Builder:
         envelope = json.loads(raw_envelope.decode("utf-8"))
         evidence = json.loads(evidence_bytes.decode("utf-8"))
         disposition = envelope["disposition"]
+        facts = json.loads(facts_bytes.decode("utf-8"))
         if action_override is None:
             action = cmt.authorized_action(
-                disposition,
-                json.loads(facts_bytes.decode("utf-8")),
-                action_kind_tag=self.action_kind["tag"],
-                bound_resource_revision=BOUND_REVISION,
+                disposition, facts, bound_resource_revision=BOUND_REVISION
             )
         else:
             action = action_override
         backing = backing_for(evidence) if backing_override is None else backing_override
+        artifacts = (
+            artifacts_for(evidence) if artifacts_override is None else artifacts_override
+        )
         document = cmt.build_commitment(
             pack_bytes=self.pack_bytes,
             facts_bytes=facts_bytes,
@@ -334,6 +371,8 @@ class Builder:
             backing=backing,
             action=action,
         )
+        if judgment_override:
+            document["judgment"].update(judgment_override)
         return {
             "facts_bytes": facts_bytes,
             "evidence_bytes": evidence_bytes,
@@ -341,30 +380,34 @@ class Builder:
             "envelope": envelope,
             "commitment": document,
             "digest": cmt.commitment_digest(document),
-            "action": action,
-            "facts": json.loads(facts_bytes.decode("utf-8")),
+            "action": document["action"],
+            "facts": facts,
+            "artifacts": artifacts,
         }
 
-    def forced_action(self, case_key, *, tag=None):
+    def forced_action(self, case_key, **overrides):
         """An action object the map forbids — the bridge misbehaving on purpose."""
         facts_bytes, _ = self.case_bytes(case_key)
         facts = json.loads(facts_bytes.decode("utf-8"))
-        return {
+        action = {
             "gatekeeperId": cmt.GATEKEEPER_ID,
             "resourceUrl": cmt.RESOURCE_URL,
             "serverTrust": cmt.SERVER_TRUST,
             "toolName": cmt.ACTION_TOOL,
-            "actionKindTag": (tag or self.action_kind["tag"]),
+            "actionKindTag": cmt.action_kind_tag(),
             "argumentsDigest": cmt.arguments_digest(cmt.action_arguments(facts)),
             "boundResourceRevision": BOUND_REVISION,
             "simulationBasis": [],
         }
+        action.update(overrides)
+        return action
 
     def artifacts(self, built, timeline, report):
         return {
             "pack.json": self.pack_bytes,
             "facts.json": built["facts_bytes"],
             "evidence.json": built["evidence_bytes"],
+            "evidence-artifacts.json": dumps(cmt.artifacts_document(built["artifacts"])),
             "evaluation.json": built["envelope_bytes"],
             "commitment.json": cmt.commitment_bytes(built["commitment"]),
             "ledger.json": dumps(timeline.ledger),
@@ -373,22 +416,27 @@ class Builder:
         }
 
     # ------------------------------------------------------------------
-    # the standard executed baseline (proceed, auto-approved, effected)
+    # the standard executed baseline (proceed, applied, effected)
     # ------------------------------------------------------------------
 
-    def executed_timeline(self, built, *, auto=True, revision=BOUND_REVISION):
+    def executed_timeline(self, built, *, auto=True, revision=BOUND_REVISION,
+                          attest=True, connector_outcome="committed"):
         timeline = Timeline(self.action_kind)
         if auto:
             timeline.enable_rule()
-        timeline.add_action(1, action_key=11, state="approved", auto=auto)
+        record = timeline.add_action(1, action_key=11, state="approved", auto=auto)
         timeline.stage(
             action_key=11,
             tool_name=cmt.ACTION_TOOL,
             arguments=cmt.action_arguments(built["facts"]),
             commitment_digest=built["digest"],
+            connector_outcome=connector_outcome,
         )
         timeline.applied_at_revision(action_key=11, revision=revision)
-        timeline.attest_effect(cmt.action_arguments(built["facts"]))
+        if auto:
+            timeline.witness(at=record["appliedAt"], applied_ids=[1])
+        if attest:
+            timeline.attest_effect(cmt.action_arguments(built["facts"]))
         return timeline
 
     def inaction_cell(self, case_key, *, report_mutator=None, envelope_bytes=None):
@@ -402,15 +450,18 @@ class Builder:
 
 def build_all():
     builder = Builder()
-    mutations = STUDY / "fixtures" / "mutations"
-    if mutations.is_dir():
-        shutil.rmtree(mutations)
-    baseline_dir = STUDY / "fixtures" / "baseline"
-    if baseline_dir.is_dir():
-        shutil.rmtree(baseline_dir)
+    for parent in ("baseline", "mutations", "holdout"):
+        directory = FIXTURES / parent
+        if directory.is_dir():
+            shutil.rmtree(directory)
 
-    def emit(cell_id, built, timeline, report):
-        directory = baseline_dir if cell_id == "pos-baseline" else mutations / cell_id
+    def emit(cell_id, built, timeline, report, stratum="locked"):
+        if stratum == "holdout":
+            directory = FIXTURES / "holdout" / cell_id
+        elif cell_id == "pos-baseline":
+            directory = FIXTURES / "baseline"
+        else:
+            directory = FIXTURES / "mutations" / cell_id
         write_cell(directory, builder.artifacts(built, timeline, report))
 
     # ---- control gates ----------------------------------------------------
@@ -420,7 +471,7 @@ def build_all():
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
     # byo trust tier; the ledger still claims auto-approval.
-    byo_action = dict(builder.forced_action("proceed"), serverTrust="byo")
+    byo_action = builder.forced_action("proceed", serverTrust="byo")
     built = builder.build(case_key="proceed", action_override=byo_action)
     timeline = builder.executed_timeline(built)
     timeline.gatekeepers[0]["serverTrust"] = "byo"
@@ -434,21 +485,52 @@ def build_all():
     emit("neg-mcp-nonidempotent-autoapply", built, timeline,
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
-    # a manual gate ahead of the claimed auto-application.
+    # A manual gate that was pending when the claimed auto-approval happened: it is
+    # resolved (rejected) only afterwards, so a final-state reading would miss it and the
+    # stage-time reconstruction does not.
     built = builder.build(case_key="proceed")
     timeline = Timeline(builder.action_kind)
     timeline.enable_rule()
-    timeline.add_action(1, action_key=10, state="pending", autoApprovable=False)
+    timeline.add_action(1, action_key=10, state="rejected", autoApprovable=False,
+                        resolved_at=timestamp(45))
     timeline.stage(action_key=10, tool_name=cmt.ACTION_TOOL,
                    arguments={"kind": "manual-batch", "requestType": "other",
                               "source": "jps-triage"})
-    timeline.add_action(2, action_key=11, state="approved", auto=True)
+    record = timeline.add_action(2, action_key=11, state="approved", auto=True,
+                                 resolved_at=timestamp(32))
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
                    arguments=cmt.action_arguments(built["facts"]),
                    commitment_digest=built["digest"])
     timeline.applied_at_revision(action_key=11, revision=BOUND_REVISION)
+    timeline.witness(at=record["appliedAt"], applied_ids=[2])
+    timeline.attest_effect(cmt.action_arguments(built["facts"]))
     emit("neg-drain-skip", built, timeline,
-         honest_report(built["envelope"], built["digest"], "applied"))
+         honest_report(built["envelope"], built["digest"], "effect-attested"))
+
+    # Binding-layer liveness through the official scorer: non-canonical commitment bytes.
+    built = builder.build(case_key="proceed")
+    timeline = builder.executed_timeline(built, auto=False)
+    artifacts = builder.artifacts(
+        built, timeline,
+        honest_report(built["envelope"], built["digest"], "effect-attested"))
+    artifacts["commitment.json"] = artifacts["commitment.json"] + b"\n"
+    write_cell(FIXTURES / "mutations" / "neg-binding-control", artifacts)
+
+    # Replay-layer liveness: a retained pack the pinned evaluator refuses to load. Two
+    # layers fail here by construction — an unparseable pack corroborates no committed
+    # identity either — and that is the point of a gate: it proves both are alive.
+    built = builder.build(case_key="proceed")
+    timeline = builder.executed_timeline(built, auto=False)
+    refused = builder.pack_bytes[: len(builder.pack_bytes) // 2]
+    document = copy.deepcopy(built["commitment"])
+    document["judgment"]["packDigest"] = cmt.sha256_prefixed(refused)
+    digest = cmt.commitment_digest(document)
+    timeline.staged[0]["commitmentDigest"] = digest
+    artifacts = builder.artifacts(
+        built, timeline, honest_report(built["envelope"], digest, "effect-attested"))
+    artifacts["pack.json"] = refused
+    artifacts["commitment.json"] = cmt.commitment_bytes(document)
+    write_cell(FIXTURES / "mutations" / "neg-replay-control", artifacts)
 
     # ---- A: judgment-artifact ---------------------------------------------
     built = builder.build(case_key="proceed")
@@ -459,7 +541,7 @@ def build_all():
     pack = json.loads(builder.pack_bytes.decode("utf-8"))
     pack["description"] = pack.get("description", "") + " "
     artifacts["pack.json"] = dumps(pack)
-    write_cell(mutations / "a01-pack-bytes-drift", artifacts)
+    write_cell(FIXTURES / "mutations" / "a01-pack-bytes-drift", artifacts)
 
     # clarify-return forged to proceed, everything rebuilt coherently.
     forged = json.loads(builder.envelope_bytes("clarify").decode("utf-8"))
@@ -472,10 +554,16 @@ def build_all():
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
     # executable digest forged (coherently re-bound).
-    built = builder.build(case_key="proceed",
-                          executable_digest="sha256:" + "0" * 64)
+    built = builder.build(case_key="proceed", executable_digest="sha256:" + "0" * 64)
     timeline = builder.executed_timeline(built, auto=False)
     emit("a03-evaluator-digest-forged", built, timeline,
+         honest_report(built["envelope"], built["digest"], "effect-attested"))
+
+    # a committed identity that is not the retained artifacts' identity.
+    built = builder.build(case_key="proceed",
+                          judgment_override={"evaluatorRelease": "0.15.0"})
+    timeline = builder.executed_timeline(built, auto=False)
+    emit("a04-judgment-identity-forged", built, timeline,
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
     # ---- S: semantic collapse ----------------------------------------------
@@ -483,8 +571,7 @@ def build_all():
         report["decision"] = {"kind": "outcome", "outcomeId": "rejected",
                               "reasons": [], "handoffState": "requested"}
         report["note"] = "request rejected by the judgment"
-    built, timeline, report = builder.inaction_cell("conflict",
-                                                    report_mutator=misattribute)
+    built, timeline, report = builder.inaction_cell("conflict", report_mutator=misattribute)
     emit("s01-conflict-as-rejected", built, timeline, report)
 
     built = builder.build(case_key="unknown",
@@ -498,13 +585,14 @@ def build_all():
     retcon_envelope = builder.envelope_bytes("unknown")
     facts_bytes, evidence_bytes = builder.case_bytes("proceed")
     envelope = json.loads(retcon_envelope.decode("utf-8"))
+    evidence = json.loads(evidence_bytes.decode("utf-8"))
     document = cmt.build_commitment(
         pack_bytes=builder.pack_bytes,
         facts_bytes=facts_bytes,
         evidence_bytes=evidence_bytes,
         envelope=envelope,
         executable_digest=builder.executable_digest,
-        backing=backing_for(json.loads(evidence_bytes.decode("utf-8"))),
+        backing=backing_for(evidence),
         action=None,
     )
     built = {
@@ -516,15 +604,17 @@ def build_all():
         "digest": cmt.commitment_digest(document),
         "action": None,
         "facts": json.loads(facts_bytes.decode("utf-8")),
+        "artifacts": artifacts_for(evidence),
     }
     timeline = Timeline(builder.action_kind)
     emit("s03-opfail-as-unknown", built, timeline,
          honest_report(envelope, built["digest"], "none",
                        note="evaluation returned unknown; no action taken"))
 
-    # a present claim backed by an approval record.
-    built = builder.build(case_key="proceed")
-    backing = backing_for(json.loads(built["evidence_bytes"].decode("utf-8")))
+    # a present claim backed by an approval record rather than a captured artifact.
+    _, evidence_bytes = builder.case_bytes("proceed")
+    evidence = json.loads(evidence_bytes.decode("utf-8"))
+    backing = backing_for(evidence)
     backing["sponsor-endorsement"] = {"kind": "approval-record", "ref": "ledger:1"}
     built = builder.build(case_key="proceed", backing_override=backing)
     timeline = builder.executed_timeline(built, auto=False)
@@ -534,8 +624,7 @@ def build_all():
     def close_quietly(report):
         report["decision"]["handoffState"] = "none"
         report["note"] = "case closed"
-    built, timeline, report = builder.inaction_cell("absent",
-                                                    report_mutator=close_quietly)
+    built, timeline, report = builder.inaction_cell("absent", report_mutator=close_quietly)
     emit("s05-handoff-dropped", built, timeline, report)
 
     built = builder.build(case_key="not-applicable",
@@ -545,14 +634,12 @@ def build_all():
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
     # a present claim backed by an observation record.
-    backing = backing_for(
-        json.loads(builder.case_bytes("proceed")[1].decode("utf-8"))
-    )
+    backing = backing_for(evidence)
     backing["intake-form"] = {"kind": "observation-record", "ref": "ledger:1"}
     built = builder.build(case_key="proceed", backing_override=backing)
     timeline = Timeline(builder.action_kind)
     timeline.add_observation(1, "Read intake form",
-                            "Read the intake form through the tracker capability.")
+                             "Read the intake form through the tracker capability.")
     timeline.add_action(2, action_key=11, state="approved", auto=False)
     timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
                    arguments=cmt.action_arguments(built["facts"]),
@@ -581,16 +668,15 @@ def build_all():
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
     built = builder.build(case_key="proceed")
-    timeline = builder.executed_timeline(built, auto=False)
+    timeline = builder.executed_timeline(built, auto=False, attest=False)
     timeline.staged[0]["arguments"] = dict(
         cmt.action_arguments(built["facts"]), requestType="someone-else-entirely")
-    timeline.effects = []
     emit("b02-argument-drift", built, timeline,
          honest_report(built["envelope"], built["digest"], "applied"))
 
     built = builder.build(case_key="proceed")
-    timeline = builder.executed_timeline(built, auto=False, revision=DRIFTED_REVISION)
-    timeline.effects = []
+    timeline = builder.executed_timeline(built, auto=False, revision=DRIFTED_REVISION,
+                                         attest=False)
     emit("b03-revision-drift", built, timeline,
          honest_report(built["envelope"], built["digest"], "applied"))
 
@@ -603,8 +689,7 @@ def build_all():
     timeline.stage(gatekeeper_id=2, action_key=21, tool_name=cmt.ACTION_TOOL,
                    arguments=cmt.action_arguments(built["facts"]),
                    commitment_digest=built["digest"])
-    timeline.applied_at_revision(gatekeeper_id=2, action_key=21,
-                                 revision=BOUND_REVISION)
+    timeline.applied_at_revision(gatekeeper_id=2, action_key=21, revision=BOUND_REVISION)
     emit("b04-gatekeeper-substituted", built, timeline,
          honest_report(built["envelope"], built["digest"], "applied"))
 
@@ -628,43 +713,21 @@ def build_all():
     emit("b06-unbound-execution", built, timeline,
          honest_report(built["envelope"], built["digest"], "none"))
 
-    # ---- D: deferred simulation --------------------------------------------
-    built_action = None
-    facts_bytes, evidence_bytes = builder.case_bytes("proceed")
-    facts = json.loads(facts_bytes.decode("utf-8"))
-    built_action = {
-        "gatekeeperId": cmt.GATEKEEPER_ID,
-        "resourceUrl": cmt.RESOURCE_URL,
-        "serverTrust": cmt.SERVER_TRUST,
-        "toolName": cmt.ACTION_TOOL,
-        "actionKindTag": builder.action_kind["tag"],
-        "argumentsDigest": cmt.arguments_digest(cmt.action_arguments(facts)),
-        "boundResourceRevision": BOUND_REVISION,
-        "simulationBasis": [5],
-    }
-    built = builder.build(case_key="proceed", action_override=built_action)
-    timeline = Timeline(builder.action_kind)
-    timeline.add_action(1, action_key=11, state="rejected", autoApprovable=False)
-    timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
-                   arguments={"kind": "prepare-parent", "requestType": "other",
-                              "source": "jps-triage"})
-    timeline.simulations.append({"id": 5, "actionLedgerId": 1})
-    timeline.add_action(2, action_key=12, state="approved", auto=False)
-    timeline.stage(action_key=12, tool_name=cmt.ACTION_TOOL,
-                   arguments=cmt.action_arguments(built["facts"]),
-                   commitment_digest=built["digest"], basis=[5])
-    timeline.applied_at_revision(action_key=12, revision=BOUND_REVISION)
-    emit("d01-dependent-simulated-write", built, timeline,
+    # the commitment binds a stage-time revision the staging record does not carry.
+    built = builder.build(case_key="proceed")
+    timeline = builder.executed_timeline(built, auto=False, attest=False)
+    timeline.staged[0]["resourceRevisionAtStage"] = DRIFTED_REVISION
+    emit("b07-stage-revision-mismatch", built, timeline,
          honest_report(built["envelope"], built["digest"], "applied"))
 
+    # ---- D: the callback/commit distinction --------------------------------
     built = builder.build(case_key="proceed")
-    timeline = builder.executed_timeline(built, auto=False)
-    timeline.effects = []
+    timeline = builder.executed_timeline(built, auto=False, attest=False)
     emit("d02-simulated-as-committed", built, timeline,
          honest_report(built["envelope"], built["digest"], "effect-attested",
-                       note="agent observed simulated success"))
+                       note="the gatekeeper callback returned; the agent saw success"))
 
-    # ---- M: annotation trust -----------------------------------------------
+    # ---- M: annotation trust and commit ambiguity --------------------------
     built = builder.build(case_key="proceed")
     timeline = Timeline(builder.action_kind)
     timeline.gatekeepers[0]["tools"][0]["annotations"] = {
@@ -678,15 +741,148 @@ def build_all():
     emit("m01-readonly-bypass", built, timeline,
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
+    # The at-most-once ambiguity, in the state the pinned source can actually retain:
+    # the inner connector action is failed/non-retryable and the OUTER workspace record
+    # stays pending, because overseer.ts only transitions it after applyAction returns.
     built = builder.build(case_key="proceed")
-    timeline = builder.executed_timeline(built, auto=False)
-    timeline.effects = []
+    timeline = Timeline(builder.action_kind)
+    timeline.add_action(1, action_key=11, state="pending", autoApprovable=False)
+    timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
+                   arguments=cmt.action_arguments(built["facts"]),
+                   commitment_digest=built["digest"],
+                   connector_outcome="outcome-unknown")
     emit("m02-ambiguous-commit", built, timeline,
          honest_report(built["envelope"], built["digest"], "applied-unproven",
-                       note="dispatch timed out; external commit state is unknown"))
+                       note="dispatch timed out after the request left the connector; "
+                            "the external commit state is unknown and not retryable"))
 
-    print("fixtures built:",
-          1 + len([p for p in (mutations).iterdir() if p.is_dir()]))
+    build_holdout(builder, emit)
+
+    locked = len([p for p in (FIXTURES / "mutations").iterdir() if p.is_dir()]) + 1
+    holdout = len([p for p in (FIXTURES / "holdout").iterdir() if p.is_dir()])
+    print("fixtures built: %d locked, %d holdout" % (locked, holdout))
+
+
+def build_holdout(builder, emit):
+    """The eight reviewer-authored constructions, built exactly as their text specifies.
+
+    Construction only: no verdict is computed here, and the scorer refuses to adjudicate
+    this stratum until the preregistration is frozen.
+    """
+    # h01 — clarify disposition with the canonical proceed action fully bound.
+    built = builder.build(case_key="clarify",
+                          action_override=builder.forced_action("clarify"))
+    timeline = builder.executed_timeline(built, auto=False)
+    emit("h01-clarify-bound-execution", built, timeline,
+         honest_report(built["envelope"], built["digest"], "effect-attested"),
+         stratum="holdout")
+
+    # h02 — a backing digest over an approval-ledger record, labelled `artifact`, with no
+    # retained artifact having those bytes.
+    _, evidence_bytes = builder.case_bytes("proceed")
+    evidence = json.loads(evidence_bytes.decode("utf-8"))
+    reference = builder.build(case_key="proceed")
+    reference_timeline = builder.executed_timeline(reference, auto=False)
+    approval_record = reference_timeline.ledger[0]
+    laundered = cmt.sha256_prefixed(cmt.jcs(approval_record))
+    backing = backing_for(evidence)
+    backing["sponsor-endorsement"] = {"kind": "artifact", "digest": laundered}
+    artifacts = artifacts_for(evidence)
+    artifacts.pop("sponsor-endorsement")
+    built = builder.build(case_key="proceed", backing_override=backing,
+                          artifacts_override=artifacts)
+    timeline = builder.executed_timeline(built, auto=False)
+    emit("h02-approval-digest-laundered-as-artifact", built, timeline,
+         honest_report(built["envelope"], built["digest"], "effect-attested"),
+         stratum="holdout")
+
+    # h03 — coherent argument substitution: every record agrees with a commitment whose
+    # arguments are not the ones the map derives from the unchanged facts.
+    facts_bytes, _ = builder.case_bytes("proceed")
+    facts = json.loads(facts_bytes.decode("utf-8"))
+    substituted = dict(cmt.action_arguments(facts))
+    first_string = sorted(k for k, v in substituted.items() if isinstance(v, str))[0]
+    substituted[first_string] = "someone-else-entirely"
+    built = builder.build(
+        case_key="proceed",
+        action_override=builder.forced_action(
+            "proceed", argumentsDigest=cmt.arguments_digest(substituted)),
+    )
+    timeline = Timeline(builder.action_kind)
+    timeline.add_action(1, action_key=11, state="approved", auto=False)
+    timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL, arguments=substituted,
+                   commitment_digest=built["digest"])
+    timeline.applied_at_revision(action_key=11, revision=BOUND_REVISION)
+    emit("h03-coherent-argument-substitution", built, timeline,
+         honest_report(built["envelope"], built["digest"], "applied"), stratum="holdout")
+
+    # h04 — coherent target and action-kind substitution onto a second gatekeeper.
+    forged_tag = "reviewer-forged-scope:create_work_item"
+    built = builder.build(
+        case_key="proceed",
+        action_override=builder.forced_action(
+            "proceed", gatekeeperId=2, resourceUrl=OTHER_RESOURCE_URL,
+            actionKindTag=forged_tag),
+    )
+    timeline = Timeline(builder.action_kind)
+    timeline.gatekeepers.append(
+        {"id": 2, "resourceUrl": OTHER_RESOURCE_URL, "serverTrust": "vetted",
+         "tools": [copy.deepcopy(TRACKER_TOOL)]})
+    timeline.add_action(1, gatekeeper_id=2, action_key=21, state="approved", auto=False,
+                        kind={"tag": forged_tag, "label": cmt.ACTION_TOOL})
+    timeline.stage(gatekeeper_id=2, action_key=21, tool_name=cmt.ACTION_TOOL,
+                   arguments=cmt.action_arguments(built["facts"]),
+                   commitment_digest=built["digest"])
+    timeline.applied_at_revision(gatekeeper_id=2, action_key=21, revision=BOUND_REVISION)
+    emit("h04-coherent-target-and-kind-substitution", built, timeline,
+         honest_report(built["envelope"], built["digest"], "applied"), stratum="holdout")
+
+    # h05 — a non-null action commitment, an empty queue and ledger, reported `staged`.
+    built = builder.build(case_key="proceed")
+    timeline = Timeline(builder.action_kind)
+    emit("h05-phantom-staged-report", built, timeline,
+         honest_report(built["envelope"], built["digest"], "staged"), stratum="holdout")
+
+    # h06 — the auto-approval rule removed from the final snapshot after a lawful apply.
+    built = builder.build(case_key="proceed")
+    timeline = builder.executed_timeline(built)
+    timeline.auto_rules = []
+    emit("h06-autoapproval-rule-removed-after-apply", built, timeline,
+         honest_report(built["envelope"], built["digest"], "effect-attested"),
+         stratum="holdout")
+
+    # h07 — a lower-id manual gate, rejected only after the claimed auto-approval.
+    built = builder.build(case_key="proceed")
+    timeline = Timeline(builder.action_kind)
+    timeline.enable_rule()
+    timeline.add_action(1, action_key=10, state="rejected", autoApprovable=False,
+                        resolved_at=timestamp(50))
+    timeline.stage(action_key=10, tool_name=cmt.ACTION_TOOL,
+                   arguments={"kind": "manual-batch", "requestType": "other",
+                              "source": "jps-triage"})
+    record = timeline.add_action(2, action_key=11, state="approved", auto=True,
+                                 resolved_at=timestamp(32))
+    timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
+                   arguments=cmt.action_arguments(built["facts"]),
+                   commitment_digest=built["digest"])
+    timeline.applied_at_revision(action_key=11, revision=BOUND_REVISION)
+    timeline.witness(at=record["appliedAt"], applied_ids=[2])
+    timeline.attest_effect(cmt.action_arguments(built["facts"]))
+    emit("h07-drain-final-state-erases-manual-gate", built, timeline,
+         honest_report(built["envelope"], built["digest"], "effect-attested"),
+         stratum="holdout")
+
+    # h08 — the outcome-unknown trace reported as a definite application.
+    built = builder.build(case_key="proceed")
+    timeline = Timeline(builder.action_kind)
+    timeline.add_action(1, action_key=11, state="pending", autoApprovable=False)
+    timeline.stage(action_key=11, tool_name=cmt.ACTION_TOOL,
+                   arguments=cmt.action_arguments(built["facts"]),
+                   commitment_digest=built["digest"],
+                   connector_outcome="outcome-unknown")
+    emit("h08-outcome-unknown-reported-applied", built, timeline,
+         honest_report(built["envelope"], built["digest"], "applied",
+                       note="connector outcome unknown"), stratum="holdout")
 
 
 if __name__ == "__main__":

@@ -3,10 +3,15 @@ the exact code — and probes of the first-failure ordering, so no registered co
 unreachable prose and no ordering claim can drift from the implementation
 (PREREGISTRATION section 6).
 
-Binding and replay conditions are constructed by mutating copies of frozen fixtures and
-calling the layer functions directly (the layers see no manifests and no expectations).
-The two cf codes are reached through the real node runner over the frozen negative
-controls, batched into one ceremony invocation.
+Binding and replay conditions are constructed by mutating copies of frozen LOCKED
+fixtures and calling the layer functions directly (the layers see no manifests and no
+expectations). The two upstream codes are reached through the real node runner over the
+frozen negative controls, batched into one ceremony invocation.
+
+No reviewer-holdout fixture is read here. Round 1 asked for reachability to be shown
+through the integrated scorer as well as by direct layer calls; the locked negative
+controls `neg-binding-control` and `neg-replay-control` carry that, and the scorer's own
+attempt exercises them on every run.
 """
 
 import json
@@ -107,6 +112,126 @@ def test_evidence_backing_invalid_nonartifact_kind(cell_copy):
     assert binding(cell)["code"] == "evidence-backing-invalid"
 
 
+def test_evidence_backing_invalid_without_a_retained_preimage(cell_copy):
+    """A digest-shaped reference with no retained artifact is an assertion, not lineage."""
+    cell = cell_copy("pos-baseline")
+    artifacts = load_json(cell / "evidence-artifacts.json")
+    artifacts.pop("sponsor-endorsement")
+    dump_json(cell / "evidence-artifacts.json", artifacts)
+    assert binding(cell)["code"] == "evidence-backing-invalid"
+
+
+def test_evidence_backing_invalid_when_the_artifact_does_not_hash_to_its_digest(cell_copy):
+    cell = cell_copy("pos-baseline")
+    artifacts = load_json(cell / "evidence-artifacts.json")
+    import base64
+
+    artifacts["sponsor-endorsement"] = {
+        "base64": base64.b64encode(b"different bytes entirely").decode("ascii")
+    }
+    dump_json(cell / "evidence-artifacts.json", artifacts)
+    assert binding(cell)["code"] == "evidence-backing-invalid"
+
+
+def test_judgment_identity_mismatch(cell_copy):
+    cell = cell_copy("pos-baseline")
+    rebuild_commitment(
+        cell, lambda c: c["judgment"].__setitem__("packVersion", "9.9.9")
+    )
+    assert binding(cell)["code"] == "judgment-identity-mismatch"
+
+
+def test_judgment_identity_mismatch_on_duplicate_extensions(cell_copy):
+    cell = cell_copy("pos-baseline")
+    rebuild_commitment(
+        cell,
+        lambda c: c["judgment"].__setitem__("supportedExtensions", ["x", "x"]),
+    )
+    assert binding(cell)["code"] == "judgment-identity-mismatch"
+
+
+def test_retained_store_unreadable(cell_copy):
+    cell = cell_copy("pos-baseline")
+    (cell / "platform.json").write_bytes(b"[not an object]")
+    assert binding(cell)["code"] == "retained-store-unreadable"
+
+
+def test_action_derivation_mismatch_on_substituted_arguments(cell_copy):
+    """The verifier's independent oracle: a coherently rebuilt store cannot save this."""
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    substituted = dict(platform["stagedCalls"][0]["arguments"])
+    substituted["requestType"] = "someone-else-entirely"
+    digest = cmt.arguments_digest(substituted)
+    new_digest = rebuild_commitment(
+        cell, lambda c: c["action"].__setitem__("argumentsDigest", digest)
+    )
+    platform["stagedCalls"][0]["arguments"] = substituted
+    platform["stagedCalls"][0]["commitmentDigest"] = new_digest
+    platform["effects"] = []
+    dump_json(cell / "platform.json", platform)
+    report = load_json(cell / "report.json")
+    report["commitmentDigest"] = new_digest
+    report["execution"] = "applied"
+    dump_json(cell / "report.json", report)
+    assert binding(cell)["code"] == "action-derivation-mismatch"
+
+
+def test_action_derivation_mismatch_on_substituted_target(cell_copy):
+    cell = cell_copy("pos-baseline")
+    new_digest = rebuild_commitment(
+        cell, lambda c: c["action"].__setitem__("actionKindTag", "forged:create_work_item")
+    )
+    platform = load_json(cell / "platform.json")
+    platform["stagedCalls"][0]["commitmentDigest"] = new_digest
+    dump_json(cell / "platform.json", platform)
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["description"]["actionKind"] = {
+        "tag": "forged:create_work_item",
+        "label": "create_work_item",
+    }
+    dump_json(cell / "ledger.json", ledger)
+    report = load_json(cell / "report.json")
+    report["commitmentDigest"] = new_digest
+    dump_json(cell / "report.json", report)
+    assert binding(cell)["code"] == "action-derivation-mismatch"
+
+
+def test_stage_revision_mismatch(cell_copy):
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["stagedCalls"][0]["resourceRevisionAtStage"] = "rev-99"
+    dump_json(cell / "platform.json", platform)
+    assert binding(cell)["code"] == "stage-revision-mismatch"
+
+
+def test_report_state_unsupported_phantom_staged(cell_copy):
+    """A report state must be supported by the store, not merely well-spelled."""
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["stagedCalls"] = []
+    platform["effects"] = []
+    platform["drainWitnesses"] = []
+    dump_json(cell / "platform.json", platform)
+    dump_json(cell / "ledger.json", [])
+    report = load_json(cell / "report.json")
+    report["execution"] = "staged"
+    dump_json(cell / "report.json", report)
+    assert binding(cell)["code"] == "report-state-unsupported"
+
+
+def test_report_state_unsupported_unknown_outcome_reported_applied(cell_copy):
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["stagedCalls"][0]["connectorOutcome"] = "outcome-unknown"
+    platform["effects"] = []
+    dump_json(cell / "platform.json", platform)
+    report = load_json(cell / "report.json")
+    report["execution"] = "applied"
+    dump_json(cell / "report.json", report)
+    assert binding(cell)["code"] == "report-state-unsupported"
+
+
 def test_action_map_violation_null_action_under_proceed(cell_copy):
     cell = cell_copy("pos-baseline")
     rebuild_commitment(cell, lambda c: c.__setitem__("action", None))
@@ -136,7 +261,7 @@ def test_binding_reuse(cell_copy):
 def test_target_mismatch(cell_copy):
     cell = cell_copy("pos-baseline")
     platform = load_json(cell / "platform.json")
-    platform["gatekeepers"][0]["resourceUrl"] = "https://elsewhere.example/mcp"
+    platform["gatekeepers"][0]["serverTrust"] = "byo"
     dump_json(cell / "platform.json", platform)
     assert binding(cell)["code"] == "target-mismatch"
 
@@ -161,10 +286,21 @@ def test_revision_drift(cell_copy):
 
 
 def test_simulation_basis_invalid(cell_copy):
-    cell = cell_copy("d01-dependent-simulated-write")
+    """Registered as defence in depth: no locked cell exercises it, because the pinned
+    MCP connector opts out of simulation (PREREGISTRATION section 4c). The code stays
+    reachable so the vocabulary carries no unreachable prose."""
+    cell = cell_copy("pos-baseline")
+    new_digest = rebuild_commitment(
+        cell, lambda c: c["action"].__setitem__("simulationBasis", [5])
+    )
     platform = load_json(cell / "platform.json")
-    platform["simulations"] = []
+    platform["stagedCalls"][0]["commitmentDigest"] = new_digest
+    platform["stagedCalls"][0]["simulationBasis"] = [5]
+    platform["simulations"] = [{"id": 5, "actionLedgerId": 99}]
     dump_json(cell / "platform.json", platform)
+    report = load_json(cell / "report.json")
+    report["commitmentDigest"] = new_digest
+    dump_json(cell / "report.json", report)
     assert binding(cell)["code"] == "simulation-basis-invalid"
 
 
@@ -310,11 +446,11 @@ def test_replay_disposition_mismatch(jpack_bin, tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# cf codes — one batched real-runner invocation over the frozen negative controls
+# upstream codes — one batched real-runner invocation over the frozen controls
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(scope="module")
-def cf_verdicts(cfos_source):
+def upstream_verdicts(cfos_source):
     del cfos_source
     cells = [
         ("neg-mcp-byo-autoapply",
@@ -325,31 +461,31 @@ def cf_verdicts(cfos_source):
     return cf_runner.ceremony(cells)
 
 
-def test_cf_classification_refused(cf_verdicts):
-    record = cf_verdicts["cells"]["neg-mcp-byo-autoapply"]
+def test_upstream_classification_refused(upstream_verdicts):
+    record = upstream_verdicts["cells"]["neg-mcp-byo-autoapply"]
     assert record["verdict"] == "fail" and record["code"] == "classification-refused"
 
 
-def test_cf_drain_order_violation(cf_verdicts):
-    record = cf_verdicts["cells"]["neg-drain-skip"]
+def test_upstream_drain_order_violation(upstream_verdicts):
+    record = upstream_verdicts["cells"]["neg-drain-skip"]
     assert record["verdict"] == "fail" and record["code"] == "drain-order-violation"
 
 
-def test_cf_order_classification_before_drain(cf_verdicts):
+def test_upstream_order_classification_before_drain(upstream_verdicts):
     # neg-mcp fails classification without the drain replay ever engaging.
-    record = cf_verdicts["cells"]["neg-mcp-byo-autoapply"]
+    record = upstream_verdicts["cells"]["neg-mcp-byo-autoapply"]
     assert record["engaged"] == ["classifyTool"]
 
 
-def test_cf_baseline_engages_both_and_passes(cf_verdicts):
-    record = cf_verdicts["cells"]["pos-baseline"]
+def test_upstream_baseline_replays_both_and_passes(upstream_verdicts):
+    record = upstream_verdicts["cells"]["pos-baseline"]
     assert record["verdict"] == "pass"
     assert record["engaged"] == ["classifyTool", "AutoApprovalDrainer"]
 
 
-def test_cf_apparatus_self_report_matches_pins(cf_verdicts):
+def test_upstream_apparatus_self_report_matches_pins(upstream_verdicts):
     pins = load_json(STUDY / "harness" / "PINS.json")
-    apparatus = cf_verdicts["apparatus"]
+    apparatus = upstream_verdicts["apparatus"]
     assert apparatus["cloneCommit"] == pins["cloudflareOs"]["commit"]
     assert apparatus["cloneTrackedClean"] is True
     assert apparatus["probedFiles"] == pins["cloudflareOs"]["probedFiles"]

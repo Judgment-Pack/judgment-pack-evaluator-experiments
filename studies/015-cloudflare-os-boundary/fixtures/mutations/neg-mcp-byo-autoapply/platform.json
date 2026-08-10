@@ -42,11 +42,37 @@
       },
       "resourceRevisionAtStage": "rev-7",
       "simulationBasis": [],
+      "connectorOutcome": "committed",
       "commitmentDigest": "574da8530b52208738b123b04ed3deb3d5d17ec23b5a56b46666b211d669b5ed"
     }
   ],
   "simulations": [],
   "observedCalls": [],
+  "drainWitnesses": [
+    {
+      "gatekeeperId": 1,
+      "pass": 1,
+      "at": "2026-08-01T00:31:00.000Z",
+      "appliedActionIds": [
+        1
+      ],
+      "rules": [
+        {
+          "gatekeeperId": 1,
+          "actionKind": {
+            "tag": "jps-tracker:create_work_item",
+            "label": "create_work_item"
+          },
+          "enabledBy": {
+            "type": "user",
+            "id": "governor@example.invalid",
+            "name": "Governor"
+          }
+        }
+      ],
+      "gatekeeperPresent": true
+    }
+  ],
   "world": {
     "resourceRevisionAtApply": {
       "1:11": "rev-7"

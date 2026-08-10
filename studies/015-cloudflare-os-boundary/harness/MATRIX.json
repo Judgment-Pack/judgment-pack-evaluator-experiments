@@ -1,7 +1,7 @@
 {
-  "matrixVersion": "1",
+  "matrixVersion": "2",
   "stratum": "locked-replication",
-  "note": "Registered cell expectations for Study 015. Each cell's expected member is the per-layer registered outcome the scorer adjudicates against (endpoint rows only; control-gate rows are validity gates; demonstration and descriptive rows count toward nothing). platformChecksEngaged registers which pinned upstream checks the cf layer engages for this construction, so a vacuous cf pass is visible as vacuous — that visibility is R2 content.",
+  "note": "Registered cell expectations for Study 015, post-round-1 schema (matrixVersion 2). `expected` is the per-layer registered outcome the scorer adjudicates against; only endpoint rows count toward R1. `upstream` is the platform's own policy FUNCTIONS replayed offline by the harness — `not-engaged` means that replay had nothing in this construction to decide, and is not an endorsement. `upstreamChecksReplayed` registers which pinned functions the construction actually reaches. `mutationConstraint` registers exactly what the constructor was permitted to touch, so a cell's detection cannot be read as holding against a more capable adversary than it faced. `modeledDependencies` registers every datum the cell leans on that stock Cloudflare OS does not itself retain (SPEC section 0's provenance table).",
   "cells": [
     {
       "id": "pos-baseline",
@@ -9,14 +9,26 @@
       "variant": "none",
       "role": "control-gate",
       "attackerCapability": "none",
+      "mutationConstraint": "nothing is mutated; this is the honest run",
       "registeredAbsences": [],
-      "platformChecksEngaged": [
+      "upstreamChecksReplayed": [
         "classifyTool",
         "AutoApprovalDrainer"
       ],
-      "construction": "proceed disposition; one staged create_work_item bound at both points; auto-approval rule enabled, tool vetted+idempotent+non-destructive; drained in order; effect attested; honest report",
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "drainSnapshot",
+        "effectAttestation"
+      ],
+      "construction": "proceed disposition; one staged create_work_item bound at both points; the auto-approval rule is live and the tool is vetted, non-destructive and idempotent; one witnessed drain pass applies it; the effect is attested; the report is honest",
       "expected": {
-        "cf": "pass",
+        "upstream": "pass",
         "binding": "pass",
         "replay": "pass"
       },
@@ -28,17 +40,29 @@
       "variant": "bridge-behavior",
       "role": "control-gate",
       "attackerCapability": "bridge",
+      "mutationConstraint": "only the endpoint's trust tier and the commitment's matching serverTrust field differ from the baseline",
       "registeredAbsences": [],
-      "platformChecksEngaged": [
+      "upstreamChecksReplayed": [
         "classifyTool"
       ],
-      "construction": "identical to baseline except the endpoint's trust tier is byo; the ledger still claims the action auto-approved",
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "drainSnapshot",
+        "effectAttestation"
+      ],
+      "construction": "identical to the baseline except the endpoint's trust tier is byo; the ledger still claims the action auto-approved",
       "expected": {
-        "cf": "fail:classification-refused",
+        "upstream": "fail:classification-refused",
         "binding": "pass",
         "replay": "pass"
       },
-      "note": "validity gate: proves the pinned classifyTool is alive on the trust-tier branch (tools.ts:66-69 requires vetted); binding is pass because the commitment binds serverTrust byo consistently"
+      "note": "validity gate: proves the pinned classifyTool is alive on the trust-tier branch (tools.ts:65-68 requires vetted). Binding passes because the commitment binds the byo tier consistently — the platform's policy objects, the binding does not"
     },
     {
       "id": "neg-mcp-nonidempotent-autoapply",
@@ -46,17 +70,29 @@
       "variant": "bridge-behavior",
       "role": "control-gate",
       "attackerCapability": "bridge",
+      "mutationConstraint": "only the tool's idempotentHint annotation is withdrawn",
       "registeredAbsences": [],
-      "platformChecksEngaged": [
+      "upstreamChecksReplayed": [
         "classifyTool"
       ],
-      "construction": "identical to baseline except the tool's idempotentHint annotation is absent; the ledger still claims the action auto-approved",
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "drainSnapshot",
+        "effectAttestation"
+      ],
+      "construction": "identical to the baseline except the tool's idempotentHint annotation is absent; the ledger still claims the action auto-approved",
       "expected": {
-        "cf": "fail:classification-refused",
+        "upstream": "fail:classification-refused",
         "binding": "pass",
         "replay": "pass"
       },
-      "note": "validity gate: proves classifyTool is alive on the annotation branch (idempotentHint === true is required exactly)"
+      "note": "validity gate: proves classifyTool is alive on the annotation branch — idempotentHint === true is required exactly, not truthily"
     },
     {
       "id": "neg-drain-skip",
@@ -64,18 +100,84 @@
       "variant": "bridge-behavior",
       "role": "control-gate",
       "attackerCapability": "bridge",
+      "mutationConstraint": "one earlier manual-gate record is added and resolved after the claimed auto-approval; the bound action is untouched",
       "registeredAbsences": [],
-      "platformChecksEngaged": [
+      "upstreamChecksReplayed": [
         "classifyTool",
         "AutoApprovalDrainer"
       ],
-      "construction": "a manual-gate pending action (no autoApprovable verdict) holds an earlier id than the bound auto-eligible action; the ledger claims the later action auto-applied past the gate",
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "drainSnapshot",
+        "effectAttestation"
+      ],
+      "construction": "a manual-gate action (no author verdict) holds a lower id than the bound auto-eligible action and is rejected only AFTER the claimed auto-approval, so it was pending when the drain ran; the ledger claims the later action auto-applied",
       "expected": {
-        "cf": "fail:drain-order-violation",
+        "upstream": "fail:drain-order-violation",
         "binding": "pass",
         "replay": "pass"
       },
-      "note": "validity gate: proves the pinned AutoApprovalDrainer replay is alive — the drain stops at the first non-eligible pending action and never skips a human gate (auto-approval.ts:58-73)"
+      "note": "validity gate: proves the drain replay is alive AND that it reconstructs the queue from the ledger's own timestamps rather than from final states — resolving an obstruction afterwards does not erase it (auto-approval.ts:58-73)"
+    },
+    {
+      "id": "neg-binding-control",
+      "category": "control-negative",
+      "variant": "stale-store",
+      "role": "control-gate",
+      "attackerCapability": "store",
+      "mutationConstraint": "one byte is appended to the commitment document; nothing else is touched",
+      "registeredAbsences": [],
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "the retained commitment carries a trailing newline, so its bytes are not the canonical JCS encoding of their own content",
+      "expected": {
+        "upstream": "not-engaged",
+        "binding": "fail:commitment-schema-invalid",
+        "replay": "pass"
+      },
+      "note": "validity gate for the binding layer, invoked through the official scorer rather than by a direct layer call: proves the ceremony runs and refuses"
+    },
+    {
+      "id": "neg-replay-control",
+      "category": "control-negative",
+      "variant": "coherent-rebuild",
+      "role": "control-gate",
+      "attackerCapability": "store",
+      "mutationConstraint": "the retained pack is truncated and its committed digest re-derived; no other artifact changes",
+      "registeredAbsences": [],
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "the retained pack bytes are truncated and the commitment's packDigest is rebuilt over them, so the store is internally consistent but the evaluator cannot load the pack",
+      "expected": {
+        "upstream": "not-engaged",
+        "binding": "fail:judgment-identity-mismatch",
+        "replay": "fail:replay-refused"
+      },
+      "note": "validity gate for the replay layer: proves the pinned evaluator actually runs and can refuse. Two layers fail by construction — an unparseable pack corroborates no committed identity either — which is why this is a gate and not an endpoint"
     },
     {
       "id": "a01-pack-bytes-drift",
@@ -83,15 +185,26 @@
       "variant": "stale-store",
       "role": "endpoint",
       "attackerCapability": "store",
+      "mutationConstraint": "one byte of the retained pack changes; no digest, record or report is rebuilt",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "one byte of the retained pack.json changed after the commitment was built; nothing else touched",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "one byte of the retained pack.json changed after the commitment was built",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:pack-digest-mismatch",
         "replay": "pass"
       },
-      "note": "the binding layer's digest commitments see stale-store drift the platform contract has no field to notice; replay runs against retained bytes and reproduces the retained envelope, so replay alone would exonerate the drifted store"
+      "note": "the binding layer's digest commitments see stale-store drift the platform contract has no field to notice; replay runs against the retained bytes and reproduces the retained envelope, so replay alone would exonerate the drifted store"
     },
     {
       "id": "a02-disposition-forged",
@@ -99,15 +212,26 @@
       "variant": "coherent-rebuild",
       "role": "endpoint",
       "attackerCapability": "store",
+      "mutationConstraint": "the envelope's disposition is edited and every dependent digest, record and report is rebuilt to agree with it",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the retained envelope's disposition is edited from clarify-return to proceed and the commitment is rebuilt coherently over the forged envelope; the staged action, ledger, and report all agree with the forgery",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "the retained envelope's disposition is edited from clarify-return to proceed and the commitment is rebuilt coherently over the forged envelope; the staged action, ledger and report all agree with the forgery",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "fail:replay-disposition-mismatch"
       },
-      "note": "the replay-only family: every retained artifact is internally consistent, and only recomputation from pack+facts under the pinned executable exposes that the judgment never said proceed"
+      "note": "the replay-only family: every retained artifact is internally consistent, and only recomputation from pack and facts under the pinned executable exposes that the judgment never said proceed"
     },
     {
       "id": "a03-evaluator-digest-forged",
@@ -115,15 +239,53 @@
       "variant": "coherent-rebuild",
       "role": "endpoint",
       "attackerCapability": "store",
+      "mutationConstraint": "only the committed executableDigest changes; the commitment is re-derived around it",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the commitment's executableDigest names an evaluator that is not the pinned one (rebuilt coherently); all other artifacts untouched",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "the commitment's executableDigest names an evaluator that is not the pinned one; all other artifacts are untouched",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "fail:replay-executable-mismatch"
       },
       "note": "the replay tuple's executable leg: a commitment that names an unpinned evaluator cannot be replayed by this apparatus and says so rather than passing"
+    },
+    {
+      "id": "a04-judgment-identity-forged",
+      "category": "A-judgment-artifact",
+      "variant": "coherent-rebuild",
+      "role": "endpoint",
+      "attackerCapability": "store",
+      "mutationConstraint": "only the committed evaluatorRelease changes; the commitment is re-derived around it",
+      "registeredAbsences": [],
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "the commitment names evaluator release 0.15.0 while the retained envelope records the release that actually ran; every digest is rebuilt so the store is otherwise coherent",
+      "expected": {
+        "upstream": "not-engaged",
+        "binding": "fail:judgment-identity-mismatch",
+        "replay": "pass"
+      },
+      "note": "the carried-but-never-checked family: round 1 found the identity and release fields were bound and never corroborated against the artifacts they name. Replay passes because the executable digest is untouched — only the cross-check sees this"
     },
     {
       "id": "s01-conflict-as-rejected",
@@ -131,11 +293,15 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "the bridge publishes a different decision; no record is fabricated",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "disposition unresolved(conflict) with handoff requested; the bridge stages nothing but publishes the decision as rejected with the handoff preserved",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "evidenceArtifacts"
+      ],
+      "construction": "disposition unresolved(conflict) with handoff requested; the bridge stages nothing but publishes the decision as rejected, keeping the handoff",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:report-misattribution",
         "replay": "pass"
       },
@@ -147,18 +313,30 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "the bridge stages and auto-applies under a non-executable disposition; every platform record is internally lawful",
       "registeredAbsences": [],
-      "platformChecksEngaged": [
+      "upstreamChecksReplayed": [
         "classifyTool",
         "AutoApprovalDrainer"
       ],
-      "construction": "disposition unresolved(unknown); the bridge stages the action anyway with the author verdict and a live auto-approval rule; the platform's own drain replay applies it cleanly",
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "drainSnapshot",
+        "effectAttestation"
+      ],
+      "construction": "disposition unresolved(unknown); the bridge stages the action anyway with the author verdict and a live auto-approval rule; the platform's own drain replay applies it cleanly from a sound stage-time witness",
       "expected": {
-        "cf": "pass",
+        "upstream": "pass",
         "binding": "fail:action-map-violation",
         "replay": "pass"
       },
-      "note": "the headline cell: both platform checks engage and pass, because eligibility reads the author verdict and the rule (auto-approval.ts:66-70) and no platform field carries the disposition — only the binding layer knows unresolved authorizes inaction"
+      "note": "the headline cell: both platform checks replay and both pass, because eligibility reads the author verdict and the rule (auto-approval.ts:66-70) and no platform field carries a disposition — only the binding layer knows unresolved authorizes inaction"
     },
     {
       "id": "s03-opfail-as-unknown",
@@ -166,15 +344,19 @@
       "variant": "coherent-rebuild",
       "role": "endpoint",
       "attackerCapability": "store",
+      "mutationConstraint": "the envelope and commitment are replaced coherently; the retained inputs are left as they were",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the facts and evidence would evaluate to proceed; the apply callback failed operationally, and the retained envelope plus commitment were rewritten coherently to claim the judgment itself was unresolved(unknown)",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "evidenceArtifacts"
+      ],
+      "construction": "the retained facts and evidence would evaluate to proceed; the apply failed operationally, and the retained envelope plus commitment were rebuilt coherently to claim the judgment itself was unresolved(unknown)",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "fail:replay-disposition-mismatch"
       },
-      "note": "forbidden mapping 3: platform operational failure retconned into JPS epistemic unknown — the retcon had to forge the envelope, and recomputation from retained inputs is what exposes it"
+      "note": "forbidden mapping 3: a platform operational failure retconned into a JPS epistemic unknown — the retcon had to forge the envelope, and recomputation from the retained inputs is what exposes it"
     },
     {
       "id": "s04-approval-as-evidence",
@@ -182,11 +364,22 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "only one backing entry changes; the corresponding artifact is left retained so the failure is the reference, not an absence",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the sponsor-endorsement requirement is claimed present with its backing entry referencing the approval record of a human who approved an action, not an evidence artifact digest",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "the sponsor-endorsement requirement is claimed present with its backing entry referencing the approval record of the human who approved the action, not a captured evidence artifact",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:evidence-backing-invalid",
         "replay": "pass"
       },
@@ -198,15 +391,19 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "only the published report changes; nothing is staged",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "evidenceArtifacts"
+      ],
       "construction": "disposition unresolved(missing-required-evidence) with handoff requested; the bridge stages nothing and publishes the case as closed with no handoff",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:handoff-dropped",
         "replay": "pass"
       },
-      "note": "escalation intent is part of the disposition's meaning; a bridge that reports inaction but swallows the handoff has still collapsed the judgment"
+      "note": "escalation intent is part of the disposition's meaning. This cell carries a second defect by construction (the published decision also misstates the handoff state), and the suppressed-code list publishes it rather than hiding it behind the first"
     },
     {
       "id": "s06-not-applicable-executed",
@@ -214,15 +411,26 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "the bridge stages and applies under a non-executable disposition; the records are otherwise lawful",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
       "construction": "disposition not-applicable with handoff requested; the bridge stages and manually applies the action anyway, binding it to the commitment",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:action-map-violation",
         "replay": "pass"
       },
-      "note": "not-applicable is a scope statement, not a soft approve; the map authorizes inaction and the bound action record is the violation"
+      "note": "not-applicable is a scope statement, not a soft approve: the map authorizes inaction and the bound action record is the violation"
     },
     {
       "id": "o01-observation-as-evidence",
@@ -230,15 +438,26 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "only one backing entry changes; an observation record is added to make the reference resolvable",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the intake-form requirement is claimed present with its backing entry referencing an observation record — proof the resource was read through an authorized capability — not an artifact digest",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "the intake-form requirement is claimed present with its backing entry referencing an observation record — proof the resource was read through an authorized capability — rather than a captured artifact",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:evidence-backing-invalid",
         "replay": "pass"
       },
-      "note": "the assessment's observation-versus-evidence distinction made mechanical: access-flow tracking answers who read what through which binding, never whether an evidence artifact satisfies a requirement"
+      "note": "the observation-versus-evidence distinction made mechanical: access-flow tracking answers who read what through which binding, never whether an evidence artifact satisfies a requirement"
     },
     {
       "id": "b01-commitment-reuse",
@@ -246,15 +465,26 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "a second staged call and ledger record are added under the same commitment digest; the first is untouched",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "two staged calls and two applied ledger records, different arguments, both carrying the same commitmentDigest",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts",
+        "effectAttestation"
+      ],
+      "construction": "two staged calls and two applied ledger records, carrying different arguments, both bound to the same commitment digest",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:binding-reuse",
         "replay": "pass"
       },
-      "note": "one decision, one action: the commitment digest is the single-use key, and the platform's queue happily holds any number of records claiming it"
+      "note": "one decision, one action: the commitment digest is the single-use key, and the platform's queue will hold any number of records claiming it"
     },
     {
       "id": "b02-argument-drift",
@@ -262,15 +492,25 @@
       "variant": "stale-store",
       "role": "endpoint",
       "attackerCapability": "store",
+      "mutationConstraint": "only the staged call's retained arguments change; the ledger record, its prose and the commitment are untouched",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "after approval, the gatekeeper-side staged arguments are edited (a different requester is provisioned); the ledger record and its prose description are untouched",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts"
+      ],
+      "construction": "after approval the gatekeeper-side staged arguments are edited to provision a different requester; the ledger record and its prose description are untouched",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:argument-drift",
         "replay": "pass"
       },
-      "note": "the platform's action record carries prose and an opaque action key, not arguments (overseer.ts:441), so an argument edit under a stable description is invisible to the log — only the bound arguments digest sees it"
+      "note": "the platform's outer action record carries prose and an opaque action key, so an argument edit under a stable description is invisible to it; only the bound arguments digest sees this"
     },
     {
       "id": "b03-revision-drift",
@@ -278,15 +518,25 @@
       "variant": "environment",
       "role": "endpoint",
       "attackerCapability": "environment",
+      "mutationConstraint": "only the world's apply-time revision differs; no record is edited",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the action is staged, the external resource's revision then advances, and a human approves the stale queue entry hours later; the apply-time revision differs from the bound one",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts"
+      ],
+      "construction": "the action is staged, the external resource's revision then advances, and a human approves the stale queue entry later; the apply-time revision differs from the bound one",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:revision-drift",
         "replay": "pass"
       },
-      "note": "the delayed-approval-after-state-drift case: the generic platform contract records no revision and revalidates nothing at apply time; the bound revision is the adapter-side cure the assessment calls a desired connector requirement"
+      "note": "the delayed-approval-after-state-drift case: the generic platform contract records no revision and revalidates nothing at apply time"
     },
     {
       "id": "b04-gatekeeper-substituted",
@@ -294,11 +544,21 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "the bound call and its record move to a second gatekeeper; the commitment is left naming the first",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the applied call runs through a second gatekeeper against a different resource URL, carrying the original commitmentDigest",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts"
+      ],
+      "construction": "the applied call runs through a second gatekeeper against a different resource URL while carrying the original commitment digest",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:target-mismatch",
         "replay": "pass"
       },
@@ -310,15 +570,25 @@
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "the staged tool and the record's action kind change; the commitment is left naming the authorized ones",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the staged call and ledger record carry a different tool and action-kind tag (delete_work_item) under the original commitmentDigest; arguments digest updated to the new tool's arguments",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts"
+      ],
+      "construction": "the staged call and ledger record carry a different tool and action-kind tag (delete_work_item) under the original commitment digest",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:target-mismatch",
         "replay": "pass"
       },
-      "note": "the action-kind tag is the platform's own policy key (gatekeeper.ts:971); a commitment that binds it refuses tag substitution even when every digest downstream of the swap is internally coherent"
+      "note": "the action-kind tag is the platform's own policy key. This cell carries two defects by construction — the substituted tool also changes the arguments digest — and the suppressed-code list publishes the second rather than letting the first mask it"
     },
     {
       "id": "b06-unbound-execution",
@@ -326,47 +596,72 @@
       "variant": "out-of-band",
       "role": "endpoint",
       "attackerCapability": "out-of-band",
+      "mutationConstraint": "an effect attestation is added; no queue record is fabricated",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "disposition clarify-return, commitment binds inaction; an external effect attestation for create_work_item on the judged subject exists with no action record and no staged call anywhere",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "effectAttestation",
+        "evidenceArtifacts"
+      ],
+      "construction": "disposition clarify-return, so the commitment binds inaction; an external effect attestation for create_work_item on the judged subject exists with no action record and no staged call anywhere",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:unbound-execution",
         "replay": "pass"
       },
-      "note": "an effect that reached the resource without the queue — the platform's mediation claim covers conforming Gatekeeper sessions, and a non-Gatekeeper path is exactly what it cannot see post hoc"
+      "note": "an effect that reached the resource without the queue: the platform's mediation claim covers conforming Gatekeeper sessions, and a non-Gatekeeper path is exactly what it cannot see post hoc"
     },
     {
-      "id": "d01-dependent-simulated-write",
-      "category": "D-deferred-simulation",
-      "variant": "bridge-behavior",
+      "id": "b07-stage-revision-mismatch",
+      "category": "B-binding-integrity",
+      "variant": "stale-store",
       "role": "endpoint",
-      "attackerCapability": "bridge",
+      "attackerCapability": "store",
+      "mutationConstraint": "only the staged call's stage-time revision changes",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "action A is simulated and queued; dependent action B is staged with simulationBasis [A's simulation], bound to the commitment; A is rejected by the approver; B is applied anyway",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts"
+      ],
+      "construction": "the staged call records a different resource revision at staging than the commitment binds, while the apply-time revision still matches",
       "expected": {
-        "cf": "pass",
-        "binding": "fail:simulation-basis-invalid",
+        "upstream": "not-engaged",
+        "binding": "fail:stage-revision-mismatch",
         "replay": "pass"
       },
-      "note": "the deferred-approval protocol's dependency hazard: B's premise was fictional and its fiction was refused; the platform cancels nothing (simulation is optional and per-gatekeeper), and only the bound basis makes the cascade checkable"
+      "note": "round 1 found the committed stage-time revision was bound and never compared to the staging record, so only apply-time drift was actually checked; this cell holds that check open"
     },
     {
       "id": "d02-simulated-as-committed",
-      "category": "D-deferred-simulation",
+      "category": "D-deferred-execution",
       "variant": "bridge-behavior",
       "role": "endpoint",
       "attackerCapability": "bridge",
+      "mutationConstraint": "only the published report's execution state changes; no attestation is removed or added",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the action is applied (callback returned) and the agent saw simulated success; no effect attestation exists; the report claims effect-attested",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts"
+      ],
+      "construction": "the action is applied — the gatekeeper callback returned and the agent was shown success — and no effect attestation exists; the report claims effect-attested",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "fail:commit-overclaim",
         "replay": "pass"
       },
-      "note": "forbidden mapping 5: simulated or callback-returned success reported as a committed external effect; the platform's approved state covers the callback returning and deliberately not dispatch"
+      "note": "forbidden mapping 5: a returned callback reported as a committed external effect. The platform's approved state covers its callback returning and deliberately not dispatch (at-most-once, mcp-shared/README.md)"
     },
     {
       "id": "m01-readonly-bypass",
@@ -374,17 +669,22 @@
       "variant": "out-of-band",
       "role": "demonstration",
       "attackerCapability": "out-of-band",
+      "mutationConstraint": "the tool's own annotation changes and the call takes the read path; no queue record is fabricated",
       "registeredAbsences": [],
-      "platformChecksEngaged": [
+      "upstreamChecksReplayed": [
         "classifyTool"
+      ],
+      "modeledDependencies": [
+        "effectAttestation",
+        "evidenceArtifacts"
       ],
       "construction": "the mutating tool is annotated readOnlyHint true by the server; the pinned classifier routes it to the read path (mode read, classifiedBy server-annotation); the effect happens with an observation record and no action record",
       "expected": {
-        "cf": "pass",
+        "upstream": "pass",
         "binding": "fail:unbound-execution",
         "replay": "pass"
       },
-      "note": "disclosed designed demonstration, not a discovery: upstream documents honouring readOnlyHint on both tiers as a tradeoff (tools.ts:53-58); the cell shows the queue bypass is real and that only the binding layer notices the effect afterward. Cannot be cited as a detection"
+      "note": "disclosed designed demonstration, not a discovery: upstream documents honouring readOnlyHint on both tiers as a deliberate tradeoff (tools.ts:53-58). The cell shows the queue bypass is real and that only the binding layer notices the effect afterwards. Cannot be cited as a detection"
     },
     {
       "id": "m02-ambiguous-commit",
@@ -392,15 +692,25 @@
       "variant": "environment",
       "role": "descriptive",
       "attackerCapability": "environment",
+      "mutationConstraint": "nothing is mutated: this is the honest trace of an ambiguous dispatch",
       "registeredAbsences": [],
-      "platformChecksEngaged": [],
-      "construction": "the applied call timed out after dispatch; the external system's commit state is genuinely unknown; the honest bridge reports applied-unproven; no artifact anywhere resolves the ambiguity",
+      "upstreamChecksReplayed": [],
+      "modeledDependencies": [
+        "stagedCallToolName",
+        "stagedCallArguments",
+        "stageRevision",
+        "applyRevision",
+        "commitmentCarrier",
+        "connectorOutcome",
+        "evidenceArtifacts"
+      ],
+      "construction": "the dispatched call timed out after the request left the connector: the private connector action is failed and non-retryable, and the OUTER workspace record therefore remains pending, because the platform only transitions it after the gatekeeper call returns. The honest bridge reports applied-unproven",
       "expected": {
-        "cf": "pass",
+        "upstream": "not-engaged",
         "binding": "pass",
         "replay": "pass"
       },
-      "note": "registered boundary, counted toward nothing: at-most-once delivery means no offline layer can distinguish committed from not — the pass row records that pass here does not mean the effect happened, which is the boundary the composition must preserve rather than paper over"
+      "note": "registered boundary, counted toward nothing: at-most-once delivery means no offline layer can distinguish committed from not. The all-pass row records that pass here does not mean the effect happened — the boundary the composition must preserve rather than paper over. Round 1 established that the earlier version of this fixture was source-impossible: it showed the outer record approved, which the platform cannot produce for a throwing apply"
     }
   ]
 }

@@ -1,40 +1,47 @@
 """The scorer — the only thing that publishes.
 
-Adjudicates every registered cell in `harness/MATRIX.json` by deterministic recomputation
-from frozen fixture bytes, and writes one attempt record:
+Adjudicates every registered cell by deterministic recomputation from frozen fixture
+bytes, and writes one attempt record:
 
-    ATTEMPT.json         written before any cell runs, so an attempt that dies mid-flight
-                         is still a recorded attempt
+    ATTEMPT.json         written before anything else runs — including before the pin
+                         registry is parsed — so an attempt that dies at any point is
+                         still a recorded attempt
     RESULTS.json         per-cell layer outcomes, the registered expectation, divergence
-                         flags, the pins stamp, and a validity section kept strictly
-                         separate from the detection section
+                         flags, suppressed codes, the pins stamp, and a validity section
+                         kept strictly separate from the detection section
     DETECTION-MATRIX.md  the per-layer table, published in full whichever way it lands
                          (PREREGISTRATION section 10)
 
-Decision rule (PREREGISTRATION section 5, ordered and exhaustive):
+Decision rule for R1 (PREREGISTRATION section 5), over the LOCKED stratum alone:
 
-    1. any pipeline-invalid       -> "R1 inconclusive - pipeline-invalid"
-    2. else any control-gate row
-       diverging                  -> "R1 inconclusive - control gate failed"
-    3. else zero endpoint
-       divergences                -> "R1 holds"
-    4. else                       -> "R1 falsified"
+    1. any locked cell pipeline-invalid -> "R1 inconclusive - pipeline-invalid"
+    2. else any control-gate row diverging -> "R1 inconclusive - control gate failed"
+    3. else zero endpoint divergences -> "R1 holds"
+    4. else -> "R1 falsified"
 
-Rows whose role is `demonstration` or `descriptive` are adjudicated, published in full,
-and counted toward nothing.
+The reviewer-authored holdout stratum is scored into a separate object with its own
+verdict and its own validity records. Nothing in the holdout can change R1 — round 1
+found holdout invalidity leaking into the locked verdict, and that is now structurally
+impossible: the two strata are adjudicated into disjoint collections.
 
-Freeze integrity is enforced, not declared: every non-null pin is compared against the
-live artefact before anything is adjudicated — the protocol digests when filled, the
-`jpack` binary digest always, the interpreter version and dependency freeze, and the cf
-probe runner's apparatus self-report (node version, clone commit and cleanliness, probed
-upstream file digests) against the cloudflareOs pins. The whole-study manifest is
-verified as an exact set, and the frozen cell-id set and per-cell schema of the loaded
-matrix are asserted. Any mismatch is terminal pipeline-invalidity. No output embeds a
-timestamp or an absolute path, so two runs of the same frozen tree are byte-identical.
+Freeze integrity is enforced, not declared. Before anything is adjudicated: every
+non-null pin is compared against the live artefact (protocol digests when filled, the
+`jpack` binary digest, the vendored external inputs' own digests, the interpreter version
+and dependency freeze, and the node/esbuild/typescript identities the probe toolchain
+actually used); the whole-study manifest is verified as an exact set; the frozen cell-id
+set and per-cell schema are asserted for both strata; the registered fixture typecheck
+runs as a scorer precondition rather than only as a test; and the upstream runner's
+apparatus self-report is checked against the clone pins. Any mismatch is terminal
+pipeline-invalidity.
+
+No output embeds a timestamp or an absolute path, so two runs of the same frozen tree are
+byte-identical, and every published file is written atomically.
 
 While `PINS.json` carries a null preregistration digest the attempt is labelled PILOT and
 can never be labelled REGISTERED, and `--include-holdout` is refused mechanically: the
-reviewer-authored holdout stratum may not be executed before the freeze.
+reviewer-authored holdout stratum may not be executed before the freeze. That refusal
+guards the official publication route; it is not a claim that no one could invoke a layer
+function directly (PREREGISTRATION section 8).
 
 Run: JPACK_BIN=... CFOS_SOURCE=... <venv>/bin/python harness/score.py --attempt-root <new directory>
 """
@@ -56,6 +63,7 @@ sys.path.insert(0, str(STUDY / "harness"))
 
 import cf_runner  # noqa: E402
 import make_manifest  # noqa: E402
+import typecheck  # noqa: E402
 import verify  # noqa: E402
 
 VERDICT_INVALID = "R1 inconclusive — pipeline-invalid"
@@ -64,19 +72,24 @@ VERDICT_HOLDS = "R1 holds"
 VERDICT_FALSIFIED = "R1 falsified"
 NOT_ADJUDICATED = "NOT-ADJUDICATED"
 
-CF_OUTCOMES = ("pass", "unavailable") + tuple(
-    "fail:" + code for code in verify.CF_CODES
+HOLDOUT_CONCORDANT = "holdout concordant"
+HOLDOUT_DIVERGENT = "holdout divergent"
+HOLDOUT_INVALID = "holdout inconclusive — pipeline-invalid"
+HOLDOUT_NOT_RUN = "holdout not run"
+
+UPSTREAM_OUTCOMES = ("pass", "not-engaged", "unavailable") + tuple(
+    "fail:" + code for code in verify.UPSTREAM_CODES
 )
 BINDING_OUTCOMES = ("pass",) + tuple("fail:" + code for code in verify.BINDING_CODES)
 REPLAY_OUTCOMES = ("pass", "unavailable") + tuple(
     "fail:" + code for code in verify.REPLAY_CODES
 )
 LAYER_OUTCOMES = {
-    "cf": CF_OUTCOMES,
+    "upstream": UPSTREAM_OUTCOMES,
     "binding": BINDING_OUTCOMES,
     "replay": REPLAY_OUTCOMES,
 }
-LAYERS = ("cf", "binding", "replay")
+LAYERS = ("upstream", "binding", "replay")
 
 ROLES = ("endpoint", "control-gate", "demonstration", "descriptive")
 VARIANTS = (
@@ -88,23 +101,45 @@ VARIANTS = (
     "out-of-band",
 )
 ATTACKER_CAPABILITIES = ("none", "bridge", "store", "environment", "out-of-band")
-PLATFORM_CHECKS = ("classifyTool", "AutoApprovalDrainer")
+UPSTREAM_CHECKS = ("classifyTool", "AutoApprovalDrainer")
+# What a cell's construction depends on that stock Cloudflare OS does not itself retain
+# (SPEC section 0's provenance table). Registered per cell so no detection can quietly
+# rest on instrumentation without saying so.
+MODELED_DEPENDENCIES = (
+    "stagedCallToolName",
+    "stagedCallArguments",
+    "stageRevision",
+    "applyRevision",
+    "commitmentCarrier",
+    "simulationBasis",
+    "connectorOutcome",
+    "effectAttestation",
+    "drainSnapshot",
+    "evidenceArtifacts",
+)
 CELL_FIELDS = (
     "id",
     "category",
     "variant",
     "role",
     "attackerCapability",
+    "mutationConstraint",
     "registeredAbsences",
-    "platformChecksEngaged",
+    "upstreamChecksReplayed",
+    "modeledDependencies",
     "construction",
     "expected",
     "note",
 )
+# The holdout was authored against the pre-round-1 schema; these two fields are the
+# study's own later additions and the reviewer never wrote them. They are optional there
+# and published as unauthored rather than invented on the reviewer's behalf.
+HOLDOUT_OPTIONAL_FIELDS = ("mutationConstraint", "modeledDependencies")
 ARTIFACT_FILES = {
     "pack": "pack.json",
     "facts": "facts.json",
     "evidence": "evidence.json",
+    "evidenceArtifacts": "evidence-artifacts.json",
     "evaluation": "evaluation.json",
     "commitment": "commitment.json",
     "ledger": "ledger.json",
@@ -119,9 +154,12 @@ REGISTERED_CELL_IDS = (
     "neg-mcp-byo-autoapply",
     "neg-mcp-nonidempotent-autoapply",
     "neg-drain-skip",
+    "neg-binding-control",
+    "neg-replay-control",
     "a01-pack-bytes-drift",
     "a02-disposition-forged",
     "a03-evaluator-digest-forged",
+    "a04-judgment-identity-forged",
     "s01-conflict-as-rejected",
     "s02-unknown-auto-applied",
     "s03-opfail-as-unknown",
@@ -135,7 +173,7 @@ REGISTERED_CELL_IDS = (
     "b04-gatekeeper-substituted",
     "b05-actionkind-substituted",
     "b06-unbound-execution",
-    "d01-dependent-simulated-write",
+    "b07-stage-revision-mismatch",
     "d02-simulated-as-committed",
     "m01-readonly-bypass",
     "m02-ambiguous-commit",
@@ -146,7 +184,10 @@ class PipelineInvalid(RuntimeError):
     """An attempt-scope condition that forbids adjudication."""
 
 
-def cell_directory(cell_id):
+def cell_directory(cell, stratum="locked-replication"):
+    cell_id = cell["id"] if isinstance(cell, dict) else cell
+    if stratum == "reviewer-holdout":
+        return STUDY / "fixtures" / "holdout" / cell_id
     if cell_id == "pos-baseline":
         return STUDY / "fixtures" / "baseline"
     return STUDY / "fixtures" / "mutations" / cell_id
@@ -192,6 +233,21 @@ def pin_problems(pins, jpack_bin):
     elif verify.sha256_file(jpack_bin) != expected_binary:
         problems.append("JPACK_BIN does not match the pinned digest")
 
+    # The vendored external inputs are anchored to their own registered digests, not
+    # only to the study manifest (round 1: external identity rested on an internal
+    # manifest alone).
+    for member, relative in (
+        ("sha256", "fixtures/data-request-intake-triage.pack.json"),
+        ("conformanceCasesSha256", "fixtures/conformance-cases.json"),
+    ):
+        expected = (pins.get("pack") or {}).get(member)
+        if expected is None:
+            problems.append("PINS.json carries no digest for " + relative)
+            continue
+        path = STUDY / relative
+        if not path.is_file() or verify.sha256_file(path) != expected:
+            problems.append("vendored input does not match its pinned digest: " + relative)
+
     expected_python = (pins.get("harnessPython") or {}).get("version")
     if expected_python and platform.python_version() != expected_python:
         problems.append(
@@ -213,12 +269,13 @@ def pin_problems(pins, jpack_bin):
 
 
 def apparatus_problems(pins, apparatus):
-    """The cf runner's self-report against the cloudflareOs and harnessNode pins."""
+    """The upstream runner's self-report against the clone and toolchain pins."""
     problems = []
     cloudflare = pins.get("cloudflareOs") or {}
     node = pins.get("harnessNode") or {}
+    toolchain = pins.get("probeToolchain") or {}
     if not isinstance(apparatus, dict):
-        return ["cf runner produced no apparatus self-report"]
+        return ["the upstream runner produced no apparatus self-report"]
     if apparatus.get("cloneCommit") != cloudflare.get("commit"):
         problems.append(
             "pinned clone is at %r, pinned commit is %r"
@@ -233,6 +290,13 @@ def apparatus_problems(pins, apparatus):
         problems.append(
             "probe node is %s, pinned %s" % (apparatus.get("nodeVersion"), expected_node)
         )
+    # The two clone-provided tools that actually transform or check study inputs.
+    for key, member in (("esbuildVersion", "esbuild"), ("typescriptVersion", "typescript")):
+        expected = toolchain.get(member)
+        if expected and apparatus.get(key) != expected:
+            problems.append(
+                "probe %s is %r, pinned %r" % (member, apparatus.get(key), expected)
+            )
     expected_files = cloudflare.get("probedFiles") or {}
     actual_files = apparatus.get("probedFiles") or {}
     for relative in sorted(set(expected_files) | set(actual_files)):
@@ -241,12 +305,16 @@ def apparatus_problems(pins, apparatus):
     return problems
 
 
-def cell_schema_problems(cells, scope):
+def cell_schema_problems(cells, scope, optional_fields=()):
     """Per-cell schema, asserted not assumed — for both strata."""
     problems = []
     for cell in cells:
         cell_id = cell.get("id", "<unnamed>")
-        missing_fields = [field for field in CELL_FIELDS if field not in cell]
+        missing_fields = [
+            field
+            for field in CELL_FIELDS
+            if field not in cell and field not in optional_fields
+        ]
         if missing_fields:
             problems.append(
                 "%s%s: missing required fields %s" % (scope, cell_id, missing_fields)
@@ -265,6 +333,10 @@ def cell_schema_problems(cells, scope):
                 "%s%s: attackerCapability %r is out of vocabulary"
                 % (scope, cell_id, cell["attackerCapability"])
             )
+        if "mutationConstraint" in cell and not (
+            isinstance(cell["mutationConstraint"], str) and cell["mutationConstraint"]
+        ):
+            problems.append("%s%s: mutationConstraint is not a statement" % (scope, cell_id))
         absences = cell["registeredAbsences"]
         if not isinstance(absences, list) or any(
             name not in ARTIFACT_FILES for name in absences
@@ -272,13 +344,21 @@ def cell_schema_problems(cells, scope):
             problems.append(
                 "%s%s: registeredAbsences %r is invalid" % (scope, cell_id, absences)
             )
-        engaged = cell["platformChecksEngaged"]
-        if not isinstance(engaged, list) or any(
-            name not in PLATFORM_CHECKS for name in engaged
+        replayed = cell["upstreamChecksReplayed"]
+        if not isinstance(replayed, list) or any(
+            name not in UPSTREAM_CHECKS for name in replayed
         ):
             problems.append(
-                "%s%s: platformChecksEngaged %r is invalid" % (scope, cell_id, engaged)
+                "%s%s: upstreamChecksReplayed %r is invalid" % (scope, cell_id, replayed)
             )
+        if "modeledDependencies" in cell:
+            modeled = cell["modeledDependencies"]
+            if not isinstance(modeled, list) or any(
+                name not in MODELED_DEPENDENCIES for name in modeled
+            ):
+                problems.append(
+                    "%s%s: modeledDependencies %r is invalid" % (scope, cell_id, modeled)
+                )
         expected = cell["expected"]
         if not isinstance(expected, dict) or tuple(sorted(expected)) != tuple(
             sorted(LAYERS)
@@ -315,15 +395,36 @@ def matrix_problems(registry):
 
 
 def holdout_problems(holdout):
-    """Holdout schema gate: same per-cell shape, ids disjoint from the locked set."""
+    """Holdout gate: non-empty, attributed, id-disjoint, constructed, same cell shape."""
     problems = []
     cells = holdout.get("cells")
     if not isinstance(cells, list):
         return ["holdout carries no cell list"]
+    if not cells:
+        problems.append(
+            "holdout stratum is empty — an empty holdout is not a passing holdout"
+        )
+    if not holdout.get("reviewer"):
+        problems.append("holdout carries no reviewer attribution")
+    if holdout.get("stratum") != "reviewer-holdout":
+        problems.append("holdout does not declare the reviewer-holdout stratum")
+    if not holdout.get("matrixVersion"):
+        problems.append("holdout carries no matrixVersion")
     overlap = [cell.get("id") for cell in cells if cell.get("id") in REGISTERED_CELL_IDS]
     if overlap:
         problems.append("holdout reuses locked cell ids: %s" % overlap)
-    problems.extend(cell_schema_problems(cells, "holdout "))
+    ids = [cell.get("id") for cell in cells]
+    if len(ids) != len(set(ids)):
+        problems.append("holdout cell ids are not unique")
+    problems.extend(
+        cell_schema_problems(cells, "holdout ", optional_fields=HOLDOUT_OPTIONAL_FIELDS)
+    )
+    for cell in cells:
+        if not cell_directory(cell, "reviewer-holdout").is_dir():
+            problems.append(
+                "holdout %s has no constructed fixture under fixtures/holdout/"
+                % cell.get("id")
+            )
     return problems
 
 
@@ -356,7 +457,11 @@ def pipeline_problems(directory, cell):
 
 
 def expected_tuple(expectation):
-    combined = "pass" if all(expectation[layer] == "pass" for layer in LAYERS) else "fail"
+    combined = (
+        "pass"
+        if all(expectation[layer] in ("pass", "not-engaged") for layer in LAYERS)
+        else "fail"
+    )
     return dict(expectation, combined=combined)
 
 
@@ -379,7 +484,7 @@ def adjudicate(observed, expectation):
 
 
 def vocabulary_problems(cell, observed):
-    """Out-of-vocabulary observations and engagement drift are non-adjudicable."""
+    """Out-of-vocabulary observations and replay-set drift are non-adjudicable."""
     problems = []
     seen = observed_tuple(observed)
     for layer in LAYERS:
@@ -388,11 +493,11 @@ def vocabulary_problems(cell, observed):
                 "layer %s returned an outcome outside the registered vocabulary: %s"
                 % (layer, seen[layer])
             )
-    engaged = observed.get("cfEngaged")
-    if engaged is None or sorted(engaged) != sorted(cell["platformChecksEngaged"]):
+    replayed = observed.get("upstreamEngaged")
+    if replayed is None or sorted(replayed) != sorted(cell["upstreamChecksReplayed"]):
         problems.append(
-            "cf runner engagement %r does not match the registered "
-            "platformChecksEngaged %r" % (engaged, cell["platformChecksEngaged"])
+            "the upstream runner replayed %r, which is not the registered "
+            "upstreamChecksReplayed %r" % (replayed, cell["upstreamChecksReplayed"])
         )
     return problems
 
@@ -401,25 +506,53 @@ def vocabulary_problems(cell, observed):
 # publication
 # --------------------------------------------------------------------------
 
-def detection_matrix(rows, stratum="locked-replication"):
+def detection_matrix(rows, holdout_rows):
     lines = [
         "# Detection matrix — Study 015",
         "",
-        "Per-cell, per-layer outcome adjudicated against the registered expectations",
-        "(%s stratum). Every registered cell appears; nothing is" % stratum,
-        "excluded. Only `endpoint` rows count toward R1; `control-gate` rows are",
-        "validity gates, `demonstration` and `descriptive` rows count toward nothing.",
+        "Per-cell, per-layer outcome adjudicated against the registered expectations.",
+        "Every registered cell appears; nothing is excluded. Only `endpoint` rows of the",
+        "locked stratum count toward R1; `control-gate` rows are validity gates, and",
+        "`demonstration` and `descriptive` rows count toward nothing.",
         "",
-        "| Cell | Stratum | Role | Attacker | Engaged | CF | BINDING | REPLAY | Combined | Registered | Divergence |",
+        "`not-engaged` means the replayed upstream policy functions had nothing in that",
+        "construction to decide — it is not an endorsement. `Suppressed` lists every",
+        "further binding code that also fired; adjudication is on the first one alone.",
+        "",
+        "## Locked replication",
+        "",
+    ]
+    lines.extend(_matrix_table(rows))
+    lines.extend(["", "## Reviewer holdout", ""])
+    if not holdout_rows:
+        lines.append(
+            "Not run in this attempt (`--include-holdout` was not passed, or the "
+            "preregistration is not yet frozen)."
+        )
+    else:
+        lines.append(
+            "Authored by the pre-freeze cross-vendor reviewer and never executed before "
+            "the freeze. These expectations predict the **reviewed** apparatus; where a "
+            "round-1 fix closed a blind spot the reviewer predicted, the divergence "
+            "below is the primary result, not an error."
+        )
+        lines.append("")
+        lines.extend(_matrix_table(holdout_rows))
+    return "\n".join(lines) + "\n"
+
+
+def _matrix_table(rows):
+    lines = [
+        "| Cell | Role | Attacker | Replayed | UPSTREAM | BINDING | REPLAY | Combined "
+        "| Registered | Divergence | Suppressed |",
         "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for row in rows:
         if row["status"] == NOT_ADJUDICATED:
             lines.append(
-                "| `%s` | %s | %s | %s | — | — | — | — | %s | %s | pipeline-invalid |"
+                "| `%s` | %s | %s | — | — | — | — | %s | %s | pipeline-invalid | — |"
                 % (
                     row["cell"],
-                    row["stratum"],
                     row["role"],
                     row["attackerCapability"],
                     NOT_ADJUDICATED,
@@ -429,14 +562,13 @@ def detection_matrix(rows, stratum="locked-replication"):
             continue
         seen = row["observedOutcomes"]
         lines.append(
-            "| `%s` | %s | %s | %s | %s | `%s` | `%s` | `%s` | `%s` | %s | %s |"
+            "| `%s` | %s | %s | %s | `%s` | `%s` | `%s` | `%s` | %s | %s | %s |"
             % (
                 row["cell"],
-                row["stratum"],
                 row["role"],
                 row["attackerCapability"],
-                ", ".join(row["cfEngaged"]) or "—",
-                seen["cf"],
+                ", ".join(row["upstreamReplayed"]) or "—",
+                seen["upstream"],
                 seen["binding"],
                 seen["replay"],
                 seen["combined"],
@@ -447,29 +579,37 @@ def detection_matrix(rows, stratum="locked-replication"):
                     for item in row["divergences"]
                 )
                 or "—",
+                ", ".join("`%s`" % code for code in row["suppressed"]) or "—",
             )
         )
-    return "\n".join(lines) + "\n"
+    return lines
 
 
-def write_outputs(attempt_root, results, rows):
+def _write_atomic(path, text):
+    """Publish atomically: a crash mid-write leaves no torn file behind."""
+    path = Path(path)
+    temporary = path.with_name(path.name + ".partial")
+    temporary.write_text(text, encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def write_outputs(attempt_root, results, rows, holdout_rows):
     attempt_root.mkdir(parents=True, exist_ok=True)
-    (attempt_root / "RESULTS.json").write_text(
-        json.dumps(results, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    _write_atomic(
+        attempt_root / "RESULTS.json",
+        json.dumps(results, indent=2, ensure_ascii=False) + "\n",
     )
-    (attempt_root / "DETECTION-MATRIX.md").write_text(
-        detection_matrix(rows, results.get("stratum", "locked-replication")),
-        encoding="utf-8",
+    _write_atomic(
+        attempt_root / "DETECTION-MATRIX.md", detection_matrix(rows, holdout_rows)
     )
 
 
-def terminal_invalid(attempt_root, label, problems, provenance,
-                     stratum="locked-replication"):
+def terminal_invalid(attempt_root, label, problems, provenance, include_holdout=False):
     """Persist a terminal pipeline-invalid record. Every failure path lands here."""
     results = {
         "study": "015-cloudflare-os-boundary",
-        "stratum": stratum,
         "attemptLabel": label,
+        "includeHoldout": bool(include_holdout),
         "verdict": VERDICT_INVALID,
         "provenance": provenance,
         "validity": {
@@ -477,8 +617,15 @@ def terminal_invalid(attempt_root, label, problems, provenance,
             "records": [{"scope": "attempt", "problem": problem} for problem in problems],
         },
         "detection": {"cells": 0, "adjudicated": 0, "divergentCells": [], "rows": []},
+        "holdout": {
+            "verdict": HOLDOUT_INVALID if include_holdout else HOLDOUT_NOT_RUN,
+            "cells": 0,
+            "divergentCells": [],
+            "records": [],
+            "rows": [],
+        },
     }
-    write_outputs(attempt_root, results, [])
+    write_outputs(attempt_root, results, [], [])
     return results
 
 
@@ -486,23 +633,40 @@ def terminal_invalid(attempt_root, label, problems, provenance,
 # the attempt
 # --------------------------------------------------------------------------
 
-def load_registry(include_holdout):
-    registry = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
-    holdout = None
-    if include_holdout:
-        holdout = json.loads(
-            (STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8")
-        )
-    return registry, holdout
-
-
 def run(attempt_root, include_holdout=False):
     attempt_root = Path(attempt_root)
     if attempt_root.exists():
         raise SystemExit("attempt root already exists: %s" % attempt_root)
 
+    # The attempt marker lands before ANYTHING else — including before the pin registry
+    # is read, which round 1 found could fail unrecorded.
+    attempt_root.mkdir(parents=True)
+    provenance = {"harnessPython": platform.python_version()}
+    _write_atomic(
+        attempt_root / "ATTEMPT.json",
+        json.dumps(
+            {
+                "study": "015-cloudflare-os-boundary",
+                "includeHoldout": bool(include_holdout),
+                "marker": "written before the pin registry was parsed",
+            },
+            indent=2,
+        )
+        + "\n",
+    )
+
     pins_path = STUDY / "harness" / "PINS.json"
-    pins = json.loads(pins_path.read_text(encoding="utf-8"))
+    try:
+        pins = json.loads(pins_path.read_text(encoding="utf-8"))
+    except Exception as error:
+        return terminal_invalid(
+            attempt_root,
+            "PILOT",
+            ["the pin registry is unreadable: %s" % error],
+            provenance,
+            include_holdout,
+        )
+
     frozen = (pins.get("preregistration") or {}).get("sha256") is not None
     label = "REGISTERED" if frozen else "PILOT"
 
@@ -513,49 +677,47 @@ def run(attempt_root, include_holdout=False):
             "reviewer-authored holdout stratum may not be executed"
         )
 
-    attempt_root.mkdir(parents=True)
-    (attempt_root / "ATTEMPT.json").write_text(
-        json.dumps(
-            {
-                "study": "015-cloudflare-os-boundary",
-                "stratum": "locked-replication",
-                "attemptLabel": label,
-                "includeHoldout": bool(include_holdout),
-                "marker": "written before any cell ran",
-            },
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
+    jpack_bin = os.environ.get("JPACK_BIN")
+    provenance.update(
+        {
+            "pinsSha256": verify.sha256_file(pins_path),
+            "matrixSha256": verify.sha256_file(STUDY / "harness" / "MATRIX.json"),
+            "matrixHoldoutSha256": verify.sha256_file(
+                STUDY / "harness" / "MATRIX-HOLDOUT.json"
+            ),
+            "specSha256": verify.sha256_file(STUDY / "adapter" / "SPEC.md"),
+            "preregistrationSha256": verify.sha256_file(STUDY / "PREREGISTRATION.md"),
+            "studyManifestSha256": (
+                verify.sha256_file(make_manifest.MANIFEST_PATH)
+                if make_manifest.MANIFEST_PATH.is_file()
+                else None
+            ),
+            "jpackSha256": (
+                verify.sha256_file(jpack_bin)
+                if jpack_bin and Path(jpack_bin).is_file()
+                else None
+            ),
+        }
     )
 
-    jpack_bin = os.environ.get("JPACK_BIN")
-    provenance = {
-        "pinsSha256": verify.sha256_file(pins_path),
-        "matrixSha256": verify.sha256_file(STUDY / "harness" / "MATRIX.json"),
-        "matrixHoldoutSha256": verify.sha256_file(
-            STUDY / "harness" / "MATRIX-HOLDOUT.json"
-        ),
-        "specSha256": verify.sha256_file(STUDY / "adapter" / "SPEC.md"),
-        "preregistrationSha256": verify.sha256_file(STUDY / "PREREGISTRATION.md"),
-        "studyManifestSha256": (
-            verify.sha256_file(make_manifest.MANIFEST_PATH)
-            if make_manifest.MANIFEST_PATH.is_file()
-            else None
-        ),
-        "jpackSha256": (
-            verify.sha256_file(jpack_bin)
-            if jpack_bin and Path(jpack_bin).is_file()
-            else None
-        ),
-        "harnessPython": platform.python_version(),
-    }
-
     try:
-        registry, holdout = load_registry(include_holdout)
+        registry = json.loads(
+            (STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8")
+        )
+        holdout = (
+            json.loads(
+                (STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8")
+            )
+            if include_holdout
+            else None
+        )
     except Exception as error:
         return terminal_invalid(
-            attempt_root, label, ["matrix is unreadable: %s" % error], provenance
+            attempt_root,
+            label,
+            ["a registry is unreadable: %s" % error],
+            provenance,
+            include_holdout,
         )
 
     gate_problems = []
@@ -565,56 +727,83 @@ def run(attempt_root, include_holdout=False):
     if holdout is not None:
         gate_problems.extend(holdout_problems(holdout))
     if gate_problems:
-        return terminal_invalid(attempt_root, label, gate_problems, provenance)
-
-    cells = [dict(cell, stratum="locked-replication") for cell in registry["cells"]]
-    if holdout is not None:
-        cells.extend(
-            dict(cell, stratum="reviewer-holdout")
-            for cell in holdout.get("cells") or []
+        return terminal_invalid(
+            attempt_root, label, gate_problems, provenance, include_holdout
         )
 
+    # The registered fixture typecheck is a scorer precondition, not only a test: a
+    # published score may not call itself valid without it (round 1, finding 8).
     try:
-        cf_verdicts = cf_runner.ceremony(
-            [(cell["id"], cell_directory(cell["id"])) for cell in cells]
+        typecheck_result = typecheck.typecheck_problems()
+    except Exception as error:
+        typecheck_result = ["the fixture typecheck could not run: %s" % error]
+    provenance["fixtureTypecheck"] = "clean" if not typecheck_result else "failed"
+    if typecheck_result:
+        return terminal_invalid(
+            attempt_root,
+            label,
+            ["fixture typecheck: " + problem for problem in typecheck_result],
+            provenance,
+            include_holdout,
+        )
+
+    locked_cells = [dict(cell, stratum="locked-replication") for cell in registry["cells"]]
+    holdout_cells = (
+        [dict(cell, stratum="reviewer-holdout") for cell in holdout.get("cells") or []]
+        if holdout is not None
+        else []
+    )
+    cells = locked_cells + holdout_cells
+
+    try:
+        upstream_verdicts = cf_runner.ceremony(
+            [(cell["id"], cell_directory(cell, cell["stratum"])) for cell in cells]
         )
     except Exception as error:
         return terminal_invalid(
             attempt_root,
             label,
-            ["cf runner failed: %s: %s" % (type(error).__name__, error)],
+            ["the upstream runner failed: %s: %s" % (type(error).__name__, error)],
             provenance,
+            include_holdout,
         )
-    provenance["cfApparatus"] = cf_verdicts.get("apparatus")
-    apparatus_gate = apparatus_problems(pins, cf_verdicts.get("apparatus"))
+    provenance["upstreamApparatus"] = upstream_verdicts.get("apparatus")
+    apparatus_gate = apparatus_problems(pins, upstream_verdicts.get("apparatus"))
     if apparatus_gate:
-        return terminal_invalid(attempt_root, label, apparatus_gate, provenance)
+        return terminal_invalid(
+            attempt_root, label, apparatus_gate, provenance, include_holdout
+        )
 
     validity = []
+    holdout_validity = []
     rows = []
+    holdout_rows = []
     work_root = Path(tempfile.mkdtemp(prefix="study015-score-"))
     try:
         for cell in cells:
-            row = adjudicate_cell(cell, jpack_bin, work_root, cf_verdicts, validity)
-            rows.append(row)
+            is_holdout = cell["stratum"] == "reviewer-holdout"
+            sink = holdout_validity if is_holdout else validity
+            row = adjudicate_cell(cell, jpack_bin, work_root, upstream_verdicts, sink)
+            (holdout_rows if is_holdout else rows).append(row)
     except Exception as error:
         return terminal_invalid(
             attempt_root,
             label,
             [item["problem"] for item in validity]
-            + ["harness crashed while adjudicating: %s: %s"
-               % (type(error).__name__, error)],
+            + [
+                "the harness crashed while adjudicating: %s: %s"
+                % (type(error).__name__, error)
+            ],
             provenance,
+            include_holdout,
         )
     finally:
         shutil.rmtree(work_root, ignore_errors=True)
 
-    locked = [row for row in rows if row["stratum"] == "locked-replication"]
-    holdout_rows = [row for row in rows if row["stratum"] == "reviewer-holdout"]
     invalid = [row for row in rows if row["status"] == NOT_ADJUDICATED]
-    diverged = [row for row in locked if row["divergences"]]
-    gates = [row for row in locked if row["role"] == "control-gate"]
-    endpoints = [row for row in locked if row["role"] == "endpoint"]
+    diverged = [row for row in rows if row["divergences"]]
+    gates = [row for row in rows if row["role"] == "control-gate"]
+    endpoints = [row for row in rows if row["role"] == "endpoint"]
     failed_gates = [row for row in gates if row["divergences"]]
     diverged_endpoints = [row for row in endpoints if row["divergences"]]
 
@@ -627,12 +816,21 @@ def run(attempt_root, include_holdout=False):
     else:
         verdict = VERDICT_FALSIFIED
 
+    holdout_invalid = [row for row in holdout_rows if row["status"] == NOT_ADJUDICATED]
+    holdout_diverged = [row for row in holdout_rows if row["divergences"]]
+    if holdout is None:
+        holdout_verdict = HOLDOUT_NOT_RUN
+    elif holdout_invalid:
+        holdout_verdict = HOLDOUT_INVALID
+    elif holdout_diverged:
+        holdout_verdict = HOLDOUT_DIVERGENT
+    else:
+        holdout_verdict = HOLDOUT_CONCORDANT
+
     results = {
         "study": "015-cloudflare-os-boundary",
-        "stratum": (
-            "locked-replication+holdout" if include_holdout else "locked-replication"
-        ),
         "attemptLabel": label,
+        "includeHoldout": bool(include_holdout),
         "verdict": verdict,
         "matrixVersion": registry["matrixVersion"],
         "provenance": provenance,
@@ -642,33 +840,30 @@ def run(attempt_root, include_holdout=False):
             "records": validity,
         },
         "detection": {
-            "cells": len(locked),
-            "adjudicated": len(locked)
-            - len([row for row in locked if row["status"] == NOT_ADJUDICATED]),
+            "stratum": "locked-replication",
+            "cells": len(rows),
+            "adjudicated": len(rows) - len(invalid),
             "endpointCells": len(endpoints),
             "endpointDivergentCells": [row["cell"] for row in diverged_endpoints],
             "divergentCells": [row["cell"] for row in diverged],
-            "rows": [row for row in rows if row["stratum"] == "locked-replication"],
+            "rows": rows,
         },
-        "holdout": (
-            None
-            if holdout is None
-            else {
-                "note": "reviewer-authored stratum, reported separately and never "
-                "merged into the locked counts",
-                "cells": len(holdout_rows),
-                "divergentCells": [
-                    row["cell"] for row in holdout_rows if row["divergences"]
-                ],
-                "rows": holdout_rows,
-            }
-        ),
+        "holdout": {
+            "stratum": "reviewer-holdout",
+            "verdict": holdout_verdict,
+            "note": "scored separately; nothing here can change R1",
+            "cells": len(holdout_rows),
+            "divergentCells": [row["cell"] for row in holdout_diverged],
+            "pipelineInvalidCells": [row["cell"] for row in holdout_invalid],
+            "records": holdout_validity,
+            "rows": holdout_rows,
+        },
     }
-    write_outputs(attempt_root, results, rows)
+    write_outputs(attempt_root, results, rows, holdout_rows)
     return results
 
 
-def adjudicate_cell(cell, jpack_bin, work_root, cf_verdicts, validity):
+def adjudicate_cell(cell, jpack_bin, work_root, upstream_verdicts, validity):
     """One cell. Never raises: a crash here is a NOT-ADJUDICATED row."""
     shared = {
         "cell": cell["id"],
@@ -676,20 +871,22 @@ def adjudicate_cell(cell, jpack_bin, work_root, cf_verdicts, validity):
         "category": cell["category"],
         "role": cell["role"],
         "attackerCapability": cell["attackerCapability"],
+        "mutationConstraint": cell.get("mutationConstraint"),
+        "modeledDependencies": cell.get("modeledDependencies"),
         "expected": expected_tuple(cell["expected"]),
     }
     observed = None
     try:
-        directory = cell_directory(cell["id"])
+        directory = cell_directory(cell, shared["stratum"])
         problems = pipeline_problems(directory, cell)
         if not problems:
             observed = verify.verify_cell(
-                directory, jpack_bin, work_root, cf_verdicts, cell_id=cell["id"]
+                directory, jpack_bin, work_root, upstream_verdicts, cell_id=cell["id"]
             )
             problems = vocabulary_problems(cell, observed)
     except Exception as error:
         problems = [
-            "harness raised while verifying: %s: %s" % (type(error).__name__, error)
+            "the harness raised while verifying: %s: %s" % (type(error).__name__, error)
         ]
         observed = None
     if problems:
@@ -699,7 +896,8 @@ def adjudicate_cell(cell, jpack_bin, work_root, cf_verdicts, validity):
             status=NOT_ADJUDICATED,
             observed=None,
             observedOutcomes=None,
-            cfEngaged=None,
+            upstreamReplayed=[],
+            suppressed=[],
             divergences=[],
             problems=problems,
         )
@@ -710,7 +908,8 @@ def adjudicate_cell(cell, jpack_bin, work_root, cf_verdicts, validity):
         expected=expected,
         observed=observed,
         observedOutcomes=observed_tuple(observed),
-        cfEngaged=list(observed.get("cfEngaged") or []),
+        upstreamReplayed=list(observed.get("upstreamEngaged") or []),
+        suppressed=list(observed["binding"].get("suppressed") or []),
         divergences=divergences,
         problems=[],
     )
@@ -738,14 +937,31 @@ def main(argv=None):
             len(results["validity"]["pipelineInvalidCells"]),
         )
     )
+    holdout = results.get("holdout") or {}
+    print(
+        "  holdout: %s (%d cells, %d divergent)"
+        % (
+            holdout.get("verdict"),
+            holdout.get("cells", 0),
+            len(holdout.get("divergentCells") or []),
+        )
+    )
     for record in results["validity"]["records"]:
         print("  validity %s: %s" % (record["scope"], record["problem"]))
-    for row in detection["rows"]:
+    for record in holdout.get("records") or []:
+        print("  holdout validity %s: %s" % (record["scope"], record["problem"]))
+    for row in detection["rows"] + (holdout.get("rows") or []):
         for item in row["divergences"]:
             print(
-                "  divergence %s (%s) %s: expected %s, observed %s"
-                % (row["cell"], row["role"], item["layer"], item["expected"],
-                   item["observed"])
+                "  divergence %s (%s/%s) %s: expected %s, observed %s"
+                % (
+                    row["cell"],
+                    row["stratum"],
+                    row["role"],
+                    item["layer"],
+                    item["expected"],
+                    item["observed"],
+                )
             )
     return 0
 

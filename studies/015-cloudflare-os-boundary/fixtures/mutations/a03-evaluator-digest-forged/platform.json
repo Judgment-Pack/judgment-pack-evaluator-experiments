@@ -29,11 +29,13 @@
       },
       "resourceRevisionAtStage": "rev-7",
       "simulationBasis": [],
+      "connectorOutcome": "committed",
       "commitmentDigest": "9122ec07ce9449551663719e455f233434fc8898cd662717af51e2e5ec4e835a"
     }
   ],
   "simulations": [],
   "observedCalls": [],
+  "drainWitnesses": [],
   "world": {
     "resourceRevisionAtApply": {
       "1:11": "rev-7"

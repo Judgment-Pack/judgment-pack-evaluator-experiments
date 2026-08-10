@@ -20,14 +20,19 @@ COMMITMENT_VERSION = "1"
 COMMITMENT_DOMAIN = "jps-cloudflare-os-binding/commitment/1"
 ARGUMENTS_DOMAIN = "jps-cloudflare-os-binding/arguments/1"
 
-# The one executable action of the SPEC section 4 map: the bound Gatekeeper, resource,
-# trust tier, and tool. The action-kind tag is computed by the pinned upstream
-# `actionKindFor` at fixture-build time (harness/cf_runner.py `action-kind` mode) and
-# carried as data; this module never invents one.
+# The one executable action of the SPEC section 4 map. Every member here is part of the
+# *registered map*, not of the store: the verifier re-derives them from the retained
+# judgment alone and compares, so a bridge that commits a different target, tool, or
+# arguments is caught even when every downstream record agrees with its own commitment
+# (`action-derivation-mismatch`).
 GATEKEEPER_ID = 1
 RESOURCE_URL = "https://tracker.example/mcp"
 SERVER_TRUST = "vetted"
 ACTION_TOOL = "create_work_item"
+# The scope tag the deployment assigns this binding; the action-kind tag is derived from
+# it by the platform's own rule (`actionKindFor`, tools.ts) — reproduced in
+# `action_kind_tag` below and pinned against upstream by a probe, never invented.
+SCOPE_TAG = "jps-tracker"
 
 JUDGMENT_FIELDS = (
     "packId",
@@ -120,21 +125,79 @@ def executable(disposition):
     )
 
 
-def authorized_action(disposition, facts, *, action_kind_tag, bound_resource_revision,
-                      simulation_basis=()):
-    """The authorized action object, or None for a commitment to inaction."""
+# `encodeURIComponent`'s unreserved set (RFC 2396 mark characters plus alphanumerics) —
+# the platform's `actionKindFor` builds its tag with that exact escaping, so the adapter
+# reproduces the rule rather than trusting a value the store hands it. A probe against
+# the pinned `actionKindFor` asserts this function agrees with upstream
+# (`probes/upstream-probes.ts`); a divergence is an apparatus failure, not a detection.
+_URI_UNRESERVED = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()"
+)
+
+
+def encode_uri_component(value):
+    encoded = []
+    for byte in value.encode("utf-8"):
+        character = chr(byte)
+        if character in _URI_UNRESERVED:
+            encoded.append(character)
+        else:
+            encoded.append("%%%02X" % byte)
+    return "".join(encoded)
+
+
+def action_kind_tag(scope_tag=SCOPE_TAG, tool_name=ACTION_TOOL):
+    """The platform's own action-kind tag rule, reproduced (tools.ts `actionKindFor`)."""
+    return "%s:%s" % (encode_uri_component(scope_tag), encode_uri_component(tool_name))
+
+
+# The members of the action object the SPEC section 4 map *determines* — re-derivable by
+# the verifier from the retained judgment and the registered map, with no reference to
+# any record the bridge or the store wrote.
+DERIVED_ACTION_FIELDS = (
+    "gatekeeperId",
+    "resourceUrl",
+    "toolName",
+    "actionKindTag",
+    "argumentsDigest",
+)
+# The members that are contextual — deployment state and staging state that no map can
+# determine. These are never derived; they are checked against the retained store
+# (`target-mismatch`, `revision-drift`, `simulation-basis-invalid`).
+CONTEXTUAL_ACTION_FIELDS = ("serverTrust", "boundResourceRevision", "simulationBasis")
+
+
+def derived_action(disposition, facts):
+    """The SPEC section 4 map applied to a judgment: the determined action, or None.
+
+    Returns only `DERIVED_ACTION_FIELDS`. This is the verifier's independent oracle for
+    *which* action the judgment authorized; `authorized_action` below is the builder's
+    full object, which adds the contextual members.
+    """
     if not executable(disposition):
         return None
     return {
         "gatekeeperId": GATEKEEPER_ID,
         "resourceUrl": RESOURCE_URL,
-        "serverTrust": SERVER_TRUST,
         "toolName": ACTION_TOOL,
-        "actionKindTag": action_kind_tag,
+        "actionKindTag": action_kind_tag(),
         "argumentsDigest": arguments_digest(action_arguments(facts)),
-        "boundResourceRevision": bound_resource_revision,
-        "simulationBasis": sorted(simulation_basis),
     }
+
+
+def authorized_action(disposition, facts, *, bound_resource_revision,
+                      simulation_basis=(), action_kind_tag_override=None):
+    """The full authorized action object, or None for a commitment to inaction."""
+    derived = derived_action(disposition, facts)
+    if derived is None:
+        return None
+    action = dict(derived)
+    if action_kind_tag_override is not None:
+        action["actionKindTag"] = action_kind_tag_override
+    action["serverTrust"] = SERVER_TRUST
+    action["boundResourceRevision"] = bound_resource_revision
+    action["simulationBasis"] = sorted(simulation_basis)
+    return action
 
 
 # --------------------------------------------------------------------------
@@ -161,7 +224,10 @@ def evidence_backing(evidence, artifacts):
     """The SPEC section 1 `evidenceBacking` map for a claim set.
 
     `artifacts` maps requirement id -> the captured artifact's exact bytes. Every
-    requirement claimed `present` must have one; nothing else may.
+    requirement claimed `present` must have one; nothing else may. The digests are
+    checkable because the artifact bytes themselves are retained (`evidence-artifacts.json`)
+    — a backing digest with no retained preimage is a bare assertion, and the ceremony
+    refuses it.
     """
     backing = {}
     for requirement, availability in (evidence or {}).items():
@@ -176,6 +242,47 @@ def evidence_backing(evidence, artifacts):
             "digest": sha256_prefixed(artifacts[requirement]),
         }
     return backing
+
+
+def artifacts_document(artifacts):
+    """The retained captured-artifact store: requirement -> base64 of exact bytes."""
+    import base64
+
+    return {
+        requirement: {"base64": base64.b64encode(payload).decode("ascii")}
+        for requirement, payload in sorted(artifacts.items())
+    }
+
+
+def decode_artifacts(document):
+    """Decode a retained artifact store; returns requirement -> exact bytes.
+
+    Raises `CommitmentSchemaError` on any entry that is not a decodable base64 member,
+    so an undecodable store is a validity problem rather than a silent miss.
+    """
+    import base64
+    import binascii
+
+    if not isinstance(document, dict):
+        raise CommitmentSchemaError("evidence-artifacts must be an object")
+    decoded = {}
+    for requirement, entry in document.items():
+        if (
+            not isinstance(requirement, str)
+            or not isinstance(entry, dict)
+            or tuple(sorted(entry)) != ("base64",)
+            or not isinstance(entry["base64"], str)
+        ):
+            raise CommitmentSchemaError(
+                "evidence-artifacts entry is malformed: %r" % (requirement,)
+            )
+        try:
+            decoded[requirement] = base64.b64decode(entry["base64"], validate=True)
+        except (binascii.Error, ValueError) as error:
+            raise CommitmentSchemaError(
+                "evidence-artifacts entry is not valid base64: " + requirement
+            ) from error
+    return decoded
 
 
 def build_commitment(

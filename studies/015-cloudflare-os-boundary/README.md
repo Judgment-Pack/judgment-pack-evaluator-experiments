@@ -1,9 +1,11 @@
 # Study 015 — the judgment/staged-action boundary under a governed-agent platform
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** The
-preregistration is a draft awaiting cross-vendor review; anything executed before the
-freeze is harness validation under `pilots/`, labeled as such, and supports no claim
-beyond "the machinery works".
+**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Round 1 of
+cross-vendor review returned **DO-NOT-FREEZE** with 7 blockers; every one is dispositioned
+in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus was rebuilt around them —
+including withdrawing one of the study's own recorded findings that source verification
+refuted. Anything executed before the freeze is harness validation under `pilots/`, labeled
+as such, and supports no claim beyond "the machinery works".
 
 ## What it is
 
@@ -22,30 +24,33 @@ An interoperability falsification study between two independently designed layer
   revision, simulation basis}` — and a verification ceremony that recomputes everything
   from retained artifacts.
 
-The study then tries to break the composition: 18 registered endpoint mutations across
-six families — judgment-artifact forgery, the boundary analysis's five semantic collapses
-(unresolved→rejected, unknown auto-applied, operational failure retconned as epistemic
-unknown, approval-as-evidence, plus observation-as-evidence), handoff dropped,
-not-applicable executed, binding integrity (reuse, argument drift, revision drift after
-delayed approval, target substitution, unbound execution), and the deferred-simulation
-hazards (dependent write on a rejected premise, simulated success reported as committed) —
-plus 4 controls, 1 disclosed demonstration (the `readOnlyHint` queue bypass, upstream's
-own documented tradeoff), and 1 descriptive boundary (the at-most-once ambiguous commit,
-which **no offline layer can resolve** and which is published as exactly that).
+The study then tries to break the composition: 19 registered endpoint mutations across
+six families — judgment-artifact forgery and carried-but-unchecked identity, the boundary
+analysis's five semantic collapses (unresolved→rejected, unknown auto-applied, operational
+failure retconned as epistemic unknown, approval-as-evidence, plus observation-as-evidence),
+handoff dropped, not-applicable executed, binding integrity (reuse, argument drift,
+stage-time and apply-time revision mismatch, target and action-kind substitution, unbound
+execution), and the callback-versus-commit overclaim — plus 6 controls, 1 disclosed
+demonstration (the `readOnlyHint` queue bypass, upstream's own documented tradeoff), and 1
+descriptive boundary (the at-most-once ambiguous commit, which **no offline layer can
+resolve** and which is published as exactly that).
 
-Three layers adjudicate every cell: **cf** — the platform's own executable policy surface,
-run as live pinned upstream code (`classifyTool`, `AutoApprovalDrainer` over upstream's
-own mock-storage pattern), never reimplemented; **binding** — the adapter ceremony;
+Three layers adjudicate every cell: **upstream** — the platform's own policy *functions*
+(`classifyTool`, `AutoApprovalDrainer`), imported from the pinned clone and replayed
+offline by this harness, never reimplemented; **binding** — the adapter ceremony, which
+re-derives the authorized action from the judgment rather than trusting the commitment;
 **replay** — the pinned evaluator recomputing the disposition from retained bytes. The
-registered `platformChecksEngaged` field makes the central R2 fact visible cell by cell:
-the platform's executable policy reads an author Boolean, a user rule, and a server's
-self-annotations — no field of it carries a disposition, so a bridge that stages an action
-under an unresolved judgment sails through the platform's own checks and only the binding
-layer can say why that is wrong.
+upstream layer is deliberately *not* called the platform's enforcement: the Durable Object
+never runs, and when a construction gives those functions nothing to decide the verdict is
+`not-engaged`, not `pass`. That distinction carries the central R2 fact cell by cell: the
+platform's policy reads an author Boolean, a user rule, and a server's self-annotations —
+no field of it carries a disposition, so a bridge that stages an action under an unresolved
+judgment passes the platform's own live checks and only the binding layer can say why that
+is wrong.
 
 What a green ceremony means, stated narrowly: **the retained store is internally
-consistent with the commitment, and the staged/applied action the store records is the
-one the recorded judgment authorized.** It is not a claim that any effect physically
+consistent, the action it records is the one the registered map derives from the recorded
+judgment, and the judgment itself recomputes.** It is not a claim that any effect physically
 happened (the platform's `approved` state covers its callback returning; MCP delivery is
 at-most-once), not a claim that the judgment is correct, and not a claim that a JPS
 disposition authorizes anything — the disposition→action map is the adapter's contract,
@@ -57,8 +62,10 @@ ceiling, stated up front.
 Neither system is modified. Cloudflare OS is consumed as a read-only clone at a pinned
 commit with upstream's own lockfile (probes are bundled by the clone's own esbuild; the
 one injected seam is an inert `cloudflare:workers` tracing stub on the observability
-path); jpack as a pinned release binary. Fixture ledger records are held to the pinned
-published contract types by the clone's own TypeScript compiler.
+path); jpack as a pinned release binary. Every retained record is held to the pinned
+**server-side** `ActionRecord` by the clone's own TypeScript compiler, and `adapter/SPEC.md`
+§0a publishes a field-by-field provenance table saying, for every datum the ceremony reads,
+whether stock Cloudflare OS retains it at all.
 
 ## How it relates to what came before
 
@@ -83,15 +90,16 @@ published contract types by the clone's own TypeScript compiler.
 | [`PREREGISTRATION.md`](PREREGISTRATION.md) | The registered protocol (DRAFT until frozen by merge) |
 | [`adapter/SPEC.md`](adapter/SPEC.md) | Retained-record model, commitment schema, ceremony, verdict codes, disposition→action map |
 | [`adapter/commitment.py`](adapter/commitment.py) / [`adapter/verify.py`](adapter/verify.py) | Commitment construction; the three-layer ceremony |
-| [`harness/MATRIX.json`](harness/MATRIX.json) | 24 registered cells (locked-replication stratum) |
-| [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json) | Reviewer-authored holdout (never executed pre-freeze; scorer refuses) |
+| [`harness/MATRIX.json`](harness/MATRIX.json) | 27 registered cells (locked-replication stratum) |
+| [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json) | 8 reviewer-authored holdout cells (constructed but never adjudicated pre-freeze; scorer refuses) |
+| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Round-1 dispositions: what changed and why |
 | [`harness/PINS.json`](harness/PINS.json) | Every pin, enforced before adjudication |
 | [`harness/score.py`](harness/score.py) | The only thing that publishes |
 | [`harness/build_fixtures.py`](harness/build_fixtures.py) | One-time fixture construction (real evaluator runs; upstream identity functions) |
-| [`harness/cf_runner.py`](harness/cf_runner.py) / [`probes/`](probes/) | The platform layer: pinned upstream code, bundled by the clone's own esbuild |
-| [`harness/typecheck.py`](harness/typecheck.py) | Every ledger record held to the pinned published contract types |
+| [`harness/cf_runner.py`](harness/cf_runner.py) / [`probes/`](probes/) | The upstream layer: pinned platform functions, bundled by the clone's own esbuild |
+| [`harness/typecheck.py`](harness/typecheck.py) | Every retained record held to the pinned server-side types; a scorer precondition |
 | [`harness/tests/`](harness/tests/) | Vocabulary sync, per-code reachability with first-failure ordering, refusals |
-| [`fixtures/`](fixtures/) | Frozen cells: baseline + 23 mutations, each manifested |
+| [`fixtures/`](fixtures/) | Frozen cells: baseline + 26 mutations + 8 holdout, each manifested |
 | [`pilots/`](pilots/) | Harness-validation runs (no claims) |
 | [`reviews/`](reviews/) | Cross-vendor review rounds, verbatim |
 

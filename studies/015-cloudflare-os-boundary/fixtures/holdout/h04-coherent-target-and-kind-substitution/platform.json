@@ -1,0 +1,60 @@
+{
+  "gatekeepers": [
+    {
+      "id": 1,
+      "resourceUrl": "https://tracker.example/mcp",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "create_work_item",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "resourceUrl": "https://other-tracker.example/mcp",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "create_work_item",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    }
+  ],
+  "autoApproveTags": [],
+  "stagedCalls": [
+    {
+      "gatekeeperId": 2,
+      "action": 21,
+      "toolName": "create_work_item",
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      },
+      "resourceRevisionAtStage": "rev-7",
+      "simulationBasis": [],
+      "connectorOutcome": "committed",
+      "commitmentDigest": "62bc7c568481dc5da5bfe3b4bb7e313805edb82f3ba43e04caa7672095ed8b35"
+    }
+  ],
+  "simulations": [],
+  "observedCalls": [],
+  "drainWitnesses": [],
+  "world": {
+    "resourceRevisionAtApply": {
+      "2:21": "rev-7"
+    }
+  },
+  "effects": []
+}

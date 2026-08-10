@@ -26,6 +26,7 @@
       "toolName": "create_work_item"
     }
   ],
+  "drainWitnesses": [],
   "world": {
     "resourceRevisionAtApply": {}
   },

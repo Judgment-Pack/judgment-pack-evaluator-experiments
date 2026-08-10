@@ -7,5 +7,5 @@
     "handoffState": "none"
   },
   "execution": "effect-attested",
-  "note": "agent observed simulated success"
+  "note": "the gatekeeper callback returned; the agent saw success"
 }
