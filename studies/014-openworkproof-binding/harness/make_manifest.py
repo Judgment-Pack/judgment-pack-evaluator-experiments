@@ -2,11 +2,35 @@
 
 One line per covered file, `sha256  <study-relative path>`, sorted by path. The
 covered set is exact and closed (`manifest_entries` below): the protocol
-documents, the pin registry, both matrix strata, every adapter and harness
-source file — including `owpflow.py`, where the build-time entropy algorithm
-lives, which round 1 found was pinned in prose while sitting in unmanifested
-mutable code — and every per-cell fixture manifest. `score.py` verifies this
-file before it adjudicates anything and a harness test verifies it too.
+documents, both matrix strata, every adapter and harness source file —
+including `owpflow.py`, where the build-time entropy algorithm lives, which
+round 1 found was pinned in prose while sitting in unmanifested mutable code —
+and every per-cell fixture manifest of the locked stratum. `score.py` verifies
+this file before it adjudicates anything and a harness test verifies it too.
+
+**Two deliberate exclusions, both required for the anchor to be initializable
+and to survive a post-freeze holdout construction.**
+
+1. `harness/PINS.json` is NOT covered. Round 2 built a cycle — the manifest
+   hashed `PINS.json` while `PINS.json` stored the manifest's own digest — which
+   would resist laundering but cannot be initialized without finding a SHA-256
+   fixed point. Round 3 replaced it with a linear order:
+
+       manifest  covers code + protocol + locked fixture manifests
+       PINS      pins the manifest's digest (`studyManifest.sha256`)
+       freeze    the freeze commit (and each attempt's `pinsSha256` stamp)
+                 anchors `PINS.json` itself
+
+   Nothing inside the manifest names the manifest, and nothing inside the
+   manifest names `PINS.json`, so each link is fillable in one pass.
+
+2. `fixtures/holdout/**` is NOT covered. Holdout fixtures are constructed
+   *after* the freeze, so covering them would make the frozen exact set fail the
+   moment the registered post-freeze path ran. Their integrity travels a
+   different road: the pinned `matrixHoldout.sha256` over the registry that
+   specifies them, the per-cell `MANIFEST.sha256` the builder writes beside each
+   one, the per-cell `CONSTRUCTION.json` record, and the attempt record that
+   publishes both.
 
 The manifest is regenerated during drafting and pinned at the freeze; after the
 freeze a regeneration that changes a line is a deviation, not a fix.
@@ -28,8 +52,20 @@ REGISTERED_DOCUMENTS = (
     "adapter/SPEC.md",
     "harness/MATRIX.json",
     "harness/MATRIX-HOLDOUT.json",
-    "harness/PINS.json",
 )
+
+# Excluded from the covered set by construction, not by omission. Both are
+# asserted by a harness test, so a future edit that quietly re-covers either one
+# fails the suite rather than silently re-introducing the round-2 cycle.
+EXCLUDED_DOCUMENTS = ("harness/PINS.json",)
+EXCLUDED_FIXTURE_ROOTS = ("fixtures/holdout",)
+
+
+def _is_excluded_fixture(relative):
+    return any(
+        relative == root or relative.startswith(root + "/")
+        for root in EXCLUDED_FIXTURE_ROOTS
+    )
 
 
 def manifest_entries():
@@ -42,6 +78,8 @@ def manifest_entries():
     seen = []
     for path in paths:
         relative = path.relative_to(STUDY).as_posix()
+        if relative in EXCLUDED_DOCUMENTS or _is_excluded_fixture(relative):
+            continue
         if relative not in seen:
             seen.append(relative)
     return sorted(seen)

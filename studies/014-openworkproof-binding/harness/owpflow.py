@@ -32,6 +32,12 @@ are copied into this repository; the verification path (`adapter/verify.py`,
 `harness/run_verify.py`, `harness/score.py`) imports the installed package only.
 The frozen fixture bytes, not this builder, are what the study scores.
 
+`OWP_SOURCE` is pinned, not merely present (round 3). Before a single helper is
+imported, `load_upstream` checks that the clone's HEAD equals
+`PINS.json`'s pinned commit, that its tracked files are clean, and that every
+helper file it imports matches its pinned digest in
+`openworkproof.upstreamHelpers.files`. Any failure refuses the build.
+
 Determinism: fixed Ed25519 seeds, fixed clocks, caller-supplied nonces, and — the
 one thing upstream provides no seam for — `secrets.token_hex` patched with a
 counter-derived generator for the duration of a build (recorded in PINS.json).
@@ -82,15 +88,141 @@ class FlowError(RuntimeError):
 # upstream access (build time only)
 # --------------------------------------------------------------------------
 
+PINS_PATH = Path(__file__).resolve().parent / "PINS.json"
+
+# The upstream files this module imports or reads. Exactly these five: the
+# conftest (loaded by explicit path) and the four test modules imported below.
+UPSTREAM_HELPER_FILES = (
+    "tests/conftest.py",
+    "tests/test_delivery_m2.py",
+    "tests/test_independent_recomposition.py",
+    "tests/test_mcp_server.py",
+    "tests/test_receipt_chain.py",
+)
+
+
+def _pins():
+    return json.loads(PINS_PATH.read_text(encoding="utf-8"))
+
+
+def _git(root, *arguments):
+    """Run git inside the clone; return stdout, or None when git cannot answer."""
+    import subprocess
+
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(root)] + list(arguments),
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+    except Exception:
+        return None
+    if completed.returncode != 0:
+        return None
+    return completed.stdout
+
+
+def upstream_problems(root, pins=None):
+    """Every reason this clone is not the pinned one. Empty means it is.
+
+    Round 3's finding: the builder imported external test helpers after checking
+    only that `tests/conftest.py` existed, so `OWP_SOURCE` could point at any
+    working tree — including a modified one — and the fixtures would still be
+    called upstream's. Three independent checks now stand between the flag and
+    the import:
+
+      1. the clone's HEAD is exactly the pinned commit;
+      2. its tracked files are clean (untracked paths are ignored — a build
+         directory beside the checkout changes nothing this module reads);
+      3. every helper file this module imports matches its pinned digest.
+
+    Any one of them failing is a refusal, not a warning: the fixture oracle's
+    whole claim is that it is upstream's.
+    """
+    pins = _pins() if pins is None else pins
+    upstream = (pins.get("openworkproof") or {})
+    helpers = upstream.get("upstreamHelpers") or {}
+    problems = []
+    root = Path(root)
+    if not (root / "tests" / "conftest.py").is_file():
+        return [
+            "OWP_SOURCE must point at the pinned OpenWorkProof clone "
+            "(tests/conftest.py not found)"
+        ]
+
+    pinned_commit = helpers.get("commit") or upstream.get("commit")
+    if not pinned_commit:
+        problems.append("PINS.json carries no pinned OpenWorkProof commit")
+    else:
+        head = _git(root, "rev-parse", "HEAD")
+        if head is None:
+            problems.append(
+                "the OWP_SOURCE clone's HEAD could not be read with git, so it "
+                "cannot be shown to be the pinned commit"
+            )
+        elif head.strip() != pinned_commit:
+            problems.append(
+                "the OWP_SOURCE clone is at %s, pinned %s"
+                % (head.strip(), pinned_commit)
+            )
+
+    status = _git(root, "status", "--porcelain")
+    if status is None:
+        problems.append("the OWP_SOURCE clone's working tree state could not be read")
+    else:
+        dirty = [
+            line
+            for line in status.splitlines()
+            if line.strip() and not line.startswith("??")
+        ]
+        if dirty:
+            problems.append(
+                "the OWP_SOURCE clone has modified tracked files: %s" % "; ".join(dirty)
+            )
+
+    pinned_files = helpers.get("files")
+    if not isinstance(pinned_files, dict) or not pinned_files:
+        problems.append(
+            "PINS.json pins no upstream helper file digests, so the bytes this "
+            "builder imports are unverified"
+        )
+        pinned_files = {}
+    missing_pins = [name for name in UPSTREAM_HELPER_FILES if name not in pinned_files]
+    if pinned_files and missing_pins:
+        problems.append(
+            "these imported upstream helpers are unpinned: %s" % ", ".join(missing_pins)
+        )
+    unused_pins = [name for name in pinned_files if name not in UPSTREAM_HELPER_FILES]
+    if unused_pins:
+        problems.append(
+            "PINS.json pins upstream files this builder does not import: %s"
+            % ", ".join(sorted(unused_pins))
+        )
+    for name in UPSTREAM_HELPER_FILES:
+        expected = pinned_files.get(name)
+        if expected is None:
+            continue
+        path = root / name
+        if not path.is_file():
+            problems.append("pinned upstream helper is absent: " + name)
+            continue
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        if actual != expected:
+            problems.append("pinned upstream helper does not match its digest: " + name)
+    return problems
+
+
 def load_upstream(source=None):
-    """Import the pinned clone's fixture helpers once, read only."""
+    """Import the pinned clone's fixture helpers once, read only and verified."""
     if _UPSTREAM:
         return _UPSTREAM
     root = Path(source or os.environ.get("OWP_SOURCE", "")).expanduser()
-    if not (root / "tests" / "conftest.py").is_file():
+    problems = upstream_problems(root)
+    if problems:
         raise FlowError(
-            "OWP_SOURCE must point at the pinned OpenWorkProof clone "
-            "(tests/conftest.py not found)"
+            "the OWP_SOURCE clone is not the pinned one, so no fixture may be "
+            "built from it: " + "; ".join(problems)
         )
     sys.path.insert(0, str(root / "tests"))
     # The upstream conftest is loaded by explicit path under a private module

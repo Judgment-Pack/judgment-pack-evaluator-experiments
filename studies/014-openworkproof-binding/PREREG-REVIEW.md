@@ -61,3 +61,27 @@ h01–h08, attributed, never executed pre-freeze).
 Round 3 asks: confirm the round-2 closures, confirm the holdout stratum landed verbatim
 and unexecuted with a working (but refused) post-freeze path, and state what, if
 anything, remains between this draft and a freeze-ready PR.
+
+## Round 3 — 2026-08-09
+
+Reviewer: codex-cli 0.145.0 / gpt-5.6-sol / reasoning effort ultra / read-only sandbox.
+Verdict: **not freezable as written**. Verbatim record: `reviews/round-3/PROMPT.md`,
+`reviews/round-3/REVIEW.md`. Tally: R2-4/-7/-8/-9 RESOLVED; R2-2/-3/-5/-6 PARTIALLY
+RESOLVED; R2-1 NOT RESOLVED. The reviewer independently confirmed the holdout stratum
+byte-identical (sha256 `3668d677…`, exactly h01–h08) and unexecuted across every pilot,
+and issued the freeze-ready checklist adopted below.
+
+| Item | Disposition | Action |
+|---|---|---|
+| Anchor circularity (R2-1 residual) | **Accepted — the round-2 construction was uninitializable.** | `PINS.json` leaves the manifest's coverage set; the anchor order is linear: the manifest covers code + protocol + fixture manifests, PINS pins the manifest digest, the freeze commit (and the per-attempt `pinsSha256` stamp) anchors PINS. `REGISTERED` requires **every** freeze pin non-null. |
+| Post-freeze holdout vs frozen manifest | **Accepted.** | `fixtures/holdout/**` is excluded from the study manifest's exact set (its integrity is carried by the pinned holdout registry digest, per-cell manifests, and the attempt record); the post-freeze path no longer invalidates the frozen anchor. |
+| h01/h06 construction drift | **Accepted.** | Hooks rewritten to copy baseline byte-for-byte and apply only the registered artifact edit — no fresh salts, no new chains. |
+| Constructibility records | **Accepted.** | Per-cell `CONSTRUCTION.json` persisted (attempted / built / refused-with-upstream-error / harness-failure); only a captured upstream refusal counts as a constructibility finding; unexplained absence is a validity problem, never a finding. |
+| Holdout construction under attempt machinery | **Accepted.** | The post-freeze attempt itself drives holdout construction inside the marker + terminal-record scope, so a construction crash is a recorded pipeline event, not a silent rerun. |
+| OWP_SOURCE helper pinning | **Accepted.** | `owpflow.load_upstream` verifies the clone HEAD equals the pinned commit with clean tracked files, and the imported helper files' digests against new PINS entries. |
+| Ordering coverage gaps | **Accepted.** | Competing-defect fixtures added for the remaining check sites, including evaluator-unavailable-with-downstream-defect. |
+| Terminal-path gaps | **Accepted.** | Marker write precedes and survives malformed PINS under every flag combination; `SystemExit`/`KeyboardInterrupt` and fallback-publication failures land terminal records; marker-write failure itself reported non-silently. |
+| d18 attribution | **Accepted.** | MATRIX note and §4a re-worded: the post-retry bound is the tip/exact-parent contradiction (publication demands the retry tip as parent; exact causal replay excludes it) — single-active-patch alone is not the terminal mechanism. |
+| Checklist items 10–14 (banners, freeze commit naming, primary root, governing invocation, pin filling, clean freeze commit) | **Adopted as freeze-PR content**, deliberately not performed while the draft is under review — the same split Study 013 used. |
+
+Round 4 asks: confirm these closures and re-issue a verdict.

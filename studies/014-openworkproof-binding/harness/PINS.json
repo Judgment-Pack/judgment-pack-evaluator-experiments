@@ -1,6 +1,8 @@
 {
   "pinsVersion": "1",
-  "note": "Pin registry, 011-convention. It is a pin, not an attestation - but every non-null member here is now ENFORCED before adjudication, not merely declared: harness/score.py compares the preregistration, matrix, matrixHoldout, studyManifest and adapterSpec digests when they are filled, the jpack binary digest always, the vendored pack bytes always, openworkproof.installedPackageDigest always, harnessPython.version exactly, and openworkproof.pipFreezeSha256 against `pip freeze` in the running interpreter, and refuses to adjudicate on any mismatch. harness/STUDY-MANIFEST.sha256 covers this file, so this file cannot state that manifest's digest and be inside it at the same time - which is exactly the self-laundering round 2 found. studyManifest.sha256 is therefore the anchor OUTSIDE the regenerable set: it is filled at the freeze, and from then on harness/make_manifest.py can still rewrite the manifest but cannot rewrite the digest the freeze pinned it at.",
+  "note": "Pin registry, 011-convention. It is a pin, not an attestation - but every non-null member here is now ENFORCED before adjudication, not merely declared: harness/score.py compares the preregistration, matrix, matrixHoldout, studyManifest and adapterSpec digests when they are filled, the jpack binary digest always, the vendored pack bytes always, openworkproof.installedPackageDigest always, harnessPython.version exactly, and openworkproof.pipFreezeSha256 against `pip freeze` in the running interpreter, and refuses to adjudicate on any mismatch. openworkproof.upstreamHelpers is enforced by harness/owpflow.py before it imports anything from the clone.",
+  "anchorOrder": "LINEAR, and in this order (round 3). Round 2 made the study manifest cover this file while this file stored that manifest's digest - a cycle that would resist laundering but cannot be initialized without a SHA-256 fixed point. Now: (1) harness/STUDY-MANIFEST.sha256 covers the code, the protocol documents and the locked stratum's per-cell fixture manifests, and covers NEITHER itself NOR this file; (2) this file pins that manifest's digest in studyManifest.sha256; (3) the freeze commit - together with the pinsSha256 stamp every attempt record carries - anchors this file. Each link is fillable in one pass, and after the freeze harness/make_manifest.py can still rewrite the manifest but cannot rewrite the digest pinned here. fixtures/holdout/** is likewise outside the manifest, because it is constructed after the freeze; its integrity travels via matrixHoldout.sha256, the per-cell MANIFEST.sha256 and CONSTRUCTION.json the builder writes, and the attempt record.",
+  "registeredLabelRule": "harness/score.py labels an attempt REGISTERED only when EVERY freeze pin below is non-null - preregistration, matrix, matrixHoldout, adapterSpec, studyManifest. Any null makes it a PILOT. Round 3 found a registered run was reachable with only the preregistration digest filled, which left the registry the attempt adjudicated unpinned. The non-null ones are enforced under both labels.",
   "openworkproof": {
     "repo": "https://github.com/dengyier/OpenWorkProof",
     "commit": "8eeca6fff4a246374f9d64f4dc1af6ace42118d5",
@@ -13,6 +15,17 @@
     "installedPackageDigestAlgorithm": "sha256 over the installed `openworkproof` package directory resolved through importlib: every file that is not a __pycache__ artefact, sorted by package-relative POSIX path, hashed as `path \\0 bytes \\0`. Enforced on every run, filled during drafting rather than at the freeze - the `pip freeze` line records this package only as a mutable local-file URL, so nothing else pins the bytes the verification path imports.",
     "sourceUnmodified": true,
     "buildHelperImports": "harness/owpflow.py (build path only) imports upstream test helpers read-only from the pinned clone via OWP_SOURCE, so upstream test bytes are never vendored into this repo. The verification path (adapter/, run_verify, score) imports only the installed package.",
+    "upstreamHelpers": {
+      "note": "Round 3: the builder used to import these after checking only that tests/conftest.py existed, so OWP_SOURCE could name any working tree. harness/owpflow.py:load_upstream now refuses unless the clone's HEAD equals `commit`, `git status --porcelain` reports no modified TRACKED file (untracked paths are ignored - an adjacent build/ directory changes nothing this builder reads), and every file below matches its digest. The list is exactly the upstream files owpflow imports or reads: nothing else is pinned, and a pin here for a file the builder does not import is itself a refusal.",
+      "commit": "8eeca6fff4a246374f9d64f4dc1af6ace42118d5",
+      "files": {
+        "tests/conftest.py": "b47adf181580a65b7ed315262ff71bd75271b5110ff2f5b334e2f0ce96cc3dc5",
+        "tests/test_delivery_m2.py": "e77c46412284c2a11bb30f9b629032a39dcf74dd93aa4085b2139de54640bc51",
+        "tests/test_independent_recomposition.py": "45f8837ffae0b7f1507a2865b2715fc1dc60656f6c624d4b116188ebf1d30811",
+        "tests/test_mcp_server.py": "cb45548477dc73eae1c2b7c7650eaef459413a29c129a33e282b3d050c3d1970",
+        "tests/test_receipt_chain.py": "f70ca2db861af411de9bf9244f167a257b7e736d4b0a7cd0b2ef6bfc06c396ff"
+      }
+    },
     "buildTimeEntropyPin": "harness/build_fixtures.py patches secrets.token_hex with a counter-derived generator while constructing fixtures, because upstream receipt_id mixing has no injection seam. Build path only; no verification path involves entropy. The frozen fixture bytes, not the builder, are what the study scores."
   },
   "jpack": {
@@ -57,13 +70,14 @@
     "path": "harness/STUDY-MANIFEST.sha256",
     "sha256": null,
     "generator": "harness/make_manifest.py",
-    "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/PINS.json, every adapter/*.py and harness/*.py (including owpflow.py, where the build-time entropy algorithm lives), and every fixtures/**/MANIFEST.sha256",
-    "note": "exact-set whole-study manifest; regenerated during drafting, pinned at the freeze. The manifest covers this registry but not itself, so filling this digest at the freeze anchors the freeze outside the regenerable set: after the freeze, regenerating the manifest changes this digest and the scorer refuses to adjudicate"
+    "covers": "PREREGISTRATION.md, PREREG-REVIEW.md, adapter/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, every adapter/*.py and harness/*.py (including owpflow.py, where the build-time entropy algorithm lives), harness/tests/*.py, and every fixtures/**/MANIFEST.sha256 outside fixtures/holdout/",
+    "excludes": "harness/PINS.json (this file - it pins the manifest, so the manifest must not pin it) and fixtures/holdout/** (constructed after the freeze). See anchorOrder above; harness/make_manifest.py states both exclusions and a harness test asserts them.",
+    "note": "exact-set whole-study manifest; regenerated during drafting, pinned at the freeze. The manifest covers neither itself nor this registry, so filling this digest at the freeze anchors the freeze outside the regenerable set: after the freeze, regenerating the manifest changes this digest and the scorer refuses to adjudicate"
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",
     "sha256": null,
-    "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; the scorer refuses a registered (non-pilot) run while null."
+    "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; while it - or any other freeze pin - is null the attempt is a PILOT and cannot be REGISTERED."
   },
   "adapterSpec": {
     "path": "adapter/SPEC.md",

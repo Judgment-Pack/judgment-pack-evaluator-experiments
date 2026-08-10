@@ -18,9 +18,11 @@ Every case is built by transforming a frozen cell in a temporary directory.
 Nothing here writes to `fixtures/`.
 """
 
+import ast
 import json
 import shutil
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -90,6 +92,29 @@ def rewrite_objective(directory, mutate):
     set_objective(directory, commitment.commitment_bytes(candidate).decode("utf-8"))
 
 
+def rebind_chain(directory, mutate):
+    """Rewrite the commitment *and* everything downstream that names its digest.
+
+    `rewrite_objective` alone cannot reach the binding ceremony's later checks:
+    changing the commitment changes its digest, so the executing receipt stops
+    carrying it and `binding-point-divergence` fires long before the artifact
+    comparisons. This rewrites the objective, the retained document and both
+    copies of the digest inside the executing receipt, so the ceremony walks past
+    the marker checks and lands on the check actually under test.
+    """
+    candidate = objective_commitment(directory)
+    mutate(candidate)
+    raw = commitment.commitment_bytes(candidate)
+    set_objective(directory, raw.decode("utf-8"))
+    (directory / "commitment.json").write_bytes(raw)
+    digest = commitment.commitment_digest(candidate)
+    bundle = bundle_of(directory)
+    receipt = executing_receipt(bundle)
+    receipt["nested_claim"]["context_source_digest"] = digest
+    receipt["correlation_factors"]["context_source_digest"] = digest
+    write_bundle(directory, bundle)
+
+
 def executing_receipt(bundle):
     return next(
         receipt
@@ -109,6 +134,20 @@ def repo_read_receipt(bundle):
 # --------------------------------------------------------------------------
 # the defect vocabulary — one deterministic transform each
 # --------------------------------------------------------------------------
+
+def defect_none(directory):
+    """No planted defect: the condition under test is an argument, not a byte."""
+
+
+def defect_bundle_unreadable(directory):
+    (directory / "bundle.json").write_bytes(b"{not json at all")
+
+
+def defect_objective_not_a_string(directory):
+    bundle = bundle_of(directory)
+    bundle["work_order"]["objective"] = 42
+    write_bundle(directory, bundle)
+
 
 def defect_objective_not_a_commitment(directory):
     set_objective(directory, "Apply a deterministic patch and verify it.")
@@ -157,6 +196,14 @@ def defect_retained_noncanonical(directory):
     )
 
 
+def defect_retained_absent(directory):
+    (directory / "commitment.json").unlink()
+
+
+def defect_retained_unparseable(directory):
+    (directory / "commitment.json").write_bytes(b'{"commitmentVersion": "1", ')
+
+
 def defect_retained_different(directory):
     candidate = objective_commitment(directory)
     candidate["judgment"]["packDigest"] = "sha256:" + "ab" * 32
@@ -198,6 +245,29 @@ def defect_null_action_with_execution(directory):
     (directory / "commitment.json").write_bytes(raw)
 
 
+def defect_null_action_with_marked_receipt(directory):
+    """Commitment to inaction, no action-class receipt — but a marked one.
+
+    The other arm of the null-action totality rule: nothing was executed under
+    the map, yet some receipt claims this commitment as its context.
+    """
+    candidate = objective_commitment(directory)
+    candidate["action"] = None
+    raw = commitment.commitment_bytes(candidate)
+    set_objective(directory, raw.decode("utf-8"))
+    (directory / "commitment.json").write_bytes(raw)
+    bundle = bundle_of(directory)
+    bundle["receipts"] = [
+        receipt
+        for receipt in bundle["receipts"]
+        if receipt.get("tool_name") != "owp.apply_patch"
+    ]
+    repo_read_receipt(bundle)["nested_claim"]["context_source_digest"] = (
+        commitment.commitment_digest(candidate)
+    )
+    write_bundle(directory, bundle)
+
+
 def defect_unmarked_execution(directory):
     bundle = bundle_of(directory)
     executing_receipt(bundle)["nested_claim"]["context_source_digest"] = "cd" * 32
@@ -221,6 +291,25 @@ def defect_pack_edited(directory):
     (directory / "pack.json").write_bytes(mutated)
 
 
+def defect_pack_identity_drift(directory):
+    """Pack bytes whose digest still matches, whose identity no longer does.
+
+    The digest check passes because the commitment is rebound to the edited
+    bytes; the identity check is what has to see that the retained pack is a
+    different pack version from the one the judgment names.
+    """
+    payload = (directory / "pack.json").read_bytes()
+    mutated = payload.replace(b'"version": "0.1.0"', b'"version": "0.9.9"')
+    assert mutated != payload
+    (directory / "pack.json").write_bytes(mutated)
+    rebind_chain(
+        directory,
+        lambda candidate: candidate["judgment"].__setitem__(
+            "packDigest", commitment.sha256_prefixed(mutated)
+        ),
+    )
+
+
 def defect_facts_absent(directory):
     (directory / "facts.json").unlink()
 
@@ -240,6 +329,22 @@ def defect_evidence_edited(directory):
     (directory / "evidence.json").write_bytes(
         b'{"receipt":"present","cost-center":"unknown"}'
     )
+
+
+def defect_evidence_declared_absent(directory):
+    """The commitment declares no evidence document while one is retained."""
+    rebind_chain(
+        directory,
+        lambda candidate: candidate["judgment"].__setitem__("evidenceDigest", None),
+    )
+
+
+def defect_envelope_unreadable(directory):
+    (directory / "evaluation.json").write_bytes(b"[]")
+
+
+def defect_envelope_without_a_disposition(directory):
+    (directory / "evaluation.json").write_bytes(b'{"evaluatorRelease":"0.16.0"}')
 
 
 def defect_disposition_forged(directory):
@@ -291,6 +396,23 @@ def defect_disposition_digest_forged(directory):
         directory,
         lambda candidate: candidate["judgment"].__setitem__(
             "dispositionDigest", "sha256:" + "77" * 32
+        ),
+    )
+
+
+def defect_pack_unreadable_to_the_evaluator(directory):
+    """Retained pack bytes the evaluator cannot even parse into a document.
+
+    Distinct from `defect_pack_not_conformant`: that one produces a classified
+    `evaluationError`, this one produces no readable envelope at all, which is
+    the replay layer's other `replay-refused` arm.
+    """
+    broken = b"this is not a judgment pack\n"
+    (directory / "pack.json").write_bytes(broken)
+    rewrite_objective(
+        directory,
+        lambda candidate: candidate["judgment"].__setitem__(
+            "packDigest", commitment.sha256_prefixed(broken)
         ),
     )
 
@@ -372,14 +494,30 @@ def test_binding_code_is_reachable(tmp_path, code, defect):
 # --------------------------------------------------------------------------
 
 BINDING_ORDER_CASES = (
+    ("commitment-objective-missing", defect_bundle_unreadable,
+     defect_pack_edited, BASELINE),
+    ("commitment-objective-missing", defect_objective_not_a_string,
+     defect_pack_edited, BASELINE),
     ("commitment-objective-missing", defect_objective_not_a_commitment,
+     defect_pack_edited, BASELINE),
+    ("commitment-schema-invalid", defect_objective_duplicate_member,
+     defect_pack_edited, BASELINE),
+    ("commitment-schema-invalid", defect_objective_noncanonical,
      defect_pack_edited, BASELINE),
     ("commitment-schema-invalid", defect_objective_unknown_field,
      defect_facts_edited, BASELINE),
+    ("binding-point-divergence", defect_retained_absent,
+     defect_pack_edited, BASELINE),
+    ("commitment-schema-invalid", defect_retained_unparseable,
+     defect_pack_edited, BASELINE),
     ("commitment-schema-invalid", defect_retained_noncanonical,
      defect_pack_edited, BASELINE),
     ("binding-point-divergence", defect_retained_different,
      defect_pack_absent, BASELINE),
+    ("action-map-violation", defect_null_action_with_execution,
+     defect_pack_edited, BASELINE),
+    ("action-map-violation", defect_null_action_with_marked_receipt,
+     defect_pack_edited, BASELINE),
     ("action-tool-mismatch", defect_marker_points_elsewhere,
      defect_surplus_execution, BASELINE),
     ("executing-receipt-missing", defect_no_execution,
@@ -392,12 +530,20 @@ BINDING_ORDER_CASES = (
      defect_facts_edited, BASELINE),
     ("pack-artifact-missing", defect_pack_absent, defect_facts_edited, BASELINE),
     ("pack-digest-mismatch", defect_pack_edited, defect_facts_edited, BASELINE),
+    ("pack-digest-mismatch", defect_pack_identity_drift,
+     defect_facts_edited, BASELINE),
     ("facts-artifact-missing", defect_facts_absent, defect_evidence_edited, BASELINE),
     ("facts-digest-mismatch", defect_facts_edited, defect_evidence_edited, BASELINE),
+    ("evidence-digest-mismatch", defect_evidence_declared_absent,
+     defect_disposition_forged, BASELINE),
     ("evidence-artifact-missing", defect_evidence_absent,
      defect_disposition_forged, BASELINE),
     ("evidence-digest-mismatch", defect_evidence_edited,
      defect_disposition_forged, BASELINE),
+    ("disposition-digest-mismatch-retained", defect_envelope_unreadable,
+     defect_arguments_digest_wrong, BASELINE),
+    ("disposition-digest-mismatch-retained", defect_envelope_without_a_disposition,
+     defect_arguments_digest_wrong, BASELINE),
     ("disposition-digest-mismatch-retained", defect_disposition_forged,
      defect_arguments_digest_wrong, BASELINE),
     ("action-arguments-mismatch", defect_arguments_digest_wrong, None, REJECT_EXECUTED),
@@ -483,30 +629,57 @@ def test_replay_refused_records_the_class_as_detail_only(tmp_path, work_root):
 # REPLAY first-failure ordering — every ordered check, competing defects
 # --------------------------------------------------------------------------
 
+# The fourth column is the evaluator: `_PINNED` is the pinned binary, `None` is
+# "no evaluator available", which is a check site of its own and the one round 3
+# named — an evaluator-unavailable attempt carrying a downstream defect must
+# report `replay-unavailable`, not the defect.
 REPLAY_ORDER_CASES = (
-    ("replay-unavailable", defect_objective_not_a_commitment, defect_pack_not_conformant),
-    ("replay-unavailable", defect_facts_absent, defect_disposition_digest_forged),
+    ("replay-unavailable", defect_objective_not_a_commitment,
+     defect_pack_not_conformant, _PINNED),
+    ("replay-unavailable", defect_none, defect_disposition_digest_forged, None),
     ("replay-executable-mismatch", defect_executable_digest_forged,
-     defect_spec_version_forged),
+     defect_spec_version_forged, _PINNED),
     ("replay-executable-mismatch", defect_evaluator_release_forged,
-     defect_disposition_digest_forged),
-    ("replay-refused", defect_pack_not_conformant, defect_disposition_digest_forged),
+     defect_disposition_digest_forged, _PINNED),
+    ("replay-unavailable", defect_facts_absent,
+     defect_disposition_digest_forged, _PINNED),
+    ("replay-unavailable", defect_evidence_absent,
+     defect_disposition_digest_forged, _PINNED),
+    ("replay-refused", defect_pack_not_conformant,
+     defect_disposition_digest_forged, _PINNED),
     ("replay-spec-version-mismatch", defect_spec_version_forged,
-     defect_disposition_digest_forged),
+     defect_disposition_digest_forged, _PINNED),
 )
 
 
 @pytest.mark.parametrize(
-    "code,earlier,later", REPLAY_ORDER_CASES, ids=[
-        "%s-over-%s" % (code, later.__name__) for code, _, later in REPLAY_ORDER_CASES
+    "code,earlier,later,binary", REPLAY_ORDER_CASES, ids=[
+        "%s-%s-over-%s" % (code, earlier.__name__, later.__name__)
+        for code, earlier, later, _ in REPLAY_ORDER_CASES
     ]
 )
-def test_the_earlier_replay_check_wins(tmp_path, work_root, code, earlier, later):
+def test_the_earlier_replay_check_wins(tmp_path, work_root, code, earlier, later, binary):
     # Planted later-first, for the same reason as the binding ladder above.
     directory = staged(tmp_path)
     later(directory)
     earlier(directory)
-    assert replay_code(directory, work_root) == code
+    assert replay_code(directory, work_root, binary=binary) == code
+
+
+def test_even_unparseable_pack_bytes_are_a_classified_refusal(tmp_path, work_root):
+    """Why the replay layer's `unreadable` arm carries no ordering case.
+
+    That arm needs an evaluator that produces no readable envelope at all. The
+    pinned binary classifies even bytes that are not a pack document, so the arm
+    is unreachable through any retained-artifact edit — reaching it would take a
+    different executable, which the `executableDigest` check refuses first. This
+    is the evidence for that exemption in the site-coverage test below.
+    """
+    directory = staged(tmp_path)
+    defect_pack_unreadable_to_the_evaluator(directory)
+    record = verify.layer_replay(verify.Cell(directory), jpack_bin(), work_root)
+    assert record["code"] == "replay-refused"
+    assert not record["detail"].startswith("unreadable")
 
 
 # --------------------------------------------------------------------------
@@ -544,12 +717,12 @@ COVERED_CODES = (
     {code for code, _ in BINDING_CASES}
     | {code for code, _, _, _ in BINDING_ORDER_CASES}
     | {code for code, _ in REPLAY_CASES}
-    | {code for code, _, _ in REPLAY_ORDER_CASES}
+    | {code for code, _, _, _ in REPLAY_ORDER_CASES}
     | {"replay-unavailable"}
 )
 ORDERED_CODES = (
     {code for code, _, _, _ in BINDING_ORDER_CASES}
-    | {code for code, _, _ in REPLAY_ORDER_CASES}
+    | {code for code, _, _, _ in REPLAY_ORDER_CASES}
 )
 
 
@@ -580,13 +753,170 @@ def test_every_ordered_check_carries_a_competing_defect_case():
 
     The one exception is stated rather than assumed: `replay-disposition-mismatch`
     is the replay ceremony's final check, so it has no later-ordered defect to
-    compete with. `action-map-violation` names two checks — the surplus-execution
-    arm, which is ordering-tested above, and the derived-action arm, which is the
-    binding ceremony's final check and is the competing defect the
-    `action-arguments-mismatch` row runs against.
+    compete with. `action-map-violation` names three checks — the two null-action
+    arms and the surplus-execution arm, all ordering-tested above, plus the
+    derived-action arm, which is the binding ceremony's final check and is the
+    competing defect the `action-arguments-mismatch` row runs against.
+
+    Coverage per *code* is the weak claim; coverage per *check site* is the one
+    round 3 asked for, and it is proved separately below.
     """
     terminal = {"replay-disposition-mismatch"}
     assert registered_codes() - ORDERED_CODES == terminal
+
+
+# --------------------------------------------------------------------------
+# ordering coverage per CHECK SITE — the inventory parsed, the coverage traced
+#
+# Round 3's finding: "the claimed every-check ordering proof still omits check
+# sites such as evaluator-unavailable-with-a-downstream-defect". Coverage by code
+# could not have caught that — `replay-unavailable` was already covered by a
+# different site. So neither half of the claim is prose here:
+#
+#   the inventory   every failing return inside the ordered ceremony, found by
+#                   parsing `adapter/verify.py` with `ast` (not by grepping it
+#                   for code literals, which is what round 1 rejected);
+#   the coverage    which site actually fired, recorded by line-tracing each
+#                   competing-defect case — so a case that lands on a different
+#                   check with the same code stops counting as covering the
+#                   check it claims.
+# --------------------------------------------------------------------------
+
+CEREMONY_FUNCTIONS = (
+    "_commitment_from_objective",
+    "_retained_commitment_problem",
+    "layer_binding",
+    "layer_replay",
+)
+VERIFY_PATH = Path(verify.__file__).resolve()
+
+# The sites with no competing-defect case, each with the reason it has none.
+# Keyed by (function, code, first characters of the literal detail) so the list
+# does not silently follow a line number around.
+EXEMPT_SITES = {
+    (
+        "layer_binding",
+        "action-map-violation",
+        "the section 4 map does not authorize the exec",
+    ): "the binding ceremony's final check: no later-ordered defect exists to "
+       "compete with it, and it is itself the competing defect for the "
+       "action-arguments-mismatch row",
+    (
+        "layer_replay",
+        "replay-disposition-mismatch",
+        "recomputed disposition is not the committed d",
+    ): "the replay ceremony's final check, same reason",
+    (
+        "layer_replay",
+        "replay-refused",
+        "unreadable: the evaluator produced no readabl",
+    ): "unreachable through any retained-artifact edit: the pinned evaluator "
+       "classifies even unparseable pack bytes, and an evaluator that emitted an "
+       "unreadable envelope would be refused by the executableDigest check first "
+       "(demonstrated by test_even_unparseable_pack_bytes_are_a_classified_refusal)",
+    (
+        "layer_binding",
+        "commitment-schema-invalid",
+        "<computed>",
+    ): "defensive: commitment_digest() re-canonicalizes a commitment that "
+       "validate_commitment() has already accepted, so no input reaches it that "
+       "it can refuse",
+}
+
+
+def _detail_head(call):
+    """The literal detail argument's first characters, or `<computed>`."""
+    name = getattr(call.func, "id", None)
+    arguments = call.args
+    detail = arguments[0] if name == "_unavailable" else (
+        arguments[1] if len(arguments) > 1 else None
+    )
+    # A `%`-formatted detail still identifies its site by its literal template.
+    if isinstance(detail, ast.BinOp) and isinstance(detail.op, ast.Mod):
+        detail = detail.left
+    if isinstance(detail, ast.Constant) and isinstance(detail.value, str):
+        return detail.value[:45]
+    return "<computed>"
+
+
+def ordered_check_sites():
+    """`{line: (function, code, detail head)}` for every failing return."""
+    tree = ast.parse(VERIFY_PATH.read_text(encoding="utf-8"))
+    sites = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.FunctionDef) or node.name not in CEREMONY_FUNCTIONS:
+            continue
+        for statement in ast.walk(node):
+            if not isinstance(statement, ast.Return):
+                continue
+            call = statement.value
+            if not isinstance(call, ast.Call):
+                continue
+            name = getattr(call.func, "id", None)
+            if name not in ("_fail", "_unavailable"):
+                continue
+            code = (
+                "replay-unavailable"
+                if name == "_unavailable"
+                else call.args[0].value
+            )
+            sites[statement.lineno] = (node.name, code, _detail_head(call))
+    return sites
+
+
+def fired_site(run, sites):
+    """The line of the failing return that produced this outcome."""
+    executed = set()
+    filename = str(VERIFY_PATH)
+
+    def tracer(frame, event, argument):
+        if frame.f_code.co_filename != filename:
+            return None
+        if event == "line":
+            executed.add(frame.f_lineno)
+        return tracer
+
+    previous = sys.gettrace()
+    sys.settrace(tracer)
+    try:
+        run()
+    finally:
+        sys.settrace(previous)
+    fired = sorted(executed & set(sites))
+    assert len(fired) == 1, "expected exactly one failing return, traced %s" % [
+        sites[line] for line in fired
+    ]
+    return fired[0]
+
+
+def test_every_ordered_check_site_has_a_competing_defect_case(tmp_path, work_root):
+    sites = ordered_check_sites()
+    covered = {}
+
+    for index, (code, earlier, later, origin) in enumerate(BINDING_ORDER_CASES):
+        directory = staged(tmp_path, name="site-binding-%d" % index, origin=origin)
+        if later is not None:
+            later(directory)
+        earlier(directory)
+        line = fired_site(lambda: binding_code(directory), sites)
+        assert sites[line][1] == code, (earlier.__name__, sites[line])
+        covered[line] = earlier.__name__
+
+    for index, (code, earlier, later, binary) in enumerate(REPLAY_ORDER_CASES):
+        directory = staged(tmp_path, name="site-replay-%d" % index)
+        later(directory)
+        earlier(directory)
+        line = fired_site(
+            lambda: replay_code(directory, work_root, binary=binary), sites
+        )
+        assert sites[line][1] == code, (earlier.__name__, sites[line])
+        covered[line] = earlier.__name__
+
+    uncovered = {sites[line] for line in sites if line not in covered}
+    assert uncovered == set(EXEMPT_SITES), (
+        "check sites with no competing-defect case: %s"
+        % sorted(uncovered - set(EXEMPT_SITES))
+    )
 
 
 def test_the_registered_pair_table_matches_the_declared_code_tuples():

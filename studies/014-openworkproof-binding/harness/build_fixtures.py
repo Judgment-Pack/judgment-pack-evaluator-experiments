@@ -259,17 +259,42 @@ def flip_character(value, alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
     return alphabet[(index + 1) % len(alphabet)] + value[1:]
 
 
+def atomic_write_bytes(path, payload):
+    """Write through a same-directory temp file + rename.
+
+    Deliberately duplicated from `harness/score.py` rather than imported: the
+    scorer imports the builder (post-freeze holdout construction runs inside the
+    attempt), so the builder must not import the scorer back.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle, temporary = tempfile.mkstemp(
+        prefix="." + path.name + ".", dir=str(path.parent)
+    )
+    try:
+        with os.fdopen(handle, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.chmod(temporary, 0o644)
+        os.replace(temporary, path)
+    except BaseException:
+        Path(temporary).unlink(missing_ok=True)
+        raise
+
+
 def write_cell(directory, payload):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     for name in verify.CELL_FILES:
         target = directory / name
         if name in payload and payload[name] is not None:
-            target.write_bytes(payload[name])
+            atomic_write_bytes(target, payload[name])
         elif target.is_file():
             target.unlink()
-    (directory / verify.MANIFEST_NAME).write_text(
-        verify.manifest_text(directory), encoding="utf-8"
+    atomic_write_bytes(
+        directory / verify.MANIFEST_NAME,
+        verify.manifest_text(directory).encode("utf-8"),
     )
 
 
@@ -760,10 +785,18 @@ def holdout_cell_directory(out_root, cell_id):
 # a promise, and they are gated by the same mechanical guard the scorer uses:
 # `--holdout` is refused while `PINS.json`'s `preregistration.sha256` is null.
 # Nothing in this repository has executed them. Each hook takes the shared build
-# context and returns either a cell payload or a `ConstructibilityRefusal` — a
-# registered construction upstream declines to publish is a finding under
-# PREREGISTRATION section 1a, recorded as such, never a silent drop and never a
-# crash.
+# context and either returns a cell payload, returns a `ConstructibilityRefusal`
+# carrying the verbatim upstream error (a registered construction upstream
+# declines to publish is a finding under PREREGISTRATION section 1a), or raises
+# `BuildError` when a harness precondition is not met (which is a validity
+# problem, never a finding). Whichever it is, `build_holdout_records` persists a
+# `CONSTRUCTION.json` beside the cell, so absence never has to be interpreted.
+#
+# Two of the hooks are *artifact* constructions — `h01` and `h06` register "copy
+# the baseline byte-for-byte and change exactly one retained document". They read
+# the frozen cell bytes off disk and never re-run a flow: a rebuild under a new
+# salt would change every signed nonce and every entropy draw, which is not the
+# cell the reviewer authored.
 
 HOLDOUT_IDS = (
     "h01-retained-commitment-noncanonical",
@@ -784,27 +817,114 @@ LONE_SURROGATE_ESCAPE = "\\uD800"
 
 
 class ConstructibilityRefusal:
-    """A registered holdout construction upstream refused to produce.
+    """A registered holdout construction **upstream** refused to produce.
 
     Carried out of the builder as a value, not an exception: the preregistration
-    records such a refusal as a constructibility finding attached to the cell,
-    and the scorer then reports the cell NOT-ADJUDICATED because its fixture
-    directory is absent.
+    records such a refusal as a constructibility finding attached to the cell.
+
+    Round 3 narrowed what may become one. A refusal is only a finding when the
+    builder genuinely attempted the registered construction and captured the
+    upstream error it hit, so `upstream_error` is **required** and is stored
+    verbatim (`detail` is the narrative around it, and never replaces it). A
+    harness precondition that is not met — an unbuilt source cell, a missing
+    builder hook, an edit whose target string is gone — is not a refusal and
+    raises `BuildError` instead, which is recorded as `harness-error` and is a
+    validity problem rather than a finding.
     """
 
-    def __init__(self, cell_id, detail):
+    def __init__(self, cell_id, detail, upstream_error, error_type=None):
         self.cell_id = cell_id
         self.detail = detail
+        self.upstream_error = upstream_error
+        self.error_type = error_type
 
     def as_record(self):
         return {
             "cell": self.cell_id,
             "finding": "constructibility-refusal",
             "detail": self.detail,
+            "upstreamError": self.upstream_error,
+            "upstreamErrorType": self.error_type,
         }
 
     def __repr__(self):  # pragma: no cover - diagnostic only
-        return "ConstructibilityRefusal(%r, %r)" % (self.cell_id, self.detail)
+        return "ConstructibilityRefusal(%r, %r, %r)" % (
+            self.cell_id,
+            self.detail,
+            self.upstream_error,
+        )
+
+
+# --------------------------------------------------------------------------
+# per-cell construction records
+# --------------------------------------------------------------------------
+#
+# Round 3's finding: the round-2 builder *printed* refusal details and the
+# scorer treated every absent holdout fixture — never built, deleted, aborted —
+# as a constructibility finding. Absence alone proves nothing. Each holdout cell
+# now gets a persisted `CONSTRUCTION.json` beside it, written atomically, and the
+# scorer adjudicates from that record rather than from the shape of the tree.
+
+CONSTRUCTION_RECORD_NAME = "CONSTRUCTION.json"
+CONSTRUCTION_STATUSES = ("built", "refused", "harness-error")
+
+# The builder's own sources. `builderVersionDigest` in every record says which
+# builder produced it, so a record cannot be silently carried across a builder
+# change.
+BUILDER_SOURCES = (
+    "harness/build_fixtures.py",
+    "harness/owpflow.py",
+    "adapter/commitment.py",
+    "adapter/verify.py",
+)
+
+
+def builder_version_digest():
+    """SHA-256 over the builder's own source files: `path \\0 bytes \\0`, sorted."""
+    digest = hashlib.sha256()
+    for relative in sorted(BUILDER_SOURCES):
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update((STUDY / relative).read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def construction_record(cell_id, status, *, upstream=None, harness_error=None,
+                        detail=None, builder_digest=None):
+    """One cell's construction outcome, in the shape the scorer adjudicates."""
+    if status not in CONSTRUCTION_STATUSES:
+        raise BuildError("unknown construction status: %r" % (status,))
+    record = {
+        "cell": cell_id,
+        "status": status,
+        "builderVersionDigest": builder_digest or builder_version_digest(),
+    }
+    if detail is not None:
+        record["detail"] = detail
+    if status == "refused":
+        # Verbatim, not paraphrased: this string is the evidence that upstream —
+        # not the harness — declined the registered construction.
+        record["upstreamError"] = upstream.upstream_error
+        record["upstreamErrorType"] = upstream.error_type
+        record["detail"] = upstream.detail
+    if status == "harness-error":
+        record["harnessError"] = harness_error
+    return record
+
+
+def harness_error_text(error):
+    return "%s: %s" % (type(error).__name__, error)
+
+
+def write_construction_record(directory, record):
+    """Persist one cell's construction record atomically."""
+    atomic_write_bytes(
+        Path(directory) / CONSTRUCTION_RECORD_NAME,
+        (json.dumps(record, indent=2, ensure_ascii=False, sort_keys=True) + "\n").encode(
+            "utf-8"
+        ),
+    )
 
 
 def _holdout_context(jpack_bin, work_root, owp_source):
@@ -825,20 +945,47 @@ def _holdout_context(jpack_bin, work_root, owp_source):
     }
 
 
-def _baseline_payload(context, salt="pos-baseline"):
-    """A freshly built baseline cell — the starting point of the artifact hooks."""
-    return flow_cell(
-        context["work_root"],
-        context["base"],
-        context["base_commitment"],
-        salt=salt,
-        owp_source=context["owp_source"],
-    )
+def frozen_cell_payload(cell_id):
+    """The FROZEN bytes of an already-built cell, read back from `fixtures/`.
+
+    Round 3's holdout-construction finding: `h01` and `h06` register an *artifact*
+    edit — "copy baseline byte-for-byte, change exactly one retained document" —
+    and the round-2 hooks instead rebuilt a fresh signed chain under a new salt,
+    which changes every signed nonce and every entropy draw. A cell whose signed
+    bytes differ from the baseline is not the cell the reviewer authored.
+
+    So the artifact hooks start here: the committed cell's own bytes, read from
+    disk, never re-derived. `write_cell` then regenerates the per-cell manifest
+    and nothing else. Returns None when the source cell is not built, which the
+    caller turns into a constructibility refusal rather than a crash.
+    """
+    directory = cell_directory(STUDY / "fixtures", cell_id)
+    if not directory.is_dir():
+        return None
+    payload = {}
+    for name in verify.CELL_FILES:
+        path = directory / name
+        payload[name] = path.read_bytes() if path.is_file() else None
+    if payload.get("bundle.json") is None:
+        return None
+    return payload
 
 
 def holdout_h01(context):
-    """h01 — one 0x0a appended to the retained commitment document only."""
-    payload = _baseline_payload(context, salt="h01")
+    """h01 — one 0x0a appended to the retained commitment document only.
+
+    Baseline bytes copied verbatim; `commitment.json` is the only file that
+    differs, by exactly one trailing newline. No flow is run and no salt exists,
+    so every signed byte in `bundle.json` is the baseline's.
+    """
+    payload = frozen_cell_payload("pos-baseline")
+    if payload is None:
+        raise BuildError(
+            "the baseline cell is not built, so there are no baseline bytes to "
+            "copy byte-for-byte"
+        )
+    if payload.get("commitment.json") is None:
+        raise BuildError("the baseline cell retains no commitment document to append to")
     return dict(payload, **{"commitment.json": payload["commitment.json"] + b"\n"})
 
 
@@ -855,10 +1002,9 @@ def holdout_h02(context):
         "expense-approval", "expense-" + LONE_SURROGATE_ESCAPE + "approval"
     )
     if objective == canonical:
-        return ConstructibilityRefusal(
-            "h02-objective-lone-surrogate",
+        raise BuildError(
             "the baseline commitment text no longer carries the substring the "
-            "registered construction edits",
+            "registered construction edits"
         )
     try:
         payload = flow_cell(
@@ -874,7 +1020,9 @@ def holdout_h02(context):
         return ConstructibilityRefusal(
             "h02-objective-lone-surrogate",
             "OpenWorkProof refused to publish a work order whose objective is "
-            "not I-JSON: %s: %s" % (type(error).__name__, error),
+            "not I-JSON",
+            str(error),
+            type(error).__name__,
         )
     return payload
 
@@ -901,8 +1049,9 @@ def holdout_h03(context):
     except Exception as error:
         return ConstructibilityRefusal(
             "h03-duplicate-supported-extension",
-            "the chain could not be rebuilt around a duplicate supported "
-            "extension: %s: %s" % (type(error).__name__, error),
+            "the chain could not be rebuilt around a duplicate supported extension",
+            str(error),
+            type(error).__name__,
         )
 
 
@@ -937,14 +1086,23 @@ def holdout_h05(context):
 
 
 def holdout_h06(context):
-    """h06 — the retained evaluator envelope swapped in from `c10`."""
-    payload = _baseline_payload(context, salt="h06")
+    """h06 — the retained evaluator envelope swapped in from `c10`.
+
+    Same discipline as `h01`: the baseline cell's frozen bytes copied verbatim,
+    with `evaluation.json` replaced by `c10-reject-executed`'s frozen envelope
+    bytes and nothing else touched. No flow, no salt, no re-signing.
+    """
+    payload = frozen_cell_payload("pos-baseline")
+    if payload is None:
+        raise BuildError(
+            "the baseline cell is not built, so there are no baseline bytes to "
+            "copy byte-for-byte"
+        )
     foreign = cell_directory(STUDY / "fixtures", "c10-reject-executed") / "evaluation.json"
     if not foreign.is_file():
-        return ConstructibilityRefusal(
-            "h06-cross-execution-evaluation-artifact",
+        raise BuildError(
             "the registered source cell c10-reject-executed is not built, so its "
-            "evaluator envelope cannot be swapped in",
+            "evaluator envelope cannot be swapped in"
         )
     return dict(payload, **{"evaluation.json": foreign.read_bytes()})
 
@@ -980,7 +1138,9 @@ def holdout_h07(context):
         return ConstructibilityRefusal(
             "h07-self-consistent-wrong-action",
             "the alternate action target could not be executed through the "
-            "upstream patch executor: %s: %s" % (type(error).__name__, error),
+            "upstream patch executor",
+            str(error),
+            type(error).__name__,
         )
 
 
@@ -1027,12 +1187,92 @@ def build_holdout_payloads(jpack_bin, work_root, owp_source, cell_ids=None):
     for cell_id in cell_ids or HOLDOUT_IDS:
         builder = HOLDOUT_BUILDERS.get(cell_id)
         if builder is None:
-            payloads[cell_id] = ConstructibilityRefusal(
-                cell_id, "no holdout builder is registered for this cell"
-            )
-            continue
+            raise BuildError("no holdout builder is registered for %s" % cell_id)
         payloads[cell_id] = builder(context)
     return payloads
+
+
+def build_holdout_records(jpack_bin, work_root, owp_source, cell_ids=None):
+    """Drive every holdout hook and return `(payloads, records)`.
+
+    One record per requested cell, always — `built`, `refused` (upstream said
+    no, verbatim) or `harness-error` (this builder failed, which is a validity
+    problem and never a constructibility finding). A crash in one hook does not
+    stop the others, and a crash building the shared context marks every cell,
+    because in that case nothing was genuinely attempted.
+    """
+    cell_ids = list(cell_ids or HOLDOUT_IDS)
+    digest = builder_version_digest()
+    payloads = {}
+    records = {}
+    try:
+        context = _holdout_context(jpack_bin, work_root, owp_source)
+    except BaseException as error:  # noqa: BLE001 - recorded, then reported
+        for cell_id in cell_ids:
+            records[cell_id] = construction_record(
+                cell_id,
+                "harness-error",
+                harness_error=harness_error_text(error),
+                detail="the shared holdout build context could not be prepared, "
+                "so this construction was never attempted",
+                builder_digest=digest,
+            )
+        return payloads, records
+
+    for cell_id in cell_ids:
+        builder = HOLDOUT_BUILDERS.get(cell_id)
+        if builder is None:
+            records[cell_id] = construction_record(
+                cell_id,
+                "harness-error",
+                harness_error="no holdout builder is registered for this cell",
+                builder_digest=digest,
+            )
+            continue
+        try:
+            outcome = builder(context)
+        except BaseException as error:  # noqa: BLE001 - recorded, then reported
+            # An *uncaught* exception is this harness failing, not upstream
+            # refusing: only a hook that wrapped a known upstream call and kept
+            # its message may return a refusal.
+            records[cell_id] = construction_record(
+                cell_id,
+                "harness-error",
+                harness_error=harness_error_text(error),
+                builder_digest=digest,
+            )
+            continue
+        if isinstance(outcome, ConstructibilityRefusal):
+            records[cell_id] = construction_record(
+                cell_id, "refused", upstream=outcome, builder_digest=digest
+            )
+            continue
+        payloads[cell_id] = outcome
+        records[cell_id] = construction_record(
+            cell_id, "built", builder_digest=digest
+        )
+    return payloads, records
+
+
+def publish_holdout(out_root, cell_ids, payloads, records):
+    """Write every holdout cell directory and its construction record.
+
+    A cell that was not built still gets its directory and its
+    `CONSTRUCTION.json`: the scorer must be able to tell a captured upstream
+    refusal from an unexplained absence, and it cannot do that from the shape of
+    the tree.
+    """
+    for cell_id in cell_ids:
+        directory = holdout_cell_directory(out_root, cell_id)
+        if cell_id in payloads:
+            write_cell(directory, payloads[cell_id])
+        else:
+            # No artifacts, and no stale ones left behind from an earlier run.
+            if directory.is_dir():
+                shutil.rmtree(directory)
+            directory.mkdir(parents=True, exist_ok=True)
+        write_construction_record(directory, records[cell_id])
+    return records
 
 
 def holdout_refusal(pins):
@@ -1046,8 +1286,26 @@ def holdout_refusal(pins):
     return None
 
 
+def construct_holdout(jpack_bin, out_root, owp_source, cell_ids):
+    """Build and publish the holdout stratum; return the per-cell records.
+
+    The one entry point the scorer's post-freeze path calls, so construction and
+    adjudication run under the same attempt machinery rather than in two
+    disconnected commands.
+    """
+    work_root = Path(tempfile.mkdtemp(prefix="study014-holdout-"))
+    try:
+        payloads, records = build_holdout_records(
+            jpack_bin, work_root, owp_source, cell_ids
+        )
+    finally:
+        shutil.rmtree(work_root, ignore_errors=True)
+    publish_holdout(out_root, cell_ids, payloads, records)
+    return records
+
+
 def build_holdout(jpack_bin, out_root, force, owp_source):
-    """Write the holdout cells, reporting every constructibility refusal."""
+    """Write the holdout cells, persisting every construction outcome."""
     registry = json.loads(
         (STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8")
     )
@@ -1062,23 +1320,21 @@ def build_holdout(jpack_bin, out_root, force, owp_source):
             "holdout fixtures already exist under %s; pass --force to rebuild"
             % (Path(out_root) / "holdout")
         )
-    work_root = Path(tempfile.mkdtemp(prefix="study014-holdout-"))
-    try:
-        payloads = build_holdout_payloads(jpack_bin, work_root, owp_source, registered)
-    finally:
-        shutil.rmtree(work_root, ignore_errors=True)
-    refusals = []
-    built = 0
+    records = construct_holdout(jpack_bin, out_root, owp_source, registered)
+    built = [item for item in records.values() if item["status"] == "built"]
+    print(
+        "built %d of %d holdout cells under %s (a CONSTRUCTION.json is written for "
+        "every cell, built or not)" % (len(built), len(registered), out_root)
+    )
     for cell_id in registered:
-        payload = payloads[cell_id]
-        if isinstance(payload, ConstructibilityRefusal):
-            refusals.append(payload.as_record())
-            continue
-        write_cell(holdout_cell_directory(out_root, cell_id), payload)
-        built += 1
-    print("built %d of %d holdout cells under %s" % (built, len(registered), out_root))
-    for record in refusals:
-        print("  constructibility refusal %s: %s" % (record["cell"], record["detail"]))
+        record = records[cell_id]
+        if record["status"] == "refused":
+            print(
+                "  constructibility refusal %s: %s [upstream: %s]"
+                % (cell_id, record["detail"], record["upstreamError"])
+            )
+        elif record["status"] == "harness-error":
+            print("  HARNESS ERROR %s: %s" % (cell_id, record["harnessError"]))
     return 0
 
 

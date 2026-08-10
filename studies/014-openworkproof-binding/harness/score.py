@@ -3,18 +3,26 @@
 Adjudicates every registered cell in `harness/MATRIX.json` by deterministic
 recomputation from frozen fixture bytes, and writes one attempt record:
 
-    ATTEMPT.json         written before PINS.json is even parsed, so an attempt
-                         that dies anywhere is still a recorded attempt
+    ATTEMPT.json         written before PINS.json is even parsed and under every
+                         flag combination, so an attempt that dies anywhere —
+                         including one refused for trying to run the holdout too
+                         early — is still a recorded attempt
     RESULTS.json         per-cell layer outcomes, the registered expectation,
                          divergence flags, the pins stamp, and a validity section
                          kept strictly separate from the detection section
     DETECTION-MATRIX.md  the per-layer table, published in full whichever way it
                          lands (PREREGISTRATION section 10)
+    CONSTRUCTION.json    post-freeze `--include-holdout` only: the per-cell record
+                         of the holdout construction this attempt drove
 
 Every output write is atomic (temporary file in the same directory, then
-`os.replace`), and every step from PINS parsing through provenance hashing, the
-freeze gates, adjudication and publication runs inside one terminal catch, so no
-failure path can leave an attempt without a record.
+`os.replace`), and every step from the holdout refusals and PINS parsing through
+provenance hashing, the freeze gates, holdout construction, adjudication and
+publication runs inside one terminal catch — `SystemExit` and `KeyboardInterrupt`
+included, recorded and then re-raised — so no failure path can leave an attempt
+without a record. The two conditions that cannot record themselves are announced
+on stderr instead: a marker write that fails (nothing else is then attempted) and
+a fallback publication that fails inside the catch.
 
 Decision rule (PREREGISTRATION section 5, ordered and exhaustive):
 
@@ -40,13 +48,19 @@ mismatch is terminal: the attempt is pipeline-invalid and no detection is
 adjudicated. Nothing in the published outputs is a timestamp or an absolute
 path, so two runs of the same frozen tree are byte-identical.
 
-While `PINS.json` carries a null preregistration digest the attempt is labelled
-PILOT and can never be labelled REGISTERED (PREREGISTRATION section 6), and
+While any freeze pin in `PINS.json` is null — preregistration, matrix,
+matrixHoldout, adapterSpec or studyManifest — the attempt is labelled PILOT and
+can never be labelled REGISTERED (PREREGISTRATION section 6), and
 `--include-holdout` is refused mechanically: the reviewer-authored holdout
-stratum may not be executed before the freeze. After the freeze the flag
-adjudicates `harness/MATRIX-HOLDOUT.json` into a **separate** stratum section —
+stratum may not be executed before the freeze. After the freeze the flag makes
+the attempt itself **construct** the holdout stratum (the builder hooks, driven
+in-process, inside this attempt's marker and terminal catch, with a per-cell
+`CONSTRUCTION.json` beside each fixture and in the attempt record) and then
+adjudicate `harness/MATRIX-HOLDOUT.json` into a **separate** stratum section —
 its own gates, its own concordance summary, its own rows — that never touches
-the locked stratum's counts or the R1 verdict.
+the locked stratum's counts or the R1 verdict. A construction that upstream
+refuses is a constructibility finding; a construction that crashes is this
+attempt's terminal record, not a silent rerun.
 
 Run: JPACK_BIN=... python harness/score.py --attempt-root <new directory>
 """
@@ -258,7 +272,28 @@ PINNED_DIGEST_MEMBERS = (
     ("studyManifest", "harness/STUDY-MANIFEST.sha256"),
     ("adapterSpec", "adapter/SPEC.md"),
 )
+# The freeze pins. Every one of them must be non-null for an attempt to carry
+# the REGISTERED label: round 3 found that a null matrix, holdout, SPEC or
+# study-manifest digest was still accepted in a registered run, so a frozen
+# preregistration alone could authorize adjudication over an unpinned registry.
+# A single null makes the attempt a PILOT; the non-null ones are enforced under
+# BOTH labels, which is what `pin_problems` does.
+FREEZE_PIN_MEMBERS = tuple(member for member, _ in PINNED_DIGEST_MEMBERS)
 PACK_PATH = STUDY / "fixtures" / "minimal-expense-approval.pack.json"
+
+
+def unfilled_freeze_pins(pins):
+    """The freeze pins still null, in registry order. Empty means frozen."""
+    return [
+        member
+        for member in FREEZE_PIN_MEMBERS
+        if (pins.get(member) or {}).get("sha256") is None
+    ]
+
+
+def attempt_label(pins):
+    """`REGISTERED` iff every freeze pin is filled; `PILOT` otherwise."""
+    return "PILOT" if unfilled_freeze_pins(pins) else "REGISTERED"
 
 
 def pin_problems(pins, jpack_bin):
@@ -268,9 +303,15 @@ def pin_problems(pins, jpack_bin):
     bytes (the study never fetches the pack, so nothing else would notice a
     substitution) and `openworkproof.installedPackageDigest` (the freeze has to
     be anchored to the package the verification path imports, not to a mutable
-    local-file URL in a `pip freeze` line). `studyManifest.sha256` is the anchor
-    outside the regenerable set: `make_manifest.py` can rewrite the manifest, but
-    after the freeze it cannot rewrite the digest the registry pins it at.
+    local-file URL in a `pip freeze` line).
+
+    The anchor order is linear (round 3): the study manifest covers the code, the
+    protocol documents and the locked stratum's fixture manifests but NOT this
+    registry; this registry pins the manifest's digest; the freeze commit and
+    each attempt's `pinsSha256` stamp anchor this registry. `make_manifest.py`
+    can still rewrite the manifest, but after the freeze it cannot rewrite the
+    digest this registry pins it at, and this registry cannot be edited without
+    changing the digest the freeze commit and every attempt record carry.
     """
     problems = []
 
@@ -616,16 +657,47 @@ def terminal_invalid(attempt_root, label, problems, provenance):
     return results
 
 
+def publish_terminal(attempt_root, label, problems, provenance, suppress=False):
+    """`terminal_invalid`, with the last failure mode reported rather than lost.
+
+    Round 3's terminal-path gap: if the fallback publication itself failed — the
+    atomic write inside the catch — the attempt died silently, which is the exact
+    thing the terminal record exists to prevent. There is nowhere left to write
+    such a failure, so it is announced on stderr together with the problems it
+    would have recorded. `suppress` is for the `SystemExit`/`KeyboardInterrupt`
+    path, where the original termination, not the publication failure, is what
+    must reach the caller.
+    """
+    try:
+        return terminal_invalid(attempt_root, label, problems, provenance)
+    except BaseException as failure:
+        print(
+            "study014: the terminal pipeline-invalid record could not be published "
+            "under %s: %s: %s" % (attempt_root, type(failure).__name__, failure),
+            file=sys.stderr,
+        )
+        print(
+            "study014: the problems it would have recorded were: %s"
+            % ("; ".join(problems) or "(none)"),
+            file=sys.stderr,
+        )
+        if suppress:
+            return None
+        raise
+
+
 # --------------------------------------------------------------------------
 # the attempt
 # --------------------------------------------------------------------------
 
 def preflight_pins():
-    """PINS read for the argument-surface refusals alone, before anything exists.
+    """PINS read for the holdout refusals alone. Unreadable reads as empty.
 
-    A refusal here must not create an attempt directory, so this read is
-    deliberately outside the terminal record: if it fails, `run()` creates the
-    attempt and lets the terminal path record the same failure properly.
+    Round 3 moved this *behind* the attempt marker: it used to run before the
+    attempt directory existed, so a malformed registry under `--include-holdout`
+    exited with no marker and no record at all. The refusals are unchanged; what
+    changed is that they now happen inside an attempt that is already on disk, so
+    a refusal — like every other termination — leaves a terminal record.
     """
     try:
         return json.loads(
@@ -633,6 +705,16 @@ def preflight_pins():
         )
     except Exception:
         return None
+
+
+def marker_text(label, include_holdout):
+    """The attempt marker's bytes. `label` is None until PINS.json parses."""
+    marker = {"study": "014-openworkproof-binding", "stratum": "locked-replication"}
+    if label is not None:
+        marker["attemptLabel"] = label
+    marker["includeHoldout"] = bool(include_holdout)
+    marker["marker"] = "written before any cell ran"
+    return json.dumps(marker, indent=2) + "\n"
 
 
 def holdout_summary(rows):
@@ -682,67 +764,203 @@ def adjudicate_holdout(registry, jpack_bin, work_root, validity):
     return holdout_summary(rows)
 
 
+# --------------------------------------------------------------------------
+# holdout construction, inside the attempt
+# --------------------------------------------------------------------------
+
+CONSTRUCTION_RECORD_NAME = "CONSTRUCTION.json"
+
+
+def read_construction_record(directory):
+    """The persisted per-cell construction record, or None if there is none."""
+    path = Path(directory) / CONSTRUCTION_RECORD_NAME
+    if not path.is_file():
+        return None
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as error:
+        return {
+            "status": "unreadable",
+            "detail": "%s: %s" % (type(error).__name__, error),
+        }
+    if not isinstance(record, dict):
+        return {"status": "unreadable", "detail": "the record is not a JSON object"}
+    return record
+
+
+def construction_problems(cell_id, directory):
+    """Adjudicate a holdout cell's *construction* from its persisted record.
+
+    Returns `(problems, finding)`. `problems is None` means the cell was built
+    and the ordinary per-cell ceremony should run. Otherwise `problems` is the
+    validity text and `finding` is the constructibility finding when — and only
+    when — a genuine attempt captured an upstream refusal verbatim.
+
+    Round 3's rule, in one place: a proven upstream refusal is a finding
+    (PREREGISTRATION section 1a); a harness failure is a validity problem; and an
+    absent fixture with no record at all is a validity problem too, because
+    absence on its own does not say whether the construction was attempted,
+    aborted, or deleted.
+    """
+    record = read_construction_record(directory)
+    if record is None:
+        return (
+            [
+                "holdout fixture carries no construction record: %s is absent, so "
+                "nothing shows whether the registered construction was attempted, "
+                "refused, or never run. Unexplained absence is a validity problem "
+                "and is NOT a constructibility finding" % CONSTRUCTION_RECORD_NAME
+            ],
+            None,
+        )
+    status = record.get("status")
+    if status == "built":
+        return None, None
+    if status == "refused":
+        upstream = record.get("upstreamError")
+        if not isinstance(upstream, str) or not upstream.strip():
+            return (
+                [
+                    "holdout construction record claims an upstream refusal but "
+                    "carries no upstream error: an uncaptured refusal is a validity "
+                    "problem, not a constructibility finding"
+                ],
+                None,
+            )
+        finding = {
+            "cell": cell_id,
+            "finding": "constructibility-refusal",
+            "detail": record.get("detail"),
+            "upstreamError": upstream,
+            "upstreamErrorType": record.get("upstreamErrorType"),
+            "builderVersionDigest": record.get("builderVersionDigest"),
+        }
+        return (
+            [
+                "the registered construction was attempted and upstream refused to "
+                "publish it — a constructibility finding under PREREGISTRATION "
+                "section 1a, NOT-ADJUDICATED and never a detection or a miss. "
+                "Upstream said: %s" % upstream
+            ],
+            finding,
+        )
+    if status == "harness-error":
+        return (
+            [
+                "holdout construction failed inside this harness: %s. That is a "
+                "validity problem, never a constructibility finding"
+                % record.get("harnessError")
+            ],
+            None,
+        )
+    return (
+        [
+            "holdout construction record is not usable (status %r): %s"
+            % (status, record.get("detail"))
+        ],
+        None,
+    )
+
+
+def construct_holdout(attempt_root, registry, pins, jpack_bin):
+    """Build the holdout stratum as part of this attempt, and record every cell.
+
+    Round 3's finding: construction ran in a separate command, so a crash left no
+    attempt-scope trace and could be quietly rerun until it worked. Construction
+    now happens here — inside the attempt marker and inside the terminal catch —
+    and the per-cell records land both beside the fixtures and in the attempt.
+    A crash anywhere in it propagates and becomes this attempt's terminal
+    pipeline-invalid record.
+
+    The pre-freeze guard is repeated here rather than assumed from the caller:
+    the reviewer-authored stratum may not be built while any freeze pin is null.
+    """
+    unfilled = unfilled_freeze_pins(pins)
+    if unfilled:
+        raise PipelineInvalid(
+            "holdout construction is refused while these freeze pins are null: %s"
+            % ", ".join(unfilled)
+        )
+    import build_fixtures  # noqa: E402 - build path, imported only post-freeze
+
+    cell_ids = [cell["id"] for cell in registry["cells"]]
+    records = build_fixtures.construct_holdout(
+        jpack_bin, STUDY / "fixtures", os.environ.get("OWP_SOURCE"), cell_ids
+    )
+    published = {
+        "study": "014-openworkproof-binding",
+        "stratum": "reviewer-holdout",
+        "builderVersionDigest": build_fixtures.builder_version_digest(),
+        "records": [records[cell_id] for cell_id in cell_ids],
+    }
+    atomic_write_text(
+        Path(attempt_root) / CONSTRUCTION_RECORD_NAME,
+        json.dumps(published, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+    )
+    return published
+
+
 def run(attempt_root, include_holdout=False):
     attempt_root = Path(attempt_root)
     if attempt_root.exists():
         raise SystemExit("attempt root already exists: %s" % attempt_root)
 
-    # Argument-surface refusals come first, so a refused invocation creates
-    # nothing at all. Everything after the marker lands in a terminal record.
-    preflight = preflight_pins() or {}
-    if include_holdout:
-        if (preflight.get("preregistration") or {}).get("sha256") is None:
-            raise SystemExit(
-                "--include-holdout is refused: harness/PINS.json carries a null "
-                "preregistration digest, so the preregistration is still DRAFT and "
-                "the reviewer-authored holdout stratum may not be executed"
-            )
-        if (preflight.get("matrixHoldout") or {}).get("sha256") is None:
-            raise SystemExit(
-                "--include-holdout is refused: harness/PINS.json carries a null "
-                "matrixHoldout digest, so the holdout stratum the scorer would "
-                "adjudicate is not the one the freeze pinned"
-            )
-
-    # The attempt marker lands before PINS.json is even parsed, so an attempt
-    # that dies anywhere is still a recorded attempt rather than a silent absence.
-    attempt_root.mkdir(parents=True)
-    atomic_write_text(
-        attempt_root / "ATTEMPT.json",
-        json.dumps(
-            {
-                "study": "014-openworkproof-binding",
-                "stratum": "locked-replication",
-                "includeHoldout": bool(include_holdout),
-                "marker": "written before any cell ran",
-            },
-            indent=2,
+    # The marker lands FIRST — before `PINS.json` is read, under every flag
+    # combination, including `--include-holdout`. Round 3 found that a malformed
+    # registry under that flag exited before anything was written at all, which
+    # is precisely the silent-absence hole the marker exists to close. The
+    # holdout refusals still fire; they now fire inside an attempt that is
+    # already on disk, so a refusal leaves a terminal record like every other
+    # termination.
+    #
+    # A marker-write failure is the one condition with nowhere to record itself.
+    # It is reported on stderr and NOTHING else is attempted.
+    try:
+        attempt_root.mkdir(parents=True)
+        atomic_write_text(
+            attempt_root / "ATTEMPT.json", marker_text(None, include_holdout)
         )
-        + "\n",
-    )
+    except BaseException as error:
+        print(
+            "study014: the attempt marker could not be written under %s: %s: %s"
+            % (attempt_root, type(error).__name__, error),
+            file=sys.stderr,
+        )
+        print(
+            "study014: nothing further was attempted — an attempt that cannot be "
+            "marked is not run",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
 
     label = "PILOT"
     provenance = {}
     try:
+        preflight = preflight_pins() or {}
+        if include_holdout:
+            if (preflight.get("preregistration") or {}).get("sha256") is None:
+                raise SystemExit(
+                    "--include-holdout is refused: harness/PINS.json carries a null "
+                    "preregistration digest, so the preregistration is still DRAFT "
+                    "and the reviewer-authored holdout stratum may not be executed"
+                )
+            if (preflight.get("matrixHoldout") or {}).get("sha256") is None:
+                raise SystemExit(
+                    "--include-holdout is refused: harness/PINS.json carries a null "
+                    "matrixHoldout digest, so the holdout stratum the scorer would "
+                    "adjudicate is not the one the freeze pinned"
+                )
+
         pins_path = STUDY / "harness" / "PINS.json"
         pins = json.loads(pins_path.read_text(encoding="utf-8"))
-        frozen = (pins.get("preregistration") or {}).get("sha256") is not None
-        label = "REGISTERED" if frozen else "PILOT"
+        # REGISTERED requires EVERY freeze pin filled, not the preregistration
+        # digest alone (round 3): a null matrix, holdout, SPEC or study-manifest
+        # digest leaves the registry the attempt adjudicates unpinned.
+        label = attempt_label(pins)
         # The label is only knowable once PINS parses; the marker is rewritten
         # atomically rather than being withheld until then.
         atomic_write_text(
-            attempt_root / "ATTEMPT.json",
-            json.dumps(
-                {
-                    "study": "014-openworkproof-binding",
-                    "stratum": "locked-replication",
-                    "attemptLabel": label,
-                    "includeHoldout": bool(include_holdout),
-                    "marker": "written before any cell ran",
-                },
-                indent=2,
-            )
-            + "\n",
+            attempt_root / "ATTEMPT.json", marker_text(label, include_holdout)
         )
 
         jpack_bin = os.environ.get("JPACK_BIN")
@@ -773,7 +991,7 @@ def run(attempt_root, include_holdout=False):
                 (STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8")
             )
         except Exception as error:
-            return terminal_invalid(
+            return publish_terminal(
                 attempt_root, label, ["matrix is unreadable: %s" % error], provenance
             )
 
@@ -794,7 +1012,17 @@ def run(attempt_root, include_holdout=False):
             else:
                 gate_problems.extend(holdout_problems(holdout_registry))
         if gate_problems:
-            return terminal_invalid(attempt_root, label, gate_problems, provenance)
+            return publish_terminal(attempt_root, label, gate_problems, provenance)
+
+        # Construction runs INSIDE the attempt (round 3): after the freeze gates,
+        # before adjudication, under the marker and the terminal catch. The
+        # freeze anchor survives it because `fixtures/holdout/**` is outside the
+        # study manifest's covered set by construction.
+        construction = None
+        if holdout_registry is not None:
+            construction = construct_holdout(
+                attempt_root, holdout_registry, pins, jpack_bin
+            )
 
         validity = []
         rows = []
@@ -808,7 +1036,7 @@ def run(attempt_root, include_holdout=False):
                     holdout_registry, jpack_bin, work_root, validity
                 )
         except Exception as error:
-            return terminal_invalid(
+            return publish_terminal(
                 attempt_root,
                 label,
                 [item["problem"] for item in validity]
@@ -861,13 +1089,28 @@ def run(attempt_root, include_holdout=False):
         if holdout is not None:
             # A separate section, never merged: the R1 verdict above is computed
             # from the locked rows alone and is not recomputed here.
+            if construction is not None:
+                holdout = dict(holdout, construction=construction["records"])
             results["holdout"] = holdout
         write_outputs(attempt_root, results, rows, holdout)
         return results
-    except (SystemExit, KeyboardInterrupt):
+    except (SystemExit, KeyboardInterrupt) as error:
+        # A refusal, a `--help`-style exit, a Ctrl-C: the attempt still ends with
+        # a record and the original termination still reaches the caller. Round 3
+        # found both of these escaping the catch entirely.
+        publish_terminal(
+            attempt_root,
+            label,
+            [
+                "the attempt terminated before it could publish: %s: %s"
+                % (type(error).__name__, error)
+            ],
+            provenance,
+            suppress=True,
+        )
         raise
     except BaseException as error:
-        return terminal_invalid(
+        return publish_terminal(
             attempt_root,
             label,
             [
@@ -883,10 +1126,14 @@ def adjudicate_cell(cell, jpack_bin, work_root, validity, directory=None, scope=
 
     `directory` and `scope` are the holdout stratum's only difference: its cells
     live under `fixtures/holdout/<id>/` and their validity records are tagged so
-    a holdout problem can never be read as a locked-stratum problem. A holdout
-    fixture directory that does not exist is a **constructibility finding**
-    (PREREGISTRATION §1a) recorded as NOT-ADJUDICATED, never a silent drop and
-    never a detection.
+    a holdout problem can never be read as a locked-stratum problem.
+
+    A holdout cell is adjudicated from its persisted `CONSTRUCTION.json`, not
+    from whether a directory happens to exist (round 3). A captured upstream
+    refusal is a **constructibility finding** (PREREGISTRATION §1a), reported
+    NOT-ADJUDICATED with the upstream error verbatim, and is never a detection or
+    a miss. A harness failure, or an absence with no construction record at all,
+    is a plain validity problem and is never a finding.
     """
     shared = {
         "cell": cell["id"],
@@ -900,15 +1147,17 @@ def adjudicate_cell(cell, jpack_bin, work_root, validity, directory=None, scope=
         shared["stratum"] = scope
     if cell.get("author"):
         shared["author"] = cell["author"]
+    observed = None
+    finding = None
     try:
         directory = cell_directory(cell["id"]) if directory is None else Path(directory)
-        if scope == "holdout" and not directory.is_dir():
-            problems = [
-                "holdout fixture is absent: the registered construction was not "
-                "built, which is a constructibility finding under PREREGISTRATION "
-                "section 1a and NOT-ADJUDICATED — never a silent drop"
-            ]
-            observed = None
+        if scope == "holdout":
+            problems, finding = construction_problems(cell["id"], directory)
+            if problems is None:
+                problems = pipeline_problems(directory, cell)
+                if not problems:
+                    observed = verify.verify_cell(directory, jpack_bin, work_root)
+                    problems = vocabulary_problems(cell["id"], observed)
         else:
             problems = pipeline_problems(directory, cell)
             if not problems:
@@ -917,12 +1166,16 @@ def adjudicate_cell(cell, jpack_bin, work_root, validity, directory=None, scope=
     except Exception as error:
         problems = ["harness raised while verifying: %s: %s" % (type(error).__name__, error)]
         observed = None
+        finding = None
+    if finding is not None:
+        shared["constructibility"] = finding
     if problems:
-        validity.extend(
-            {"scope": cell["id"], "stratum": scope or "locked-replication",
-             "problem": problem}
-            for problem in problems
-        )
+        record = {"scope": cell["id"], "stratum": scope or "locked-replication"}
+        for problem in problems:
+            entry = dict(record, problem=problem)
+            if finding is not None:
+                entry["finding"] = finding["finding"]
+            validity.append(entry)
         return dict(
             shared,
             status=NOT_ADJUDICATED,

@@ -59,10 +59,31 @@ with attribution; `h08` is the holdout's own control gate. Builder hooks for all
 exist in `harness/build_fixtures.py`, unexecuted.
 
 **A holdout construction that upstream refuses to publish is a constructibility finding,
-not a silent drop**: the builder reports the refusal as a record rather than crashing, no
-fixture is written, and the scorer reports that cell **NOT-ADJUDICATED** on the validity
-channel with the constructibility note attached — never a detection, never a miss, and
-never quietly absent from the published stratum.
+not a silent drop** — and nothing else is. Every holdout cell gets a persisted
+`fixtures/holdout/<id>/CONSTRUCTION.json`, written atomically, carrying `{cell, status,
+builderVersionDigest}` with `status` one of:
+
+- `built` — the fixture exists and the cell is adjudicated normally;
+- `refused` — the registered construction was attempted and **upstream** declined; the
+  upstream error is recorded verbatim in `upstreamError`. This, and only this, is a
+  constructibility finding: the cell is **NOT-ADJUDICATED** on the validity channel with the
+  upstream refusal attached, and is never a detection and never a miss;
+- `harness-error` — this harness failed (a crash, or a precondition such as an unbuilt
+  source cell). That is a **validity problem**, never a finding.
+
+A cell whose directory carries no construction record at all — never built, deleted,
+aborted — is also a validity problem, never a finding: absence on its own does not say
+which of those happened. Round 3 found the earlier implementation printing refusal details
+instead of persisting them, calling broad exceptions upstream refusals, and labelling every
+absence a finding; all three are closed by adjudicating from the record instead of from the
+shape of the tree.
+
+**Holdout construction happens inside the attempt.** After the freeze,
+`harness/score.py --include-holdout` drives the builder hooks itself, in-process, after the
+freeze gates and before adjudication — inside the attempt marker and inside the terminal
+catch. The per-cell records are written both beside the fixtures and into the attempt's own
+`CONSTRUCTION.json`. A construction crash is therefore that attempt's terminal
+pipeline-invalid record, not a silent rerun until it works.
 
 **An empty holdout is not a passing holdout**: a round-2 verdict that adopted the round-1
 dispositions without authoring cells there would have left the postdictivity finding open,
@@ -96,16 +117,43 @@ Recorded as a standing limitation, not repaired this round.
   vendored pack bytes always; `openworkproof.installedPackageDigest`, a SHA-256 over the
   installed package's own files as `importlib` resolves them, always; the interpreter
   version exactly; the installed dependency set through `pip freeze` — and verifies
-  `harness/STUDY-MANIFEST.sha256`, an exact-set manifest covering the protocol documents,
-  the pin registry, both matrix strata, every adapter and harness source file (including
-  `harness/owpflow.py`, where the build-time entropy algorithm lives) and every per-cell
-  fixture manifest. It also asserts the frozen cell-id set and the per-cell schema of the
-  loaded matrix, so a reduced registry cannot satisfy zero divergence by shrinking the
-  denominator. Any mismatch is terminal: the attempt is pipeline-invalid and nothing is
-  adjudicated. `studyManifest.sha256` is the anchor **outside** the regenerable set —
-  `harness/make_manifest.py` can rewrite the manifest, but after the freeze it cannot
-  rewrite the digest this registry pins it at, so editing covered code and regenerating no
-  longer satisfies the scorer.
+  `harness/STUDY-MANIFEST.sha256` as an exact set. It also asserts the frozen cell-id set
+  and the per-cell schema of the loaded matrix, so a reduced registry cannot satisfy zero
+  divergence by shrinking the denominator. Any mismatch is terminal: the attempt is
+  pipeline-invalid and nothing is adjudicated.
+- **The freeze anchor is linear, in this order.** Round 2 built it as a cycle — the manifest
+  covered `harness/PINS.json` while `PINS.json` stored that manifest's digest — which would
+  resist laundering but cannot be initialized without finding a SHA-256 fixed point. The
+  order is now:
+
+  1. `harness/STUDY-MANIFEST.sha256` covers the protocol documents, both matrix strata,
+     every adapter and harness source file (including `harness/owpflow.py`, where the
+     build-time entropy algorithm lives), the harness tests, and every per-cell fixture
+     manifest of the locked stratum. It covers neither itself nor `harness/PINS.json`.
+  2. `harness/PINS.json` pins that manifest's digest in `studyManifest.sha256`.
+  3. The freeze commit — together with the `pinsSha256` stamp every attempt record carries
+     — anchors `harness/PINS.json`.
+
+  Each link is fillable in one pass, and after the freeze `harness/make_manifest.py` can
+  still rewrite the manifest but cannot rewrite the digest the registry pins it at, so
+  editing covered code and regenerating no longer satisfies the scorer.
+
+  `fixtures/holdout/**` is likewise **outside** the manifest's exact set, because those
+  fixtures are constructed after the freeze and covering them would make the frozen anchor
+  fail the moment the registered post-freeze path ran. Their integrity travels a different
+  road: the pinned `matrixHoldout.sha256` over the registry that specifies them, the
+  per-cell `MANIFEST.sha256` and `CONSTRUCTION.json` the builder writes beside each one, and
+  the attempt record that publishes both.
+- **`REGISTERED` requires every freeze pin.** An attempt is labelled `REGISTERED` only when
+  all five freeze pins — preregistration, matrix, matrixHoldout, adapterSpec, studyManifest
+  — are non-null. Any null makes it a `PILOT`, whatever else is filled; the non-null ones
+  are enforced under both labels.
+- **`OWP_SOURCE` is pinned, not merely present.** Fixture construction reads upstream test
+  helpers out of the pinned clone. Before importing any of them, `harness/owpflow.py`
+  requires the clone's `HEAD` to equal the pinned commit, its tracked files to be clean
+  (untracked paths are ignored), and each imported helper file to match its digest in
+  `openworkproof.upstreamHelpers.files`. Any failure refuses the build, so "the fixture
+  oracle is upstream's" is a checked claim rather than a path that happens to exist.
 
 ## 3. Baseline scenario (deterministic, no models)
 
@@ -172,19 +220,33 @@ describe, and each refusal is recorded as a protocol finding in its own right:
   work-order deadline and publication requires `occurred_at == clock() <= deadline`.
 - **wrong or extra causal parents** (`f23`, `f25`): publication replays causality and
   demands the exact protocol parent set.
-- **a second execution on one chain** (`d18`): refused three independent ways — publication
-  demands the ledger tip be among the new receipt's parents; causal replay demands the
-  apply-patch parent set be exactly {authorizing grant issuance, latest prior repo_read on
-  that grant}; and causal replay refuses a second allow/succeeded apply-patch outright
-  ("a second active patch is not allowed") absent a full needs_rework → rollback → retry
-  episode. OWP's own single-active-patch rule therefore already bounds a work order to one
-  execution — which is why the surplus-execution attack has to leave the live path, and why
-  `d18` is registered with an OWP-layer refusal rather than an OWP-layer pass. A round-2
-  live-path probe settled the deferred retry question: rollback and `start_retry` publish,
-  but a second `repo_read` fails tip extension, and a second `apply_patch` that does name
-  the retry tip publishes and then fails exact causal replay — the retry route dead-ends
-  too (probe retained in `harness/tests/test_upstream_probes.py`; it widens only the
-  fixture's developer quota so the answer is the protocol's, not the fixture's).
+- **a second execution on one chain** (`d18`): refused, but the refusals are not all of one
+  kind and round 3 corrected which one is terminal.
+
+  *Without* a retry episode, three checks stand in the way: publication demands the ledger
+  tip be among the new receipt's parents; causal replay demands the apply-patch parent set
+  be exactly {authorizing grant issuance, latest prior repo_read on that grant}; and causal
+  replay refuses a second allow/succeeded apply-patch outright ("a second active patch is
+  not allowed"). These are **pre-retry** refusals. The single-active-patch rule is one of
+  them and is not a general bound: `owp.rollback_patch` clears the active patch, and policy
+  then permits a new patch while retrying, so it does not survive the retry route.
+
+  *With* a retry episode, what closes the route is a **contradiction between two upstream
+  requirements**: publication demands the ledger/retry tip be among the new receipt's causal
+  parents, while exact causal replay recomputes the protocol parent set — which excludes
+  that tip. A receipt cannot satisfy both. A round-2 live-path probe drove the route to its
+  end and observed exactly this: rollback and `start_retry` publish; a second `repo_read`
+  cannot be published at all (a read's protocol parent set is its grant issuance alone, so
+  it cannot name the tip); and a second `apply_patch` that does name the retry tip publishes
+  and then fails exact causal replay. The probe is retained in
+  `harness/tests/test_upstream_probes.py` and widens only the fixture's developer quota, so
+  the answer is the protocol's and not the fixture's.
+
+  The consequence is unchanged and is what `d18` registers: no live-path second execution
+  survives verification at this commit, which is why the surplus-execution attack has to
+  leave the live path and why `d18` carries an OWP-layer refusal rather than an OWP-layer
+  pass. What changed is the attribution — the tip/exact-parent contradiction is the terminal
+  mechanism, not the single-active-patch rule.
 
 `e21`, `f23` and `f25` are additionally **relabeled as generic upstream-corruption cells**.
 Round 1 established that they do not reach the mechanisms they are named for: `e21` trips
@@ -295,9 +357,16 @@ Two properties round 1 required, both mechanical:
   own `registeredAbsences` field and from nothing else. They are never inferred from the
   expected verdict, so one registry entry can never both authorize a missing artifact and
   award its detection.
-- **Nothing fails silently.** `ATTEMPT.json` is written before any cell runs, and every
-  failure path — including a crash inside a cell and a crash during finalization —
-  persists a terminal pipeline-invalid `RESULTS.json`.
+- **Nothing fails silently.** `ATTEMPT.json` is written before `harness/PINS.json` is
+  parsed and under **every** flag combination, `--include-holdout` included — so a
+  malformed registry, or a holdout invocation refused for running too early, still leaves a
+  recorded attempt. Every failure path after that marker persists a terminal
+  pipeline-invalid `RESULTS.json`: a crash inside a cell, a crash during holdout
+  construction, a crash during finalization, and `SystemExit`/`KeyboardInterrupt`, which are
+  recorded and then re-raised. The two conditions that have nowhere to record themselves are
+  announced on stderr with a non-zero exit instead: a marker write that fails (after which
+  nothing else is attempted, because an attempt that cannot be marked is not run) and a
+  fallback publication that fails inside the catch.
 
 The exhaustive verdict-code vocabulary lives in `adapter/SPEC.md` §5. Harness tests diff
 the SPEC table against the codes `verify.py` declares and the codes `score.py` classifies,
@@ -322,13 +391,17 @@ registered code can be unreachable prose.
 ## 8. What is enforced, what is recorded, what is not prevented
 
 Enforced by machinery: fixture manifests; the whole-study exact-set manifest, itself
-anchored by `studyManifest.sha256` in the pin registry; every non-null pin
-(prereg/matrix/holdout-matrix/study-manifest/SPEC digests, `jpack` binary digest, vendored
-pack bytes, installed-`openworkproof` package digest, interpreter version, `pip freeze`
-digest); the frozen cell-id set and per-cell schema; the SPEC/code verdict-vocabulary sync,
-the registered `{verdict, code}` pair table **and** per-code reachability tests with
-competing-defect ordering; the holdout refusals (scorer and builder) before the freeze;
-upstream OWP bytes never imported into the repo (package install only); missing
+anchored by `studyManifest.sha256` in the pin registry, which the manifest does not cover;
+every non-null pin (prereg/matrix/holdout-matrix/study-manifest/SPEC digests, `jpack` binary
+digest, vendored pack bytes, installed-`openworkproof` package digest, interpreter version,
+`pip freeze` digest); the `REGISTERED`-requires-every-freeze-pin rule; the pinned
+`OWP_SOURCE` commit, clean tracked tree and per-file helper digests before any upstream
+import; the frozen cell-id set and per-cell schema; the SPEC/code verdict-vocabulary sync,
+the registered `{verdict, code}` pair table, per-code reachability tests, and a
+competing-defect case for every ordered **check site** — the site inventory parsed out of
+`adapter/verify.py` and the site each case fires recorded by line-tracing, not declared;
+the holdout refusals (scorer and builder) before the freeze; per-cell holdout construction
+records; upstream OWP bytes never imported into the repo (package install only); missing
 `OWP_SOURCE` or `JPACK_BIN` failing the determinism tests rather than skipping them.
 
 Recorded, not enforced: the build-time `secrets.token_hex` patch (the single deliberate
