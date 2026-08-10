@@ -36,11 +36,17 @@ The frozen fixture bytes, not this builder, are what the study scores.
 imported, `load_upstream` checks that the clone's HEAD equals
 `PINS.json`'s pinned commit, that its tracked files are clean, that no
 import-capable untracked path sits under the roots this module prepends to
-`sys.path` (round 4), and that every helper file it imports matches its pinned
-digest in `openworkproof.upstreamHelpers.files`. After the import it checks that
-the `openworkproof` the process actually loaded resolves inside the installed
-package directory and still matches `openworkproof.installedPackageDigest`. Any
-failure refuses the build.
+`sys.path` (round 4, widened in round 5 to every suffix the interpreter will
+import — `.pyc`, `.so`, `.pyd` — not `.py` alone), that every helper file it
+imports matches its pinned digest in `openworkproof.upstreamHelpers.files`, and
+that the installed distribution's own location is resolved and cached *before*
+anything is prepended (round 5: `importlib.metadata` searches the live
+`sys.path`). After the import it checks that the `openworkproof` the process
+actually loaded resolves inside the installed package directory and still matches
+`openworkproof.installedPackageDigest`, and that **every** module that appeared
+during the import came from the interpreter's pre-existing search path, the
+installed package, or a pinned helper file (round 5). Any failure refuses the
+build.
 
 Determinism: fixed Ed25519 seeds, fixed clocks, caller-supplied nonces, and — the
 one thing upstream provides no seam for — `secrets.token_hex` patched with a
@@ -50,6 +56,7 @@ counter-derived generator for the duration of a build (recorded in PINS.json).
 import base64
 import copy
 import hashlib
+import importlib.machinery
 import json
 import os
 import shutil
@@ -146,6 +153,31 @@ def _untracked_paths(root):
     return [item for item in output.split("\0") if item]
 
 
+BYTECODE_CACHE_DIRECTORY = "__pycache__"
+
+
+def importable_suffixes():
+    """Every suffix the running interpreter's own import machinery will load.
+
+    `importlib.machinery.all_suffixes()` — source, bytecode and extension-module
+    suffixes together — rather than a hand-written `".py"`. Round 5's finding:
+    the round-4 classifier tested `.py` alone, so a sourceless `openworkproof.pyc`
+    or a compiled `openworkproof.cpython-312-x86_64-linux-gnu.so` dropped under a
+    prepended root imported exactly as well as a `.py` would and was classified
+    as inert. Asking the interpreter that will do the importing keeps the list
+    from drifting away from the machinery it describes.
+    """
+    return tuple(importlib.machinery.all_suffixes())
+
+
+def _under_import_root(relative):
+    parts = relative.strip("/").split("/")
+    return any(
+        parts[: len(import_root.split("/"))] == import_root.split("/")
+        for import_root in IMPORT_ROOTS
+    )
+
+
 def import_shadow_paths(root, untracked):
     """Untracked paths under a prepended import root that Python could import.
 
@@ -155,32 +187,135 @@ def import_shadow_paths(root, untracked):
     Under that root an untracked path is not inert: `tests/openworkproof/` with
     an `__init__.py` is imported in preference to the digest-checked installed
     package and then stays in `sys.modules` for every later verification, and
-    any untracked `*.py` can shadow a module name through the same root
+    any untracked importable file can shadow a module name through the same root
     (namespace packages make the deeper ones reachable too).
 
-    So under an import root the rule inverts: any untracked `*.py`, and any
-    untracked directory carrying an `__init__.py`, is a refusal. Outside those
-    roots untracked stays ignored — this clone's own untracked
-    `build/lib/openworkproof/` is exactly that shape and is exactly why the
-    check is scoped to the roots rather than to the whole tree.
+    So under an import root the rule inverts: any untracked path carrying an
+    importable suffix (round 5: `importable_suffixes()`, so `.pyc` and the
+    `.so`/`.pyd` extension variants count exactly as `.py` does), and any
+    untracked directory carrying an `__init__` of any importable suffix, is a
+    refusal. Outside those roots untracked stays ignored — this clone's own
+    untracked `build/lib/openworkproof/` is exactly that shape and is exactly why
+    the check is scoped to the roots rather than to the whole tree.
+
+    **One named exemption: PEP 3147 bytecode cache entries.** A file inside a
+    `__pycache__/` directory cannot introduce a module name — the interpreter
+    consults `__pycache__/<name>.<tag>.pyc` only when `<name>.py` already exists
+    beside it, and a *sourceless* import must place the `.pyc` at the module's
+    own position, which this classifier refuses. Exempting them is also the only
+    way the rule can hold at all: importing the pinned helpers necessarily writes
+    those caches into the read-only clone, so refusing them would refuse the
+    pinned clone after its own first use. The residual this leaves is narrow and
+    stated rather than hidden: a cache entry whose recorded source metadata
+    matches could be executed in place of the digest-checked source beside it.
     """
     root = Path(root)
+    suffixes = importable_suffixes()
     shadows = []
     for relative in untracked:
-        parts = relative.split("/")
-        if not any(
-            parts[: len(import_root.split("/"))] == import_root.split("/")
-            for import_root in IMPORT_ROOTS
-        ):
+        if not _under_import_root(relative):
             continue
-        path = root / relative
-        if relative.endswith(".py"):
-            shadows.append(relative)
-        elif path.is_dir() and (path / "__init__.py").exists():
+        trimmed = relative.rstrip("/")
+        parts = trimmed.split("/")
+        path = root / trimmed
+        if any(trimmed.endswith(suffix) for suffix in suffixes):
+            if BYTECODE_CACHE_DIRECTORY in parts[:-1]:
+                continue
+            shadows.append(trimmed)
+        elif path.is_dir() and any(
+            (path / ("__init__" + suffix)).exists() for suffix in suffixes
+        ):
             # A symlinked or otherwise directory-shaped untracked entry: git
-            # names it once, so the `*.py` rule above never sees its contents.
-            shadows.append(relative.rstrip("/") + "/")
+            # names it once, so the file rule above never sees its contents.
+            shadows.append(trimmed + "/")
     return sorted(set(shadows))
+
+
+def path_roots(entries):
+    """`sys.path`-style entries as resolved directories; unresolvable ones drop."""
+    roots = set()
+    for entry in entries:
+        try:
+            roots.add(Path(entry or ".").resolve())
+        except Exception:  # pragma: no cover - unresolvable path entry
+            continue
+    return roots
+
+
+def _within(path, roots):
+    return any(path == root or root in path.parents for root in roots)
+
+
+def _module_origins(module):
+    """Every filesystem location a loaded module claims to have come from."""
+    try:
+        origin = getattr(module, "__file__", None)
+    except Exception:  # pragma: no cover - hostile module object
+        origin = None
+    if origin:
+        return [origin]
+    try:
+        search = list(getattr(module, "__path__", []) or [])
+    except Exception:  # pragma: no cover - hostile module object
+        search = []
+    return [str(entry) for entry in search]
+
+
+def imported_module_problems(before, root, admitted_roots, modules=None):
+    """Authenticate every module the helper import added to `sys.modules`.
+
+    Round 5's finding: the round-4 post-import check spoke about `openworkproof`
+    and nothing else, so whatever *else* the prepended roots delivered — a second
+    package, a helper the pins do not cover, a module out of a directory that
+    something appended to `sys.path` on its way past — was never looked at at all.
+
+    The check is a diff of `sys.modules` taken across the import, and it makes
+    two statements about every module that appeared:
+
+      1. its origin sits under a root that was already reachable **before** the
+         prepend (the stdlib, site-packages, this study's own directories), under
+         the installed package directory, or under one of the pinned import
+         roots — and nowhere else. Anything else means the import reached a
+         location this build never authorized;
+      2. if it came out of a pinned import root, it is one of the pinned helper
+         files (`UPSTREAM_HELPER_FILES`). The roots this builder puts on
+         `sys.path` may deliver the five files whose digests are pinned, and not
+         a sixth.
+
+    Empty means every module loaded is accounted for.
+    """
+    modules = sys.modules if modules is None else modules
+    root = Path(root).resolve()
+    import_roots = {(root / import_root).resolve() for import_root in IMPORT_ROOTS}
+    admitted = set(admitted_roots) | import_roots
+    pinned = {(root / name).resolve() for name in UPSTREAM_HELPER_FILES}
+    problems = []
+    for name in sorted(set(modules) - set(before)):
+        module = modules.get(name)
+        if module is None:
+            continue
+        for origin in _module_origins(module):
+            try:
+                path = Path(origin).resolve()
+            except Exception:  # pragma: no cover - unresolvable module origin
+                problems.append(
+                    "the module %s appeared during the helper import with an "
+                    "unresolvable origin %r" % (name, origin)
+                )
+                continue
+            if not _within(path, admitted):
+                problems.append(
+                    "the module %s was imported from %s, which is outside the "
+                    "installed package, the search path this build started with, "
+                    "and the pinned import roots" % (name, path)
+                )
+            elif _within(path, import_roots) and path not in pinned:
+                problems.append(
+                    "the module %s was imported from %s, under a pinned import "
+                    "root but not one of the pinned upstream helper files"
+                    % (name, path)
+                )
+    return problems
 
 
 def loaded_package_problems(pins=None, name="openworkproof"):
@@ -266,7 +401,8 @@ def upstream_problems(root, pins=None):
          are ignored — a build directory beside the checkout changes nothing
          this module reads);
       3. no untracked path under an import root is import-capable (round 4:
-         `import_shadow_paths`, because those roots go on `sys.path`);
+         `import_shadow_paths`, because those roots go on `sys.path`; round 5
+         widened "import-capable" to every suffix the interpreter loads);
       4. every helper file this module imports matches its pinned digest.
 
     Any one of them failing is a refusal, not a warning: the fixture oracle's
@@ -372,9 +508,35 @@ def load_upstream(source=None):
             "the OWP_SOURCE clone is not the pinned one, so no fixture may be "
             "built from it: " + "; ".join(problems)
         )
+
+    import verify  # adapter-side; the installed-distribution locator
+
+    # Round 5: the installed distribution is located and cached BEFORE a single
+    # root reaches `sys.path`. `importlib.metadata.distribution()` searches the
+    # live path, so resolving it afterwards would ask the very path this check
+    # distrusts where the package it authenticates lives.
+    try:
+        installed_root = verify.installed_package_root()
+    except Exception as error:
+        raise FlowError(
+            "the installed openworkproof package could not be located before the "
+            "import roots were prepended, so no fixture may be built: %s" % error
+        )
+
     inserted = [str(root / import_root) for import_root in IMPORT_ROOTS]
+    # Snapshotted before the prepend, both of them: the roots that were already
+    # reachable, and the modules that were already loaded.
+    admitted_roots = path_roots(sys.path) | {installed_root}
+    before_modules = set(sys.modules)
     for entry in inserted:
         sys.path.insert(0, entry)
+
+    def refuse(headline, problems):
+        for entry in inserted:
+            if entry in sys.path:
+                sys.path.remove(entry)
+        raise FlowError(headline + ": " + "; ".join(problems))
+
     # The upstream conftest is loaded by explicit path under a private module
     # name: under pytest the bare name `conftest` already belongs to the harness
     # suite's own conftest, and importing it here would silently pick that up.
@@ -397,13 +559,21 @@ def load_upstream(source=None):
     # is refused here, after the import and before a single fixture byte.
     loaded = loaded_package_problems()
     if loaded:
-        for entry in inserted:
-            if entry in sys.path:
-                sys.path.remove(entry)
-        raise FlowError(
+        refuse(
             "the openworkproof package this build imported is not the pinned "
-            "installed one, so no fixture may be built from it: "
-            + "; ".join(loaded)
+            "installed one, so no fixture may be built from it",
+            loaded,
+        )
+
+    # Round 5: and `openworkproof` is not the only module that loaded. Every
+    # module that appeared while those roots were on `sys.path` has to be
+    # accounted for by where it came from.
+    imported = imported_module_problems(before_modules, root, admitted_roots)
+    if imported:
+        refuse(
+            "the helper import loaded modules this build did not authorize, so "
+            "no fixture may be built from them",
+            imported,
         )
 
     _UPSTREAM.update(

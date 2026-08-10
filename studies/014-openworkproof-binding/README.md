@@ -78,9 +78,10 @@ python -m pytest harness/tests -q
 Both environment variables are required: the tests fail rather than skip without them.
 `OWP_SOURCE` is checked, not just used — the clone's HEAD, its tracked-file cleanliness and
 every helper file the builder imports are pinned in `harness/PINS.json`, and a mismatch
-refuses the build. So does an import-capable untracked path under the roots the builder
-prepends to `sys.path`, or an `openworkproof` that, once imported, is not the installed
-package the pins cover. Toolchain pins (OWP commit + venv, jpack release digests, interpreter,
+refuses the build. So does an untracked path carrying any importable suffix under the roots
+the builder prepends to `sys.path`, an `openworkproof` that, once imported, is not the
+installed package the pins cover, or any other module the import brought in from outside
+that package, the pre-existing search path and the pinned helper files. Toolchain pins (OWP commit + venv, jpack release digests, interpreter,
 dependency freeze) live in the same registry and are enforced by the scorer before it
 adjudicates anything; upstream identity in `upstream/`.
 
@@ -92,9 +93,12 @@ neither itself nor the registry that pins it.
 The registry is stratified: `harness/MATRIX.json` is the locked-replication stratum,
 `harness/MATRIX-HOLDOUT.json` is the reviewer-authored holdout stratum, and
 `--include-holdout` is refused mechanically until the preregistration freezes. It is the
-only route into that stratum. After the freeze the flag makes the attempt construct the
-holdout stratum itself — inside its own `holdout-fixtures/` subtree, with every per-cell
-manifest digest stamped into the attempt record — and record every cell's construction
-outcome, so a refusal is a finding and a crash is a recorded pipeline event.
+only route into that stratum, and the builder's library routes enforce that rather than
+assume it: they require an attempt context the scorer mints after its freeze gates pass.
+After the freeze the flag makes the attempt construct the holdout stratum itself — inside
+its own `holdout-fixtures/` subtree, with every per-cell manifest digest stamped into the
+attempt record, re-hashed after adjudication and compared against those stamps — and record
+every cell's construction outcome, so a refusal is a finding and a crash is a recorded
+pipeline event.
 
 Nothing in this repository claims any JPS conformance.

@@ -883,6 +883,9 @@ def holdout_fixture_digests(attempt_root, cell_ids):
     per-cell `CONSTRUCTION.json` — go into the attempt record, so the attempt
     states which bytes it adjudicated. `None` where the file is absent, which is
     itself a statement: a refused construction has a record and no manifest.
+
+    These are the *pre*-adjudication stamps; `post_adjudication_integrity` hashes
+    the same artifacts again at the end and publishes the comparison (round 5).
     """
     digests = {}
     for cell_id in cell_ids:
@@ -898,6 +901,119 @@ def holdout_fixture_digests(attempt_root, cell_ids):
             ),
         }
     return digests
+
+
+def manifest_stamps(directory):
+    """`{name: sha256}` from a per-cell `MANIFEST.sha256`; empty when absent."""
+    path = Path(directory) / verify.MANIFEST_NAME
+    stamps = {}
+    if not path.is_file():
+        return stamps
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        digest, _, name = line.partition("  ")
+        stamps[name] = digest
+    return stamps
+
+
+def _integrity_entry(cell_id, attempt_root, directory, name, stamped):
+    path = Path(directory) / name
+    final = verify.sha256_file(path) if path.is_file() else None
+    return {
+        "cell": cell_id,
+        "path": (
+            Path(directory).relative_to(Path(attempt_root)).as_posix() + "/" + name
+        ),
+        "stampedSha256": stamped,
+        "finalSha256": final,
+        "match": stamped == final,
+    }
+
+
+def post_adjudication_integrity(attempt_root, fixture_digests):
+    """Re-hash the holdout subtree after adjudication and compare to its stamps.
+
+    Round 5's finding on the round-4 closure: the attempt-local subtree is bound
+    to the attempt by digests taken *before* adjudication, and ordinary writable
+    files can be atomically replaced — or whole cell directories removed — while
+    the attempt is still running. Sampling a hash and never looking again means
+    the published record says which bytes were adjudicated only if nothing moved.
+
+    So every stamped artifact is hashed once more at the end and compared:
+
+      * the per-cell `MANIFEST.sha256` and `CONSTRUCTION.json`, against the
+        digests stamped into the attempt record by `holdout_fixture_digests`;
+      * every file the per-cell manifest lists, against its manifest line (which
+        is itself under the manifest digest above, so the chain is closed);
+      * any file present in a cell directory that no stamp covers, which is
+        recorded as an unstamped arrival rather than passed over.
+
+    A `None` stamp compared with an absent file matches: a refused construction
+    has a record and no manifest, and it must keep having none.
+    """
+    files = []
+    for cell_id in sorted(fixture_digests or {}):
+        stamps = fixture_digests[cell_id] or {}
+        directory = holdout_cell_directory(attempt_root, cell_id)
+        stamped_names = {verify.MANIFEST_NAME, CONSTRUCTION_RECORD_NAME}
+        for member, name in (
+            ("manifestSha256", verify.MANIFEST_NAME),
+            ("constructionSha256", CONSTRUCTION_RECORD_NAME),
+        ):
+            files.append(
+                _integrity_entry(
+                    cell_id, attempt_root, directory, name, stamps.get(member)
+                )
+            )
+        for name, digest in sorted(manifest_stamps(directory).items()):
+            stamped_names.add(name)
+            files.append(
+                _integrity_entry(cell_id, attempt_root, directory, name, digest)
+            )
+        present = (
+            sorted(item.name for item in Path(directory).iterdir() if item.is_file())
+            if Path(directory).is_dir()
+            else []
+        )
+        for name in present:
+            if name in stamped_names:
+                continue
+            files.append(_integrity_entry(cell_id, attempt_root, directory, name, None))
+    mismatched = [entry for entry in files if not entry["match"]]
+    problems = [
+        "holdout fixture drifted after adjudication: %s was stamped %s and now "
+        "hashes %s" % (entry["path"], entry["stampedSha256"], entry["finalSha256"])
+        for entry in mismatched
+    ]
+    return {
+        "checked": len(files),
+        "intact": not mismatched,
+        "files": files,
+        "mismatches": [entry["path"] for entry in mismatched],
+        "problems": problems,
+    }
+
+
+def attach_post_adjudication_integrity(attempt_root, construction, holdout, validity):
+    """Publish the re-hash comparison and make any drift a validity problem."""
+    integrity = post_adjudication_integrity(
+        attempt_root, (construction or {}).get("fixtureDigests") or {}
+    )
+    for problem in integrity["problems"]:
+        validity.append(
+            {
+                "scope": HOLDOUT_FIXTURE_DIRECTORY,
+                "stratum": "holdout",
+                "problem": problem,
+            }
+        )
+    holdout = dict(holdout, postAdjudicationIntegrity=integrity)
+    if not integrity["intact"]:
+        # The locked-stratum verdict is never recomputed from holdout state; what
+        # drift voids is the holdout stratum's own conclusion.
+        holdout["summary"] = "holdout inconclusive — fixtures drifted after adjudication"
+    return holdout
 
 
 def construct_holdout(attempt_root, registry, pins, jpack_bin):
@@ -928,8 +1044,21 @@ def construct_holdout(attempt_root, registry, pins, jpack_bin):
         )
     import build_fixtures  # noqa: E402 - build path, imported only post-freeze
 
+    # Round 5: the builder's holdout routes are gated on this object, and this is
+    # the only place in the study that constructs one. It is minted *after* the
+    # freeze-pin check above, and it carries the live digests of the three
+    # documents that decide whether a holdout construction is lawful, so a route
+    # called from anywhere else — a script, a test, a future helper — refuses
+    # instead of quietly building the reviewer's stratum.
+    attempt = build_fixtures.HoldoutAttemptContext(
+        attempt_root=Path(attempt_root),
+        pins_sha256=verify.sha256_file(STUDY / "harness" / "PINS.json"),
+        prereg_sha256=verify.sha256_file(STUDY / "PREREGISTRATION.md"),
+        holdout_sha256=verify.sha256_file(STUDY / "harness" / "MATRIX-HOLDOUT.json"),
+    )
     cell_ids = [cell["id"] for cell in registry["cells"]]
     records = build_fixtures.construct_holdout(
+        attempt,
         jpack_bin,
         holdout_fixture_root(attempt_root),
         os.environ.get("OWP_SOURCE"),
@@ -1086,6 +1215,12 @@ def run(attempt_root, include_holdout=False):
                 holdout = adjudicate_holdout(
                     attempt_root, holdout_registry, jpack_bin, work_root, validity
                 )
+                if construction is not None:
+                    # Round 5: the stamps were taken before adjudication, so the
+                    # subtree is hashed again now and the comparison published.
+                    holdout = attach_post_adjudication_integrity(
+                        attempt_root, construction, holdout, validity
+                    )
         except Exception as error:
             return publish_terminal(
                 attempt_root,

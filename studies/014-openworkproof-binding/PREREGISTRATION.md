@@ -76,6 +76,29 @@ pinned `matrixHoldout.sha256` over the registry that specifies the cells; the pe
 stamped into that attempt's `RESULTS.json` (`holdout.fixtureDigests`) and its
 `CONSTRUCTION.json`; and the attempt record itself, which is what publishes both.
 
+**Attempt-local is not the same as immutable, so the stamps are checked again** (round 5).
+The digests above are taken before adjudication, and an ordinary writable file can be
+replaced — or a whole cell directory removed — while the attempt is still running. After
+holdout adjudication the attempt therefore re-hashes every stamped artifact and publishes
+the comparison at `holdout.postAdjudicationIntegrity` as `{cell, path, stampedSha256,
+finalSha256, match}` per file: the per-cell `MANIFEST.sha256` and `CONSTRUCTION.json`
+against the stamps in the attempt record, every file the manifest lists against its
+manifest line, and any unstamped file that has appeared in a cell directory. A mismatch is
+a **validity problem on the attempt** and makes the holdout stratum's own summary
+inconclusive; it never touches the locked stratum's R1 verdict.
+
+**Holdout construction is reachable only from the scorer, and that is enforced rather than
+asserted** (round 5). Round 4 removed the `--holdout` command, which left the builder's
+library routes — `construct_holdout`, `build_holdout_records`, `build_holdout_payloads` —
+callable by anything that could import the module. Each of them now requires a
+`HoldoutAttemptContext`: an immutable object minted only inside `score.construct_holdout`,
+only after that function's freeze-pin check passes, carrying the attempt root and the live
+digests of `harness/PINS.json`, `PREREGISTRATION.md` and `harness/MATRIX-HOLDOUT.json`. The
+routes re-derive those digests from disk and compare them against the registry's own pins,
+and `construct_holdout` additionally requires its output root to sit inside the attempt the
+context names. Called with no context, with the wrong type, or with a forged one, they
+refuse before a hook is looked up.
+
 **A holdout construction that upstream refuses to publish is a constructibility finding,
 not a silent drop** — and nothing else is. Every holdout cell gets a persisted
 `<attempt>/holdout-fixtures/<id>/CONSTRUCTION.json`, written atomically, carrying `{cell,
@@ -88,7 +111,13 @@ status, builderVersionDigest}` with `status` one of:
   traceback frame — where the raise happened — must resolve inside the installed package's
   directory. The upstream error is recorded verbatim in `upstreamError`. This, and only
   this, is a constructibility finding: the cell is **NOT-ADJUDICATED** on the validity
-  channel with the upstream refusal attached, and is never a detection and never a miss;
+  channel with the upstream refusal attached, and is never a detection and never a miss.
+  Round 5: **every** hook that can reach the installed package routes its exceptions
+  through that one classifier. Six of the eight drive the upstream flow (`h02`–`h05`,
+  `h07`, `h08`) and all six now catch, classify and re-raise what the classifier declines;
+  `h01` and `h06` are byte copies of frozen fixture bytes, never enter the package, and are
+  exempt for that stated reason. An AST test derives the two sets rather than listing them,
+  so a hook that starts calling the flow cannot keep the exemption;
 - `harness-error` — this harness failed (a crash, a precondition such as an unbuilt source
   cell, or any exception that fails either half of the test above — a helper-pin failure, a
   temporary-file error, a JSON or patch-generation bug). That is a **validity problem**,
@@ -184,15 +213,32 @@ Recorded as a standing limitation, not repaired this round.
 
   Untracked paths are ignored **except under the roots the builder prepends to `sys.path`**
   (round 4). `<clone>/tests` goes on `sys.path` for the helper import, so an untracked
-  `tests/openworkproof/` package — or any untracked `*.py` under that root — would be
-  imported in preference to the digest-checked installed package and would then stay in
+  `tests/openworkproof/` package — or any untracked importable file under that root — would
+  be imported in preference to the digest-checked installed package and would then stay in
   `sys.modules` for every later verification. Any such path refuses the build; untracked
   paths elsewhere stay ignored (this clone's own untracked `build/lib/openworkproof/` is
-  exactly that shape, and is never on `sys.path`). After the helper import the builder
-  additionally requires that the loaded `openworkproof` module resolve inside the installed
-  distribution's package directory — located through the distribution metadata, not through
-  `sys.path` — and that the directory still match `openworkproof.installedPackageDigest`.
-  The scorer enforces the same pin before it adjudicates, from the same implementation.
+  exactly that shape, and is never on `sys.path`).
+
+  Round 5 closed three gaps in that check. **"Importable" is the interpreter's own list**
+  (`importlib.machinery.all_suffixes()`), so a sourceless `.pyc` or a compiled `.so`/`.pyd`
+  counts exactly as a `.py` does, for files and for the `__init__` that makes a directory a
+  package. The one exemption is a PEP 3147 bytecode cache entry under `__pycache__/`, which
+  cannot introduce a module name (the interpreter reads it only beside an existing source)
+  and which importing the pinned helpers necessarily writes into the clone; the residual —
+  a cache entry executed in place of the digest-checked source beside it — is stated here
+  rather than claimed closed. **The installed distribution is located before anything is
+  prepended**: `importlib.metadata` searches the live `sys.path`, so the location is
+  resolved and cached first and every later check reads a value no prepended root could
+  have influenced. And **the post-import check covers every module, not `openworkproof`
+  alone**: `sys.modules` is diffed across the import, and each module that appeared must
+  resolve under the search path the build started with, under the installed package
+  directory, or — if it came out of a pinned import root — must be one of the pinned helper
+  files. Anything else refuses the build.
+
+  After the helper import the builder still requires that the loaded `openworkproof` module
+  resolve inside the installed distribution's package directory and that the directory match
+  `openworkproof.installedPackageDigest`. The scorer enforces the same pin before it
+  adjudicates, from the same implementation.
 
 ## 3. Baseline scenario (deterministic, no models)
 

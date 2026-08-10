@@ -106,3 +106,19 @@ accepted, conditional on the five findings below.
 | R4-5 | MAJOR | **Accepted.** | Construction catches `Exception` only; `SystemExit`/`KeyboardInterrupt` propagate to the scorer's terminal-record-and-reraise path. |
 
 Round 5 asks: confirm these five closures and re-issue a verdict.
+
+## Round 5 — 2026-08-10
+
+Reviewer: codex-cli 0.145.0 / gpt-5.6-sol / reasoning effort ultra / read-only sandbox.
+Verdict: **freezable after listed fixes**. Verbatim record: `reviews/round-5/PROMPT.md`,
+`reviews/round-5/REVIEW.md`. R4-4/-5 RESOLVED; R4-1/-2/-3 PARTIALLY RESOLVED via four
+new findings. Holdout stratum tree-verified byte-identical and unexecuted again.
+
+| # | Sev | Disposition | Action |
+|---|---|---|---|
+| R5-1 | MAJOR | **Accepted.** | The shadow classifier also refuses untracked `.so`/`.pyd`/`.pyc` (and any importable suffix) under import roots; the installed distribution is resolved and cached **before** any `sys.path` modification; the post-import check authenticates every module newly imported from the prepended roots (its origin must sit under the pinned import root), not only `openworkproof`. |
+| R5-2 | MAJOR | **Accepted.** | The holdout library routes themselves are gated: `construct_holdout`/`build_holdout_records`/`build_holdout_payloads` require an attempt-context object that only the scorer constructs after its freeze gates (carrying the attempt root and the verified pin digests); called without it, they refuse. The exclusivity test asserts the refusal, not callability. |
+| R5-3 | MINOR | **Accepted.** | After holdout adjudication the attempt re-hashes every stamped fixture and construction record and records the comparison in the results; drift between stamp and final hash is a validity problem on the attempt. |
+| R5-4 | MAJOR | **Accepted.** | Every flow-calling hook (h04/h05/h07/h08 alike) routes exceptions through the same upstream-frame refusal predicate; an AST test asserts no flow-calling hook bypasses it. |
+
+Round 6 asks: confirm these four closures and re-issue a verdict.

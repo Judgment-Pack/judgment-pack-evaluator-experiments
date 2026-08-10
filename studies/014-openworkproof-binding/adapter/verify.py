@@ -174,21 +174,40 @@ def sha256_file(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+_INSTALLED_PACKAGE_ROOTS = {}
+
+
 def installed_package_root(name="openworkproof"):
     """The installed distribution's package directory, resolved from metadata.
 
     Deliberately **not** `importlib.util.find_spec`: that resolves through
     `sys.path`, so a directory prepended to it could answer for the very package
     the caller is trying to authenticate. The installed distribution's own
-    metadata is independent of `sys.path` order, which is what makes this usable
-    as the reference point for "did we import the installed package?".
+    metadata is independent of `sys.path` *order*, which is what makes this
+    usable as the reference point for "did we import the installed package?".
+
+    Round 5's finding: independent of order is not independent of *membership*.
+    `importlib.metadata.distribution()` searches the live `sys.path` for a
+    `.dist-info`, so asking it after `<OWP_SOURCE>/tests` has been prepended asks
+    the very path under suspicion where the package it is authenticating lives —
+    an untracked `openworkproof-1.1.1.dist-info` under that root would answer.
+    The first successful resolution is therefore cached here, and the builder
+    calls this **before** it prepends anything (`owpflow.load_upstream`), so
+    every later caller — the post-import check, the refusal-frame test —
+    reads a location that no prepended root could have influenced. Only a
+    successful resolution is cached; a failure is retried.
     """
+    cached = _INSTALLED_PACKAGE_ROOTS.get(name)
+    if cached is not None:
+        return cached
+
     import importlib.metadata
 
     distribution = importlib.metadata.distribution(name)
     root = Path(distribution.locate_file(name)).resolve()
     if not root.is_dir():
         raise RuntimeError("the installed %s package directory is not readable" % name)
+    _INSTALLED_PACKAGE_ROOTS[name] = root
     return root
 
 

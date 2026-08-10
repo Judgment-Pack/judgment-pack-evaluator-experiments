@@ -1,0 +1,1748 @@
+{
+  "study": "014-openworkproof-binding",
+  "stratum": "locked-replication",
+  "attemptLabel": "PILOT",
+  "verdict": "R1 holds",
+  "matrixVersion": "2",
+  "provenance": {
+    "pinsSha256": "042779b4cf0a8e630a57f6307b4790a9f952630f1ba8ceeb893d693da0172846",
+    "matrixSha256": "35ecf3e3a008e972a056b77d6e36950c89d6f3c2ea66e537cde8b662e97ebb20",
+    "matrixHoldoutSha256": "3668d677d2a5a5416378ece95d42cf0dac1fbc575e4b306e13f00fd75fda6ebd",
+    "specSha256": "42ae35d65b5e0680a75aee27aa4410e9872705365333531dcf8872a5fcf50945",
+    "preregistrationSha256": "26800222f78a53569db96fd5964cfbc99dcc2aa17375c020ccd6d2e75b92289c",
+    "studyManifestSha256": "e7567a6c700f8b4c8f3362b1bc3c87aa579de810af8458418e72e4aaea08dc22",
+    "installedPackageDigest": "913001cdd440dbc74695b4bf5a85701cd003f22e51f675d234be78494a8c6458",
+    "jpackSha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "harnessPython": "3.12.11"
+  },
+  "validity": {
+    "pipelineInvalidCells": [],
+    "controlGateFailures": [],
+    "records": []
+  },
+  "detection": {
+    "cells": 39,
+    "adjudicated": 39,
+    "endpointCells": 32,
+    "endpointDivergentCells": [],
+    "divergentCells": [],
+    "rows": [
+      {
+        "cell": "pos-baseline",
+        "category": "control-positive",
+        "role": "control-gate",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "baseline",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "pass"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-signature",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "neg-signature",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: acceptance signature does not match the bound Acceptor",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-evidence-digest",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "neg-evidence-digest",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-parent-ref",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "neg-parent-ref",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-action-param",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "neg-action-param",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "ValidationError: 1 validation error for tagged-union[function-after[_validate_issuance(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantIssuedReceipt]]],function-after[_validate_consumption(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantConsumedReceipt]]],function-after[_validate_revocation(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantRevokedReceipt]]],function-after[_validate_tool_call(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), ToolCallReceipt]]],function-after[_validate_system_event(), function-after[_validate_envelope(), SystemEventReceipt]],function-after[_validate_request(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), ApprovalRequestedReceipt]]],function-after[_validate_approval(), function-after[_validate_human_claim(), function-after[_validate_envelope(), ApprovalDecisionReceipt]]],function-after[_validate_termination(), function-after[_validate_human_claim(), function-after[_validate_envelope(), TerminationDecisionReceipt]]],function-after[_validate_rollback(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), RollbackReceipt]]]]\ntool_call\n  Value error, Agent semantic arguments do not match branch [type=value_error, input_value={'digest': '011baa38b87e9...e, 'error_code': None}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a01-pack-bytes-drift",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "a01-pack-bytes-drift",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "pack-digest-mismatch",
+            "detail": "retained pack bytes are not the committed pack",
+            "outcome": "fail:pack-digest-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a02-pack-version-substitution",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "a02-pack-version-substitution",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "pack-digest-mismatch",
+            "detail": "retained pack bytes are not the committed pack",
+            "outcome": "fail:pack-digest-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a03-pack-substitution-compatible",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "a03-pack-substitution-compatible",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "pack-digest-mismatch",
+            "detail": "retained pack bytes are not the committed pack",
+            "outcome": "fail:pack-digest-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a04-commitment-packdigest-tampered",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "fail:binding-point-divergence",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "a04-commitment-packdigest-tampered",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "binding-point-divergence",
+            "detail": "retained commitment document is not the objective commitment",
+            "outcome": "fail:binding-point-divergence"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "fail:binding-point-divergence",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a04-commitment-packdigest-resigned",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "a04-commitment-packdigest-resigned",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "pack-digest-mismatch",
+            "detail": "retained pack bytes are not the committed pack",
+            "outcome": "fail:pack-digest-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a05-pack-artifact-missing",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:pack-artifact-missing",
+          "replay": "unavailable",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "a05-pack-artifact-missing",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "pack-artifact-missing",
+            "detail": "retained pack bytes are absent",
+            "outcome": "fail:pack-artifact-missing"
+          },
+          "replay": {
+            "verdict": "unavailable",
+            "code": "replay-unavailable",
+            "detail": "retained pack or facts bytes are absent",
+            "outcome": "unavailable"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:pack-artifact-missing",
+          "replay": "unavailable",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b06-fact-edit-same-disposition",
+        "category": "B-facts",
+        "role": "endpoint",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:facts-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "b06-fact-edit-same-disposition",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "facts-digest-mismatch",
+            "detail": "retained facts bytes are not the committed facts",
+            "outcome": "fail:facts-digest-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:facts-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b07-facts-doc-substituted",
+        "category": "B-facts",
+        "role": "endpoint",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:facts-digest-mismatch",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "b07-facts-doc-substituted",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "facts-digest-mismatch",
+            "detail": "retained facts bytes are not the committed facts",
+            "outcome": "fail:facts-digest-mismatch"
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-disposition-mismatch",
+            "detail": "recomputed disposition is not the committed disposition",
+            "outcome": "fail:replay-disposition-mismatch"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:facts-digest-mismatch",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b08-same-disposition-different-facts",
+        "category": "B-facts",
+        "role": "endpoint",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:facts-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "b08-same-disposition-different-facts",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "facts-digest-mismatch",
+            "detail": "retained facts bytes are not the committed facts",
+            "outcome": "fail:facts-digest-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:facts-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b09-factsdigest-field-wrong",
+        "category": "B-facts",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:facts-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "b09-factsdigest-field-wrong",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "facts-digest-mismatch",
+            "detail": "retained facts bytes are not the committed facts",
+            "outcome": "fail:facts-digest-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:facts-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "c10-reject-executed",
+        "category": "C-disposition",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "c10-reject-executed",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "the section 4 map does not authorize the executed action",
+            "outcome": "fail:action-map-violation"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "c11-unresolved-executed",
+        "category": "C-disposition",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "c11-unresolved-executed",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "the section 4 map does not authorize the executed action",
+            "outcome": "fail:action-map-violation"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "c12-handoff-requested-executed",
+        "category": "C-disposition",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "c12-handoff-requested-executed",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "the section 4 map does not authorize the executed action",
+            "outcome": "fail:action-map-violation"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "c13-outcome-forged",
+        "category": "C-disposition",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "c13-outcome-forged",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-disposition-mismatch",
+            "detail": "recomputed disposition is not the committed disposition",
+            "outcome": "fail:replay-disposition-mismatch"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "c14-reasons-forged",
+        "category": "C-disposition",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "c14-reasons-forged",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "commitment authorizes no action yet the chain carries 1 action-class receipt(s)",
+            "outcome": "fail:action-map-violation"
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-disposition-mismatch",
+            "detail": "recomputed disposition is not the committed disposition",
+            "outcome": "fail:replay-disposition-mismatch"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "c15-manual-review-unbound-execution",
+        "category": "C-disposition",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "c15-manual-review-unbound-execution",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "commitment authorizes no action yet the chain carries 1 action-class receipt(s)",
+            "outcome": "fail:action-map-violation"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d15-tool-tampered",
+        "category": "D-action",
+        "role": "endpoint",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "fail:action-tool-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "d15-tool-tampered",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "ValidationError: 1 validation error for tagged-union[function-after[_validate_issuance(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantIssuedReceipt]]],function-after[_validate_consumption(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantConsumedReceipt]]],function-after[_validate_revocation(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantRevokedReceipt]]],function-after[_validate_tool_call(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), ToolCallReceipt]]],function-after[_validate_system_event(), function-after[_validate_envelope(), SystemEventReceipt]],function-after[_validate_request(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), ApprovalRequestedReceipt]]],function-after[_validate_approval(), function-after[_validate_human_claim(), function-after[_validate_envelope(), ApprovalDecisionReceipt]]],function-after[_validate_termination(), function-after[_validate_human_claim(), function-after[_validate_envelope(), TerminationDecisionReceipt]]],function-after[_validate_rollback(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), RollbackReceipt]]]]\ntool_call\n  Value error, Agent claim Grant or tool does not match branch [type=value_error, input_value={'digest': '011baa38b87e9...e, 'error_code': None}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-tool-mismatch",
+            "detail": "the commitment digest is bound to a 'owp.repo_read' receipt, not the committed 'owp.apply_patch'",
+            "outcome": "fail:action-tool-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "fail:action-tool-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d15-tool-resigned",
+        "category": "D-action",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:action-tool-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "d15-tool-resigned",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-tool-mismatch",
+            "detail": "the commitment digest is bound to a 'owp.repo_read' receipt, not the committed 'owp.apply_patch'",
+            "outcome": "fail:action-tool-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:action-tool-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d16-argument-tampered",
+        "category": "D-action",
+        "role": "endpoint",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "d16-argument-tampered",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d16-argument-resigned",
+        "category": "D-action",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:action-arguments-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "d16-argument-resigned",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-arguments-mismatch",
+            "detail": "executed arguments are not the committed arguments",
+            "outcome": "fail:action-arguments-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:action-arguments-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d17-amount-tampered",
+        "category": "D-action",
+        "role": "endpoint",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "d17-amount-tampered",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d17-amount-resigned",
+        "category": "D-action",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:action-arguments-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "d17-amount-resigned",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-arguments-mismatch",
+            "detail": "executed arguments are not the committed arguments",
+            "outcome": "fail:action-arguments-mismatch"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:action-arguments-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d18-approve-extra-execution",
+        "category": "D-action",
+        "role": "endpoint",
+        "attackerCapability": "selective-keys",
+        "expected": {
+          "owp": "fail",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "d18-approve-extra-execution",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "ValidationError: 1 validation error for tagged-union[function-after[_validate_issuance(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantIssuedReceipt]]],function-after[_validate_consumption(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantConsumedReceipt]]],function-after[_validate_revocation(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), GrantRevokedReceipt]]],function-after[_validate_tool_call(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), ToolCallReceipt]]],function-after[_validate_system_event(), function-after[_validate_envelope(), SystemEventReceipt]],function-after[_validate_request(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), ApprovalRequestedReceipt]]],function-after[_validate_approval(), function-after[_validate_human_claim(), function-after[_validate_envelope(), ApprovalDecisionReceipt]]],function-after[_validate_termination(), function-after[_validate_human_claim(), function-after[_validate_envelope(), TerminationDecisionReceipt]]],function-after[_validate_rollback(), function-after[_validate_agent_claim(), function-after[_validate_envelope(), RollbackReceipt]]]]\ntool_call\n  Value error, outer Agent receipt does not match nested claim [type=value_error, input_value={'signature_alg': 'Ed2551...dEPe09gkaHC2b-ab0fEuAQ'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "commitment authorizes one action yet the chain carries 2 action-class receipts",
+            "outcome": "fail:action-map-violation"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "e19-decision-rebound",
+        "category": "E-replay-drift",
+        "role": "endpoint",
+        "attackerCapability": "selective-keys",
+        "expected": {
+          "owp": "fail",
+          "binding": "fail:commitment-objective-missing",
+          "replay": "unavailable",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "e19-decision-rebound",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "commitment-objective-missing",
+            "detail": "commitment does not parse as JSON",
+            "outcome": "fail:commitment-objective-missing"
+          },
+          "replay": {
+            "verdict": "unavailable",
+            "code": "replay-unavailable",
+            "detail": "no conforming commitment at the signed binding point",
+            "outcome": "unavailable"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "fail:commitment-objective-missing",
+          "replay": "unavailable",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "e20-execution-point-divergence",
+        "category": "E-replay-drift",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:binding-point-divergence",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "e20-execution-point-divergence",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "binding-point-divergence",
+            "detail": "the executing request does not carry the commitment digest",
+            "outcome": "fail:binding-point-divergence"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:binding-point-divergence",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "e21-outside-window",
+        "category": "E-replay-drift",
+        "role": "endpoint",
+        "attackerCapability": "selective-keys",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "e21-outside-window",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "e22-workorder-rollback",
+        "category": "E-replay-drift",
+        "role": "descriptive",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "registeredUndetected": true,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "e22-workorder-rollback",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "pass"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "e23-executable-digest-forged",
+        "category": "E-replay-drift",
+        "role": "endpoint",
+        "attackerCapability": "full-keys",
+        "expected": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-executable-mismatch",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "e23-executable-digest-forged",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-executable-mismatch",
+            "detail": "executable digest is not the recorded one",
+            "outcome": "fail:replay-executable-mismatch"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-executable-mismatch",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "f23-wrong-parent-decision",
+        "category": "F-causal-chain",
+        "role": "endpoint",
+        "attackerCapability": "selective-keys",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "f23-wrong-parent-decision",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "f24-parent-receipt-removed",
+        "category": "F-causal-chain",
+        "role": "endpoint",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "f24-parent-receipt-removed",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "f25-extra-parent-inserted",
+        "category": "F-causal-chain",
+        "role": "endpoint",
+        "attackerCapability": "selective-keys",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "f25-extra-parent-inserted",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "f26-cross-execution-receipt",
+        "category": "F-causal-chain",
+        "role": "endpoint",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "f26-cross-execution-receipt",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "f27-cross-execution-evidence",
+        "category": "F-causal-chain",
+        "role": "endpoint",
+        "attackerCapability": "tamper",
+        "expected": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "f27-cross-execution-evidence",
+          "owp": {
+            "verdict": "fail",
+            "code": null,
+            "detail": "AcceptanceTransactionError: offline composition bundle failed verification",
+            "outcome": "fail"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "fail",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "m28-unsigned-metadata-carriage",
+        "category": "M-control-demonstration",
+        "role": "demonstration",
+        "attackerCapability": "none",
+        "expected": {
+          "owp": "pass",
+          "binding": "fail:commitment-objective-missing",
+          "replay": "unavailable",
+          "combined": "fail"
+        },
+        "registeredUndetected": false,
+        "status": "adjudicated",
+        "observed": {
+          "cell": "m28-unsigned-metadata-carriage",
+          "owp": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "outcome": "pass"
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "commitment-objective-missing",
+            "detail": "commitment does not parse as JSON",
+            "outcome": "fail:commitment-objective-missing"
+          },
+          "replay": {
+            "verdict": "unavailable",
+            "code": "replay-unavailable",
+            "detail": "no conforming commitment at the signed binding point",
+            "outcome": "unavailable"
+          },
+          "combined": "fail"
+        },
+        "observedOutcomes": {
+          "owp": "pass",
+          "binding": "fail:commitment-objective-missing",
+          "replay": "unavailable",
+          "combined": "fail"
+        },
+        "divergences": [],
+        "problems": []
+      }
+    ]
+  }
+}

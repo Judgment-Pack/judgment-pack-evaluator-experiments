@@ -12,6 +12,8 @@ Nothing here skips: a missing `JPACK_BIN` or `OWP_SOURCE` is a failure.
 Run: JPACK_BIN=... OWP_SOURCE=... <venv>/bin/python -m pytest harness/tests -q
 """
 
+import ast
+import dataclasses
 import hashlib
 import importlib.machinery
 import json
@@ -512,8 +514,6 @@ def test_the_builder_has_no_holdout_command_line_route():
     stay; the command does not, so the scorer's attempt machinery is the only
     thing that can reach them.
     """
-    import ast
-
     source = (STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8")
     added = {
         node.args[0].value
@@ -532,11 +532,147 @@ def test_the_builder_has_no_holdout_command_line_route():
     assert not (FIXTURES / "holdout").exists()
 
 
-def test_the_only_holdout_construction_entry_point_is_the_scorers():
-    """`construct_holdout` stays, reachable from the scorer and nowhere else."""
-    assert callable(build_fixtures.construct_holdout)
-    source = (STUDY / "harness" / "score.py").read_text(encoding="utf-8")
-    assert "build_fixtures.construct_holdout(" in source
+def attempt_context(attempt_root):
+    """A live attempt context, built exactly as `score.construct_holdout` does.
+
+    Tests that must get *past* the round-5 gate build one here; the gate itself
+    is asserted below. Nothing this returns runs a hook — every use of it in this
+    file stubs the shared build context or the hook registry first.
+    """
+    return build_fixtures.HoldoutAttemptContext(
+        attempt_root=Path(attempt_root),
+        pins_sha256=verify.sha256_file(STUDY / "harness" / "PINS.json"),
+        prereg_sha256=verify.sha256_file(STUDY / "PREREGISTRATION.md"),
+        holdout_sha256=verify.sha256_file(STUDY / "harness" / "MATRIX-HOLDOUT.json"),
+    )
+
+
+# --- R5-2: the routes are gated, not merely undocumented ------------------
+
+def holdout_routes(context, tmp_path):
+    """Every library route into the holdout hooks, keyed by name."""
+    return {
+        "construct_holdout": lambda: build_fixtures.construct_holdout(
+            context, jpack_bin(), tmp_path / "out", None, ["h-synthetic"]
+        ),
+        "build_holdout_records": lambda: build_fixtures.build_holdout_records(
+            context, jpack_bin(), None, None, ["h-synthetic"]
+        ),
+        "build_holdout_payloads": lambda: build_fixtures.build_holdout_payloads(
+            context, jpack_bin(), None, None, ["h-synthetic"]
+        ),
+    }
+
+
+@pytest.mark.parametrize(
+    "route",
+    ["construct_holdout", "build_holdout_records", "build_holdout_payloads"],
+)
+@pytest.mark.parametrize("context", [None, "not-a-context", "forged"])
+def test_a_holdout_route_without_the_scorers_context_refuses(route, context, tmp_path):
+    """R5-2: removing the CLI left three callable routes; they now refuse.
+
+    The round-4 test asserted only that `construct_holdout` was callable and that
+    the scorer's source mentioned it — which is compatible with anything else
+    calling it too. Each route is invoked here with no context, with an object of
+    the wrong type, and with a forged context whose digests do not match the live
+    documents. All three refuse before a hook is looked up, so nothing is built.
+    """
+    if context == "forged":
+        context = build_fixtures.HoldoutAttemptContext(
+            attempt_root=tmp_path,
+            pins_sha256="ab" * 32,
+            prereg_sha256="cd" * 32,
+            holdout_sha256="ef" * 32,
+        )
+    with pytest.raises(build_fixtures.BuildError) as error:
+        holdout_routes(context, tmp_path)[route]()
+    assert "refused outside the scorer's attempt machinery" in str(error.value)
+    assert not (tmp_path / "out").exists()
+    assert not (FIXTURES / "holdout").exists()
+
+
+def test_each_forged_context_member_is_checked_against_the_live_document(tmp_path):
+    """Every digest the context carries is re-derived from disk, not trusted."""
+    live = attempt_context(tmp_path)
+    assert build_fixtures.holdout_context_problems(live) == []
+    for member, relative, _ in build_fixtures.HOLDOUT_CONTEXT_MEMBERS:
+        forged = dataclasses.replace(live, **{member: "00" * 32})
+        problems = build_fixtures.holdout_context_problems(forged)
+        assert any(relative in problem for problem in problems), (member, problems)
+    absent = dataclasses.replace(live, attempt_root=tmp_path / "never-created")
+    assert any(
+        "names no existing attempt root" in problem
+        for problem in build_fixtures.holdout_context_problems(absent)
+    )
+
+
+def test_the_context_binds_the_output_root_to_the_attempt(tmp_path):
+    """A live context is not a licence to write anywhere: `out_root` is bound."""
+    attempt = tmp_path / "attempt"
+    attempt.mkdir()
+    elsewhere = tmp_path / "elsewhere"
+    with pytest.raises(build_fixtures.BuildError) as error:
+        build_fixtures.construct_holdout(
+            attempt_context(attempt), jpack_bin(), elsewhere, None, ["h-synthetic"]
+        )
+    assert "outside the attempt root" in str(error.value)
+    assert not elsewhere.exists()
+
+
+def test_the_scorer_is_the_only_place_that_mints_an_attempt_context():
+    """R5-2: one construction site, and it sits after the freeze-pin check."""
+    minting = []
+    for relative in ("harness/score.py", "harness/build_fixtures.py", "adapter/verify.py"):
+        tree = ast.parse((STUDY / relative).read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and (
+                getattr(node.func, "id", getattr(node.func, "attr", None))
+                == "HoldoutAttemptContext"
+            ):
+                minting.append(relative)
+    assert minting == ["harness/score.py"], minting
+
+    body = next(
+        node
+        for node in ast.walk(ast.parse((STUDY / "harness" / "score.py").read_text(
+            encoding="utf-8")))
+        if isinstance(node, ast.FunctionDef) and node.name == "construct_holdout"
+    )
+    called = [
+        getattr(node.func, "id", getattr(node.func, "attr", None))
+        for node in ast.walk(body)
+        if isinstance(node, ast.Call)
+    ]
+    assert called.index("unfilled_freeze_pins") < called.index("HoldoutAttemptContext"), (
+        "the context may only be minted after the freeze-pin check"
+    )
+
+
+def test_the_scorers_construction_path_passes_a_live_context(tmp_path, monkeypatch):
+    """The other half: the scorer's own route hands the routes a valid context.
+
+    `build_fixtures.construct_holdout` is stubbed, so no hook runs; what the stub
+    asserts is that what the scorer passed satisfies the gate the routes apply.
+    """
+    attempt = tmp_path / "attempt"
+    attempt.mkdir()
+    seen = {}
+
+    def stub(context, binary, out_root, owp_source, cell_ids):
+        seen["problems"] = build_fixtures.holdout_context_problems(context)
+        seen["context"] = context
+        return {cell_id: build_fixtures.construction_record(cell_id, "built")
+                for cell_id in cell_ids}
+
+    monkeypatch.setattr(build_fixtures, "construct_holdout", stub)
+    score.construct_holdout(attempt, HOLDOUT, frozen_pins(), jpack_bin())
+    assert seen["problems"] == []
+    assert seen["context"].attempt_root == attempt
+    assert seen["context"].holdout_sha256 == verify.sha256_file(
+        STUDY / "harness" / "MATRIX-HOLDOUT.json"
+    )
+    assert not (FIXTURES / "holdout").exists()
 
 
 def test_every_holdout_cell_has_an_unexecuted_builder_hook():
@@ -627,7 +763,9 @@ def test_an_exception_raised_inside_the_installed_package_is_a_refusal():
     assert refusal.detail == "narrative"
 
 
-def test_a_harness_failure_in_a_hook_is_recorded_as_a_harness_error(monkeypatch):
+def test_a_harness_failure_in_a_hook_is_recorded_as_a_harness_error(
+    tmp_path, monkeypatch
+):
     """End to end: a hook that fails harness-side is a validity problem.
 
     No registered hook runs — a synthetic one stands in, and the shared build
@@ -640,7 +778,7 @@ def test_a_harness_failure_in_a_hook_is_recorded_as_a_harness_error(monkeypatch)
 
     monkeypatch.setitem(build_fixtures.HOLDOUT_BUILDERS, "h-synthetic", hook)
     payloads, records = build_fixtures.build_holdout_records(
-        jpack_bin(), None, None, ["h-synthetic"]
+        attempt_context(tmp_path), jpack_bin(), None, None, ["h-synthetic"]
     )
     assert payloads == {}
     assert records["h-synthetic"]["status"] == "harness-error"
@@ -648,7 +786,9 @@ def test_a_harness_failure_in_a_hook_is_recorded_as_a_harness_error(monkeypatch)
     assert "upstreamError" not in records["h-synthetic"]
 
 
-def test_a_captured_upstream_refusal_in_a_hook_is_recorded_as_refused(monkeypatch):
+def test_a_captured_upstream_refusal_in_a_hook_is_recorded_as_refused(
+    tmp_path, monkeypatch
+):
     """The other half: an exception from inside the package is a finding."""
     monkeypatch.setattr(build_fixtures, "_holdout_context", lambda *a, **k: {})
 
@@ -662,7 +802,7 @@ def test_a_captured_upstream_refusal_in_a_hook_is_recorded_as_refused(monkeypatc
 
     monkeypatch.setitem(build_fixtures.HOLDOUT_BUILDERS, "h-synthetic", hook)
     payloads, records = build_fixtures.build_holdout_records(
-        jpack_bin(), None, None, ["h-synthetic"]
+        attempt_context(tmp_path), jpack_bin(), None, None, ["h-synthetic"]
     )
     assert payloads == {}
     record = records["h-synthetic"]
@@ -671,55 +811,146 @@ def test_a_captured_upstream_refusal_in_a_hook_is_recorded_as_refused(monkeypatc
     assert record["upstreamError"]
 
 
-@pytest.mark.parametrize("hook_name", ["holdout_h02", "holdout_h03", "holdout_h07"])
-def test_every_catching_hook_routes_through_the_refusal_test(hook_name):
-    """R4-4, structurally: no hook may mint a refusal from a bare `except`.
+def builder_functions():
+    """Every module-level function in `build_fixtures.py`, by name."""
+    tree = ast.parse((STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8"))
+    return {
+        node.name: node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
 
-    The hooks stay unexecuted before the freeze, so this reads their bodies: a
-    hook that catches must hand the exception to `upstream_refusal` and re-raise
-    when it comes back None. A direct `ConstructibilityRefusal(...)` inside a
-    handler — the round-3 shape — fails here.
+
+def called_names(node):
+    return {
+        getattr(item.func, "id", getattr(item.func, "attr", None))
+        for item in ast.walk(node)
+        if isinstance(item, ast.Call)
+    }
+
+
+def reaches(name, target, functions, seen=None):
+    """True when `name` calls `target`, directly or through another function here."""
+    seen = set() if seen is None else seen
+    if name in seen or name not in functions:
+        return False
+    seen.add(name)
+    called = called_names(functions[name])
+    if target in called:
+        return True
+    return any(reaches(item, target, functions, seen) for item in called)
+
+
+# The two artifact hooks, and the reason they are exempt. Named here so the
+# exemption is a claim the test checks rather than a gap in a parametrize list.
+BYTE_COPY_HOOKS = {
+    "holdout_h01": "copies the frozen baseline bytes and appends one newline to "
+                   "the retained commitment document",
+    "holdout_h06": "copies the frozen baseline bytes and swaps in c10's frozen "
+                   "evaluator envelope",
+}
+
+
+def test_every_flow_calling_hook_routes_through_the_refusal_test():
+    """R5-4: the classifier covers every hook that can reach the package.
+
+    Round 4 asserted this for h02/h03/h07 by name, and round 5 found h04, h05 and
+    h08 driving `flow_cell` with no handler at all — so a genuine refusal from
+    inside the installed package would have been recorded as `harness-error`
+    against this harness rather than as the constructibility finding the
+    preregistration registers. The list is now derived, not typed: every
+    registered hook is classified by whether its body reaches `flow_cell`
+    (directly or through another builder function), and the ones that do must
+    catch `Exception`, hand it to `upstream_refusal`, and re-raise on None.
+
+    The hooks stay unexecuted before the freeze, so this reads their bodies.
     """
-    import ast
-
-    source = (STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8")
-    body = next(
-        node
-        for node in ast.walk(ast.parse(source))
-        if isinstance(node, ast.FunctionDef) and node.name == hook_name
+    functions = builder_functions()
+    hooks = {
+        cell_id: builder.__name__
+        for cell_id, builder in build_fixtures.HOLDOUT_BUILDERS.items()
+    }
+    assert sorted(hooks) == sorted(build_fixtures.HOLDOUT_IDS)
+    flow_calling = sorted(
+        name for name in hooks.values() if reaches(name, "flow_cell", functions)
     )
-    handlers = [node for node in ast.walk(body) if isinstance(node, ast.ExceptHandler)]
-    assert handlers, hook_name
-    for handler in handlers:
-        assert isinstance(handler.type, ast.Name) and handler.type.id == "Exception", (
-            "a hook may not catch BaseException"
-        )
-        called = {
-            getattr(node.func, "id", getattr(node.func, "attr", None))
-            for node in ast.walk(handler)
-            if isinstance(node, ast.Call)
-        }
-        assert "upstream_refusal" in called, hook_name
-        assert "ConstructibilityRefusal" not in called, hook_name
-        assert any(isinstance(node, ast.Raise) for node in ast.walk(handler)), hook_name
+    assert flow_calling == [
+        "holdout_h02", "holdout_h03", "holdout_h04",
+        "holdout_h05", "holdout_h07", "holdout_h08",
+    ], flow_calling
+
+    for hook_name in flow_calling:
+        body = functions[hook_name]
+        handlers = [
+            node for node in ast.walk(body) if isinstance(node, ast.ExceptHandler)
+        ]
+        assert handlers, hook_name
+        for handler in handlers:
+            assert isinstance(handler.type, ast.Name) and handler.type.id == "Exception", (
+                "a hook may not catch BaseException: %s" % hook_name
+            )
+            called = called_names(handler)
+            assert "upstream_refusal" in called, hook_name
+            assert "ConstructibilityRefusal" not in called, hook_name
+            assert any(isinstance(node, ast.Raise) for node in ast.walk(handler)), (
+                hook_name
+            )
+        # And the classifier is reached from the hook's own handler, not from a
+        # helper that might swallow the None it returns.
+        assert "upstream_refusal" in called_names(body), hook_name
+
+
+def test_the_byte_copy_hooks_are_exempt_and_say_why():
+    """The other side of the audit: exactly two hooks may carry no handler.
+
+    h01 and h06 register artifact edits — copy the frozen baseline and change one
+    retained document — so they never enter the installed package and have no
+    upstream refusal to classify. The exemption is asserted with its reason: each
+    one starts from `frozen_cell_payload` and reaches no flow.
+    """
+    functions = builder_functions()
+    hooks = {
+        cell_id: builder.__name__
+        for cell_id, builder in build_fixtures.HOLDOUT_BUILDERS.items()
+    }
+    exempt = sorted(
+        name for name in hooks.values() if not reaches(name, "flow_cell", functions)
+    )
+    assert exempt == sorted(BYTE_COPY_HOOKS), exempt
+    for hook_name in exempt:
+        body = functions[hook_name]
+        called = called_names(body)
+        assert "frozen_cell_payload" in called, BYTE_COPY_HOOKS[hook_name]
+        assert not [
+            node for node in ast.walk(body) if isinstance(node, ast.ExceptHandler)
+        ], "a byte-copy hook has nothing upstream to catch: %s" % hook_name
+        assert not reaches(hook_name, "_holdout_context", functions), hook_name
 
 
 # --- R4-5: an interruption is not a construction outcome ------------------
 
 @pytest.mark.parametrize("interruption", [KeyboardInterrupt, SystemExit])
-def test_construction_never_swallows_an_interruption(monkeypatch, interruption):
+def test_construction_never_swallows_an_interruption(
+    tmp_path, monkeypatch, interruption
+):
     """R4-5: both construction catches are `Exception`, so these propagate."""
+    context = attempt_context(tmp_path)
+
     def interrupt(*_args, **_kwargs):
         raise interruption("interrupted in this test")
 
     monkeypatch.setattr(build_fixtures, "_holdout_context", interrupt)
     with pytest.raises(interruption):
-        build_fixtures.build_holdout_records(jpack_bin(), None, None, ["h-synthetic"])
+        build_fixtures.build_holdout_records(
+            context, jpack_bin(), None, None, ["h-synthetic"]
+        )
 
     monkeypatch.setattr(build_fixtures, "_holdout_context", lambda *a, **k: {})
     monkeypatch.setitem(build_fixtures.HOLDOUT_BUILDERS, "h-synthetic", interrupt)
     with pytest.raises(interruption):
-        build_fixtures.build_holdout_records(jpack_bin(), None, None, ["h-synthetic"])
+        build_fixtures.build_holdout_records(
+            context, jpack_bin(), None, None, ["h-synthetic"]
+        )
 
 
 def test_an_interruption_inside_construction_lands_the_scorers_terminal_record(
@@ -771,8 +1002,6 @@ def test_the_artifact_hooks_copy_frozen_bytes_and_run_no_flow(hook):
     would call `flow_cell` (or reach the shared build context) and fail here. The
     round-2 hooks did exactly that, under a fresh salt.
     """
-    import ast
-
     source = (STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8")
     body = next(
         node
@@ -974,7 +1203,7 @@ def test_holdout_construction_writes_inside_the_attempt_and_stamps_digests(
     attempt.mkdir()
     seen = {}
 
-    def stub(binary, out_root, owp_source, cell_ids):
+    def stub(context, binary, out_root, owp_source, cell_ids):
         seen["out_root"] = Path(out_root)
         records = {}
         for index, cell_id in enumerate(cell_ids):
@@ -1051,6 +1280,141 @@ def test_the_attempt_record_publishes_the_holdout_fixture_digests(tmp_path, monk
     assert results["holdout"]["fixtureRoot"] == score.HOLDOUT_FIXTURE_DIRECTORY
     written = json.loads((root / "RESULTS.json").read_text(encoding="utf-8"))
     assert written["holdout"]["fixtureDigests"] == canned["fixtureDigests"]
+
+
+# --- R5-3: the stamps are checked again after adjudication ----------------
+
+def staged_holdout_attempt(attempt, cell_ids):
+    """A synthetic attempt subtree in the shape construction leaves behind.
+
+    Built by copying the *locked* stratum's frozen baseline — no holdout hook is
+    executed, and none of these bytes are a holdout cell's registered content.
+    What it exercises is the re-hash machinery over the tree shape the scorer
+    stamps: one built cell with a manifest, one refused cell with a record only.
+    """
+    for index, cell_id in enumerate(cell_ids):
+        directory = score.holdout_cell_directory(attempt, cell_id)
+        if index == 0:
+            shutil.copytree(BASELINE, directory)
+            record = build_fixtures.construction_record(cell_id, "built")
+        else:
+            directory.mkdir(parents=True)
+            record = build_fixtures.construction_record(
+                cell_id, "harness-error", harness_error="not attempted in this test"
+            )
+        build_fixtures.write_construction_record(directory, record)
+    return {"fixtureDigests": score.holdout_fixture_digests(attempt, cell_ids)}
+
+
+def test_the_holdout_subtree_is_re_hashed_after_adjudication(tmp_path):
+    """R5-3: stamped before, hashed again after, and the comparison published."""
+    attempt = tmp_path / "attempt"
+    attempt.mkdir()
+    cell_ids = [cell["id"] for cell in HOLDOUT["cells"]][:2]
+    construction = staged_holdout_attempt(attempt, cell_ids)
+
+    integrity = score.post_adjudication_integrity(attempt, construction["fixtureDigests"])
+    assert integrity["intact"] and integrity["mismatches"] == []
+    assert integrity["checked"] == len(integrity["files"])
+    for entry in integrity["files"]:
+        assert set(entry) == {
+            "cell", "path", "stampedSha256", "finalSha256", "match"
+        }, entry
+        assert entry["path"].startswith(score.HOLDOUT_FIXTURE_DIRECTORY + "/")
+    covered = {entry["path"] for entry in integrity["files"]}
+    built = cell_ids[0]
+    assert "%s/%s/%s" % (score.HOLDOUT_FIXTURE_DIRECTORY, built, verify.MANIFEST_NAME) in covered
+    assert "%s/%s/bundle.json" % (score.HOLDOUT_FIXTURE_DIRECTORY, built) in covered
+    # The refused cell's absent manifest is stamped None and stays absent.
+    refused = next(
+        entry for entry in integrity["files"]
+        if entry["cell"] == cell_ids[1] and entry["path"].endswith(verify.MANIFEST_NAME)
+    )
+    assert refused["stampedSha256"] is None and refused["finalSha256"] is None
+    assert refused["match"] is True
+
+
+@pytest.mark.parametrize(
+    "drift",
+    ["artifact", "manifest", "construction-record", "extra-file", "deleted-cell"],
+)
+def test_drift_between_the_stamp_and_the_final_hash_is_a_validity_problem(
+    tmp_path, drift
+):
+    """R5-3: every way the subtree can move after the stamp is caught and named."""
+    attempt = tmp_path / "attempt"
+    attempt.mkdir()
+    cell_ids = [cell["id"] for cell in HOLDOUT["cells"]][:2]
+    construction = staged_holdout_attempt(attempt, cell_ids)
+    directory = score.holdout_cell_directory(attempt, cell_ids[0])
+
+    if drift == "artifact":
+        # Replaced atomically, exactly as the review described it.
+        target = directory / "bundle.json"
+        temporary = directory / ".bundle.json.new"
+        temporary.write_bytes(target.read_bytes() + b"\n")
+        os.replace(temporary, target)
+    elif drift == "manifest":
+        (directory / verify.MANIFEST_NAME).write_text("", encoding="utf-8")
+    elif drift == "construction-record":
+        build_fixtures.write_construction_record(
+            directory,
+            build_fixtures.construction_record(cell_ids[0], "built", detail="rewritten"),
+        )
+    elif drift == "extra-file":
+        (directory / "smuggled.json").write_bytes(b"{}\n")
+    else:
+        shutil.rmtree(directory)
+
+    validity = []
+    holdout = score.attach_post_adjudication_integrity(
+        attempt, construction, score.holdout_summary([]), validity
+    )
+    integrity = holdout["postAdjudicationIntegrity"]
+    assert integrity["intact"] is False, drift
+    assert integrity["mismatches"], drift
+    assert validity and all(record["stratum"] == "holdout" for record in validity)
+    assert all(
+        "drifted after adjudication" in record["problem"] for record in validity
+    )
+    assert holdout["summary"] == "holdout inconclusive — fixtures drifted after adjudication"
+
+
+def test_the_integrity_summary_reaches_the_published_results(tmp_path, monkeypatch):
+    """The comparison is published in `RESULTS.json`, not only computed.
+
+    Construction and holdout adjudication are both stubbed — no hook runs — and
+    the staged subtree stands in for what a construction would have left.
+    """
+    jpack_bin()
+    attempt_root = tmp_path / "published"
+    cell_ids = [cell["id"] for cell in HOLDOUT["cells"]][:2]
+
+    def stub(root, registry, pins, binary):
+        staged = staged_holdout_attempt(Path(root), cell_ids)
+        return {
+            "study": "014-openworkproof-binding",
+            "stratum": "reviewer-holdout",
+            "fixtureRoot": score.HOLDOUT_FIXTURE_DIRECTORY,
+            "builderVersionDigest": build_fixtures.builder_version_digest(),
+            "records": [],
+            "fixtureDigests": staged["fixtureDigests"],
+        }
+
+    monkeypatch.setattr(score, "preflight_pins", frozen_pins)
+    monkeypatch.setattr(score, "unfilled_freeze_pins", lambda pins: [])
+    monkeypatch.setattr(score, "construct_holdout", stub)
+    monkeypatch.setattr(
+        score, "adjudicate_holdout", lambda *a, **k: score.holdout_summary([])
+    )
+    results = score.run(attempt_root, include_holdout=True)
+    integrity = results["holdout"]["postAdjudicationIntegrity"]
+    assert integrity["intact"] is True
+    written = json.loads((attempt_root / "RESULTS.json").read_text(encoding="utf-8"))
+    assert written["holdout"]["postAdjudicationIntegrity"]["checked"] == integrity[
+        "checked"
+    ]
+    assert written["holdout"]["postAdjudicationIntegrity"]["files"]
 
 
 def test_an_absent_holdout_fixture_is_a_validity_problem_not_a_finding(tmp_path):
@@ -1729,15 +2093,250 @@ def test_the_live_clone_carries_untracked_paths_but_no_import_shadow(source):
 
     `build/lib/openworkproof/` is untracked and import-capable in shape, and is
     never on `sys.path` — so it is exactly the case the round-3 rule was written
-    for, and it must keep passing.
+    for, and it must keep passing. The clone also carries untracked bytecode
+    caches *under* the import root, which is the one exemption round 5 names.
     """
     import owpflow
 
     untracked = owpflow._untracked_paths(source)
     assert untracked, "the pinned clone is expected to carry untracked build output"
     assert any(item.startswith("build/") and item.endswith(".py") for item in untracked)
+    assert any(
+        item.startswith("tests/__pycache__/") and item.endswith(".pyc")
+        for item in untracked
+    ), "the exemption below is load-bearing for this clone, not hypothetical"
     assert owpflow.import_shadow_paths(source, untracked) == []
     assert owpflow.upstream_problems(source) == []
+
+
+# --- R5-1: every importable suffix, not `.py` alone -----------------------
+
+def test_the_classifier_uses_the_interpreters_own_importable_suffixes(tmp_path):
+    """R5-1: `.pyc`, `.so` and the ABI variants shadow exactly as `.py` does.
+
+    Staged in a temporary tree, never in the pinned clone. The round-4 classifier
+    tested `relative.endswith(".py")`, so every one of these was called inert.
+    """
+    import owpflow
+
+    suffixes = owpflow.importable_suffixes()
+    assert suffixes == tuple(importlib.machinery.all_suffixes())
+    assert ".py" in suffixes and ".pyc" in suffixes
+    assert any(item.endswith(".so") for item in suffixes), suffixes
+
+    (tmp_path / "tests").mkdir()
+    listing = []
+    for index, suffix in enumerate(suffixes):
+        relative = "tests/shadow%d%s" % (index, suffix)
+        (tmp_path / relative).write_bytes(b"")
+        listing.append(relative)
+    # And the same names outside an import root stay ignored.
+    (tmp_path / "build").mkdir()
+    for index, suffix in enumerate(suffixes):
+        relative = "build/shadow%d%s" % (index, suffix)
+        (tmp_path / relative).write_bytes(b"")
+        listing.append(relative)
+    assert owpflow.import_shadow_paths(tmp_path, listing) == sorted(
+        item for item in listing if item.startswith("tests/")
+    )
+
+
+@pytest.mark.parametrize("suffix", [".py", ".pyc", ".so"])
+def test_a_directory_shadow_counts_for_any_init_suffix(tmp_path, suffix):
+    """A package directory is import-capable through any `__init__` the loader takes."""
+    import owpflow
+
+    package = tmp_path / "tests" / "openworkproof"
+    package.mkdir(parents=True)
+    (package / ("__init__" + suffix)).write_bytes(b"")
+    assert owpflow.import_shadow_paths(tmp_path, ["tests/openworkproof"]) == [
+        "tests/openworkproof/"
+    ]
+
+
+def test_a_bytecode_cache_entry_is_exempt_but_a_sourceless_module_is_not(tmp_path):
+    """The one named exemption, and the case it may not be confused with.
+
+    `tests/__pycache__/conftest.cpython-312.pyc` cannot introduce a module name —
+    the interpreter reads it only beside an existing `conftest.py`. A *sourceless*
+    `tests/sourceless.pyc` sits at a module's own position and imports on its own,
+    so it is a shadow.
+    """
+    import owpflow
+
+    (tmp_path / "tests" / "__pycache__").mkdir(parents=True)
+    (tmp_path / "tests" / "__pycache__" / "conftest.cpython-312.pyc").write_bytes(b"")
+    (tmp_path / "tests" / "sourceless.pyc").write_bytes(b"")
+    (tmp_path / "tests" / "native.cpython-312-x86_64-linux-gnu.so").write_bytes(b"")
+    listing = [
+        "tests/__pycache__/conftest.cpython-312.pyc",
+        "tests/sourceless.pyc",
+        "tests/native.cpython-312-x86_64-linux-gnu.so",
+    ]
+    assert owpflow.import_shadow_paths(tmp_path, listing) == [
+        "tests/native.cpython-312-x86_64-linux-gnu.so",
+        "tests/sourceless.pyc",
+    ]
+
+
+def test_a_sourceless_shadow_in_the_clone_would_refuse_the_build(source, monkeypatch):
+    """End to end: the widened classifier is wired into the refusal, not standalone."""
+    import owpflow
+
+    monkeypatch.setattr(
+        owpflow,
+        "_untracked_paths",
+        lambda root: ["tests/openworkproof.pyc", "tests/__pycache__/x.cpython-312.pyc"],
+    )
+    problems = owpflow.upstream_problems(source)
+    assert any("import-capable untracked paths" in problem for problem in problems)
+    assert any("tests/openworkproof.pyc" in problem for problem in problems)
+    assert not any("__pycache__" in problem for problem in problems)
+
+
+# --- R5-1: the distribution is located before the path is touched ---------
+
+def test_the_installed_package_root_is_cached_from_its_first_resolution(monkeypatch):
+    """R5-1: resolved once, so a later `sys.path` cannot change the answer."""
+    import importlib.metadata
+
+    root = verify.installed_package_root()
+    assert root.is_dir()
+
+    def refuse(name):
+        raise AssertionError("the cached distribution location was re-resolved")
+
+    monkeypatch.setattr(importlib.metadata, "distribution", refuse)
+    assert verify.installed_package_root() == root
+
+
+def test_the_distribution_is_located_before_any_import_root_is_prepended(
+    source, monkeypatch
+):
+    """R5-1: `importlib.metadata` searches `sys.path`, so the order matters.
+
+    The locator is wrapped to record the `sys.path` it was asked on. The clone's
+    `tests` directory must not be on it: an untracked `.dist-info` under a
+    prepended root would otherwise be able to answer for the very package the
+    check exists to authenticate.
+
+    A successful `load_upstream` earlier in the session leaves that root on
+    `sys.path` for good — the helpers need it — so the path is restored to its
+    pre-load shape here rather than assumed.
+    """
+    import owpflow
+
+    seen = {}
+    real = verify.installed_package_root
+    import_root = str(Path(source) / "tests")
+
+    def record(name="openworkproof"):
+        seen.setdefault("path", list(sys.path))
+        return real(name)
+
+    monkeypatch.setattr(
+        sys, "path", [entry for entry in sys.path if entry != import_root]
+    )
+    monkeypatch.setattr(owpflow, "_UPSTREAM", {})
+    monkeypatch.setattr(verify, "installed_package_root", record)
+    monkeypatch.setattr(
+        owpflow, "loaded_package_problems", lambda *a, **k: ["stop before the fixtures"]
+    )
+    before = list(sys.path)
+    with pytest.raises(owpflow.FlowError):
+        owpflow.load_upstream(source)
+    assert sys.path == before
+    assert "path" in seen, "load_upstream must locate the distribution itself"
+    assert import_root not in seen["path"]
+
+
+# --- R5-1: every module the import added, not `openworkproof` alone -------
+
+def test_a_module_from_an_unauthorized_location_refuses_the_build(source):
+    """R5-1: the post-import check speaks about every module that appeared."""
+    import types
+
+    import owpflow
+
+    admitted = owpflow.path_roots(sys.path) | {verify.installed_package_root()}
+    before = set(sys.modules)
+    modules = dict(sys.modules)
+    smuggled = types.ModuleType("smuggled")
+    smuggled.__file__ = str(
+        Path(source) / "build" / "lib" / "openworkproof" / "__init__.py"
+    )
+    modules["smuggled"] = smuggled
+    problems = owpflow.imported_module_problems(before, source, admitted, modules)
+    assert any("smuggled" in problem for problem in problems), problems
+    assert any(
+        "outside the installed package" in problem for problem in problems
+    ), problems
+
+
+def test_an_unpinned_module_out_of_the_import_root_refuses_the_build(source):
+    """The roots may deliver the pinned helpers and nothing else."""
+    import types
+
+    import owpflow
+
+    admitted = owpflow.path_roots(sys.path) | {verify.installed_package_root()}
+    before = set(sys.modules)
+    modules = dict(sys.modules)
+    helper = types.ModuleType("test_helpers")
+    helper.__file__ = str(Path(source) / "tests" / "test_helpers.py")
+    modules["test_helpers"] = helper
+    problems = owpflow.imported_module_problems(before, source, admitted, modules)
+    assert any(
+        "not one of the pinned upstream helper files" in problem for problem in problems
+    ), problems
+
+    # A namespace package under the same root is named through its `__path__`.
+    modules = dict(sys.modules)
+    namespace = types.ModuleType("smuggled_namespace")
+    namespace.__file__ = None
+    namespace.__path__ = [str(Path(source) / "tests" / "smuggled")]
+    modules["smuggled_namespace"] = namespace
+    problems = owpflow.imported_module_problems(before, source, admitted, modules)
+    assert any("smuggled_namespace" in problem for problem in problems), problems
+
+
+def test_the_live_helper_import_loads_only_pinned_and_admitted_modules(source):
+    """The live statement: this process's own module table satisfies both rules."""
+    import owpflow
+
+    owpflow.load_upstream(source)
+    root = Path(source).resolve()
+    tests_root = root / "tests"
+    pinned = {(root / name).resolve() for name in owpflow.UPSTREAM_HELPER_FILES}
+    from_root = {}
+    for name, module in list(sys.modules.items()):
+        for origin in owpflow._module_origins(module):
+            path = Path(origin).resolve()
+            if path == tests_root or tests_root in path.parents:
+                from_root[name] = path
+    assert from_root, "the helper import leaves the upstream test modules loaded"
+    assert set(from_root.values()) <= pinned, from_root
+
+    admitted = owpflow.path_roots(sys.path) | {verify.installed_package_root()}
+    assert owpflow.imported_module_problems(set(), source, admitted) == []
+
+
+def test_load_upstream_refuses_when_a_module_came_from_outside(source, monkeypatch):
+    """The check is a refusal to build, and it cleans `sys.path` behind it."""
+    import owpflow
+
+    monkeypatch.setattr(owpflow, "_UPSTREAM", {})
+    monkeypatch.setattr(owpflow, "loaded_package_problems", lambda *a, **k: [])
+    monkeypatch.setattr(
+        owpflow, "imported_module_problems", lambda *a, **k: ["synthetic stray module"]
+    )
+    before = list(sys.path)
+    with pytest.raises(owpflow.FlowError) as error:
+        owpflow.load_upstream(source)
+    assert "loaded modules this build did not authorize" in str(error.value)
+    assert "synthetic stray module" in str(error.value)
+    assert sys.path == before, "a refused import must not leave its roots on sys.path"
+    assert owpflow._UPSTREAM == {}
 
 
 def test_an_unreadable_untracked_listing_is_itself_a_refusal(source, monkeypatch):

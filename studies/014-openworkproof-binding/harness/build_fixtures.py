@@ -19,13 +19,16 @@ Determinism: fixed keys, fixed clocks, caller-supplied nonces, and a build-time
 scratch yields byte-identical trees; a harness test asserts it.
 
 The reviewer-authored holdout stratum has builder hooks here too, implemented
-but never executed. They are **library entry points only**: round 4 removed the
-standalone `--holdout` CLI route, because a command outside the attempt
-machinery could build holdout bytes post-freeze with no attempt marker, no
-terminal record and no complete freeze gates. `construct_holdout` is now
-reachable solely from `harness/score.py --include-holdout`, which refuses while
-any freeze pin is null and writes every cell into the attempt's own
-`holdout-fixtures/` directory.
+but never executed. Round 4 removed the standalone `--holdout` CLI route,
+because a command outside the attempt machinery could build holdout bytes
+post-freeze with no attempt marker, no terminal record and no complete freeze
+gates. Round 5 closed what that left: removing the *command* left the library
+functions callable by anything that could `import build_fixtures`, so every
+route into the hooks — `construct_holdout`, `build_holdout_records`,
+`build_holdout_payloads` — now requires a `HoldoutAttemptContext` that only
+`harness/score.py` mints, after its freeze gates pass, carrying the attempt root
+and the live digests of the pins, the preregistration and the holdout registry.
+Called without one, or with one whose digests do not match, they refuse.
 
 Run:
     JPACK_BIN=... OWP_SOURCE=... python harness/build_fixtures.py [--out DIR] [--force]
@@ -34,6 +37,7 @@ Run:
 import argparse
 import base64
 import copy
+import dataclasses
 import hashlib
 import json
 import os
@@ -808,7 +812,17 @@ def holdout_cell_directory(out_root, cell_id):
 # the baseline byte-for-byte and change exactly one retained document". They read
 # the frozen cell bytes off disk and never re-run a flow: a rebuild under a new
 # salt would change every signed nonce and every entropy draw, which is not the
-# cell the reviewer authored.
+# cell the reviewer authored. Those two are the only hooks with no `except`
+# clause, and that is their exemption rather than an oversight: a byte copy never
+# enters the installed package, so it has no upstream refusal to classify.
+#
+# Round 5's finding: every OTHER hook drives `flow_cell`, and only h02/h03/h07
+# routed what that raised through `upstream_refusal`. h04, h05 and h08 let it
+# propagate, so a genuine refusal from inside the installed package — exactly the
+# constructibility finding the preregistration registers — would have been
+# recorded as `harness-error`, a validity problem against this harness. All six
+# flow-calling hooks now share one classifier, and an AST test asserts that no
+# hook reaching `flow_cell` (directly or through a helper) can bypass it.
 
 HOLDOUT_IDS = (
     "h01-retained-commitment-noncanonical",
@@ -826,6 +840,110 @@ HOLDOUT_IDS = (
 # may not be signable at all — which is the exact case the try/report shape below
 # exists for.
 LONE_SURROGATE_ESCAPE = "\\uD800"
+
+
+# --------------------------------------------------------------------------
+# the attempt context — the only key into the holdout routes (round 5)
+# --------------------------------------------------------------------------
+#
+# Round 4 deleted the `--holdout` command and called the scorer the only entry
+# point. Round 5 found that claim false: deleting a command does not gate a
+# function, and `construct_holdout`, `build_holdout_records` and
+# `build_holdout_payloads` were still three ungated ways for anything that could
+# import this module to drive the reviewer-authored hooks and publish their bytes
+# with no attempt marker, no terminal record and no freeze gates. The
+# exclusivity test proved only that they were callable.
+#
+# So the routes now carry the gate themselves. Each of them requires a
+# `HoldoutAttemptContext` as its first argument: an immutable statement, minted
+# only inside `score.construct_holdout` and only after that function's freeze-pin
+# check has passed, that names the attempt these bytes belong to and carries the
+# live digests of the three documents that decide whether holdout construction is
+# lawful at all. `holdout_context_problems` re-derives every one of those digests
+# from disk, so a hand-rolled context is a refusal rather than a key.
+#
+# This is a structural gate, not a cryptographic one — a caller holding the same
+# files could construct the same object. What it removes is the *accidental*
+# route: no import, no test, and no future helper reaches a holdout hook without
+# saying, in the call itself, which attempt it is building inside.
+
+PINS_PATH = STUDY / "harness" / "PINS.json"
+
+HOLDOUT_CONTEXT_MEMBERS = (
+    ("pins_sha256", "harness/PINS.json", None),
+    ("prereg_sha256", "PREREGISTRATION.md", "preregistration"),
+    ("holdout_sha256", "harness/MATRIX-HOLDOUT.json", "matrixHoldout"),
+)
+
+
+@dataclasses.dataclass(frozen=True)
+class HoldoutAttemptContext:
+    """The scorer's statement that a holdout construction is inside an attempt.
+
+    Frozen: a route that has checked a context has checked the context it will
+    build under. `attempt_root` is the attempt directory the scorer has just
+    created; the three digests are of `harness/PINS.json`, `PREREGISTRATION.md`
+    and `harness/MATRIX-HOLDOUT.json` as they stood when the freeze gates passed.
+    """
+
+    attempt_root: Path
+    pins_sha256: str
+    prereg_sha256: str
+    holdout_sha256: str
+
+
+def holdout_context_problems(context):
+    """Every reason `context` is not a live scorer-issued attempt context."""
+    if context is None:
+        return [
+            "no attempt context was supplied, so this call is not inside an attempt"
+        ]
+    if not isinstance(context, HoldoutAttemptContext):
+        return [
+            "the attempt context is a %s, not a HoldoutAttemptContext"
+            % type(context).__name__
+        ]
+    problems = []
+    root = context.attempt_root
+    if not root or not Path(root).is_dir():
+        problems.append(
+            "the attempt context names no existing attempt root: %r" % (root,)
+        )
+    try:
+        pins = json.loads(PINS_PATH.read_text(encoding="utf-8"))
+    except Exception as error:  # noqa: BLE001 - unreadable pins gate everything
+        return problems + ["harness/PINS.json could not be read: %s" % error]
+    for member, relative, pinned_member in HOLDOUT_CONTEXT_MEMBERS:
+        declared = getattr(context, member)
+        live = verify.sha256_file(STUDY / relative)
+        if declared != live:
+            problems.append(
+                "the attempt context's %s does not match the live %s"
+                % (member, relative)
+            )
+            continue
+        # And where the registry pins the same document, the context has to agree
+        # with the pin too: post-freeze these are non-null, and a context built
+        # against a drifted working tree is not a key to anything.
+        pinned = (pins.get(pinned_member) or {}).get("sha256") if pinned_member else None
+        if pinned is not None and declared != pinned:
+            problems.append(
+                "the attempt context's %s does not match the pinned %s digest"
+                % (member, pinned_member)
+            )
+    return problems
+
+
+def require_holdout_context(context, route):
+    """Refuse `route` unless the caller proved it is inside a scorer attempt."""
+    problems = holdout_context_problems(context)
+    if problems:
+        raise BuildError(
+            "%s is refused outside the scorer's attempt machinery: %s. Holdout "
+            "construction happens inside an attempt whose freeze gates have "
+            "passed, and nowhere else" % (route, "; ".join(problems))
+        )
+    return context
 
 
 class ConstructibilityRefusal:
@@ -1183,13 +1301,24 @@ def holdout_h04(context):
     """h04 — Core's implicit-empty evidence case: no evidence document at all."""
     decision = dict(context["base"], evidence=None)
     candidate = commitment_for(decision, context["executable_digest"])
-    payload = flow_cell(
-        context["work_root"],
-        decision,
-        candidate,
-        salt="h04",
-        owp_source=context["owp_source"],
-    )
+    try:
+        payload = flow_cell(
+            context["work_root"],
+            decision,
+            candidate,
+            salt="h04",
+            owp_source=context["owp_source"],
+        )
+    except Exception as error:
+        refusal = upstream_refusal(
+            "h04-implicit-empty-evidence-replay",
+            "the chain could not be rebuilt around a decision that carries no "
+            "evidence document",
+            error,
+        )
+        if refusal is None:
+            raise
+        return refusal
     return dict(payload, **{"evidence.json": None})
 
 
@@ -1200,13 +1329,23 @@ def holdout_h05(context):
         context["executable_digest"],
         overrides={"evaluatorSpecVersion": "0.9.9-draft"},
     )
-    return flow_cell(
-        context["work_root"],
-        context["base"],
-        candidate,
-        salt="h05",
-        owp_source=context["owp_source"],
-    )
+    try:
+        return flow_cell(
+            context["work_root"],
+            context["base"],
+            candidate,
+            salt="h05",
+            owp_source=context["owp_source"],
+        )
+    except Exception as error:
+        refusal = upstream_refusal(
+            "h05-evaluator-spec-version-only",
+            "the chain could not be rebuilt around a forged evaluator spec version",
+            error,
+        )
+        if refusal is None:
+            raise
+        return refusal
 
 
 def holdout_h06(context):
@@ -1271,7 +1410,12 @@ def holdout_h07(context):
 
 
 def holdout_h08(context):
-    """h08 — the holdout's own control: a whitespace remint, coherently rebound."""
+    """h08 — the holdout's own control: a whitespace remint, coherently rebound.
+
+    `decide` runs outside the try on purpose: it drives the pinned evaluator, not
+    OpenWorkProof, so a failure there is this harness's and must stay a
+    `harness-error` rather than being reported as upstream declining.
+    """
     facts = FACTS_BASE + b"\n"
     decision = decide(
         context["jpack_bin"],
@@ -1281,13 +1425,23 @@ def holdout_h08(context):
         EVIDENCE_PRESENT,
     )
     candidate = commitment_for(decision, context["executable_digest"])
-    return flow_cell(
-        context["work_root"],
-        decision,
-        candidate,
-        salt="h08",
-        owp_source=context["owp_source"],
-    )
+    try:
+        return flow_cell(
+            context["work_root"],
+            decision,
+            candidate,
+            salt="h08",
+            owp_source=context["owp_source"],
+        )
+    except Exception as error:
+        refusal = upstream_refusal(
+            "h08-semantic-facts-remint-control",
+            "the control chain could not be rebuilt around a whitespace remint",
+            error,
+        )
+        if refusal is None:
+            raise
+        return refusal
 
 
 HOLDOUT_BUILDERS = {
@@ -1302,12 +1456,15 @@ HOLDOUT_BUILDERS = {
 }
 
 
-def build_holdout_payloads(jpack_bin, work_root, owp_source, cell_ids=None):
+def build_holdout_payloads(attempt, jpack_bin, work_root, owp_source, cell_ids=None):
     """Every holdout cell's payload or constructibility refusal, keyed by id.
 
-    Never called before the freeze: `main()` refuses `--holdout` while
-    `PINS.json` carries a null preregistration digest.
+    Round 5: gated on `attempt`, the scorer's `HoldoutAttemptContext`. This route
+    drives every registered hook and returns their payloads, which is the whole
+    of a holdout construction minus the writing — an ungated version of it was one
+    of the three ways round 5 found to build the stratum outside an attempt.
     """
+    require_holdout_context(attempt, "build_holdout_payloads")
     context = _holdout_context(jpack_bin, work_root, owp_source)
     payloads = {}
     for cell_id in cell_ids or HOLDOUT_IDS:
@@ -1318,7 +1475,7 @@ def build_holdout_payloads(jpack_bin, work_root, owp_source, cell_ids=None):
     return payloads
 
 
-def build_holdout_records(jpack_bin, work_root, owp_source, cell_ids=None):
+def build_holdout_records(attempt, jpack_bin, work_root, owp_source, cell_ids=None):
     """Drive every holdout hook and return `(payloads, records)`.
 
     One record per requested cell, always — `built`, `refused` (upstream said
@@ -1334,7 +1491,12 @@ def build_holdout_records(jpack_bin, work_root, owp_source, cell_ids=None):
     interrupted construction ends as a recorded pipeline event rather than as
     eight cells labelled `harness-error` by a harness that was itself told to
     stop.
+
+    Round 5: gated on `attempt`, the scorer's `HoldoutAttemptContext`, before any
+    hook is looked up — a refusal here is a raise, not a record, because a call
+    from outside an attempt is not a construction whose outcome may be published.
     """
+    require_holdout_context(attempt, "build_holdout_records")
     cell_ids = list(cell_ids or HOLDOUT_IDS)
     digest = builder_version_digest()
     payloads = {}
@@ -1410,19 +1572,29 @@ def publish_holdout(out_root, cell_ids, payloads, records):
     return records
 
 
-def construct_holdout(jpack_bin, out_root, owp_source, cell_ids):
+def construct_holdout(attempt, jpack_bin, out_root, owp_source, cell_ids):
     """Build and publish the holdout stratum; return the per-cell records.
 
-    The **only** entry point into holdout construction (round 4 removed the
-    standalone `--holdout` CLI route entirely): the scorer calls this inside an
-    attempt, with `out_root` set to that attempt's own `holdout-fixtures/`
-    directory, so construction and adjudication cannot come apart and no command
-    outside the attempt machinery can produce holdout bytes at all.
+    The **only** entry point into holdout construction, and after round 5 that is
+    enforced rather than asserted: `attempt` is the scorer's
+    `HoldoutAttemptContext`, minted after its freeze gates pass, and without a
+    live one this refuses before a hook is reached. `out_root` must sit inside
+    that attempt's own root, so the bytes this writes cannot land anywhere but in
+    the attempt that will adjudicate them.
     """
+    require_holdout_context(attempt, "construct_holdout")
+    attempt_root = Path(attempt.attempt_root).resolve()
+    resolved = Path(out_root).resolve()
+    if attempt_root != resolved and attempt_root not in resolved.parents:
+        raise BuildError(
+            "construct_holdout is refused: %s is outside the attempt root %s the "
+            "context names, and holdout bytes are written only into the attempt "
+            "that adjudicates them" % (resolved, attempt_root)
+        )
     work_root = Path(tempfile.mkdtemp(prefix="study014-holdout-"))
     try:
         payloads, records = build_holdout_records(
-            jpack_bin, work_root, owp_source, cell_ids
+            attempt, jpack_bin, work_root, owp_source, cell_ids
         )
     finally:
         shutil.rmtree(work_root, ignore_errors=True)
