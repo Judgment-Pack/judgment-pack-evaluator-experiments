@@ -52,9 +52,14 @@ tampered D/A variants, e19, e21); the adapter's binding layer alone sees judgmen
 substitutions in validly re-signed chains (the resigned A/B/D cells, c10–c12, c15, d18,
 e20, h01, h03, h06, h07); deterministic replay under the pinned tuple alone sees
 outcome and tuple forgeries whose retained artifacts are internally consistent (c13,
-c14, e23, h04, h05); and the two registered expected-undetected cells (e18 currency,
-e22 policy rollback) passed all layers — the boundary stands: no chain-internal
-evidence can see them, and detecting them would require an anchor outside the chain.
+c14, e23, h04, h05); and e22 (policy rollback) — the one registered cell marked
+expected-undetected, role `descriptive` and so excluded from the R1 endpoint — passed all
+layers as registered. Its sibling e18 (currency) is not a cell at all: it was removed from
+the matrix as an analytic limitation (PREREGISTRATION §4c) because no fixture distinct from
+baseline can observe it. The boundary stands for both: no chain-internal evidence can see
+them, and detecting them would require an anchor outside the chain. (This paragraph
+originally described e18 and e22 together as "two registered expected-undetected cells";
+corrected 2026-08-10 to match the frozen registration — see [`DEVIATIONS.md`](DEVIATIONS.md).)
 
 ## Claims and non-claims
 
