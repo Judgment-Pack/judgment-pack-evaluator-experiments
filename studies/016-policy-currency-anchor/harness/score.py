@@ -57,7 +57,7 @@ LOCKFILE = STUDY / "upstream" / "requirements-lock-pypi.txt"
 LAYERS = ("owp", "binding", "replay", "currency")
 ROLES = ("endpoint", "control-gate", "demonstration", "descriptive")
 CAPABILITIES = ("none", "tamper", "authority-key", "full-keys")
-VARIANTS = ("none", "registry", "config", "chain", "tampered", "resigned")
+VARIANTS = ("none", "registry", "config", "chain", "artifact", "tampered", "resigned")
 
 FREEZE_PINS = ("preregistration", "matrix", "matrixHoldout", "registrySpec",
                "studyManifest")
@@ -72,12 +72,13 @@ PINNED_DIGEST_MEMBERS = (
 # The frozen cell-id set: a reduced registry must not be able to satisfy zero
 # divergence by shrinking the denominator.
 EXPECTED_CELL_IDS = frozenset((
-    "pos-current", "unchanged", "neg-owp-alive", "neg-snapshot-signature",
-    "neg-authority-unpinned", "neg-chain-break",
+    "pos-current", "unchanged", "neg-owp-alive", "neg-binding-alive",
+    "neg-replay-alive", "neg-snapshot-signature", "neg-authority-unpinned",
+    "neg-chain-break",
     "cur-retired-reuse", "cur-successor-current", "cur-concurrent-set",
     "cur-reinstated", "cur-rebind-refused", "cur-series-unknown",
-    "cur-authz-rollback-accepted", "cur-split-view-a", "cur-split-view-b",
-    "cur-older-snapshot-unpinned", "cur-older-snapshot-pinned",
+    "cur-workorder-remint-accepted", "cur-split-view-a", "cur-split-view-b",
+    "cur-split-view-b-stateful", "cur-older-snapshot-pinned",
     "cur-genesis-unpinned", "dem-freshness-legit", "dem-freshness-stale",
 ))
 
@@ -269,6 +270,39 @@ def pin_problems(pins, jpack_bin):
         else:
             if observed_lock != expected_lock:
                 problems.append("installed dependency set does not match lockedDependencyDigest")
+    authority = pins.get("registryAuthority") or {}
+    try:
+        import checkpoint as registry_writer
+        auth_key = registry_writer.private_key(authority.get("authoritySeedLabel", ""))
+        foreign_key = registry_writer.private_key(authority.get("foreignSeedLabel", ""))
+        derived = {
+            "authorityPublicKey": registry_writer.public_key_b64(auth_key),
+            "authorityKeyId": registry_writer.key_id(auth_key),
+            "foreignPublicKey": registry_writer.public_key_b64(foreign_key),
+            "foreignKeyId": registry_writer.key_id(foreign_key),
+            "genesisHead": registry_writer.build_checkpoint(
+                auth_key, sequence=1,
+                series_id=build_fixtures.SERIES_ID, event="add",
+                pack_version="0.1.0",
+                pack_digest="sha256:" + build_fixtures.PACK_V1_SHA256,
+                effective_from=build_fixtures.T1, previous=None,
+            )["checkpointDigest"],
+            "otherSeriesGenesisHead": registry_writer.build_checkpoint(
+                auth_key, sequence=1,
+                series_id=build_fixtures.OTHER_SERIES_ID, event="add",
+                pack_version="1.0.0",
+                pack_digest=build_fixtures.OTHER_SERIES_DIGEST,
+                effective_from=build_fixtures.T1, previous=None,
+            )["checkpointDigest"],
+        }
+    except Exception as error:
+        problems.append("registryAuthority pins could not be recomputed: %s" % error)
+    else:
+        for member, value in sorted(derived.items()):
+            if authority.get(member) != value:
+                problems.append(
+                    "registryAuthority.%s does not match its recomputation" % member
+                )
     for member, relative in PINNED_DIGEST_MEMBERS:
         pinned = (pins.get(member) or {}).get("sha256")
         if pinned is None:
@@ -351,25 +385,63 @@ def adjudicate(matrix, jpack_bin, work_root):
     return cells
 
 
+def _fork_structure(members):
+    """Structural fork validation from the two cells' snapshot bytes (R1-4).
+
+    A genuine split view means: identical genesis checkpoint record, identical
+    (unauthenticated but recorded) authority key id on the attestations, the
+    same attested position, and different heads. Anything less is two
+    registries that merely differ, and the pair report says so.
+    """
+    parsed = []
+    for cid in members:
+        path = build_fixtures.cell_directory(STUDY / "fixtures", cid) / "snapshot.json"
+        try:
+            parsed.append(json.loads(path.read_text(encoding="utf-8")))
+        except Exception:
+            return {"validated": False, "problem": "snapshot unreadable: " + cid}
+    a, b = parsed
+    checks = {
+        "sameGenesisRecord": a["checkpoints"][0] == b["checkpoints"][0],
+        "sameAuthorityKeyId": (
+            a["attestation"]["authorityKeyId"] == b["attestation"]["authorityKeyId"]
+        ),
+        "samePosition": (
+            a["attestation"]["payload"]["position"]
+            == b["attestation"]["payload"]["position"]
+        ),
+        "differentHeads": (
+            a["attestation"]["payload"]["head"] != b["attestation"]["payload"]["head"]
+        ),
+    }
+    return {"validated": all(checks.values()), "checks": checks}
+
+
 def pair_reports(matrix, cells):
     reports = {}
     for name, members in (matrix.get("pairs") or {}).items():
         outcomes = {}
+        codes_reference_sibling = False
         for cid in members:
             record = cells.get(cid) or {}
             outcomes[cid] = (record.get("observed") or {}).get("currency")
         adjudicated = all((cells.get(cid) or {}).get("adjudicated") for cid in members)
+        structure = _fork_structure(members)
         reports[name] = {
             "members": list(members),
             "adjudicated": adjudicated,
+            "forkStructure": structure,
             "currencyOutcomes": outcomes,
             "contradictoryVerdicts": adjudicated
             and len(set(outcomes.values())) > 1,
-            "forkRevealedToEitherRun": False if adjudicated else None,
             "note": (
-                "each run is internally valid under the same two pins; the "
-                "contradiction exists only across the pair, which no single "
-                "offline run can observe"
+                "derived, not asserted: forkStructure is recomputed from the "
+                "two snapshot artifacts, and the outcomes above are the "
+                "adjudicated ones. What the pair registers as impossible is "
+                "detection by a fresh, stateless, per-series-pinned verifier "
+                "given exactly one view; the stateful arm "
+                "(cur-split-view-b-stateful) shows prior-acceptance state "
+                "converting the silence into a refusal"
             ),
         }
     return reports
@@ -425,14 +497,17 @@ def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes):
             )
     lines += ["", "## Registered pairs", ""]
     for name, report in sorted(pairs.items()):
+        structure = report["forkStructure"]
         lines.append(
-            "- **%s** (%s): contradictory verdicts: %s; fork revealed to either "
-            "run: %s. %s"
+            "- **%s** (%s): fork structurally validated from bytes: %s%s; "
+            "contradictory adjudicated verdicts: %s. %s"
             % (
                 name,
                 ", ".join(report["members"]),
+                structure.get("validated"),
+                "" if structure.get("validated")
+                else " (%s)" % structure.get("problem", structure.get("checks")),
                 report["contradictoryVerdicts"],
-                report["forkRevealedToEitherRun"],
                 report["note"],
             )
         )
@@ -460,17 +535,26 @@ def main(argv=None):
         return 2
     attempt_root.mkdir(parents=True)
 
-    # The marker precedes the registry parse under every flag combination.
+    # The marker precedes the registry PARSE under every flag combination, and
+    # it carries the raw-byte digest of the registry it is about to trust
+    # (round-1 R1-12): even a malformed PINS.json leaves an attempt record
+    # tied to the exact registry bytes it saw.
+    try:
+        pins_raw_sha256 = sha256_bytes(PINS_PATH.read_bytes())
+    except OSError:
+        pins_raw_sha256 = None
     write_json(attempt_root / "ATTEMPT.json", {
         "attemptRoot": attempt_root.name,
         "includeHoldout": bool(arguments.include_holdout),
         "study": "016-policy-currency-anchor",
+        "pinsRawSha256": pins_raw_sha256,
     })
 
     def terminal(problem, problems=None):
         write_json(attempt_root / "RESULTS.json", {
             "attemptRoot": attempt_root.name,
             "pipelineInvalid": True,
+            "pinsRawSha256": pins_raw_sha256,
             "problem": problem,
             "problems": problems or [],
         })
@@ -495,12 +579,18 @@ def main(argv=None):
             holdout = json.loads(
                 (STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8")
             )
-            if holdout.get("cells"):
+            if not holdout.get("cells"):
                 return terminal(
-                    "registered holdout cells exist but this scorer carries no "
-                    "holdout construction machinery yet; the machinery lands "
-                    "with the reviewer's cells before the freeze"
+                    "the registered holdout stratum is empty: an empty holdout "
+                    "is not a passing holdout (PREREGISTRATION section 1a) and "
+                    "leaves the postdictivity finding open - refused, never "
+                    "silently adjudicated as locked-only (round-1 R1-11)"
                 )
+            return terminal(
+                "registered holdout cells exist but this scorer carries no "
+                "holdout construction machinery yet; the machinery lands "
+                "with the reviewer's cells before the freeze"
+            )
 
         problems = pin_problems(pins, os.environ.get("JPACK_BIN"))
         if problems:
@@ -533,6 +623,7 @@ def main(argv=None):
             "label": label,
             "includeHoldout": bool(arguments.include_holdout),
             "pipelineInvalid": False,
+            "pinsRawSha256": pins_raw_sha256,
             "pinsSha256": sha256_file(PINS_PATH),
             "matrixSha256": sha256_file(MATRIX_PATH),
             "verdict": "%s (%s)" % (verdict, label),
@@ -550,7 +641,8 @@ def main(argv=None):
         )
         print(results["verdict"])
         return 0
-    except SystemExit:
+    except SystemExit as error:
+        terminal("SystemExit: %r" % (error.code,))
         raise
     except KeyboardInterrupt:
         terminal("interrupted")

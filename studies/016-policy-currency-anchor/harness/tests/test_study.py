@@ -71,12 +71,13 @@ def test_matrix_schema_and_frozen_id_set():
 
 
 def test_registered_undetected_cells_expect_all_pass():
+    """D-3 as rescoped at round 1: one RU endpoint, one RU descriptive row."""
     matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
-    flagged = [c for c in matrix["cells"] if c.get("registeredUndetected")]
-    assert sorted(c["id"] for c in flagged) == [
-        "cur-authz-rollback-accepted", "cur-older-snapshot-unpinned", "cur-split-view-a",
-    ]
-    for cell in flagged:
+    flagged = {c["id"]: c for c in matrix["cells"] if c.get("registeredUndetected")}
+    assert sorted(flagged) == ["cur-split-view-a", "cur-workorder-remint-accepted"]
+    assert flagged["cur-split-view-a"]["role"] == "endpoint"
+    assert flagged["cur-workorder-remint-accepted"]["role"] == "descriptive"
+    for cell in flagged.values():
         assert all(v == "pass" for v in cell["expected"].values()), cell["id"]
 
 
@@ -138,6 +139,17 @@ def test_rebuild_is_deterministic_and_matches_committed_bytes(
         assert (committed / relative).read_bytes() == (rebuilt / relative).read_bytes(), relative
 
 
+def test_split_view_pair_structure_is_validated_from_bytes():
+    """R1-4: the fork report is derived, not asserted."""
+    matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
+    structure = score._fork_structure(matrix["pairs"]["split-view"])
+    assert structure["validated"] is True
+    assert structure["checks"] == {
+        "sameGenesisRecord": True, "sameAuthorityKeyId": True,
+        "samePosition": True, "differentHeads": True,
+    }
+
+
 def test_scorer_is_deterministic_and_control_gates_hold(jpack_bin, tmp_path):
     """Two pilot scorer runs: byte-identical outputs, all control gates green."""
     import os
@@ -185,7 +197,11 @@ def test_holdout_refused_while_freeze_pins_null(tmp_path):
     )
     assert results["pipelineInvalid"] is True
     assert "refused" in results["problem"]
-    assert (tmp_path / "holdout-early" / "ATTEMPT.json").is_file()
+    marker = json.loads(
+        (tmp_path / "holdout-early" / "ATTEMPT.json").read_text(encoding="utf-8")
+    )
+    assert marker["pinsRawSha256"] == results["pinsRawSha256"]
+    assert marker["pinsRawSha256"] is not None
 
 
 def test_scorer_records_attempt_before_pins_parse(tmp_path, monkeypatch):

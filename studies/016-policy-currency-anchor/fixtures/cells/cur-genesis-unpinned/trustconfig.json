@@ -1,6 +1,7 @@
 {
   "trustConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/expense-approval",
   "authorityPublicKey": "BNR2lWLk9WwjFE9XgI15Cy0s5tu/XeqlEffYr/PX+MY=",
   "genesisHead": null,
-  "persistedMinimumHead": null
+  "minimumHeadPin": null
 }

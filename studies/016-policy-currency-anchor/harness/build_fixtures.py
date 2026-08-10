@@ -185,6 +185,7 @@ def registries(authority, foreign, v1_digest, v2_digest):
         "genesis": genesis_head,
         "retiring-head": retiring[-1]["checkpointDigest"],
         "other-genesis": other[0]["checkpointDigest"],
+        "view-a-head": view_a[1]["checkpointDigest"],
     }
     return snapshots, heads
 
@@ -208,11 +209,13 @@ def broken_signature_snapshot(snapshot):
 # cells
 # --------------------------------------------------------------------------
 
-def trustconfig(authority, *, genesis, minimum=None, unpin_genesis=False):
+def trustconfig(authority, *, genesis, minimum=None, unpin_genesis=False,
+                series=SERIES_ID):
     return registry.trustconfig_bytes(
+        series_id=series,
         authority_public_key=registry.public_key_b64(authority),
         genesis_head=None if unpin_genesis else genesis,
-        persisted_minimum_head=minimum,
+        minimum_head_pin=minimum,
     )
 
 
@@ -312,6 +315,25 @@ def build_payloads(jpack_bin, work_root, owp_source):
         neg_bundle["acceptance_receipt"]["signature"]
     )
     neg_owp = bf14.with_bundle(baseline, neg_bundle)
+    # BINDING/REPLAY aliveness controls under the v0.17.0 tuple (round-1
+    # R1-8): 014's a01 and e23 constructions, one negative control per
+    # otherwise always-pass layer.
+    drifted_pack = v1_bytes.replace(b'"5000"', b'"6000"')
+    if drifted_pack == v1_bytes:
+        raise BuildError("pack threshold edit did not apply")
+    neg_binding = dict(baseline, **{"pack.json": drifted_pack})
+    neg_replay = bf14.flow_cell(
+        work_root, base,
+        bf14.commitment_for(
+            base, executable_digest,
+            overrides={
+                "executableDigest": "sha256:"
+                + hashlib.sha256(b"study-016/wrong-executable").hexdigest(),
+                "evaluatorRelease": "0.16.0",
+            },
+        ),
+        salt="neg-replay-016", owp_source=owp_source,
+    )
 
     authority = registry.private_key(registry.AUTHORITY_SEED)
     foreign = registry.private_key(registry.FOREIGN_SEED)
@@ -330,6 +352,8 @@ def build_payloads(jpack_bin, work_root, owp_source):
     )
     cells["neg-authority-unpinned"] = cell_payload(baseline, snapshots["impostor"], tc)
     cells["neg-chain-break"] = cell_payload(baseline, snapshots["chain-break"], tc)
+    cells["neg-binding-alive"] = cell_payload(neg_binding, snapshots["current"], tc)
+    cells["neg-replay-alive"] = cell_payload(neg_replay, snapshots["current"], tc)
 
     # ---- R: registry state ------------------------------------------------
     cells["cur-retired-reuse"] = cell_payload(baseline, snapshots["retiring"], tc)
@@ -341,22 +365,39 @@ def build_payloads(jpack_bin, work_root, owp_source):
     )
     cells["cur-reinstated"] = cell_payload(baseline, snapshots["reinstated"], tc)
     cells["cur-rebind-refused"] = cell_payload(baseline, snapshots["rebound"], tc)
+    # The second registered trust root (round-1 R1-10, registered rather than
+    # silent): the verifier's per-series pins point it at a registry log that
+    # carries no events for the pinned series - an empty answer, distinct from
+    # a retirement. The seriesId stays the expense series; the genesis pin is
+    # the other log's, both recorded in PINS.json.
     cells["cur-series-unknown"] = cell_payload(
         baseline, snapshots["other-series"],
         trustconfig(authority, genesis=heads["other-genesis"]),
     )
 
-    # ---- S: scope boundaries (registered expected-undetected) -------------
-    cells["cur-authz-rollback-accepted"] = cell_payload(
+    # ---- S: scope boundaries ------------------------------------------------
+    # 014's registered e22 construction rebuilt under this study's tuple: an
+    # alternative, equally valid WorkOrder remint - NOT a rollback (round-1
+    # R1-2): OWP has no contract ordering, so nothing is "older". Descriptive,
+    # excluded from R1 credit, exactly 014's e22 precedent.
+    cells["cur-workorder-remint-accepted"] = cell_payload(
         rollback, snapshots["current"], tc
     )
     cells["cur-split-view-a"] = cell_payload(baseline, snapshots["view-a"], tc)
     cells["cur-split-view-b"] = cell_payload(baseline, snapshots["view-b"], tc)
+    # The stateful arm (round-1 R1-4): a verifier that previously accepted
+    # view A at position 2 - provisioned as its minimum head pin - refuses
+    # view B at the same position by prefix containment. The fresh-verifier
+    # silence in the pair above is exactly statelessness.
+    cells["cur-split-view-b-stateful"] = cell_payload(
+        baseline, snapshots["view-b"],
+        trustconfig(
+            authority, genesis=genesis,
+            minimum={"head": heads["view-a-head"], "position": 2},
+        ),
+    )
 
     # ---- V: verifier configuration ----------------------------------------
-    cells["cur-older-snapshot-unpinned"] = cell_payload(
-        baseline, snapshots["retiring-prefix-2"], tc
-    )
     cells["cur-older-snapshot-pinned"] = cell_payload(
         baseline, snapshots["retiring-prefix-2"],
         trustconfig(

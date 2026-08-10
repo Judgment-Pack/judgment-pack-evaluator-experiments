@@ -21,24 +21,23 @@
         "checkpointVersion": "1",
         "sequence": 2,
         "seriesId": "https://example.com/judgment-packs/expense-approval",
-        "event": "add",
-        "packVersion": "0.2.0",
-        "effectiveFrom": "2026-01-15T00:00:00Z",
-        "previousCheckpointDigest": "sha256:f5cf4273076426256d7790bd9c453bb6209545e6d1571d511ba185074c311e3b",
-        "packDigest": "sha256:fc7896121e98d840ca7ba30505e4dc4c63bf5ae0ec7ac9a9c8bdd0529af42c70"
+        "event": "retire",
+        "packVersion": "0.1.0",
+        "effectiveFrom": "2026-02-01T00:00:00Z",
+        "previousCheckpointDigest": "sha256:f5cf4273076426256d7790bd9c453bb6209545e6d1571d511ba185074c311e3b"
       },
-      "checkpointDigest": "sha256:53bf40aebaa84a5cc6c1173278575efe28668f967887f7252ad29ed4aad09987",
+      "checkpointDigest": "sha256:c7f6769af68d684ee0884d1badebf9c776bcb31336e974e81aba916358d98744",
       "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
-      "signature": "buFs7Na+tOdWe8o4dRKiSuDGSJMgZuUMsuzwPfAi4e9Nw9TQ8spx+S3dH6bsvLS6Y0xaB7D044gtgeqCP06IBw=="
+      "signature": "r6eRXTC62rKhUo+vkjvU7zBf4Ivgd3Sow0bzIABWPXlSS2KqlN3TCX2IHdmlLruOL88EDagRstH5aKT0mlg+BA=="
     }
   ],
   "attestation": {
     "payload": {
       "snapshotVersion": "1",
-      "head": "sha256:53bf40aebaa84a5cc6c1173278575efe28668f967887f7252ad29ed4aad09987",
+      "head": "sha256:c7f6769af68d684ee0884d1badebf9c776bcb31336e974e81aba916358d98744",
       "position": 2
     },
     "authorityKeyId": "ed25519:446475d42369d39f69b9a19772cbcb2bb9c481879ccaa2cbcfd9d78ff5a32f8d",
-    "signature": "qSZ7khGEnrNI/8T3Mb4k7bhiguVXN6hSnnbKJorPccXA8SVwwjHM9THBREnVYxx3ilY5VMMPTZf87MDU197vDg=="
+    "signature": "NNRGOwggxG2WZ6A4k94zG540QuJNAvnmVhVRhIzZn7eA9SeUXCURCAyzEao8ssaY3cLHQyp0uWFsmjjHuircCQ=="
   }
 }

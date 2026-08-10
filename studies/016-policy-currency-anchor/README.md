@@ -12,29 +12,34 @@ possible commitment and asks:
 
 > Within the registered cells, can a hash-chained, independently signed, offline-verifiable
 > pack-version currency registry — consumed as **one added step** over Study 014's unchanged
-> three-layer ceremony — detect a decision carried under a retired pack version, refuse
-> invalid and replayed registry state, correctly **accept** what is out of its scope, and
-> fail **exactly where a single-operator signed registry must fail**?
+> three-layer ceremony — detect a decision carried under a pack version that is **not in
+> the series' supported set at a pinned registry snapshot**, refuse invalid and replayed
+> registry state, correctly **accept** what is out of its scope, and fail **exactly where
+> a single-operator signed registry must fail**?
 
 The expected-undetected cells are the point, not a concession. Three boundaries are
 registered as results in advance:
 
-- **Authorization-contract rollback** (`cur-authz-rollback-accepted`): Study 014's e22
-  construction — an identical judgment commitment under a different, validly signed work
-  order — must pass all four layers, because the tuple `(packId, packVersion, packDigest)`
-  is unchanged. The anchor addresses pack-version staleness only (RFC 0011 R-1).
-- **Split-view equivocation** (`cur-split-view-a/b`): one authority, one pinned genesis, two
-  internally valid contradictory histories. Each run verifies cleanly on its own; the
-  contradiction exists only across the pair, which no single offline verifier can see. This
-  is the empirical case for transparency-log / witness / cross-signing governance —
+- **The work-order remint** (`cur-workorder-remint-accepted`, descriptive): Study 014's
+  e22 construction — an identical judgment commitment under a different, **equally valid**
+  work order — must pass all four layers, because the tuple `(packId, packVersion,
+  packDigest)` is unchanged. A remint, not a rollback: OWP has no contract ordering, so
+  nothing is "older". The anchor addresses pack-version staleness only (RFC 0011 R-1).
+- **Split-view equivocation** (`cur-split-view-a/b`, plus the stateful arm): one
+  authority, one pinned genesis, two internally valid contradictory histories. Each run
+  verifies cleanly on its own; the contradiction exists only across the pair, which no
+  **fresh, stateless, per-series-pinned verifier given exactly one view** can see — and
+  the stateful arm shows prior-acceptance state converting that silence into a refusal.
+  The empirical case for transparency-log / witness / cross-signing governance —
   preserved as a finding, never fixed.
-- **The freshness floor** (`cur-older-snapshot-unpinned` and the byte-identical
-  `dem-freshness-*` pair): the verdict is membership at a pinned snapshot, never "stale when
-  used" — exhibited as registered byte-identities, not argued.
+- **The freshness floor** (`cur-concurrent-set`'s registered second reading and the
+  byte-identical `dem-freshness-*` group): the verdict is membership at a pinned
+  snapshot, never "stale when used" — exhibited as a registered byte-identity and an
+  analytic reading, not argued.
 
 ## Shape
 
-- **Chains**: four, built through Study 014's frozen machinery consumed as a pinned
+- **Chains**: five, built through Study 014's frozen machinery consumed as a pinned
   unmodified upstream (`harness/upstream014.py` enforces every source digest) under the
   jpack v0.17.0 replay tuple. Layers OWP / BINDING / REPLAY are Study 014's frozen adapter,
   unchanged; OpenWorkProof (pinned commit `8eeca6f`, package digest byte-identical to
@@ -49,6 +54,9 @@ registered as results in advance:
   configuration)`. Most cells share the baseline chain's bytes and vary only the signed
   registry state — the move that makes currency observable where 014's §4c could not: the
   world-that-moved is itself a retained, signed, pinned artifact.
+- **Fixtures** were revised at review round 1 (`PREREG-REVIEW.md`): 22 cells, one
+  aliveness control per layer, per-series trust pins, and a strictly fail-closed
+  verifier vocabulary.
 
 ## Layout
 
@@ -57,7 +65,7 @@ registered as results in advance:
   the offline currency verifier.
 - [`harness/`](harness/) — pins, matrices, fixture builder, four-layer runner, scorer,
   deterministic tests.
-- [`fixtures/`](fixtures/) — vendored packs and the 20 frozen cells.
+- [`fixtures/`](fixtures/) — vendored packs and the 22 frozen cells.
 - `pilots/` — pre-freeze execution, labeled harness validation, non-citable.
 - `results/` — absent until a registered post-freeze attempt.
 

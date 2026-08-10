@@ -162,13 +162,21 @@ def snapshot_bytes(snapshot):
     return json.dumps(snapshot, indent=2, ensure_ascii=False).encode("utf-8")
 
 
-def trustconfig_bytes(*, authority_public_key, genesis_head,
-                      persisted_minimum_head=None):
-    """The verifier's out-of-band pins, as retained cell bytes."""
+def trustconfig_bytes(*, series_id, authority_public_key, genesis_head,
+                      minimum_head_pin=None):
+    """The verifier's out-of-band pins, as retained cell bytes.
+
+    The pins are per-series (round-1 R1-10): `seriesId` binds which series
+    this configuration confers authority over. `minimumHeadPin` is
+    caller-provisioned prior-acceptance state, not verifier-persisted storage
+    (round-1 R1-5): the cells that use it register it as the state a
+    sequential verifier would have persisted.
+    """
     document = {
         "trustConfigVersion": "1",
+        "seriesId": series_id,
         "authorityPublicKey": authority_public_key,
         "genesisHead": genesis_head,
-        "persistedMinimumHead": persisted_minimum_head,
+        "minimumHeadPin": minimum_head_pin,
     }
     return json.dumps(document, indent=2, ensure_ascii=False).encode("utf-8")

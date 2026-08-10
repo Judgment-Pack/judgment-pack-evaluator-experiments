@@ -36,18 +36,24 @@ diverge, the pinned artifacts govern and the divergence is a deviation.
 ## 1. Question
 
 Study lineage: 013 asked whether the application that acts on a judgment respects it at
-runtime (behavior); 014 asked whether a third party can prove, offline, which judgment
-authorized which executed action (provenance/binding); this study asks whether a third
-party can detect, offline, that a judgment was carried under a pack version **no longer in
-force** — and, with equal weight, what such an anchor provably cannot detect.
+runtime (behavior); 014 asked whether a third party can prove, offline, which judgment an
+executed action was taken **in reliance on**, under the study's registered downstream
+mapping (provenance/binding — Core §3.5/§6.4: an outcome is a declared result, never
+authorization); this study asks whether a third party can detect, offline, that a judgment
+was carried under a pack version **not in the series' supported set at a pinned registry
+snapshot** — membership at one signed, positioned assertion, never "no longer in force"
+in any real-time sense (RFC 0011 R-7) — and, with equal weight, what such an anchor
+provably cannot detect.
 
 **R1 (primary, retractable):** for every adjudicated **endpoint** cell in the registered
 locked-replication matrix, the observed per-layer outcome 4-tuple (OWP / BINDING / REPLAY /
 CURRENCY) equals the per-cell registered expectation in `harness/MATRIX.json`. Divergence in
 either direction falsifies — a registered-detectable cell that passes, **and a
-registered-undetected cell that any layer claims to catch** (decision D-3: a currency layer
-that claimed to detect equivocation or authorization-contract rollback would be defective,
-and must be able to falsify R1).
+registered-undetected cell that any layer claims to catch** (decision D-3, rescoped at
+round 1: `cur-split-view-a` is the one registered-undetected **endpoint** — a currency
+layer that claimed to detect the fork from one view would be defective and must falsify
+R1; `cur-workorder-remint-accepted` is **descriptive**, published and never counted,
+exactly 014's e22 precedent, per round-1 finding R1-2).
 
 **R2 (secondary, descriptive):** the extended detection-ownership map — what OWP's unchanged
 verifier owns, what 014's binding and replay layers own, what the currency step owns, and
@@ -73,6 +79,10 @@ refuses `--include-holdout` while the preregistration or holdout freeze pin is n
 post-freeze invocation that finds registered holdout cells but no construction machinery is
 a recorded terminal refusal, never a silent skip. An empty holdout at the freeze would leave
 the postdictivity finding open, and the study would say so.
+
+Post-freeze, `--include-holdout` with an **empty** registered holdout stratum is a
+recorded terminal refusal, never a locked-only adjudication — an empty holdout is not a
+passing holdout and would leave the postdictivity finding open (round-1 R1-11).
 
 Builder and verifier share one registry implementation lineage (`registry/checkpoint.py`
 writes, `registry/verify_currency.py` recomputes everything from bytes but was written by
@@ -107,10 +117,12 @@ standing limitation, exactly as 014 recorded its shared commitment implementatio
   approval threshold 5000 → 6000, `fc789612…2c70`) — the successor release of the same
   series id.
 - **Registry authority**: study-minted fixed-seed Ed25519 keys (`registryAuthority` in
-  `PINS.json`, seeds recorded). The authority is the study; nothing about its independence
-  is claimed (§8, threats). The genesis head is the digest of the canonical
-  `[add 0.1.0 @2026-01-01]` checkpoint — constant across every v1-genesis history, so one
-  out-of-band genesis pin serves the matrix.
+  `PINS.json`, seeds recorded — public deterministic fixtures; nothing depends on their
+  secrecy). The authority is the study; nothing about its independence is claimed (§8,
+  threats). **Two trust roots are registered** (round-1 R1-10): the expense-series genesis
+  head, shared by every expense-series history in the matrix, and the other-policy log's
+  genesis head, pinned by `cur-series-unknown`. Trust configurations are per-series
+  (`trustconfig.seriesId`); the draft's one-genesis-serves-the-matrix claim is withdrawn.
 - **Pins are enforced, not declared** (014 convention): the scorer compares every non-null
   pin before adjudication — freeze-pin digests when filled, the jpack binary digest always,
   both vendored packs always, every `study014.files` digest always, the installed
@@ -127,17 +139,21 @@ Facts `{"expense": {"type": "employee-expense", "amount": "250.00", "category": 
 yields the canonical disposition `{"kind": "outcome", "outcomeId": "approve", "reasons":
 [], "handoff": {"state": "none"}}`.
 
-Four chains serve the whole matrix, all built through 014's frozen flow machinery
+Five chains serve the whole matrix, all built through 014's frozen flow machinery
 (fixed keys, fixed clocks, deterministic nonces, the build-time `secrets.token_hex`
 counter patch — all 014's, pinned by digest):
 
 - **baseline** — the v0.1.0 decision, executed and accepted (014's pos-baseline
   construction under the v0.17.0 tuple);
 - **successor** — the same scenario decided under pack v0.2.0;
-- **rollback** — 014's registered e22 construction: the identical judgment commitment
-  re-bound under a different, validly signed work order;
+- **remint** — 014's registered e22 construction: the identical judgment commitment
+  re-bound under a different, **equally valid** work order (a remint, not a rollback —
+  OWP has no contract ordering, round-1 R1-2);
+- **neg-replay** — a validly re-signed chain whose commitment forges the executable
+  digest (014's e23 construction; the REPLAY aliveness control, round-1 R1-8);
 - **neg-owp** — the baseline bundle with one signature character flipped (derived, not
-  flowed).
+  flowed); its sibling **neg-binding** is the baseline with retained pack bytes drifted
+  (014's a01 construction; the BINDING aliveness control).
 
 A Study 016 **cell** is `(chain, retained artifacts, registry snapshot, trust
 configuration)`. Most cells share the baseline chain's bytes unchanged and vary only the
@@ -150,12 +166,14 @@ builder twice yields byte-identical trees (a harness test asserts it).
 
 ## 4. Cells
 
-20 cells in `harness/MATRIX.json`: 2 positive controls (`pos-current`, `unchanged` — the
-within-run control convention), 4 negative controls (`neg-owp-alive`,
-`neg-snapshot-signature`, `neg-authority-unpinned`, `neg-chain-break` — proving each
-verification family is alive, including four-layer attribution independence), 12 endpoint
-cells across four registered categories (R registry-state, S scope-boundary, V
-verifier-configuration, and the two split-view halves), and 2 demonstrations
+22 cells in `harness/MATRIX.json` (matrixVersion 2, the round-1 revision): 2 positive
+controls (`pos-current`, `unchanged` — the within-run control convention), 6 negative
+controls (`neg-owp-alive`, `neg-binding-alive`, `neg-replay-alive`,
+`neg-snapshot-signature`, `neg-authority-unpinned`, `neg-chain-break` — one aliveness
+gate per verification family, so no layer's expectations are satisfiable by a hardcoded
+pass, round-1 R1-8), 11 endpoint cells across four registered categories (R
+registry-state, S scope-boundary, V verifier-configuration), 1 descriptive row
+(`cur-workorder-remint-accepted`, published and never counted), and 2 demonstrations
 (`dem-freshness-*`). Every cell carries `role`, `attackerCapability`
 (`none` / `tamper` / `authority-key` / `full-keys` — `authority-key` is the
 single-operator threat this study exists to bound), `variant`, and `registeredAbsences`
@@ -163,34 +181,39 @@ single-operator threat this study exists to bound), `variant`, and `registeredAb
 
 Three registered structures beyond 014's schema:
 
-- **Identity groups** (`identityGroups`): deliberate byte-identity, verified by the scorer.
-  `cur-concurrent-set` ≡ `cur-older-snapshot-unpinned` — without a persisted minimum head,
-  a withheld newer snapshot is indistinguishable from a world that genuinely stopped; the
-  freshness floor is exhibited as a byte-identity, not argued. `cur-retired-reuse` ≡
-  `dem-freshness-legit` ≡ `dem-freshness-stale` — legitimate-use-audited-late and genuine
-  stale reuse differ only in the registry entry's scenario label; the verdict provably
-  cannot carry the distinction (RFC 0011 R-7). A group divergence is a validity failure on
-  its cells, never a detection.
-- **The split-view pair** (`pairs.split-view`): one authority, one pinned genesis, two
-  internally valid contradictory continuations. Each half is adjudicated as an ordinary
-  cell; the pair report publishes that the verdicts contradict and that no code in either
-  run reveals the fork. The pair is the study's most important artifact: it is the
-  empirical demonstration that a single-operator signed registry cannot be caught
-  equivocating by an isolated offline verifier, which is the concrete case for
-  transparency-log / witness / cross-signing governance. It is preserved as a finding —
-  never "fixed".
-- **Registered-undetected endpoints** (decision D-3): `cur-authz-rollback-accepted`,
-  `cur-older-snapshot-unpinned`, and `cur-split-view-a` carry all-pass expectations with
-  `registeredUndetected: true`. Their all-pass outcome is the registered finding, and a
-  detection on any of them is a divergence that falsifies R1 with the same standing as a
-  missed detection elsewhere. (This deliberately strengthens 014's `descriptive` precedent;
-  the cross-vendor review is invited to stress the choice.)
+- **The identity group** (`identityGroups`): deliberate byte-identity, verified by the
+  scorer. `cur-retired-reuse` ≡ `dem-freshness-legit` ≡ `dem-freshness-stale` —
+  legitimate-use-audited-late and genuine stale reuse differ only in the registry entry's
+  scenario label; the verdict provably cannot carry the distinction (RFC 0011 R-7). A
+  group divergence is a validity failure on its cells, never a detection. The draft's
+  second identity pair is dissolved per round-1 R1-9: `cur-concurrent-set` is **one**
+  adjudicated cell carrying **two registered readings** — concurrent-set membership
+  (scored), and the freshness-floor reading (analytic, not separately scored: the bytes
+  carry no evidence a newer snapshot exists, which is the registered indistinguishability
+  and exactly why 014 removed its e18 row). The endpoint denominator counts it once.
+- **The split-view pair** (`pairs.split-view`) and its stateful arm: one authority, one
+  pinned genesis, two internally valid contradictory continuations. Each half is
+  adjudicated as an ordinary cell; the scorer validates the fork **structurally from the
+  two snapshot artifacts** (same genesis record, same authority key id, same attested
+  position, different heads) and derives the pair report from adjudicated outcomes —
+  nothing is asserted by hand (round-1 R1-4). What the pair registers as impossible is
+  detection by a **fresh, stateless, per-series-pinned verifier given exactly one view**;
+  `cur-split-view-b-stateful` bounds the finding by showing prior-acceptance state
+  (provisioned as `minimumHeadPin`) converting the silence into a refusal. The pair is
+  the study's most important artifact — the empirical case for transparency-log /
+  witness / cross-signing governance — and is preserved as a finding, never "fixed".
+- **Registered-undetected rows** (decision D-3, rescoped at round 1): `cur-split-view-a`
+  is the one registered-undetected **endpoint** — its all-pass outcome is the registered
+  finding and a detection there falsifies R1. `cur-workorder-remint-accepted` carries the
+  same flag as a **descriptive** row (014's e22 precedent, round-1 R1-2): its all-pass
+  outcome is published as the registered scope boundary and counts toward nothing.
 
 ### 4b. Threat model — what each capability reaches
 
-- **`none`**: stale or replayed *signed* artifacts and verifier misconfiguration — the
-  retired-reuse, older-snapshot, unknown-series, and unpinned-genesis cells. No key and no
-  signed byte is touched; registry state and pins do all the work.
+- **`none`**: stale or replayed *signed* artifacts, retained-artifact edits, and verifier
+  misconfiguration — the retired-reuse, older-snapshot, unknown-series, unpinned-genesis,
+  and binding-aliveness cells. No key and no signed byte is touched; registry state, pins,
+  and retained bytes do all the work.
 - **`tamper`**: signed bytes changed without re-signing (`neg-owp-alive`,
   `neg-snapshot-signature`) — aliveness gates, not binding evidence.
 - **`authority-key`**: the registry operator's own key signs the construction —
@@ -198,23 +221,26 @@ Three registered structures beyond 014's schema:
   rebinding refused anyway), and the split-view pair (two valid histories). This is the
   study's registered adversary: what the *format* still refuses under a hostile or
   compromised authority, and what it provably cannot refuse (equivocation).
-- **`full-keys`**: 014's coherent-remint insider (`cur-authz-rollback-accepted`) — the
-  chain-side adversary the currency anchor was never scoped to catch.
+- **`full-keys`**: 014's coherent-remint insider (`cur-workorder-remint-accepted`,
+  `neg-replay-alive`) — the chain-side adversary the currency anchor was never scoped to
+  catch.
 
 ### 4c. Analytic limitations (not empirical rows)
 
 - **Real-time staleness is out of reach by design**, not merely unmeasured: every verdict
   is membership at a pinned snapshot, and no cell can observe "current right now" because
   the ceremony holds no clock (`effectiveFrom` is carried and never compared, D-5). The
-  gap between snapshot time and audit time is exhibited (`cur-older-snapshot-unpinned`,
-  the freshness identity group) but not — and cannot be — measured as a duration.
+  gap between the pinned snapshot and the world above it is exhibited
+  (`cur-concurrent-set`'s registered second reading, the freshness identity group) but
+  not — and cannot be — measured as a duration.
 - **Detection of equivocation is not measured because it is structurally impossible for
-  the registered verifier**: the split-view pair demonstrates the impossibility; no cell
-  claims to quantify how often equivocation would occur or be noticed by out-of-band
-  means (gossip, witnesses, cross-verifier comparison), all of which are outside the
-  registered trust model.
+  the registered verifier in its fresh, stateless configuration**: the split-view pair
+  demonstrates exactly that narrow impossibility, and the stateful arm shows its boundary
+  (round-1 R1-4). No cell claims to quantify how often equivocation would occur or be
+  noticed by out-of-band means (gossip, witnesses, cross-verifier comparison), all of
+  which are outside the registered trust model.
 - **Authorization-contract currency** (014's `e22` class) is confirmed out of scope by a
-  cell that must *pass*; nothing here measures what a work-order-currency anchor would
+  descriptive row that must *pass* (a remint, not a rollback — nothing in OWP is ordered); nothing here measures what a work-order-currency anchor would
   catch — RFC 0011 Unresolved #6, deliberately untouched.
 
 ## 5. Endpoints and decision rule
@@ -250,11 +276,15 @@ never inferred from outcomes.
 
 - `pos-current` and `unchanged`: the positive composition must verify through all four
   layers, twice, from independent directory copies.
-- The four negative controls prove: the OWP layer fires in this harness while the currency
-  layer records independently (`neg-owp-alive`); the attestation signature, the pinned-key
-  identity, and the chain linkage are each load-bearing (`neg-snapshot-signature`,
-  `neg-authority-unpinned`, `neg-chain-break`) — one cell per check family the mutation
-  categories lean on.
+- The six negative controls prove, one per verification family (round-1 R1-8): OWP fires
+  while currency records independently (`neg-owp-alive`); BINDING fires under this
+  toolchain (`neg-binding-alive`); REPLAY fires under this toolchain (`neg-replay-alive`);
+  the attestation signature under the pinned key, and the chain linkage, are each
+  load-bearing (`neg-snapshot-signature`, `neg-authority-unpinned` — one shared code,
+  honestly: a wrong signer and a corrupted signature are indistinguishable to a
+  single-pinned-key verifier, round-1 R1-6 — and `neg-chain-break`). Without these, every
+  BINDING and REPLAY expectation in the matrix would be `pass` and a hardcoded layer
+  could satisfy it.
 - No silent exclusions: every registered cell appears in the output with an outcome or
   NOT-ADJUDICATED; the scorer refuses an existing attempt root; the frozen cell-id set is
   asserted so a reduced registry cannot shrink the denominator.
@@ -295,8 +325,10 @@ trust-on-first-use. No format proposal and no interoperability claim for the reg
 study-registered schema, one authority, one series, written and consumed by the same
 project — RFC 0011's Implementation section names the stronger evidence (a consumer step
 built by the receipt protocol's author) and this study is not it. No claim about OWP
-beyond 014's: the chain layers replicate 014's result under a new evaluator release; only
-the CURRENCY column is new evidence. No JPS conformance; no security audit of any
+beyond 014's, and **no replication claim for 014's mutation stratum** (round-1 R1-8): the
+chain layers demonstrate positive compatibility of the pinned adapter on this study's
+five chains under v0.17.0, plus one aliveness control per layer; 014's refusal coverage
+is 014's evidence, not this study's. Only the CURRENCY column is new evidence. No JPS conformance; no security audit of any
 component; no prospective-prediction claim for the locked stratum (§1a); no
 runtime-behavior claim (Study 013's question). Trust roots, enumerated: the work order's
 six study-minted chain keys, the pinned jpack executable digest, the frozen 014 sources,
@@ -306,8 +338,9 @@ retained artifact store.
 ## 10. Publication commitment
 
 The detection matrix is published in full whichever way it lands: every divergence, every
-registered-boundary confirmation, the split-view pair report, and any cell caught by no
-layer — the last with the same prominence as a pass, because the precise map of what the
-composition cannot see (rollback, equivocation, staleness above the snapshot) is the
-study's most useful possible output, and is the registered input to the governance
-question RFC 0011 leaves open (Unresolved #1).
+registered-boundary confirmation, the structurally-validated split-view pair report, and
+any cell caught by no layer — the last with the same prominence as a pass, because the
+precise map of what the composition cannot see (the work-order remint, equivocation
+against a fresh stateless verifier, the world above the pinned snapshot) is the study's
+most useful possible output, and is the registered input to the governance question
+RFC 0011 leaves open (Unresolved #1).
