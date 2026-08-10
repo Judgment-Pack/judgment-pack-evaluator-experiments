@@ -1,0 +1,13 @@
+{
+  "commitmentDigest": "493b1b3bfb4fd2d77bda2eb5f0c6089d486be719a81364d576919a2cf77e2a9d",
+  "decision": {
+    "kind": "unresolved",
+    "outcomeId": null,
+    "reasons": [
+      "missing-required-evidence"
+    ],
+    "handoffState": "none"
+  },
+  "execution": "none",
+  "note": "case closed"
+}

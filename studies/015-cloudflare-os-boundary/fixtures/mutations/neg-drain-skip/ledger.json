@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "gatekeeperId": 1,
+    "resourceTitle": "Tracker",
+    "resourceUrl": "https://tracker.example/mcp",
+    "caller": {
+      "from": "agent",
+      "chatId": 1
+    },
+    "createdAt": "2026-08-01T00:01:00.000Z",
+    "state": "pending",
+    "type": "action",
+    "action": 10,
+    "description": {
+      "title": "Provision intake request",
+      "description": "Create the tracker work item for the judged intake request.",
+      "implementsRevert": false,
+      "actionKind": {
+        "tag": "jps-tracker:create_work_item",
+        "label": "create_work_item"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "gatekeeperId": 1,
+    "resourceTitle": "Tracker",
+    "resourceUrl": "https://tracker.example/mcp",
+    "caller": {
+      "from": "agent",
+      "chatId": 1
+    },
+    "createdAt": "2026-08-01T00:02:00.000Z",
+    "state": "approved",
+    "type": "action",
+    "action": 11,
+    "description": {
+      "title": "Provision intake request",
+      "description": "Create the tracker work item for the judged intake request.",
+      "implementsRevert": false,
+      "actionKind": {
+        "tag": "jps-tracker:create_work_item",
+        "label": "create_work_item"
+      },
+      "autoApprovable": true
+    },
+    "resolvedBy": {
+      "type": "user",
+      "id": "governor@example.invalid",
+      "name": "Governor"
+    },
+    "autoApproved": true,
+    "appliedAt": "2026-08-01T00:32:00.000Z"
+  }
+]

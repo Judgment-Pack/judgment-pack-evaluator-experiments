@@ -1,0 +1,195 @@
+// Focused probes that call the pinned platform's own functions to demonstrate the named
+// mechanisms the matrix leans on (PREREGISTRATION section 7). These are demonstrations of
+// upstream behavior under the study's replay harness pattern, not detections: upstream's
+// own suites (packages/mcp-shared/__tests__/tools.test.ts,
+// packages/workshop-backend/__tests__/auto-approval.test.ts) already exercise these
+// functions; what these probes pin down is that the exact branches the cells depend on
+// behave as registered under the study's aliased, stubbed, node-only loading.
+
+import assert from "node:assert/strict";
+import { actionKindFor, catalogRevision, classifyTool } from "@gadgets/mcp-shared/tools";
+import {
+  AutoApprovalDrainer,
+  type ApplyPendingActionFn,
+  type AutoApprovalStorage,
+} from "@gadgets/workshop-backend/auto-approval";
+import { makeMockStorage } from "@gadgets/workshop-backend/mock-storage";
+import { collection, createTypedStorage } from "@gadgets/typed-storage";
+
+// Minimal runner: sequential suites, fail-fast exit code, no framework.
+type Case = { name: string; body: () => void | Promise<void> };
+const cases: Case[] = [];
+let currentSuite = "";
+function suite(name: string, body: () => void): void {
+  currentSuite = name;
+  body();
+}
+function test(name: string, body: () => void | Promise<void>): void {
+  cases.push({ name: `${currentSuite} › ${name}`, body });
+}
+
+const TRACKER_TOOL = {
+  name: "create_work_item",
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+};
+
+function makeStorage(): AutoApprovalStorage {
+  return createTypedStorage(makeMockStorage(), {
+    collections: {
+      actions: collection<never>()({ primaryKey: "id" }),
+      autoApproveTags: collection<never>()({
+        primaryKey: (r: { gatekeeperId: number; actionKind: { tag: string } }) =>
+          `${r.gatekeeperId}:${r.actionKind.tag}`,
+      }),
+    },
+  }) as unknown as AutoApprovalStorage;
+}
+
+function putAction(
+  storage: AutoApprovalStorage,
+  id: number,
+  opts: { autoApprovable?: boolean; tag?: string; state?: string } = {},
+) {
+  storage.actions.put({
+    id,
+    gatekeeperId: 1,
+    caller: { from: "agent", chatId: 1 },
+    createdAt: new Date("2026-08-01T00:00:00Z"),
+    state: opts.state ?? "pending",
+    type: "action",
+    action: id,
+    description: {
+      title: `Action ${id}`,
+      description: `Action ${id}`,
+      implementsRevert: false,
+      ...(opts.tag === undefined
+        ? { actionKind: { tag: "t:create_work_item", label: "create_work_item" } }
+        : opts.tag === ""
+          ? {}
+          : { actionKind: { tag: opts.tag, label: opts.tag } }),
+      ...(opts.autoApprovable === undefined ? {} : { autoApprovable: opts.autoApprovable }),
+    },
+  } as never);
+}
+
+function enableRule(storage: AutoApprovalStorage, tag = "t:create_work_item") {
+  storage.autoApproveTags.put({
+    gatekeeperId: 1,
+    actionKind: { tag, label: tag },
+    enabledBy: { type: "user", id: "enabler@example.invalid", name: "Enabler" },
+  } as never);
+}
+
+async function drainApplied(storage: AutoApprovalStorage): Promise<number[]> {
+  const applied: number[] = [];
+  const applyFn: ApplyPendingActionFn = async (record) => {
+    applied.push(record.id);
+    const fresh = storage.actions.get(record.id) as Record<string, unknown> | undefined;
+    if (fresh && fresh.type === "action") {
+      fresh.state = "approved";
+      storage.actions.put(fresh as never);
+    }
+  };
+  await new AutoApprovalDrainer(storage, applyFn).drain(1);
+  return applied;
+}
+
+suite("classifyTool — the m01/neg-mcp branches (tools.ts:62-77)", () => {
+  test("honours readOnlyHint true on a byo endpoint: read path on the server's word", () => {
+    const mislabeled = {
+      name: "create_work_item",
+      annotations: { readOnlyHint: true, destructiveHint: true },
+    };
+    const classified = classifyTool(mislabeled as never, "byo");
+    assert.equal(classified.mode, "read");
+    assert.equal(classified.classifiedBy, "server-annotation");
+    assert.equal(classified.autoApprovable, false);
+  });
+
+  test("never auto-approves a write on a byo endpoint, whatever it claims", () => {
+    const classified = classifyTool(TRACKER_TOOL as never, "byo");
+    assert.equal(classified.mode, "action");
+    assert.equal(classified.autoApprovable, false);
+  });
+
+  test("refuses auto-approval without an exact idempotentHint === true", () => {
+    const unannotated = {
+      name: "create_work_item",
+      annotations: { readOnlyHint: false, destructiveHint: false },
+    };
+    assert.equal(classifyTool(unannotated as never, "vetted").autoApprovable, false);
+  });
+
+  test("auto-approves only vetted + non-destructive + idempotent", () => {
+    const classified = classifyTool(TRACKER_TOOL as never, "vetted");
+    assert.equal(classified.mode, "action");
+    assert.equal(classified.autoApprovable, true);
+  });
+});
+
+suite("AutoApprovalDrainer — the neg-drain-skip/s02 branches (auto-approval.ts:58-92)", () => {
+  test("applies eligible pending actions in ascending id order", async () => {
+    const storage = makeStorage();
+    enableRule(storage);
+    putAction(storage, 3, { autoApprovable: true });
+    putAction(storage, 1, { autoApprovable: true });
+    putAction(storage, 2, { autoApprovable: true });
+    assert.deepEqual(await drainApplied(storage), [1, 2, 3]);
+  });
+
+  test("stops at a manual gate and never skips ahead of it", async () => {
+    const storage = makeStorage();
+    enableRule(storage);
+    putAction(storage, 5, {}); // no author verdict: a human gate
+    putAction(storage, 7, { autoApprovable: true });
+    assert.deepEqual(await drainApplied(storage), []);
+  });
+
+  test("eligibility reads exactly the author verdict and the rule — no other field", async () => {
+    // The s02 mechanism: nothing in the record carries a disposition, so a record staged
+    // under an unresolved judgment is indistinguishable from any other eligible record.
+    const storage = makeStorage();
+    enableRule(storage);
+    putAction(storage, 1, { autoApprovable: true });
+    assert.deepEqual(await drainApplied(storage), [1]);
+  });
+});
+
+suite("catalog identity helpers", () => {
+  test("actionKindFor derives the policy tag from scope and tool name", () => {
+    const kind = actionKindFor("jps-tracker", "create_work_item");
+    assert.equal(kind.tag, "jps-tracker:create_work_item");
+    assert.equal(kind.label, "create_work_item");
+  });
+
+  test("catalogRevision moves when a policy-feeding annotation moves", async () => {
+    const before = await catalogRevision([TRACKER_TOOL as never]);
+    const flipped = {
+      ...TRACKER_TOOL,
+      annotations: { ...TRACKER_TOOL.annotations, readOnlyHint: true },
+    };
+    const after = await catalogRevision([flipped as never]);
+    assert.notEqual(before, after);
+  });
+});
+
+async function main(): Promise<void> {
+  let failures = 0;
+  for (const item of cases) {
+    try {
+      await item.body();
+      console.log("ok   " + item.name);
+    } catch (error) {
+      failures += 1;
+      console.error("FAIL " + item.name);
+      console.error(error);
+    }
+  }
+  console.log(`${cases.length - failures}/${cases.length} upstream probes passed`);
+  if (failures > 0) process.exit(1);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

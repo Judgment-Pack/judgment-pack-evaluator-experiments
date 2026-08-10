@@ -1,0 +1,62 @@
+{
+  "gatekeepers": [
+    {
+      "id": 1,
+      "resourceUrl": "https://tracker.example/mcp",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "create_work_item",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    }
+  ],
+  "autoApproveTags": [],
+  "stagedCalls": [
+    {
+      "gatekeeperId": 1,
+      "action": 11,
+      "toolName": "create_work_item",
+      "arguments": {
+        "kind": "prepare-parent",
+        "requestType": "other",
+        "source": "jps-triage"
+      },
+      "resourceRevisionAtStage": "rev-7",
+      "simulationBasis": []
+    },
+    {
+      "gatekeeperId": 1,
+      "action": 12,
+      "toolName": "create_work_item",
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      },
+      "resourceRevisionAtStage": "rev-7",
+      "simulationBasis": [
+        5
+      ],
+      "commitmentDigest": "d69aab3e77a597292090e8f953fde9b6200a32c9da39e866dcba5200161cbfb7"
+    }
+  ],
+  "simulations": [
+    {
+      "id": 5,
+      "actionLedgerId": 1
+    }
+  ],
+  "observedCalls": [],
+  "world": {
+    "resourceRevisionAtApply": {
+      "1:12": "rev-7"
+    }
+  },
+  "effects": []
+}

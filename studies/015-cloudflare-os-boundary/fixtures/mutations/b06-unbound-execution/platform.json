@@ -1,0 +1,37 @@
+{
+  "gatekeepers": [
+    {
+      "id": 1,
+      "resourceUrl": "https://tracker.example/mcp",
+      "serverTrust": "vetted",
+      "tools": [
+        {
+          "name": "create_work_item",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    }
+  ],
+  "autoApproveTags": [],
+  "stagedCalls": [],
+  "simulations": [],
+  "observedCalls": [],
+  "world": {
+    "resourceRevisionAtApply": {}
+  },
+  "effects": [
+    {
+      "resourceUrl": "https://tracker.example/mcp",
+      "toolName": "create_work_item",
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "data-access",
+        "source": "jps-triage"
+      }
+    }
+  ]
+}

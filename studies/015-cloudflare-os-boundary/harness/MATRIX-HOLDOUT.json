@@ -1,0 +1,7 @@
+{
+  "matrixVersion": "1",
+  "stratum": "reviewer-holdout",
+  "note": "Reviewer-authored holdout stratum. Cells are authored by the pre-freeze cross-vendor reviewer, committed verbatim with attribution, and never executed before the freeze: harness/score.py --include-holdout refuses mechanically while harness/PINS.json's preregistration.sha256 is null, and a harness test asserts that refusal. Holdout results are reported separately and never merged into the locked stratum's counts. An empty holdout is not a passing holdout.",
+  "reviewer": null,
+  "cells": []
+}

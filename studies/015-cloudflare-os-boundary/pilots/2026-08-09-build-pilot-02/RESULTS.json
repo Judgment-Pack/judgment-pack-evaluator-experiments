@@ -1,0 +1,1086 @@
+{
+  "study": "015-cloudflare-os-boundary",
+  "stratum": "locked-replication",
+  "attemptLabel": "PILOT",
+  "verdict": "R1 holds",
+  "matrixVersion": "1",
+  "provenance": {
+    "pinsSha256": "de0b003501f456e2ced55671e6f98414060e750addd34164e5de4a20c40103c6",
+    "matrixSha256": "540a92c3b3a10f6fff28b350d927475bd7773a781437c8f7666d1e34d514d406",
+    "matrixHoldoutSha256": "afff2cbc9e458ec68a1bc8a2f6e34827bdce65754a0c8e4a1b84ff4c8fb560e6",
+    "specSha256": "76bd7393908a8f3747a03fe4e40a654bff68e8843a46bfa6fd772dced9931c5f",
+    "preregistrationSha256": "5124bb95b518c3d09a71b66111685132689918d87487c7523a8b7f5ce1aec903",
+    "studyManifestSha256": "dab0eb9896cfb8bee65929e8a47eaf0916d609facb0d36ebb015ba52fd1d1bb1",
+    "jpackSha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "harnessPython": "3.12.11",
+    "cfApparatus": {
+      "nodeVersion": "v22.23.1",
+      "cloneCommit": "b2a51b5426398c8353d9d4dd984bd525121ab5f2",
+      "cloneTrackedClean": true,
+      "lockfileSha256": "3bc179348c4030be4484b8298a69d8ac9aa675084506b5b0d2d01e6df9906765",
+      "probedFiles": {
+        "packages/mcp-shared/src/tools.ts": "657214f3b8d0bd568ab4fcfd9cf1905d26aa8783410d76c3ce3a2d90985f5112",
+        "packages/mcp-shared/src/util.ts": "08219a2050d99e7551be2b930c1ec42d7395679b9eb99ba95ce0dc967103db18",
+        "packages/workshop-backend/src/auto-approval.ts": "94583ec27d7a4ecde63c0a2cfc2346b70d32d6851c2042c2ab3d4e675f8f3dfe",
+        "packages/workshop-backend/__tests__/mock-storage.ts": "34fa561202c1fdcd5a375677f31bc00380fc8b264b4c582234def7086d431e8d",
+        "packages/typed-storage/src/index.ts": "4277fc48d1f03650ec7a604ae060e416c71859d37b119aa8d3157178b79bac0c",
+        "packages/workshop-shared/src/gatekeeper.ts": "a88783c6e98bad865b2afdfb049f73ec77e2d8672595c42b9487e3cf29fd80d2",
+        "packages/workshop-shared/src/api.ts": "bf72dca8cf86fe62474f660f82b5dde182fcf34661dba24a23245b7ea7a5bf11"
+      },
+      "esbuildVersion": "0.28.1"
+    }
+  },
+  "validity": {
+    "pipelineInvalidCells": [],
+    "controlGateFailures": [],
+    "records": []
+  },
+  "detection": {
+    "cells": 24,
+    "adjudicated": 24,
+    "endpointCells": 18,
+    "endpointDivergentCells": [],
+    "divergentCells": [],
+    "rows": [
+      {
+        "cell": "pos-baseline",
+        "stratum": "locked-replication",
+        "category": "control-positive",
+        "role": "control-gate",
+        "attackerCapability": "none",
+        "expected": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "pass",
+          "cfEngaged": [
+            "classifyTool",
+            "AutoApprovalDrainer"
+          ]
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "cfEngaged": [
+          "classifyTool",
+          "AutoApprovalDrainer"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-mcp-byo-autoapply",
+        "stratum": "locked-replication",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "fail:classification-refused",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "fail",
+            "code": "classification-refused",
+            "detail": "ledger action 1: pinned classifyTool says mode=action autoApprovable=false (classifiedBy default) — the platform's own policy would not auto-apply it"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": [
+            "classifyTool"
+          ]
+        },
+        "observedOutcomes": {
+          "cf": "fail:classification-refused",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [
+          "classifyTool"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-mcp-nonidempotent-autoapply",
+        "stratum": "locked-replication",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "fail:classification-refused",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "fail",
+            "code": "classification-refused",
+            "detail": "ledger action 1: pinned classifyTool says mode=action autoApprovable=false (classifiedBy default) — the platform's own policy would not auto-apply it"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": [
+            "classifyTool"
+          ]
+        },
+        "observedOutcomes": {
+          "cf": "fail:classification-refused",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [
+          "classifyTool"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-drain-skip",
+        "stratum": "locked-replication",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "fail:drain-order-violation",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "fail",
+            "code": "drain-order-violation",
+            "detail": "gatekeeper 1: ledger claims auto-applied [2] but the pinned drainer replay applies []"
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": [
+            "classifyTool",
+            "AutoApprovalDrainer"
+          ]
+        },
+        "observedOutcomes": {
+          "cf": "fail:drain-order-violation",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [
+          "classifyTool",
+          "AutoApprovalDrainer"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a01-pack-bytes-drift",
+        "stratum": "locked-replication",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "pack-digest-mismatch",
+            "detail": "retained pack bytes do not match the committed digest"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a02-disposition-forged",
+        "stratum": "locked-replication",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "expected": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-disposition-mismatch",
+            "detail": "recomputation under the pinned evaluator does not reproduce the committed disposition"
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a03-evaluator-digest-forged",
+        "stratum": "locked-replication",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "expected": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-executable-mismatch",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-executable-mismatch",
+            "detail": "the live evaluator binary is not the committed executable"
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-executable-mismatch",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s01-conflict-as-rejected",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:report-misattribution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "report-misattribution",
+            "detail": "the published decision ('outcome', 'rejected', [], 'requested') is not the committed disposition ('unresolved', None, ['conflict'], 'requested')"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:report-misattribution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s02-unknown-auto-applied",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "the commitment carries an action object under a non-executable disposition"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": [
+            "classifyTool",
+            "AutoApprovalDrainer"
+          ]
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [
+          "classifyTool",
+          "AutoApprovalDrainer"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s03-opfail-as-unknown",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "expected": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-disposition-mismatch",
+            "detail": "recomputation under the pinned evaluator does not reproduce the committed disposition"
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s04-approval-as-evidence",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "evidence-backing-invalid",
+            "detail": "backing for sponsor-endorsement is a 'approval-record' reference, not a captured-artifact digest — resource access and human approval are not evidence"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s05-handoff-dropped",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:handoff-dropped",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "handoff-dropped",
+            "detail": "the disposition requests handoff and the published report drops it"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:handoff-dropped",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s06-not-applicable-executed",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "the commitment carries an action object under a non-executable disposition"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "o01-observation-as-evidence",
+        "stratum": "locked-replication",
+        "category": "O-observation-evidence",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "evidence-backing-invalid",
+            "detail": "backing for intake-form is a 'observation-record' reference, not a captured-artifact digest — resource access and human approval are not evidence"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b01-commitment-reuse",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:binding-reuse",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "binding-reuse",
+            "detail": "2 staged calls / 2 applied records bind one commitment digest"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:binding-reuse",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b02-argument-drift",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:argument-drift",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "argument-drift",
+            "detail": "the staged call's retained arguments do not digest to the committed value"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:argument-drift",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b03-revision-drift",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "environment",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:revision-drift",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "revision-drift",
+            "detail": "resource revision at apply ('rev-9') differs from the bound revision ('rev-7')"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:revision-drift",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b04-gatekeeper-substituted",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "target-mismatch",
+            "detail": "the bound staged call diverges from the committed target: gatekeeperId, resourceUrl"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b05-actionkind-substituted",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "target-mismatch",
+            "detail": "the bound staged call diverges from the committed target: toolName, actionKindTag"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b06-unbound-execution",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "out-of-band",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:unbound-execution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "unbound-execution",
+            "detail": "an effect matching the judged subject is attested with no approved action record bound to this commitment"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:unbound-execution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d01-dependent-simulated-write",
+        "stratum": "locked-replication",
+        "category": "D-deferred-simulation",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:simulation-basis-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "simulation-basis-invalid",
+            "detail": "simulation basis 5 rests on a premise that is rejected"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:simulation-basis-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d02-simulated-as-committed",
+        "stratum": "locked-replication",
+        "category": "D-deferred-simulation",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:commit-overclaim",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "commit-overclaim",
+            "detail": "the report claims an attested effect and none is retained — a returned callback or a simulated success is not a committed external effect"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:commit-overclaim",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "m01-readonly-bypass",
+        "stratum": "locked-replication",
+        "category": "M-annotation-trust",
+        "role": "demonstration",
+        "attackerCapability": "out-of-band",
+        "expected": {
+          "cf": "pass",
+          "binding": "fail:unbound-execution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "unbound-execution",
+            "detail": "an effect matching the judged subject is attested with no approved action record bound to this commitment"
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "fail",
+          "cfEngaged": [
+            "classifyTool"
+          ]
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "fail:unbound-execution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "cfEngaged": [
+          "classifyTool"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "m02-ambiguous-commit",
+        "stratum": "locked-replication",
+        "category": "M-annotation-trust",
+        "role": "descriptive",
+        "attackerCapability": "environment",
+        "expected": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "cf": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null
+          },
+          "combined": "pass",
+          "cfEngaged": []
+        },
+        "observedOutcomes": {
+          "cf": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "cfEngaged": [],
+        "divergences": [],
+        "problems": []
+      }
+    ]
+  },
+  "holdout": null
+}

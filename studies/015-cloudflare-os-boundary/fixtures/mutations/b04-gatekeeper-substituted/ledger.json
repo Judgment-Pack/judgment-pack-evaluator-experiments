@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "gatekeeperId": 2,
+    "resourceTitle": "Tracker",
+    "resourceUrl": "https://other-tracker.example/mcp",
+    "caller": {
+      "from": "agent",
+      "chatId": 1
+    },
+    "createdAt": "2026-08-01T00:01:00.000Z",
+    "state": "approved",
+    "type": "action",
+    "action": 21,
+    "description": {
+      "title": "Provision intake request",
+      "description": "Create the tracker work item for the judged intake request.",
+      "implementsRevert": false,
+      "actionKind": {
+        "tag": "jps-tracker:create_work_item",
+        "label": "create_work_item"
+      },
+      "autoApprovable": true
+    },
+    "resolvedBy": {
+      "type": "user",
+      "id": "approver@example.invalid",
+      "name": "Approver"
+    },
+    "appliedAt": "2026-08-01T00:31:00.000Z"
+  }
+]

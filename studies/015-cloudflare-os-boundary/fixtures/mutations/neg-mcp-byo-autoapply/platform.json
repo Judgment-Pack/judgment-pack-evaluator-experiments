@@ -1,0 +1,66 @@
+{
+  "gatekeepers": [
+    {
+      "id": 1,
+      "resourceUrl": "https://tracker.example/mcp",
+      "serverTrust": "byo",
+      "tools": [
+        {
+          "name": "create_work_item",
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true
+          }
+        }
+      ]
+    }
+  ],
+  "autoApproveTags": [
+    {
+      "gatekeeperId": 1,
+      "actionKind": {
+        "tag": "jps-tracker:create_work_item",
+        "label": "create_work_item"
+      },
+      "enabledBy": {
+        "type": "user",
+        "id": "governor@example.invalid",
+        "name": "Governor"
+      }
+    }
+  ],
+  "stagedCalls": [
+    {
+      "gatekeeperId": 1,
+      "action": 11,
+      "toolName": "create_work_item",
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      },
+      "resourceRevisionAtStage": "rev-7",
+      "simulationBasis": [],
+      "commitmentDigest": "574da8530b52208738b123b04ed3deb3d5d17ec23b5a56b46666b211d669b5ed"
+    }
+  ],
+  "simulations": [],
+  "observedCalls": [],
+  "world": {
+    "resourceRevisionAtApply": {
+      "1:11": "rev-7"
+    }
+  },
+  "effects": [
+    {
+      "resourceUrl": "https://tracker.example/mcp",
+      "toolName": "create_work_item",
+      "arguments": {
+        "kind": "provision-intake",
+        "requestType": "new-data-pipeline",
+        "source": "jps-triage"
+      }
+    }
+  ]
+}

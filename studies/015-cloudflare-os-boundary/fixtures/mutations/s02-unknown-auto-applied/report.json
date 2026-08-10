@@ -1,0 +1,13 @@
+{
+  "commitmentDigest": "0d026c8958d2bfd6cba9616a403ac53526c01ee9ecedbd18d80832b1a3639fae",
+  "decision": {
+    "kind": "unresolved",
+    "outcomeId": null,
+    "reasons": [
+      "unknown"
+    ],
+    "handoffState": "requested"
+  },
+  "execution": "effect-attested",
+  "note": ""
+}

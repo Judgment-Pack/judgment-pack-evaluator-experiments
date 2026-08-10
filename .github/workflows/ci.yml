@@ -148,3 +148,45 @@ jobs:
         run: python -m pytest tests/ -q
       - name: Confirm the implementation imports without third-party packages
         run: python -c "import jps_evaluator; print(jps_evaluator.__name__)"
+
+  study-015-harness:
+    name: Study 015 · deterministic harness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          # The exact pinned interpreter, not the series: harness/PINS.json records
+          # 3.12.11 and harness/score.py refuses to adjudicate under anything else.
+          python-version: "3.12.11"
+      - name: Set up Node
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v5.0.0
+        with:
+          # The pinned probe node (harness/PINS.json harnessNode.version).
+          node-version: "22.23.1"
+      - name: Clone Cloudflare OS at the pinned commit and install its lockfile
+        # Upstream's own pnpm-lock.yaml via the corepack-pinned pnpm; no postinstall
+        # scripts exist in the workspace and --ignore-scripts keeps dependency build
+        # scripts inert. Source is never vendored (CFOS_SOURCE points at the clone).
+        run: |
+          git clone https://github.com/cloudflare/cloudflare-os /tmp/cloudflare-os
+          git -C /tmp/cloudflare-os checkout --quiet b2a51b5426398c8353d9d4dd984bd525121ab5f2
+          corepack enable
+          cd /tmp/cloudflare-os && pnpm install --frozen-lockfile --ignore-scripts
+      - name: Fetch the pinned jpack release and verify its digests
+        run: |
+          curl -sSL -o /tmp/jpack.tar.gz https://github.com/Judgment-Pack/judgment-pack-runtime/releases/download/v0.16.0/judgment-pack_0.16.0_linux_amd64.tar.gz
+          echo "1a12503ca96061da3a8d5657528cea643668ef53a00a9b336e94755e2437ed59  /tmp/jpack.tar.gz" | sha256sum --check
+          mkdir -p /tmp/jpack-bin && tar -xzf /tmp/jpack.tar.gz -C /tmp/jpack-bin jpack
+          echo "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325  /tmp/jpack-bin/jpack" | sha256sum --check
+      - name: Install the pinned harness dependencies
+        working-directory: studies/015-cloudflare-os-boundary
+        run: python -m pip install --disable-pip-version-check -r harness/requirements.txt
+      - name: Run the protocol-integrity and reachability suites
+        working-directory: studies/015-cloudflare-os-boundary
+        env:
+          CFOS_SOURCE: /tmp/cloudflare-os
+          JPACK_BIN: /tmp/jpack-bin/jpack
+        run: python -m pytest harness/tests -q
