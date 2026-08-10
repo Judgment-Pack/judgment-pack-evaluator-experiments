@@ -1,0 +1,82 @@
+{
+  "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+  "fixtureDigests": {
+    "h01-retained-commitment-noncanonical": {
+      "constructionSha256": "9f7e66821956dc3b0dd56b71f9964deff89526cc9d8886b3505204a2b177442c",
+      "manifestSha256": "cf5c1f0afbe3923958998f6c27866519bbc122e10723fffa8f71e8be58326777"
+    },
+    "h02-objective-lone-surrogate": {
+      "constructionSha256": "9df8d8af9d1485b8e8ed951226d7f6a01f3ee8c7de8d3a66b005207de1cfd776",
+      "manifestSha256": "8303e62afe77f295d3c9cb397b05b188573c7b9091c10484e84407cb286d0705"
+    },
+    "h03-duplicate-supported-extension": {
+      "constructionSha256": "e104776ec113a9042c205e37807251df0ffc16ccccf65cb769df13f0081ae6ab",
+      "manifestSha256": "365c31b265917d16a1810e42a7605cf8ed7383898e93ac8ef531fe1bf6760350"
+    },
+    "h04-implicit-empty-evidence-replay": {
+      "constructionSha256": "29b121743fede8dbc7d4d0e97aaf687ea8ad224dcc684b391bb5f68f738c81b8",
+      "manifestSha256": "fc4400c1b89948306682fb494fbe51528879cbf04aa32e65292dacff2c0f7b33"
+    },
+    "h05-evaluator-spec-version-only": {
+      "constructionSha256": "4bcde5f65da670b2ed7892656dc234b718dbd6670a93a472345123d22b867625",
+      "manifestSha256": "891f1d9fec7d7b4ba790950b89ea08fbf4041837ea70b81d0349e04cc83a994a"
+    },
+    "h06-cross-execution-evaluation-artifact": {
+      "constructionSha256": "17b9ba8cf725494eaeaff4359f329cf3e47b26313bee3f50e12b0b29df50fdd4",
+      "manifestSha256": "3f91eadccd6b3c0df4bd65c2f2c35e06f5e2422964378df756c0e1f1773b46b0"
+    },
+    "h07-self-consistent-wrong-action": {
+      "constructionSha256": "4e25589dccc3b0aced678eaee526e2df1434d26e92fedc8c0a47f77f79f8ffaa",
+      "manifestSha256": "0a19e1a6a2c21ea150b16edc0c600cbfdf8252e60a84e96c03f9094480453270"
+    },
+    "h08-semantic-facts-remint-control": {
+      "constructionSha256": "f455377f8833a744c4d50ecf1a217a5be4fc0cc7851261baff303193ddb2a87f",
+      "manifestSha256": "9cd44044b2bffd379450d8833c1261d6415b20150320eba1e0306c4ea713b1ef"
+    }
+  },
+  "fixtureRoot": "holdout-fixtures",
+  "records": [
+    {
+      "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+      "cell": "h01-retained-commitment-noncanonical",
+      "status": "built"
+    },
+    {
+      "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+      "cell": "h02-objective-lone-surrogate",
+      "status": "built"
+    },
+    {
+      "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+      "cell": "h03-duplicate-supported-extension",
+      "status": "built"
+    },
+    {
+      "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+      "cell": "h04-implicit-empty-evidence-replay",
+      "status": "built"
+    },
+    {
+      "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+      "cell": "h05-evaluator-spec-version-only",
+      "status": "built"
+    },
+    {
+      "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+      "cell": "h06-cross-execution-evaluation-artifact",
+      "status": "built"
+    },
+    {
+      "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+      "cell": "h07-self-consistent-wrong-action",
+      "status": "built"
+    },
+    {
+      "builderVersionDigest": "bc4d209fd7a982fe90fb5d4a4575776f626731b545f3ea147b8b8fca7c08b7d5",
+      "cell": "h08-semantic-facts-remint-control",
+      "status": "built"
+    }
+  ],
+  "stratum": "reviewer-holdout",
+  "study": "014-openworkproof-binding"
+}
