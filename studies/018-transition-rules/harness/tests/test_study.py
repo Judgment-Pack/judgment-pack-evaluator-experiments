@@ -185,16 +185,17 @@ def test_the_registered_divergence_is_real():
     matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
     ids = [c["id"] for c in matrix["cells"] if c["id"].startswith("div-")]
     assert len(ids) == 4
+    # Round-1 R1-12: assert the EXACT difference set, citation included.
     shared = {}
     for cid in ids:
         directory = build_fixtures.cell_directory(STUDY / "fixtures", cid)
-        for name in ("commitment.json", "snapshot.json", "trustconfig.json"):
-            shared.setdefault(name, set()).add(score.sha256_file(directory / name))
-    for name, digests in shared.items():
-        assert len(digests) == 1, name
-    configs = {score.sha256_file(build_fixtures.cell_directory(STUDY / "fixtures", cid)
-                                 / "ruleconfig.json") for cid in ids}
-    assert len(configs) == 4
+        for name in build_fixtures.CELL_FILES:
+            path = directory / name
+            shared.setdefault(name, set()).add(
+                score.sha256_file(path) if path.is_file() else None)
+    differing = {name for name, digests in shared.items() if len(digests) > 1}
+    assert differing == {"ruleconfig.json"}, differing
+    assert len(shared["ruleconfig.json"]) == 4
 
 
 def test_backdated_citation_is_byte_identical_to_the_honest_cell():
@@ -202,7 +203,7 @@ def test_backdated_citation_is_byte_identical_to_the_honest_cell():
     separate honest reliance from a chosen-early citation."""
     matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
     assert score.identity_group_problems(matrix) == {}
-    a = build_fixtures.cell_directory(STUDY / "fixtures", "div-run-to-expiry")
+    a = build_fixtures.cell_directory(STUDY / "fixtures", "div-grandfather-on-cited-support")
     b = build_fixtures.cell_directory(STUDY / "fixtures", "bnd-backdated-citation")
     for name in build_fixtures.CELL_FILES:
         assert (a / name).is_file() == (b / name).is_file(), name
@@ -217,3 +218,47 @@ def test_holdout_machinery_lands_with_the_reviewer_cells():
     holdout = json.loads((STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8"))
     assert holdout["cells"] == [] and holdout["reviewer"] is None
     assert not hasattr(build_fixtures, "HOLDOUT_HOOKS")
+
+
+def test_transition_refuses_over_an_unauthenticated_snapshot():
+    """Round-1 R1-1: a rule is evaluated only over an authenticated membership
+    answer, and the composed verdict can never be usable without one."""
+    import transition
+    directory = build_fixtures.cell_directory(STUDY / "fixtures",
+                                              "neg-currency-unauthenticated")
+    outcome = run_verify.verify_cell(directory)
+    assert outcome["currency"]["outcome"].startswith("fail:snapshot-")
+    assert outcome["transition"]["outcome"] == "unavailable"
+    assert outcome["combined"] != "usable"
+    for bad in ("unavailable", "fail:snapshot-signature-invalid", "fail:binding-rebound"):
+        assert bad not in transition.ADJUDICABLE_CURRENCY
+
+
+def test_membership_comes_from_the_pinned_upstream_fold():
+    """Round-1 R1-2: lifecycle semantics are the upstream's by construction.
+
+    2.0.0 is retired at position 4 and reinstated at 5, and a never-bound
+    digest must never be supported at any position — the two cases the
+    hand-rolled tracker got wrong.
+    """
+    import transition
+    ns = upstream016.load(build=True)
+    registry = ns.checkpoint
+    authority = registry.private_key("study-018/currency-authority/1")
+    history = registry.build_registry(authority, [
+        build_fixtures.event("add", "1.0.0", build_fixtures.DIGEST_A),
+        build_fixtures.event("add", "2.0.0", build_fixtures.DIGEST_B),
+        build_fixtures.event("retire", "1.0.0"),
+        build_fixtures.event("retire", "2.0.0"),
+        build_fixtures.event("reinstate", "2.0.0")])
+    payloads = [record["checkpoint"] for record in history]
+    fold = ns.verify_currency.fold_supported
+    series = build_fixtures.SERIES_ID
+    real = ("2.0.0", build_fixtures.DIGEST_B)
+    never_bound = ("2.0.0", "sha256:" + "b" * 64)
+    assert transition._supported_at(payloads, series, real, 2, fold) is True
+    assert transition._supported_at(payloads, series, real, 4, fold) is False
+    assert transition._supported_at(payloads, series, real, 5, fold) is True
+    for position in range(1, 6):
+        assert transition._supported_at(payloads, series, never_bound, position, fold) is False
+    assert transition._left_position(payloads, series, real, fold) == 4

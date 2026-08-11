@@ -124,13 +124,12 @@ PINNED_DIGEST_MEMBERS = (
 )
 
 EXPECTED_CELL_IDS = frozenset((
-    "pos-current-stop", "pos-current-window", "pos-current-run", "unchanged",
-    "neg-ruleconfig-malformed",
+    "pos-current-stop", "pos-current-window", "pos-current-grandfather", "unchanged",
+    "neg-ruleconfig-malformed", "neg-currency-unauthenticated",
     "div-stop-at-retirement", "div-position-window-open",
-    "div-position-window-elapsed", "div-run-to-expiry",
-    "cite-absent-stop-unaffected", "cite-absent-run-unavailable",
-    "cite-after-retirement-run", "cite-after-retirement-window",
-    "cite-foreign-history",
+    "div-position-window-elapsed", "div-grandfather-on-cited-support",
+    "cite-absent-stop-unaffected", "cite-absent-grandfather-unavailable",
+    "cite-unsupported-grandfather", "cite-unsupported-window", "cite-foreign-history",
     "bnd-backdated-citation", "bnd-duration-window", "bnd-mint-time-refusal",
     "bnd-foreign-series-rule",
 ))
@@ -308,7 +307,7 @@ def pin_problems(pins):
             registry.private_key(label)
     except Exception as error:
         problems.append("registryAuthority pins could not be recomputed: %s" % error)
-    if transition.RULES != ("stop-at-retirement", "position-window", "run-to-expiry"):
+    if transition.RULES != ("stop-at-retirement", "position-window", "grandfather-on-cited-support"):
         problems.append("the registered rule vocabulary has drifted")
     for member, relative in PINNED_DIGEST_MEMBERS:
         pinned = (pins.get(member) or {}).get("sha256")
@@ -476,17 +475,14 @@ def holdout_evidence_expectations():
     return json.loads(HOLDOUT_EVIDENCE_PATH.read_text(encoding="utf-8"))["cells"]
 
 
-EVIDENCE_FIELDS = {"comparisonPerformed": bool, "validSightings": int,
-                   "unattributedSightings": int}
+EVIDENCE_FIELDS = {"citedPosition": (int, type(None)), "retiredAtPosition": (int, type(None))}
 
 
 def holdout_evidence_problems(holdout, evidence):
-    """Exact per-cell validation: every cell, every field, right types.
-
-    A partial entry would silently drop that divergence channel (round-5
-    residual of R4-1), which is the same postdictivity hazard one field at a
-    time.
-    """
+    """Exact per-cell validation of the reviewer stratum's structured
+    expectations, retargeted to THIS study's fields (round-1 R1-3: the path was
+    copied from Study 017 and still demanded witness fields this study never
+    produces). A partial entry would silently drop a divergence channel."""
     problems = []
     registered = {c["id"] for c in holdout["cells"]}
     for cid in sorted(registered - set(evidence)):
@@ -499,13 +495,11 @@ def holdout_evidence_problems(holdout, evidence):
             problems.append("%s evidence does not carry exactly %s"
                             % (cid, ", ".join(sorted(EVIDENCE_FIELDS))))
             continue
-        for field, kind in sorted(EVIDENCE_FIELDS.items()):
+        for field in sorted(EVIDENCE_FIELDS):
             value = fields[field]
-            if kind is bool and not isinstance(value, bool):
-                problems.append("%s evidence %s is not a boolean" % (cid, field))
-            elif kind is int and (not isinstance(value, int) or isinstance(value, bool)
-                                  or value < 0):
-                problems.append("%s evidence %s is not a non-negative integer"
+            if value is not None and (not isinstance(value, int)
+                                      or isinstance(value, bool) or value < 1):
+                problems.append("%s evidence %s is neither null nor a positive integer"
                                 % (cid, field))
     return problems
 
@@ -547,11 +541,11 @@ def adjudicate_holdout(holdout, attempt_root, pins_raw_sha256):
         # each as its own divergence channel (round-3 R3-1), so a regression
         # that reached the same outcome by different evidence still diverges.
         for field, value in (evidence_expectations.get(cid) or {}).items():
-            if outcome["witness"].get(field) != value:
-                divergent = sorted(set(divergent) | {"witness:" + field})
+            if outcome["transition"].get(field) != value:
+                divergent = sorted(set(divergent) | {"transition:" + field})
         cells[cid] = {
             "role": cell["role"], "adjudicated": True, "expected": cell["expected"],
-            "expectedWitnessEvidence": evidence_expectations.get(cid) or {},
+            "expectedRuleEvidence": evidence_expectations.get(cid) or {},
             "observed": observed, "combined": outcome["combined"],
             "divergentLayers": divergent, "divergent": bool(divergent),
             "ruleEvidence": {
@@ -600,7 +594,7 @@ def decide(cells):
 
 def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes):
     lines = [
-        "# Detection matrix — Study 017 (%s)" % label,
+        "# Decision matrix — Study 018 (%s)" % label,
         "",
         "Layers: CURRENCY is Study 016's frozen verifier, unchanged — membership at",
         "snapshot; TRANSITION is this study's rule evaluator (rule/SPEC.md §3), which",
@@ -621,7 +615,7 @@ def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes):
             expected = record["expected"][layer]
             observed = record["observed"][layer]
             marker = " ≠" if expected != observed else ""
-            shown = "—" if layer != "witness" else (
+            shown = "—" if layer != "transition" else (
                 "compared=%s, attributed=%s, unattributed=%s"
                 % (evidence.get("comparisonPerformed"),
                    evidence.get("validSightings"),

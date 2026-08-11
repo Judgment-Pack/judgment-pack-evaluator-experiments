@@ -1,7 +1,7 @@
 {
   "ruleConfigVersion": "1",
   "seriesId": "https://example.com/judgment-packs/other-policy",
-  "rule": "run-to-expiry",
+  "rule": "grandfather-on-cited-support",
   "windowPositions": null,
   "windowDuration": null
 }

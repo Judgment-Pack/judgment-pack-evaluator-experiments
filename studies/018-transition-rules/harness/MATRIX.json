@@ -1,11 +1,15 @@
 {
-  "matrixVersion": "1",
+  "matrixVersion": "2",
   "stratum": "locked-replication",
-  "note": "Registered cell expectations for Study 018, locked-replication stratum. Layers: currency = Study 016's frozen registry/verify_currency.py, consumed as a digest-pinned unmodified upstream, whose output stays exactly membership-at-snapshot; transition = this study's rule evaluator (rule/SPEC.md), which consumes that verdict AS A FACT and answers a different question - usability under a stated rule. The separation is the subject: RFC 0011 section 2a places usability outside the registry, and this matrix measures what that costs and buys. Expected values are adjudicated layer OUTCOME strings: 'pass'/'usable', 'unavailable', or '<verdict>:<code>' with an exact registered code. combined is the transition outcome, because usability is the composed question. Roles: endpoint rows decide R1; control-gate rows are validity gates evaluated first. registeredUndetected marks a cell whose permissive outcome is itself the registered finding - a refusal there falsifies R1. attackerCapability: none = only registry state, citation and rule configuration vary; tamper = a retained artifact edited; full-keys = an author who chooses what its own artifact cites. identityGroups registers deliberate byte-identity, verified by the scorer: div-run-to-expiry and bnd-backdated-citation are the SAME BYTES under the same rule, which is how the study exhibits that honest reliance and backdated reliance are indistinguishable to any rule over this evidence. registeredAbsences names artifacts whose absence the registry authorizes for that cell - the five cells that deliberately retain no citation register it, so an unregistered absence stays a validity failure rather than a finding. Cells that turn on WHERE the artifact sits in the history additionally register expectedRuleEvidence (citedPosition, retiredAtPosition), adjudicated as their own transition:<field> divergence channels, so a cell cannot reach its registered outcome from the wrong position.",
+  "note": "Registered cell expectations for Study 018, locked-replication stratum, revised at review round 1. Layers: currency = Study 016's frozen registry/verify_currency.py, a digest-pinned unmodified upstream reporting membership at snapshot and nothing more; transition = this study's rule evaluator (rule/SPEC.md), which is evaluated ONLY over an authenticated membership answer - 'pass' or exactly 'fail:not-current-at-snapshot' - and refuses every other currency outcome rather than reinterpreting it (round-1 R1-1). Membership at each cited prefix is computed by the pinned upstream's OWN fold, so lifecycle semantics are the upstream's by construction (round-1 R1-2). Expected values are adjudicated layer OUTCOME strings: 'pass'/'usable', 'unavailable', or '<verdict>:<code>'. combined is usable only when both layers permit it. Roles: endpoint rows decide R1; control-gate rows are validity gates evaluated first; descriptive and demonstration rows are published and count toward nothing. registeredUndetected marks a permissive outcome that is itself the registered finding. identityGroups registers deliberate byte-identity, verified by the scorer: bnd-backdated-citation IS div-grandfather-on-cited-support's bytes and bnd-mint-time-refusal IS cite-absent-stop-unaffected's - each is one adjudication carrying a second reading, so both are excluded from the endpoint count rather than inflating it. expectedRuleEvidence (citedPosition, retiredAtPosition) is adjudicated as its own transition:<field> divergence channel, so a cell cannot reach its registered outcome from the wrong position; R1 counts those channels.",
   "identityGroups": [
     [
-      "div-run-to-expiry",
+      "div-grandfather-on-cited-support",
       "bnd-backdated-citation"
+    ],
+    [
+      "cite-absent-stop-unaffected",
+      "bnd-mint-time-refusal"
     ]
   ],
   "pairs": {},
@@ -19,12 +23,12 @@
       "registeredAbsences": [
         "citation"
       ],
-      "construction": "the position-2 snapshot, where 1.0.0 is still in the supported set; rule stop-at-retirement; no citation retained",
+      "construction": "position-2 snapshot, where 1.0.0 is in the supported set; stop-at-retirement; no citation",
       "expected": {
         "currency": "pass",
         "transition": "usable"
       },
-      "note": "validity gate: while the version is in the supported set every rule permits reliance, and the rule that needs no citation says so without one"
+      "note": "validity gate: the rule that needs no citation answers without one while the version is supported"
     },
     {
       "id": "pos-current-window",
@@ -33,26 +37,34 @@
       "role": "control-gate",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "the same position-2 snapshot; rule position-window with windowPositions 1; citation of position 2",
+      "construction": "position-2 snapshot; position-window windowPositions 1; citation of position 2",
       "expected": {
         "currency": "pass",
         "transition": "usable"
       },
-      "note": "validity gate: a window rule permits a version that has not left the set at all - the window is not yet running"
+      "note": "validity gate: a window rule permits a version that has not left the set - the window is not running",
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      }
     },
     {
-      "id": "pos-current-run",
+      "id": "pos-current-grandfather",
       "category": "control-positive",
       "variant": "config",
       "role": "control-gate",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "the same position-2 snapshot; rule run-to-expiry; citation of position 2",
+      "construction": "position-2 snapshot; grandfather-on-cited-support; citation of position 2",
       "expected": {
         "currency": "pass",
         "transition": "usable"
       },
-      "note": "validity gate: the third rule agrees while the version is current - the rules diverge only after the retiring event"
+      "note": "validity gate: the third rule agrees while the version is supported; the rules diverge only after the departure",
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      }
     },
     {
       "id": "unchanged",
@@ -63,7 +75,7 @@
       "registeredAbsences": [
         "citation"
       ],
-      "construction": "byte-copy of pos-current-stop adjudicated mid-matrix (within-run control convention)",
+      "construction": "byte-copy of pos-current-stop adjudicated mid-matrix",
       "expected": {
         "currency": "pass",
         "transition": "usable"
@@ -82,7 +94,21 @@
         "currency": "fail:not-current-at-snapshot",
         "transition": "unavailable"
       },
-      "note": "validity gate: the rule vocabulary is closed and an unregistered rule is fail-closed, never silently treated as a default"
+      "note": "validity gate: the rule vocabulary is closed and an unregistered rule is fail-closed, never a default"
+    },
+    {
+      "id": "neg-currency-unauthenticated",
+      "category": "control-negative",
+      "variant": "config",
+      "role": "control-gate",
+      "attackerCapability": "tamper",
+      "registeredAbsences": [],
+      "construction": "the full history with one checkpoint signature altered, so Layer CURRENCY reports snapshot-signature-invalid; grandfather-on-cited-support with a citation of position 2",
+      "expected": {
+        "currency": "fail:snapshot-signature-invalid",
+        "transition": "unavailable"
+      },
+      "note": "validity gate and the round-1 R1-1 closure: a transition rule is evaluated ONLY over an authenticated membership answer. Any other currency outcome - unreadable, unauthenticated, chain-broken, rebound, unavailable - refuses here rather than being reinterpreted as a retirement, and the composed verdict can never be usable over a snapshot the registry did not authenticate"
     },
     {
       "id": "div-stop-at-retirement",
@@ -91,12 +117,16 @@
       "role": "endpoint",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "the full five-event history; the committed 1.0.0 left the supported set at position 3; rule stop-at-retirement",
+      "construction": "full five-event history; the committed 1.0.0 left the supported set at position 3; stop-at-retirement",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-version-retired"
       },
-      "note": "the divergence, arm 1. All four div-* cells share commitment, snapshot, trust configuration and (where used) citation - only the rule differs. This arm refuses"
+      "note": "the divergence, arm 1. All four div-* cells share commitment, snapshot, trust configuration AND citation byte-for-byte and differ only in ruleconfig.json - a harness test asserts the exact difference set. This arm refuses. It retains the citation its siblings carry even though the rule never reads it, so the four cells differ in ruleconfig.json alone",
+      "expectedRuleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      }
     },
     {
       "id": "div-position-window-open",
@@ -105,12 +135,12 @@
       "role": "endpoint",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "the same evidence; rule position-window with windowPositions 5; two positions have elapsed since the retiring event",
+      "construction": "the same evidence; position-window windowPositions 5; two positions elapsed since the departure",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "usable"
       },
-      "note": "the divergence, arm 2: the same evidence permits reliance because this organisation's window has not elapsed",
+      "note": "the divergence, arm 2: the same evidence permits reliance because this configuration's window has not elapsed",
       "expectedRuleEvidence": {
         "citedPosition": 2,
         "retiredAtPosition": 3
@@ -123,30 +153,30 @@
       "role": "endpoint",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "the same evidence; rule position-window with windowPositions 1",
+      "construction": "the same evidence; position-window windowPositions 1",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-window-elapsed"
       },
-      "note": "the divergence, arm 3: the same rule with a tighter parameter refuses - the parameter is the organisation's, not the registry's",
+      "note": "the divergence, arm 3: the same rule with a tighter parameter refuses - the parameter is the relying party's, not the registry's",
       "expectedRuleEvidence": {
         "citedPosition": 2,
         "retiredAtPosition": 3
       }
     },
     {
-      "id": "div-run-to-expiry",
+      "id": "div-grandfather-on-cited-support",
       "category": "D-divergence",
       "variant": "config",
       "role": "endpoint",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "the same evidence; rule run-to-expiry; the citation names position 2, at which 1.0.0 was in the supported set",
+      "construction": "the same evidence; grandfather-on-cited-support; the citation names position 2, at which (1.0.0, digest-A) was in the supported set",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "usable"
       },
-      "note": "the divergence, arm 4, and the study's positive result: one registry verdict (not current at snapshot) supports four different, deterministic usability answers. A registry that answered usability would have to pick one, and picking is not its job (RFC 0011 section 2a)",
+      "note": "the divergence, arm 4, and the study's positive result: one authenticated registry answer (not current at snapshot) supports FOUR configured evaluations yielding THREE exact outcomes - two permits and two refusals. Membership alone therefore does not determine reliance (RFC 0011 section 2a); this study takes no position on who states the rule or where it is evaluated",
       "expectedRuleEvidence": {
         "citedPosition": 2,
         "retiredAtPosition": 3
@@ -161,15 +191,15 @@
       "registeredAbsences": [
         "citation"
       ],
-      "construction": "the full history with NO citation retained; rule stop-at-retirement",
+      "construction": "full history, NO citation retained; stop-at-retirement",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-version-retired"
       },
-      "note": "the citation's value is rule-dependent: this rule reaches its answer from membership alone and is unaffected by every citation finding in this matrix"
+      "note": "the citation's value is rule-dependent: this rule reaches its answer from the registry's own verdict and is unaffected by every citation finding in this matrix"
     },
     {
-      "id": "cite-absent-run-unavailable",
+      "id": "cite-absent-grandfather-unavailable",
       "category": "C-citation-value",
       "variant": "config",
       "role": "endpoint",
@@ -177,44 +207,44 @@
       "registeredAbsences": [
         "citation"
       ],
-      "construction": "the full history with NO citation retained; rule run-to-expiry",
+      "construction": "full history, NO citation retained; grandfather-on-cited-support",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "unavailable"
       },
-      "note": "the same absence is fail-closed for a rule that needs the citation: without it the rule cannot place the artifact in the history, and reports unavailable rather than guessing"
+      "note": "the same absence is fail-closed for a rule that needs the citation: without it the rule cannot place the artifact in the history and refuses rather than guessing"
     },
     {
-      "id": "cite-after-retirement-run",
+      "id": "cite-unsupported-grandfather",
       "category": "C-citation-value",
       "variant": "config",
       "role": "endpoint",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "citation naming position 4 - after 1.0.0 left the set at position 3; rule run-to-expiry",
+      "construction": "citation naming position 4, at which (1.0.0, digest-A) is not in the supported set; grandfather-on-cited-support",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-created-after-retirement"
+        "transition": "not-usable:not-usable-cited-state-not-supported"
       },
-      "note": "an artifact whose own cited state is already past the retiring event is refused by its own evidence",
+      "note": "the code names what the evidence establishes - the CITED STATE was not supported - and deliberately not when the artifact was created, which this apparatus cannot observe (round-1 R1-5)",
       "expectedRuleEvidence": {
         "citedPosition": 4,
         "retiredAtPosition": 3
       }
     },
     {
-      "id": "cite-after-retirement-window",
+      "id": "cite-unsupported-window",
       "category": "C-citation-value",
       "variant": "config",
       "role": "endpoint",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "the same citation of position 4; rule position-window with windowPositions 5",
+      "construction": "the same citation of position 4; position-window windowPositions 5",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-created-after-retirement"
+        "transition": "not-usable:not-usable-cited-state-not-supported"
       },
-      "note": "the window rule refuses for the same reason rather than starting a window: a window measured from the retiring event says nothing about an artifact minted after it",
+      "note": "the window rule refuses for the same reason rather than starting a window: a window measured from the departure says nothing about an artifact whose cited state was already unsupported",
       "expectedRuleEvidence": {
         "citedPosition": 4,
         "retiredAtPosition": 3
@@ -227,26 +257,26 @@
       "role": "endpoint",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "a well-formed citation whose head is not a position of the auditor's snapshot; rule run-to-expiry",
+      "construction": "a well-formed citation whose head is not a position of the auditor's snapshot; grandfather-on-cited-support",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "unavailable"
       },
-      "note": "fail-closed: a head the auditor cannot locate in the history it holds is not evidence about that history - the verifier says it cannot place the artifact rather than treating the citation as absent"
+      "note": "fail-closed: a head the auditor cannot locate is not evidence about the history it holds, and the layer says it cannot place the artifact rather than treating the citation as absent"
     },
     {
       "id": "bnd-backdated-citation",
       "category": "B-boundary",
       "variant": "config",
-      "role": "endpoint",
+      "role": "descriptive",
       "attackerCapability": "full-keys",
       "registeredAbsences": [],
-      "construction": "byte-identical to div-run-to-expiry, read as an artifact whose author chose which head to cite; rule run-to-expiry",
+      "construction": "BYTE-IDENTICAL to div-grandfather-on-cited-support, read as an artifact whose author chose which head to cite",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "usable"
       },
-      "note": "REGISTERED EXPECTED-UNDETECTED and the boundary the whole line turns on: the citation attests the state an artifact's author CLAIMS to have relied on, never when the artifact was created. A party able to re-mint cites an early head deliberately and this rule permits it. The cell is byte-identical to div-run-to-expiry on purpose - honest reliance and backdated reliance are the same evidence, so no rule over this evidence can separate them (RFC 0011 Unresolved #3/#11; Study 014 section 4c's class). Signing the citation changes nothing: the party that would sign is the party that chooses what to cite",
+      "note": "REGISTERED EXPECTED-UNDETECTED, and DESCRIPTIVE rather than an endpoint (round-1 R1-8): every input, expected outcome and registered evidence value equals div-grandfather-on-cited-support's, so it is one adjudication carrying two readings, not two results, and it is excluded from R1 credit and from the endpoint count. The identity IS the finding: honest reliance and backdated reliance are the same evidence, so no rule over this evidence separates them, and signing the citation changes nothing because the party that would sign chooses what to cite (RFC 0011 Unresolved #3/#11)",
       "registeredUndetected": true,
       "expectedRuleEvidence": {
         "citedPosition": 2,
@@ -260,28 +290,28 @@
       "role": "endpoint",
       "attackerCapability": "none",
       "registeredAbsences": [],
-      "construction": "the same evidence; rule position-window naming a DURATION window (24h) rather than a position window",
+      "construction": "the same evidence; position-window naming a DURATION window (24h) instead of a position count",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "unavailable"
       },
-      "note": "the ordering limit, made a verdict: the only ordering available offline is positional. effectiveFrom is carried and never compared in the pinned upstream, and nothing here holds a clock, so a duration window is not evaluable and says so rather than approximating. A reader may reasonably object that a position window is not what an organisation means by '24 hours' - that objection IS this cell"
+      "note": "the ordering limit as a verdict: the only ordering available offline is positional, effectiveFrom is carried and never compared in the pinned upstream, and nothing holds a clock. A reader may object that a position window is not what an organisation means by '24 hours' - that objection IS this cell, and the study does not defend the model"
     },
     {
       "id": "bnd-mint-time-refusal",
       "category": "B-boundary",
       "variant": "config",
-      "role": "endpoint",
+      "role": "demonstration",
       "attackerCapability": "none",
       "registeredAbsences": [
         "citation"
       ],
-      "construction": "the position-5 snapshot with no citation; rule stop-at-retirement - the state a producer would have seen at mint time",
+      "construction": "BYTE-IDENTICAL to cite-absent-stop-unaffected, re-read as the answer a producer's own check would have returned at mint time",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-version-retired"
       },
-      "note": "mint-time fail-fast, exhibited as what a producer's own check would have returned. Registered as a SEPARATELY CHOSEN PRODUCER POLICY, never a property of the citation (RFC 0011 Unresolved #11's wording): nothing in this apparatus obliges a producer to run it"
+      "note": "DEMONSTRATION, published and never counted (round-1 R1-9): no producer stage, mint event, accepted-head policy or freshness rule exists in this apparatus, so the mint-time reading is prose over an existing adjudication and the identity is registered rather than left implicit. RFC 0011 Unresolved #11 makes such refusal conditional on a separately specified producer policy, which this study does not supply"
     },
     {
       "id": "bnd-foreign-series-rule",
@@ -295,7 +325,7 @@
         "currency": "fail:not-current-at-snapshot",
         "transition": "unavailable"
       },
-      "note": "a transition rule is stated per series and confers nothing outside it - the same per-series discipline Study 016 applies to currency pins"
+      "note": "a transition rule is stated per series and confers nothing outside it - the per-series discipline Study 016 applies to currency pins"
     }
   ]
 }

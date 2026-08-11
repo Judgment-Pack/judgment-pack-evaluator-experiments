@@ -31,7 +31,7 @@ A **rule configuration** states one relying party's rule for one series:
 
 ```json
 {"ruleConfigVersion": "1", "seriesId": "…",
- "rule": "stop-at-retirement" | "position-window" | "run-to-expiry",
+ "rule": "stop-at-retirement" | "position-window" | "grandfather-on-cited-support",
  "windowPositions": <non-negative integer> | null,
  "windowDuration": <string> | null}
 ```
@@ -65,9 +65,9 @@ rule configuration, and Layer CURRENCY's verdict.
 5. **The fold.** The positions at which the committed `(version, digest)` entered and left
    the supported set, computed with the pinned upstream's own add/retire/reinstate
    semantics over the same payload shape — positions, where the upstream computes a set.
-6. **The rule.** `run-to-expiry`: `usable` if the cited position is one at which the version
-   was in the supported set, else `not-usable-created-after-retirement`. `position-window`:
-   `usable` if the version has not left the set; `not-usable-created-after-retirement` if
+6. **The rule.** `grandfather-on-cited-support`: `usable` if the cited position is one at which the version
+   was in the supported set, else `not-usable-cited-state-not-supported`. `position-window`:
+   `usable` if the version has not left the set; `not-usable-cited-state-not-supported` if
    the cited position is at or after the leaving position; otherwise `usable` or
    `not-usable-window-elapsed` according to how many positions have elapsed since.
 
@@ -80,7 +80,7 @@ Outcome strings are `usable`, `unavailable`, or `not-usable:<code>`.
 | `transition-unavailable` | a required input or configuration is absent or malformed, the rule is stated for another series, the rule needs a citation and none is retained or it cannot be located in this history, or the rule names an ordering this apparatus does not have — fail-closed, never a permission |
 | `not-usable-version-retired` | the version is not in the supported set at the auditor's snapshot and the stated rule permits no reliance beyond that point |
 | `not-usable-window-elapsed` | more registry positions have elapsed since the version left the set than the stated window permits |
-| `not-usable-created-after-retirement` | the cited head is at or after the position at which the version left the supported set |
+| `not-usable-cited-state-not-supported` | the cited head is at or after the position at which the version left the supported set |
 
 ## 5. What a verdict means, exactly
 
@@ -88,7 +88,7 @@ Outcome strings are `usable`, `unavailable`, or `not-usable:<code>`.
 decision is correct, that the version is current, or that the artifact was created when it
 claims. The citation attests the state an artifact's author *claims* to have relied on: an
 author who chooses what to cite can cite an early head, and `bnd-backdated-citation` is
-byte-identical to `div-run-to-expiry` for exactly that reason — honest reliance and
+byte-identical to `div-grandfather-on-cited-support` for exactly that reason — honest reliance and
 backdated reliance are the same evidence, so no rule over this evidence separates them.
 Closing that gap needs a trusted ordering between the artifact and the registry, which
 RFC 0011 Unresolved #3 leaves open and this study does not supply.

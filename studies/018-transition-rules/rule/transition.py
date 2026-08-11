@@ -27,7 +27,7 @@ rule is privileged by construction:
   positional; a duration window is `transition-unavailable`, because
   `effectiveFrom` is inert in the pinned upstream and nothing here holds a
   clock.
-- `run-to-expiry` — reliance permitted if the artifact cites a head at which
+- `grandfather-on-cited-support` — reliance permitted if the artifact cites a head at which
   the version was still in the supported set. Needs the citation.
 
 The verdict vocabulary is about **usability under a stated rule**, never about
@@ -37,13 +37,13 @@ currency, and never about truth.
 import json
 import re
 
-RULES = ("stop-at-retirement", "position-window", "run-to-expiry")
+RULES = ("stop-at-retirement", "position-window", "grandfather-on-cited-support")
 
 CODES = (
     "transition-unavailable",
     "not-usable-version-retired",
     "not-usable-window-elapsed",
-    "not-usable-created-after-retirement",
+    "not-usable-cited-state-not-supported",
 )
 
 DIGEST_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -98,8 +98,12 @@ def _ruleconfig_problem(config):
     duration = config["windowDuration"]
     if duration is not None and not isinstance(duration, str):
         return "windowDuration is neither null nor a string"
-    if config["rule"] == "position-window" and window is None and duration is None:
-        return "position-window names no window"
+    if config["rule"] == "position-window":
+        if (window is None) == (duration is None):
+            return ("position-window must name exactly one window form: either "
+                    "windowPositions or windowDuration, never both and never neither")
+    elif window is not None or duration is not None:
+        return "%s carries a window, which it does not use" % config["rule"]
     return None
 
 
@@ -116,37 +120,67 @@ def _citation_problem(citation):
     return None
 
 
-def _fold_positions(payloads, series_id, member):
-    """Positions at which `member` entered and left the supported set.
+def _supported_at(payloads, series_id, member, position, fold):
+    """Membership of `member` in the supported set after `position` events.
 
-    Returns `(entered, left)` as 1-based positions or None. Uses the same
-    add/retire/reinstate semantics as the pinned upstream, over the same
-    payload shape, but computes *positions* rather than a set — the upstream's
-    fold answers membership and this layer needs where the transition happened.
+    Computed by the **pinned upstream's own fold** over the prefix, so the
+    lifecycle semantics are the upstream's by construction rather than by a
+    re-implementation that could drift (round-1 R1-2 found exactly such a
+    drift: a hand-rolled interval tracker mishandled reinstatement and
+    accepted a never-bound digest).
     """
     version, digest = member
-    entered = left = None
-    current = False
-    for index, payload in enumerate(payloads, start=1):
-        if payload["seriesId"] != series_id or payload["packVersion"] != version:
-            continue
-        if payload["event"] == "add" and payload.get("packDigest") == digest:
-            current, entered, left = True, index, None
-        elif payload["event"] == "retire" and current:
-            current, left = False, index
-        elif payload["event"] == "reinstate" and not current:
-            current, entered, left = True, index, None
-    return entered, left
+    supported, problem = fold(payloads[:position], series_id)
+    if problem is not None:
+        return None
+    return supported.get(version) == digest
+
+
+def _left_position(payloads, series_id, member, fold):
+    """The last position at which `member` left the supported set, or None.
+
+    Defined over the same upstream fold: the highest p such that the member
+    was supported after p-1 events and is not after p. Multi-cycle histories
+    therefore report the most recent departure, and the window in
+    `position-window` is measured from it — stated in the SPEC rather than
+    left to a reader.
+    """
+    left = None
+    previous = False
+    for position in range(1, len(payloads) + 1):
+        current = _supported_at(payloads, series_id, member, position, fold)
+        if current is None:
+            return None
+        if previous and not current:
+            left = position
+        previous = current
+    return left
+
+
+ADJUDICABLE_CURRENCY = ("pass", "fail:not-current-at-snapshot")
 
 
 def layer_transition(commitment, snapshot_digests, snapshot_payloads,
-                     citation_bytes, ruleconfig_bytes, currency_outcome):
+                     citation_bytes, ruleconfig_bytes, currency_outcome, fold=None):
     """Evaluate the registered rule. Ordered, fail-closed.
 
     `currency_outcome` is Study 016's Layer CURRENCY verdict string, consumed
     as a fact and never recomputed here: membership is the registry's answer
     and usability is this layer's, which is the separation RFC 0011 §2a draws.
     """
+    # A transition rule presupposes a registry answer it can stand on. Any
+    # currency outcome other than the two adjudicable ones — an unreadable or
+    # unauthenticated snapshot, a broken chain, a rebound binding, an absent
+    # pin — is an integrity or availability failure, and this layer refuses
+    # rather than reinterpreting it as a retirement (round-1 R1-1, which
+    # showed an invalid attestation could otherwise combine to `usable`).
+    if currency_outcome not in ADJUDICABLE_CURRENCY:
+        return _unavailable(
+            "the currency layer returned %r: a transition rule is evaluated only "
+            "over an authenticated membership answer, never over an integrity or "
+            "availability failure" % (currency_outcome,))
+    if fold is None:
+        return _unavailable("no membership fold was supplied to this layer")
     if not isinstance(ruleconfig_bytes, (bytes, bytearray)):
         return _unavailable("rule configuration is absent or not bytes")
     try:
@@ -206,37 +240,38 @@ def layer_transition(commitment, snapshot_digests, snapshot_payloads,
             "the cited head is not a position of the auditor's snapshot: this "
             "rule cannot place the artifact in the history it is auditing")
     cited_position = snapshot_digests.index(citation["citedHead"]) + 1
-    entered, left = _fold_positions(snapshot_payloads, series_id, member)
+    supported_at_cited = _supported_at(snapshot_payloads, series_id, member,
+                                       cited_position, fold)
+    if supported_at_cited is None:
+        return _unavailable("the history does not fold cleanly to the cited position")
+    left = _left_position(snapshot_payloads, series_id, member, fold)
     fields = {"citedPosition": cited_position, "retiredAtPosition": left}
 
-    if config["rule"] == "run-to-expiry":
-        if entered is not None and cited_position >= entered and (
-                left is None or cited_position < left):
+    if config["rule"] == "grandfather-on-cited-support":
+        if supported_at_cited:
             return result("usable", None,
-                          "the cited head is a position at which the version was in the "
-                          "supported set; this rule lets such decisions run to their own "
-                          "terms. NOTE: the citation attests the state its author claims, "
-                          "not when the artifact was created", **fields)
-        return _unusable("not-usable-created-after-retirement",
-                         "the cited head is not a position at which the version was in "
-                         "the supported set", **fields)
+                          "the cited head is a position at which this exact "
+                          "(version, digest) was in the supported set, and this rule does "
+                          "not block reliance on that ground. It establishes nothing about "
+                          "when the artifact was created", **fields)
+        return _unusable("not-usable-cited-state-not-supported",
+                         "the cited head is not a position at which this exact "
+                         "(version, digest) was in the supported set", **fields)
 
     # position-window
     if left is None:
         return result("usable", None,
-                      "the version has not left the supported set at this snapshot",
-                      **fields)
-    if cited_position >= left:
-        return _unusable("not-usable-created-after-retirement",
-                         "the cited head is at or after the position at which the "
-                         "version left the supported set", **fields)
+                      "this (version, digest) has not left the supported set at this "
+                      "snapshot", **fields)
+    if not supported_at_cited or cited_position >= left:
+        return _unusable("not-usable-cited-state-not-supported",
+                         "the cited head is not a supported position before the most "
+                         "recent departure at position %d" % left, **fields)
     elapsed = len(snapshot_digests) - left
     if elapsed <= config["windowPositions"]:
         return result("usable", None,
-                      "%d position(s) elapsed since the version left the supported set; "
-                      "the window permits %d" % (elapsed, config["windowPositions"]),
-                      **fields)
+                      "%d position(s) elapsed since the most recent departure; the window "
+                      "permits %d" % (elapsed, config["windowPositions"]), **fields)
     return _unusable("not-usable-window-elapsed",
-                     "%d position(s) elapsed since the version left the supported set; "
-                     "the window permits %d" % (elapsed, config["windowPositions"]),
-                     **fields)
+                     "%d position(s) elapsed since the most recent departure; the window "
+                     "permits %d" % (elapsed, config["windowPositions"]), **fields)

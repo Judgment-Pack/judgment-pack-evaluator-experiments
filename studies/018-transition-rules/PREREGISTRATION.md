@@ -25,7 +25,7 @@ one possible input, with no ordering.
 **R1 (primary, retractable):** for every adjudicated endpoint cell, the observed
 `{currency, transition}` outcomes equal the registered expectations — where Layer CURRENCY
 is Study 016's frozen verifier reporting membership only, and Layer TRANSITION evaluates one
-of three registered rules (`stop-at-retirement`, `position-window`, `run-to-expiry`) over
+of three registered rules (`stop-at-retirement`, `position-window`, `grandfather-on-cited-support`) over
 `(cited head, membership, rule)`. Divergence in either direction falsifies, including a
 refusal on a `registeredUndetected` cell.
 
@@ -88,7 +88,7 @@ divergence channels, so a cell cannot reach its registered outcome from the wron
 ### 4a. The registered boundaries
 
 - **`bnd-backdated-citation`** (registered expected-undetected) is **byte-identical** to
-  `div-run-to-expiry`, verified by the scorer as a registered identity group. Honest
+  `div-grandfather-on-cited-support`, verified by the scorer as a registered identity group. Honest
   reliance and backdated reliance are the same evidence, so no rule over this evidence
   separates them; the citation attests the state an author *claims*, never when the artifact
   was created. Signing the citation changes nothing — the party that would sign is the party

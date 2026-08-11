@@ -21,13 +21,13 @@ a cited head is worth. This study measures both.
 One registry verdict — `not current at snapshot` — supports **four different, deterministic
 usability answers** over identical evidence, according to which rule the relying party holds:
 `stop-at-retirement` refuses; `position-window` permits or refuses depending on its parameter;
-`run-to-expiry` permits. A registry that answered usability would have to pick one, and
+`grandfather-on-cited-support` permits. A registry that answered usability would have to pick one, and
 picking is not its job. That is §2a's separation, measured rather than argued.
 
 ## The boundaries, registered in advance
 
 - **The backdated citation** (`bnd-backdated-citation`, registered expected-undetected) is
-  **byte-identical** to `div-run-to-expiry`. Honest reliance and backdated reliance are the
+  **byte-identical** to `div-grandfather-on-cited-support`. Honest reliance and backdated reliance are the
   same evidence, so no rule over this evidence separates them — the citation attests the
   state an author *claims*, never when the artifact was created. Signing it changes nothing:
   the party that would sign is the party that chooses what to cite.

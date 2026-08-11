@@ -29,7 +29,8 @@ def world():
     digests = ["sha256:" + hashlib.sha256(
         registry.canonical_bytes(registry.DOMAIN_CHECKPOINT, r["checkpoint"])).hexdigest()
         for r in history]
-    return {"digests": digests, "payloads": [r["checkpoint"] for r in history]}
+    return {"digests": digests, "payloads": [r["checkpoint"] for r in history],
+            "fold": ns.verify_currency.fold_supported}
 
 
 def commitment(version="1.0.0", digest=DA, series=SERIES):
@@ -48,7 +49,7 @@ def run(world, rule, cited=None, currency="fail:not-current-at-snapshot", **kw):
     citation = None if cited is None else ct.citation_bytes(
         series_id=SERIES, cited_head=world["digests"][cited - 1])
     return tr.layer_transition(commitment(), world["digests"], world["payloads"],
-                               citation, config, currency)
+                               citation, config, currency, fold=world["fold"])
 
 
 def test_the_divergence_is_deterministic(world):
@@ -57,7 +58,7 @@ def test_the_divergence_is_deterministic(world):
     assert out(run(world, "position-window", cited=2, window_positions=5)) == "usable"
     assert out(run(world, "position-window", cited=2, window_positions=1)) == \
         "not-usable:not-usable-window-elapsed"
-    assert out(run(world, "run-to-expiry", cited=2)) == "usable"
+    assert out(run(world, "grandfather-on-cited-support", cited=2)) == "usable"
 
 
 def test_stop_at_retirement_needs_no_citation(world):
@@ -67,7 +68,7 @@ def test_stop_at_retirement_needs_no_citation(world):
 
 
 def test_citation_absent_is_fail_closed_for_rules_that_need_it(world):
-    for rule, kw in (("run-to-expiry", {}), ("position-window", {"window_positions": 5})):
+    for rule, kw in (("grandfather-on-cited-support", {}), ("position-window", {"window_positions": 5})):
         assert out(run(world, rule, cited=None, **kw)) == "unavailable"
 
 
@@ -77,57 +78,81 @@ def test_duration_window_is_unavailable(world):
     assert "no trusted ordering" in result["detail"]
 
 
-def test_citation_after_retirement(world):
-    assert out(run(world, "run-to-expiry", cited=4)) == \
-        "not-usable:not-usable-created-after-retirement"
+def test_citation_at_unsupported_position(world):
+    assert out(run(world, "grandfather-on-cited-support", cited=4)) == \
+        "not-usable:not-usable-cited-state-not-supported"
     assert out(run(world, "position-window", cited=4, window_positions=5)) == \
-        "not-usable:not-usable-created-after-retirement"
+        "not-usable:not-usable-cited-state-not-supported"
 
 
 def test_citation_outside_the_history_is_unavailable(world):
-    config = ct.ruleconfig_bytes(series_id=SERIES, rule="run-to-expiry")
+    config = ct.ruleconfig_bytes(series_id=SERIES, rule="grandfather-on-cited-support")
     foreign = ct.citation_bytes(series_id=SERIES,
                                 cited_head="sha256:" + "0" * 64)
     result = tr.layer_transition(commitment(), world["digests"], world["payloads"],
-                                 foreign, config, "fail:not-current-at-snapshot")
+                                 foreign, config, "fail:not-current-at-snapshot",
+                                 fold=world["fold"])
     assert (result["verdict"], result["code"]) == ("unavailable", "transition-unavailable")
 
 
 def test_foreign_series_rule_confers_nothing(world):
-    assert out(run(world, "run-to-expiry", cited=2, series=OTHER)) == "unavailable"
+    assert out(run(world, "grandfather-on-cited-support", cited=2, series=OTHER)) == "unavailable"
 
 
 def test_unregistered_rule_is_fail_closed(world):
-    config = ct.ruleconfig_bytes(series_id=SERIES, rule="run-to-expiry").replace(
-        b'"run-to-expiry"', b'"invent-a-rule"')
+    config = ct.ruleconfig_bytes(series_id=SERIES, rule="grandfather-on-cited-support").replace(
+        b'"grandfather-on-cited-support"', b'"invent-a-rule"')
     result = tr.layer_transition(commitment(), world["digests"], world["payloads"],
-                                 None, config, "fail:not-current-at-snapshot")
+                                 None, config, "fail:not-current-at-snapshot",
+                                 fold=world["fold"])
     assert result["code"] == "transition-unavailable"
 
 
 def test_malformed_inputs_stay_in_the_vocabulary(world):
     for citation, config in (
-        (7, ct.ruleconfig_bytes(series_id=SERIES, rule="run-to-expiry")),
+        (7, ct.ruleconfig_bytes(series_id=SERIES, rule="grandfather-on-cited-support")),
         (None, "not-bytes"),
-        (b"{not json", ct.ruleconfig_bytes(series_id=SERIES, rule="run-to-expiry")),
+        (b"{not json", ct.ruleconfig_bytes(series_id=SERIES, rule="grandfather-on-cited-support")),
     ):
         result = tr.layer_transition(commitment(), world["digests"], world["payloads"],
-                                     citation, config, "fail:not-current-at-snapshot")
+                                     citation, config, "fail:not-current-at-snapshot",
+                                     fold=world["fold"])
         assert result["code"] in tr.CODES
 
 
 def test_duplicate_members_refuse(world):
-    raw = ct.ruleconfig_bytes(series_id=SERIES, rule="run-to-expiry").decode("utf-8")
+    raw = ct.ruleconfig_bytes(series_id=SERIES, rule="grandfather-on-cited-support").decode("utf-8")
     doctored = raw.replace('"windowDuration": null', '"windowDuration": null, "windowDuration": null', 1)
     result = tr.layer_transition(commitment(), world["digests"], world["payloads"],
-                                 None, doctored.encode("utf-8"), "fail:not-current-at-snapshot")
+                                 None, doctored.encode("utf-8"),
+                                 "fail:not-current-at-snapshot", fold=world["fold"])
     assert result["code"] == "transition-unavailable"
 
 
 def test_every_registered_code_is_reachable():
     assert {"transition-unavailable", "not-usable-version-retired",
-            "not-usable-window-elapsed", "not-usable-created-after-retirement"} == set(tr.CODES)
+            "not-usable-window-elapsed", "not-usable-cited-state-not-supported"} == set(tr.CODES)
 
 
 def test_evaluator_never_imports_the_writer():
     assert "import citation" not in open(tr.__file__, encoding="utf-8").read()
+
+
+def test_only_an_authenticated_membership_answer_is_adjudicable(world):
+    """Round-1 R1-1 at the unit level."""
+    for bad in ("unavailable", "fail:snapshot-signature-invalid",
+                "fail:snapshot-chain-inconsistent", "fail:binding-rebound",
+                "fail:series-unknown-at-snapshot"):
+        result = run(world, "stop-at-retirement", currency=bad)
+        assert (result["verdict"], result["code"]) == ("unavailable", "transition-unavailable")
+
+
+def test_position_window_needs_exactly_one_window_form(world):
+    """Round-1 R1-7: both forms, or neither, is fail-closed."""
+    both = run(world, "position-window", cited=2, window_positions=5, window_duration="24h")
+    assert both["code"] == "transition-unavailable"
+    neither = run(world, "position-window", cited=2)
+    assert neither["code"] == "transition-unavailable"
+    for rule in ("stop-at-retirement", "grandfather-on-cited-support"):
+        carried = run(world, rule, cited=2, window_positions=1)
+        assert carried["code"] == "transition-unavailable"

@@ -117,13 +117,19 @@ def verify_cell(cell_dir):
     digests, payloads = snapshot_view(snapshot) if snapshot is not None else (None, None)
     rule = transition.layer_transition(
         commitment, digests, payloads, read(cell_dir, "citation.json"),
-        read(cell_dir, "ruleconfig.json"), currency_outcome)
+        read(cell_dir, "ruleconfig.json"), currency_outcome,
+        fold=ns.verify_currency.fold_supported)
     layers = {
         "currency": dict(currency, outcome=currency_outcome),
         "transition": dict(rule, outcome=outcome_of(rule)),
     }
-    return dict(layers, combined="usable" if layers["transition"]["outcome"] == "usable"
+    # The composed verdict is usable only when BOTH layers permit it: the
+    # registry must have authenticated the history and answered membership,
+    # and the rule must permit reliance on that answer (round-1 R1-1).
+    composed = ("usable" if layers["transition"]["outcome"] == "usable"
+                and layers["currency"]["outcome"] in transition.ADJUDICABLE_CURRENCY
                 else layers["transition"]["outcome"])
+    return dict(layers, combined=composed)
 
 
 def registered_cell(cell_id):

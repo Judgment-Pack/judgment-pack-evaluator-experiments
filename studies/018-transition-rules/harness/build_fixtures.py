@@ -122,39 +122,51 @@ def build_payloads():
     # The version is still current at position 2: every rule must permit it.
     cells["pos-current-stop"] = cell("stop-at-retirement", position=2, cited=None)
     cells["pos-current-window"] = cell("position-window", position=2, cited=2, window=1)
-    cells["pos-current-run"] = cell("run-to-expiry", position=2, cited=2)
+    cells["pos-current-grandfather"] = cell("grandfather-on-cited-support", position=2, cited=2)
     cells["unchanged"] = dict(cells["pos-current-stop"])
-    cells["neg-ruleconfig-malformed"] = cell("run-to-expiry", cited=2)
+    cells["neg-ruleconfig-malformed"] = cell("grandfather-on-cited-support", cited=2)
     cells["neg-ruleconfig-malformed"]["ruleconfig.json"] = (
-        citations.ruleconfig_bytes(series_id=SERIES_ID, rule="run-to-expiry")
-        .replace(b'"rule": "run-to-expiry"', b'"rule": "invent-a-rule"'))
+        citations.ruleconfig_bytes(series_id=SERIES_ID, rule="grandfather-on-cited-support")
+        .replace(b'"rule": "grandfather-on-cited-support"', b'"rule": "invent-a-rule"'))
 
     # ---- the divergence: identical evidence, three rules ---------------------
     cells["div-stop-at-retirement"] = cell("stop-at-retirement", cited=2)
     cells["div-position-window-open"] = cell("position-window", cited=2, window=5)
     cells["div-position-window-elapsed"] = cell("position-window", cited=2, window=1)
-    cells["div-run-to-expiry"] = cell("run-to-expiry", cited=2)
+    cells["div-grandfather-on-cited-support"] = cell("grandfather-on-cited-support", cited=2)
 
     # ---- what the citation is worth, per rule -------------------------------
     cells["cite-absent-stop-unaffected"] = cell("stop-at-retirement", cited=None)
-    cells["cite-absent-run-unavailable"] = cell("run-to-expiry", cited=None)
-    cells["cite-after-retirement-run"] = cell("run-to-expiry", cited=4)
-    cells["cite-after-retirement-window"] = cell("position-window", cited=4, window=5)
-    cells["cite-foreign-history"] = cell("run-to-expiry", cited=2)
+    cells["cite-absent-grandfather-unavailable"] = cell("grandfather-on-cited-support", cited=None)
+    cells["cite-unsupported-grandfather"] = cell("grandfather-on-cited-support", cited=4)
+    cells["cite-unsupported-window"] = cell("position-window", cited=4, window=5)
+    cells["cite-foreign-history"] = cell("grandfather-on-cited-support", cited=2)
     cells["cite-foreign-history"]["citation.json"] = citations.citation_bytes(
         series_id=SERIES_ID,
         cited_head="sha256:" + hashlib.sha256(b"018/not-in-this-history").hexdigest())
 
     # ---- registered boundaries ----------------------------------------------
     # The backdated citation: an author who chooses what to cite cites early.
-    cells["bnd-backdated-citation"] = cell("run-to-expiry", cited=2)
+    cells["bnd-backdated-citation"] = cell("grandfather-on-cited-support", cited=2)
     # A duration window: no trusted ordering exists offline.
     cells["bnd-duration-window"] = cell("position-window", cited=2, duration="24h")
     # Mint-time refusal is a producer policy, exhibited as a rule that would
     # have refused at the head the producer saw.
-    cells["bnd-mint-time-refusal"] = cell("stop-at-retirement", position=5, cited=None)
+    cells["bnd-mint-time-refusal"] = dict(cells["cite-absent-stop-unaffected"])
+    # Round-1 R1-1's control: an unauthenticated snapshot must never reach a rule.
+    import json as _json
+    broken = _json.loads(snap(None).decode("utf-8"))
+    signature = broken["checkpoints"][1]["signature"]
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    first = signature[0]
+    index = alphabet.index(first) if first in alphabet else 0
+    broken["checkpoints"][1]["signature"] = alphabet[(index + 1) % len(alphabet)] + signature[1:]
+    cells["neg-currency-unauthenticated"] = cell("grandfather-on-cited-support", cited=2)
+    cells["neg-currency-unauthenticated"]["snapshot.json"] = _json.dumps(
+        broken, indent=2, ensure_ascii=False).encode("utf-8")
+
     # A rule stated for another series confers nothing here.
-    cells["bnd-foreign-series-rule"] = cell("run-to-expiry", cited=2,
+    cells["bnd-foreign-series-rule"] = cell("grandfather-on-cited-support", cited=2,
                                             series=OTHER_SERIES_ID)
     cells["bnd-foreign-series-rule"]["commitment.json"] = commitment_bytes()
     cells["bnd-foreign-series-rule"]["citation.json"] = cite(2)
