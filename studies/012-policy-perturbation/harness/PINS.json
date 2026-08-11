@@ -150,7 +150,7 @@
     "note": "The recaptured golden context (§3.2, one capture for all five arms); null until the capture is registered."
   },
   "isolationNegative": {
-    "assent": null,
+    "assent": "granted",
     "note": "§6 C7 runs once, against the operator's real home, only with recorded operator assent; batch.py capture-isolation-negative refuses while this is null."
   },
   "freeze": {
