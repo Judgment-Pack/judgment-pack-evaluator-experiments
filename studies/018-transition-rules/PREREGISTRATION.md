@@ -34,7 +34,7 @@ computes deterministically from retained artifacts, and which it cannot compute 
 
 ## 1a. Two strata
 
-The locked-replication stratum (`harness/MATRIX.json`, 18 cells) is a conformance suite over
+The locked-replication stratum (`harness/MATRIX.json`, 21 cells) is a conformance suite over
 behaviour the maintainer observed during development; R1 has a locked replication's standing,
 never a prospective prediction. The **reviewer holdout** is authored by the cross-vendor
 reviewer during the pre-freeze rounds, committed verbatim with attribution, never executed
@@ -82,7 +82,7 @@ only in the rule configuration.
 endpoints across divergence (D), citation value (C) and boundaries (B), 1 descriptive row and
 1 demonstration — the last two byte-identical to endpoints they re-read, registered as identity
 groups and counted toward nothing. A harness test derives these counts from the matrix.
-`registeredAbsences` names the five cells that deliberately retain no citation, so an
+`registeredAbsences` names the six cells that deliberately retain no citation, so an
 unregistered absence stays a validity failure rather than a finding. Cells that turn on
 *where* the artifact sits in the history additionally register `expectedRuleEvidence`
 (`citedPosition`, `retiredAtPosition`), adjudicated as their own `transition:<field>`

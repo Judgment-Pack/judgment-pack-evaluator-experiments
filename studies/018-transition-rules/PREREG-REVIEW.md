@@ -61,7 +61,7 @@ Every branch now decides from the fold's own answers over prefixes:
 | R1-10 residual | **Accepted.** R1's wording now names the structured channels `decide()` actually counts, and the renderer publishes `citedPosition`/`retiredAt` instead of stale witness triples. |
 | R1-11 residual | **Accepted.** The README headline now matches the matrix: four configured evaluations, three exact outcomes. |
 | R1-13 (NOT RESOLVED) | **Accepted.** The builder derives the authority from the registered label, and the PINS text no longer claims the writer is off the scoring path — the scorer legitimately loads it to recompute authority pins, so the claim was corrected rather than the behaviour. |
-| R2-2 | **Accepted.** The preregistration's cell and role counts were stale against the matrix; reconciled, with the counts derived from the matrix by a harness test. |
+| R2-2 | **Accepted**, but this disposition was itself wrong when written — see the correction below. |
 | R1-3, R1-8, R1-9, R1-12 | **Confirmed RESOLVED** by the reviewer. The endpoint set was additionally scanned for hidden duplication and found unique. |
 
 A note on the apparatus catching itself: after the semantics change, two cells' registered
@@ -72,6 +72,28 @@ reports, and the reason is recorded here rather than silently amended.
 
 Post-revision state: 21 cells (11 endpoints), 36 harness tests green, build pilot
 `R1 holds`.
+
+### Correction to R2-2 — a disposition that claimed a safeguard it never built
+
+R2-2's disposition said the counts were "reconciled, with the counts derived from the matrix
+by a harness test." **No such test existed.** It was written as if it did, and nothing
+enforced the claim, so the document drifted again immediately: by the time the holdout
+landed, `PREREGISTRATION.md` §1a said the locked stratum held **18 cells** against a
+**21-cell** matrix, and §4 said `registeredAbsences` named **five** cells when it named
+**six**. Both numbers are in the document that gets pinned at the freeze and governs the
+attempt.
+
+This is the same defect class the reviewer raised as R1-13 — a safeguard asserted in prose
+rather than in code — reappearing in the disposition written to close a different finding.
+It is recorded here rather than quietly fixed, because a review record whose dispositions
+are themselves unverified is worth less than no record.
+
+Fixed now, in this order: both counts corrected against the matrix, and
+`test_preregistration_counts_are_derived_from_the_matrix` written to recompute every stated
+count — total cells, positive and negative control gates, endpoints, the descriptive and
+demonstration rows, and the registered-absence count in words — from `MATRIX.json`, plus a
+check that the two holdout files describe the same cell set. The test was mutation-checked
+against all three of the wrong numbers and fails on each.
 
 ### R2-H — the reviewer's holdout stratum, landed
 

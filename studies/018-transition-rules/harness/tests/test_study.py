@@ -212,6 +212,56 @@ def test_backdated_citation_is_byte_identical_to_the_honest_cell():
             assert (a / name).read_bytes() == (b / name).read_bytes(), name
 
 
+def test_preregistration_counts_are_derived_from_the_matrix():
+    """Every count the preregistration states is recomputed from MATRIX.json.
+
+    Round-2 R2-2 disposed of stale counts by claiming this test existed. It did
+    not, and by round 3 the document had drifted again in two places at once:
+    §1a said 18 cells against a 21-cell matrix, and §4 said five registered
+    absences against six. The preregistration is pinned at the freeze and is the
+    governing document, so a count in it is a registered claim like any other.
+    """
+    text = (STUDY / "PREREGISTRATION.md").read_text(encoding="utf-8")
+    cells = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))["cells"]
+
+    def count(predicate):
+        return sum(1 for cell in cells if predicate(cell))
+
+    def stated(pattern):
+        found = re.findall(pattern, text)
+        assert found, "the preregistration no longer states: " + pattern
+        return [int(value) for value in found]
+
+    control_gates = [c for c in cells if c["role"] == "control-gate"]
+    expected = {
+        r"`harness/MATRIX\.json`, (\d+) cells": len(cells),
+        r"\n(\d+) cells \(matrixVersion": len(cells),
+        r"(\d+) positive controls": sum(1 for c in control_gates
+                                        if not c["id"].startswith("neg-")),
+        r"(\d+) negative controls": sum(1 for c in control_gates
+                                        if c["id"].startswith("neg-")),
+        r"(\d+)\s*\n?endpoints across divergence": count(lambda c: c["role"] == "endpoint"),
+        r"(\d+) descriptive row": count(lambda c: c["role"] == "descriptive"),
+        r"(\d+) demonstration": count(lambda c: c["role"] == "demonstration"),
+    }
+    for pattern, actual in expected.items():
+        for value in stated(pattern):
+            assert value == actual, "%s: preregistration says %d, matrix has %d" % (
+                pattern, value, actual)
+
+    words = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
+             7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+    absences = count(lambda c: c.get("registeredAbsences"))
+    assert "names the %s cells that deliberately retain no citation" % words[absences] in text
+    assert all(c["registeredAbsences"] == ["citation"]
+               for c in cells if c.get("registeredAbsences")), (
+        "the prose says every registered absence is a citation")
+
+    holdout = json.loads((STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8"))
+    assert len(holdout["cells"]) == len(json.loads(
+        (STUDY / "harness" / "MATRIX-HOLDOUT-EVIDENCE.json").read_text(encoding="utf-8"))["cells"])
+
+
 def test_holdout_machinery_lands_with_the_reviewer_cells():
     """The round-2 reviewer's cells and their construction machinery land
     together and are NEVER executed before the freeze (the 014/016/017 regime).
