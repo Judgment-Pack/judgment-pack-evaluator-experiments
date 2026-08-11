@@ -71,9 +71,51 @@ exactly what it was added for. The registrations were corrected to what the laye
 reports, and the reason is recorded here rather than silently amended.
 
 Post-revision state: 21 cells (11 endpoints), 36 harness tests green, build pilot
-`R1 holds`. The reviewer's 10 cells are **not yet landed** — that is the next step, together
-with their construction hooks and structured-expectation map.
+`R1 holds`.
+
+### R2-H — the reviewer's holdout stratum, landed
+
+The round-2 reviewer authored ten cells (h01–h10). They are committed **verbatim with
+attribution** in [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json); their
+construction hooks land in `harness/build_fixtures.py` gated on a `HoldoutAttemptContext`
+that only the scorer mints after all six freeze pins are non-null, and their structured
+expectations are kept **separate** in
+[`harness/MATRIX-HOLDOUT-EVIDENCE.json`](harness/MATRIX-HOLDOUT-EVIDENCE.json) so the
+authored block stays byte-for-byte (the 017 round-3 R3-1 discipline). Nothing in the
+stratum has been executed, here or anywhere: two new harness tests assert every registered
+cell has a hook, that every hook and `construct_holdout` refuse outside a valid post-freeze
+context, and that the gate refuses while **each** of the six pins is null in turn.
+
+**A registered disagreement, deliberately left unresolved.** Reading the reviewer's ten
+constructions, their `retiredAtPosition` expectations decode to a single consistent rule:
+*the most recent departure of the committed binding in the full history, reported whenever
+that binding is not supported at the snapshot* — h01's twice-reinstated binding is supported
+at position 7 and registers `null`, while h05 (cited position 5, unsupported) and h08 (cited
+position 2, unsupported) register `8` and `6`. This study's `rule/transition.py` publishes a
+departure only **relative to a supported cited position**, so it is expected to report `null`
+for h05 and h08 — and h03, also cited-unsupported, registers `null` and agrees.
+
+Neither side was adjusted, and the reasoning is the disposition:
+
+- **The layer was not changed to match.** The round-2 review raised no finding on this
+  field — the differing semantics appears *only* inside the holdout's own notes. Fitting the
+  implementation to the answers of cells that have never been run would destroy the only
+  prospective content the study has. That is training on the test set, and the stratum would
+  afterwards be worth nothing.
+- **The expectations were not changed to match the layer either.** Rewriting a reviewer's
+  registered values to whatever the maintainer's code happens to emit is the same error
+  wearing the opposite sign, and it is the failure the separate evidence file exists to make
+  impossible to commit quietly.
+
+So both outcomes are named in advance. If the first execution reports `null` where the
+reviewer registered `8` and `6`, the holdout is **divergent on the
+`transition:retiredAtPosition` channel for h05 and h08** — a genuine finding that
+`rule/SPEC.md` under-specifies what the evidence field means when the cited state is not
+supported, reportable as such and not as a defect discovered late. If it instead matches,
+the two semantics coincide on these cells and the field is better pinned than the SPEC
+text alone establishes. Either way the outcome is reported separately and cannot move R1.
 
 ## Round 3 — pending
 
-Confirmation of the round-2 dispositions, and of the holdout landing once it is made.
+Confirmation of the round-2 dispositions and of the holdout landing, including whether
+R2-H's handling of the `retiredAtPosition` disagreement is the right call.

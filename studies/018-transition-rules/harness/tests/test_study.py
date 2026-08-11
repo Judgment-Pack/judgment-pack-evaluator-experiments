@@ -1,5 +1,6 @@
 """Study-level integrity: pins, vocabulary sync, pair machinery, determinism."""
 
+import dataclasses
 import importlib.util
 import json
 import re
@@ -212,12 +213,88 @@ def test_backdated_citation_is_byte_identical_to_the_honest_cell():
 
 
 def test_holdout_machinery_lands_with_the_reviewer_cells():
-    """Pre-review the stratum is empty by design; the scorer must refuse
-    --include-holdout for that reason alone, and the construction machinery
-    lands together with the reviewer's cells (the 014/016/017 regime)."""
+    """The round-2 reviewer's cells and their construction machinery land
+    together and are NEVER executed before the freeze (the 014/016/017 regime).
+
+    This test asserts everything about the stratum that can be checked without
+    constructing a single byte: every registered cell has a hook, every hook
+    refuses outside a valid post-freeze context, and every cell carries exactly
+    this study's structured-evidence fields. Whether a hook builds what its
+    construction text says is adjudicated by the first execution — which is the
+    whole of what the stratum is for — and a hook that fails there is recorded
+    as `harness-error`, not silently dropped.
+    """
+    import score
     holdout = json.loads((STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8"))
-    assert holdout["cells"] == [] and holdout["reviewer"] is None
-    assert not hasattr(build_fixtures, "HOLDOUT_HOOKS")
+    assert holdout["reviewer"], "the stratum must carry its reviewer attribution"
+    ids = [cell["id"] for cell in holdout["cells"]]
+    assert ids == ["h%02d" % n for n in range(1, 11)]
+    assert not score.holdout_schema_problems(holdout)
+
+    # every cell is constructible in principle, and nothing is constructible now
+    assert set(build_fixtures.HOLDOUT_HOOKS) == set(ids)
+    for cell_id in ids:
+        with pytest.raises(build_fixtures.HoldoutRefused):
+            build_fixtures.HOLDOUT_HOOKS[cell_id](None)
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures.construct_holdout(None, STUDY / "fixtures", holdout["cells"])
+
+    # the structured expectations are complete, separate, and this study's
+    evidence = score.holdout_evidence_expectations()
+    assert not score.holdout_evidence_problems(holdout, evidence)
+    assert set(evidence) == set(ids)
+    for cell in holdout["cells"]:
+        assert set(cell["expected"]) == {"currency", "transition"}
+        assert "expectedRuleEvidence" not in cell, (
+            "structured expectations belong in MATRIX-HOLDOUT-EVIDENCE.json so the "
+            "reviewer's block stays byte-for-byte as authored")
+
+
+def test_holdout_construction_is_gated_on_every_freeze_pin(tmp_path, monkeypatch):
+    """The stratum executes only after the freeze. Each pin is nulled in turn —
+    in a temporary registry, so this holds identically before and after the
+    freeze — and the gate must refuse naming that pin. A gate that omits one of
+    the pins it added is the 017 round-2 class of defect.
+    """
+    import hashlib
+
+    def sha256_file(path):
+        return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+    real = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    filled = {"sha256": "f" * 64}
+    for member in score.FREEZE_PINS:
+        assert member in real, "a freeze pin the gate names is missing from PINS.json"
+
+    def context_for(pins):
+        raw = (json.dumps(pins, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+        pins_path = tmp_path / "PINS.json"
+        pins_path.write_bytes(raw)
+        monkeypatch.setattr(build_fixtures, "PINS_PATH", pins_path)
+        return build_fixtures.HoldoutAttemptContext(
+            attempt_root=str(tmp_path),
+            pins_raw_sha256=hashlib.sha256(raw).hexdigest(),
+            preregistration_sha256=sha256_file(STUDY / "PREREGISTRATION.md"),
+            matrix_holdout_sha256=sha256_file(STUDY / "harness" / "MATRIX-HOLDOUT.json"),
+            matrix_holdout_evidence_sha256=sha256_file(
+                STUDY / "harness" / "MATRIX-HOLDOUT-EVIDENCE.json"))
+
+    # all six filled: the gate has nothing to say about the pins
+    everything = dict(real, **{member: filled for member in score.FREEZE_PINS})
+    assert not build_fixtures.holdout_context_problems(context_for(everything))
+
+    for member in score.FREEZE_PINS:
+        one_null = dict(everything, **{member: {"sha256": None}})
+        problems = build_fixtures.holdout_context_problems(context_for(one_null))
+        assert any(member in problem for problem in problems), (
+            "the gate does not refuse while %s is null" % member)
+
+    # a context whose digests disagree with the live files is refused
+    for field in ("pins_raw_sha256", "preregistration_sha256",
+                  "matrix_holdout_sha256", "matrix_holdout_evidence_sha256"):
+        context = context_for(everything)
+        tampered = dataclasses.replace(context, **{field: "0" * 64})
+        assert build_fixtures.holdout_context_problems(tampered)
 
 
 def test_transition_refuses_over_an_unauthenticated_snapshot():

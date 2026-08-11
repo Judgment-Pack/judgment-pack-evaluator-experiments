@@ -1,1 +1,45 @@
-{"note": "Structured-evidence expectations for the reviewer-authored holdout cells, kept separate so their authored block stays byte-for-byte (Study 017 round-3 R3-1). Each value is read off that cell own construction text and adjudicated as its own divergence channel.", "cells": {}}
+{
+  "note": "Structured-evidence expectations for the reviewer-authored holdout cells, kept SEPARATE from harness/MATRIX-HOLDOUT.json so that block stays byte-for-byte as the reviewer authored it (017 round-3 R3-1). Each value is read off that cell's own construction and note text and is adjudicated as its own divergence channel (transition:<field>), so a regression that reached the registered outcome by different evidence still diverges. REGISTERED DISAGREEMENT: h05 and h08 cite positions whose state is NOT supported and still register a non-null retiredAtPosition (the full history's most recent departure), while h03 - also cited-unsupported - registers null. This study's rule/transition.py publishes a departure only relative to a supported cited position, so it is expected to report null for h05 and h08. Neither side was adjusted: fitting the layer to unexecuted holdout answers would destroy the stratum's only prospective content, and the round-2 review raised no finding on this field. The first execution adjudicates it; both outcomes are named in advance in PREREG-REVIEW.md R2-H.",
+  "cells": {
+    "h01": {
+      "citedPosition": null,
+      "retiredAtPosition": null
+    },
+    "h02": {
+      "citedPosition": null,
+      "retiredAtPosition": null
+    },
+    "h03": {
+      "citedPosition": 4,
+      "retiredAtPosition": null
+    },
+    "h04": {
+      "citedPosition": 6,
+      "retiredAtPosition": 8
+    },
+    "h05": {
+      "citedPosition": 5,
+      "retiredAtPosition": 8
+    },
+    "h06": {
+      "citedPosition": 6,
+      "retiredAtPosition": 8
+    },
+    "h07": {
+      "citedPosition": 6,
+      "retiredAtPosition": 8
+    },
+    "h08": {
+      "citedPosition": 2,
+      "retiredAtPosition": 6
+    },
+    "h09": {
+      "citedPosition": null,
+      "retiredAtPosition": null
+    },
+    "h10": {
+      "citedPosition": null,
+      "retiredAtPosition": null
+    }
+  }
+}

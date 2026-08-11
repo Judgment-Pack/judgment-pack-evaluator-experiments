@@ -242,3 +242,249 @@ def main(argv=None):
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# --------------------------------------------------------------------------
+# the reviewer-authored holdout stratum — implemented, NEVER run pre-freeze
+# --------------------------------------------------------------------------
+#
+# Hooks for the round-2 reviewer's cells (harness/MATRIX-HOLDOUT.json,
+# committed verbatim with attribution; their structured expectations live in
+# harness/MATRIX-HOLDOUT-EVIDENCE.json so that block stays byte-for-byte).
+# Every route requires a `HoldoutAttemptContext` that only harness/score.py
+# mints after its freeze gates pass, and each hook re-verifies it, so no route
+# can construct a byte while any freeze pin is null or outside a live attempt.
+
+import dataclasses  # noqa: E402
+
+PINS_PATH = STUDY / "harness" / "PINS.json"
+
+NEVER_BOUND_DIGEST = "sha256:" + hashlib.sha256(
+    b"018/round-2-holdout-never-bound").hexdigest()
+BASE64_ALPHABET = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                   "0123456789+/")
+
+
+@dataclasses.dataclass(frozen=True)
+class HoldoutAttemptContext:
+    attempt_root: str
+    pins_raw_sha256: str
+    preregistration_sha256: str
+    matrix_holdout_sha256: str
+    matrix_holdout_evidence_sha256: str
+
+
+class HoldoutRefused(RuntimeError):
+    """The holdout route was driven without a valid post-freeze context."""
+
+
+def holdout_context_problems(context):
+    if not isinstance(context, HoldoutAttemptContext):
+        return ["holdout construction requires a HoldoutAttemptContext"]
+    problems = []
+    pins_raw = Path(PINS_PATH).read_bytes()
+    if hashlib.sha256(pins_raw).hexdigest() != context.pins_raw_sha256:
+        problems.append("context pins digest does not match the live registry")
+    pins = json.loads(pins_raw.decode("utf-8"))
+    for member in ("preregistration", "matrix", "matrixHoldout",
+                   "matrixHoldoutEvidence", "ruleSpec", "studyManifest"):
+        if (pins.get(member) or {}).get("sha256") is None:
+            problems.append("freeze pin %s is null: the stratum executes only "
+                            "after the freeze" % member)
+    for attribute, relative in (
+            ("preregistration_sha256", "PREREGISTRATION.md"),
+            ("matrix_holdout_sha256", "harness/MATRIX-HOLDOUT.json"),
+            ("matrix_holdout_evidence_sha256", "harness/MATRIX-HOLDOUT-EVIDENCE.json")):
+        live = hashlib.sha256((STUDY / relative).read_bytes()).hexdigest()
+        if getattr(context, attribute) != live:
+            problems.append("context %s does not match the live file" % attribute)
+    if not Path(context.attempt_root).is_dir():
+        problems.append("context attempt root does not exist")
+    return problems
+
+
+def _require_context(context):
+    problems = holdout_context_problems(context)
+    if problems:
+        raise HoldoutRefused("; ".join(problems))
+
+
+def _authority():
+    ns = upstream016.load(build=True)
+    registry = ns.checkpoint
+    pins = json.loads(Path(PINS_PATH).read_text(encoding="utf-8"))
+    label = (pins.get("registryAuthority") or {}).get("authoritySeedLabel")
+    return registry, registry.private_key(label)
+
+
+def _holdout_cell(registry, authority, events, *, commitment, rule,
+                  cited=None, window=None, duration=None,
+                  citation_series=SERIES_ID, rule_series=SERIES_ID):
+    history = registry.build_registry(authority, events)
+    heads = [record["checkpointDigest"] for record in history]
+    payload = {
+        "commitment.json": commitment,
+        "snapshot.json": registry.snapshot_bytes(
+            registry.snapshot_of(authority, history)),
+        "trustconfig.json": registry.trustconfig_bytes(
+            series_id=SERIES_ID,
+            authority_public_key=registry.public_key_b64(authority),
+            genesis_head=heads[0]),
+        "citation.json": None if cited is None else citations.citation_bytes(
+            series_id=citation_series, cited_head=heads[cited - 1]),
+        "ruleconfig.json": citations.ruleconfig_bytes(
+            series_id=rule_series, rule=rule, window_positions=window,
+            window_duration=duration),
+    }
+    return payload, heads
+
+
+def _h01_events():
+    return [event("add", "4.0.0", DIGEST_A), event("add", "9.0.0", DIGEST_B),
+            event("retire", "4.0.0"), event("reinstate", "4.0.0"),
+            event("retire", "4.0.0"), event("add", "10.0.0", DIGEST_B),
+            event("reinstate", "4.0.0")]
+
+
+def _h04_events():
+    return [event("add", "7.0.0", DIGEST_A), event("retire", "7.0.0"),
+            event("add", "20.0.0", DIGEST_B), event("reinstate", "7.0.0"),
+            event("retire", "7.0.0"), event("reinstate", "7.0.0"),
+            event("add", "21.0.0", DIGEST_B), event("retire", "7.0.0"),
+            event("add", "22.0.0", DIGEST_B), event("add", "23.0.0", DIGEST_B),
+            event("add", "24.0.0", DIGEST_B)]
+
+
+def _holdout_h01(context):
+    registry, authority = _authority()
+    payload, _ = _holdout_cell(registry, authority, _h01_events(),
+                               commitment=commitment_bytes("4.0.0", DIGEST_A),
+                               rule="stop-at-retirement")
+    return payload
+
+
+def _holdout_h02(context):
+    payload = _holdout_h01(context)
+    snapshot = json.loads(payload["snapshot.json"].decode("utf-8"))
+    signature = snapshot["attestation"]["signature"]
+    index = BASE64_ALPHABET.index(signature[0]) if signature[0] in BASE64_ALPHABET else 0
+    snapshot["attestation"]["signature"] = (
+        BASE64_ALPHABET[(index + 1) % len(BASE64_ALPHABET)] + signature[1:])
+    payload["snapshot.json"] = json.dumps(snapshot, indent=2,
+                                          ensure_ascii=False).encode("utf-8")
+    return payload
+
+
+def _holdout_h03(context):
+    registry, authority = _authority()
+    payload, _ = _holdout_cell(
+        registry, authority, _h01_events(),
+        commitment=commitment_bytes("4.0.0", NEVER_BOUND_DIGEST),
+        rule="position-window", cited=4, window=10)
+    return payload
+
+
+def _holdout_h04(context, cited=6, rule="grandfather-on-cited-support", window=None):
+    registry, authority = _authority()
+    payload, _ = _holdout_cell(registry, authority, _h04_events(),
+                               commitment=commitment_bytes("7.0.0", DIGEST_A),
+                               rule=rule, cited=cited, window=window)
+    return payload
+
+
+def _holdout_h05(context):
+    return _holdout_h04(context, cited=5)
+
+
+def _holdout_h06(context):
+    return _holdout_h04(context, cited=6, rule="position-window", window=3)
+
+
+def _holdout_h07(context):
+    return _holdout_h04(context, cited=6, rule="position-window", window=2)
+
+
+def _holdout_h08(context):
+    registry, authority = _authority()
+    events = [event("add", "20.0.0", DIGEST_B),
+              event("add", "7.0.0", DIGEST_A, series=OTHER_SERIES_ID),
+              event("retire", "7.0.0", series=OTHER_SERIES_ID),
+              event("add", "7.0.0", DIGEST_A),
+              event("reinstate", "7.0.0", series=OTHER_SERIES_ID),
+              event("retire", "7.0.0")]
+    payload, _ = _holdout_cell(registry, authority, events,
+                               commitment=commitment_bytes("7.0.0", DIGEST_A),
+                               rule="grandfather-on-cited-support", cited=2)
+    return payload
+
+
+def _holdout_h09(context):
+    registry, authority = _authority()
+    events = [event("add", "7.0.0", DIGEST_A, series=OTHER_SERIES_ID),
+              event("retire", "7.0.0", series=OTHER_SERIES_ID),
+              event("reinstate", "7.0.0", series=OTHER_SERIES_ID)]
+    payload, _ = _holdout_cell(registry, authority, events,
+                               commitment=commitment_bytes("7.0.0", DIGEST_A),
+                               rule="stop-at-retirement")
+    return payload
+
+
+def _holdout_h10(context):
+    registry, authority = _authority()
+    events = [event("add", "20.0.0", DIGEST_B), event("add", "7.0.0", DIGEST_A),
+              event("add", "7.0.0", DIGEST_A, series=OTHER_SERIES_ID)]
+    payload, _ = _holdout_cell(registry, authority, events,
+                               commitment=commitment_bytes("7.0.0", DIGEST_A),
+                               rule="grandfather-on-cited-support", cited=3,
+                               citation_series=OTHER_SERIES_ID)
+    return payload
+
+
+def _gated(hook):
+    def gated_hook(context):
+        _require_context(context)
+        return hook(context)
+    gated_hook.__name__ = hook.__name__
+    return gated_hook
+
+
+HOLDOUT_HOOKS = {
+    "h01": _gated(_holdout_h01), "h02": _gated(_holdout_h02),
+    "h03": _gated(_holdout_h03), "h04": _gated(_holdout_h04),
+    "h05": _gated(_holdout_h05), "h06": _gated(_holdout_h06),
+    "h07": _gated(_holdout_h07), "h08": _gated(_holdout_h08),
+    "h09": _gated(_holdout_h09), "h10": _gated(_holdout_h10),
+}
+
+
+def builder_version_digest():
+    return sha256_hex(Path(__file__).read_bytes())
+
+
+def construct_holdout(context, out_root, cells):
+    """Build every registered holdout cell inside the attempt. Scorer-only."""
+    _require_context(context)
+    out_root = Path(out_root)
+    if Path(context.attempt_root).resolve() not in out_root.resolve().parents:
+        raise HoldoutRefused("holdout output must live inside the context's attempt")
+    records = {}
+    for cell in cells:
+        cell_id = cell["id"]
+        directory = out_root / cell_id
+        record = {"cell": cell_id, "builderVersionDigest": builder_version_digest()}
+        hook = HOLDOUT_HOOKS.get(cell_id)
+        try:
+            if hook is None:
+                raise BuildError("no construction hook is registered for " + cell_id)
+            write_cell(directory, hook(context))
+            record["status"] = "built"
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except BaseException as error:
+            record["status"] = "harness-error"
+            record["harnessError"] = "%s: %s" % (type(error).__name__, error)
+        directory.mkdir(parents=True, exist_ok=True)
+        _atomic_write(directory / "CONSTRUCTION.json",
+                      (json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+        records[cell_id] = record
+    return records
