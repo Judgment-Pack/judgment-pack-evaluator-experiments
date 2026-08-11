@@ -27,6 +27,7 @@ DOCUMENTS = (
     "witness/SPEC.md",
     "harness/MATRIX.json",
     "harness/MATRIX-HOLDOUT.json",
+    "harness/MATRIX-HOLDOUT-EVIDENCE.json",
 )
 GLOBS = (
     "witness/*.py",

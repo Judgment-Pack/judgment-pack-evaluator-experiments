@@ -304,6 +304,8 @@ def test_partial_evidence_entry_is_terminal():
         lambda e: e["h01"].pop("unattributedSightings"),
         lambda e: e["h01"].__setitem__("validSightings", "2"),
         lambda e: e["h01"].__setitem__("comparisonPerformed", 1),
+        lambda e: e["h01"].__setitem__("validSightings", True),
+        lambda e: e["h01"].__setitem__("validSightings", -1),
         lambda e: e.pop("h09"),
     ):
         broken = json.loads(json.dumps(evidence))

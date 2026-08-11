@@ -139,6 +139,21 @@ regression that checks shape is not a regression that checks content.
 
 Post-revision state: 18 locked cells, 48 harness tests green.
 
-## Round 6 — pending
+## Round 6 — 2026-08-11
 
-Confirmation of the round-5 closures.
+Same reviewer. Verdict: **freezable after listed fixes** — R4-1(b) and R1-9 RESOLVED, one
+residual narrowed, R5-1 not fully closed, one new MINOR. All **accepted**.
+
+| # | Disposition |
+| --- | --- |
+| R4-1(a) residual | **Accepted.** The regression tested integer-as-boolean but not boolean-as-integer. Vectors added for a count field set to `True` and to a negative integer. |
+| R5-1 (NOT RESOLVED) | **Accepted.** The preregistration inventory and the main pin note were corrected in round 5, but `registeredLabelRule` still enumerated five pins against a six-pin gate — a third inventory I had not looked at. Corrected. |
+| R6-1 (MINOR) | **Accepted, and the honest kind of finding.** `anchorOrder` claimed the whole-study manifest covers the holdout evidence map while `make_manifest.py`'s document list omitted it — the independent evidence pin already prevented postselection, so nothing was exploitable, but the *registered integrity claim was untrue*. The map is now in the covered set, the manifest regenerated, and `studyManifest.covers` updated. |
+| R4-1(b), R1-9 | **Confirmed RESOLVED** by the reviewer against the revised files. |
+
+Post-revision state: 18 locked cells, 48 harness tests green, the whole-study manifest
+covering 36 files including the evidence map.
+
+## Round 7 — pending
+
+Confirmation of the round-6 closures, and the freeze question asked plainly.
