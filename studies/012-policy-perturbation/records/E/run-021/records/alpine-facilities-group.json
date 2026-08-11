@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-facilities-group",
+  "decision": {
+    "decidedAt": "2026-06-16T14:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Facilities Group AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": true
+  }
+}

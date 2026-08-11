@@ -1,0 +1,15 @@
+{
+  "caseId": "bluebird-health-midrange-risk",
+  "decision": {
+    "decidedAt": "2026-05-22T09:25:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluebird Health Technologies Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

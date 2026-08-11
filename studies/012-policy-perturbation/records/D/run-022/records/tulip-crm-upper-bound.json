@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-crm-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T08:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip CRM B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

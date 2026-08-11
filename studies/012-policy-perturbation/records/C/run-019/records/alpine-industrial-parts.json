@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-09T10:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Industrial Parts AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

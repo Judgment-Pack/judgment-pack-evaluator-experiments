@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-05T12:50:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Customer Insights O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

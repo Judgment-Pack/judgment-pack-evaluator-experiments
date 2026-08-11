@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T12:10:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Fixture Works Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

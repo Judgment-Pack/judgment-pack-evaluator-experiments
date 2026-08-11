@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-export-bureau",
+  "decision": {
+    "decidedAt": "2026-06-09T09:35:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Export Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "12",
+    "sanctionsHit": false
+  }
+}

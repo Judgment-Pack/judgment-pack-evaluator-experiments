@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-freight-below-seventy",
+  "decision": {
+    "decidedAt": "2026-07-28T11:20:00Z",
+    "decidedBy": "Amina Yusuf",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Lotus Freight Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

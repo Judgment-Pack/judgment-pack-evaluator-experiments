@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-components-personal-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T10:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Components AS",
+    "registeredCountry": "NO",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

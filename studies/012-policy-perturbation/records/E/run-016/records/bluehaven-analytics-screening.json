@@ -1,0 +1,15 @@
+{
+  "caseId": "bluehaven-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T13:20:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluehaven Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "39.99",
+    "sanctionsHit": true
+  }
+}

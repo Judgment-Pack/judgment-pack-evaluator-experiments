@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-trading-group",
+  "decision": {
+    "decidedAt": "2026-06-16T13:50:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Trading Group, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-security-systems",
+  "decision": {
+    "decidedAt": "2026-06-10T15:25:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Security Systems LLC",
+    "registeredCountry": "US",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

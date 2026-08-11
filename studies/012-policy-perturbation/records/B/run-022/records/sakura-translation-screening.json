@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-translation-screening",
+  "decision": {
+    "decidedAt": "2026-07-20T10:40:00Z",
+    "decidedBy": "Elise Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Translation Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

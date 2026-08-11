@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-packaging-cooperative",
+  "decision": {
+    "decidedAt": "2026-06-09T13:15:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Packaging Cooperative",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

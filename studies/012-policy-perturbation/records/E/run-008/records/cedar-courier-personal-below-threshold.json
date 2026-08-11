@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-courier-personal-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-07T13:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Courier SAL",
+    "registeredCountry": "LB",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

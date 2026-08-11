@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-data-works",
+  "decision": {
+    "decidedAt": "2026-06-03T10:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Data Works GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

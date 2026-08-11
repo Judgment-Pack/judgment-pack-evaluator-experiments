@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-personal-below-review",
+  "decision": {
+    "decidedAt": "2026-06-08T12:30:00Z",
+    "decidedBy": "Elias Romero",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Customer Services GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

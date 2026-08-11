@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-benefits-administration",
+  "decision": {
+    "decidedAt": "2026-06-08T08:35:00Z",
+    "decidedBy": "Priya Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Benefits Administration Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

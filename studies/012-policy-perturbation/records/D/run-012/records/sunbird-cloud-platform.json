@@ -1,0 +1,15 @@
+{
+  "caseId": "sunbird-cloud-platform",
+  "decision": {
+    "decidedAt": "2026-06-02T13:25:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sunbird Cloud Platform Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

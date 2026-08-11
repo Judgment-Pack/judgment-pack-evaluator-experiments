@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Customer Analytics O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "58.6",
+    "sanctionsHit": false
+  }
+}

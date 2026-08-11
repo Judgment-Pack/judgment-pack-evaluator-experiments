@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-cloud-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T14:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Cloud Services GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

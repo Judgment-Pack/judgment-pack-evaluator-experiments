@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-crm-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple CRM Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-cloud-systems",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Cloud Systems Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

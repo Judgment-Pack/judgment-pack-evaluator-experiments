@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-security-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-19T11:55:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Security Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "87.5",
+    "sanctionsHit": false
+  }
+}

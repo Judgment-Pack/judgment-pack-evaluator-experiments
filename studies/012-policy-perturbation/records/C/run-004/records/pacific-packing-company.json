@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-packing-company",
+  "decision": {
+    "decidedAt": "2026-06-09T08:30:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Packing Company Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

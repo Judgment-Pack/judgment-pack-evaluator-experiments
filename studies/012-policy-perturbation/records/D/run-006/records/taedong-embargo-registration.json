@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-02-17T11:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Technical Services",
+    "registeredCountry": "KP",
+    "riskScore": "3.25",
+    "sanctionsHit": false
+  }
+}

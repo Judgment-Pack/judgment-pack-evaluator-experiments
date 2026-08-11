@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-03T13:25:00Z",
+    "decidedBy": "Lucia Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Payroll Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

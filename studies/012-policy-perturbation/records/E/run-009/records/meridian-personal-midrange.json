@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-personal-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:40:00Z",
+    "decidedBy": "Marcus Vale",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Benefits Processing Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

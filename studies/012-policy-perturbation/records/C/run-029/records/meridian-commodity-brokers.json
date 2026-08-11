@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-commodity-brokers",
+  "decision": {
+    "decidedAt": "2026-06-12T11:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Commodity Brokers Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

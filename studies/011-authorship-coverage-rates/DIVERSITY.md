@@ -1,5 +1,30 @@
 # How much variety is behind 49/49? — a post-hoc diversity census
 
+> ## CORRECTION — the directional prediction in this file is withdrawn
+>
+> **Study 012 tested the reading this census invited, and it failed.** This
+> file's "genuinely open" section registered a prediction: remove the stated
+> numerals from the policy and coverage of the numeric classes should collapse,
+> *because placement follows named numbers*. Study 012 ran that as a
+> preregistered falsifier — five arms, 150 authoring calls, one model, one day —
+> and the denamed arm covered **all six classes in all 27 of its valid runs**,
+> reading HIGH on every one, indistinguishable from the baseline. §5.3 (i) row 4:
+> **`R1-UNSUPPORTED`**.
+>
+> **Study 012 does not thereby establish the opposite.** Maintained coverage is
+> equally compatible with the author deriving the boundaries from prose and with
+> it recognising this policy family from a public corpus; that design cannot
+> separate them, and said so before it ran.
+>
+> **What this census actually observed still stands**: the corpus hugs the two
+> stated thresholds, and nothing in it approaches the unstated 39 edge. Study 012
+> reproduced that blind spot in *every* arm, baseline included — which is why the
+> causal reading is the part that had to go. The numerals were not the cause.
+>
+> Full retraction:
+> [`studies/012-policy-perturbation/CORRECTION.md`](../012-policy-perturbation/CORRECTION.md).
+
+
 **POST-HOC DESCRIPTIVE ANALYSIS.** Computed 2026-08-07 from the retained
 bytes, after the study merged, prompted by a reader's question on the article
 thread: if every class was covered in every run, how many *different* tests

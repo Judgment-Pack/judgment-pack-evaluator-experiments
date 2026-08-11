@@ -1,0 +1,15 @@
+{
+  "caseId": "ironwood-industrial",
+  "decision": {
+    "decidedAt": "2026-06-04T11:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Ironwood Industrial Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

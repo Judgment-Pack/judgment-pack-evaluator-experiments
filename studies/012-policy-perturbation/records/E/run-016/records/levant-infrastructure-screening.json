@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-infrastructure-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T15:00:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Infrastructure Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

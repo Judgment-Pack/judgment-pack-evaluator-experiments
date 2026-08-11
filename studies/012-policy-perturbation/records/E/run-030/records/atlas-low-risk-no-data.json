@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-low-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-22T13:15:00Z",
+    "decidedBy": "Sofia Bennett",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Office Furnishings SARL",
+    "registeredCountry": "MA",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

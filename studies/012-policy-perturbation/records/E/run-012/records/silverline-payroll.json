@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-payroll",
+  "decision": {
+    "decidedAt": "2026-06-08T08:55:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Payroll Services Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

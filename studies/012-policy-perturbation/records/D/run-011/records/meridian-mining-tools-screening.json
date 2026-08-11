@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-mining-tools-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T15:40:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Mining Tools Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

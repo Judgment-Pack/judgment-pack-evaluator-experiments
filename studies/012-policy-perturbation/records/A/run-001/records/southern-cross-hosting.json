@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-hosting",
+  "decision": {
+    "decidedAt": "2026-06-10T11:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Southern Cross Hosting Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

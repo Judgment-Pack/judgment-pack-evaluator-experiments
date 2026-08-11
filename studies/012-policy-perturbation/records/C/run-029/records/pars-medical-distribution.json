@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-medical-distribution",
+  "decision": {
+    "decidedAt": "2026-06-10T13:50:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Medical Distribution Co.",
+    "registeredCountry": "IR",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-logistics",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Blue Harbor Logistics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-equipment-rental",
+  "decision": {
+    "decidedAt": "2026-06-12T08:20:00Z",
+    "decidedBy": "Jonah Brooks",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Rental (Pty) Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

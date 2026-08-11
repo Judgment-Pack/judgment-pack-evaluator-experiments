@@ -1,0 +1,15 @@
+{
+  "caseId": "orchid-data-just-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T08:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orchid Communications Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

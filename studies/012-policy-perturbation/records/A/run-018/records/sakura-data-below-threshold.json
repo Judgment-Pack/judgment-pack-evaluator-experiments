@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-18T08:40:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Benefits KK",
+    "registeredCountry": "JP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

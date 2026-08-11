@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-midband",
+  "decision": {
+    "decidedAt": "2026-06-08T08:55:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Ledger Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-health-screening",
+  "decision": {
+    "decidedAt": "2026-03-26T15:40:00Z",
+    "decidedBy": "Elise Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Health Processing Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

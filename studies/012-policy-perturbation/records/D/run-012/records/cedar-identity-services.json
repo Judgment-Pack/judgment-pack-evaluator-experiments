@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-identity-services",
+  "decision": {
+    "decidedAt": "2026-06-01T11:20:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

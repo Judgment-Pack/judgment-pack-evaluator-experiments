@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-networking",
+  "decision": {
+    "decidedAt": "2026-06-15T14:50:00Z",
+    "decidedBy": "Jonah Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Networking LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88.8",
+    "sanctionsHit": false
+  }
+}

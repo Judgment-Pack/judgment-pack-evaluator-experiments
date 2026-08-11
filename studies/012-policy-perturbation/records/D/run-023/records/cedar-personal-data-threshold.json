@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-personal-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-06T08:15:00Z",
+    "decidedBy": "Nadia Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Patient Communications Inc.",
+    "registeredCountry": "US",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

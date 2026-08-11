@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-office-supplies",
+  "decision": {
+    "decidedAt": "2026-06-09T14:30:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Office Supplies Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

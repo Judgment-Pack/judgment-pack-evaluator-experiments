@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-near-high-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T09:40:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Southern Cross Equipment Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

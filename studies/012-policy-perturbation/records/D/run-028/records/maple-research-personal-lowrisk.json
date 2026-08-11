@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-research-personal-lowrisk",
+  "decision": {
+    "decidedAt": "2026-06-19T11:30:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Research Cooperative",
+    "registeredCountry": "CA",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

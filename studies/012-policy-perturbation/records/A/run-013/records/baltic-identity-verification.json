@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-identity-verification",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Amelia Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Identity Verification O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "99.25",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-identity-labs",
+  "decision": {
+    "decidedAt": "2026-06-22T11:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Identity Labs Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

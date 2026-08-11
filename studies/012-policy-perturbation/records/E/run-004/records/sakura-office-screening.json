@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-office-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T11:45:00Z",
+    "decidedBy": "Elias Romero",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Office Supply Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

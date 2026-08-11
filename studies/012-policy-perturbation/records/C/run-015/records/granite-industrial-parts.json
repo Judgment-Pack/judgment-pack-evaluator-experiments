@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Industrial Parts S.A.",
+    "registeredCountry": "MX",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

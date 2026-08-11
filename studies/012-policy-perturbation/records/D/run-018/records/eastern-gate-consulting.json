@@ -1,0 +1,15 @@
+{
+  "caseId": "eastern-gate-consulting",
+  "decision": {
+    "decidedAt": "2026-06-10T08:20:00Z",
+    "decidedBy": "Jonas Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Eastern Gate Consulting Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "90",
+    "sanctionsHit": true
+  }
+}

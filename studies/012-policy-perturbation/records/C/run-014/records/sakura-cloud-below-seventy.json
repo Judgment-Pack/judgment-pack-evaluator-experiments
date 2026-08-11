@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-cloud-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-16T14:50:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Cloud K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-security-consulting",
+  "decision": {
+    "decidedAt": "2026-06-12T16:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Security Consulting Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

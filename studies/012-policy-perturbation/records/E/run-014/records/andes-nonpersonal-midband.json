@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nonpersonal-midband",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Owen Clarke",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mineral Services SpA",
+    "registeredCountry": "CL",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-cloud-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Cloud Services Co.",
+    "registeredCountry": "IR",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

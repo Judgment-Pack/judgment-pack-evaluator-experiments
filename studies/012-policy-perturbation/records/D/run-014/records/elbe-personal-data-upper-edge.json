@@ -1,0 +1,15 @@
+{
+  "caseId": "elbe-personal-data-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Elias Romero",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Elbe Payroll Solutions GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

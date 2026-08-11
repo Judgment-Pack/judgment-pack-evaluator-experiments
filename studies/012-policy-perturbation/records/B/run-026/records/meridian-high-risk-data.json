@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Mina Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Identity Solutions Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}

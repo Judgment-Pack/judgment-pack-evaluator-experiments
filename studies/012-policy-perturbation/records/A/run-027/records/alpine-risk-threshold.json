@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T09:00:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Logistics AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

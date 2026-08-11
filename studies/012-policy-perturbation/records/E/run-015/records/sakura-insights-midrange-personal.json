@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-insights-midrange-personal",
+  "decision": {
+    "decidedAt": "2026-06-09T09:25:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Insights K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

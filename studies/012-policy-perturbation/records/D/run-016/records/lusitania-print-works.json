@@ -1,0 +1,15 @@
+{
+  "caseId": "lusitania-print-works",
+  "decision": {
+    "decidedAt": "2026-06-11T13:15:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Lusitania Print Works Lda.",
+    "registeredCountry": "PT",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

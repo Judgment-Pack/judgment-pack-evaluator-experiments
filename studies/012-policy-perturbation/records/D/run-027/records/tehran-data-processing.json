@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-data-processing",
+  "decision": {
+    "decidedAt": "2026-06-05T10:50:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Data Processing Company",
+    "registeredCountry": "IR",
+    "riskScore": "44",
+    "sanctionsHit": false
+  }
+}

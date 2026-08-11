@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-river-consulting",
+  "decision": {
+    "decidedAt": "2026-06-11T09:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue River Consulting SAS",
+    "registeredCountry": "FR",
+    "riskScore": "15.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-19T11:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Payroll Services AG",
+    "registeredCountry": "CH",
+    "riskScore": "40.01",
+    "sanctionsHit": false
+  }
+}

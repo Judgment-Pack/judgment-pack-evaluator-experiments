@@ -1,0 +1,15 @@
+{
+  "caseId": "syria-registration-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Records Services",
+    "registeredCountry": "SY",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

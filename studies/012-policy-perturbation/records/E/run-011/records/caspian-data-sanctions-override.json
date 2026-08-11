@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-data-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "88.5",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-machinery",
+  "decision": {
+    "decidedAt": "2026-06-04T15:45:00Z",
+    "decidedBy": "Jonas Mercer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Machinery Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

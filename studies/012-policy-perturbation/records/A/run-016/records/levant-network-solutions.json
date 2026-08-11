@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-network-solutions",
+  "decision": {
+    "decidedAt": "2026-06-11T11:50:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Network Solutions LLC",
+    "registeredCountry": "IR",
+    "riskScore": "95",
+    "sanctionsHit": true
+  }
+}

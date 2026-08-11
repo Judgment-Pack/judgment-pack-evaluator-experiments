@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-office-supplies",
+  "decision": {
+    "decidedAt": "2026-06-19T09:45:00Z",
+    "decidedBy": "Elena Morris",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Office Supplies Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

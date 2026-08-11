@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-08T08:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Payroll Services AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

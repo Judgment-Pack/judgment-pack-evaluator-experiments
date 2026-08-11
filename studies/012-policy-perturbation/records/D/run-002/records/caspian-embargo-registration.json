@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T14:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Ledger Services",
+    "registeredCountry": "IR",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

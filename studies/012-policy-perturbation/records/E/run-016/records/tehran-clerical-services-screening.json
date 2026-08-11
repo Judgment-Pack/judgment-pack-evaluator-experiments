@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-clerical-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T11:10:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Clerical Services Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

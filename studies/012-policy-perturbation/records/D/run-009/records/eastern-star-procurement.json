@@ -1,0 +1,15 @@
+{
+  "caseId": "eastern-star-procurement",
+  "decision": {
+    "decidedAt": "2026-06-09T08:20:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Eastern Star Procurement Agency",
+    "registeredCountry": "KP",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

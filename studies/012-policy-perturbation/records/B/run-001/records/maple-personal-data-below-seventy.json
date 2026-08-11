@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-04T12:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Workforce Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

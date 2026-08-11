@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-orchid-consulting",
+  "decision": {
+    "decidedAt": "2026-06-08T12:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Orchid Consulting Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

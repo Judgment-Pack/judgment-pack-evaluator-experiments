@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-telemetry-labs",
+  "decision": {
+    "decidedAt": "2026-06-12T12:40:00Z",
+    "decidedBy": "Nadia Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Caspian Telemetry Labs LLC",
+    "registeredCountry": "GE",
+    "riskScore": "12.5",
+    "sanctionsHit": true
+  }
+}

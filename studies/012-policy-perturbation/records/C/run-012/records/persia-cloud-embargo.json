@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-cloud-embargo",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Cloud Systems LLC",
+    "registeredCountry": "IR",
+    "riskScore": "55",
+    "sanctionsHit": false
+  }
+}

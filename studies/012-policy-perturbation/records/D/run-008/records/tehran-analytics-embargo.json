@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-analytics-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T09:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Analytics Co.",
+    "registeredCountry": "IR",
+    "riskScore": "38.4",
+    "sanctionsHit": false
+  }
+}

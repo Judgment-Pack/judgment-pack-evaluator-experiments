@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-systems-syria-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Systems Trading LLC",
+    "registeredCountry": "SY",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

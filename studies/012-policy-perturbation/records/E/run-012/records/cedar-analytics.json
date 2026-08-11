@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-analytics",
+  "decision": {
+    "decidedAt": "2026-06-03T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Analytics, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-nondata-near-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T11:15:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Components AB",
+    "registeredCountry": "SE",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

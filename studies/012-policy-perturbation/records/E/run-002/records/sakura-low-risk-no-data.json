@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-low-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-12T10:15:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Facility Supplies Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-network-registration",
+  "decision": {
+    "decidedAt": "2026-06-03T08:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Network Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

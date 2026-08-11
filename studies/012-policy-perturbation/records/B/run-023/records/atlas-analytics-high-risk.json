@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-analytics-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Analytics SAS",
+    "registeredCountry": "FR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

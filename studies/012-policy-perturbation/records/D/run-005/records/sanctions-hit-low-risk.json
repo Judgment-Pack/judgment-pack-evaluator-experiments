@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Northbridge Paperworks Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

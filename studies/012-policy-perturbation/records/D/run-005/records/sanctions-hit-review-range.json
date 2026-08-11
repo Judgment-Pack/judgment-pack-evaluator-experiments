@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-review-range",
+  "decision": {
+    "decidedAt": "2026-06-01T11:20:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silver Coast Analytics S.A.",
+    "registeredCountry": "PT",
+    "riskScore": "45",
+    "sanctionsHit": true
+  }
+}

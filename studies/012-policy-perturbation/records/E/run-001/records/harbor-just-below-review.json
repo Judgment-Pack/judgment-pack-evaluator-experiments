@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-just-below-review",
+  "decision": {
+    "decidedAt": "2026-06-08T10:25:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Customer Cloud Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

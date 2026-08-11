@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-iran-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T14:10:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Archive Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

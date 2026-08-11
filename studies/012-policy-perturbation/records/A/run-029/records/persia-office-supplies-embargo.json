@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-office-supplies-embargo",
+  "decision": {
+    "decidedAt": "2026-02-17T16:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Persia Office Supplies Co.",
+    "registeredCountry": "IR",
+    "riskScore": "32",
+    "sanctionsHit": false
+  }
+}

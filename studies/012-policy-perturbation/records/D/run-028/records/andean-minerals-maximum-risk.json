@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-minerals-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T12:00:00Z",
+    "decidedBy": "Jonas Weber",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Minerals SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-no-data-minimal-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T16:20:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Packaging Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

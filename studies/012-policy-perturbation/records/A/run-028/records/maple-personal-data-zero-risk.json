@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T09:15:00Z",
+    "decidedBy": "Lucia Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Archive Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

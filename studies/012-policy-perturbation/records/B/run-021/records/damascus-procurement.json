@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-procurement",
+  "decision": {
+    "decidedAt": "2026-06-18T16:20:00Z",
+    "decidedBy": "Jonah Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Procurement Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "20",
+    "sanctionsHit": true
+  }
+}

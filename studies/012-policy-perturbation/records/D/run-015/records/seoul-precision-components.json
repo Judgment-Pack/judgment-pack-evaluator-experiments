@@ -1,0 +1,15 @@
+{
+  "caseId": "seoul-precision-components",
+  "decision": {
+    "decidedAt": "2026-06-08T10:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Seoul Precision Components Co., Ltd.",
+    "registeredCountry": "KR",
+    "riskScore": "18.4",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-machinery-export",
+  "decision": {
+    "decidedAt": "2026-06-15T14:25:00Z",
+    "decidedBy": "Owen Malik",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Machinery Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

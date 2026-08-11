@@ -1,0 +1,15 @@
+{
+  "caseId": "bluefjord-hosting-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-16T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Bluefjord Hosting AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

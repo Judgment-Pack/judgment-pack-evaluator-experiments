@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-mineral-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T12:25:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mineral Trading SpA",
+    "registeredCountry": "CL",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

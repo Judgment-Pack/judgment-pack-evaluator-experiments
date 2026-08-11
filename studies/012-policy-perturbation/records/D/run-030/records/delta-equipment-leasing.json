@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-equipment-leasing",
+  "decision": {
+    "decidedAt": "2026-06-22T13:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Equipment Leasing B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-industrial-tools",
+  "decision": {
+    "decidedAt": "2026-06-02T13:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Industrial Tools Inc.",
+    "registeredCountry": "US",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T15:25:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Foundry O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

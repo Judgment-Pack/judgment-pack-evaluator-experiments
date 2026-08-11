@@ -1,0 +1,15 @@
+{
+  "caseId": "sunrise-facilities",
+  "decision": {
+    "decidedAt": "2026-06-10T15:30:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sunrise Facilities Management K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-services",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Data Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "mapleline-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-12T12:25:00Z",
+    "decidedBy": "Elena Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "MapleLine Research Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

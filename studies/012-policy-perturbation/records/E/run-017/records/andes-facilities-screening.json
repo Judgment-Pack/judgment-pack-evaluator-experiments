@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-facilities-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T11:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Facilities SpA",
+    "registeredCountry": "CL",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

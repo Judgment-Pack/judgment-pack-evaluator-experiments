@@ -1,0 +1,15 @@
+{
+  "caseId": "boreal-payments-personal-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Boreal Payments AB",
+    "registeredCountry": "SE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

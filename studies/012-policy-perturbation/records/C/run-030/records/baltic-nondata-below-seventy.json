@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-nondata-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T09:35:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machine Works O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "mapleleaf-benefits",
+  "decision": {
+    "decidedAt": "2026-06-09T10:50:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Mapleleaf Benefits Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

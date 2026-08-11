@@ -1,0 +1,15 @@
+{
+  "caseId": "rhein-facilities-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-15T08:30:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhein Facilities GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

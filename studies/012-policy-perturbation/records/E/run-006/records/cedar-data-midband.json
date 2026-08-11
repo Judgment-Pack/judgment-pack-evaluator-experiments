@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-midband",
+  "decision": {
+    "decidedAt": "2026-06-06T10:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Benefits Processing Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "55.4",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-high-risk-review",
+  "decision": {
+    "decidedAt": "2026-06-10T16:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Freight Pty Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "87.25",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-quartz-analytics",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Quartz Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

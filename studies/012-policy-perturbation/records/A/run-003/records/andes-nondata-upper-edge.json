@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nondata-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-12T14:30:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mineral Testing SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

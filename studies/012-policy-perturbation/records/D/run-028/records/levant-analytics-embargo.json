@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-analytics-embargo",
+  "decision": {
+    "decidedAt": "2026-06-05T08:50:00Z",
+    "decidedBy": "Jonas Weber",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Analytics LLC",
+    "registeredCountry": "SY",
+    "riskScore": "95",
+    "sanctionsHit": false
+  }
+}

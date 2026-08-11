@@ -1,0 +1,15 @@
+{
+  "caseId": "silverfern-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-09T13:35:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverfern Cloud Hosting Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

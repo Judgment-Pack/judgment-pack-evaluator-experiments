@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-high-risk-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Health Technologies Inc.",
+    "registeredCountry": "US",
+    "riskScore": "92.4",
+    "sanctionsHit": false
+  }
+}

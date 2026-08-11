@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-12T13:35:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Payroll Services O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "39.5",
+    "sanctionsHit": true
+  }
+}

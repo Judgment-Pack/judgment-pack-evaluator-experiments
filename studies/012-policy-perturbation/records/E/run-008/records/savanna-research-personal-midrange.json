@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-research-personal-midrange",
+  "decision": {
+    "decidedAt": "2026-06-05T12:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Savanna Research (Pty) Ltd.",
+    "registeredCountry": "ZA",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

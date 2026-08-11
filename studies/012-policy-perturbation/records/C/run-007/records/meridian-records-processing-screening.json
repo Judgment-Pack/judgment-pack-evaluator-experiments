@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-records-processing-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Records Processing Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "39.5",
+    "sanctionsHit": true
+  }
+}

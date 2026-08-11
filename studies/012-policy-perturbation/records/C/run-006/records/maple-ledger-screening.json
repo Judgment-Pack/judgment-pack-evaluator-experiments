@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-ledger-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T11:20:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Ledger Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

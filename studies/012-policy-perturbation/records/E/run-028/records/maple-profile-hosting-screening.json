@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-profile-hosting-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T16:50:00Z",
+    "decidedBy": "Jonas Vale",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Profile Hosting Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

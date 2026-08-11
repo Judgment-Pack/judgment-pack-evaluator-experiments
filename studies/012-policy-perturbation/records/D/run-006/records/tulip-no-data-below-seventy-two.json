@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-no-data-below-seventy-two",
+  "decision": {
+    "decidedAt": "2026-07-20T08:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Facilities B.V.",
+    "registeredCountry": "BE",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

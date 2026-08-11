@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-health-threshold-seventy",
+  "decision": {
+    "decidedAt": "2026-06-18T16:05:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Nordic Health Platforms AB",
+    "registeredCountry": "SE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

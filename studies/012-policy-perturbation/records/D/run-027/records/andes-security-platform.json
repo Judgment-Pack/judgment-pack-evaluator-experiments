@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-security-platform",
+  "decision": {
+    "decidedAt": "2026-06-10T10:30:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Security Platform SpA",
+    "registeredCountry": "CL",
+    "riskScore": "72",
+    "sanctionsHit": true
+  }
+}

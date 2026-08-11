@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-support-fractional-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T09:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Support B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "0.125",
+    "sanctionsHit": false
+  }
+}

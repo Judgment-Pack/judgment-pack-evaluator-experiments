@@ -1,0 +1,15 @@
+{
+  "caseId": "harborlight-analytics",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harborlight Analytics, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

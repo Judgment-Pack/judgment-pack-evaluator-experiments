@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-consulting",
+  "decision": {
+    "decidedAt": "2026-06-18T15:05:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Silverline Consulting B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

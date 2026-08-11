@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-no-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-16T14:25:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Equipment AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

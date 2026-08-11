@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-health-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Health Solutions Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

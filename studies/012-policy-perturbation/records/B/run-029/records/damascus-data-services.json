@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-data-services",
+  "decision": {
+    "decidedAt": "2026-06-12T12:40:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Data Services Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

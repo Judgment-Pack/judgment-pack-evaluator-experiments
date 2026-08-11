@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-nonpersonal-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T10:35:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

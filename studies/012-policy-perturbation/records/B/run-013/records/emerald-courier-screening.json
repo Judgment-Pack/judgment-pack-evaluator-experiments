@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-courier-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T08:55:00Z",
+    "decidedBy": "Priya Sen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Emerald Courier Services Ltd.",
+    "registeredCountry": "IE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

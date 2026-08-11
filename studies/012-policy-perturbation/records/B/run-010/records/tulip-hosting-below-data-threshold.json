@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-hosting-below-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-17T11:05:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Hosting B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

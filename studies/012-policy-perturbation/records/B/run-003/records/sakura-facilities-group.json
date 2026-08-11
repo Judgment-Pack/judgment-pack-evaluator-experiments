@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-facilities-group",
+  "decision": {
+    "decidedAt": "2026-06-18T09:55:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Facilities Group K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

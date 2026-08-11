@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-data-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Services PLC",
+    "registeredCountry": "IR",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

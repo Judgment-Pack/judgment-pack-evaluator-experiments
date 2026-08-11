@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-cloud-embargo",
+  "decision": {
+    "decidedAt": "2026-06-04T16:40:00Z",
+    "decidedBy": "Noah Williams",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Cloud Services PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "35",
+    "sanctionsHit": false
+  }
+}

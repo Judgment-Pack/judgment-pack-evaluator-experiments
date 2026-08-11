@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-records-processing",
+  "decision": {
+    "decidedAt": "2026-06-02T14:20:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Records Processing Co.",
+    "registeredCountry": "IR",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

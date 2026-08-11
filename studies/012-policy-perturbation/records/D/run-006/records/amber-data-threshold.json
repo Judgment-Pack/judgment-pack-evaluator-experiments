@@ -1,0 +1,15 @@
+{
+  "caseId": "amber-data-threshold",
+  "decision": {
+    "decidedAt": "2026-05-07T09:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Amber Customer Systems B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

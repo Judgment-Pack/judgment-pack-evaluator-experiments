@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-marketing-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T14:55:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Emerald Marketing Services Limited",
+    "registeredCountry": "IE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-09T13:25:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Insight SL",
+    "registeredCountry": "ES",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-sy-registration",
+  "decision": {
+    "decidedAt": "2026-06-03T08:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Archive Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

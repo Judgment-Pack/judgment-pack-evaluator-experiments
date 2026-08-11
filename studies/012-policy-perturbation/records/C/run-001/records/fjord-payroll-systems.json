@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-payroll-systems",
+  "decision": {
+    "decidedAt": "2026-06-03T15:40:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Payroll Systems AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-research-midrange-personal",
+  "decision": {
+    "decidedAt": "2026-06-11T15:40:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Research SpA",
+    "registeredCountry": "CL",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

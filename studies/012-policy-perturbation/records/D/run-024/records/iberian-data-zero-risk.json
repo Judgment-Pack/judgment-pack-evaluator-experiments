@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T14:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberian Survey Tools SL",
+    "registeredCountry": "ES",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

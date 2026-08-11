@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-identity-solutions",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

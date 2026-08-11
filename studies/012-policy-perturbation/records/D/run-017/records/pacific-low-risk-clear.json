@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-low-risk-clear",
+  "decision": {
+    "decidedAt": "2026-06-12T13:00:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Office Supply Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "23.75",
+    "sanctionsHit": false
+  }
+}

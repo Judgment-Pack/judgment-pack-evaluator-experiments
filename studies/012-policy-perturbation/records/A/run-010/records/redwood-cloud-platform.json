@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-cloud-platform",
+  "decision": {
+    "decidedAt": "2026-06-09T14:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Cloud Platform Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

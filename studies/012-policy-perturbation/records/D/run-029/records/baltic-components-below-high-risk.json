@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-components-below-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T13:55:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Components O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

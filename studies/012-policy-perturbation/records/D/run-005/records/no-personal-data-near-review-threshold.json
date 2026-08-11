@@ -1,0 +1,15 @@
+{
+  "caseId": "no-personal-data-near-review-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T13:40:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Packaging S.A.C.",
+    "registeredCountry": "PE",
+    "riskScore": "71.9999",
+    "sanctionsHit": false
+  }
+}

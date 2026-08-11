@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T14:40:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Health Processing S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

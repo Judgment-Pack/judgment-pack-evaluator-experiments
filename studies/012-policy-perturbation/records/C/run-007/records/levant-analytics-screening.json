@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Priya Banerjee",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Analytics Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "96.4",
+    "sanctionsHit": false
+  }
+}

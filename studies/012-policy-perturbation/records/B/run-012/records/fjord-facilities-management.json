@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-facilities-management",
+  "decision": {
+    "decidedAt": "2026-06-15T08:55:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Facilities Management AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

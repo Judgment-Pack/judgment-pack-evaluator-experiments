@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-translation-bureau",
+  "decision": {
+    "decidedAt": "2026-06-12T08:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Translation Bureau SARL",
+    "registeredCountry": "MA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "acacia-high-risk-ceiling",
+  "decision": {
+    "decidedAt": "2026-06-11T14:25:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Acacia Network Operations Ltd.",
+    "registeredCountry": "ZA",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

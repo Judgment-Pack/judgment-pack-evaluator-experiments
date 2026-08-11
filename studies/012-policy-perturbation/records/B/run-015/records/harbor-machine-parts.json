@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-machine-parts",
+  "decision": {
+    "decidedAt": "2026-06-05T08:55:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Machine Parts Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

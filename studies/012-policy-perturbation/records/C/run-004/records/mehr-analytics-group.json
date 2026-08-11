@@ -1,0 +1,15 @@
+{
+  "caseId": "mehr-analytics-group",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Mehr Analytics Group",
+    "registeredCountry": "IR",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

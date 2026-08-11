@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-midrange-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T10:25:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Payroll Services AS",
+    "registeredCountry": "NO",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

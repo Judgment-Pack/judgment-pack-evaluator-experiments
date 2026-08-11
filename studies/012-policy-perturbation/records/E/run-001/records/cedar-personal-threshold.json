@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T09:05:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Patient Analytics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

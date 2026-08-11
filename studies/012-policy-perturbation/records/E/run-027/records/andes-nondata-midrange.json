@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nondata-midrange",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Procurement SpA",
+    "registeredCountry": "CL",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

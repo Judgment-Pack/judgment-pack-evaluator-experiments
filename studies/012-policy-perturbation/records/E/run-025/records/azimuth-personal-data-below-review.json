@@ -1,0 +1,15 @@
+{
+  "caseId": "azimuth-personal-data-below-review",
+  "decision": {
+    "decidedAt": "2026-06-07T15:25:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Azimuth Profile Solutions Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-identity-labs-screening",
+  "decision": {
+    "decidedAt": "2026-06-15T14:30:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Identity Labs K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "53.4",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-records-storage",
+  "decision": {
+    "decidedAt": "2026-06-19T11:45:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Records Storage Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

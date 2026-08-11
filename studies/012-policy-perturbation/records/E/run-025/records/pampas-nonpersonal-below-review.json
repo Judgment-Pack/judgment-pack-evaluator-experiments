@@ -1,0 +1,15 @@
+{
+  "caseId": "pampas-nonpersonal-below-review",
+  "decision": {
+    "decidedAt": "2026-06-09T14:15:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pampas Freight S.A.",
+    "registeredCountry": "AR",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

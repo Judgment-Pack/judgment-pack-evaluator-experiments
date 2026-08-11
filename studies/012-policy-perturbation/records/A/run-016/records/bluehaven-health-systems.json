@@ -1,0 +1,15 @@
+{
+  "caseId": "bluehaven-health-systems",
+  "decision": {
+    "decidedAt": "2026-06-03T08:40:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluehaven Health Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "52.75",
+    "sanctionsHit": false
+  }
+}

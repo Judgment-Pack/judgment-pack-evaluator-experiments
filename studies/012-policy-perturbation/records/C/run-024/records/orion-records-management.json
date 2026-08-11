@@ -1,0 +1,15 @@
+{
+  "caseId": "orion-records-management",
+  "decision": {
+    "decidedAt": "2026-06-19T11:35:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orion Records Management SAS",
+    "registeredCountry": "FR",
+    "riskScore": "72.5",
+    "sanctionsHit": true
+  }
+}

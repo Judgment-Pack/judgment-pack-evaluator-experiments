@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Elena Marlow",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pyongyang Meridian Trading Co.",
+    "registeredCountry": "KP",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

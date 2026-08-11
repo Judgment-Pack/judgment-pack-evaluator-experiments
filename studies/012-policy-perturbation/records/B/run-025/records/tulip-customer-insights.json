@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-08T09:50:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Customer Insights B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

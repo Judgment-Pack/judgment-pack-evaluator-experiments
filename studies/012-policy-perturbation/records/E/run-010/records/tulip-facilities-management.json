@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-facilities-management",
+  "decision": {
+    "decidedAt": "2026-06-05T13:25:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Facilities Management B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

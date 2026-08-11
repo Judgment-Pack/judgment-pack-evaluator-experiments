@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-industrial-controls",
+  "decision": {
+    "decidedAt": "2026-06-10T15:25:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Industrial Controls Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

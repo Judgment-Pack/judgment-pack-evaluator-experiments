@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-payroll-solutions-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T09:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Payroll Solutions Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-facilities-management",
+  "decision": {
+    "decidedAt": "2026-06-08T13:20:00Z",
+    "decidedBy": "Priya Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Facilities Management Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

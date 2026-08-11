@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-high-risk-logistics",
+  "decision": {
+    "decidedAt": "2026-06-05T15:10:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Logistics SpA",
+    "registeredCountry": "CL",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

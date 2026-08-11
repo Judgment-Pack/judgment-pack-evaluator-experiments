@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-analytics-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

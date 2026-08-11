@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-embargo-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Atlas Logistics PLC",
+    "registeredCountry": "IR",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

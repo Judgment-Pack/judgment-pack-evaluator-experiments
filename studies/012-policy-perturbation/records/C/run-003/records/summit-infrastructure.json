@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-infrastructure",
+  "decision": {
+    "decidedAt": "2026-06-04T15:10:00Z",
+    "decidedBy": "Priya Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Infrastructure Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

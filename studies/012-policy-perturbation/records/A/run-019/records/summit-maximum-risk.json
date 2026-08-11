@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T15:45:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Extraction Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

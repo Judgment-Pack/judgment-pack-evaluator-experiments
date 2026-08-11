@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T16:50:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefits Technologies Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

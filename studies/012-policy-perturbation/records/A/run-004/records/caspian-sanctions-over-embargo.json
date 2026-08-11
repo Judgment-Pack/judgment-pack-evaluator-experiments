@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-over-embargo",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Trade Bureau",
+    "registeredCountry": "IR",
+    "riskScore": "95",
+    "sanctionsHit": true
+  }
+}

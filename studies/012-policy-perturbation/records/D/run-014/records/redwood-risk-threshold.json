@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T09:00:00Z",
+    "decidedBy": "Elias Romero",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Logistics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-22T13:10:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Payroll Services Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

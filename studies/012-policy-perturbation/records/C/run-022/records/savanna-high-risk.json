@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T14:10:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Procurement Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "87.25",
+    "sanctionsHit": false
+  }
+}

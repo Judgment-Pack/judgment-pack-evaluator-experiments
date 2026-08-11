@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-medical-distribution",
+  "decision": {
+    "decidedAt": "2026-06-15T14:50:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Medical Distribution LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88.8",
+    "sanctionsHit": false
+  }
+}

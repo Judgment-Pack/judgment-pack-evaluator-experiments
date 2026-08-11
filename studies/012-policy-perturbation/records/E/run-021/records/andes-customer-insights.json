@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-18T13:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Customer Insights SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

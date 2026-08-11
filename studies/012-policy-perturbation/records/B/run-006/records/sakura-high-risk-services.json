@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-high-risk-services",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Business Services KK",
+    "registeredCountry": "JP",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

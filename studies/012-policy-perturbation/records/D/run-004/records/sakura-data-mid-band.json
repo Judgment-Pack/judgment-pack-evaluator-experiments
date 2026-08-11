@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-15T14:40:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Insight K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "58.4",
+    "sanctionsHit": false
+  }
+}

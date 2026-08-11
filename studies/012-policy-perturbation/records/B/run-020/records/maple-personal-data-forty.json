@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T09:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefits Administration Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-personal-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-04T15:15:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Customer Cloud O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

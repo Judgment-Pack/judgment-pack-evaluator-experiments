@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-export-bureau",
+  "decision": {
+    "decidedAt": "2026-06-08T09:35:00Z",
+    "decidedBy": "Jonas Mercer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Export Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

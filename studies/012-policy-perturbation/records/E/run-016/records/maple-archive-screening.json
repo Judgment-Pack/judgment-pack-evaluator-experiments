@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-archive-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T13:15:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Archive Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

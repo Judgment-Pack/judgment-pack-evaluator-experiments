@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-high-risk-data-handler",
+  "decision": {
+    "decidedAt": "2026-06-04T15:10:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Cloud Services K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-payroll-platform",
+  "decision": {
+    "decidedAt": "2026-06-04T14:25:00Z",
+    "decidedBy": "Jonas Keller",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Payroll Platform AS",
+    "registeredCountry": "NO",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

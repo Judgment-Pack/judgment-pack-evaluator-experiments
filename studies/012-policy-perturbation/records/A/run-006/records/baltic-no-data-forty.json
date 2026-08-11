@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-18T10:30:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machine Works O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

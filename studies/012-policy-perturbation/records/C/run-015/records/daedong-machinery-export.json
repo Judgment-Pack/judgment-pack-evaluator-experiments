@@ -1,0 +1,15 @@
+{
+  "caseId": "daedong-machinery-export",
+  "decision": {
+    "decidedAt": "2026-06-11T15:40:00Z",
+    "decidedBy": "Elena Vargas",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Daedong Machinery Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "12.5",
+    "sanctionsHit": false
+  }
+}

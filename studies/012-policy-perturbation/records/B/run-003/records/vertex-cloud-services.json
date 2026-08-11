@@ -1,0 +1,15 @@
+{
+  "caseId": "vertex-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-10T15:50:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Vertex Cloud Services Limited",
+    "registeredCountry": "GB",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

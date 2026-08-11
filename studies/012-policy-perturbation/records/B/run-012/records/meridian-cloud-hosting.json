@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-04T11:00:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Cloud Hosting Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

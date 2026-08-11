@@ -1,0 +1,15 @@
+{
+  "caseId": "juniper-personal-exact-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T08:15:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Juniper Identity Services SAS",
+    "registeredCountry": "FR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

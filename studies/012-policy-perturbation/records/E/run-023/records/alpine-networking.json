@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-networking",
+  "decision": {
+    "decidedAt": "2026-06-05T12:35:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Networking AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

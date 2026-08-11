@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-logistics-partners",
+  "decision": {
+    "decidedAt": "2026-06-12T16:45:00Z",
+    "decidedBy": "Mara Singh",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Logistics Partners S.A.",
+    "registeredCountry": "BR",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

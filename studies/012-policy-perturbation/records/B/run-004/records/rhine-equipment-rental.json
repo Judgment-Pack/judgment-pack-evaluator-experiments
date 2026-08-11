@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-equipment-rental",
+  "decision": {
+    "decidedAt": "2026-06-09T12:55:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Equipment Rental GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

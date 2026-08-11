@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-network-solutions",
+  "decision": {
+    "decidedAt": "2026-06-16T14:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Network Solutions B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

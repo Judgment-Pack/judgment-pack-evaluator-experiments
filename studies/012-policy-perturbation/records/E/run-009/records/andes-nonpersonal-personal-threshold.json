@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nonpersonal-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T11:50:00Z",
+    "decidedBy": "Marcus Vale",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Packaging SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

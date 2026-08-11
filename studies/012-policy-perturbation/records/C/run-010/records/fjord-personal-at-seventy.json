@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-personal-at-seventy",
+  "decision": {
+    "decidedAt": "2026-06-10T11:55:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Workforce Cloud AS",
+    "registeredCountry": "NO",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

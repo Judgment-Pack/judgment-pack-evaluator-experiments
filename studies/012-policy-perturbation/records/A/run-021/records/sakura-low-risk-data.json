@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-low-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-12T15:20:00Z",
+    "decidedBy": "Sofia Mendes",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Survey Services K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

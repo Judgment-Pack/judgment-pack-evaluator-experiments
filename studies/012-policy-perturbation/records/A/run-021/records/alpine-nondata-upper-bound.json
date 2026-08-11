@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-nondata-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-12T11:55:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Components AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

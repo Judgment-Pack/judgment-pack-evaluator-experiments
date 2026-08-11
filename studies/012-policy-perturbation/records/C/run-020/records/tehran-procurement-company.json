@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-procurement-company",
+  "decision": {
+    "decidedAt": "2026-06-15T14:40:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Procurement Company",
+    "registeredCountry": "IR",
+    "riskScore": "12.5",
+    "sanctionsHit": false
+  }
+}

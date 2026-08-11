@@ -1,0 +1,15 @@
+{
+  "caseId": "verde-nonpersonal-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-10T11:30:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Verde Equipment Comercio Ltda.",
+    "registeredCountry": "BR",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

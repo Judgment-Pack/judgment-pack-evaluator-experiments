@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-no-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T13:30:00Z",
+    "decidedBy": "Mina Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Packaging SpA",
+    "registeredCountry": "CL",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

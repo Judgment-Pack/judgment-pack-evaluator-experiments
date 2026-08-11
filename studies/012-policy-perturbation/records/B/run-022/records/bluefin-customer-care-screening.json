@@ -1,0 +1,15 @@
+{
+  "caseId": "bluefin-customer-care-screening",
+  "decision": {
+    "decidedAt": "2026-04-21T12:15:00Z",
+    "decidedBy": "Jonah Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluefin Customer Care Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-machinery-screening",
+  "decision": {
+    "decidedAt": "2026-04-07T08:55:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Machinery AS",
+    "registeredCountry": "NO",
+    "riskScore": "99.9",
+    "sanctionsHit": false
+  }
+}

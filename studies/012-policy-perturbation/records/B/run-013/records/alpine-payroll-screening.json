@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-payroll-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Payroll AG",
+    "registeredCountry": "CH",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-medical-instruments",
+  "decision": {
+    "decidedAt": "2026-06-15T10:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Medical Instruments PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

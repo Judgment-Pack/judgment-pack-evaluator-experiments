@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-health-platform",
+  "decision": {
+    "decidedAt": "2026-06-11T12:25:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Health Platform Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

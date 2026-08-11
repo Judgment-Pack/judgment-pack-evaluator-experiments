@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-cloud-systems",
+  "decision": {
+    "decidedAt": "2026-06-05T12:50:00Z",
+    "decidedBy": "Amina Laurent",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Cloud Systems LLC",
+    "registeredCountry": "SY",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

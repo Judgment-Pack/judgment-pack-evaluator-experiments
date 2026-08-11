@@ -1,0 +1,15 @@
+{
+  "caseId": "danube-customer-care-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Danube Customer Care SRL",
+    "registeredCountry": "RO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

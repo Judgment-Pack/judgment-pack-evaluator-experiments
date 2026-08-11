@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-05T12:45:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Patient Scheduling Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

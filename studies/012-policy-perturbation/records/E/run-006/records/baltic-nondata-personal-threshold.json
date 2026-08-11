@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-nondata-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T09:15:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Components O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

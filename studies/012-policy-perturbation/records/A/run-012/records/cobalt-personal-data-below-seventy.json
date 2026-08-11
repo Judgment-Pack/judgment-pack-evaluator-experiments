@@ -1,0 +1,15 @@
+{
+  "caseId": "cobalt-personal-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-08T09:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cobalt Workforce Solutions GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

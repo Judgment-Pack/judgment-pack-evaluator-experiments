@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-machine-works",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Machine Works GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

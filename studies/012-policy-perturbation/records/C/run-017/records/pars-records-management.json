@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-records-management",
+  "decision": {
+    "decidedAt": "2026-06-17T14:25:00Z",
+    "decidedBy": "Nadia Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Records Management Co.",
+    "registeredCountry": "IR",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

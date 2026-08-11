@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-cloud-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T16:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Cloud Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

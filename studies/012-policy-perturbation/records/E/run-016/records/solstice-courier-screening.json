@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-courier-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T15:45:00Z",
+    "decidedBy": "Jonah Brooks",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Courier S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

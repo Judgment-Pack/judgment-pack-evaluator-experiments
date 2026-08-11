@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-data-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T15:40:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Data Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

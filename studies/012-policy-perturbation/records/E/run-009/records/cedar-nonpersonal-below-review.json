@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-nonpersonal-below-review",
+  "decision": {
+    "decidedAt": "2026-06-12T13:30:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Laboratory Equipment SARL",
+    "registeredCountry": "FR",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

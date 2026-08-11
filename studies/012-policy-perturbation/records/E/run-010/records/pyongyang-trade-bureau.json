@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-trade-bureau",
+  "decision": {
+    "decidedAt": "2026-06-04T08:20:00Z",
+    "decidedBy": "Omar Haddad",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Trade Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

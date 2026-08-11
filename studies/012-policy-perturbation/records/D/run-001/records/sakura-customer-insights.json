@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-08T15:25:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Insights K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

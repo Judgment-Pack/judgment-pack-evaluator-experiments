@@ -1,0 +1,15 @@
+{
+  "caseId": "harborlight-payments",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harborlight Payments Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

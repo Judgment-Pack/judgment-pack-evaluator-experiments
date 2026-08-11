@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-freight-below-review",
+  "decision": {
+    "decidedAt": "2026-06-10T11:05:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Freight AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

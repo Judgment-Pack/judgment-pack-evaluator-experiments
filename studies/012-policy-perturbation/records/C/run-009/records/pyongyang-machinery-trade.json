@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-machinery-trade",
+  "decision": {
+    "decidedAt": "2026-06-09T08:40:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Machinery Trade Corporation",
+    "registeredCountry": "KP",
+    "riskScore": "88.8",
+    "sanctionsHit": false
+  }
+}

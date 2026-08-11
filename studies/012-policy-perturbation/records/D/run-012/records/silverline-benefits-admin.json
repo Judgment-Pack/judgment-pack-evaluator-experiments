@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-benefits-admin",
+  "decision": {
+    "decidedAt": "2026-06-02T09:15:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Benefits Administration plc",
+    "registeredCountry": "GB",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

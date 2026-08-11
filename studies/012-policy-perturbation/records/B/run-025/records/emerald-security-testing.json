@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-security-testing",
+  "decision": {
+    "decidedAt": "2026-06-11T16:20:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Emerald Security Testing Ltd.",
+    "registeredCountry": "IE",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-06T10:50:00Z",
+    "decidedBy": "Amelia Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Cloud Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "85.5",
+    "sanctionsHit": false
+  }
+}

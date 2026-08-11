@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-freight-network",
+  "decision": {
+    "decidedAt": "2026-06-10T13:40:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Freight Network SpA",
+    "registeredCountry": "CL",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

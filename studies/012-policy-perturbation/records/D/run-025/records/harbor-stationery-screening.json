@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-stationery-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T11:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Stationery Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

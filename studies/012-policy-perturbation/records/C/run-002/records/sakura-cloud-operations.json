@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-cloud-operations",
+  "decision": {
+    "decidedAt": "2026-06-04T15:25:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Cloud Operations K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

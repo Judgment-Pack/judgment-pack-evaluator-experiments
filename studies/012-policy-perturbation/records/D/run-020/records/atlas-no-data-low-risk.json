@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-no-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T16:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Packaging SARL",
+    "registeredCountry": "MA",
+    "riskScore": "19.375",
+    "sanctionsHit": false
+  }
+}

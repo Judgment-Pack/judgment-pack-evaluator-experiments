@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-payments-platform",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Payments Platform K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

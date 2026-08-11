@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-logistics-sanctions",
+  "decision": {
+    "decidedAt": "2026-01-08T14:20:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Northstar Logistics Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "12.5",
+    "sanctionsHit": true
+  }
+}

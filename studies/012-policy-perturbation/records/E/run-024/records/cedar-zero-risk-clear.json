@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-zero-risk-clear",
+  "decision": {
+    "decidedAt": "2026-06-10T09:10:00Z",
+    "decidedBy": "Aisha Bello",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Office Supply LLC",
+    "registeredCountry": "US",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

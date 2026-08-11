@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-personal-data-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-08T08:20:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Workforce Solutions AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

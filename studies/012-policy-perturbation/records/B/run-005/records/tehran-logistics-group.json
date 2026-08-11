@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-logistics-group",
+  "decision": {
+    "decidedAt": "2026-06-05T08:55:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Logistics Group",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

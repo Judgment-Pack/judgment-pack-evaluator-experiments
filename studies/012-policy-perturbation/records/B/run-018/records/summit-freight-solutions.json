@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-freight-solutions",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Freight Solutions Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "99.75",
+    "sanctionsHit": false
+  }
+}

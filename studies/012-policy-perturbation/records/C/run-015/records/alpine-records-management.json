@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-records-management",
+  "decision": {
+    "decidedAt": "2026-06-19T09:40:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Records Management AG",
+    "registeredCountry": "CH",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-02T13:05:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Payroll Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": true
+  }
+}

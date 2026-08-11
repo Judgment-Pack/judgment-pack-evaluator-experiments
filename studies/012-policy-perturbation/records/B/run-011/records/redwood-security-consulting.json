@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-security-consulting",
+  "decision": {
+    "decidedAt": "2026-06-09T11:15:00Z",
+    "decidedBy": "Jonas Mercer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Security Consulting LLC",
+    "registeredCountry": "US",
+    "riskScore": "12.5",
+    "sanctionsHit": true
+  }
+}

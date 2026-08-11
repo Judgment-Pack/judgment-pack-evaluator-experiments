@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-technical-exports",
+  "decision": {
+    "decidedAt": "2026-06-04T08:30:00Z",
+    "decidedBy": "Omar Haddad",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Technical Exports Company",
+    "registeredCountry": "KP",
+    "riskScore": "3",
+    "sanctionsHit": false
+  }
+}

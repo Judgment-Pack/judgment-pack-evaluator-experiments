@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-low-personal-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T08:35:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Survey Research K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "18.4",
+    "sanctionsHit": false
+  }
+}

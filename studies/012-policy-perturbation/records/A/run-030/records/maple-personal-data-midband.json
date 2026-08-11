@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-data-midband",
+  "decision": {
+    "decidedAt": "2026-06-08T12:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Works Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

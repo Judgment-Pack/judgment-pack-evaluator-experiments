@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-steel-components-screening",
+  "decision": {
+    "decidedAt": "2026-06-18T16:20:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Steel Components AS",
+    "registeredCountry": "NO",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

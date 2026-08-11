@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-hr-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-06T10:25:00Z",
+    "decidedBy": "Lucia Moreno",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple HR Services Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

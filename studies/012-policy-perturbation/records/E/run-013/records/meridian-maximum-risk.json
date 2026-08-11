@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T13:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

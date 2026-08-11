@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-crm-below-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip CRM B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

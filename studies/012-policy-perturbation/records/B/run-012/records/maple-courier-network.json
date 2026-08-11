@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-courier-network",
+  "decision": {
+    "decidedAt": "2026-06-12T13:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Courier Network Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

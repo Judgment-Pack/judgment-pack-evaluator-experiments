@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-orchid-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T12:35:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Orchid Marketing Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

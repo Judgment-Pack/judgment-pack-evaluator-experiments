@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T09:05:00Z",
+    "decidedBy": "Priya Raman",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Data Processing Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

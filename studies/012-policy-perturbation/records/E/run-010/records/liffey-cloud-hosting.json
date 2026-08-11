@@ -1,0 +1,15 @@
+{
+  "caseId": "liffey-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-03T10:35:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Liffey Cloud Hosting Limited",
+    "registeredCountry": "IE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

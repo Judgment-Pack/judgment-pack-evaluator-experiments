@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-people-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia People Services S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

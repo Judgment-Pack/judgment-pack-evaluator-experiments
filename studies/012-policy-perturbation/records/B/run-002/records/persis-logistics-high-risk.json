@@ -1,0 +1,15 @@
+{
+  "caseId": "persis-logistics-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T11:05:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Persis Logistics Group",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

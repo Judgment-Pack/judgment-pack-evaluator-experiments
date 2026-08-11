@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-components-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-08T09:05:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Components GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

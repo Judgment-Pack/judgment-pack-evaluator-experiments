@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-procurement-bureau",
+  "decision": {
+    "decidedAt": "2026-06-10T16:15:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Procurement Bureau LLC",
+    "registeredCountry": "IR",
+    "riskScore": "95",
+    "sanctionsHit": true
+  }
+}

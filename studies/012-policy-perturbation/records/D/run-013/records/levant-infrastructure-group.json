@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-infrastructure-group",
+  "decision": {
+    "decidedAt": "2026-06-15T17:05:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Infrastructure Group",
+    "registeredCountry": "SY",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

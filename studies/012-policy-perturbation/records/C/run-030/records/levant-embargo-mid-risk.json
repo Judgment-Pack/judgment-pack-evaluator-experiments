@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Archive Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

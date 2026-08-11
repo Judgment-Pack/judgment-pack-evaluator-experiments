@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-nonpersonal-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T12:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Packaging AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

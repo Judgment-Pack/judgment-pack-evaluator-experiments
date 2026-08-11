@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-logistics-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T13:05:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Meridian Logistics",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

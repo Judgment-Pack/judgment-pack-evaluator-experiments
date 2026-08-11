@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-payroll-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T08:25:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Payroll B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

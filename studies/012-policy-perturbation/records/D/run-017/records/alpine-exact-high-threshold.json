@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-exact-high-threshold",
+  "decision": {
+    "decidedAt": "2026-06-03T11:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Systems AG",
+    "registeredCountry": "CH",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

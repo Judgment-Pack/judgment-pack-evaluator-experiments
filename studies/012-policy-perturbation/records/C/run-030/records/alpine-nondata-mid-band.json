@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-nondata-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Packaging AG",
+    "registeredCountry": "CH",
+    "riskScore": "56.75",
+    "sanctionsHit": false
+  }
+}

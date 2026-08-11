@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-cloud-processing",
+  "decision": {
+    "decidedAt": "2026-06-08T12:00:00Z",
+    "decidedBy": "Lucia Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Cloud Processing Company",
+    "registeredCountry": "IR",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

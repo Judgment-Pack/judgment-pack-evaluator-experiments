@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-equipment-leasing",
+  "decision": {
+    "decidedAt": "2026-06-15T16:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment Leasing SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

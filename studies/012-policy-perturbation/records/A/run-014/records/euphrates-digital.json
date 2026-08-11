@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-digital",
+  "decision": {
+    "decidedAt": "2026-06-19T09:55:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Digital Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "95",
+    "sanctionsHit": true
+  }
+}

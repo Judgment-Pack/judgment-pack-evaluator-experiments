@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-payroll-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T09:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Payroll Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "54.375",
+    "sanctionsHit": false
+  }
+}

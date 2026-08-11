@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-export-bureau",
+  "decision": {
+    "decidedAt": "2026-06-15T10:30:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Export Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

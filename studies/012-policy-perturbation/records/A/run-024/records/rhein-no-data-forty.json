@@ -1,0 +1,15 @@
+{
+  "caseId": "rhein-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T08:40:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhein Werkzeug GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

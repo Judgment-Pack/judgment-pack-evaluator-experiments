@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-equipment-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-11T11:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

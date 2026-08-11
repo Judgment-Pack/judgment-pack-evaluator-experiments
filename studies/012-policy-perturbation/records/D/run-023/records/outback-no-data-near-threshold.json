@@ -1,0 +1,15 @@
+{
+  "caseId": "outback-no-data-near-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T14:45:00Z",
+    "decidedBy": "Nadia Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Outback Mineral Tools Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

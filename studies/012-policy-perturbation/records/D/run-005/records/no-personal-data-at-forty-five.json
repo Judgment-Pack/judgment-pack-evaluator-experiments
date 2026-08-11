@@ -1,0 +1,15 @@
+{
+  "caseId": "no-personal-data-at-forty-five",
+  "decision": {
+    "decidedAt": "2026-06-05T15:05:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Pty Ltd.",
+    "registeredCountry": "ZA",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

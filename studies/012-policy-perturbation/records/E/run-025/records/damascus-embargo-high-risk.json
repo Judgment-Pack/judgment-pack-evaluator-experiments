@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Systems LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

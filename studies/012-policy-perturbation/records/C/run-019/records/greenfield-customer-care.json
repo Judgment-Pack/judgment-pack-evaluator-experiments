@@ -1,0 +1,15 @@
+{
+  "caseId": "greenfield-customer-care",
+  "decision": {
+    "decidedAt": "2026-06-05T08:15:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Greenfield Customer Care Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

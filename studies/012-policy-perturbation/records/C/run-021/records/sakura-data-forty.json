@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T12:00:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Data Systems K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

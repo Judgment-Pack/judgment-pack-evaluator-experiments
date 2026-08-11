@@ -1,0 +1,15 @@
+{
+  "caseId": "iran-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-03T08:20:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Registry Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

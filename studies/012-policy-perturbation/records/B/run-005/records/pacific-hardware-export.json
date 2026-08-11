@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-hardware-export",
+  "decision": {
+    "decidedAt": "2026-06-10T15:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Hardware Export Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

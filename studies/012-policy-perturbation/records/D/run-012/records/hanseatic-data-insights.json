@@ -1,0 +1,15 @@
+{
+  "caseId": "hanseatic-data-insights",
+  "decision": {
+    "decidedAt": "2026-06-03T10:10:00Z",
+    "decidedBy": "Omar Haddad",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Hanseatic Data Insights GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "12.5",
+    "sanctionsHit": true
+  }
+}

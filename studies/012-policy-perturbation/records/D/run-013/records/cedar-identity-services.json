@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-identity-services",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Services S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

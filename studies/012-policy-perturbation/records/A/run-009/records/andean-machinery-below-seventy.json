@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-machinery-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-10T14:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Machinery SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

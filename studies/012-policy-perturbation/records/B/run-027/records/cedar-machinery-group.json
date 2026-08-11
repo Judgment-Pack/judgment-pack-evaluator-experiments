@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-machinery-group",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Machinery Group S.A.",
+    "registeredCountry": "PL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

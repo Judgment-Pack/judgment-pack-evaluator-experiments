@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-office-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T08:20:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Kiwi Office Products Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

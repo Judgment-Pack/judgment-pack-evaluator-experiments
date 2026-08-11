@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-no-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-05T11:30:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Tooling S.A.",
+    "registeredCountry": "MX",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

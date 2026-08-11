@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-customer-care-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-07T12:00:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Customer Care GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

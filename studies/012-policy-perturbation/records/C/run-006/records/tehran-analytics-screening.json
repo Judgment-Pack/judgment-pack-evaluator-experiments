@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T15:40:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Analytics Services Co.",
+    "registeredCountry": "IR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

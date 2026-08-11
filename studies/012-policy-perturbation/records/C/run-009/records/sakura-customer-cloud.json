@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-customer-cloud",
+  "decision": {
+    "decidedAt": "2026-06-05T12:55:00Z",
+    "decidedBy": "Marcus Lee",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Cloud K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-records-management",
+  "decision": {
+    "decidedAt": "2026-06-11T09:50:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Records Management LLC",
+    "registeredCountry": "SY",
+    "riskScore": "75",
+    "sanctionsHit": true
+  }
+}

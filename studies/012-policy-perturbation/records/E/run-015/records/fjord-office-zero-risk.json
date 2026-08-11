@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-office-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T13:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Office Supplies AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sumida-above-review-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T14:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sumida Robotics K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

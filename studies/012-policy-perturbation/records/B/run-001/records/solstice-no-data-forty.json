@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T09:55:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Components S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

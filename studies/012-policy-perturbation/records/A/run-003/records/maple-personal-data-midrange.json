@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:35:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefits Processing Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

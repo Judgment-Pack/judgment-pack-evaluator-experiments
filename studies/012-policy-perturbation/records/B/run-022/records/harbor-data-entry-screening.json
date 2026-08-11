@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-data-entry-screening",
+  "decision": {
+    "decidedAt": "2026-06-16T11:50:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Data Entry B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

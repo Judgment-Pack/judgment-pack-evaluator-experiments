@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T16:25:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Structural Consulting SARL",
+    "registeredCountry": "MA",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

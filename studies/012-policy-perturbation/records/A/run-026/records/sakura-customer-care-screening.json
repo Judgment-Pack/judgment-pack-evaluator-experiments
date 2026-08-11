@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-customer-care-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T16:05:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Care K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

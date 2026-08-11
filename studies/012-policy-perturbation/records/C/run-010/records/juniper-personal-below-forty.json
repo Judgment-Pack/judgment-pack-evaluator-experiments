@@ -1,0 +1,15 @@
+{
+  "caseId": "juniper-personal-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Juniper Patient Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

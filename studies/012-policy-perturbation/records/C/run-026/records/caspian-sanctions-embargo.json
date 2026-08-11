@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-embargo",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems",
+    "registeredCountry": "IR",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

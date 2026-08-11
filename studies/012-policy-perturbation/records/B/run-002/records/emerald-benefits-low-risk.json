@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-benefits-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T14:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Emerald Benefits Administration Limited",
+    "registeredCountry": "IE",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

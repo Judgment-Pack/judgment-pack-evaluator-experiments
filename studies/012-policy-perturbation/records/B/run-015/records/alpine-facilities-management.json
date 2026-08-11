@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-facilities-management",
+  "decision": {
+    "decidedAt": "2026-06-19T11:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Facilities Management AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

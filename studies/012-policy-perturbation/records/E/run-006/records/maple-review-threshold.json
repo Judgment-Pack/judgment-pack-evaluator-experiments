@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-review-threshold",
+  "decision": {
+    "decidedAt": "2026-06-03T11:00:00Z",
+    "decidedBy": "Priya Raman",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Analytics Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

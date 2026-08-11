@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-industrial-screening",
+  "decision": {
+    "decidedAt": "2026-02-03T16:10:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

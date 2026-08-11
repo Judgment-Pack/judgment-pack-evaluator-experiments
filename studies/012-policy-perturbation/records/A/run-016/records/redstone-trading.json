@@ -1,0 +1,15 @@
+{
+  "caseId": "redstone-trading",
+  "decision": {
+    "decidedAt": "2026-06-11T09:20:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redstone Trading B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "18",
+    "sanctionsHit": true
+  }
+}

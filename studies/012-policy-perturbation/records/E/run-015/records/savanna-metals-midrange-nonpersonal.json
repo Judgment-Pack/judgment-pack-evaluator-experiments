@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-metals-midrange-nonpersonal",
+  "decision": {
+    "decidedAt": "2026-06-11T08:55:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Metals (Pty) Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

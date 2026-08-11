@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-logistics-network",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Logistics Network O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

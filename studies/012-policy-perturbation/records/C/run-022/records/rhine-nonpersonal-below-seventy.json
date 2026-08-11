@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-nonpersonal-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-05T11:50:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Machine Works GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

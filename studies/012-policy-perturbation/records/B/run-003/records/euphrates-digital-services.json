@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-digital-services",
+  "decision": {
+    "decidedAt": "2026-06-17T11:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Digital Services Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "88.8",
+    "sanctionsHit": true
+  }
+}

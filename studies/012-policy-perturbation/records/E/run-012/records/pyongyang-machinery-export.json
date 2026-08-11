@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-machinery-export",
+  "decision": {
+    "decidedAt": "2026-06-11T09:45:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Machinery Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "1",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "exact-seventy-no-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-04T11:00:00Z",
+    "decidedBy": "Jonah Feld",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Blue Quarry Logistics PLC",
+    "registeredCountry": "GB",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

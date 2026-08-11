@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-workforce-platform",
+  "decision": {
+    "decidedAt": "2026-06-09T12:00:00Z",
+    "decidedBy": "Jonah Brooks",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Workforce Platform SpA",
+    "registeredCountry": "CL",
+    "riskScore": "58.375",
+    "sanctionsHit": false
+  }
+}

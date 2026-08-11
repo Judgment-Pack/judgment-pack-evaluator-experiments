@@ -1,0 +1,15 @@
+{
+  "caseId": "oakbridge-hosting",
+  "decision": {
+    "decidedAt": "2026-06-08T13:10:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Oakbridge Hosting Limited",
+    "registeredCountry": "GB",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

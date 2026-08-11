@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-infrastructure",
+  "decision": {
+    "decidedAt": "2026-06-05T10:50:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Infrastructure Services",
+    "registeredCountry": "IR",
+    "riskScore": "41.5",
+    "sanctionsHit": false
+  }
+}

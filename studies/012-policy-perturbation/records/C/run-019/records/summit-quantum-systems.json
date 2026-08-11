@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-quantum-systems",
+  "decision": {
+    "decidedAt": "2026-06-12T09:40:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Quantum Systems AS",
+    "registeredCountry": "NO",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

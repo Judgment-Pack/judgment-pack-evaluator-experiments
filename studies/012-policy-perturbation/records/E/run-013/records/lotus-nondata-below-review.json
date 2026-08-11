@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-nondata-below-review",
+  "decision": {
+    "decidedAt": "2026-06-10T07:55:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Lotus Manufacturing Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-equipment-rental",
+  "decision": {
+    "decidedAt": "2026-06-19T11:55:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Rental Pty Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

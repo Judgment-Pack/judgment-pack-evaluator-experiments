@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-cloud-services-ir",
+  "decision": {
+    "decidedAt": "2026-06-05T08:50:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Cloud Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

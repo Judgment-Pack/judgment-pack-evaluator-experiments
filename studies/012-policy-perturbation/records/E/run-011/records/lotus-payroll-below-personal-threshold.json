@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-payroll-below-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T13:30:00Z",
+    "decidedBy": "Lucia Moreno",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Payroll Private Limited",
+    "registeredCountry": "IN",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

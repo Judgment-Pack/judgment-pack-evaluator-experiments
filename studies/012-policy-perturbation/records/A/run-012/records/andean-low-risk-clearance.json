@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-low-risk-clearance",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Facilities SpA",
+    "registeredCountry": "CL",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

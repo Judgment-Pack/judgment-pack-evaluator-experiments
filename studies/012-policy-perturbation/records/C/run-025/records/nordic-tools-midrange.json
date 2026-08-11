@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-tools-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T16:15:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Tools AB",
+    "registeredCountry": "SE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

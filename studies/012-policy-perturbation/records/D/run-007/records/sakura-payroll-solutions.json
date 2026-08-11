@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-payroll-solutions",
+  "decision": {
+    "decidedAt": "2026-06-08T16:05:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Payroll Solutions K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

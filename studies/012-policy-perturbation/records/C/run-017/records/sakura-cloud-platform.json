@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-cloud-platform",
+  "decision": {
+    "decidedAt": "2026-06-10T15:50:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Cloud Platform K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-consulting-group",
+  "decision": {
+    "decidedAt": "2026-06-09T14:15:00Z",
+    "decidedBy": "Amira Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Consulting Group LLC",
+    "registeredCountry": "US",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

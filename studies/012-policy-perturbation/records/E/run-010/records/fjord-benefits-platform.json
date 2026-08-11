@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-benefits-platform",
+  "decision": {
+    "decidedAt": "2026-06-02T13:40:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Benefits Platform AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

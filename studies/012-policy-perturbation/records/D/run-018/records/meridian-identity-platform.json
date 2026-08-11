@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-identity-platform",
+  "decision": {
+    "decidedAt": "2026-06-12T16:15:00Z",
+    "decidedBy": "Jonas Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Identity Platform Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "44.99",
+    "sanctionsHit": true
+  }
+}

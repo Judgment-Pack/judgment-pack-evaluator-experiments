@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-nonpersonal-routine-clearance",
+  "decision": {
+    "decidedAt": "2026-06-11T11:55:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Office Furnishings Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

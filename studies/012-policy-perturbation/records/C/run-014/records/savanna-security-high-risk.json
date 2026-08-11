@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-security-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-19T09:55:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Security Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "87.25",
+    "sanctionsHit": false
+  }
+}

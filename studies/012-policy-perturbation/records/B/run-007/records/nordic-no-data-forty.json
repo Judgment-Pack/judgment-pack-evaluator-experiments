@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-12T16:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Fastener AB",
+    "registeredCountry": "SE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

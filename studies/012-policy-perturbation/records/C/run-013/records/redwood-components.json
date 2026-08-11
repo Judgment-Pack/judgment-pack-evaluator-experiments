@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-components",
+  "decision": {
+    "decidedAt": "2026-06-08T09:00:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Components S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "18.75",
+    "sanctionsHit": true
+  }
+}

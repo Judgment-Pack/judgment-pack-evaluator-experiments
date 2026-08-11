@@ -1,0 +1,15 @@
+{
+  "caseId": "forty-line-payments-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T12:30:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Forty Line Payments Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

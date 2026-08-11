@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-industrial-sy",
+  "decision": {
+    "decidedAt": "2026-06-08T11:25:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Industrial Supplies S.A.",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

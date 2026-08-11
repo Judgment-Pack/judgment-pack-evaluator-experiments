@@ -1,0 +1,15 @@
+{
+  "caseId": "brightpath-hr-services",
+  "decision": {
+    "decidedAt": "2026-06-03T13:40:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "BrightPath HR Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

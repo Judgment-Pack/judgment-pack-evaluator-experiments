@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-identity-labs",
+  "decision": {
+    "decidedAt": "2026-06-01T11:05:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Labs Inc.",
+    "registeredCountry": "US",
+    "riskScore": "96.25",
+    "sanctionsHit": true
+  }
+}

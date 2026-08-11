@@ -1,0 +1,15 @@
+{
+  "caseId": "silverfern-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:25:00Z",
+    "decidedBy": "Sofia Alvarez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silver Fern Analytics Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

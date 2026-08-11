@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-equipment-leasing",
+  "decision": {
+    "decidedAt": "2026-06-11T08:55:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Leasing Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

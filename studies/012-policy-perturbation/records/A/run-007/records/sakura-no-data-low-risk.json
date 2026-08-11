@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-no-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T10:15:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Packaging Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nonpersonal-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-11T13:05:00Z",
+    "decidedBy": "Lucia Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Materials SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

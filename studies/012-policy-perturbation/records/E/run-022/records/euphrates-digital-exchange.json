@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-digital-exchange",
+  "decision": {
+    "decidedAt": "2026-06-08T11:35:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Digital Exchange",
+    "registeredCountry": "IR",
+    "riskScore": "95",
+    "sanctionsHit": true
+  }
+}

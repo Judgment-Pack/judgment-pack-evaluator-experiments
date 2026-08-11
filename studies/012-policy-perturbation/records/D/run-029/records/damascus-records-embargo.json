@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-records-embargo",
+  "decision": {
+    "decidedAt": "2026-06-04T16:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Records Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

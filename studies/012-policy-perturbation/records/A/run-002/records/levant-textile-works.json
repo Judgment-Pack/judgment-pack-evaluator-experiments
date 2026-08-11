@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-textile-works",
+  "decision": {
+    "decidedAt": "2026-06-15T14:25:00Z",
+    "decidedBy": "Martin Shaw",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Textile Works LLC",
+    "registeredCountry": "SY",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

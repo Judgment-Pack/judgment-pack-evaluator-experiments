@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Data Systems, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "88.4",
+    "sanctionsHit": true
+  }
+}

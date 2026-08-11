@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-office-supply-screening",
+  "decision": {
+    "decidedAt": "2026-06-15T10:35:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Office Supply SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-health-platform-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T13:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Health Platform Inc.",
+    "registeredCountry": "US",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

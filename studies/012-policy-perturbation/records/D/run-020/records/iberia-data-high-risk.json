@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-data-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T14:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Data Custodians S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "86.75",
+    "sanctionsHit": false
+  }
+}

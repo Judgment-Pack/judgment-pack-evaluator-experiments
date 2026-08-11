@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-07T10:05:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Identity Solutions O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

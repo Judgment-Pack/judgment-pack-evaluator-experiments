@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-cloud-systems",
+  "decision": {
+    "decidedAt": "2026-06-12T15:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Cloud Systems Co.",
+    "registeredCountry": "IR",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

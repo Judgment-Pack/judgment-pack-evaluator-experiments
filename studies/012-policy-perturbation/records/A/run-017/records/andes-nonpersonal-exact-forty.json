@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nonpersonal-exact-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T11:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Laboratory Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}
