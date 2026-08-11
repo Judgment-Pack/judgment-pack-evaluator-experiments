@@ -1,0 +1,15 @@
+{
+  "caseId": "coral-no-data-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-17T14:50:00Z",
+    "decidedBy": "Priya Raman",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Coral Office Products Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

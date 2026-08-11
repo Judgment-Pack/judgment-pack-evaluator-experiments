@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-payroll-solutions",
+  "decision": {
+    "decidedAt": "2026-06-15T14:50:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Payroll Solutions Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "54.6",
+    "sanctionsHit": false
+  }
+}

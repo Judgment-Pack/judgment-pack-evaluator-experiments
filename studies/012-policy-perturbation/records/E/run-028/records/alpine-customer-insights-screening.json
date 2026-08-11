@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-customer-insights-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T08:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Customer Insights AG",
+    "registeredCountry": "CH",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

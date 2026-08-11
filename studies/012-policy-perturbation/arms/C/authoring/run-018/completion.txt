@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-logistics",
+    "vendor": {
+      "legalName": "Blue Harbor Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "maple-contact-services",
+    "vendor": {
+      "legalName": "Maple Contact Services Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-people-platform",
+    "vendor": {
+      "legalName": "Alpine People Platform AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-03T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "southern-cross-machinery",
+    "vendor": {
+      "legalName": "Southern Cross Machinery Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-04T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-customer-insights",
+    "vendor": {
+      "legalName": "Fjord Customer Insights AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-04T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-industrial-parts",
+    "vendor": {
+      "legalName": "Iberia Industrial Parts S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-systems",
+    "vendor": {
+      "legalName": "Sakura Data Systems Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-heavy-engineering",
+    "vendor": {
+      "legalName": "Baltic Heavy Engineering OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-export-bureau",
+    "vendor": {
+      "legalName": "Pyongyang Export Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-09T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "persian-cloud-services",
+    "vendor": {
+      "legalName": "Persian Cloud Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-09T12:50:00Z"
+    }
+  },
+  {
+    "caseId": "levant-infrastructure-group",
+    "vendor": {
+      "legalName": "Levant Infrastructure Group Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-10T14:15:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-packaging",
+    "vendor": {
+      "legalName": "Redwood Packaging Limited",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-11T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "danube-identity-solutions",
+    "vendor": {
+      "legalName": "Danube Identity Solutions Kft.",
+      "sanctionsHit": true,
+      "registeredCountry": "HU",
+      "handlesPersonalData": true,
+      "riskScore": "62"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-11T13:30:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-trading-house",
+    "vendor": {
+      "legalName": "Damascus Trading House",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-12T16:05:00Z"
+    }
+  }
+]

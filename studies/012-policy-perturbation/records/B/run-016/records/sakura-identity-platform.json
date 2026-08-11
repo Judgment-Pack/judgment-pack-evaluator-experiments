@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-identity-platform",
+  "decision": {
+    "decidedAt": "2026-06-09T13:10:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Identity Platform KK",
+    "registeredCountry": "JP",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

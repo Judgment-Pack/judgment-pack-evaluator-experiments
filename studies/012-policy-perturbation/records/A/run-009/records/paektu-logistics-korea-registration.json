@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-logistics-korea-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T09:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Paektu Logistics Corporation",
+    "registeredCountry": "KP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-05T15:10:00Z",
+    "decidedBy": "Owen Mercer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Customer Insights S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

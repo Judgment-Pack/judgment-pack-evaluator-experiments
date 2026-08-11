@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-directory-minimal-data-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T16:10:00Z",
+    "decidedBy": "Mara Singh",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Directory Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-nonpersonal-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T09:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Circuitry Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

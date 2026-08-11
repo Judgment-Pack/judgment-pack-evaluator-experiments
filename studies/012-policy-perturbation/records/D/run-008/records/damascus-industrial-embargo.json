@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-industrial-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T10:40:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Damascus Industrial Supply LLC",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

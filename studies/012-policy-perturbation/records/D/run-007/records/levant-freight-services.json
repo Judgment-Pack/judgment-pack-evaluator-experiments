@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-freight-services",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Priya Nand",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Freight Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

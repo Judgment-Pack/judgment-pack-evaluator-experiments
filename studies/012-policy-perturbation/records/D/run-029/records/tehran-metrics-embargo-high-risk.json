@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-metrics-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T11:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Metrics Company",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

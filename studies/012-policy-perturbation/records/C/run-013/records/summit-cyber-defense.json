@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-cyber-defense",
+  "decision": {
+    "decidedAt": "2026-06-04T16:25:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Cyber Defense AS",
+    "registeredCountry": "NO",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

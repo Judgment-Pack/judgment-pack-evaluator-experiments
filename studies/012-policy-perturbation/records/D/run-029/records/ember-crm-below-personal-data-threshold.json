@@ -1,0 +1,15 @@
+{
+  "caseId": "ember-crm-below-personal-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-18T11:35:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Ember CRM Limited",
+    "registeredCountry": "GB",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

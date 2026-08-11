@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-09T12:00:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Insights KK",
+    "registeredCountry": "JP",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

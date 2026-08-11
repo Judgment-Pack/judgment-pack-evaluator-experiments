@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-infrastructure-group",
+  "decision": {
+    "decidedAt": "2026-06-09T09:55:00Z",
+    "decidedBy": "Jonas Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Infrastructure Group",
+    "registeredCountry": "SY",
+    "riskScore": "88.25",
+    "sanctionsHit": false
+  }
+}

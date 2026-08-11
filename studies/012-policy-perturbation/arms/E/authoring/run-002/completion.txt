@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-embargoed",
+    "vendor": {
+      "legalName": "Caspian Industrial Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "92"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargoed-zero-risk",
+    "vendor": {
+      "legalName": "Paektu Machinery Export Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargoed-mid-risk",
+    "vendor": {
+      "legalName": "Levant Office Systems LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "55"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-embargoed-review-threshold",
+    "vendor": {
+      "legalName": "Tehran Precision Instruments PJSC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Okafor",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "summit-review-threshold",
+    "vendor": {
+      "legalName": "Summit Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Nadia Okafor",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-above-review-threshold",
+    "vendor": {
+      "legalName": "Harbor Logistics Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-04T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-high-risk-personal-data",
+    "vendor": {
+      "legalName": "Cedar Health Data Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-05T15:15:00Z"
+    }
+  },
+  {
+    "caseId": "bluebird-just-below-review",
+    "vendor": {
+      "legalName": "Bluebird Customer Services SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-08T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "maple-personal-data-threshold",
+    "vendor": {
+      "legalName": "Maple Records Processing Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-08T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "seabrook-above-personal-threshold",
+    "vendor": {
+      "legalName": "Seabrook Digital Services Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "40.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luis Ortega",
+      "decidedAt": "2026-06-09T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-just-below-personal-threshold",
+    "vendor": {
+      "legalName": "Alpine Payroll AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Luis Ortega",
+      "decidedAt": "2026-06-09T16:50:00Z"
+    }
+  },
+  {
+    "caseId": "willow-zero-risk-personal-data",
+    "vendor": {
+      "legalName": "Willow Benefits Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-10T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "granite-threshold-without-personal-data",
+    "vendor": {
+      "legalName": "Granite Tooling AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-10T11:55:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-just-below-review-no-data",
+    "vendor": {
+      "legalName": "Meridian Packaging B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Nadia Okafor",
+      "decidedAt": "2026-06-11T14:30:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-low-risk-no-data",
+    "vendor": {
+      "legalName": "Sakura Facility Supplies Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "18.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jon Bell",
+      "decidedAt": "2026-06-12T10:15:00Z"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-health-platforms",
+  "decision": {
+    "decidedAt": "2026-06-06T08:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Health Platforms Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

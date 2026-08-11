@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-caspian-trading",
+  "decision": {
+    "decidedAt": "2026-06-08T10:25:00Z",
+    "decidedBy": "Jonas Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Caspian Trading Co.",
+    "registeredCountry": "IR",
+    "riskScore": "12.5",
+    "sanctionsHit": false
+  }
+}

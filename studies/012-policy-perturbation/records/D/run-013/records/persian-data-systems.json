@@ -1,0 +1,15 @@
+{
+  "caseId": "persian-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-12T12:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persian Data Systems LLC",
+    "registeredCountry": "IR",
+    "riskScore": "44",
+    "sanctionsHit": false
+  }
+}

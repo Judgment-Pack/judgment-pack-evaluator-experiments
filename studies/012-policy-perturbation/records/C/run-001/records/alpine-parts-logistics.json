@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-parts-logistics",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Parts Logistics AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

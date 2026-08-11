@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-document-solutions",
+  "decision": {
+    "decidedAt": "2026-06-04T09:05:00Z",
+    "decidedBy": "Omar Haddad",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Document Solutions Company",
+    "registeredCountry": "IR",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

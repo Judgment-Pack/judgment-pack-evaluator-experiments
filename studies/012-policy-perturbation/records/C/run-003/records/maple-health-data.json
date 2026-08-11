@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-health-data",
+  "decision": {
+    "decidedAt": "2026-06-04T09:45:00Z",
+    "decidedBy": "Priya Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Health Data Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

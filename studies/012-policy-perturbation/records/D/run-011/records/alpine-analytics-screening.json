@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Nadia Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Analytics AG",
+    "registeredCountry": "CH",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

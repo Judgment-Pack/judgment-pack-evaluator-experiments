@@ -1,0 +1,15 @@
+{
+  "caseId": "danube-customer-analytics",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Danube Customer Analytics GmbH",
+    "registeredCountry": "AT",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

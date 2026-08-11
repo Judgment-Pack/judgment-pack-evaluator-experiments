@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-customer-care",
+  "decision": {
+    "decidedAt": "2026-06-22T13:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Care K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

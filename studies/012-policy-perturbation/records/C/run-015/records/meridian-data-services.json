@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-data-services",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Data Services GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

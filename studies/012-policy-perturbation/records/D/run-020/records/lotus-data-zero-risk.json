@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T11:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Contact Services Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

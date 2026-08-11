@@ -1,0 +1,11 @@
+{
+  "armVersion": "1",
+  "arm": "E",
+  "perturbation": "denamed",
+  "thresholds": {
+    "tLow": 40,
+    "tHigh": 70
+  },
+  "statesThresholdsAsLiterals": false,
+  "note": "PREREGISTRATION.md \u00a72.6. The thresholds member parameterizes the single registered mirror module harness/policy_mirror.py (\u00a72.2 [D-14]) and instantiates \u00a72.3's six semantic class keys in this arm's FAMILY.json. It is pinned by sha256 in harness/PINS.json before any call, and harness/integrity.py refuses every arm whose mirror verdicts over the \u00a72.4 landmark grid are not arm A's."
+}

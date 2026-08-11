@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-logistics-bureau",
+  "decision": {
+    "decidedAt": "2026-06-17T11:05:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Logistics Bureau LLC",
+    "registeredCountry": "SY",
+    "riskScore": "85",
+    "sanctionsHit": false
+  }
+}

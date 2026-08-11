@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-equipment-leasing",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Priya Nand",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment Leasing SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

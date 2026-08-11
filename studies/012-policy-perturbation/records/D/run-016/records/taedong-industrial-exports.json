@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-industrial-exports",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Industrial Exports Co.",
+    "registeredCountry": "KP",
+    "riskScore": "8",
+    "sanctionsHit": false
+  }
+}

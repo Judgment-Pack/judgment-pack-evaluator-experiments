@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-personal-data-under-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T11:45:00Z",
+    "decidedBy": "Elias Ford",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Document Services K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

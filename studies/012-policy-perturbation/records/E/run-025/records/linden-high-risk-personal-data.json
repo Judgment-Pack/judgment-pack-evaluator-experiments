@@ -1,0 +1,15 @@
+{
+  "caseId": "linden-high-risk-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Linden Health Data GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "96.75",
+    "sanctionsHit": false
+  }
+}

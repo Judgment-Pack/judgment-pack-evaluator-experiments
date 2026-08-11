@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-industrial-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Trading Company",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

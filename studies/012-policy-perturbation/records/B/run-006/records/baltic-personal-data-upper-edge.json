@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-personal-data-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-08T10:50:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Identity Solutions O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

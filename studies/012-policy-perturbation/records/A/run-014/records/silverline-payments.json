@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-payments",
+  "decision": {
+    "decidedAt": "2026-06-22T13:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Payments Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "0",
+    "sanctionsHit": true
+  }
+}

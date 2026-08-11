@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-payroll-processing",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Payroll Processing Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

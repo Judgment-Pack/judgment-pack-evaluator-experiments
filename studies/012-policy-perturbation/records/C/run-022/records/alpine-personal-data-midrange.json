@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-personal-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-04T10:40:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Benefits AG",
+    "registeredCountry": "CH",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

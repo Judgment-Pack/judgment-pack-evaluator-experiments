@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-records-management",
+  "decision": {
+    "decidedAt": "2026-06-09T08:20:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Records Management Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "39",
+    "sanctionsHit": true
+  }
+}

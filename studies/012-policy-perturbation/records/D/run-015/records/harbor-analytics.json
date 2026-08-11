@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-analytics",
+  "decision": {
+    "decidedAt": "2026-06-02T13:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Analytics, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

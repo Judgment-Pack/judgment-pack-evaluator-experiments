@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-security",
+  "decision": {
+    "decidedAt": "2026-06-08T12:25:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Security AS",
+    "registeredCountry": "NO",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

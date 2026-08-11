@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-trading-house",
+  "decision": {
+    "decidedAt": "2026-06-10T16:30:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Trading House",
+    "registeredCountry": "IR",
+    "riskScore": "42.25",
+    "sanctionsHit": true
+  }
+}

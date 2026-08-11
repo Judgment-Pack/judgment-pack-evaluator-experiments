@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-hosting-under-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T16:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Hosting Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

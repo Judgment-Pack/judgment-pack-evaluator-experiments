@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-maintenance-below-seventy-two",
+  "decision": {
+    "decidedAt": "2026-06-18T14:55:00Z",
+    "decidedBy": "Jonas Weber",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Maintenance B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

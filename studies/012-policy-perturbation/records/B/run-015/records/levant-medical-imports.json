@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-medical-imports",
+  "decision": {
+    "decidedAt": "2026-06-15T17:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Medical Imports LLC",
+    "registeredCountry": "SY",
+    "riskScore": "85.4",
+    "sanctionsHit": false
+  }
+}

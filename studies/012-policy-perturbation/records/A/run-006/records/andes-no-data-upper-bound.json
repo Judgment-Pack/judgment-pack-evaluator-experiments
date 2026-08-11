@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-no-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-19T16:45:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Facility Partners SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

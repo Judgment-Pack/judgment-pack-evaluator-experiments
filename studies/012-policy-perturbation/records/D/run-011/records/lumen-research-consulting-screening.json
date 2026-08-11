@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-research-consulting-screening",
+  "decision": {
+    "decidedAt": "2026-06-17T11:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Research Consulting GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

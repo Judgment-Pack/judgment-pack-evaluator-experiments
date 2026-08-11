@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-override",
+    "vendor": {
+      "legalName": "Caspian Records Processing PLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "daedong-embargo-registration",
+    "vendor": {
+      "legalName": "Daedong Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "persis-embargo-registration",
+    "vendor": {
+      "legalName": "Persis Analytics Group",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-02T09:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-registration",
+    "vendor": {
+      "legalName": "Levant Office Systems LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Sofia Chen",
+      "decidedAt": "2026-06-02T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "maple-zero-risk",
+    "vendor": {
+      "legalName": "Maple Ledger Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Chen",
+      "decidedAt": "2026-06-03T13:00:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-personal-data-below-forty",
+    "vendor": {
+      "legalName": "Fjord Payroll AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mateo Silva",
+      "decidedAt": "2026-06-03T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-personal-data-at-forty",
+    "vendor": {
+      "legalName": "Sakura Identity Solutions KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mateo Silva",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-personal-data-midrange",
+    "vendor": {
+      "legalName": "Alpine Benefits AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-04T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-personal-data-below-seventy",
+    "vendor": {
+      "legalName": "Baltic Customer Cloud OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-04T15:15:00Z"
+    }
+  },
+  {
+    "caseId": "andes-nonpersonal-at-forty",
+    "vendor": {
+      "legalName": "Andes Equipment SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Chen",
+      "decidedAt": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-nonpersonal-below-seventy",
+    "vendor": {
+      "legalName": "Rhine Machine Works GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mateo Silva",
+      "decidedAt": "2026-06-05T11:50:00Z"
+    }
+  },
+  {
+    "caseId": "acacia-nonpersonal-at-seventy",
+    "vendor": {
+      "legalName": "Acacia Logistics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-08T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-personal-data-at-seventy",
+    "vendor": {
+      "legalName": "Atlas Health Administration SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-08T12:05:00Z"
+    }
+  },
+  {
+    "caseId": "savanna-high-risk",
+    "vendor": {
+      "legalName": "Savanna Procurement Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KE",
+      "handlesPersonalData": false,
+      "riskScore": "87.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Chen",
+      "decidedAt": "2026-06-09T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "emerald-maximum-risk",
+    "vendor": {
+      "legalName": "Emerald Data Hosting Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IE",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mateo Silva",
+      "decidedAt": "2026-06-10T16:30:00Z"
+    }
+  }
+]

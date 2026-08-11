@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-above-high-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Analytics Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

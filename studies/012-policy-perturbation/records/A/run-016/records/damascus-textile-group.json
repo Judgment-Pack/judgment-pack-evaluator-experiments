@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-textile-group",
+  "decision": {
+    "decidedAt": "2026-06-10T14:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Damascus Textile Group",
+    "registeredCountry": "SY",
+    "riskScore": "88.8",
+    "sanctionsHit": false
+  }
+}

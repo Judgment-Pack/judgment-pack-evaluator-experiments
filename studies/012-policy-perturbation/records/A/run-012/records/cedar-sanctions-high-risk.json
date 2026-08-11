@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-sanctions-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Systems Inc.",
+    "registeredCountry": "US",
+    "riskScore": "92",
+    "sanctionsHit": true
+  }
+}

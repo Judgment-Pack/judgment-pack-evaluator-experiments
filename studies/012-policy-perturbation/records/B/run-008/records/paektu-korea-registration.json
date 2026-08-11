@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-korea-registration",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Elena Marlow",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Paektu Machinery Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

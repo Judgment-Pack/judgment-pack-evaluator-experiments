@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-network-audit",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Priya Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Network Audit AG",
+    "registeredCountry": "CH",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

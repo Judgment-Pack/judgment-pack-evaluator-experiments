@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-recruitment-tools",
+  "decision": {
+    "decidedAt": "2026-06-16T10:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Recruitment Tools AG",
+    "registeredCountry": "CH",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

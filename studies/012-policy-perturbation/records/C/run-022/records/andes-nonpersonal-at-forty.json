@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nonpersonal-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-facilities-group",
+  "decision": {
+    "decidedAt": "2026-06-22T13:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Facilities Group AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "borealis-just-above-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Borealis Components Oy",
+    "registeredCountry": "FI",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

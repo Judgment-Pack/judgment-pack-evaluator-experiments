@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-medical-billing",
+  "decision": {
+    "decidedAt": "2026-06-18T16:20:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Medical Billing Inc.",
+    "registeredCountry": "NZ",
+    "riskScore": "25",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-identity-cloud",
+  "decision": {
+    "decidedAt": "2026-06-04T15:25:00Z",
+    "decidedBy": "Mei Lin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Identity Cloud Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,313 @@
+Reading additional input from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /tmp/s012-resume-tXSJzO/s012-authoring-E-run-030-3010549
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: none
+reasoning summaries: none
+session id: 019fee95-e34d-7791-93e8-0381b2c96a5c
+--------
+user
+You are the records clerk of a fictional vendor-governance office. Below is
+the office's screening policy. Author the decision records of 16 distinct
+vendor screening cases this office decided under it, as a JSON array.
+
+Each record: {"caseId": "<kebab-case id you invent>", "vendor":
+{"legalName": <string>, "sanctionsHit": <bool>, "registeredCountry":
+<string>, "handlesPersonalData": <bool>, "riskScore": <decimal string, no
+trailing zeros>}, "decision": {"outcome": <"clear"|"manual-review"|
+"reject">, "decidedBy": <string>, "decidedAt": <ISO 8601 UTC, like
+2026-06-01T09:30:00Z>}}.
+
+Vendors are registered in various countries; use ISO 3166-1 alpha-2 codes,
+uppercase.
+
+Make the set what a diligent office's files would look like: exercise every
+clause of the policy, include the borderline cases a careful clerk would
+have seen, and record the outcome the policy requires for each. Do not
+include commentary — output only the JSON array.
+
+# Vendor screening policy — the arbiter
+
+Synthetic policy for this study. Every other artifact in this study is checked
+against this text; a divergence between a pack and this text is a pack bug.
+This is also the exact policy text the record author receives (inlined in the
+registered prompt), so it is the whole of what the two sides share.
+
+- **P1.** A vendor with a sanctions hit is **rejected**, regardless of
+  anything else.
+- **P2.** Absent a sanctions hit, a vendor registered in an embargoed
+  country — **KP, IR, or SY** — is **rejected**.
+- **P3.** Absent a sanctions hit or an embargoed registration, a vendor
+  whose risk score is **at or above the review threshold** goes to **manual
+  review**.
+- **P4.** Absent a sanctions hit or an embargoed registration, a vendor that
+  **handles personal data** and whose risk score is **at or above the
+  personal-data threshold but below the review threshold** goes to **manual
+  review**.
+- **P5.** Absent a sanctions hit or an embargoed registration, a vendor
+  whose risk score is **below the review threshold** is **cleared**, unless
+  P4 applies — that is, a vendor that does not handle personal data clears
+  below the review threshold, and a vendor that does handle personal data
+  clears only below the personal-data threshold.
+
+Risk scores are decimal strings and compare numerically. Registered
+countries are two-letter uppercase codes in the ISO 3166-1 alpha-2 style;
+the policy consults no registry — embargo-list membership is exact,
+case-sensitive string comparison against KP, IR, and SY, and any other
+two-letter code is a non-embargoed registration. The three outcomes —
+clear, manual review, reject — are exhaustive over complete inputs (all
+four facts present and well-formed, which is what the study's gates admit);
+the policy takes no position on incomplete inputs, which no admitted
+record can present. The office's risk scale runs from zero to one hundred.
+The **review threshold** is seven tenths of that full range; the
+**personal-data threshold** is four tenths of that same full range.
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "caseId": "northstar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-embargo",
+    "vendor": {
+      "legalName": "Caspian Meridian Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "86"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargo-zero-risk",
+    "vendor": {
+      "legalName": "Paektu Industrial Supply Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-embargo-high-risk",
+    "vendor": {
+      "legalName": "Damascus Archive Systems LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-04T16:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-embargo-threshold",
+    "vendor": {
+      "legalName": "Tehran Precision Logistics PLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-05T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-review-threshold",
+    "vendor": {
+      "legalName": "Alpine Network Services AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Bennett",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-high-risk-personal-data",
+    "vendor": {
+      "legalName": "Iberia Customer Analytics S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-09T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-high-risk-no-data",
+    "vendor": {
+      "legalName": "Harbor Foundry Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "83.2"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-10T15:10:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-threshold",
+    "vendor": {
+      "legalName": "Maple Identity Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Bennett",
+      "decidedAt": "2026-06-11T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-data-below-review",
+    "vendor": {
+      "legalName": "Rhine Payroll GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-12T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-mid-risk",
+    "vendor": {
+      "legalName": "Sakura Benefits K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-15T14:50:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-below-data-threshold",
+    "vendor": {
+      "legalName": "Tulip Records B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-16T08:35:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-zero-risk-data",
+    "vendor": {
+      "legalName": "Fjord Talent AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Bennett",
+      "decidedAt": "2026-06-17T11:55:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-no-data-at-forty",
+    "vendor": {
+      "legalName": "Cedar Machine Works Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-18T16:20:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-no-data-near-review",
+    "vendor": {
+      "legalName": "Baltic Packaging OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-19T10:45:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-low-risk-no-data",
+    "vendor": {
+      "legalName": "Atlas Office Furnishings SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "MA",
+      "handlesPersonalData": false,
+      "riskScore": "18.25"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Bennett",
+      "decidedAt": "2026-06-22T13:15:00Z"
+    }
+  }
+]
+tokens used
+5,529

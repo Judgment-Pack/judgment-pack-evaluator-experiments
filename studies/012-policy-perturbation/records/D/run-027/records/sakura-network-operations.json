@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-network-operations",
+  "decision": {
+    "decidedAt": "2026-06-09T14:45:00Z",
+    "decidedBy": "Mei Lin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Network Operations K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

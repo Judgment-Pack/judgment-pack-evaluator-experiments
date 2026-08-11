@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-insights-midrange",
+  "decision": {
+    "decidedAt": "2026-06-05T13:40:00Z",
+    "decidedBy": "Liam Murphy",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Insights K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

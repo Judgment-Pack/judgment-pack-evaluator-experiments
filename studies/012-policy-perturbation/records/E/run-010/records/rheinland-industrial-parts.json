@@ -1,0 +1,15 @@
+{
+  "caseId": "rheinland-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rheinland Industrial Parts GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

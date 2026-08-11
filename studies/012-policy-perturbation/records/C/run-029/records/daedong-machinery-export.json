@@ -1,0 +1,15 @@
+{
+  "caseId": "daedong-machinery-export",
+  "decision": {
+    "decidedAt": "2026-06-10T08:30:00Z",
+    "decidedBy": "Elias Ford",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Daedong Machinery Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

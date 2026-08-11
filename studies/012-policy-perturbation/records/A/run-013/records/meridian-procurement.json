@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-procurement",
+  "decision": {
+    "decidedAt": "2026-06-08T09:05:00Z",
+    "decidedBy": "Mateo Singh",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Procurement S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "12.5",
+    "sanctionsHit": true
+  }
+}

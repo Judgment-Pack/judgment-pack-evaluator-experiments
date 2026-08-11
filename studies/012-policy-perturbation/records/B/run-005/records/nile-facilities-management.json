@@ -1,0 +1,15 @@
+{
+  "caseId": "nile-facilities-management",
+  "decision": {
+    "decidedAt": "2026-06-18T16:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nile Facilities Management S.A.E.",
+    "registeredCountry": "EG",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

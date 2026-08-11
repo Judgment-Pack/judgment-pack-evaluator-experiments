@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-risk-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T14:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberian Network Services SL",
+    "registeredCountry": "ES",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

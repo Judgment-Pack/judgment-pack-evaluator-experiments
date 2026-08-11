@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-identity-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Amina Yusuf",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-telecom",
+  "decision": {
+    "decidedAt": "2026-06-18T15:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Telecom Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "95",
+    "sanctionsHit": true
+  }
+}

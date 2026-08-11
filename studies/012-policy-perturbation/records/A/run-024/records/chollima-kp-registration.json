@@ -1,0 +1,15 @@
+{
+  "caseId": "chollima-kp-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Chollima Industrial Supply Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

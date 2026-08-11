@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-equipment-forty-no-data",
+  "decision": {
+    "decidedAt": "2026-06-15T08:30:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Equipment GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

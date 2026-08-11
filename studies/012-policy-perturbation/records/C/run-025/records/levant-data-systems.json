@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Data Systems LLC",
+    "registeredCountry": "SY",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

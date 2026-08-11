@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-identity-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-06T08:25:00Z",
+    "decidedBy": "Liam Murphy",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Identity O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

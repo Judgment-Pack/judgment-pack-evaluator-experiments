@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-09T10:25:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Industrial Supply SARL",
+    "registeredCountry": "MA",
+    "riskScore": "84.2",
+    "sanctionsHit": false
+  }
+}

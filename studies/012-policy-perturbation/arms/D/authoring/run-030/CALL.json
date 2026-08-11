@@ -1,0 +1,61 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--ignore-user-config",
+    "-m",
+    "gpt-5.6-sol",
+    "--sandbox",
+    "workspace-write",
+    "-c",
+    "mcp_servers={}",
+    "<the exact bytes of PROMPT.txt>"
+  ],
+  "arm": "D",
+  "armPromptSha256": "sha256:0d47c2b135736376744dc00c9c66965465357e6a98e2ccd750505d931e9606d1",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "cli": "codex-cli 0.145.0",
+  "codexHome": "/tmp/s012-resume-tXSJzO/s012-home-D-run-030-3009200/.codex",
+  "codexHomeIsolated": true,
+  "credentialCopied": true,
+  "credentialRemoved": true,
+  "cwd": "/tmp/s012-resume-tXSJzO/s012-authoring-D-run-030-3009200",
+  "endedAt": "2026-08-11T02:09:37Z",
+  "environment": [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "CODEX_HOME"
+  ],
+  "environmentScrubbed": true,
+  "environmentValues": {
+    "CODEX_HOME": "/tmp/s012-resume-tXSJzO/s012-home-D-run-030-3009200/.codex",
+    "HOME": "/tmp/s012-resume-tXSJzO/s012-home-D-run-030-3009200",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/s012-resume-tXSJzO/s012-bin-D-run-030-3009200",
+    "TMPDIR": "/tmp/s012-resume-tXSJzO/s012-authoring-D-run-030-3009200/tmp"
+  },
+  "exitStatus": 0,
+  "globalIndex": 147,
+  "goldenSha256": "sha256:78c3f3b24521dec5fb60a9c4a7a05c12554258e174b9ca6269d129fe101b3c68",
+  "home": "/tmp/s012-resume-tXSJzO/s012-home-D-run-030-3009200",
+  "homeIsolated": true,
+  "ignoreUserConfig": true,
+  "isolatedHomeInventory": [
+    ".codex",
+    ".codex/auth.json"
+  ],
+  "isolation": "isolated",
+  "model": "gpt-5.6-sol",
+  "newSessionCount": 1,
+  "note": "One run of one of Study 012's five cells; session.jsonl is the transcript evidence.",
+  "operatorHomeSkillsPresent": true,
+  "pinsSha256": "sha256:cff265e75fc3f3be82fcbbb12527d14faa30935e6f804c3f02dd2fb22fcc64f4",
+  "position": 2,
+  "promptKind": "registered",
+  "promptSha256": "sha256:0d47c2b135736376744dc00c9c66965465357e6a98e2ccd750505d931e9606d1",
+  "round": 30,
+  "slot": "run-030",
+  "slotIndex": 30,
+  "startedAt": "2026-08-11T02:08:56Z",
+  "stdin": "closed (/dev/null)"
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

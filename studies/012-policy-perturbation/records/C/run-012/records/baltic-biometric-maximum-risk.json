@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-biometric-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T13:10:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Biometric O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

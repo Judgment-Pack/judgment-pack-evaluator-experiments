@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T10:00:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine People Metrics AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

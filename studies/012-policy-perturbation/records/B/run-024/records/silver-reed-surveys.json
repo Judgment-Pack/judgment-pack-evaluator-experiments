@@ -1,0 +1,15 @@
+{
+  "caseId": "silver-reed-surveys",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silver Reed Surveys Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

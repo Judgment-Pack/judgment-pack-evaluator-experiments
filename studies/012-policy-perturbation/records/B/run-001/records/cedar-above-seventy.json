@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-above-seventy",
+  "decision": {
+    "decidedAt": "2026-06-03T13:25:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Analytics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

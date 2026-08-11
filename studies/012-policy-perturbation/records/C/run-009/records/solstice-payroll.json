@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-payroll",
+  "decision": {
+    "decidedAt": "2026-06-03T13:05:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Payroll Services S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

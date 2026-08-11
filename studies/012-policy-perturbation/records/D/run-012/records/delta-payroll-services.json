@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-05T14:40:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Delta Payroll Services B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

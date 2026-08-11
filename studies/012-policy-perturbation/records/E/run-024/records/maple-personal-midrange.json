@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-personal-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Client Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

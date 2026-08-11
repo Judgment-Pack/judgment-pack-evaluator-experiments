@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-08T09:45:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Identity Solutions Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

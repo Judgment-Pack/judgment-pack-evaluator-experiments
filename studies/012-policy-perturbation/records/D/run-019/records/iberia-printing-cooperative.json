@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-printing-cooperative",
+  "decision": {
+    "decidedAt": "2026-06-10T13:55:00Z",
+    "decidedBy": "Mei Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberia Printing Cooperative",
+    "registeredCountry": "ES",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

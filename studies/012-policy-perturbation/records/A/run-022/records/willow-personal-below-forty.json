@@ -1,0 +1,15 @@
+{
+  "caseId": "willow-personal-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-16T08:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Willow Benefits Administration AB",
+    "registeredCountry": "SE",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

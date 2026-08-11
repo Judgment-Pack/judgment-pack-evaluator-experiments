@@ -1,0 +1,308 @@
+Reading additional input from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /tmp/s012-batch-8fmg8O/s012-authoring-A-run-022-2989281
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: none
+reasoning summaries: none
+session id: 019fee78-7739-70d1-b77e-fb90748c71d4
+--------
+user
+You are the records clerk of a fictional vendor-governance office. Below is
+the office's screening policy. Author the decision records of 16 distinct
+vendor screening cases this office decided under it, as a JSON array.
+
+Each record: {"caseId": "<kebab-case id you invent>", "vendor":
+{"legalName": <string>, "sanctionsHit": <bool>, "registeredCountry":
+<string>, "handlesPersonalData": <bool>, "riskScore": <decimal string, no
+trailing zeros>}, "decision": {"outcome": <"clear"|"manual-review"|
+"reject">, "decidedBy": <string>, "decidedAt": <ISO 8601 UTC, like
+2026-06-01T09:30:00Z>}}.
+
+Vendors are registered in various countries; use ISO 3166-1 alpha-2 codes,
+uppercase.
+
+Make the set what a diligent office's files would look like: exercise every
+clause of the policy, include the borderline cases a careful clerk would
+have seen, and record the outcome the policy requires for each. Do not
+include commentary — output only the JSON array.
+
+# Vendor screening policy — the arbiter
+
+Synthetic policy for this study. Every other artifact in this study is checked
+against this text; a divergence between a pack and this text is a pack bug.
+This is also the exact policy text the record author receives (inlined in the
+registered prompt), so it is the whole of what the two sides share.
+
+- **P1.** A vendor with a sanctions hit is **rejected**, regardless of
+  anything else.
+- **P2.** Absent a sanctions hit, a vendor registered in an embargoed
+  country — **KP, IR, or SY** — is **rejected**.
+- **P3.** Absent a sanctions hit or an embargoed registration, a vendor
+  whose risk score is **70 or above** goes to **manual review**.
+- **P4.** Absent a sanctions hit or an embargoed registration, a vendor that
+  **handles personal data** and whose risk score is **40 or above but below
+  70** goes to **manual review**.
+- **P5.** Absent a sanctions hit or an embargoed registration, a vendor
+  whose risk score is **below 70** is **cleared**, unless P4 applies — that
+  is, a vendor that does not handle personal data clears below 70, and a
+  vendor that does handle personal data clears only below 40.
+
+Risk scores are decimal strings and compare numerically. Registered
+countries are two-letter uppercase codes in the ISO 3166-1 alpha-2 style;
+the policy consults no registry — embargo-list membership is exact,
+case-sensitive string comparison against KP, IR, and SY, and any other
+two-letter code is a non-embargoed registration. The three outcomes —
+clear, manual review, reject — are exhaustive over complete inputs (all
+four facts present and well-formed, which is what the study's gates admit);
+the policy takes no position on incomplete inputs, which no admitted
+record can present. The office's risk scale runs from zero to one hundred.
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "caseId": "redwood-sanctions-match",
+    "vendor": {
+      "legalName": "Redwood Maritime Systems Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marquez",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "orion-sanctions-embargo-overlap",
+    "vendor": {
+      "legalName": "Orion Industrial Export Bureau",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "taedong-kp-registration",
+    "vendor": {
+      "legalName": "Taedong Technical Supply Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "pars-iran-registration",
+    "vendor": {
+      "legalName": "Pars Archive Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marquez",
+      "decidedAt": "2026-06-04T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "levant-syria-registration",
+    "vendor": {
+      "legalName": "Levant Precision Works",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "northstar-risk-seventy",
+    "vendor": {
+      "legalName": "Northstar Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "azimuth-personal-risk-seventy",
+    "vendor": {
+      "legalName": "Azimuth Identity Solutions Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Marquez",
+      "decidedAt": "2026-06-09T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "summit-maximum-risk",
+    "vendor": {
+      "legalName": "Summit Aeronautics Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-10T15:50:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-personal-risk-forty",
+    "vendor": {
+      "legalName": "Harbor Payroll Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-11T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-personal-midrange-risk",
+    "vendor": {
+      "legalName": "Cedar Health Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Marquez",
+      "decidedAt": "2026-06-12T12:40:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-personal-below-seventy",
+    "vendor": {
+      "legalName": "Meridian Customer Insights SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-15T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "willow-personal-below-forty",
+    "vendor": {
+      "legalName": "Willow Benefits Administration AB",
+      "sanctionsHit": false,
+      "registeredCountry": "SE",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-16T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "bluebird-personal-zero-risk",
+    "vendor": {
+      "legalName": "Bluebird Translation Services KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Marquez",
+      "decidedAt": "2026-06-17T11:55:00Z"
+    }
+  },
+  {
+    "caseId": "granite-nonpersonal-risk-forty",
+    "vendor": {
+      "legalName": "Granite Equipment Leasing AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-18T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "delta-nonpersonal-below-seventy",
+    "vendor": {
+      "legalName": "Delta Components BV",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-19T10:45:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-nonpersonal-low-risk",
+    "vendor": {
+      "legalName": "Solstice Renewable Materials SL",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "18.25"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Marquez",
+      "decidedAt": "2026-06-22T13:10:00Z"
+    }
+  }
+]
+tokens used
+5,541

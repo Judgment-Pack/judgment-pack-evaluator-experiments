@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-personal-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-10T09:35:00Z",
+    "decidedBy": "Elias Romero",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Benefits B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

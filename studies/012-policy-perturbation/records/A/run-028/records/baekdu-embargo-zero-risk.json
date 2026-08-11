@@ -1,0 +1,15 @@
+{
+  "caseId": "baekdu-embargo-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T08:15:00Z",
+    "decidedBy": "Lucia Ortiz",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baekdu Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

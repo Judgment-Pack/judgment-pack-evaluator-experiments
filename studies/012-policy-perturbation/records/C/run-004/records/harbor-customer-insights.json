@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-05T14:25:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Customer Insights Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

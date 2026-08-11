@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T16:30:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Emerald Data Hosting Ltd.",
+    "registeredCountry": "IE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

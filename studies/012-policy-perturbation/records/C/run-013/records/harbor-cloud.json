@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-cloud",
+  "decision": {
+    "decidedAt": "2026-06-03T14:40:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Cloud Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-benefits-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T10:25:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberian Benefits SL",
+    "registeredCountry": "ES",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

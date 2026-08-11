@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T15:40:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Infrastructure Works",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

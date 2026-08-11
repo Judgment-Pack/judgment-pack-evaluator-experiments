@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-benefits-processing",
+  "decision": {
+    "decidedAt": "2026-06-04T16:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Benefits Processing S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

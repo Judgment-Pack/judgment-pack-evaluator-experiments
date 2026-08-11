@@ -1,0 +1,15 @@
+{
+  "caseId": "oryx-consulting-high-risk-sanctions",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Maya Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Oryx Consulting GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": true
+  }
+}

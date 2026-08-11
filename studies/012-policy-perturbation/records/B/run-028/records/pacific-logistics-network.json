@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-logistics-network",
+  "decision": {
+    "decidedAt": "2026-06-04T15:40:00Z",
+    "decidedBy": "Jonah Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Logistics Network Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

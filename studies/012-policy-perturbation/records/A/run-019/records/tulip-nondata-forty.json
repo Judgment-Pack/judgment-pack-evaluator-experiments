@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-nondata-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T14:25:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Office Furnishings BV",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-payroll-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-09T10:50:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Payroll GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

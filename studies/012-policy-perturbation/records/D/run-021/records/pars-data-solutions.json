@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-data-solutions",
+  "decision": {
+    "decidedAt": "2026-06-08T12:25:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Data Solutions Co.",
+    "registeredCountry": "IR",
+    "riskScore": "44.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T13:25:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Procurement Analytics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

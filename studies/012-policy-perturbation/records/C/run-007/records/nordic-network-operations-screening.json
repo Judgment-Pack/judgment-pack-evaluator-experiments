@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-network-operations-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T14:45:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Network Operations AB",
+    "registeredCountry": "SE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-nondata-below-review",
+  "decision": {
+    "decidedAt": "2026-06-09T13:35:00Z",
+    "decidedBy": "Priya Raman",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Facilities Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

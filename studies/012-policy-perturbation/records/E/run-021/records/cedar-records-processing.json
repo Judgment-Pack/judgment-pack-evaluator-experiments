@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-records-processing",
+  "decision": {
+    "decidedAt": "2026-06-02T13:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Records Processing Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

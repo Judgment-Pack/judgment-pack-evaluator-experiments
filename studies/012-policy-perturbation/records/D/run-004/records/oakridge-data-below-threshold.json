@@ -1,0 +1,15 @@
+{
+  "caseId": "oakridge-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-16T08:55:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Oakridge Customer Services LLC",
+    "registeredCountry": "US",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

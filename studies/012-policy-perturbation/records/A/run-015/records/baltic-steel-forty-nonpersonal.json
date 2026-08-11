@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-steel-forty-nonpersonal",
+  "decision": {
+    "decidedAt": "2026-06-12T14:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Steel O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-office-furnishings",
+  "decision": {
+    "decidedAt": "2026-06-18T16:05:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberia Office Furnishings SL",
+    "registeredCountry": "ES",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

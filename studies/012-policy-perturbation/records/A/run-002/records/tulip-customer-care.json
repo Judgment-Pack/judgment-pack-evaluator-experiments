@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-customer-care",
+  "decision": {
+    "decidedAt": "2026-06-19T11:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Customer Care B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

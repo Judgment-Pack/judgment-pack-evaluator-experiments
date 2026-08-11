@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-07T07:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Profile Services K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "58.4",
+    "sanctionsHit": false
+  }
+}

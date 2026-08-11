@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-data-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-01-19T10:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems PLC",
+    "registeredCountry": "IR",
+    "riskScore": "88",
+    "sanctionsHit": true
+  }
+}

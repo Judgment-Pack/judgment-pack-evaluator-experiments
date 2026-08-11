@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-security-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-19T11:45:00Z",
+    "decidedBy": "Jonas Weber",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Security Pty Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "88.125",
+    "sanctionsHit": false
+  }
+}

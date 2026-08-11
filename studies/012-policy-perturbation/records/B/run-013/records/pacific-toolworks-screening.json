@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-toolworks-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T16:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Toolworks Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

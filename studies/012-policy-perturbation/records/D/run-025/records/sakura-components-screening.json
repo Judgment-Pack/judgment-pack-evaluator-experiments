@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-components-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T07:55:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Components Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

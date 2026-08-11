@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-benefits-platform",
+  "decision": {
+    "decidedAt": "2026-06-04T16:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Benefits Platform K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

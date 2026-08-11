@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-courier-network-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T14:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Courier Network",
+    "registeredCountry": "SY",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

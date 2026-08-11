@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-security-consulting",
+  "decision": {
+    "decidedAt": "2026-06-11T08:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Security Consulting AS",
+    "registeredCountry": "NO",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

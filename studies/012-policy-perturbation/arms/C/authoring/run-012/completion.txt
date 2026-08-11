@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-sanctions-override",
+    "vendor": {
+      "legalName": "Redwood Analytics PLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Owen Park",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "choson-embargo-registration",
+    "vendor": {
+      "legalName": "Choson Industrial Export Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "persia-cloud-embargo",
+    "vendor": {
+      "legalName": "Persia Cloud Systems LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "55"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-04T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "levant-logistics-embargo",
+    "vendor": {
+      "legalName": "Levant Logistics S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Owen Park",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-data-below-threshold",
+    "vendor": {
+      "legalName": "Cedar Data Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "maple-identity-at-forty",
+    "vendor": {
+      "legalName": "Maple Identity Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-09T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-payroll-midband",
+    "vendor": {
+      "legalName": "Tulip Payroll B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "54.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Owen Park",
+      "decidedAt": "2026-06-10T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-health-below-seventy",
+    "vendor": {
+      "legalName": "Alpine Health Processing AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-11T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-supplies-zero-risk",
+    "vendor": {
+      "legalName": "Harbor Office Supplies Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-12T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-machinery-midband",
+    "vendor": {
+      "legalName": "Sakura Machinery Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Owen Park",
+      "decidedAt": "2026-06-15T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-freight-below-seventy",
+    "vendor": {
+      "legalName": "Fjord Freight AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-16T14:50:00Z"
+    }
+  },
+  {
+    "caseId": "rhein-security-at-seventy",
+    "vendor": {
+      "legalName": "Rhein Security GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-17T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "emerald-crm-at-seventy",
+    "vendor": {
+      "legalName": "Emerald CRM Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "IE",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Owen Park",
+      "decidedAt": "2026-06-18T16:20:00Z"
+    }
+  },
+  {
+    "caseId": "andes-hosting-high-risk",
+    "vendor": {
+      "legalName": "Andes Hosting SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-19T09:55:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-biometric-maximum-risk",
+    "vendor": {
+      "legalName": "Baltic Biometric OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-22T13:10:00Z"
+    }
+  }
+]

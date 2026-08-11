@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-freight-at-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T11:35:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberia Freight SL",
+    "registeredCountry": "ES",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

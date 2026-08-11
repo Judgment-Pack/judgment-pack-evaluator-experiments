@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-personal-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-05T13:15:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Benefits Processing Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "54.6",
+    "sanctionsHit": false
+  }
+}

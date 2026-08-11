@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-procurement-group",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Sofia Laurent",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Procurement Group",
+    "registeredCountry": "IR",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

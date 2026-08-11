@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T16:45:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Archive Systems LLC",
+    "registeredCountry": "SY",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

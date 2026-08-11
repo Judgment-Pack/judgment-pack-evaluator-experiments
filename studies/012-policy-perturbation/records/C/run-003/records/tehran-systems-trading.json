@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-systems-trading",
+  "decision": {
+    "decidedAt": "2026-06-05T10:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Systems Trading Co.",
+    "registeredCountry": "IR",
+    "riskScore": "12.5",
+    "sanctionsHit": false
+  }
+}

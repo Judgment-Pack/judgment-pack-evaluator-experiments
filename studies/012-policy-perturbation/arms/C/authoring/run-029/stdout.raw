@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-parts-logistics",
+    "vendor": {
+      "legalName": "Alpine Parts Logistics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-industrial-tools",
+    "vendor": {
+      "legalName": "Cedar Industrial Tools Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-02T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-analytics",
+    "vendor": {
+      "legalName": "Blue Harbor Analytics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "maple-customer-systems",
+    "vendor": {
+      "legalName": "Maple Customer Systems Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Ford",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "rhein-data-services",
+    "vendor": {
+      "legalName": "Rhein Data Services GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-benefits-platform",
+    "vendor": {
+      "legalName": "Sakura Benefits Platform Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Ford",
+      "decidedAt": "2026-06-05T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-facilities-group",
+    "vendor": {
+      "legalName": "Iberia Facilities Group S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-05T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-workforce-cloud",
+    "vendor": {
+      "legalName": "Tulip Workforce Cloud B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-freight-exchange",
+    "vendor": {
+      "legalName": "Baltic Freight Exchange OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-09T12:00:00Z"
+    }
+  },
+  {
+    "caseId": "daedong-machinery-export",
+    "vendor": {
+      "legalName": "Daedong Machinery Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Ford",
+      "decidedAt": "2026-06-10T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "pars-medical-distribution",
+    "vendor": {
+      "legalName": "Pars Medical Distribution Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-10T13:50:00Z"
+    }
+  },
+  {
+    "caseId": "levant-network-solutions",
+    "vendor": {
+      "legalName": "Levant Network Solutions LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "82"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-11T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-commodity-brokers",
+    "vendor": {
+      "legalName": "Meridian Commodity Brokers Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-12T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "orion-identity-labs",
+    "vendor": {
+      "legalName": "Orion Identity Labs Pte. Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Ford",
+      "decidedAt": "2026-06-15T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-state-procurement",
+    "vendor": {
+      "legalName": "Caspian State Procurement Company",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-16T16:10:00Z"
+    }
+  }
+]

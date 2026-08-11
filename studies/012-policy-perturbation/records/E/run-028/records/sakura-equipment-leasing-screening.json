@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-equipment-leasing-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T09:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Equipment Leasing K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

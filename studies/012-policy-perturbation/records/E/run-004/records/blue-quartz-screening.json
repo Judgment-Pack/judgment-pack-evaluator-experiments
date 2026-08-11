@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-quartz-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T14:20:00Z",
+    "decidedBy": "Elias Romero",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Quartz Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "0",
+    "sanctionsHit": true
+  }
+}

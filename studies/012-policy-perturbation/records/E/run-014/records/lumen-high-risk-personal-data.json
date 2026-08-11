@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-high-risk-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Owen Clarke",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Identity SAS",
+    "registeredCountry": "FR",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

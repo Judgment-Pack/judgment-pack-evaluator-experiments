@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-19T11:55:00Z",
+    "decidedBy": "Noah Williams",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Payroll B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

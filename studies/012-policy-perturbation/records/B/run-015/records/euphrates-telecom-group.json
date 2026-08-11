@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-telecom-group",
+  "decision": {
+    "decidedAt": "2026-06-18T08:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Telecom Group",
+    "registeredCountry": "SY",
+    "riskScore": "45",
+    "sanctionsHit": true
+  }
+}

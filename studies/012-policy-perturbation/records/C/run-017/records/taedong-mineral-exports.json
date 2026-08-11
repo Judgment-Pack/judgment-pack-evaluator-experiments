@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-mineral-exports",
+  "decision": {
+    "decidedAt": "2026-06-16T08:30:00Z",
+    "decidedBy": "Nadia Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Mineral Exports Company",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

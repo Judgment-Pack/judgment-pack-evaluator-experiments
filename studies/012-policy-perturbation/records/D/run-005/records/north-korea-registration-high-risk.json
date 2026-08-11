@@ -1,0 +1,15 @@
+{
+  "caseId": "north-korea-registration-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T10:40:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Koryo Freight Cooperative",
+    "registeredCountry": "KP",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

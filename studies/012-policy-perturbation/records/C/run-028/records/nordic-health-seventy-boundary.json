@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-health-seventy-boundary",
+  "decision": {
+    "decidedAt": "2026-06-09T10:40:00Z",
+    "decidedBy": "Sofia Alvarez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Nordic Health Systems AB",
+    "registeredCountry": "SE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

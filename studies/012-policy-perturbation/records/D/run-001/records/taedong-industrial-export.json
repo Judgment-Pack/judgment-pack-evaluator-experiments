@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-industrial-export",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Mara Singh",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Industrial Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

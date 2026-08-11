@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Meridian Trading Co.",
+    "registeredCountry": "IR",
+    "riskScore": "86",
+    "sanctionsHit": true
+  }
+}

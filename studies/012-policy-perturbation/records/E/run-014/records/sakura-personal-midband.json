@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-personal-midband",
+  "decision": {
+    "decidedAt": "2026-06-05T12:40:00Z",
+    "decidedBy": "Sofia Alvarez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Systems K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-payments-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T12:30:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Payments Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "58.75",
+    "sanctionsHit": false
+  }
+}

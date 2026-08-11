@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Identity Solutions KK",
+    "registeredCountry": "JP",
+    "riskScore": "58.25",
+    "sanctionsHit": false
+  }
+}

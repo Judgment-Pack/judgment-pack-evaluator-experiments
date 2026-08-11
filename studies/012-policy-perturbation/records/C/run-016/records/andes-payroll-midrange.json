@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-payroll-midrange",
+  "decision": {
+    "decidedAt": "2026-06-11T15:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Payroll Solutions SpA",
+    "registeredCountry": "CL",
+    "riskScore": "54.25",
+    "sanctionsHit": false
+  }
+}

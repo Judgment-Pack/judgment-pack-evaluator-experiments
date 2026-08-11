@@ -1,0 +1,15 @@
+{
+  "caseId": "cape-bay-no-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T13:15:00Z",
+    "decidedBy": "Elena Ward",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cape Bay Manufacturing (Pty) Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

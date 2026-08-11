@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-health-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-11T15:40:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Health Processing AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Data Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

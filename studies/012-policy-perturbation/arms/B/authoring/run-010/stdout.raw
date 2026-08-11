@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-match",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "parallax-sanctions-precedence",
+    "vendor": {
+      "legalName": "Parallax Data Systems GmbH",
+      "sanctionsHit": true,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "85"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "taedong-dual-rejection",
+    "vendor": {
+      "legalName": "Taedong Industrial Supply Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "91.2"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-machinery-embargo",
+    "vendor": {
+      "legalName": "Pyongyang Machinery Export Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-04T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-ledger-embargo",
+    "vendor": {
+      "legalName": "Caspian Ledger Services PJSC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "levant-freight-embargo",
+    "vendor": {
+      "legalName": "Levant Freight Bureau LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-risk-threshold",
+    "vendor": {
+      "legalName": "Meridian Procurement Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-09T13:25:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-identity-high-risk",
+    "vendor": {
+      "legalName": "Cedar Identity Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-10T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-logistics-maximum-risk",
+    "vendor": {
+      "legalName": "Atlas Logistics SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "MA",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-11T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "bluefin-personal-data-threshold",
+    "vendor": {
+      "legalName": "Bluefin Customer Insights Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-12T12:30:00Z"
+    }
+  },
+  {
+    "caseId": "rhein-payroll-mid-risk",
+    "vendor": {
+      "legalName": "Rhein Payroll Services AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-15T14:50:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-crm-upper-border",
+    "vendor": {
+      "legalName": "Sakura CRM Kabushiki Kaisha",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-16T08:35:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-hosting-below-data-threshold",
+    "vendor": {
+      "legalName": "Tulip Hosting B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-17T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-records-zero-risk",
+    "vendor": {
+      "legalName": "Baltic Records OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-18T16:25:00Z"
+    }
+  },
+  {
+    "caseId": "andes-hardware-upper-clearance",
+    "vendor": {
+      "legalName": "Andes Hardware SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-19T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-office-moderate-risk",
+    "vendor": {
+      "legalName": "Fjord Office Supply AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-22T13:55:00Z"
+    }
+  }
+]

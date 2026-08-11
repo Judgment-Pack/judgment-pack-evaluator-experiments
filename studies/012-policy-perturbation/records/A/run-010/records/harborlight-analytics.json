@@ -1,0 +1,15 @@
+{
+  "caseId": "harborlight-analytics",
+  "decision": {
+    "decidedAt": "2026-06-03T10:05:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harborlight Analytics Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

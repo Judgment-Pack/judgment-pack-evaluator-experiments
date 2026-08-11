@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-packaging-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T09:50:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Packaging SpA",
+    "registeredCountry": "CL",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

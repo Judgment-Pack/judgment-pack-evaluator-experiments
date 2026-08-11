@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-data-exchange",
+  "decision": {
+    "decidedAt": "2026-06-19T13:45:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Data Exchange LLC",
+    "registeredCountry": "SY",
+    "riskScore": "38",
+    "sanctionsHit": true
+  }
+}

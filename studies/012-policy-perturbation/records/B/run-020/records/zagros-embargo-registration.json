@@ -1,0 +1,15 @@
+{
+  "caseId": "zagros-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Zagros Data Processing LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

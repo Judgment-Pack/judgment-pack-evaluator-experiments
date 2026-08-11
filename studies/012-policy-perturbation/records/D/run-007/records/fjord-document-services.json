@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-document-services",
+  "decision": {
+    "decidedAt": "2026-06-11T11:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Document Services AS",
+    "registeredCountry": "NO",
+    "riskScore": "0.125",
+    "sanctionsHit": false
+  }
+}

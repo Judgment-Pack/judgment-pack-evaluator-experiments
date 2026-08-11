@@ -1,0 +1,15 @@
+{
+  "caseId": "quartz-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-04-29T12:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Quartz Freight SAS",
+    "registeredCountry": "FR",
+    "riskScore": "86.375",
+    "sanctionsHit": false
+  }
+}

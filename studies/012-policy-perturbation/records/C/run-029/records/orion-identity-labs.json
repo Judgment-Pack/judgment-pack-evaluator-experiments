@@ -1,0 +1,15 @@
+{
+  "caseId": "orion-identity-labs",
+  "decision": {
+    "decidedAt": "2026-06-15T14:25:00Z",
+    "decidedBy": "Elias Ford",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orion Identity Labs Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "70",
+    "sanctionsHit": true
+  }
+}

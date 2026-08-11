@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-health-platform",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Health Platform Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

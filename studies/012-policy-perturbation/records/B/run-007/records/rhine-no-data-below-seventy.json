@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-no-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-11T11:15:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Components GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-facilities-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T11:20:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Facilities SAS",
+    "registeredCountry": "FR",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

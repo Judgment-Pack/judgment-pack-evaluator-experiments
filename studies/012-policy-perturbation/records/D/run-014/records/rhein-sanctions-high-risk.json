@@ -1,0 +1,15 @@
+{
+  "caseId": "rhein-sanctions-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T13:05:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhein Industrial Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "91.25",
+    "sanctionsHit": true
+  }
+}

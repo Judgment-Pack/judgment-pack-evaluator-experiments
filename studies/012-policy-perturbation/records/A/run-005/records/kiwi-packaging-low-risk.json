@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-packaging-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Kiwi Packaging Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

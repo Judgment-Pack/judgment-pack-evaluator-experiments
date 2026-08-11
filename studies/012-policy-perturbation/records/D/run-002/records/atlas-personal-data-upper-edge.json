@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-personal-data-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-08T09:35:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Identity Solutions SARL",
+    "registeredCountry": "FR",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

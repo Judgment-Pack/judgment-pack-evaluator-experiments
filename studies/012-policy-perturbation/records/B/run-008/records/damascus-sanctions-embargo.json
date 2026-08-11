@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-sanctions-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Industrial Export Co.",
+    "registeredCountry": "SY",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-cloud-network",
+  "decision": {
+    "decidedAt": "2026-06-16T14:50:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Cloud Network PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

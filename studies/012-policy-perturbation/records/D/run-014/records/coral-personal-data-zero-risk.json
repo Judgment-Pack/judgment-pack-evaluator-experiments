@@ -1,0 +1,15 @@
+{
+  "caseId": "coral-personal-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T16:05:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Coral Benefits Administration Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

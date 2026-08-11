@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pyongyang Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "88.5",
+    "sanctionsHit": true
+  }
+}

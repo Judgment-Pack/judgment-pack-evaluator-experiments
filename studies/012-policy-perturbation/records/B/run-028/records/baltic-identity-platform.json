@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-identity-platform",
+  "decision": {
+    "decidedAt": "2026-06-09T16:10:00Z",
+    "decidedBy": "Jonah Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Identity Platform O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "99.5",
+    "sanctionsHit": false
+  }
+}

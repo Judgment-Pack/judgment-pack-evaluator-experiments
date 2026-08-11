@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-facilities-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T09:35:00Z",
+    "decidedBy": "Priya Banerjee",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Kiwi Facilities Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

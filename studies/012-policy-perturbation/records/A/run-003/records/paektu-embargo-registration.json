@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-03T08:40:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Trading Co.",
+    "registeredCountry": "KP",
+    "riskScore": "8",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-personal-minimal-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T16:00:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Payroll Technologies SAS",
+    "registeredCountry": "FR",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

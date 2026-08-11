@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-payments-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-15T08:30:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Payments KK",
+    "registeredCountry": "JP",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

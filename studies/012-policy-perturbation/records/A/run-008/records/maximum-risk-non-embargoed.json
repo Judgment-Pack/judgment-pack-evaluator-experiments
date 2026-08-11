@@ -1,0 +1,15 @@
+{
+  "caseId": "maximum-risk-non-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Elena Marlow",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Reactor Maintenance Inc.",
+    "registeredCountry": "US",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-benefits-administration",
+  "decision": {
+    "decidedAt": "2026-06-08T15:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefits Administration Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

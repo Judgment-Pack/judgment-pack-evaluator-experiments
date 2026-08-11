@@ -1,0 +1,15 @@
+{
+  "caseId": "no-personal-data-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T13:30:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redgum Machine Parts Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

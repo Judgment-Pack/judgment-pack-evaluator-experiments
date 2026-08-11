@@ -1,0 +1,15 @@
+{
+  "caseId": "oryx-sanctions-embargo-overlap",
+  "decision": {
+    "decidedAt": "2026-02-03T16:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Oryx Industrial Trading Company",
+    "registeredCountry": "IR",
+    "riskScore": "88.4",
+    "sanctionsHit": true
+  }
+}

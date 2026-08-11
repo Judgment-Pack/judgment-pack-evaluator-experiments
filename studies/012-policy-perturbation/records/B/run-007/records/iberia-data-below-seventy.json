@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-08T12:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Customer Metrics S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-freight-seventy-boundary",
+  "decision": {
+    "decidedAt": "2026-06-17T11:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordic Freight AB",
+    "registeredCountry": "SE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

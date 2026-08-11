@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-component-trading",
+  "decision": {
+    "decidedAt": "2026-06-09T16:15:00Z",
+    "decidedBy": "Nadia Singh",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Component Trading GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

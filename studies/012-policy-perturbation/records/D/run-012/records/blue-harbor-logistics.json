@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-logistics",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Blue Harbor Logistics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

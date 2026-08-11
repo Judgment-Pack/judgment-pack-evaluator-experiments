@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T16:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mining Analytics SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

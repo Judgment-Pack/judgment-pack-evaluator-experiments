@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-courier-services",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Courier Services",
+    "registeredCountry": "SY",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

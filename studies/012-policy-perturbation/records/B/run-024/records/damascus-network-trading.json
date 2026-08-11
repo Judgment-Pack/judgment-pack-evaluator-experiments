@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-network-trading",
+  "decision": {
+    "decidedAt": "2026-06-18T16:20:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Damascus Network Trading Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

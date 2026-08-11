@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Freight Systems Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-sanctions-overrides-embargo",
+    "vendor": {
+      "legalName": "Redwood Industrial Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "chollima-kp-registration",
+    "vendor": {
+      "legalName": "Chollima Machine Works",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "pars-iran-registration",
+    "vendor": {
+      "legalName": "Pars Archive Services",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Okafor",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-syria-high-risk",
+    "vendor": {
+      "legalName": "Levant Network Solutions",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "bluepeak-risk-threshold",
+    "vendor": {
+      "legalName": "BluePeak Components GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Nadia Okafor",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-high-risk-data",
+    "vendor": {
+      "legalName": "Solstice Data Analytics SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "91.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-04T15:35:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-risk-just-over-threshold",
+    "vendor": {
+      "legalName": "Harbor Crane Supply Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "72.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-05T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-personal-data-threshold",
+    "vendor": {
+      "legalName": "Cedar Patient Communications Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Nadia Okafor",
+      "decidedAt": "2026-06-06T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-midrange-risk",
+    "vendor": {
+      "legalName": "Maple Workforce Cloud Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "58.7"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-06T13:50:00Z"
+    }
+  },
+  {
+    "caseId": "orion-data-just-below-seventy-two",
+    "vendor": {
+      "legalName": "Orion Identity Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-07T16:25:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-data-below-threshold",
+    "vendor": {
+      "legalName": "Alpine Benefits AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Nadia Okafor",
+      "decidedAt": "2026-06-08T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-zero-risk",
+    "vendor": {
+      "legalName": "Sakura Office Support K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-08T12:30:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-no-data-at-forty-five",
+    "vendor": {
+      "legalName": "Fjord Equipment AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Bell",
+      "decidedAt": "2026-06-09T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "outback-no-data-near-threshold",
+    "vendor": {
+      "legalName": "Outback Mineral Tools Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Nadia Okafor",
+      "decidedAt": "2026-06-09T14:45:00Z"
+    }
+  },
+  {
+    "caseId": "bosphorus-low-risk-services",
+    "vendor": {
+      "legalName": "Bosphorus Facilities A.S.",
+      "sanctionsHit": false,
+      "registeredCountry": "TR",
+      "handlesPersonalData": false,
+      "riskScore": "18.375"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-10T11:55:00Z"
+    }
+  }
+]

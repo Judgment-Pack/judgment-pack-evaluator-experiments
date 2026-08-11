@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-embargoed-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Jonah Clarke",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

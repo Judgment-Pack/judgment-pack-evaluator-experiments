@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-risk-analytics",
+  "decision": {
+    "decidedAt": "2026-06-03T14:05:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Risk Analytics LLC",
+    "registeredCountry": "SY",
+    "riskScore": "92",
+    "sanctionsHit": false
+  }
+}

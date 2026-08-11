@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T10:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Support AS",
+    "registeredCountry": "NO",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-trade-bureau",
+  "decision": {
+    "decidedAt": "2026-06-05T12:00:00Z",
+    "decidedBy": "Priya Nadeau",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Trade Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

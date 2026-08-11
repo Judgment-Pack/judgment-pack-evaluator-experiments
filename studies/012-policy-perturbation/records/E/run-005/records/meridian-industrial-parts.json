@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-09T13:10:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Industrial Parts S.A.",
+    "registeredCountry": "MX",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

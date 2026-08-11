@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-records-systems",
+  "decision": {
+    "decidedAt": "2026-06-16T10:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Records Systems PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nonpersonal-at-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T09:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Hardware SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

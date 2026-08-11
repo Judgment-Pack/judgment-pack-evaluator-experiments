@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-09T13:35:00Z",
+    "decidedBy": "Elena Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Data SAS",
+    "registeredCountry": "FR",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

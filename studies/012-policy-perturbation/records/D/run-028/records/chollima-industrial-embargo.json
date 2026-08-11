@@ -1,0 +1,15 @@
+{
+  "caseId": "chollima-industrial-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T10:05:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Chollima Industrial Export Co.",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

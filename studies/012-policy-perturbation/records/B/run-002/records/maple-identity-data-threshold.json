@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-identity-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T15:50:00Z",
+    "decidedBy": "Elena Morris",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

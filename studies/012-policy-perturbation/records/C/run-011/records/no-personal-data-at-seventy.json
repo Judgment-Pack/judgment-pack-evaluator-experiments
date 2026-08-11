@@ -1,0 +1,15 @@
+{
+  "caseId": "no-personal-data-at-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T14:05:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nordhavn Components A/S",
+    "registeredCountry": "DK",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

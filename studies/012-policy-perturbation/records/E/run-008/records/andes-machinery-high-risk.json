@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-machinery-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Machinery SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

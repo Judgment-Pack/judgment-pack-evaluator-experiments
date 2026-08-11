@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-sanctions",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-data-sanctions-override",
+    "vendor": {
+      "legalName": "Caspian Data Systems PJSC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-industrial-embargo",
+    "vendor": {
+      "legalName": "Paektu Industrial Works",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Lucia Moreno",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-office-supply-embargo",
+    "vendor": {
+      "legalName": "Damascus Office Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-metrics-embargo",
+    "vendor": {
+      "legalName": "Tehran Metrics LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-03T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-security-review-threshold",
+    "vendor": {
+      "legalName": "Alpine Security AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Lucia Moreno",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-analytics-high-risk",
+    "vendor": {
+      "legalName": "Harbor Analytics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-04T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "summit-infrastructure-maximum-risk",
+    "vendor": {
+      "legalName": "Summit Infrastructure Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "maple-hr-personal-threshold",
+    "vendor": {
+      "legalName": "Maple HR Services Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Lucia Moreno",
+      "decidedAt": "2026-06-06T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-customer-care-mid-risk",
+    "vendor": {
+      "legalName": "Rhine Customer Care GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-07T12:00:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-identity-below-review",
+    "vendor": {
+      "legalName": "Sakura Identity KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-08T08:35:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-machinery-low-risk",
+    "vendor": {
+      "legalName": "Baltic Machinery OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Lucia Moreno",
+      "decidedAt": "2026-06-09T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "andes-components-personal-boundary",
+    "vendor": {
+      "legalName": "Andes Components SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-09T15:15:00Z"
+    }
+  },
+  {
+    "caseId": "nordic-freight-below-review",
+    "vendor": {
+      "legalName": "Nordic Freight AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-10T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "lotus-payroll-below-personal-threshold",
+    "vendor": {
+      "legalName": "Lotus Payroll Private Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "IN",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Lucia Moreno",
+      "decidedAt": "2026-06-11T13:30:00Z"
+    }
+  },
+  {
+    "caseId": "kiwi-archive-zero-risk",
+    "vendor": {
+      "legalName": "Kiwi Archive Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-12T09:10:00Z"
+    }
+  }
+]

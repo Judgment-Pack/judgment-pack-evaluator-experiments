@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-office-supplies-screening",
+  "decision": {
+    "decidedAt": "2026-03-02T13:30:00Z",
+    "decidedBy": "Jonah Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Office Supplies LLC",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

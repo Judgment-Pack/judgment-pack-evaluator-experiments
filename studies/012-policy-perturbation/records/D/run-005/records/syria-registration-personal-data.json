@@ -1,0 +1,15 @@
+{
+  "caseId": "syria-registration-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-02T09:15:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Data Services Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

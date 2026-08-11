@@ -1,0 +1,15 @@
+{
+  "caseId": "baekdu-industrial-export",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baekdu Industrial Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "3.25",
+    "sanctionsHit": false
+  }
+}

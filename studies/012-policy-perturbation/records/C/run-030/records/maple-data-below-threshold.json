@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T09:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Data Systems Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

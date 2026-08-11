@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Records Processing LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

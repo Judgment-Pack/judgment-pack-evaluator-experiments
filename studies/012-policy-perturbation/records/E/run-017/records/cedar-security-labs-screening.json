@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-security-labs-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T15:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Security Labs Inc.",
+    "registeredCountry": "US",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

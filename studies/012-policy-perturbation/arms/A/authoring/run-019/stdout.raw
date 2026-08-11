@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-override",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-embargo",
+    "vendor": {
+      "legalName": "Caspian Technical Services Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "91.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "baekdu-embargo-registration",
+    "vendor": {
+      "legalName": "Baekdu Industrial Supply Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "8.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-02T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "persia-embargo-low-risk",
+    "vendor": {
+      "legalName": "Persia Agricultural Equipment LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-02T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Data Systems SA",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-03T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-risk-threshold",
+    "vendor": {
+      "legalName": "Atlas Components GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-high-risk-data",
+    "vendor": {
+      "legalName": "Harbor Analytics Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-04T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "summit-maximum-risk",
+    "vendor": {
+      "legalName": "Summit Extraction Services Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-04T15:45:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-personal-data-threshold",
+    "vendor": {
+      "legalName": "Cedar Benefits Administration Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-05T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-personal-data-midrange",
+    "vendor": {
+      "legalName": "Sakura Customer Insights KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-05T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-personal-data-upper-edge",
+    "vendor": {
+      "legalName": "Fjord Workforce Solutions AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-08T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "maple-personal-data-below-threshold",
+    "vendor": {
+      "legalName": "Maple Records Processing Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-08T12:50:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-personal-data-zero-risk",
+    "vendor": {
+      "legalName": "Alpine Payroll Services AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-09T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-nondata-forty",
+    "vendor": {
+      "legalName": "Tulip Office Furnishings BV",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Patel",
+      "decidedAt": "2026-06-09T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "andean-nondata-upper-edge",
+    "vendor": {
+      "legalName": "Andean Mineral Testing SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Rossi",
+      "decidedAt": "2026-06-10T11:15:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-low-risk-supplier",
+    "vendor": {
+      "legalName": "Baltic Packaging OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "18.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-10T16:40:00Z"
+    }
+  }
+]

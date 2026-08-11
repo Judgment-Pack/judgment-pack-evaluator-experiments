@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-freight-analytics",
+  "decision": {
+    "decidedAt": "2026-06-04T15:40:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Freight Analytics SpA",
+    "registeredCountry": "CL",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}

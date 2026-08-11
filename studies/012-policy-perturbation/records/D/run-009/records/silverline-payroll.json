@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-payroll",
+  "decision": {
+    "decidedAt": "2026-06-03T13:05:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Payroll Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

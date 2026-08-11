@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-records-systems",
+  "decision": {
+    "decidedAt": "2026-06-05T13:35:00Z",
+    "decidedBy": "Priya Nadeau",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Records Systems Co.",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

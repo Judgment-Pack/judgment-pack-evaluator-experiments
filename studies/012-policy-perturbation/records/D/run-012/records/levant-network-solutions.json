@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-network-solutions",
+  "decision": {
+    "decidedAt": "2026-06-04T11:15:00Z",
+    "decidedBy": "Omar Haddad",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Network Solutions Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "95",
+    "sanctionsHit": false
+  }
+}

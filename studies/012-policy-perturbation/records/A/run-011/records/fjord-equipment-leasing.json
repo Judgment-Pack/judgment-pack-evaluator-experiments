@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-equipment-leasing",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Equipment Leasing AS",
+    "registeredCountry": "NO",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

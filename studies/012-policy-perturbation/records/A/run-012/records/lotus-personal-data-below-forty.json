@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-personal-data-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T14:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Customer Care Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

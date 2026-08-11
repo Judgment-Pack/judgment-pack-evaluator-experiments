@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-nonpersonal-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T11:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Packaging Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

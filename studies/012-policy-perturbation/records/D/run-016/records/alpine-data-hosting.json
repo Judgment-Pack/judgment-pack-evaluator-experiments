@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-data-hosting",
+  "decision": {
+    "decidedAt": "2026-06-10T09:35:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Data Hosting AG",
+    "registeredCountry": "CH",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

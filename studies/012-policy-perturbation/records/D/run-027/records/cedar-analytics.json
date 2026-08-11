@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-analytics",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Mei Lin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Analytics Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-machinery-trading",
+  "decision": {
+    "decidedAt": "2026-06-11T09:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Persia Machinery Trading Co.",
+    "registeredCountry": "IR",
+    "riskScore": "12.5",
+    "sanctionsHit": false
+  }
+}

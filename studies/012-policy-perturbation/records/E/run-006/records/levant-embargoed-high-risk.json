@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargoed-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T08:15:00Z",
+    "decidedBy": "Priya Raman",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Precision Works LLC",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

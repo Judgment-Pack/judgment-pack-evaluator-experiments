@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-embargo-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Meridian Services PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

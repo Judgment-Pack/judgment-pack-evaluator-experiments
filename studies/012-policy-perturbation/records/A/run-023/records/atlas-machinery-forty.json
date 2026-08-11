@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-machinery-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T14:05:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Machinery SARL",
+    "registeredCountry": "MA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

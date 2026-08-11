@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-machinery-exports",
+  "decision": {
+    "decidedAt": "2026-06-05T08:55:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Machinery Exports",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

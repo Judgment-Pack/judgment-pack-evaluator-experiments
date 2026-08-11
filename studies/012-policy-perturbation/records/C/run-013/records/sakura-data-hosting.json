@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-hosting",
+  "decision": {
+    "decidedAt": "2026-06-04T09:15:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Data Hosting Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

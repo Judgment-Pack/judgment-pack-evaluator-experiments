@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-nondata-at-forty-five",
+  "decision": {
+    "decidedAt": "2026-06-12T08:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Packaging Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

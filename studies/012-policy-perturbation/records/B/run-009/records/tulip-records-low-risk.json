@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-records-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T16:45:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Records B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "12.75",
+    "sanctionsHit": false
+  }
+}

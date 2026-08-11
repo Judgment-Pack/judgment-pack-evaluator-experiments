@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-infrastructure-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T15:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberian Infrastructure S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "39.999",
+    "sanctionsHit": true
+  }
+}

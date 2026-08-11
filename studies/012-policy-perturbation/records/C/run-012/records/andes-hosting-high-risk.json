@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-hosting-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-19T09:55:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Hosting SpA",
+    "registeredCountry": "CL",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

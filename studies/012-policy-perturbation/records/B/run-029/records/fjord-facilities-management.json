@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-facilities-management",
+  "decision": {
+    "decidedAt": "2026-06-19T11:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Facilities Management AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

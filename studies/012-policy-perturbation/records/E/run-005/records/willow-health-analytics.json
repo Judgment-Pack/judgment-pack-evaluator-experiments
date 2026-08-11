@@ -1,0 +1,15 @@
+{
+  "caseId": "willow-health-analytics",
+  "decision": {
+    "decidedAt": "2026-06-04T16:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Willow Health Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-sanctions",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "red-cypress-sanctions-override",
+    "vendor": {
+      "legalName": "Red Cypress Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "choson-industrial-registration",
+    "vendor": {
+      "legalName": "Choson Industrial Supply Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "persia-cloud-registration",
+    "vendor": {
+      "legalName": "Persia Cloud Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-analytics-registration",
+    "vendor": {
+      "legalName": "Levant Analytics S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mei Chen",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "maple-office-zero-risk",
+    "vendor": {
+      "legalName": "Maple Office Products Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mei Chen",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-payroll-below-forty",
+    "vendor": {
+      "legalName": "Alpine Payroll AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Alvarez",
+      "decidedAt": "2026-06-04T15:35:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-data-forty-boundary",
+    "vendor": {
+      "legalName": "Harbor Data Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Alvarez",
+      "decidedAt": "2026-06-05T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-insights-midrange",
+    "vendor": {
+      "legalName": "Sakura Insights K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Liam Murphy",
+      "decidedAt": "2026-06-05T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-identity-below-seventy",
+    "vendor": {
+      "legalName": "Baltic Identity OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Liam Murphy",
+      "decidedAt": "2026-06-06T08:25:00Z"
+    }
+  },
+  {
+    "caseId": "andes-machinery-forty-boundary",
+    "vendor": {
+      "legalName": "Andes Machinery SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-06T12:50:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-components-below-seventy",
+    "vendor": {
+      "legalName": "Rhine Components GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-08T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "southern-cross-seventy-boundary",
+    "vendor": {
+      "legalName": "Southern Cross Facilities Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mei Chen",
+      "decidedAt": "2026-06-08T16:30:00Z"
+    }
+  },
+  {
+    "caseId": "nordic-health-seventy-boundary",
+    "vendor": {
+      "legalName": "Nordic Health Systems AB",
+      "sanctionsHit": false,
+      "registeredCountry": "SE",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Alvarez",
+      "decidedAt": "2026-06-09T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-security-high-risk",
+    "vendor": {
+      "legalName": "Atlas Security SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "MA",
+      "handlesPersonalData": false,
+      "riskScore": "87.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Liam Murphy",
+      "decidedAt": "2026-06-09T14:55:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-biometric-maximum-risk",
+    "vendor": {
+      "legalName": "Pacific Biometric Systems Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-10T11:10:00Z"
+    }
+  }
+]

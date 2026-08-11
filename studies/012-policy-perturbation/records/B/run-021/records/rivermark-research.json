@@ -1,0 +1,15 @@
+{
+  "caseId": "rivermark-research",
+  "decision": {
+    "decidedAt": "2026-06-19T10:45:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rivermark Research B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

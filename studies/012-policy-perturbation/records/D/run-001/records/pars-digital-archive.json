@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-digital-archive",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonah Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Digital Archive LLC",
+    "registeredCountry": "IR",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

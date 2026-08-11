@@ -1,0 +1,15 @@
+{
+  "caseId": "iran-registration-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T14:10:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Caspian Fixture Works",
+    "registeredCountry": "IR",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

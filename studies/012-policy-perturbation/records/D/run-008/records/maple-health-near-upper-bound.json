@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-health-near-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-04T09:50:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Health Processing Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

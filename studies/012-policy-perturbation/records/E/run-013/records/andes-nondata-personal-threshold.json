@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-nondata-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T10:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "orion-identity-solutions",
+  "decision": {
+    "decidedAt": "2026-06-17T08:20:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orion Identity Solutions BV",
+    "registeredCountry": "NL",
+    "riskScore": "72.4",
+    "sanctionsHit": true
+  }
+}

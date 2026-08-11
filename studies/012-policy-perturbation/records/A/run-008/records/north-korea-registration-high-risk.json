@@ -1,0 +1,15 @@
+{
+  "caseId": "north-korea-registration-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T09:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Chollima Industrial Export Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

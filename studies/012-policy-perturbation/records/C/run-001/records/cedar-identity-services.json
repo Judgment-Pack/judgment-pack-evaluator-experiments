@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-identity-services",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

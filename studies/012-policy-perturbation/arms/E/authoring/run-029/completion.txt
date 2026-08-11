@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "rheinland-industrial-tools",
+    "vendor": {
+      "legalName": "Rheinland Industrial Tools GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T09:42:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-customer-analytics",
+    "vendor": {
+      "legalName": "Cedar Customer Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "harbour-payroll-services",
+    "vendor": {
+      "legalName": "Harbour Payroll Services Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Maya Chen",
+      "decidedAt": "2026-06-01T10:24:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-benefits-platform",
+    "vendor": {
+      "legalName": "Sakura Benefits Platform Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Maya Chen",
+      "decidedAt": "2026-06-01T10:51:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-logistics",
+    "vendor": {
+      "legalName": "Fjord Logistics AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Berg",
+      "decidedAt": "2026-06-01T11:13:00Z"
+    }
+  },
+  {
+    "caseId": "maple-identity-cloud",
+    "vendor": {
+      "legalName": "Maple Identity Cloud Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Berg",
+      "decidedAt": "2026-06-01T11:37:00Z"
+    }
+  },
+  {
+    "caseId": "andes-network-systems",
+    "vendor": {
+      "legalName": "Andes Network Systems SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ortiz",
+      "decidedAt": "2026-06-01T12:02:00Z"
+    }
+  },
+  {
+    "caseId": "seoul-data-fabric",
+    "vendor": {
+      "legalName": "Seoul Data Fabric Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KR",
+      "handlesPersonalData": true,
+      "riskScore": "40.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ortiz",
+      "decidedAt": "2026-06-01T12:26:00Z"
+    }
+  },
+  {
+    "caseId": "persia-petrochemical-export",
+    "vendor": {
+      "legalName": "Persia Petrochemical Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T13:08:00Z"
+    }
+  },
+  {
+    "caseId": "levant-medical-distribution",
+    "vendor": {
+      "legalName": "Levant Medical Distribution LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T13:21:00Z"
+    }
+  },
+  {
+    "caseId": "choson-machinery-works",
+    "vendor": {
+      "legalName": "Choson Machinery Works",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T13:44:00Z"
+    }
+  },
+  {
+    "caseId": "blue-orchid-trading",
+    "vendor": {
+      "legalName": "Blue Orchid Trading Pte. Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "8.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T14:07:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-digital-records",
+    "vendor": {
+      "legalName": "Damascus Digital Records Establishment",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "85.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T14:33:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-components",
+    "vendor": {
+      "legalName": "Alpine Components AG",
+      "sanctionsHit": true,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T14:58:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-facilities-management",
+    "vendor": {
+      "legalName": "Tulip Facilities Management B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Automated Screening Service",
+      "decidedAt": "2026-06-01T15:19:00Z"
+    }
+  }
+]

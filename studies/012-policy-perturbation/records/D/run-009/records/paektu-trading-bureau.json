@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-trading-bureau",
+  "decision": {
+    "decidedAt": "2026-06-05T16:15:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Trading Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-document-solutions",
+  "decision": {
+    "decidedAt": "2026-06-10T15:35:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Document Solutions Co.",
+    "registeredCountry": "IR",
+    "riskScore": "44.5",
+    "sanctionsHit": false
+  }
+}

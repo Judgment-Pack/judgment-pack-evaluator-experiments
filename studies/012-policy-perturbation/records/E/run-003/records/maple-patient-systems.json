@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-patient-systems",
+  "decision": {
+    "decidedAt": "2026-06-03T09:10:00Z",
+    "decidedBy": "Martin Cole",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Patient Systems Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

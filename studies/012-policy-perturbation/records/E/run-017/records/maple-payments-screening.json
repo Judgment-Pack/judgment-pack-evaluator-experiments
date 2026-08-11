@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-payments-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T12:25:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Payments Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

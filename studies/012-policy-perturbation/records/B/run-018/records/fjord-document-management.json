@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-document-management",
+  "decision": {
+    "decidedAt": "2026-06-09T11:05:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Document Management AS",
+    "registeredCountry": "NO",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

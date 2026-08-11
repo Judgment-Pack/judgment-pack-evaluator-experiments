@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-office-supply-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T09:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Office Supply AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-support-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T13:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Support Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "18.6",
+    "sanctionsHit": false
+  }
+}

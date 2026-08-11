@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-records-processing",
+  "decision": {
+    "decidedAt": "2026-06-04T16:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Records Processing LLC",
+    "registeredCountry": "SY",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

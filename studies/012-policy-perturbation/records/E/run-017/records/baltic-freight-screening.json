@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-freight-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T09:00:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Freight O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

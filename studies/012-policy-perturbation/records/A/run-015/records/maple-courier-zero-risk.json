@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-courier-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T09:15:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Courier Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

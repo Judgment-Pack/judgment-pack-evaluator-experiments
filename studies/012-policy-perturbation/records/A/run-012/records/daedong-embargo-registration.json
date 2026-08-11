@@ -1,0 +1,15 @@
+{
+  "caseId": "daedong-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Daedong Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "8",
+    "sanctionsHit": false
+  }
+}

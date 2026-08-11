@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-equipment-rental",
+  "decision": {
+    "decidedAt": "2026-06-10T09:10:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Equipment Rental LLC",
+    "registeredCountry": "US",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-research-midrange",
+  "decision": {
+    "decidedAt": "2026-06-12T16:20:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Research S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

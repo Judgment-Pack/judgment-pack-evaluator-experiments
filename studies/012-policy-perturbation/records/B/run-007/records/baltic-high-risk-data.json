@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-05T15:35:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Insight O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

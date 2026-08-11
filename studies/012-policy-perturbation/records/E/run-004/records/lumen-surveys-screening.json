@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-surveys-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T15:20:00Z",
+    "decidedBy": "Noor Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Surveys S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

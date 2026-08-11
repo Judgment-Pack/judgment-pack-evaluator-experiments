@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-data-processing",
+  "decision": {
+    "decidedAt": "2026-06-06T10:50:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Data Processing Co.",
+    "registeredCountry": "IR",
+    "riskScore": "52",
+    "sanctionsHit": false
+  }
+}

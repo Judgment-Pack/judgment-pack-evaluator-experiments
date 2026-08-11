@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-low-risk-supplier",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Office Supply GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

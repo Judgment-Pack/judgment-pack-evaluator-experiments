@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-office-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T12:10:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Office Supply Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

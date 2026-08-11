@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Records Processing PLC",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-taedong-machinery",
+  "decision": {
+    "decidedAt": "2026-06-09T16:00:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Taedong Machinery Corporation",
+    "registeredCountry": "KP",
+    "riskScore": "88",
+    "sanctionsHit": false
+  }
+}

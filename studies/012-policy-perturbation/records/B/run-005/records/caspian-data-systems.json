@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-02T14:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems PLC",
+    "registeredCountry": "IR",
+    "riskScore": "88",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-screening",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "pars-data-systems-screening",
+    "vendor": {
+      "legalName": "Pars Data Systems Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "95"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-analytics-screening",
+    "vendor": {
+      "legalName": "Blue Harbor Analytics LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-02T13:20:00Z"
+    }
+  },
+  {
+    "caseId": "choson-industrial-supply-screening",
+    "vendor": {
+      "legalName": "Choson Industrial Supply Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-office-solutions-screening",
+    "vendor": {
+      "legalName": "Tehran Office Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "levant-cloud-services-screening",
+    "vendor": {
+      "legalName": "Levant Cloud Services S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "seventieth-parallel-consulting-screening",
+    "vendor": {
+      "legalName": "Seventieth Parallel Consulting GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Vale",
+      "decidedAt": "2026-06-05T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-identity-platform-screening",
+    "vendor": {
+      "legalName": "Iberia Identity Platform S.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Vale",
+      "decidedAt": "2026-06-05T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-quantum-advisory-screening",
+    "vendor": {
+      "legalName": "Pacific Quantum Advisory Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "forty-line-payments-screening",
+    "vendor": {
+      "legalName": "Forty Line Payments Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-09T12:30:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-customer-insights-screening",
+    "vendor": {
+      "legalName": "Alpine Customer Insights AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "maple-profile-hosting-screening",
+    "vendor": {
+      "legalName": "Maple Profile Hosting Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Vale",
+      "decidedAt": "2026-06-10T16:50:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-equipment-leasing-screening",
+    "vendor": {
+      "legalName": "Sakura Equipment Leasing K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-11T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-records-processing-screening",
+    "vendor": {
+      "legalName": "Tulip Records Processing B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-11T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "andean-components-screening",
+    "vendor": {
+      "legalName": "Andean Components SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-12T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-privacy-tools-screening",
+    "vendor": {
+      "legalName": "Baltic Privacy Tools OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Vale",
+      "decidedAt": "2026-06-12T15:55:00Z"
+    }
+  }
+]

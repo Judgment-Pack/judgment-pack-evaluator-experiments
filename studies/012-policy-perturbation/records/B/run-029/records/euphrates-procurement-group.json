@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-procurement-group",
+  "decision": {
+    "decidedAt": "2026-06-18T16:45:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Procurement Group",
+    "registeredCountry": "SY",
+    "riskScore": "20",
+    "sanctionsHit": true
+  }
+}

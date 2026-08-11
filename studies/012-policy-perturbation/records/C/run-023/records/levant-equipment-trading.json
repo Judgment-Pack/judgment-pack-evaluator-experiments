@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-equipment-trading",
+  "decision": {
+    "decidedAt": "2026-06-05T16:20:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Equipment Trading LLC",
+    "registeredCountry": "SY",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

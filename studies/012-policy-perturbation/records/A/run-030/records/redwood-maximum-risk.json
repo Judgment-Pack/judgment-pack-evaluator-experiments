@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Data Systems Inc.",
+    "registeredCountry": "US",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

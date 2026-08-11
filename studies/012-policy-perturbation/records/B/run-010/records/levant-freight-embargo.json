@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-freight-embargo",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Elena Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Freight Bureau LLC",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

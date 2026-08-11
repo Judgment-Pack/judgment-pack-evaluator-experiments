@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-health-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-08T12:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Health AS",
+    "registeredCountry": "NO",
+    "riskScore": "40.01",
+    "sanctionsHit": false
+  }
+}

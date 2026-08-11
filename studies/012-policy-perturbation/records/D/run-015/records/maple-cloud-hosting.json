@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-05T16:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Cloud Hosting Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

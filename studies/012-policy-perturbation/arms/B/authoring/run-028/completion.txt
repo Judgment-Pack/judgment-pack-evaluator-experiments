@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-facilities-group",
+    "vendor": {
+      "legalName": "Alpine Facilities Group AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics, Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-payroll-services",
+    "vendor": {
+      "legalName": "Harbor Payroll Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "saffron-customer-insights",
+    "vendor": {
+      "legalName": "Saffron Customer Insights Private Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "IN",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-industrial-parts",
+    "vendor": {
+      "legalName": "Fjord Industrial Parts AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "lumen-data-hosting",
+    "vendor": {
+      "legalName": "Lumen Data Hosting GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Bell",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-logistics-network",
+    "vendor": {
+      "legalName": "Pacific Logistics Network Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Bell",
+      "decidedAt": "2026-06-04T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-equipment-export",
+    "vendor": {
+      "legalName": "Tehran Equipment Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amina Laurent",
+      "decidedAt": "2026-06-05T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "levant-cloud-systems",
+    "vendor": {
+      "legalName": "Levant Cloud Systems LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "39"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amina Laurent",
+      "decidedAt": "2026-06-05T12:50:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-trading-bureau",
+    "vendor": {
+      "legalName": "Paektu Trading Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "88.8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Rafael Ortiz",
+      "decidedAt": "2026-06-06T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-security-consulting",
+    "vendor": {
+      "legalName": "Meridian Security Consulting SAS",
+      "sanctionsHit": true,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Rafael Ortiz",
+      "decidedAt": "2026-06-06T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-records-management",
+    "vendor": {
+      "legalName": "Caspian Records Management LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "AZ",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-07T11:30:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-telecom-export",
+    "vendor": {
+      "legalName": "Damascus Telecom Export Establishment",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-08T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "maple-archive-solutions",
+    "vendor": {
+      "legalName": "Maple Archive Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T13:55:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-identity-platform",
+    "vendor": {
+      "legalName": "Baltic Identity Platform OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "99.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Bell",
+      "decidedAt": "2026-06-09T16:10:00Z"
+    }
+  }
+]

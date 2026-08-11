@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-05T09:10:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Cloud Hosting Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

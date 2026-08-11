@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-machinery-export",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Nadia Singh",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machinery Export O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

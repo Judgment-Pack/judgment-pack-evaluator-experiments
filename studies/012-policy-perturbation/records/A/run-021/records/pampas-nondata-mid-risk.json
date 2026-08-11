@@ -1,0 +1,15 @@
+{
+  "caseId": "pampas-nondata-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T10:30:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pampas Machine Works S.A.",
+    "registeredCountry": "AR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

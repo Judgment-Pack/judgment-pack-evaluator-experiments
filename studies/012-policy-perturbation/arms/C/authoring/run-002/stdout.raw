@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-payroll-services",
+    "vendor": {
+      "legalName": "Alpine Payroll Services AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-02T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-customer-insights",
+    "vendor": {
+      "legalName": "Iberia Customer Insights S.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-02T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-benefits-platform",
+    "vendor": {
+      "legalName": "Baltic Benefits Platform OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-03T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-industrial-parts",
+    "vendor": {
+      "legalName": "Harbor Industrial Parts Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "rhein-logistics",
+    "vendor": {
+      "legalName": "Rhein Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-04T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-cloud-operations",
+    "vendor": {
+      "legalName": "Sakura Cloud Operations K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-04T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-identity-systems",
+    "vendor": {
+      "legalName": "Fjord Identity Systems AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-05T10:45:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-infrastructure",
+    "vendor": {
+      "legalName": "Atlas Infrastructure SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-05T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-machinery-export",
+    "vendor": {
+      "legalName": "Pyongyang Machinery Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-08T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-data-processing",
+    "vendor": {
+      "legalName": "Tehran Data Processing Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-08T12:10:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-network-services",
+    "vendor": {
+      "legalName": "Damascus Network Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-09T14:30:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-consulting",
+    "vendor": {
+      "legalName": "Meridian Consulting Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-10T08:50:00Z"
+    }
+  },
+  {
+    "caseId": "orion-records-management",
+    "vendor": {
+      "legalName": "Orion Records Management B.V.",
+      "sanctionsHit": true,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "55"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-10T11:45:00Z"
+    }
+  },
+  {
+    "caseId": "euphrates-trading-group",
+    "vendor": {
+      "legalName": "Euphrates Trading Group",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-11T15:00:00Z"
+    }
+  }
+]

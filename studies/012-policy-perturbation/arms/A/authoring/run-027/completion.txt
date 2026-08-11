@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-precedence",
+    "vendor": {
+      "legalName": "Caspian Data Systems PJSC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "oryx-high-risk-sanctions",
+    "vendor": {
+      "legalName": "Oryx Industrial Services LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "AE",
+      "handlesPersonalData": true,
+      "riskScore": "84.2"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Morgan",
+      "decidedAt": "2026-06-02T13:20:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-low-risk-embargo",
+    "vendor": {
+      "legalName": "Pyongyang Precision Export Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Morgan",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-mid-risk-embargo",
+    "vendor": {
+      "legalName": "Tehran Archive Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Sofia Patel",
+      "decidedAt": "2026-06-03T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "levant-high-risk-embargo",
+    "vendor": {
+      "legalName": "Levant Engineering Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Sofia Patel",
+      "decidedAt": "2026-06-04T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-risk-threshold",
+    "vendor": {
+      "legalName": "Alpine Logistics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-05T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-high-risk-data",
+    "vendor": {
+      "legalName": "Baltic Metrics OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-05T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "andes-maximum-risk",
+    "vendor": {
+      "legalName": "Andes Mining Analytics SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-06T16:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-data-threshold",
+    "vendor": {
+      "legalName": "Cedar Payroll Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T10:30:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-upper-border",
+    "vendor": {
+      "legalName": "Sakura Customer Insights KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Morgan",
+      "decidedAt": "2026-06-09T12:00:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-data-midband",
+    "vendor": {
+      "legalName": "Atlas Benefits SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "55.6"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Morgan",
+      "decidedAt": "2026-06-10T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-nondata-upper-border",
+    "vendor": {
+      "legalName": "Harbor Fasteners Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Patel",
+      "decidedAt": "2026-06-11T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-lower-border",
+    "vendor": {
+      "legalName": "Maple Records Processing Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Patel",
+      "decidedAt": "2026-06-11T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-nondata-forty",
+    "vendor": {
+      "legalName": "Rhine Machine Tools GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-12T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-zero-risk-data",
+    "vendor": {
+      "legalName": "Fjord Workplace AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-12T16:30:00Z"
+    }
+  }
+]

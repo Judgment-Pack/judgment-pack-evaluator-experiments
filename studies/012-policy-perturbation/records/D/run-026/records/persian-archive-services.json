@@ -1,0 +1,15 @@
+{
+  "caseId": "persian-archive-services",
+  "decision": {
+    "decidedAt": "2026-06-03T10:15:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persian Archive Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

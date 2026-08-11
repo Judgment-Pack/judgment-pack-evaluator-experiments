@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-override",
+    "vendor": {
+      "legalName": "Northstar Freight Systems Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-sanctions-embargo",
+    "vendor": {
+      "legalName": "Cedar Meridian Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "85"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargo-low-risk",
+    "vendor": {
+      "legalName": "Paektu Industrial Supply Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Bell",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "zagros-embargo-borderline",
+    "vendor": {
+      "legalName": "Zagros Archive Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Bell",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Precision Works",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-exact-seventy",
+    "vendor": {
+      "legalName": "Atlas Compliance Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-above-seventy",
+    "vendor": {
+      "legalName": "Harborline Components Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-04T15:35:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-personal-high-risk",
+    "vendor": {
+      "legalName": "Solstice Patient Platforms Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "92.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-05T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "juniper-personal-exact-forty",
+    "vendor": {
+      "legalName": "Juniper Identity Services SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-08T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "bluefin-personal-midrange",
+    "vendor": {
+      "legalName": "Bluefin Customer Insights BV",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "55.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Bell",
+      "decidedAt": "2026-06-08T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "maple-personal-below-seventy",
+    "vendor": {
+      "legalName": "Maple Beacon Marketing Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-09T10:30:00Z"
+    }
+  },
+  {
+    "caseId": "granite-nonpersonal-below-seventy",
+    "vendor": {
+      "legalName": "Granite Machine Parts AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-09T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "willow-personal-below-forty",
+    "vendor": {
+      "legalName": "Willow Payroll Tools Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-10T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "saffron-personal-zero-risk",
+    "vendor": {
+      "legalName": "Saffron Records Private Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "IN",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Bell",
+      "decidedAt": "2026-06-10T14:45:00Z"
+    }
+  },
+  {
+    "caseId": "andes-nonpersonal-exact-forty",
+    "vendor": {
+      "legalName": "Andes Laboratory Equipment SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-11T11:10:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-nonpersonal-moderate-risk",
+    "vendor": {
+      "legalName": "Sakura Packaging Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "27.6"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-12T07:55:00Z"
+    }
+  }
+]

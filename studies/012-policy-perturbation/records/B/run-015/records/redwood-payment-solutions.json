@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-payment-solutions",
+  "decision": {
+    "decidedAt": "2026-06-16T10:50:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Payment Solutions Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "18",
+    "sanctionsHit": true
+  }
+}

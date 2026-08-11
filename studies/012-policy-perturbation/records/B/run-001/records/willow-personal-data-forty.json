@@ -1,0 +1,15 @@
+{
+  "caseId": "willow-personal-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-04T09:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Willow Benefits Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

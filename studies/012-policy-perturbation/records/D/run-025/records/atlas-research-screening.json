@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-research-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T12:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Research SARL",
+    "registeredCountry": "MA",
+    "riskScore": "58.25",
+    "sanctionsHit": false
+  }
+}

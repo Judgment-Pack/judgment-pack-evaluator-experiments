@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T08:55:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Benefit Services SpA",
+    "registeredCountry": "CL",
+    "riskScore": "18.6",
+    "sanctionsHit": false
+  }
+}

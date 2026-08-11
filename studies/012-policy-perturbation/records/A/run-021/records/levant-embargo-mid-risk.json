@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T13:10:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Equipment Trading",
+    "registeredCountry": "SY",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

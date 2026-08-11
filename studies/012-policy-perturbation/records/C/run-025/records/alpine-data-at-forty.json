@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-data-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-06T08:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Data GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

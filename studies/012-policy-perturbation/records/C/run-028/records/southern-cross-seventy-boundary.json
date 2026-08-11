@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-seventy-boundary",
+  "decision": {
+    "decidedAt": "2026-06-08T16:30:00Z",
+    "decidedBy": "Mei Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Southern Cross Facilities Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

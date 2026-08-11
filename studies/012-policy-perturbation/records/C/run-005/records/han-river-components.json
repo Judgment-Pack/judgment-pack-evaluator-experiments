@@ -1,0 +1,15 @@
+{
+  "caseId": "han-river-components",
+  "decision": {
+    "decidedAt": "2026-06-11T09:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Han River Components Co., Ltd.",
+    "registeredCountry": "KR",
+    "riskScore": "12.5",
+    "sanctionsHit": true
+  }
+}

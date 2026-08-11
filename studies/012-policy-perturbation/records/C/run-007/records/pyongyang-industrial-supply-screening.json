@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-industrial-supply-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Supply Company",
+    "registeredCountry": "KP",
+    "riskScore": "12",
+    "sanctionsHit": false
+  }
+}

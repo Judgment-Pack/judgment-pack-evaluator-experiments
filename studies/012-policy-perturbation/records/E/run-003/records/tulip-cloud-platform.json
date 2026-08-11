@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-cloud-platform",
+  "decision": {
+    "decidedAt": "2026-06-04T14:15:00Z",
+    "decidedBy": "Martin Cole",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Cloud Platform B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

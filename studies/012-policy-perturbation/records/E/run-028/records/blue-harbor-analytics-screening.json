@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T13:20:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Harbor Analytics LLC",
+    "registeredCountry": "US",
+    "riskScore": "39.99",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-data-below-review",
+  "decision": {
+    "decidedAt": "2026-06-12T12:25:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Payroll GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

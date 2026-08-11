@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-hardware-near-threshold",
+  "decision": {
+    "decidedAt": "2026-06-16T13:40:00Z",
+    "decidedBy": "Elena Morris",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Hardware O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

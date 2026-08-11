@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-industrial-controls",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Industrial Controls, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

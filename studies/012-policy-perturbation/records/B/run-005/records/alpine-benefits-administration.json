@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-benefits-administration",
+  "decision": {
+    "decidedAt": "2026-06-15T14:50:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Benefits Administration AG",
+    "registeredCountry": "CH",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

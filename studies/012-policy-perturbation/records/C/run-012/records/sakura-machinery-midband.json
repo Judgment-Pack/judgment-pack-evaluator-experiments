@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-machinery-midband",
+  "decision": {
+    "decidedAt": "2026-06-15T08:30:00Z",
+    "decidedBy": "Owen Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Machinery Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

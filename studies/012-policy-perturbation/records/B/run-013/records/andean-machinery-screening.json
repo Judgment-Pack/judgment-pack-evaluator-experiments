@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-machinery-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T14:45:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Machinery SpA",
+    "registeredCountry": "CL",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbour-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-02T09:15:00Z",
+    "decidedBy": "Priya Nand",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbour Customer Insights Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

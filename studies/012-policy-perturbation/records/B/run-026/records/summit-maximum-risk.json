@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T15:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Aeronautics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

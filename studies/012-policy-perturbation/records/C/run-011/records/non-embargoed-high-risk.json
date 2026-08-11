@@ -1,0 +1,15 @@
+{
+  "caseId": "non-embargoed-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T16:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Lusitania Infrastructure S.A.",
+    "registeredCountry": "PT",
+    "riskScore": "92.6",
+    "sanctionsHit": false
+  }
+}

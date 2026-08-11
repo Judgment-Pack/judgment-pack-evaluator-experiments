@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-aerospace-parts",
+  "decision": {
+    "decidedAt": "2026-06-08T08:30:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Aerospace Parts, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "10",
+    "sanctionsHit": true
+  }
+}

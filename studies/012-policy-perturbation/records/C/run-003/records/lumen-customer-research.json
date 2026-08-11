@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-customer-research",
+  "decision": {
+    "decidedAt": "2026-06-02T14:40:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Customer Research SAS",
+    "registeredCountry": "FR",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

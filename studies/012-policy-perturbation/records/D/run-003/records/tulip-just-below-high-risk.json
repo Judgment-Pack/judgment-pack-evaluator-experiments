@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-just-below-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-15T14:50:00Z",
+    "decidedBy": "Malcolm Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Records Processing B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

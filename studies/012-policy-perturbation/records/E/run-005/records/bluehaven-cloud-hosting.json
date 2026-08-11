@@ -1,0 +1,15 @@
+{
+  "caseId": "bluehaven-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-10T15:35:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluehaven Cloud Hosting Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

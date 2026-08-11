@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Data Analytics SAS",
+    "registeredCountry": "FR",
+    "riskScore": "91.25",
+    "sanctionsHit": false
+  }
+}

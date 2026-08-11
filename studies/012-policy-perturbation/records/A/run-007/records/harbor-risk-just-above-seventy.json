@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-risk-just-above-seventy",
+  "decision": {
+    "decidedAt": "2026-06-03T15:15:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harborline Machinery Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

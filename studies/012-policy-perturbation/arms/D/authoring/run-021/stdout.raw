@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Marlowe",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-facilities-group",
+    "vendor": {
+      "legalName": "Alpine Facilities Group AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "harborlight-analytics",
+    "vendor": {
+      "legalName": "Harborlight Analytics LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-02T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-archive-services",
+    "vendor": {
+      "legalName": "Cedar Archive Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Marlowe",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "bluefin-payroll-systems",
+    "vendor": {
+      "legalName": "Bluefin Payroll Systems Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-03T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-industrial-parts",
+    "vendor": {
+      "legalName": "Solstice Industrial Parts GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-cloud-hosting",
+    "vendor": {
+      "legalName": "Meridian Cloud Hosting Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Marlowe",
+      "decidedAt": "2026-06-05T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "saffron-logistics-network",
+    "vendor": {
+      "legalName": "Saffron Logistics Network Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-machinery-export",
+    "vendor": {
+      "legalName": "Pyongyang Machinery Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "pars-data-solutions",
+    "vendor": {
+      "legalName": "Pars Data Solutions Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "44.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marlowe",
+      "decidedAt": "2026-06-08T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "levant-medical-trading",
+    "vendor": {
+      "legalName": "Levant Medical Trading Establishment",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-09T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-network-consulting",
+    "vendor": {
+      "legalName": "Redwood Network Consulting S.A.",
+      "sanctionsHit": true,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "10"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-10T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-procurement-bureau",
+    "vendor": {
+      "legalName": "Caspian Procurement Bureau LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "95"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marlowe",
+      "decidedAt": "2026-06-10T16:15:00Z"
+    }
+  },
+  {
+    "caseId": "maple-courier-services",
+    "vendor": {
+      "legalName": "Maple Courier Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-11T11:35:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-customer-support",
+    "vendor": {
+      "legalName": "Fjord Customer Support AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-12T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "ibex-engineering-partners",
+    "vendor": {
+      "legalName": "Ibex Engineering Partners S.L.",
+      "sanctionsHit": true,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marlowe",
+      "decidedAt": "2026-06-12T14:45:00Z"
+    }
+  }
+]

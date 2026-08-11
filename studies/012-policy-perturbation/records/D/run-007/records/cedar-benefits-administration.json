@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-benefits-administration",
+  "decision": {
+    "decidedAt": "2026-06-05T12:25:00Z",
+    "decidedBy": "Priya Nand",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Benefits Administration Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

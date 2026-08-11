@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-benefits-admin",
+  "decision": {
+    "decidedAt": "2026-06-03T14:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Benefits Administration PLC",
+    "registeredCountry": "GB",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

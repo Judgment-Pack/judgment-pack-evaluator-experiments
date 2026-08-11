@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-aerospace-analytics",
+  "decision": {
+    "decidedAt": "2026-06-04T15:10:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Aerospace Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "89.5",
+    "sanctionsHit": false
+  }
+}

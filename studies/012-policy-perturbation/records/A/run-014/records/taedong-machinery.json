@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-machinery",
+  "decision": {
+    "decidedAt": "2026-06-15T08:20:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Machinery Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "1",
+    "sanctionsHit": false
+  }
+}

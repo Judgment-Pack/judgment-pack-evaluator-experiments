@@ -1,0 +1,15 @@
+{
+  "caseId": "baekdu-export-services",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baekdu Export Services",
+    "registeredCountry": "KP",
+    "riskScore": "12.5",
+    "sanctionsHit": false
+  }
+}

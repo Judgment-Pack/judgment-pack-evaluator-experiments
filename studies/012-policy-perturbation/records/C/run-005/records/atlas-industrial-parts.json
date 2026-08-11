@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-05T08:15:00Z",
+    "decidedBy": "Owen Malik",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Industrial Parts S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

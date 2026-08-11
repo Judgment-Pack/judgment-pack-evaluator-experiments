@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-procurement-group",
+  "decision": {
+    "decidedAt": "2026-06-05T09:40:00Z",
+    "decidedBy": "Sofia Alvarez",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Procurement Group",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

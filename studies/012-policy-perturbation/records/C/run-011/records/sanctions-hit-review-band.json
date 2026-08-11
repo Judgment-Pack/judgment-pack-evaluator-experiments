@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-review-band",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Fen Analytics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "55",
+    "sanctionsHit": true
+  }
+}

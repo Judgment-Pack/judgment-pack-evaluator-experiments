@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-industrial-controls",
+  "decision": {
+    "decidedAt": "2026-06-03T11:40:00Z",
+    "decidedBy": "Sofia Laurent",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Industrial Controls GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

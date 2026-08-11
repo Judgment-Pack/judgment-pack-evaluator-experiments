@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-support-below-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T10:30:00Z",
+    "decidedBy": "Avery Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Support Services S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

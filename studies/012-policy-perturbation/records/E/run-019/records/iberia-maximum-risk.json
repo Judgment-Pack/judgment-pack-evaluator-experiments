@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Cloud Controls S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

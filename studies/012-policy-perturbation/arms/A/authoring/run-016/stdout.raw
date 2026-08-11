@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supply",
+    "vendor": {
+      "legalName": "Northstar Office Supply Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-services",
+    "vendor": {
+      "legalName": "Maple Data Services Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "bluehaven-health-systems",
+    "vendor": {
+      "legalName": "Bluehaven Health Systems GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "52.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-03T08:40:00Z"
+    }
+  },
+  {
+    "caseId": "silverline-customer-care",
+    "vendor": {
+      "legalName": "Silverline Customer Care S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-03T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "ironwood-industrial",
+    "vendor": {
+      "legalName": "Ironwood Industrial Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-04T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-logistics",
+    "vendor": {
+      "legalName": "Alpine Logistics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T09:45:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-cloud-platforms",
+    "vendor": {
+      "legalName": "Sakura Cloud Platforms K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-05T15:10:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-security",
+    "vendor": {
+      "legalName": "Fjord Security AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-08T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-machinery-export",
+    "vendor": {
+      "legalName": "Tehran Machinery Export Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "12.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-09T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "koryo-digital-works",
+    "vendor": {
+      "legalName": "Koryo Digital Works Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-09T10:30:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-textile-group",
+    "vendor": {
+      "legalName": "Damascus Textile Group",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "88.8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-10T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "redstone-trading",
+    "vendor": {
+      "legalName": "Redstone Trading B.V.",
+      "sanctionsHit": true,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "18"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-11T09:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-network-solutions",
+    "vendor": {
+      "legalName": "Levant Network Solutions LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "95"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-11T11:50:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-payroll-services",
+    "vendor": {
+      "legalName": "Baltic Payroll Services OÜ",
+      "sanctionsHit": true,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-12T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "andes-equipment-leasing",
+    "vendor": {
+      "legalName": "Andes Equipment Leasing SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-15T16:00:00Z"
+    }
+  }
+]

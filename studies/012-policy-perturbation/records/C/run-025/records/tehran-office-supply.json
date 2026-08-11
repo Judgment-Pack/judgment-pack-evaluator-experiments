@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-office-supply",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Office Supply Co.",
+    "registeredCountry": "IR",
+    "riskScore": "18",
+    "sanctionsHit": false
+  }
+}

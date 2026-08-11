@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-infrastructure",
+  "decision": {
+    "decidedAt": "2026-06-05T14:10:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Infrastructure S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

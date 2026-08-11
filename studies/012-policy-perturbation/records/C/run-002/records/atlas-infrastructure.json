@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-infrastructure",
+  "decision": {
+    "decidedAt": "2026-06-05T16:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Infrastructure SARL",
+    "registeredCountry": "FR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

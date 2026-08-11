@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-machinery-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T09:50:00Z",
+    "decidedBy": "Lucia Moreno",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machinery O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-facilities-group-screening",
+  "decision": {
+    "decidedAt": "2026-06-16T08:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Facilities Group Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

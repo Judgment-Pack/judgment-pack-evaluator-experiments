@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-07T08:40:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Payroll GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "54.6",
+    "sanctionsHit": false
+  }
+}

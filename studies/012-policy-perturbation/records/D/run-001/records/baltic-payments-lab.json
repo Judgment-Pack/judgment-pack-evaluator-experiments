@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-payments-lab",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Jonah Brooks",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Payments Lab O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

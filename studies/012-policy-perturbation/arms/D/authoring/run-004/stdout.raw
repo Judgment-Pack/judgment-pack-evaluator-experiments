@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-sanctions-embargo-overlap",
+    "vendor": {
+      "legalName": "Cedar Gate Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "chollima-embargo-zero-risk",
+    "vendor": {
+      "legalName": "Chollima Industrial Supply",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "persia-embargo-mid-risk",
+    "vendor": {
+      "legalName": "Persia Meridian Services",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-04T16:45:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Atlas Logistics",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "bluepeak-risk-threshold",
+    "vendor": {
+      "legalName": "BluePeak Systems GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-high-risk-data",
+    "vendor": {
+      "legalName": "Solstice Data SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "72.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-09T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "andes-maximum-risk",
+    "vendor": {
+      "legalName": "Andes Procurement SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-10T15:10:00Z"
+    }
+  },
+  {
+    "caseId": "harborview-data-threshold",
+    "vendor": {
+      "legalName": "Harborview Analytics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-11T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "mapleline-data-upper-border",
+    "vendor": {
+      "legalName": "MapleLine Research Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-12T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-mid-band",
+    "vendor": {
+      "legalName": "Sakura Insight K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "58.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-15T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "oakridge-data-below-threshold",
+    "vendor": {
+      "legalName": "Oakridge Customer Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-16T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-data-zero-risk",
+    "vendor": {
+      "legalName": "Fjord Digital AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-17T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "sunfield-no-data-upper-border",
+    "vendor": {
+      "legalName": "Sunfield Equipment B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-18T16:20:00Z"
+    }
+  },
+  {
+    "caseId": "silverfern-no-data-threshold",
+    "vendor": {
+      "legalName": "Silver Fern Wholesale Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-19T10:30:00Z"
+    }
+  },
+  {
+    "caseId": "cape-bay-no-data-low-risk",
+    "vendor": {
+      "legalName": "Cape Bay Manufacturing (Pty) Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "ZA",
+      "handlesPersonalData": false,
+      "riskScore": "18.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Ward",
+      "decidedAt": "2026-06-22T13:15:00Z"
+    }
+  }
+]

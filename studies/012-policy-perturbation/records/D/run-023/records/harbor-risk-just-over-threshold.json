@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-risk-just-over-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:40:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Crane Supply Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

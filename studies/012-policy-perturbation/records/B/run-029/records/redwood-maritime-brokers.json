@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-maritime-brokers",
+  "decision": {
+    "decidedAt": "2026-06-16T10:30:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Maritime Brokers Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

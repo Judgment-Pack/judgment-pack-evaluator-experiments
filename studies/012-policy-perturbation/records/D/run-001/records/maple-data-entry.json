@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-entry",
+  "decision": {
+    "decidedAt": "2026-06-10T14:30:00Z",
+    "decidedBy": "Priya Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Data Entry Cooperative",
+    "registeredCountry": "CA",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

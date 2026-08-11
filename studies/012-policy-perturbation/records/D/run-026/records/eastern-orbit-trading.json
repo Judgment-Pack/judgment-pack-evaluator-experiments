@@ -1,0 +1,15 @@
+{
+  "caseId": "eastern-orbit-trading",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Eastern Orbit Trading Company",
+    "registeredCountry": "IR",
+    "riskScore": "44.99",
+    "sanctionsHit": true
+  }
+}

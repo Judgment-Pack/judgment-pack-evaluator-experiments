@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-embargo-override",
+  "decision": {
+    "decidedAt": "2026-06-02T14:40:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Data Systems PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

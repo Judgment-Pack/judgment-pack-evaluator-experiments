@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-orchid-payroll",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Orchid Payroll Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

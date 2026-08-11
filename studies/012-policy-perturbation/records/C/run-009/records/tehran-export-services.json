@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-export-services",
+  "decision": {
+    "decidedAt": "2026-06-08T09:25:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Export Services Co.",
+    "registeredCountry": "IR",
+    "riskScore": "12.4",
+    "sanctionsHit": false
+  }
+}

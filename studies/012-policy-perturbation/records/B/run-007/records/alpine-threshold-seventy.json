@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-threshold-seventy",
+  "decision": {
+    "decidedAt": "2026-06-05T09:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Ledger AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

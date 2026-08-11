@@ -1,0 +1,187 @@
+{
+  "pinsVersion": "1",
+  "note": "The batch registry (PREREGISTRATION.md §2.10): the run-time pins the wrapper stamps per slot, the scorer recomputes, and harness/integrity.py verifies before any call and any count. Members whose registered moment has not arrived are null and say so; an all-zero digest is a port in progress and refuses.",
+  "pinnedFrom": {
+    "study": "studies/011-authorship-coverage-rates",
+    "pins": {
+      "path": "harness/PINS.json",
+      "sha256": "sha256:e00076972377a640236c95496feb083e49730f22c80d82b896d1d1d77fc6dc79"
+    },
+    "ports": {
+      "path": "harness/PORTS.md",
+      "sha256": "sha256:783cc9c32f8b2c77ba3ab91cbe4caaa91e9d9b035dd539659b77ed423f689ea3"
+    },
+    "commit": "3b93d3e7917e917516bd55cf4c7f5285c91fbc13"
+  },
+  "ownPorts": {
+    "path": "harness/PORTS.md",
+    "sha256": "sha256:e754a583071d42c80e4a2b60ad4a44496cac8d8bb0a9ed59523c0baf2388ea4f"
+  },
+  "codex": {
+    "model": "gpt-5.6-sol",
+    "version": "codex-cli 0.145.0",
+    "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14"
+  },
+  "python": {
+    "implementation": "CPython",
+    "series": "3.12",
+    "note": "Implementation and series enforced; the running interpreter's full version is reported by integrity at run time, deliberately not pinned here (round 3, finding 20)."
+  },
+  "arms": {
+    "A": {
+      "tLow": "40",
+      "tHigh": "70",
+      "policySha256": "sha256:d47513c3b33d0278df7af38d3257d19abe4d2f9b07166730df1b863f122441f6",
+      "promptSha256": "sha256:2a6f031e17735494646dd734ee04b4430027babf62b10e1ba9a57675f37de430",
+      "familySha256": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+      "armSha256": "sha256:3349ccd06e875c76eda19278a3ce8cae61a61e807fc3e43fb1d93adcb387b86d"
+    },
+    "B": {
+      "tLow": "40",
+      "tHigh": "70",
+      "policySha256": "sha256:f3215bd98d77ecdf036b90470083c645a6a666b817b5a7b0072c448377e020f6",
+      "promptSha256": "sha256:9da426a75e42bb13909daa097e1dc32b1cfdec86330fa69555e6c40081ff2dde",
+      "familySha256": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+      "armSha256": "sha256:aeef4aa084cdc85e10510c57844709745b397f7c7651b0d4b743fc509fee3f4d"
+    },
+    "C": {
+      "tLow": "40",
+      "tHigh": "70",
+      "policySha256": "sha256:77e79b2eb51ebc9114fa35037b9375dd08b4bfd8e34188a4518f086447a0c00a",
+      "promptSha256": "sha256:bff3e24751087815935b748041ae2db19df5f0408dea886219fe13e0531c053c",
+      "familySha256": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+      "armSha256": "sha256:e1572c0bfa03427726f062c0b42dcc74205a6a3d2da50d50bc23e41e42217cef"
+    },
+    "D": {
+      "tLow": "45",
+      "tHigh": "72",
+      "policySha256": "sha256:bf6b6d47e8e3168b9f09f6ec3c45d1a502a0c7cc476848a49afc896516218bf5",
+      "promptSha256": "sha256:0d47c2b135736376744dc00c9c66965465357e6a98e2ccd750505d931e9606d1",
+      "familySha256": "sha256:20391068ad761d028b3b1a8fc2bc3a04f7aec61c7f365a0ef2db9b90f25c20fc",
+      "armSha256": "sha256:2b5b341b4a9794aa512098fdbec1a468f6d037082e06cddc8913f8dac25355f2"
+    },
+    "E": {
+      "tLow": "40",
+      "tHigh": "70",
+      "policySha256": "sha256:8d1141f3eabc57a96739cb4c8740e95683482e51da6388212b3abc443192f55e",
+      "promptSha256": "sha256:5bbb3a58dd16cd2ef2353e5cc137c74d467c5cb098e4896d2ccce8b165cf2b66",
+      "familySha256": "sha256:7c3c49e60bd3284885beaec9a08a94d0eab5798b5de4e7edf1ac10c53f5eb25f",
+      "armSha256": "sha256:cd9d88d93c55a1069337e51d3fc70604bec232b4a7bb2b6e1b03dbcb2559e084"
+    }
+  },
+  "mirror": {
+    "path": "harness/policy_mirror.py",
+    "sha256": "sha256:5c631b7bd062e21564bec0edecdb558768638adff8ffcb33132c5ec32ec0bc5b"
+  },
+  "assembledPreamble": {
+    "sha256": "sha256:83b7b27fb8cb9054d4536edc6d20ec1c7f9e57cc66f69b5c68891f9def83734d",
+    "note": "010's preamble with PREAMBLE_DELTA [D-16] applied at its single occurrence; re-derived and checked both ways by integrity.verify_arms()."
+  },
+  "conventionsDelta": {
+    "sha256": "sha256:3b121dd02f8aedd103d0d047b77ee289f788b8d8d22589e396e13baa268223e0",
+    "bytes": 55,
+    "note": "The one sentence [D-15] appends to 010's conventions paragraph, leading space included."
+  },
+  "claim": {
+    "path": "CLAIM.md",
+    "sha256": "sha256:7bdf694688b6c963b5a79bf88d26d62d470c4cf342452f4e698a4d1323ddec1e",
+    "note": "The verbatim published wording of R1, its venues, URLs and retrieval date (§1). Two records: 011's MIRROR-AGREEMENT.md §(d) at the commit-pinned URL (the pre-stated directional prediction), and issue #45 (the restatement carrying both halves)."
+  },
+  "probePrompt": {
+    "path": "transcription/PROBE-PROMPT.txt",
+    "sha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7",
+    "note": "011's probe, byte-identical; the authority is 011's PINS.json (tier 2)."
+  },
+  "batch": {
+    "n": 30,
+    "slots": 150,
+    "order": {
+      "firstRow": [
+        "A",
+        "B",
+        "E",
+        "C",
+        "D"
+      ],
+      "construction": "W1-W5 increment every symbol A->B->C->D->E per row; W6-W10 are those rows reversed",
+      "blocks": [
+        [
+          "W2",
+          "W4",
+          "W7",
+          "W10",
+          "W1",
+          "W9",
+          "W8",
+          "W6",
+          "W3",
+          "W5"
+        ],
+        [
+          "W4",
+          "W3",
+          "W2",
+          "W10",
+          "W9",
+          "W8",
+          "W5",
+          "W1",
+          "W7",
+          "W6"
+        ],
+        [
+          "W4",
+          "W6",
+          "W5",
+          "W7",
+          "W1",
+          "W2",
+          "W10",
+          "W8",
+          "W9",
+          "W3"
+        ]
+      ]
+    },
+    "note": "§2.8's registered call order; harness/tests/test_schedule.py re-derives the five balance properties and requires batch.schedule() to equal the expansion."
+  },
+  "golden": {
+    "sha256": "sha256:78c3f3b24521dec5fb60a9c4a7a05c12554258e174b9ca6269d129fe101b3c68",
+    "note": "The recaptured golden context (§3.2, one capture for all five arms); null until the capture is registered."
+  },
+  "isolationNegative": {
+    "assent": "granted",
+    "note": "§6 C7 runs once, against the operator's real home, only with recorded operator assent; batch.py capture-isolation-negative refuses while this is null."
+  },
+  "freeze": {
+    "preregistrationSha256": "sha256:97c6ee3e2156f2de60875efe472be22ca19e89ed11a16d164b982f94dcb2f415",
+    "treeManifestSha256": "sha256:9fa37a514a8ca7ac45078cc0574c714f0706eb5d91b58bdf17b35e7a391270cc",
+    "excluded": [
+      "RESULTS.json",
+      "RATES.md",
+      "CENSUS.md",
+      "ANALYSIS.md",
+      "DEVIATIONS.md",
+      "CORRECTION.md",
+      "arms/BATCH.json",
+      "arms/BATCH.json.partial",
+      "arms/SHORTFALL.json",
+      "transcription/GOLDEN-CONTEXT.json",
+      "records/",
+      "controls/recapture/",
+      "controls/isolation-negative/",
+      "arms/A/authoring/",
+      "arms/B/authoring/",
+      "arms/C/authoring/",
+      "arms/D/authoring/",
+      "arms/E/authoring/"
+    ],
+    "note": "§2.10 [D-20]: both digests filled at their registered moments and null until then. The exclusion list is the registered files-that-cannot-exist-yet set, at the paths the code actually writes (round 3, findings 1-2, dispositioned); the manifest's two carrier files (harness/PINS.json, PREREG-REVIEW.md) are excluded in integrity.tree_manifest() itself; an entry ending / is a tree and excludes everything beneath it, every other entry is exactly one path (round 9, finding 5). records/ is the destination README step 7's registered `score --emit-records` command writes and §8 requires published, and CORRECTION.md is the §8 correction venue this study's README points at, written by hand in every outcome; both are produced after the freeze, so both are exclusions rather than covered bytes (round 14, findings 1-2). arms/BATCH.json.partial is the ledger's atomic-write temporary at the FIXED name batch.LEDGER_TEMP_NAME: an uncatchable kill between writing it and renaming it leaves it beside the ledger, and it is a FILE entry beside arms/BATCH.json so that a residue is an excluded path rather than a tracked one no entry can name — the driver refuses by name on the next run and the operator records the interruption in DEVIATIONS.md (round 16, finding 3)."
+  },
+  "registryOfRecord": "The committed harness/PINS.json is the registry of record: the wrapper stamps the digest of the registry it ran under, the scorer computes the committed file's digest itself, and any slot whose stamp differs is registry-mismatch. The scorer takes no registry argument at all (§2.10 [D-23]).",
+  "thresholdDefinitionSentence": {
+    "bytes": 133,
+    "sha256": "sha256:c2ca98b115035fcad8fc3f14978b96fbcd0a60a44f6ad33d8d8777be0061445d",
+    "note": "The one sentence arm E's conventions paragraph appends to the shared A-D paragraph (§2.6, [D-3]); pinned so C8 checks byte equality, not shape (round 3, finding 7)."
+  }
+}

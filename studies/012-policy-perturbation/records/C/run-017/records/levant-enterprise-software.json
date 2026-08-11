@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-enterprise-software",
+  "decision": {
+    "decidedAt": "2026-06-18T11:55:00Z",
+    "decidedBy": "Nadia Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Enterprise Software Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "92.75",
+    "sanctionsHit": false
+  }
+}

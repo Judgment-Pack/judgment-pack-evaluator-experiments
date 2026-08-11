@@ -1,0 +1,15 @@
+{
+  "caseId": "bluefin-payroll-systems",
+  "decision": {
+    "decidedAt": "2026-06-03T14:20:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluefin Payroll Systems Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

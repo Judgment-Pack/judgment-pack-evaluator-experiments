@@ -1,0 +1,15 @@
+{
+  "caseId": "acacia-nonpersonal-at-seventy",
+  "decision": {
+    "decidedAt": "2026-06-08T09:35:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Acacia Logistics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-support-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-08T12:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Support Solutions Inc.",
+    "registeredCountry": "US",
+    "riskScore": "58.4",
+    "sanctionsHit": false
+  }
+}

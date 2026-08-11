@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T14:20:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Logistics Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "92",
+    "sanctionsHit": false
+  }
+}

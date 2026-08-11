@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T12:05:00Z",
+    "decidedBy": "Elena Marlow",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Payroll AS",
+    "registeredCountry": "NO",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

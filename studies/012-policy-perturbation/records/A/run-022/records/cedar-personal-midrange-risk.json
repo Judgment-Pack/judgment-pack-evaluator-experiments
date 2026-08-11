@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-personal-midrange-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T12:40:00Z",
+    "decidedBy": "Elena Marquez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Health Analytics Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-03-18T08:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Equipment Bureau",
+    "registeredCountry": "SY",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

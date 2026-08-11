@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-facilities-group",
+  "decision": {
+    "decidedAt": "2026-06-09T08:30:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberian Facilities Group S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

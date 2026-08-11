@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-stationery-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T09:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Stationery Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Elena Marlow",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Northstar Components Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "12.5",
+    "sanctionsHit": true
+  }
+}

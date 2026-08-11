@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-machine-works",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Machine Works AG",
+    "registeredCountry": "CH",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

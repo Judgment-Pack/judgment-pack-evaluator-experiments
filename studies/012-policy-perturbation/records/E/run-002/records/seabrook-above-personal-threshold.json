@@ -1,0 +1,15 @@
+{
+  "caseId": "seabrook-above-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T12:25:00Z",
+    "decidedBy": "Luis Ortega",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Seabrook Digital Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-data-processing",
+  "decision": {
+    "decidedAt": "2026-06-05T10:35:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Data Processing Company",
+    "registeredCountry": "IR",
+    "riskScore": "20",
+    "sanctionsHit": false
+  }
+}

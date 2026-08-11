@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-just-below-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T16:50:00Z",
+    "decidedBy": "Luis Ortega",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Payroll AG",
+    "registeredCountry": "CH",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

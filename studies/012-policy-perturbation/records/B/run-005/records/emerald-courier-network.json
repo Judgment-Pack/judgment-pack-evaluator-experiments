@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-courier-network",
+  "decision": {
+    "decidedAt": "2026-06-19T10:10:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Emerald Courier Network Limited",
+    "registeredCountry": "IE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-analytics-company",
+  "decision": {
+    "decidedAt": "2026-06-12T12:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Analytics Company",
+    "registeredCountry": "IR",
+    "riskScore": "44.5",
+    "sanctionsHit": false
+  }
+}

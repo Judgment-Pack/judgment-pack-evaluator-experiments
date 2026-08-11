@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-no-data-forty-boundary",
+  "decision": {
+    "decidedAt": "2026-06-13T11:55:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Packaging (Pty) Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

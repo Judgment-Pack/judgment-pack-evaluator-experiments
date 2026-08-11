@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-office-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-16T13:05:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Office Supply Inc.",
+    "registeredCountry": "US",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-08T12:10:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Customer Insights AS",
+    "registeredCountry": "NO",
+    "riskScore": "45.01",
+    "sanctionsHit": false
+  }
+}

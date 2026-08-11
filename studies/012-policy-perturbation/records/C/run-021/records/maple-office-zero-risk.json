@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-office-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T14:10:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Office Products Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

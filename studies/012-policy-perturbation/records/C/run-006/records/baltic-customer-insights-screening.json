@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-customer-insights-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T09:45:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Customer Insights O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

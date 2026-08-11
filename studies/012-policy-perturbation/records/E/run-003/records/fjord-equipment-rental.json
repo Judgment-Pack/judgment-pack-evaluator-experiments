@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-equipment-rental",
+  "decision": {
+    "decidedAt": "2026-06-10T11:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Equipment Rental AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

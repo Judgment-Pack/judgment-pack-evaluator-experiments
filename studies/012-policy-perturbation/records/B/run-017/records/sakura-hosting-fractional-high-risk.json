@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-hosting-fractional-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T14:45:00Z",
+    "decidedBy": "Nadia Flores",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Hosting K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

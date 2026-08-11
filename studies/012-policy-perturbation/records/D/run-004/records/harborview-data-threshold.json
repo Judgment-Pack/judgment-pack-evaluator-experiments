@@ -1,0 +1,15 @@
+{
+  "caseId": "harborview-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T09:50:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harborview Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

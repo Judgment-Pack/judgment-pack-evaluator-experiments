@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T09:55:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Benefits AG",
+    "registeredCountry": "CH",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

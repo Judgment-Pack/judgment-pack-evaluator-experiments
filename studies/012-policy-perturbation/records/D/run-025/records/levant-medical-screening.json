@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-medical-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Medical Supplies LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

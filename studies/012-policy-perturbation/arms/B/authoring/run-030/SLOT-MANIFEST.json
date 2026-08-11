@@ -1,0 +1,44 @@
+{
+  "arm": "B",
+  "files": [
+    [
+      ".",
+      -1,
+      "type:directory"
+    ],
+    [
+      "CALL.json",
+      2096,
+      "9e925eee83df21caa1f3609b827b8752d6eb8a85c60b45945b0dec9656601dd1"
+    ],
+    [
+      "completion.txt",
+      5964,
+      "19f5a1accdd6d4b016c83dfdb123ff7fbe896b1f64d80562121a962f837692dd"
+    ],
+    [
+      "context.json",
+      621,
+      "44f493f114a3878d40b8e5c075881e82fa31fb21415b2858e725a1fb9fbd8d94"
+    ],
+    [
+      "session.jsonl",
+      66171,
+      "0cf17aa7b2dc351f1040a8339b70da5d319e21422d152baf37db81e98cd39eca"
+    ],
+    [
+      "stderr.raw",
+      9423,
+      "392e187b0b7d84dfcbaeb30ddc4cfbd9de7f6833088d436dc7d7fa652abed6b2"
+    ],
+    [
+      "stdout.raw",
+      5965,
+      "eb0686e3a9259d6372cc4a638cb9836f4ef59a51fcff6a6eb2110dc7c3bb4a10"
+    ]
+  ],
+  "filesSha256": "sha256:47464ae9c4062be7da3e297f0ce845722fb5769cb43235374dbe36960408bdfa",
+  "globalIndex": 148,
+  "note": "The terminal seal of this slot (\u00a72.9): the slot ROOT itself, at the relative path `.`, and EVERY entry beneath it by relative path \u2014 regular files by byte length and sha256, everything else (symlinks, directories, FIFOs, sockets, devices) by a -1 length and a type: marker \u2014 sorted by path, and the sha256 of that sorted list. Every entry, so that an entry ADDED after the seal breaks it rather than passing it and then buying that slot a pipeline-invalid code and the denominator change it carries; and the root, so that renaming this directory and planting a symlink at its old path breaks it for the same reason. This file is not a member of its own list \u2014 a file cannot carry its own digest \u2014 and is sealed instead by the ledger, whose record for this slot carries the digest of THIS FILE and the previous record's digest, so BATCH.json is a hash chain in schedule order. A slot whose recomputed manifest differs from the ledger's, or a chain that does not verify, invalidates confirmatory scoring for the WHOLE batch rather than moving this slot out of a denominator (\u00a72.9).",
+  "slot": "run-030"
+}

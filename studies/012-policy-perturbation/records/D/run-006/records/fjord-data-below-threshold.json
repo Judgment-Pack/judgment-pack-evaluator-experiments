@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-16T11:55:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Payroll AS",
+    "registeredCountry": "NO",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

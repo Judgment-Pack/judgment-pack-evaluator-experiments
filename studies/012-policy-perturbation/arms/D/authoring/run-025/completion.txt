@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-screening",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "18.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-data-screening",
+    "vendor": {
+      "legalName": "Redwood Data Systems Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "choson-machinery-screening",
+    "vendor": {
+      "legalName": "Choson Machinery Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "persia-cloud-screening",
+    "vendor": {
+      "legalName": "Persia Cloud Services PJSC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-medical-screening",
+    "vendor": {
+      "legalName": "Levant Medical Supplies LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-security-screening",
+    "vendor": {
+      "legalName": "Alpine Security AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-analytics-screening",
+    "vendor": {
+      "legalName": "Baltic Analytics OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "72.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Bell",
+      "decidedAt": "2026-06-04T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-components-screening",
+    "vendor": {
+      "legalName": "Sakura Components Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Bell",
+      "decidedAt": "2026-06-05T07:55:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-people-services-screening",
+    "vendor": {
+      "legalName": "Iberia People Services S.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-05T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "nordic-payroll-screening",
+    "vendor": {
+      "legalName": "Nordic Payroll AB",
+      "sanctionsHit": false,
+      "registeredCountry": "SE",
+      "handlesPersonalData": true,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-08T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-research-screening",
+    "vendor": {
+      "legalName": "Atlas Research SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "MA",
+      "handlesPersonalData": true,
+      "riskScore": "58.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-09T12:15:00Z"
+    }
+  },
+  {
+    "caseId": "kiwi-office-screening",
+    "vendor": {
+      "legalName": "Kiwi Office Products Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": false,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Bell",
+      "decidedAt": "2026-06-10T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "maple-identity-screening",
+    "vendor": {
+      "legalName": "Maple Identity Solutions Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-10T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "andes-packaging-screening",
+    "vendor": {
+      "legalName": "Andes Packaging SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Grant",
+      "decidedAt": "2026-06-11T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-stationery-screening",
+    "vendor": {
+      "legalName": "Harbor Stationery Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-12T11:30:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-archives-screening",
+    "vendor": {
+      "legalName": "Rhine Archives GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "0.01"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Bell",
+      "decidedAt": "2026-06-12T14:45:00Z"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-health-records",
+  "decision": {
+    "decidedAt": "2026-06-05T12:50:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Health Records Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

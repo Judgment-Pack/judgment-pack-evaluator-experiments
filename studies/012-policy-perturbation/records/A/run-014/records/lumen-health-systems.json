@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-health-systems",
+  "decision": {
+    "decidedAt": "2026-06-09T13:40:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Health Systems Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

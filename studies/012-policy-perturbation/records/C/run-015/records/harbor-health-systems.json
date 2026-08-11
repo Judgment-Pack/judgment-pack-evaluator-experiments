@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-health-systems",
+  "decision": {
+    "decidedAt": "2026-06-09T13:35:00Z",
+    "decidedBy": "Elena Vargas",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Health Systems Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

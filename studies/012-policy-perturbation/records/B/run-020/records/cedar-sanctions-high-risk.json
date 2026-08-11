@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-sanctions-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "92.4",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "maximum-risk-no-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-03T13:10:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Foundry AG",
+    "registeredCountry": "CH",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

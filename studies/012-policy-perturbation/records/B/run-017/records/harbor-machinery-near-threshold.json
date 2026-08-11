@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-machinery-near-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:10:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Machinery Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

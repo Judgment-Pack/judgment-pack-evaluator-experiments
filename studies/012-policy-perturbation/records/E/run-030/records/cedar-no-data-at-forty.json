@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-no-data-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-18T16:20:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Machine Works Ltd.",
+    "registeredCountry": "NZ",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

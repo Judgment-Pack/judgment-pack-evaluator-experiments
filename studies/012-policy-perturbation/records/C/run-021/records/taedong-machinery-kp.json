@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-machinery-kp",
+  "decision": {
+    "decidedAt": "2026-06-04T15:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Machinery Export Co.",
+    "registeredCountry": "KP",
+    "riskScore": "18",
+    "sanctionsHit": false
+  }
+}

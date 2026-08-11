@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-records-systems",
+  "decision": {
+    "decidedAt": "2026-06-04T08:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Records Systems LLC",
+    "registeredCountry": "IR",
+    "riskScore": "55",
+    "sanctionsHit": false
+  }
+}

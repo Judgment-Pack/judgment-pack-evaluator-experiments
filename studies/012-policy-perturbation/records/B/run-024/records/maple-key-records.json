@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-key-records",
+  "decision": {
+    "decidedAt": "2026-06-19T10:35:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Key Records Management Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "39",
+    "sanctionsHit": false
+  }
+}

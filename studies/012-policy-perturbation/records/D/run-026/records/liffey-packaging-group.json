@@ -1,0 +1,15 @@
+{
+  "caseId": "liffey-packaging-group",
+  "decision": {
+    "decidedAt": "2026-06-09T08:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Liffey Packaging Group Limited",
+    "registeredCountry": "IE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-procurement-group",
+  "decision": {
+    "decidedAt": "2026-06-18T08:40:00Z",
+    "decidedBy": "Owen Malik",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Procurement Group Co.",
+    "registeredCountry": "IR",
+    "riskScore": "0.01",
+    "sanctionsHit": true
+  }
+}

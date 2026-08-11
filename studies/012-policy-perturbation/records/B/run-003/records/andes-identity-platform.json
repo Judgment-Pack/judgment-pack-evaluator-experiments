@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-identity-platform",
+  "decision": {
+    "decidedAt": "2026-06-22T10:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Identity Platform SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.99",
+    "sanctionsHit": true
+  }
+}

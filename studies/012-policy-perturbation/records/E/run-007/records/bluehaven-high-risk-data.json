@@ -1,0 +1,15 @@
+{
+  "caseId": "bluehaven-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Mara Singh",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluehaven Customer Insights Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

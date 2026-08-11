@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-cloud-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T10:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Cloud SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

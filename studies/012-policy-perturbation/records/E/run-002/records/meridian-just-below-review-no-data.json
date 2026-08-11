@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-just-below-review-no-data",
+  "decision": {
+    "decidedAt": "2026-06-11T14:30:00Z",
+    "decidedBy": "Nadia Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Packaging B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

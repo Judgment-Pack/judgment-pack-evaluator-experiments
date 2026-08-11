@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-identity-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-15T17:05:00Z",
+    "decidedBy": "Elias Ford",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Identity Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "58.6",
+    "sanctionsHit": false
+  }
+}

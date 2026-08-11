@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Technical Supply LLC",
+    "registeredCountry": "SY",
+    "riskScore": "93.7",
+    "sanctionsHit": false
+  }
+}

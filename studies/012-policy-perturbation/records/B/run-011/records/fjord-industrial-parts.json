@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-02T08:15:00Z",
+    "decidedBy": "Jonas Mercer",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Industrial Parts AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

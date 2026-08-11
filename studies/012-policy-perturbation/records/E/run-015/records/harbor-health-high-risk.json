@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-health-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T12:35:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Health Processing Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "91.25",
+    "sanctionsHit": false
+  }
+}

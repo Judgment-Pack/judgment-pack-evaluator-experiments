@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-health-records",
+  "decision": {
+    "decidedAt": "2026-06-08T11:45:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Health Records S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "45",
+    "sanctionsHit": true
+  }
+}

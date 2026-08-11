@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-logistics",
+  "decision": {
+    "decidedAt": "2026-06-03T10:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Logistics AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

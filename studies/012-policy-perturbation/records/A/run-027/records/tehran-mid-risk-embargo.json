@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-mid-risk-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T11:10:00Z",
+    "decidedBy": "Sofia Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Archive Solutions Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

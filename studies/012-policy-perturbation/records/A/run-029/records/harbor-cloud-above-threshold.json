@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-cloud-above-threshold",
+  "decision": {
+    "decidedAt": "2026-04-06T08:55:00Z",
+    "decidedBy": "Amina Yusuf",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Cloud Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.001",
+    "sanctionsHit": false
+  }
+}

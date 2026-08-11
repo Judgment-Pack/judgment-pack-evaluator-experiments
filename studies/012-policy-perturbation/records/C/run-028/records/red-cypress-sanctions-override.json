@@ -1,0 +1,15 @@
+{
+  "caseId": "red-cypress-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Red Cypress Trading Co.",
+    "registeredCountry": "IR",
+    "riskScore": "88.5",
+    "sanctionsHit": true
+  }
+}

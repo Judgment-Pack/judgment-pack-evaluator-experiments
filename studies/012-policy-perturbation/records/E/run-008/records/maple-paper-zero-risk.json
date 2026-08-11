@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-paper-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T14:05:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Paper Products Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

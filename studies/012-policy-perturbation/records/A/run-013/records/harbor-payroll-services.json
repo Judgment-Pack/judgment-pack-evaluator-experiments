@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-02T13:20:00Z",
+    "decidedBy": "Mateo Singh",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Payroll Services PLC",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

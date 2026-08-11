@@ -1,0 +1,15 @@
+{
+  "caseId": "sequoia-payroll-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T09:10:00Z",
+    "decidedBy": "Nadia Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sequoia Payroll Services Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

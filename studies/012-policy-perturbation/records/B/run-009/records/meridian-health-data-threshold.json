@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-health-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-12T12:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Health Data Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

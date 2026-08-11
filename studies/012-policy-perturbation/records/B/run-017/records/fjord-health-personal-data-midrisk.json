@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-health-personal-data-midrisk",
+  "decision": {
+    "decidedAt": "2026-06-08T08:35:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Health AS",
+    "registeredCountry": "NO",
+    "riskScore": "55.7",
+    "sanctionsHit": false
+  }
+}

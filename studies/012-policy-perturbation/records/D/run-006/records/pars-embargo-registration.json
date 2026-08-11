@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-03-02T13:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Archive Systems",
+    "registeredCountry": "IR",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

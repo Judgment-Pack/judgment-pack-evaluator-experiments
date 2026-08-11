@@ -1,0 +1,220 @@
+{
+  "familyVersion": "1",
+  "pack": "packs/vendor-screening-correct.pack.json",
+  "note": "Six candidate defects, ordered. The drand draw (PREREGISTRATION.md \u00a75) selects exactly one index; the harness applies its patch to pack C to produce D. Each predicate is evaluator-independent: it reads only a record's vendor facts. Every defect class disposes as an outcome under C and as unresolved (no-match or conflict) under its D. reasonsUnderD gives the registered unresolved reason set per personal-data value (null matches either); the first matching entry applies.",
+  "embargoList": [
+    "KP",
+    "IR",
+    "SY"
+  ],
+  "mutations": [
+    {
+      "index": 0,
+      "title": "P3's boundary becomes exclusive",
+      "patch": [
+        {
+          "path": "/rules/2/when/conditions/2/operator",
+          "old": "greater-than-or-equal",
+          "new": "greater-than"
+        }
+      ],
+      "violatedClause": "P3",
+      "predicate": {
+        "sanctionsHit": false,
+        "registeredCountry": {
+          "kind": "not-embargoed"
+        },
+        "handlesPersonalData": null,
+        "riskScore": {
+          "eq": "72"
+        }
+      },
+      "predicateProse": "no sanctions hit, non-embargoed registration, risk score exactly 72",
+      "underD": "unresolved (no-match): P3 excludes 72, P4 and P5 require below 72",
+      "reasonsUnderD": [
+        {
+          "handlesPersonalData": null,
+          "reasons": [
+            "no-match"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "title": "P3's threshold moves to 73 in P3 only",
+      "patch": [
+        {
+          "path": "/rules/2/when/conditions/2/value",
+          "old": "72",
+          "new": "73"
+        }
+      ],
+      "violatedClause": "P3",
+      "predicate": {
+        "sanctionsHit": false,
+        "registeredCountry": {
+          "kind": "not-embargoed"
+        },
+        "handlesPersonalData": null,
+        "riskScore": {
+          "gte": "72",
+          "lt": "73"
+        }
+      },
+      "predicateProse": "no sanctions hit, non-embargoed registration, risk score at least 72 and below 73",
+      "underD": "unresolved (no-match): P3 requires 73, P4 and P5 require below 72",
+      "reasonsUnderD": [
+        {
+          "handlesPersonalData": null,
+          "reasons": [
+            "no-match"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "title": "P4's lower bound moves to 46",
+      "patch": [
+        {
+          "path": "/rules/3/when/conditions/3/value",
+          "old": "45",
+          "new": "46"
+        }
+      ],
+      "violatedClause": "P4",
+      "predicate": {
+        "sanctionsHit": false,
+        "registeredCountry": {
+          "kind": "not-embargoed"
+        },
+        "handlesPersonalData": true,
+        "riskScore": {
+          "gte": "45",
+          "lt": "46"
+        }
+      },
+      "predicateProse": "no sanctions hit, non-embargoed registration, handles personal data, risk score at least 45 and below 46",
+      "underD": "unresolved (no-match): P4 requires 46, P5's clearance arm requires below 45",
+      "reasonsUnderD": [
+        {
+          "handlesPersonalData": null,
+          "reasons": [
+            "no-match"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "title": "P4's personal-data condition inverts",
+      "patch": [
+        {
+          "path": "/rules/3/when/conditions/2/value",
+          "old": true,
+          "new": false
+        }
+      ],
+      "violatedClause": "P4 and P5",
+      "predicate": {
+        "sanctionsHit": false,
+        "registeredCountry": {
+          "kind": "not-embargoed"
+        },
+        "handlesPersonalData": null,
+        "riskScore": {
+          "gte": "45",
+          "lt": "72"
+        }
+      },
+      "predicateProse": "no sanctions hit, non-embargoed registration, risk score at least 45 and below 72 (either personal-data value)",
+      "underD": "unresolved: personal-data vendors match nothing (no-match); non-personal-data vendors match both the mutated P4 and P5 (conflict)",
+      "reasonsUnderD": [
+        {
+          "handlesPersonalData": true,
+          "reasons": [
+            "no-match"
+          ]
+        },
+        {
+          "handlesPersonalData": false,
+          "reasons": [
+            "conflict"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "title": "P2's embargo list loses SY",
+      "patch": [
+        {
+          "path": "/rules/1/when/conditions/1/value",
+          "old": [
+            "KP",
+            "IR",
+            "SY"
+          ],
+          "new": [
+            "KP",
+            "IR"
+          ]
+        }
+      ],
+      "violatedClause": "P2",
+      "predicate": {
+        "sanctionsHit": false,
+        "registeredCountry": {
+          "kind": "equals",
+          "value": "SY"
+        },
+        "handlesPersonalData": null,
+        "riskScore": null
+      },
+      "predicateProse": "no sanctions hit, registered in SY (any score)",
+      "underD": "unresolved (no-match): the mutated P2 no longer matches SY, and P3/P4/P5's unmutated embargo exclusions still exclude it",
+      "reasonsUnderD": [
+        {
+          "handlesPersonalData": null,
+          "reasons": [
+            "no-match"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "title": "P5's inner clearance bound moves to 44",
+      "patch": [
+        {
+          "path": "/rules/4/when/conditions/3/conditions/1/value",
+          "old": "45",
+          "new": "44"
+        }
+      ],
+      "violatedClause": "P5",
+      "predicate": {
+        "sanctionsHit": false,
+        "registeredCountry": {
+          "kind": "not-embargoed"
+        },
+        "handlesPersonalData": true,
+        "riskScore": {
+          "gte": "44",
+          "lt": "45"
+        }
+      },
+      "predicateProse": "no sanctions hit, non-embargoed registration, handles personal data, risk score at least 44 and below 45",
+      "underD": "unresolved (no-match): P5's mutated arm requires below 44, P4 requires at least 45",
+      "reasonsUnderD": [
+        {
+          "handlesPersonalData": null,
+          "reasons": [
+            "no-match"
+          ]
+        }
+      ]
+    }
+  ]
+}

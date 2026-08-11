@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-low-risk-clearance",
+  "decision": {
+    "decidedAt": "2026-06-22T16:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Facilities SpA",
+    "registeredCountry": "CL",
+    "riskScore": "18.375",
+    "sanctionsHit": false
+  }
+}

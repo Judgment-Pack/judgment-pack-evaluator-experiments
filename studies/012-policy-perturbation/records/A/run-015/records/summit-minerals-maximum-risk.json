@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-minerals-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Minerals S.A.",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

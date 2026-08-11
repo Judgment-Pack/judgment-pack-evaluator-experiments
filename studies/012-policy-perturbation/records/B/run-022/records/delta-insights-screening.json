@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-insights-screening",
+  "decision": {
+    "decidedAt": "2026-05-18T09:25:00Z",
+    "decidedBy": "Elise Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Delta Insights SAS",
+    "registeredCountry": "FR",
+    "riskScore": "55.6",
+    "sanctionsHit": false
+  }
+}

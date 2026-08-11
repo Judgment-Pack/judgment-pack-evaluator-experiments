@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T16:15:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Heavy Logistics AS",
+    "registeredCountry": "NO",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-telecom-holdings",
+  "decision": {
+    "decidedAt": "2026-06-10T17:00:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Euphrates Telecom Holdings",
+    "registeredCountry": "IR",
+    "riskScore": "0.01",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Clinical Analytics Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

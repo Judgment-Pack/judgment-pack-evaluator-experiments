@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-records-platform",
+  "decision": {
+    "decidedAt": "2026-06-16T08:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Records Platform K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

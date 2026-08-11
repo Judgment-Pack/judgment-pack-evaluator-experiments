@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-procurement-group",
+  "decision": {
+    "decidedAt": "2026-06-18T16:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Caspian Procurement Group PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "10",
+    "sanctionsHit": true
+  }
+}

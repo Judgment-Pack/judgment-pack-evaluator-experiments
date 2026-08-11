@@ -1,0 +1,15 @@
+{
+  "caseId": "bluewater-no-data-at-forty-five",
+  "decision": {
+    "decidedAt": "2026-06-09T14:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Bluewater Equipment B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

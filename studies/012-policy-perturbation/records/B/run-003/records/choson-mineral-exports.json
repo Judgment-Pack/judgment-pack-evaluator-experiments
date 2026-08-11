@@ -1,0 +1,15 @@
+{
+  "caseId": "choson-mineral-exports",
+  "decision": {
+    "decidedAt": "2026-06-15T08:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Choson Mineral Exports Corporation",
+    "registeredCountry": "KP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-logistics-technology",
+  "decision": {
+    "decidedAt": "2026-06-22T13:10:00Z",
+    "decidedBy": "Elena Vargas",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Logistics Technology K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

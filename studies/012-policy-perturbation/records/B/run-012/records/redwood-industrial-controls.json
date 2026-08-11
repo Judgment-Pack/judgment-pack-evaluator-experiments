@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-industrial-controls",
+  "decision": {
+    "decidedAt": "2026-06-05T14:40:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Industrial Controls Co.",
+    "registeredCountry": "JP",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

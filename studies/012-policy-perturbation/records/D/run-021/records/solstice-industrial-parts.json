@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-04T11:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Industrial Parts GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

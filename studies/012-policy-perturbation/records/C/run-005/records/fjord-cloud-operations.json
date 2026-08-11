@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-cloud-operations",
+  "decision": {
+    "decidedAt": "2026-06-09T13:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Cloud Operations AS",
+    "registeredCountry": "NO",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

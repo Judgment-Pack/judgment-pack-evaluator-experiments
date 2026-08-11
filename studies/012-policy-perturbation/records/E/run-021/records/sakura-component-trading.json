@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-component-trading",
+  "decision": {
+    "decidedAt": "2026-06-17T11:45:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Component Trading K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

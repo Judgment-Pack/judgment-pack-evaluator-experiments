@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-identity-labs",
+  "decision": {
+    "decidedAt": "2026-06-07T12:00:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Labs Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "52.4",
+    "sanctionsHit": false
+  }
+}

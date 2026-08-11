@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-embargo",
+    "vendor": {
+      "legalName": "Caspian Meridian Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Price",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "baekdu-embargo-zero-risk",
+    "vendor": {
+      "legalName": "Baekdu Industrial Supply Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-embargo-high-risk",
+    "vendor": {
+      "legalName": "Damascus Ledger Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-embargo-mid-risk",
+    "vendor": {
+      "legalName": "Tehran Atlas Logistics PLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Price",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "juniper-personal-below-forty",
+    "vendor": {
+      "legalName": "Juniper Patient Systems GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-personal-at-forty",
+    "vendor": {
+      "legalName": "Cedar Identity Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-04T09:25:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-personal-mid-band",
+    "vendor": {
+      "legalName": "Harbor Benefits Processing Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "54.6"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Price",
+      "decidedAt": "2026-06-05T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "linden-personal-below-seventy",
+    "vendor": {
+      "legalName": "Linden Customer Analytics BV",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-05T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "granite-nonpersonal-zero-risk",
+    "vendor": {
+      "legalName": "Granite Fastener Works Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-08T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "maple-nonpersonal-at-forty",
+    "vendor": {
+      "legalName": "Maple Calibration Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Price",
+      "decidedAt": "2026-06-08T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-nonpersonal-below-seventy",
+    "vendor": {
+      "legalName": "Alpine Packaging AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-09T12:05:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-nonpersonal-at-seventy",
+    "vendor": {
+      "legalName": "Sakura Robotics KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-10T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-personal-at-seventy",
+    "vendor": {
+      "legalName": "Fjord Workforce Cloud AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Price",
+      "decidedAt": "2026-06-10T11:55:00Z"
+    }
+  },
+  {
+    "caseId": "acacia-high-risk-ceiling",
+    "vendor": {
+      "legalName": "Acacia Network Operations Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "ZA",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-11T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-personal-minimal-risk",
+    "vendor": {
+      "legalName": "Solstice Payroll Technologies SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "0.01"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Velez",
+      "decidedAt": "2026-06-12T16:00:00Z"
+    }
+  }
+]

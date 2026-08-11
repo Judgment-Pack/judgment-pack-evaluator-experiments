@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-infrastructure-group",
+  "decision": {
+    "decidedAt": "2026-06-03T11:00:00Z",
+    "decidedBy": "Priya Nand",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Infrastructure Group AG",
+    "registeredCountry": "CH",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

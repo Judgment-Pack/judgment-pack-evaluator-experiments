@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-health-platform-screening",
+  "decision": {
+    "decidedAt": "2026-06-18T15:05:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Health Platform GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

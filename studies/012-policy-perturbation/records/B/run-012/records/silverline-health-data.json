@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-health-data",
+  "decision": {
+    "decidedAt": "2026-06-05T09:10:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Health Data S.A.",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

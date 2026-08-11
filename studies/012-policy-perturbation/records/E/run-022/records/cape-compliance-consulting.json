@@ -1,0 +1,15 @@
+{
+  "caseId": "cape-compliance-consulting",
+  "decision": {
+    "decidedAt": "2026-06-10T15:15:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cape Compliance Consulting (Pty) Ltd",
+    "registeredCountry": "ZA",
+    "riskScore": "40",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-data-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Nadia Flores",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Data Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "91.25",
+    "sanctionsHit": false
+  }
+}

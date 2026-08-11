@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-above-review-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T10:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Procurement AG",
+    "registeredCountry": "CH",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

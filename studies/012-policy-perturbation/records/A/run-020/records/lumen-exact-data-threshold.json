@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-exact-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T10:00:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Payroll Services B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

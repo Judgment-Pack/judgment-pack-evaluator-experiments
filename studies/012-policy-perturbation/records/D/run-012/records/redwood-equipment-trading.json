@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-equipment-trading",
+  "decision": {
+    "decidedAt": "2026-06-03T11:35:00Z",
+    "decidedBy": "Omar Haddad",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Equipment Trading LLC",
+    "registeredCountry": "US",
+    "riskScore": "88.4",
+    "sanctionsHit": true
+  }
+}

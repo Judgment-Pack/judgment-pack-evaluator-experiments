@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-infrastructure",
+  "decision": {
+    "decidedAt": "2026-06-06T10:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Infrastructure SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

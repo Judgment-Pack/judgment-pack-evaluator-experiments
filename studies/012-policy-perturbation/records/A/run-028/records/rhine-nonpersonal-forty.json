@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-nonpersonal-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T08:35:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Equipment GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

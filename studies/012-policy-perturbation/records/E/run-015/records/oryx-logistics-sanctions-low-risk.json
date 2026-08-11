@@ -1,0 +1,15 @@
+{
+  "caseId": "oryx-logistics-sanctions-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Oryx Logistics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "0",
+    "sanctionsHit": true
+  }
+}

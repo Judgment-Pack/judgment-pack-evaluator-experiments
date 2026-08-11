@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-freight-systems",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Freight Systems Inc.",
+    "registeredCountry": "US",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

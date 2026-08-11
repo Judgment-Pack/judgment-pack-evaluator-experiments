@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-10T14:45:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andean Cloud Hosting SpA",
+    "registeredCountry": "CL",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

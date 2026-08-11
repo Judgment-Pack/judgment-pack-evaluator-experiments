@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-data-systems-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "88.5",
+    "sanctionsHit": true
+  }
+}

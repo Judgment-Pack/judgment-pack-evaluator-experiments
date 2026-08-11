@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-network-services",
+  "decision": {
+    "decidedAt": "2026-06-11T09:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Network Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88.25",
+    "sanctionsHit": false
+  }
+}

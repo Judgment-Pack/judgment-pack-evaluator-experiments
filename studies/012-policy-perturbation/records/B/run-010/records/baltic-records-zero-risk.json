@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-records-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-18T16:25:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Records O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

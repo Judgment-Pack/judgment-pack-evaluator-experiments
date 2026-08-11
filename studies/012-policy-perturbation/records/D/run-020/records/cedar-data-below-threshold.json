@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-10T09:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Payroll Solutions Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amelia Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amelia Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-payroll-services",
+    "vendor": {
+      "legalName": "Harbor Payroll Services PLC",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mateo Singh",
+      "decidedAt": "2026-06-02T13:20:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-data-hosting",
+    "vendor": {
+      "legalName": "Alpine Data Hosting AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mateo Singh",
+      "decidedAt": "2026-06-02T14:45:00Z"
+    }
+  },
+  {
+    "caseId": "bluegum-logistics",
+    "vendor": {
+      "legalName": "Bluegum Logistics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Laurent",
+      "decidedAt": "2026-06-03T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-industrial-controls",
+    "vendor": {
+      "legalName": "Rhine Industrial Controls GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Laurent",
+      "decidedAt": "2026-06-03T11:40:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-customer-platforms",
+    "vendor": {
+      "legalName": "Sakura Customer Platforms K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Okafor",
+      "decidedAt": "2026-06-04T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-security-audits",
+    "vendor": {
+      "legalName": "Fjord Security Audits AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Okafor",
+      "decidedAt": "2026-06-04T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-trade-bureau",
+    "vendor": {
+      "legalName": "Pyongyang Trade Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nadeau",
+      "decidedAt": "2026-06-05T12:00:00Z"
+    }
+  },
+  {
+    "caseId": "pars-records-systems",
+    "vendor": {
+      "legalName": "Pars Records Systems Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nadeau",
+      "decidedAt": "2026-06-05T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "levant-cloud-services",
+    "vendor": {
+      "legalName": "Levant Cloud Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "85.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amelia Chen",
+      "decidedAt": "2026-06-06T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-procurement",
+    "vendor": {
+      "legalName": "Meridian Procurement S.A.",
+      "sanctionsHit": true,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mateo Singh",
+      "decidedAt": "2026-06-08T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-market-research",
+    "vendor": {
+      "legalName": "Damascus Market Research Establishment",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Sofia Laurent",
+      "decidedAt": "2026-06-08T14:30:00Z"
+    }
+  },
+  {
+    "caseId": "andes-facilities-group",
+    "vendor": {
+      "legalName": "Andes Facilities Group SpA",
+      "sanctionsHit": true,
+      "registeredCountry": "CL",
+      "handlesPersonalData": true,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Okafor",
+      "decidedAt": "2026-06-09T11:15:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-components",
+    "vendor": {
+      "legalName": "Tulip Components B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nadeau",
+      "decidedAt": "2026-06-10T08:40:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-identity-verification",
+    "vendor": {
+      "legalName": "Baltic Identity Verification OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "99.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amelia Chen",
+      "decidedAt": "2026-06-10T16:20:00Z"
+    }
+  }
+]

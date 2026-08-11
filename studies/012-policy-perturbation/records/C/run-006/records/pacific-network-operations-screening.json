@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-network-operations-screening",
+  "decision": {
+    "decidedAt": "2026-06-17T08:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Network Operations Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

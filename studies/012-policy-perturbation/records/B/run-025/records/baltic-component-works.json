@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-component-works",
+  "decision": {
+    "decidedAt": "2026-06-09T11:55:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Component Works O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.5",
+    "sanctionsHit": false
+  }
+}

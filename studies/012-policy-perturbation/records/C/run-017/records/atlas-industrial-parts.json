@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-09T13:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Industrial Parts S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

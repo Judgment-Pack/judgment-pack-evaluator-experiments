@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-analytics-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Analytics LLC",
+    "registeredCountry": "SY",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

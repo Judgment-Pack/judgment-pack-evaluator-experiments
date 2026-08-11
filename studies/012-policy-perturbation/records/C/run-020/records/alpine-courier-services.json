@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-courier-services",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Courier Services AG",
+    "registeredCountry": "CH",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

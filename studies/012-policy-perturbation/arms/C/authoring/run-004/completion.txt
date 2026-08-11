@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-data-logistics",
+    "vendor": {
+      "legalName": "Caspian Data Logistics Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-payroll-services",
+    "vendor": {
+      "legalName": "Redwood Payroll Services Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-02T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-industrial-works",
+    "vendor": {
+      "legalName": "Paektu Industrial Works",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Singh",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "mehr-analytics-group",
+    "vendor": {
+      "legalName": "Mehr Analytics Group",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-heavy-equipment",
+    "vendor": {
+      "legalName": "Levant Heavy Equipment LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Singh",
+      "decidedAt": "2026-06-04T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-benefits-platform",
+    "vendor": {
+      "legalName": "Alpine Benefits Platform AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-05T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-customer-insights",
+    "vendor": {
+      "legalName": "Harbor Customer Insights Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-health-systems",
+    "vendor": {
+      "legalName": "Tulip Health Systems B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Nadia Singh",
+      "decidedAt": "2026-06-06T10:35:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-identity-cloud",
+    "vendor": {
+      "legalName": "Cedar Identity Cloud S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-08T12:00:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-packing-company",
+    "vendor": {
+      "legalName": "Pacific Packing Company Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-09T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-component-trading",
+    "vendor": {
+      "legalName": "Rhine Component Trading GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Nadia Singh",
+      "decidedAt": "2026-06-09T16:15:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-facilities-management",
+    "vendor": {
+      "legalName": "Sakura Facilities Management K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-10T09:55:00Z"
+    }
+  },
+  {
+    "caseId": "andes-freight-network",
+    "vendor": {
+      "legalName": "Andes Freight Network SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-10T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-machinery-export",
+    "vendor": {
+      "legalName": "Baltic Machinery Export OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Nadia Singh",
+      "decidedAt": "2026-06-11T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "maple-talent-solutions",
+    "vendor": {
+      "legalName": "Maple Talent Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-12T14:50:00Z"
+    }
+  }
+]

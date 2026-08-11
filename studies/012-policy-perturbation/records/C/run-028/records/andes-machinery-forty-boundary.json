@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-machinery-forty-boundary",
+  "decision": {
+    "decidedAt": "2026-06-06T12:50:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Machinery SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

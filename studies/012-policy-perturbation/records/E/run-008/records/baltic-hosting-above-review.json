@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-hosting-above-review",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Hosting O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

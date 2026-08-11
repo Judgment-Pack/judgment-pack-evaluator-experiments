@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-embargo",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "38",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-office-supplies-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T12:40:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Office Supplies Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

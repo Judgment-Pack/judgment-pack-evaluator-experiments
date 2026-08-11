@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-trading-consortium",
+  "decision": {
+    "decidedAt": "2026-06-19T16:45:00Z",
+    "decidedBy": "Nadia Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Trading Consortium",
+    "registeredCountry": "IR",
+    "riskScore": "39",
+    "sanctionsHit": true
+  }
+}

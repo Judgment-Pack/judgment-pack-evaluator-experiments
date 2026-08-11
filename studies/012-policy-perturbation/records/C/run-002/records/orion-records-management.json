@@ -1,0 +1,15 @@
+{
+  "caseId": "orion-records-management",
+  "decision": {
+    "decidedAt": "2026-06-10T11:45:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orion Records Management B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "55",
+    "sanctionsHit": true
+  }
+}

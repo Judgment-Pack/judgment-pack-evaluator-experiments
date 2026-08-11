@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-analytics",
+    "vendor": {
+      "legalName": "Blue Harbor Analytics LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-identity-services",
+    "vendor": {
+      "legalName": "Cedar Identity Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-02T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-payroll-processing",
+    "vendor": {
+      "legalName": "Atlas Payroll Processing GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "pinebridge-logistics",
+    "vendor": {
+      "legalName": "Pinebridge Logistics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-03T15:20:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-cloud-hosting",
+    "vendor": {
+      "legalName": "Meridian Cloud Hosting Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Varga",
+      "decidedAt": "2026-06-04T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "silverline-health-data",
+    "vendor": {
+      "legalName": "Silverline Health Data S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-05T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-industrial-controls",
+    "vendor": {
+      "legalName": "Redwood Industrial Controls Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-05T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-caspian-trading",
+    "vendor": {
+      "legalName": "Tehran Caspian Trading Company",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Varga",
+      "decidedAt": "2026-06-08T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-orchid-consulting",
+    "vendor": {
+      "legalName": "Damascus Orchid Consulting Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-08T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-taedong-machinery",
+    "vendor": {
+      "legalName": "Pyongyang Taedong Machinery Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-09T16:00:00Z"
+    }
+  },
+  {
+    "caseId": "suncrest-digital-labs",
+    "vendor": {
+      "legalName": "Suncrest Digital Labs S.L.",
+      "sanctionsHit": true,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-10T10:35:00Z"
+    }
+  },
+  {
+    "caseId": "euphrates-records-management",
+    "vendor": {
+      "legalName": "Euphrates Records Management LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Varga",
+      "decidedAt": "2026-06-11T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "maple-courier-network",
+    "vendor": {
+      "legalName": "Maple Courier Network Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "0.01"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-12T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-facilities-management",
+    "vendor": {
+      "legalName": "Fjord Facilities Management AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-15T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "andina-customer-insights",
+    "vendor": {
+      "legalName": "Andina Customer Insights SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": true,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-16T14:05:00Z"
+    }
+  }
+]

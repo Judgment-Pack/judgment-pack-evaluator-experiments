@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-03T11:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Industrial Parts AS",
+    "registeredCountry": "NO",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

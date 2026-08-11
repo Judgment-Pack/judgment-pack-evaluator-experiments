@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-biometric-systems",
+  "decision": {
+    "decidedAt": "2026-06-16T14:50:00Z",
+    "decidedBy": "Elena Vargas",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Biometric Systems Inc.",
+    "registeredCountry": "US",
+    "riskScore": "25",
+    "sanctionsHit": true
+  }
+}

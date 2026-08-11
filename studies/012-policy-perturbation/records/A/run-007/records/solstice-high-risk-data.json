@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-03T13:40:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Customer Insights SAS",
+    "registeredCountry": "FR",
+    "riskScore": "91.25",
+    "sanctionsHit": false
+  }
+}

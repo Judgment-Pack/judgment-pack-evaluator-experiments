@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-industrial-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "5.25",
+    "sanctionsHit": false
+  }
+}

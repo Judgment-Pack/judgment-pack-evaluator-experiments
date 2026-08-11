@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-market-research",
+  "decision": {
+    "decidedAt": "2026-06-19T11:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Market Research B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.5",
+    "sanctionsHit": true
+  }
+}

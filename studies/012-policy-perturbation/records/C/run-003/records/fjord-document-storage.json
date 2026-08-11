@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-document-storage",
+  "decision": {
+    "decidedAt": "2026-06-08T10:55:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Document Storage AS",
+    "registeredCountry": "NO",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

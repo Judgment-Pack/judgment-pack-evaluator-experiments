@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-identity-cloud",
+  "decision": {
+    "decidedAt": "2026-06-08T12:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Cloud S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

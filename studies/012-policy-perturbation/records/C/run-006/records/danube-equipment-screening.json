@@ -1,0 +1,15 @@
+{
+  "caseId": "danube-equipment-screening",
+  "decision": {
+    "decidedAt": "2026-06-16T13:50:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Danube Equipment GmbH",
+    "registeredCountry": "AT",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

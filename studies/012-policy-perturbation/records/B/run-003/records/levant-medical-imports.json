@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-medical-imports",
+  "decision": {
+    "decidedAt": "2026-06-12T12:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Medical Imports LLC",
+    "registeredCountry": "SY",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

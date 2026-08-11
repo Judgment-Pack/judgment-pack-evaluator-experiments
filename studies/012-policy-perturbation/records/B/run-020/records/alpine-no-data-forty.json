@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-19T15:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Calibration AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

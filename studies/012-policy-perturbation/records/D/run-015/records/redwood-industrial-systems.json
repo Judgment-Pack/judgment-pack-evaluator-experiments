@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-industrial-systems",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Industrial Systems Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

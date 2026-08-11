@@ -1,0 +1,15 @@
+{
+  "caseId": "andina-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-16T14:05:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andina Customer Insights SpA",
+    "registeredCountry": "CL",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-components-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T09:15:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Components B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

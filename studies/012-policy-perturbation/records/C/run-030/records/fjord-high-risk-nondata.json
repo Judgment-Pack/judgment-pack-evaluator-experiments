@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-high-risk-nondata",
+  "decision": {
+    "decidedAt": "2026-06-10T16:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Marine Engineering AS",
+    "registeredCountry": "NO",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-nonpersonal-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:55:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machine Works O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

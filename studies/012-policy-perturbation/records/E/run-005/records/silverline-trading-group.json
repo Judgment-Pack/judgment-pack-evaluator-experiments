@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-trading-group",
+  "decision": {
+    "decidedAt": "2026-06-17T09:05:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Silverline Trading Group Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "12.75",
+    "sanctionsHit": true
+  }
+}

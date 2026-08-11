@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-packaging-cooperative",
+  "decision": {
+    "decidedAt": "2026-06-09T10:40:00Z",
+    "decidedBy": "Priya Nand",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Packaging Cooperative",
+    "registeredCountry": "NL",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-nondata-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-10T14:15:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Tooling Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

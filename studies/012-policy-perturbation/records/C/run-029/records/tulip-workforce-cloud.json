@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-workforce-cloud",
+  "decision": {
+    "decidedAt": "2026-06-08T10:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Workforce Cloud B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

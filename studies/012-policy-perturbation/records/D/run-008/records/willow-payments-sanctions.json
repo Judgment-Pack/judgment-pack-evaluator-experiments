@@ -1,0 +1,15 @@
+{
+  "caseId": "willow-payments-sanctions",
+  "decision": {
+    "decidedAt": "2026-06-01T11:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Willow Payments GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "44.999",
+    "sanctionsHit": true
+  }
+}

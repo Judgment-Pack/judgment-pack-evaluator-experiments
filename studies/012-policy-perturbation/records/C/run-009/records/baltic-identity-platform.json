@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-identity-platform",
+  "decision": {
+    "decidedAt": "2026-06-10T15:20:00Z",
+    "decidedBy": "Amira Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Identity Platform O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "39",
+    "sanctionsHit": true
+  }
+}
