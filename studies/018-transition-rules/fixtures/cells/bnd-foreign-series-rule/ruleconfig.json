@@ -1,0 +1,7 @@
+{
+  "ruleConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/other-policy",
+  "rule": "run-to-expiry",
+  "windowPositions": null,
+  "windowDuration": null
+}

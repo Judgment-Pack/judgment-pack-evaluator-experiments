@@ -1,0 +1,7 @@
+{
+  "matrixVersion": "1",
+  "stratum": "reviewer-holdout",
+  "note": "The reviewer-authored holdout stratum (014/016/017 convention): cells authored by the cross-vendor reviewer during the pre-freeze rounds, committed verbatim with attribution, never executed before the freeze; the construction machinery lands with the cells, and the structured-evidence expectations live in harness/MATRIX-HOLDOUT-EVIDENCE.json so this block stays byte-for-byte as authored. An empty holdout is not a passing holdout.",
+  "reviewer": null,
+  "cells": []
+}

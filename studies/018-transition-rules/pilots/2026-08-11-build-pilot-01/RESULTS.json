@@ -1,0 +1,455 @@
+{
+  "attemptRoot": "2026-08-11-build-pilot-01",
+  "label": "PILOT",
+  "includeHoldout": false,
+  "pipelineInvalid": false,
+  "pinsRawSha256": "d5098122f1ae771b2001108eb3a2fab2162c34f7434c7a05210ba291388eadb7",
+  "matrixSha256": "16976aafe9f8efd79238cc0e3388993a3d383eeffcfbe439243153b4b81856db",
+  "verdict": "R1 holds (PILOT)",
+  "verdictCells": [],
+  "summary": {
+    "cells": 18,
+    "adjudicated": 18,
+    "endpoints": 13,
+    "endpointDivergences": 0,
+    "registeredUndetectedConfirmed": [
+      "bnd-backdated-citation"
+    ]
+  },
+  "cells": {
+    "bnd-backdated-citation": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the cited head is a position at which the version was in the supported set; this rule lets such decisions run to their own terms. NOTE: the citation attests the state its author claims, not when the artifact was created"
+      }
+    },
+    "bnd-duration-window": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "this rule names a duration window; no trusted ordering between the artifact and the registry exists offline, so it is not evaluable here (RFC 0011 Unresolved #3)"
+      }
+    },
+    "bnd-foreign-series-rule": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the rule configuration is stated for a different series"
+      }
+    },
+    "bnd-mint-time-refusal": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-version-retired"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-version-retired"
+      },
+      "combined": "not-usable:not-usable-version-retired",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "not in the supported set at the auditor's snapshot, and this rule permits no reliance beyond that point"
+      }
+    },
+    "cite-absent-run-unavailable": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "this rule needs a cited registry head and none is retained"
+      }
+    },
+    "cite-absent-stop-unaffected": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-version-retired"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-version-retired"
+      },
+      "combined": "not-usable:not-usable-version-retired",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "not in the supported set at the auditor's snapshot, and this rule permits no reliance beyond that point"
+      }
+    },
+    "cite-after-retirement-run": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-created-after-retirement"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-created-after-retirement"
+      },
+      "combined": "not-usable:not-usable-created-after-retirement",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": 4,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the cited head is not a position at which the version was in the supported set"
+      }
+    },
+    "cite-after-retirement-window": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-created-after-retirement"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-created-after-retirement"
+      },
+      "combined": "not-usable:not-usable-created-after-retirement",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": 4,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the cited head is at or after the position at which the version left the supported set"
+      }
+    },
+    "cite-foreign-history": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the cited head is not a position of the auditor's snapshot: this rule cannot place the artifact in the history it is auditing"
+      }
+    },
+    "div-position-window-elapsed": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-window-elapsed"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-window-elapsed"
+      },
+      "combined": "not-usable:not-usable-window-elapsed",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "2 position(s) elapsed since the version left the supported set; the window permits 1"
+      }
+    },
+    "div-position-window-open": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "2 position(s) elapsed since the version left the supported set; the window permits 5"
+      }
+    },
+    "div-run-to-expiry": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the cited head is a position at which the version was in the supported set; this rule lets such decisions run to their own terms. NOTE: the citation attests the state its author claims, not when the artifact was created"
+      }
+    },
+    "div-stop-at-retirement": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-version-retired"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-version-retired"
+      },
+      "combined": "not-usable:not-usable-version-retired",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "not in the supported set at the auditor's snapshot, and this rule permits no reliance beyond that point"
+      }
+    },
+    "neg-ruleconfig-malformed": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "rule is not one of stop-at-retirement, position-window, run-to-expiry"
+      }
+    },
+    "pos-current-run": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "transition": "the cited head is a position at which the version was in the supported set; this rule lets such decisions run to their own terms. NOTE: the citation attests the state its author claims, not when the artifact was created"
+      }
+    },
+    "pos-current-stop": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "transition": "in the supported set at the auditor's snapshot"
+      }
+    },
+    "pos-current-window": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "transition": "the version has not left the supported set at this snapshot"
+      }
+    },
+    "unchanged": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "transition": "in the supported set at the auditor's snapshot"
+      }
+    }
+  },
+  "pairs": {},
+  "holdout": null
+}

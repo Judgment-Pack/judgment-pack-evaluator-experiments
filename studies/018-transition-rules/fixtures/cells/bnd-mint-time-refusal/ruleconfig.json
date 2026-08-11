@@ -1,0 +1,7 @@
+{
+  "ruleConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/transition-policy",
+  "rule": "stop-at-retirement",
+  "windowPositions": null,
+  "windowDuration": null
+}
