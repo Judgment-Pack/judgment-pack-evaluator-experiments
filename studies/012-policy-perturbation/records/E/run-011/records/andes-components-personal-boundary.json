@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-components-personal-boundary",
+  "decision": {
+    "decidedAt": "2026-06-09T15:15:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Components SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

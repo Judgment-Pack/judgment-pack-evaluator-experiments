@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-zero-risk-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-16T08:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefit Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

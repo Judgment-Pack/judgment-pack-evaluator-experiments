@@ -1,0 +1,15 @@
+{
+  "caseId": "north-korea-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T14:40:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

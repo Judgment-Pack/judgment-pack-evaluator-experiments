@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-machinery-embargo",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Precision Machinery Corporation",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

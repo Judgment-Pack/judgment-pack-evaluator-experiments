@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-machinery-works",
+  "decision": {
+    "decidedAt": "2026-06-11T08:50:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Machinery Works",
+    "registeredCountry": "KP",
+    "riskScore": "88",
+    "sanctionsHit": false
+  }
+}

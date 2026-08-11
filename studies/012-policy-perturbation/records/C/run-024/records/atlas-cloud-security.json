@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-cloud-security",
+  "decision": {
+    "decidedAt": "2026-06-12T12:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Cloud Security Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

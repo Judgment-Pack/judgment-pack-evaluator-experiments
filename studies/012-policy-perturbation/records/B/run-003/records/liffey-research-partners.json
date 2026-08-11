@@ -1,0 +1,15 @@
+{
+  "caseId": "liffey-research-partners",
+  "decision": {
+    "decidedAt": "2026-06-19T16:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Liffey Research Partners Limited",
+    "registeredCountry": "IE",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

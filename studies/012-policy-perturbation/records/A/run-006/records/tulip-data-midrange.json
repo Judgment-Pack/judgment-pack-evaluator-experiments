@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-12T12:35:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip People Services BV",
+    "registeredCountry": "NL",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

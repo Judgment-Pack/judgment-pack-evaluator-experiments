@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-equipment-nonpersonal",
+  "decision": {
+    "decidedAt": "2026-06-17T08:35:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Equipment AS",
+    "registeredCountry": "NO",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

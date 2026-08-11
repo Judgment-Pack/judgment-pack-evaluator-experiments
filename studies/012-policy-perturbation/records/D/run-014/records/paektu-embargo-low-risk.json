@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-embargo-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Export Services",
+    "registeredCountry": "KP",
+    "riskScore": "4",
+    "sanctionsHit": false
+  }
+}

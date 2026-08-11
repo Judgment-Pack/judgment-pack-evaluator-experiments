@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-talent-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T16:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Talent AG",
+    "registeredCountry": "CH",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

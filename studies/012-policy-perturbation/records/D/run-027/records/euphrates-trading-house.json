@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-trading-house",
+  "decision": {
+    "decidedAt": "2026-06-08T12:15:00Z",
+    "decidedBy": "Claire Dubois",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Trading House",
+    "registeredCountry": "IR",
+    "riskScore": "96",
+    "sanctionsHit": true
+  }
+}

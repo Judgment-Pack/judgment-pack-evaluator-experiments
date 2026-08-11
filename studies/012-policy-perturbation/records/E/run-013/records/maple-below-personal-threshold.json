@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-below-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T09:50:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefits Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

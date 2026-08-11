@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-equipment-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T10:30:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Equipment AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

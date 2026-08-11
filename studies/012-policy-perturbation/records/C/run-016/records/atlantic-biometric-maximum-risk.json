@@ -1,0 +1,15 @@
+{
+  "caseId": "atlantic-biometric-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T09:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlantic Biometric Systems Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

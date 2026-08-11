@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-health-platform-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T08:55:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Health Platform GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

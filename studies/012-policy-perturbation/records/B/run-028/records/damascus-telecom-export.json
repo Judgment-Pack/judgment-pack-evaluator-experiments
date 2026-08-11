@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-telecom-export",
+  "decision": {
+    "decidedAt": "2026-06-08T08:20:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Telecom Export Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

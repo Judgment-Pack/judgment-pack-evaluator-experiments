@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-identity-seventy",
+  "decision": {
+    "decidedAt": "2026-06-18T15:05:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Identity Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

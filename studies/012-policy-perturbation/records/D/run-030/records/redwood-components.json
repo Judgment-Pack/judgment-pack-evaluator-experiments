@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-components",
+  "decision": {
+    "decidedAt": "2026-06-16T08:20:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Components Corporation",
+    "registeredCountry": "US",
+    "riskScore": "10",
+    "sanctionsHit": true
+  }
+}

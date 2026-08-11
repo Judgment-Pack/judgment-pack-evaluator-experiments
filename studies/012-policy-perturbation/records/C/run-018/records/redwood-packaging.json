@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-packaging",
+  "decision": {
+    "decidedAt": "2026-06-11T08:55:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Packaging Limited",
+    "registeredCountry": "GB",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "bluepeak-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "BluePeak Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

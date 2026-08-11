@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-nonpersonal-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T16:05:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Machine Parts AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

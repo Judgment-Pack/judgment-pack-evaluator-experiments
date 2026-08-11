@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-nonpersonal-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T11:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Fasteners AG",
+    "registeredCountry": "CH",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

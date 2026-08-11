@@ -1,0 +1,15 @@
+{
+  "caseId": "koryo-data-processing",
+  "decision": {
+    "decidedAt": "2026-06-16T08:55:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Koryo Data Processing Company",
+    "registeredCountry": "KP",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

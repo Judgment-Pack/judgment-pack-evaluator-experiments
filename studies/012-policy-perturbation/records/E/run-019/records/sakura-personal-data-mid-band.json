@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-personal-data-mid-band",
+  "decision": {
+    "decidedAt": "2026-06-08T08:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Analytics K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "54.75",
+    "sanctionsHit": false
+  }
+}

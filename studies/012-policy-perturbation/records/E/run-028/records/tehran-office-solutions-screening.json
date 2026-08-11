@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-office-solutions-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T11:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Office Solutions Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "25",
+    "sanctionsHit": false
+  }
+}

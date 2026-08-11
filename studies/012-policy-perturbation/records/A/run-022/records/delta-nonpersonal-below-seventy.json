@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-nonpersonal-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-19T10:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Components BV",
+    "registeredCountry": "NL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

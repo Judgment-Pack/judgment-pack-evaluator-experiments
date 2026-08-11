@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Owen Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Analytics PLC",
+    "registeredCountry": "IR",
+    "riskScore": "88.5",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-freight-nonpersonal-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-19T09:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Freight SpA",
+    "registeredCountry": "CL",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

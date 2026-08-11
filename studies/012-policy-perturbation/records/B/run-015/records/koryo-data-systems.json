@@ -1,0 +1,15 @@
+{
+  "caseId": "koryo-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-12T12:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Koryo Data Systems Company",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

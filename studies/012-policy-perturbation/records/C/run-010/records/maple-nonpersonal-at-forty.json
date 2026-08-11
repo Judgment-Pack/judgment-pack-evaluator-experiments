@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-nonpersonal-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T10:50:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Calibration Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

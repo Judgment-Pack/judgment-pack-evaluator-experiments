@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-identity-below-seventy-two",
+  "decision": {
+    "decidedAt": "2026-06-15T14:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Solutions Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-support-below-forty",
+  "decision": {
+    "decidedAt": "2026-07-02T10:50:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Support Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

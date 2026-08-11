@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-health-platform",
+  "decision": {
+    "decidedAt": "2026-06-11T16:25:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Health Platform Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

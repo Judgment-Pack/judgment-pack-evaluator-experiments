@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-exact-personal-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T09:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Systems K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

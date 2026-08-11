@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-data-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T10:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Customer Insights Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

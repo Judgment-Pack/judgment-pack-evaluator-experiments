@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-personal-midband",
+  "decision": {
+    "decidedAt": "2026-06-06T15:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Solutions KK",
+    "registeredCountry": "JP",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

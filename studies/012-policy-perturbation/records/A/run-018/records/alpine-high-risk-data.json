@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-09T13:10:00Z",
+    "decidedBy": "Noah Williams",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Identity AG",
+    "registeredCountry": "CH",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-sanctions-hit",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "chonji-industrial-controls",
+    "vendor": {
+      "legalName": "Chonji Industrial Controls Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "taedong-office-supply",
+    "vendor": {
+      "legalName": "Taedong Office Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-02T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "pars-records-services",
+    "vendor": {
+      "legalName": "Pars Records Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-02T14:40:00Z"
+    }
+  },
+  {
+    "caseId": "levant-network-systems",
+    "vendor": {
+      "legalName": "Levant Network Systems Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "88.6"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mei Chen",
+      "decidedAt": "2026-06-03T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-facilities-threshold",
+    "vendor": {
+      "legalName": "Alpine Facilities AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mei Chen",
+      "decidedAt": "2026-06-03T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-benefits-threshold",
+    "vendor": {
+      "legalName": "Sakura Benefits K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ortiz",
+      "decidedAt": "2026-06-04T09:45:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-aerospace-analytics",
+    "vendor": {
+      "legalName": "Meridian Aerospace Analytics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "89.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Ortiz",
+      "decidedAt": "2026-06-04T15:10:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-people-operations",
+    "vendor": {
+      "legalName": "Harbor People Operations Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-05T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-customer-insights",
+    "vendor": {
+      "legalName": "Baltic Customer Insights OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-05T12:50:00Z"
+    }
+  },
+  {
+    "caseId": "rio-payroll-solutions",
+    "vendor": {
+      "legalName": "Rio Payroll Solutions Ltda.",
+      "sanctionsHit": false,
+      "registeredCountry": "BR",
+      "handlesPersonalData": true,
+      "riskScore": "60"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mei Chen",
+      "decidedAt": "2026-06-08T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "maple-clinic-software",
+    "vendor": {
+      "legalName": "Maple Clinic Software Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Ortiz",
+      "decidedAt": "2026-06-09T08:35:00Z"
+    }
+  },
+  {
+    "caseId": "nordic-directory-services",
+    "vendor": {
+      "legalName": "Nordic Directory Services AB",
+      "sanctionsHit": false,
+      "registeredCountry": "SE",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-09T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "delta-equipment-rental",
+    "vendor": {
+      "legalName": "Delta Equipment Rental LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-10T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "iberia-printing-cooperative",
+    "vendor": {
+      "legalName": "Iberia Printing Cooperative",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mei Chen",
+      "decidedAt": "2026-06-10T13:55:00Z"
+    }
+  },
+  {
+    "caseId": "kiwi-catering-group",
+    "vendor": {
+      "legalName": "Kiwi Catering Group Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Ortiz",
+      "decidedAt": "2026-06-11T16:30:00Z"
+    }
+  }
+]

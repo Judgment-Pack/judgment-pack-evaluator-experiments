@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-analytics",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Harbor Analytics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

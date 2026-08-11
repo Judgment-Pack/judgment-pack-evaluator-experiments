@@ -1,0 +1,15 @@
+{
+  "caseId": "exact-forty-no-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-12T16:45:00Z",
+    "decidedBy": "Jonah Feld",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Packaging SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-components",
+  "decision": {
+    "decidedAt": "2026-06-08T09:35:00Z",
+    "decidedBy": "Mei Lin",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Components S.A. de C.V.",
+    "registeredCountry": "MX",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-exact-threshold-no-data",
+  "decision": {
+    "decidedAt": "2026-06-18T13:15:00Z",
+    "decidedBy": "Malcolm Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Calibration AG",
+    "registeredCountry": "CH",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

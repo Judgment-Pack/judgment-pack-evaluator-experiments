@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-personal-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T08:45:00Z",
+    "decidedBy": "Lucia Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar People Analytics Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

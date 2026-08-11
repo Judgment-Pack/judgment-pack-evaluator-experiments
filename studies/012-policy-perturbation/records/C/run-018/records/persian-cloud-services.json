@@ -1,0 +1,15 @@
+{
+  "caseId": "persian-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-09T12:50:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persian Cloud Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

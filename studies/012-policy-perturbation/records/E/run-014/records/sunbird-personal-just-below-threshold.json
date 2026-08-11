@@ -1,0 +1,15 @@
+{
+  "caseId": "sunbird-personal-just-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T13:30:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sunbird Payroll Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

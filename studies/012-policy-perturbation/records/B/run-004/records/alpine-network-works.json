@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-network-works",
+  "decision": {
+    "decidedAt": "2026-06-03T11:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Network Works AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

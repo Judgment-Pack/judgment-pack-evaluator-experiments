@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-maritime-brokers",
+  "decision": {
+    "decidedAt": "2026-06-16T08:30:00Z",
+    "decidedBy": "Jonah Price",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Maritime Brokers S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

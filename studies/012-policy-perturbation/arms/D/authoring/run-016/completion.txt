@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supply",
+    "vendor": {
+      "legalName": "Northstar Office Supply Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-identity-systems",
+    "vendor": {
+      "legalName": "Redwood Identity Systems Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "taedong-industrial-exports",
+    "vendor": {
+      "legalName": "Taedong Industrial Exports Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "pars-cloud-services",
+    "vendor": {
+      "legalName": "Pars Cloud Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-risk-analytics",
+    "vendor": {
+      "legalName": "Levant Risk Analytics LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "92"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mei Laurent",
+      "decidedAt": "2026-06-03T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-freight-network",
+    "vendor": {
+      "legalName": "Meridian Freight Network GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mei Laurent",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-payments-platform",
+    "vendor": {
+      "legalName": "Sakura Payments Platform K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "72.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-04T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "andes-mineral-logistics",
+    "vendor": {
+      "legalName": "Andes Mineral Logistics S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-05T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "harborview-benefits-admin",
+    "vendor": {
+      "legalName": "Harborview Benefits Administration Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mei Laurent",
+      "decidedAt": "2026-06-08T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-customer-insights",
+    "vendor": {
+      "legalName": "Fjord Customer Insights AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "45.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-08T12:10:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-talent-records",
+    "vendor": {
+      "legalName": "Baltic Talent Records OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "71.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-09T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-data-hosting",
+    "vendor": {
+      "legalName": "Alpine Data Hosting AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "44.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mei Laurent",
+      "decidedAt": "2026-06-10T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-translation-services",
+    "vendor": {
+      "legalName": "Cedar Translation Services SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-10T14:45:00Z"
+    }
+  },
+  {
+    "caseId": "savanna-equipment-leasing",
+    "vendor": {
+      "legalName": "Savanna Equipment Leasing Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KE",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-11T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "lusitania-print-works",
+    "vendor": {
+      "legalName": "Lusitania Print Works Lda.",
+      "sanctionsHit": false,
+      "registeredCountry": "PT",
+      "handlesPersonalData": false,
+      "riskScore": "71.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mei Laurent",
+      "decidedAt": "2026-06-11T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "azimuth-facilities-group",
+    "vendor": {
+      "legalName": "Azimuth Facilities Group Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": false,
+      "riskScore": "0.001"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-12T16:00:00Z"
+    }
+  }
+]

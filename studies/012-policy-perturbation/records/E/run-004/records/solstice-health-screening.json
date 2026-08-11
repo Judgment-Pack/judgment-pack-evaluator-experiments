@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-health-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T13:25:00Z",
+    "decidedBy": "Elias Romero",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Health Systems Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

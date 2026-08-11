@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-research-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T07:55:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Research K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

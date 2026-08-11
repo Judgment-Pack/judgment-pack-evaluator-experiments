@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-courier-services",
+  "decision": {
+    "decidedAt": "2026-06-11T11:35:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Courier Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

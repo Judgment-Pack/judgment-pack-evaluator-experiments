@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-freight-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T07:50:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Freight Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

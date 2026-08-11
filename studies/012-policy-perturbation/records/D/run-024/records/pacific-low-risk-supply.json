@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-low-risk-supply",
+  "decision": {
+    "decidedAt": "2026-06-12T16:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Workshop Supplies Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "18.7",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "zagros-embargo-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Zagros Customer Support Co.",
+    "registeredCountry": "IR",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

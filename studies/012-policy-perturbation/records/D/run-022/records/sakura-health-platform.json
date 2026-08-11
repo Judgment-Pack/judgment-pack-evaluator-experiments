@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-health-platform",
+  "decision": {
+    "decidedAt": "2026-06-05T10:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Health Platform KK",
+    "registeredCountry": "JP",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}

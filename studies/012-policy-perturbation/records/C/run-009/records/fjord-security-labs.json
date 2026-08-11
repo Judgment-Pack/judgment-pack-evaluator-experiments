@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-security-labs",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Security Labs AS",
+    "registeredCountry": "NO",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "rio-verde-analytics",
+  "decision": {
+    "decidedAt": "2026-06-22T10:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rio Verde Analytics Ltda.",
+    "registeredCountry": "BR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

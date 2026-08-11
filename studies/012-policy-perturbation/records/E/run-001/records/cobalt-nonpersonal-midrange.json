@@ -1,0 +1,15 @@
+{
+  "caseId": "cobalt-nonpersonal-midrange",
+  "decision": {
+    "decidedAt": "2026-06-09T11:50:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cobalt Component Supply GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

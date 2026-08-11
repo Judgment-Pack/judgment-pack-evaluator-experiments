@@ -1,0 +1,15 @@
+{
+  "caseId": "nile-engineering-seventy-threshold",
+  "decision": {
+    "decidedAt": "2026-06-17T10:35:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nile Engineering S.A.E.",
+    "registeredCountry": "EG",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

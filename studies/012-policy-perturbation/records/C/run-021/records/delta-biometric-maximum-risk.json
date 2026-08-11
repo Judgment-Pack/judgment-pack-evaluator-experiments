@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-biometric-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T09:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Delta Biometric Solutions B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

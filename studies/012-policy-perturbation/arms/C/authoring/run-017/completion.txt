@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-quartz-logistics",
+    "vendor": {
+      "legalName": "Blue Quartz Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Owen Patel",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-identity-services",
+    "vendor": {
+      "legalName": "Cedar Identity Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-patient-systems",
+    "vendor": {
+      "legalName": "Harbor Patient Systems Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-04T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "maple-payroll-processing",
+    "vendor": {
+      "legalName": "Maple Payroll Processing Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "silverline-customer-insights",
+    "vendor": {
+      "legalName": "Silverline Customer Insights Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Owen Patel",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-industrial-parts",
+    "vendor": {
+      "legalName": "Atlas Industrial Parts S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-09T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-cloud-platform",
+    "vendor": {
+      "legalName": "Sakura Cloud Platform K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-10T15:50:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-facilities-group",
+    "vendor": {
+      "legalName": "Alpine Facilities Group AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Owen Patel",
+      "decidedAt": "2026-06-11T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-telemetry-labs",
+    "vendor": {
+      "legalName": "Caspian Telemetry Labs LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "GE",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Brooks",
+      "decidedAt": "2026-06-12T12:40:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-data-brokers",
+    "vendor": {
+      "legalName": "Redwood Data Brokers Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "85"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Brooks",
+      "decidedAt": "2026-06-15T17:05:00Z"
+    }
+  },
+  {
+    "caseId": "taedong-mineral-exports",
+    "vendor": {
+      "legalName": "Taedong Mineral Exports Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Brooks",
+      "decidedAt": "2026-06-16T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "pars-records-management",
+    "vendor": {
+      "legalName": "Pars Records Management Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Brooks",
+      "decidedAt": "2026-06-17T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "levant-enterprise-software",
+    "vendor": {
+      "legalName": "Levant Enterprise Software Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Brooks",
+      "decidedAt": "2026-06-18T11:55:00Z"
+    }
+  },
+  {
+    "caseId": "euphrates-trading-consortium",
+    "vendor": {
+      "legalName": "Euphrates Trading Consortium",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Nadia Brooks",
+      "decidedAt": "2026-06-19T16:45:00Z"
+    }
+  },
+  {
+    "caseId": "rio-verde-analytics",
+    "vendor": {
+      "legalName": "Rio Verde Analytics Ltda.",
+      "sanctionsHit": false,
+      "registeredCountry": "BR",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-22T10:35:00Z"
+    }
+  }
+]

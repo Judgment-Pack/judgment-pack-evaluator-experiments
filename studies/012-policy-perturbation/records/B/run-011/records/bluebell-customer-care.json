@@ -1,0 +1,15 @@
+{
+  "caseId": "bluebell-customer-care",
+  "decision": {
+    "decidedAt": "2026-06-03T09:00:00Z",
+    "decidedBy": "Lucia Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluebell Customer Care Limited",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

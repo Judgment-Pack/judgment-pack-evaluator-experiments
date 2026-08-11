@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-payment-solutions",
+  "decision": {
+    "decidedAt": "2026-06-15T09:55:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Payment Solutions Co.",
+    "registeredCountry": "IR",
+    "riskScore": "95",
+    "sanctionsHit": true
+  }
+}

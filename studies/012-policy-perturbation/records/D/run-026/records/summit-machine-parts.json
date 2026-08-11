@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-machine-parts",
+  "decision": {
+    "decidedAt": "2026-06-05T08:35:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Machine Parts GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "99.9",
+    "sanctionsHit": false
+  }
+}

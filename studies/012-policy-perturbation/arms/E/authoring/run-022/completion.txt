@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-services",
+    "vendor": {
+      "legalName": "Maple Data Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "danube-customer-analytics",
+    "vendor": {
+      "legalName": "Danube Customer Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "AT",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-profile-systems",
+    "vendor": {
+      "legalName": "Pacific Profile Systems Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-industrial-parts",
+    "vendor": {
+      "legalName": "Alpine Industrial Parts AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Laurent",
+      "decidedAt": "2026-06-03T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-logistics",
+    "vendor": {
+      "legalName": "Meridian Logistics LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Laurent",
+      "decidedAt": "2026-06-03T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-health-platform",
+    "vendor": {
+      "legalName": "Sakura Health Platform Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-04T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-security-labs",
+    "vendor": {
+      "legalName": "Baltic Security Labs OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-04T14:25:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-procurement-group",
+    "vendor": {
+      "legalName": "Tehran Procurement Group",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Sofia Laurent",
+      "decidedAt": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "koryo-cloud-services",
+    "vendor": {
+      "legalName": "Koryo Cloud Services Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Sofia Laurent",
+      "decidedAt": "2026-06-05T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "levant-network-solutions",
+    "vendor": {
+      "legalName": "Levant Network Solutions",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-05T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-trading-partners",
+    "vendor": {
+      "legalName": "Redwood Trading Partners Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "12.7"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-08T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "euphrates-digital-exchange",
+    "vendor": {
+      "legalName": "Euphrates Digital Exchange",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "95"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-08T11:35:00Z"
+    }
+  },
+  {
+    "caseId": "iberian-payroll-tools",
+    "vendor": {
+      "legalName": "Iberian Payroll Tools S.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "12.25"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Laurent",
+      "decidedAt": "2026-06-09T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-equipment-rental",
+    "vendor": {
+      "legalName": "Fjord Equipment Rental AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-09T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "cape-compliance-consulting",
+    "vendor": {
+      "legalName": "Cape Compliance Consulting (Pty) Ltd",
+      "sanctionsHit": true,
+      "registeredCountry": "ZA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Patel",
+      "decidedAt": "2026-06-10T15:15:00Z"
+    }
+  }
+]

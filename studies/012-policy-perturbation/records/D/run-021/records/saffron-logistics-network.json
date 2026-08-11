@@ -1,0 +1,15 @@
+{
+  "caseId": "saffron-logistics-network",
+  "decision": {
+    "decidedAt": "2026-06-05T15:40:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Saffron Logistics Network Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-customer-platform",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Platform K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

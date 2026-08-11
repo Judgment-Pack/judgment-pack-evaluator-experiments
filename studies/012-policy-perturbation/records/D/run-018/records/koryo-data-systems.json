@@ -1,0 +1,15 @@
+{
+  "caseId": "koryo-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-08T11:40:00Z",
+    "decidedBy": "Jonas Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Koryo Data Systems Company",
+    "registeredCountry": "KP",
+    "riskScore": "44",
+    "sanctionsHit": false
+  }
+}

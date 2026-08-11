@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-customer-systems",
+  "decision": {
+    "decidedAt": "2026-06-04T15:40:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Systems Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

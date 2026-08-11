@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-04-14T15:25:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Data Operations Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "oryx-high-risk-sanctions",
+  "decision": {
+    "decidedAt": "2026-06-02T13:20:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Oryx Industrial Services LLC",
+    "registeredCountry": "AE",
+    "riskScore": "84.2",
+    "sanctionsHit": true
+  }
+}

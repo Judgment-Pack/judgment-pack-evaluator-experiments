@@ -1,0 +1,15 @@
+{
+  "caseId": "sunrise-health-platform",
+  "decision": {
+    "decidedAt": "2026-06-09T13:35:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sunrise Health Platform KK",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

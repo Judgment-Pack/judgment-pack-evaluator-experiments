@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-nonpersonal-risk-forty",
+  "decision": {
+    "decidedAt": "2026-06-18T16:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Equipment Leasing AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

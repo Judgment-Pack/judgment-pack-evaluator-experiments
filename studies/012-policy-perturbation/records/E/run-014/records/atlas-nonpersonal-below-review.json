@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-nonpersonal-below-review",
+  "decision": {
+    "decidedAt": "2026-06-08T14:05:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Fasteners S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

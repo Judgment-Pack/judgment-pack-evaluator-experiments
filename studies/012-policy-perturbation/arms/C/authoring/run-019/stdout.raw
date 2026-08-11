@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-logistics",
+    "vendor": {
+      "legalName": "Blue Harbor Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "silverline-payroll",
+    "vendor": {
+      "legalName": "Silverline Payroll Services, Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-04T16:45:00Z"
+    }
+  },
+  {
+    "caseId": "greenfield-customer-care",
+    "vendor": {
+      "legalName": "Greenfield Customer Care Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-05T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "oakbridge-hosting",
+    "vendor": {
+      "legalName": "Oakbridge Hosting Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-08T13:10:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-industrial-parts",
+    "vendor": {
+      "legalName": "Alpine Industrial Parts AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-09T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "sunrise-facilities",
+    "vendor": {
+      "legalName": "Sunrise Facilities Management K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-10T15:30:00Z"
+    }
+  },
+  {
+    "caseId": "maple-health-platform",
+    "vendor": {
+      "legalName": "Maple Health Platform Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-11T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "summit-quantum-systems",
+    "vendor": {
+      "legalName": "Summit Quantum Systems AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-12T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-trade-bureau",
+    "vendor": {
+      "legalName": "Pyongyang Trade Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-15T14:50:00Z"
+    }
+  },
+  {
+    "caseId": "persian-cloud-services",
+    "vendor": {
+      "legalName": "Persian Cloud Services Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-16T10:35:00Z"
+    }
+  },
+  {
+    "caseId": "levant-engineering-group",
+    "vendor": {
+      "legalName": "Levant Engineering Group",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "82.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-17T16:05:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-consulting",
+    "vendor": {
+      "legalName": "Meridian Consulting B.V.",
+      "sanctionsHit": true,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-18T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "euphrates-data-exchange",
+    "vendor": {
+      "legalName": "Euphrates Data Exchange LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "38"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-19T13:45:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-identity-labs",
+    "vendor": {
+      "legalName": "Pacific Identity Labs Pte. Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-22T11:15:00Z"
+    }
+  }
+]

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-components-screening",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-data-systems-screening",
+    "vendor": {
+      "legalName": "Caspian Data Systems PJSC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "91"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "taedong-industrial-screening",
+    "vendor": {
+      "legalName": "Taedong Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "pars-customer-insights-screening",
+    "vendor": {
+      "legalName": "Pars Customer Insights LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-freight-screening",
+    "vendor": {
+      "legalName": "Levant Freight Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Sen",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-analytics-screening",
+    "vendor": {
+      "legalName": "Redwood Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Sen",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-payroll-screening",
+    "vendor": {
+      "legalName": "Alpine Payroll AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-04T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-toolworks-screening",
+    "vendor": {
+      "legalName": "Pacific Toolworks Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-05T16:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-benefits-screening",
+    "vendor": {
+      "legalName": "Sakura Benefits K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Sen",
+      "decidedAt": "2026-06-08T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-client-services-screening",
+    "vendor": {
+      "legalName": "Baltic Client Services OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-08T12:15:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-identity-screening",
+    "vendor": {
+      "legalName": "Atlas Identity SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "MA",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-09T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-office-supplies-screening",
+    "vendor": {
+      "legalName": "Fjord Office Supplies AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Sen",
+      "decidedAt": "2026-06-10T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "lumen-hosting-screening",
+    "vendor": {
+      "legalName": "Lumen Hosting GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-10T15:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-records-screening",
+    "vendor": {
+      "legalName": "Cedar Records Management S.A.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "LB",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-11T11:30:00Z"
+    }
+  },
+  {
+    "caseId": "emerald-courier-screening",
+    "vendor": {
+      "legalName": "Emerald Courier Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IE",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Sen",
+      "decidedAt": "2026-06-12T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "andean-machinery-screening",
+    "vendor": {
+      "legalName": "Andean Machinery SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "39.5"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-12T14:45:00Z"
+    }
+  }
+]

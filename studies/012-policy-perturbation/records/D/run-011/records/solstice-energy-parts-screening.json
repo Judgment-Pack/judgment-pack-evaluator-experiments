@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-energy-parts-screening",
+  "decision": {
+    "decidedAt": "2026-06-22T13:55:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Energy Parts B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

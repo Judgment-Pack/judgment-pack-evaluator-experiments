@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-personal-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-09T09:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Survey Platforms KK",
+    "registeredCountry": "JP",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

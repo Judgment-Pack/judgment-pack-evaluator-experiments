@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-machinery-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-04-21T15:45:00Z",
+    "decidedBy": "Jonas Becker",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Machinery GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

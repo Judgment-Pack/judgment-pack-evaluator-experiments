@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T08:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Southern Cross Office Supply Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

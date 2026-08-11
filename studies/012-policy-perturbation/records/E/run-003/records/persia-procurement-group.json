@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-procurement-group",
+  "decision": {
+    "decidedAt": "2026-06-09T09:50:00Z",
+    "decidedBy": "Martin Cole",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Procurement Group",
+    "registeredCountry": "IR",
+    "riskScore": "35",
+    "sanctionsHit": true
+  }
+}

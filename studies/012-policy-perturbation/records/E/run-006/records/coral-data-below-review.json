@@ -1,0 +1,15 @@
+{
+  "caseId": "coral-data-below-review",
+  "decision": {
+    "decidedAt": "2026-06-06T16:50:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Coral Health Administration Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

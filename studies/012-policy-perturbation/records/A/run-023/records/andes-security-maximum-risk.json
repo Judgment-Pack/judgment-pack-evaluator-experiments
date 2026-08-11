@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-security-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T15:45:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Security SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

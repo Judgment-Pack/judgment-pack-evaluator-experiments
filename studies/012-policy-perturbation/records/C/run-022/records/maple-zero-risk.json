@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T13:00:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Ledger Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

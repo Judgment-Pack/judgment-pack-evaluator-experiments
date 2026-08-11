@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-payments-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-15T08:30:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Payments AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "baekdu-embargo-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baekdu Industrial Supply Corporation",
+    "registeredCountry": "KP",
+    "riskScore": "8.25",
+    "sanctionsHit": false
+  }
+}

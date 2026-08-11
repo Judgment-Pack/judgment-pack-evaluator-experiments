@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-payroll-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Sofia Alvarez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Payroll AG",
+    "registeredCountry": "CH",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

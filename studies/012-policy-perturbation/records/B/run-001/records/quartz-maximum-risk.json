@@ -1,0 +1,15 @@
+{
+  "caseId": "quartz-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T14:40:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Quartz Maritime Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

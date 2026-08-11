@@ -1,0 +1,15 @@
+{
+  "caseId": "lotus-personal-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T14:55:00Z",
+    "decidedBy": "Aisha Bello",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lotus Benefits Private Limited",
+    "registeredCountry": "IN",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

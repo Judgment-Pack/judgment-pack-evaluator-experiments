@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-review-threshold",
+  "decision": {
+    "decidedAt": "2026-06-03T11:00:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Peak Logistics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

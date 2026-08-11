@@ -1,0 +1,61 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--ignore-user-config",
+    "-m",
+    "gpt-5.6-sol",
+    "--sandbox",
+    "workspace-write",
+    "-c",
+    "mcp_servers={}",
+    "<the exact bytes of PROMPT.txt>"
+  ],
+  "arm": "A",
+  "armPromptSha256": "sha256:2a6f031e17735494646dd734ee04b4430027babf62b10e1ba9a57675f37de430",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "cli": "codex-cli 0.145.0",
+  "codexHome": "/tmp/s012-batch-8fmg8O/s012-home-A-run-024-2993294/.codex",
+  "codexHomeIsolated": true,
+  "credentialCopied": true,
+  "credentialRemoved": true,
+  "cwd": "/tmp/s012-batch-8fmg8O/s012-authoring-A-run-024-2993294",
+  "endedAt": "2026-08-11T01:44:44Z",
+  "environment": [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "CODEX_HOME"
+  ],
+  "environmentScrubbed": true,
+  "environmentValues": {
+    "CODEX_HOME": "/tmp/s012-batch-8fmg8O/s012-home-A-run-024-2993294/.codex",
+    "HOME": "/tmp/s012-batch-8fmg8O/s012-home-A-run-024-2993294",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/s012-batch-8fmg8O/s012-bin-A-run-024-2993294",
+    "TMPDIR": "/tmp/s012-batch-8fmg8O/s012-authoring-A-run-024-2993294/tmp"
+  },
+  "exitStatus": 0,
+  "globalIndex": 118,
+  "goldenSha256": "sha256:78c3f3b24521dec5fb60a9c4a7a05c12554258e174b9ca6269d129fe101b3c68",
+  "home": "/tmp/s012-batch-8fmg8O/s012-home-A-run-024-2993294",
+  "homeIsolated": true,
+  "ignoreUserConfig": true,
+  "isolatedHomeInventory": [
+    ".codex",
+    ".codex/auth.json"
+  ],
+  "isolation": "isolated",
+  "model": "gpt-5.6-sol",
+  "newSessionCount": 1,
+  "note": "One run of one of Study 012's five cells; session.jsonl is the transcript evidence.",
+  "operatorHomeSkillsPresent": true,
+  "pinsSha256": "sha256:cff265e75fc3f3be82fcbbb12527d14faa30935e6f804c3f02dd2fb22fcc64f4",
+  "position": 3,
+  "promptKind": "registered",
+  "promptSha256": "sha256:2a6f031e17735494646dd734ee04b4430027babf62b10e1ba9a57675f37de430",
+  "round": 24,
+  "slot": "run-024",
+  "slotIndex": 24,
+  "startedAt": "2026-08-11T01:44:03Z",
+  "stdin": "closed (/dev/null)"
+}

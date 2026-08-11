@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-benefits-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T11:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Benefits Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

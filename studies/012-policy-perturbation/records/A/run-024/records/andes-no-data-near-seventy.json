@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-no-data-near-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T13:50:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Packaging SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-trade-bureau",
+  "decision": {
+    "decidedAt": "2026-06-18T10:55:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Trade Bureau",
+    "registeredCountry": "SY",
+    "riskScore": "60",
+    "sanctionsHit": true
+  }
+}

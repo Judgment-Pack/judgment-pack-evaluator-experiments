@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-leaf-archives",
+  "decision": {
+    "decidedAt": "2026-06-19T11:15:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Leaf Archives Corporation",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": true
+  }
+}

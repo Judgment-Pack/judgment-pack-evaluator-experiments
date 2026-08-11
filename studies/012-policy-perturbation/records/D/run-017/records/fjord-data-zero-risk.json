@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T09:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Records AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

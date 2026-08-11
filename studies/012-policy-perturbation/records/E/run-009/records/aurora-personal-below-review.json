@@ -1,0 +1,15 @@
+{
+  "caseId": "aurora-personal-below-review",
+  "decision": {
+    "decidedAt": "2026-06-09T10:10:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Aurora Customer Insights AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

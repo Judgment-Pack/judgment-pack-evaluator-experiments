@@ -1,0 +1,15 @@
+{
+  "caseId": "aurora-identity-platform",
+  "decision": {
+    "decidedAt": "2026-06-05T08:50:00Z",
+    "decidedBy": "Lucia Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Aurora Identity Platform O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "vertex-logistics-platform",
+  "decision": {
+    "decidedAt": "2026-06-03T11:00:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Vertex Logistics Platform B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

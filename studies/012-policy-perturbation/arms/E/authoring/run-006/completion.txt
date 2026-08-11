@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "helios-sanctions-high-risk",
+    "vendor": {
+      "legalName": "Helios Data Systems GmbH",
+      "sanctionsHit": true,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "chollima-embargoed-registration",
+    "vendor": {
+      "legalName": "Chollima Industrial Export Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-02T13:20:00Z"
+    }
+  },
+  {
+    "caseId": "pars-embargoed-review-boundary",
+    "vendor": {
+      "legalName": "Pars Network Services Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-02T14:45:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargoed-high-risk",
+    "vendor": {
+      "legalName": "Levant Precision Works LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-03T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "maple-review-threshold",
+    "vendor": {
+      "legalName": "Maple Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-03T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-above-review-threshold",
+    "vendor": {
+      "legalName": "Fjord Logistics AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-04T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-high-risk-data-handler",
+    "vendor": {
+      "legalName": "Sakura Cloud Services K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-04T15:10:00Z"
+    }
+  },
+  {
+    "caseId": "andes-data-threshold",
+    "vendor": {
+      "legalName": "Andes Customer Solutions SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-05T12:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-data-midband",
+    "vendor": {
+      "legalName": "Cedar Benefits Processing Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "55.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-06T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "coral-data-below-review",
+    "vendor": {
+      "legalName": "Coral Health Administration Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-06T16:50:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-data-below-personal-threshold",
+    "vendor": {
+      "legalName": "Tulip Research B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-08T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-zero-risk-data-handler",
+    "vendor": {
+      "legalName": "Alpine Survey AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-08T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-nondata-personal-threshold",
+    "vendor": {
+      "legalName": "Baltic Components OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-09T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "savanna-nondata-below-review",
+    "vendor": {
+      "legalName": "Savanna Facilities Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KE",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Raman",
+      "decidedAt": "2026-06-09T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-routine-low-risk",
+    "vendor": {
+      "legalName": "Pacific Tooling Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "27.5"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-10T11:45:00Z"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Analytics O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "72.01",
+    "sanctionsHit": false
+  }
+}

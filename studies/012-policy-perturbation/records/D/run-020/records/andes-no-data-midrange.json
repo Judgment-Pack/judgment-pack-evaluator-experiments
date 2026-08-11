@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-no-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-11T13:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

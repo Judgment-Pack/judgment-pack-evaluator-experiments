@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-low-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-22T09:45:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Packaging SpA",
+    "registeredCountry": "CL",
+    "riskScore": "23.7",
+    "sanctionsHit": false
+  }
+}

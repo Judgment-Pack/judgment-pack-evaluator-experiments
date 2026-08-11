@@ -1,0 +1,15 @@
+{
+  "caseId": "silverfern-no-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-19T10:30:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Silver Fern Wholesale Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

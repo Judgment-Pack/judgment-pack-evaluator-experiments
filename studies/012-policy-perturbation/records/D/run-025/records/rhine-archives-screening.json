@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-archives-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T14:45:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhine Archives GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

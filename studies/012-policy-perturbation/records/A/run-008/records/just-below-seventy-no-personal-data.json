@@ -1,0 +1,15 @@
+{
+  "caseId": "just-below-seventy-no-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-11T14:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machine Components O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-packaging-screening",
+  "decision": {
+    "decidedAt": "2026-06-18T11:55:00Z",
+    "decidedBy": "Elias Ford",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Packaging SpA",
+    "registeredCountry": "CL",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

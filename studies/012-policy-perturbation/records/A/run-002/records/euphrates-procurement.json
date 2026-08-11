@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-procurement",
+  "decision": {
+    "decidedAt": "2026-06-17T10:55:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Procurement Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "92",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-facilities-group",
+  "decision": {
+    "decidedAt": "2026-06-11T09:15:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Facilities Group AG",
+    "registeredCountry": "CH",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

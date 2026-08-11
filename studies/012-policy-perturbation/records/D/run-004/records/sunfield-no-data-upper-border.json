@@ -1,0 +1,15 @@
+{
+  "caseId": "sunfield-no-data-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-18T16:20:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sunfield Equipment B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-personal-data-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-09T10:50:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Health Data AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

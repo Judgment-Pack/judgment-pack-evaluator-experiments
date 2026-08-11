@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-sanctions-embargoed",
+    "vendor": {
+      "legalName": "Cedar Trade Bureau",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Malcolm Reed",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargo-zero-risk",
+    "vendor": {
+      "legalName": "Paektu Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-03T10:20:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-embargo-personal-data",
+    "vendor": {
+      "legalName": "Damascus Archive Services",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "44.9"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T16:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-embargo-high-risk",
+    "vendor": {
+      "legalName": "Tehran Meridian Logistics",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Malcolm Reed",
+      "decidedAt": "2026-06-05T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-exact-high-risk-threshold",
+    "vendor": {
+      "legalName": "Atlas Machine Works GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-above-high-risk-threshold",
+    "vendor": {
+      "legalName": "Harbor Analytics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "72.001"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-09T13:25:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-maximum-risk-no-data",
+    "vendor": {
+      "legalName": "Fjordline Engineering AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Malcolm Reed",
+      "decidedAt": "2026-06-10T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-exact-personal-data-threshold",
+    "vendor": {
+      "legalName": "Sakura Customer Systems K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-11T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "lumen-midrange-personal-data",
+    "vendor": {
+      "legalName": "Lumen Identity Solutions SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "58.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-12T12:35:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-just-below-high-risk",
+    "vendor": {
+      "legalName": "Tulip Records Processing B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "71.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Malcolm Reed",
+      "decidedAt": "2026-06-15T14:50:00Z"
+    }
+  },
+  {
+    "caseId": "maple-zero-risk-personal-data",
+    "vendor": {
+      "legalName": "Maple Benefit Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-16T08:40:00Z"
+    }
+  },
+  {
+    "caseId": "kiwi-just-below-personal-data-threshold",
+    "vendor": {
+      "legalName": "Kiwi Contact Services Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "44.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-17T10:55:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-exact-threshold-no-data",
+    "vendor": {
+      "legalName": "Alpine Calibration AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Malcolm Reed",
+      "decidedAt": "2026-06-18T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-just-below-high-risk-no-data",
+    "vendor": {
+      "legalName": "Baltic Freight Systems OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "71.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-19T15:30:00Z"
+    }
+  },
+  {
+    "caseId": "andes-low-risk-no-data",
+    "vendor": {
+      "legalName": "Andes Packaging SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "23.7"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-22T09:45:00Z"
+    }
+  }
+]

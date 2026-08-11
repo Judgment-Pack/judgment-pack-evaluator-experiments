@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-08T12:00:00Z",
+    "decidedBy": "Mina Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Workforce Services S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

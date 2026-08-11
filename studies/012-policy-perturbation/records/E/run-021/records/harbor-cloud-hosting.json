@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-04T11:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Cloud Hosting B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

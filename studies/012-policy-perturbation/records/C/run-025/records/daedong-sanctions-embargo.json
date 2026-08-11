@@ -1,0 +1,15 @@
+{
+  "caseId": "daedong-sanctions-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Daedong Industrial Export Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": true
+  }
+}

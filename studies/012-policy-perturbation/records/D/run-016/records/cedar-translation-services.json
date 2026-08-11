@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-translation-services",
+  "decision": {
+    "decidedAt": "2026-06-10T14:45:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Translation Services SARL",
+    "registeredCountry": "FR",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

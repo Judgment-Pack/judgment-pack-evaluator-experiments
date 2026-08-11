@@ -1,0 +1,15 @@
+{
+  "caseId": "nile-nonpersonal-moderate-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T11:55:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nile Packaging SAE",
+    "registeredCountry": "EG",
+    "riskScore": "58.25",
+    "sanctionsHit": false
+  }
+}

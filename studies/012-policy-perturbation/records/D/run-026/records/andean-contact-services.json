@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-contact-services",
+  "decision": {
+    "decidedAt": "2026-06-09T14:30:00Z",
+    "decidedBy": "Jonas Keller",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andean Contact Services S.A.C.",
+    "registeredCountry": "PE",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

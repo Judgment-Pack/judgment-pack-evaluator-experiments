@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-consulting",
+  "decision": {
+    "decidedAt": "2026-06-18T08:55:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Consulting B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

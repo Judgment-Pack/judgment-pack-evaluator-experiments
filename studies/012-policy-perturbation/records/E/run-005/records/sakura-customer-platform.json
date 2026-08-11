@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-customer-platform",
+  "decision": {
+    "decidedAt": "2026-06-05T11:20:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Platform K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

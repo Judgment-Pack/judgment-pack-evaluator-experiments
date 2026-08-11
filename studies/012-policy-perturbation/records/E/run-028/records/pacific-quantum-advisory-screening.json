@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-quantum-advisory-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T10:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Quantum Advisory Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

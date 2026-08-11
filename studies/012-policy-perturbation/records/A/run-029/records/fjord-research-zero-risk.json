@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-research-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-16T14:05:00Z",
+    "decidedBy": "Jonas Becker",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Research AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

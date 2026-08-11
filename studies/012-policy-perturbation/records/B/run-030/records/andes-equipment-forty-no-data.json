@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-equipment-forty-no-data",
+  "decision": {
+    "decidedAt": "2026-06-12T14:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

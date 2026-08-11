@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-industrial-supply",
+  "decision": {
+    "decidedAt": "2026-06-02T13:20:00Z",
+    "decidedBy": "Jonas Keller",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Supply Corporation",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

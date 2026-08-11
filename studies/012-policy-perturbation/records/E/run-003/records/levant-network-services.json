@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-network-services",
+  "decision": {
+    "decidedAt": "2026-06-08T12:10:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Network Services S.A.L.",
+    "registeredCountry": "LB",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

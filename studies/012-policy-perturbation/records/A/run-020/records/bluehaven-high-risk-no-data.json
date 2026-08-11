@@ -1,0 +1,15 @@
+{
+  "caseId": "bluehaven-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-04T15:25:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Bluehaven Components Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

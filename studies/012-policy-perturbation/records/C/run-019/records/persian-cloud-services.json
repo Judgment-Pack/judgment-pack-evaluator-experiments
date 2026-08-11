@@ -1,0 +1,15 @@
+{
+  "caseId": "persian-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-16T10:35:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persian Cloud Services Co.",
+    "registeredCountry": "IR",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

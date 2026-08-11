@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-logistics",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Blue Harbor Logistics GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

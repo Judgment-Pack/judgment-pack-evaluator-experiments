@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-customer-support",
+  "decision": {
+    "decidedAt": "2026-06-12T08:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Customer Support AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-12T12:40:00Z",
+    "decidedBy": "Jonah Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Data Systems Company",
+    "registeredCountry": "IR",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-stationery-screening",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Stationery AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

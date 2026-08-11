@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-identity-screening",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Solutions Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

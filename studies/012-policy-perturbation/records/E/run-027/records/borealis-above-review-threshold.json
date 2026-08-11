@@ -1,0 +1,15 @@
+{
+  "caseId": "borealis-above-review-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T13:40:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Borealis Freight AS",
+    "registeredCountry": "NO",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

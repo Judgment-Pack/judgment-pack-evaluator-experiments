@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-industrial-controls",
+  "decision": {
+    "decidedAt": "2026-06-05T09:10:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Industrial Controls Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

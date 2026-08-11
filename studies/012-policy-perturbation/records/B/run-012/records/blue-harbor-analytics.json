@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-analytics",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Harbor Analytics LLC",
+    "registeredCountry": "US",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

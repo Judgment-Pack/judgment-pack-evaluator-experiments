@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-caspian-screening",
+  "decision": {
+    "decidedAt": "2026-02-17T11:05:00Z",
+    "decidedBy": "Elise Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tehran Caspian Systems PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

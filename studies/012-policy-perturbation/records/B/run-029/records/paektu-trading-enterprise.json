@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-trading-enterprise",
+  "decision": {
+    "decidedAt": "2026-06-15T14:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Trading Enterprise",
+    "registeredCountry": "KP",
+    "riskScore": "85.75",
+    "sanctionsHit": false
+  }
+}

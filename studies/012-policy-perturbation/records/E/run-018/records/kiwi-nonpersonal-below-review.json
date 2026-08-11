@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-nonpersonal-below-review",
+  "decision": {
+    "decidedAt": "2026-06-09T10:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Kiwi Mechanical Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

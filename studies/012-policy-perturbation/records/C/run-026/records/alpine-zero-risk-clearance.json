@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-zero-risk-clearance",
+  "decision": {
+    "decidedAt": "2026-06-08T08:20:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Office Supply AG",
+    "registeredCountry": "CH",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

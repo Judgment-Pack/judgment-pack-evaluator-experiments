@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-people-systems-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-08T09:25:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar People Systems Inc.",
+    "registeredCountry": "US",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

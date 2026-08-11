@@ -1,0 +1,15 @@
+{
+  "caseId": "nordic-payroll-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T10:40:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Nordic Payroll AB",
+    "registeredCountry": "SE",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

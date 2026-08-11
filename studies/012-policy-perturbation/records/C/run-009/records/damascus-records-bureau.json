@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-records-bureau",
+  "decision": {
+    "decidedAt": "2026-06-08T11:50:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Records Bureau LLC",
+    "registeredCountry": "SY",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

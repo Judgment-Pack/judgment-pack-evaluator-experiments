@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-machinery-works",
+  "decision": {
+    "decidedAt": "2026-06-04T14:10:00Z",
+    "decidedBy": "Amina Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Machinery Works LLC",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

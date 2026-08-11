@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-06T08:25:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Records Limited",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

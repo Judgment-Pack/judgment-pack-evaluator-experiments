@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-machinery-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T15:40:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Machinery Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "85.5",
+    "sanctionsHit": false
+  }
+}

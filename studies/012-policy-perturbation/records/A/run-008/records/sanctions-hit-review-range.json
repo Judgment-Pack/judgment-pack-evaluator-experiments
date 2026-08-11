@@ -1,0 +1,15 @@
+{
+  "caseId": "sanctions-hit-review-range",
+  "decision": {
+    "decidedAt": "2026-06-02T13:20:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Identity Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "45",
+    "sanctionsHit": true
+  }
+}

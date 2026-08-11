@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-no-data-near-review",
+  "decision": {
+    "decidedAt": "2026-06-19T10:45:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Packaging O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

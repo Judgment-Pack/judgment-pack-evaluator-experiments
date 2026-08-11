@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-nondata-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-10T11:15:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Mineral Testing SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

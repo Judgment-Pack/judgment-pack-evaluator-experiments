@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-facilities-group",
+  "decision": {
+    "decidedAt": "2026-06-09T14:45:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Facilities Group AG",
+    "registeredCountry": "CH",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

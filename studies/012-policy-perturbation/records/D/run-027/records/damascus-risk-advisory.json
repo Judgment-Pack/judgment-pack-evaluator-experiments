@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-risk-advisory",
+  "decision": {
+    "decidedAt": "2026-06-05T16:00:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Risk Advisory LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88.25",
+    "sanctionsHit": false
+  }
+}

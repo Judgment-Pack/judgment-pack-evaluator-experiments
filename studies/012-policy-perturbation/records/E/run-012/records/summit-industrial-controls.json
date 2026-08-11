@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-industrial-controls",
+  "decision": {
+    "decidedAt": "2026-06-04T16:40:00Z",
+    "decidedBy": "Elena Brooks",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Industrial Controls S.A.",
+    "registeredCountry": "CH",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

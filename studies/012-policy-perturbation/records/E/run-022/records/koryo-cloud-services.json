@@ -1,0 +1,15 @@
+{
+  "caseId": "koryo-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-05T10:50:00Z",
+    "decidedBy": "Sofia Laurent",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Koryo Cloud Services Company",
+    "registeredCountry": "KP",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

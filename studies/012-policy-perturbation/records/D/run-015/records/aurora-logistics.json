@@ -1,0 +1,15 @@
+{
+  "caseId": "aurora-logistics",
+  "decision": {
+    "decidedAt": "2026-06-12T11:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Aurora Logistics AS",
+    "registeredCountry": "NO",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-exact-high-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T11:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Machine Works GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

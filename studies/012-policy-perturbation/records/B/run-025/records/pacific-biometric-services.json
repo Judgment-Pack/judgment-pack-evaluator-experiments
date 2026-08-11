@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-biometric-services",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Biometric Services Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "94.25",
+    "sanctionsHit": false
+  }
+}

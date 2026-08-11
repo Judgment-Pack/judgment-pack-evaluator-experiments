@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-analytics-low-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-09T12:10:00Z",
+    "decidedBy": "Jonas Weber",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Analytics Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

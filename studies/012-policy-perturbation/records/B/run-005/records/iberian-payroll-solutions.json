@@ -1,0 +1,15 @@
+{
+  "caseId": "iberian-payroll-solutions",
+  "decision": {
+    "decidedAt": "2026-06-12T12:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberian Payroll Solutions S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-high-risk-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-09T13:40:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Customer Analytics S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

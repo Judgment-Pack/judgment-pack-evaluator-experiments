@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-high-risk-no-data",
+  "decision": {
+    "decidedAt": "2026-06-04T15:45:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberia Foundry Robotics S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

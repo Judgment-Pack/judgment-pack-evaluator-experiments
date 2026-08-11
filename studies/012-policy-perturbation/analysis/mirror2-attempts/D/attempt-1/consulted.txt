@@ -1,0 +1,1 @@
+The reader's consulted statement was emitted INSIDE the module, as its closing comment: "# I consulted only the vendor screening policy provided in the prompt." (stdout.raw line 28). Recorded here because the tail-extraction found nothing after the code block.

@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-machinery",
+  "decision": {
+    "decidedAt": "2026-06-12T12:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Taedong Machinery Trading Company",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

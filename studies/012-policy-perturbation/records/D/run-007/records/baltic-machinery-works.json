@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-machinery-works",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Machinery Works O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "99.875",
+    "sanctionsHit": false
+  }
+}

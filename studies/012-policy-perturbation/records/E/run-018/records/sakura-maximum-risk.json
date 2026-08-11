@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T09:10:00Z",
+    "decidedBy": "Elias Romero",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Infrastructure K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

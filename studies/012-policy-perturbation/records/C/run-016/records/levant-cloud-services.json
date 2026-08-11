@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Cloud Services Ltd.",
+    "registeredCountry": "SY",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

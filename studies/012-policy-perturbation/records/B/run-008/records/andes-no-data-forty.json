@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-no-data-forty",
+  "decision": {
+    "decidedAt": "2026-06-19T09:55:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mineral Logistics SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

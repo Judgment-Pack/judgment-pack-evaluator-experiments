@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-16T08:20:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Office Supply AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

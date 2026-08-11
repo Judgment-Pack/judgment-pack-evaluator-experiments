@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-engineering-works",
+  "decision": {
+    "decidedAt": "2026-06-07T16:15:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Damascus Engineering Works",
+    "registeredCountry": "SY",
+    "riskScore": "88.8",
+    "sanctionsHit": false
+  }
+}

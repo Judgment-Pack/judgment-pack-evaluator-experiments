@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-people-platform",
+  "decision": {
+    "decidedAt": "2026-06-05T10:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar People Platform Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

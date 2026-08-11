@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-records-management-screening",
+  "decision": {
+    "decidedAt": "2026-06-06T16:50:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Records Management K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

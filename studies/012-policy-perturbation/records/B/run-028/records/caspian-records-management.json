@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-records-management",
+  "decision": {
+    "decidedAt": "2026-06-07T11:30:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Records Management LLC",
+    "registeredCountry": "AZ",
+    "riskScore": "55.5",
+    "sanctionsHit": true
+  }
+}

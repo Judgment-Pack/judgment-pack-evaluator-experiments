@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-sanctions-precedence",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems LLC",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-nonpersonal-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-08T08:30:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Fastener Works Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-machine-parts",
+  "decision": {
+    "decidedAt": "2026-06-02T10:40:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Machine Parts AG",
+    "registeredCountry": "CH",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-just-below-forty-five",
+  "decision": {
+    "decidedAt": "2026-06-05T08:55:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Research Services Ltd.",
+    "registeredCountry": "NZ",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

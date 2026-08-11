@@ -1,0 +1,15 @@
+{
+  "caseId": "rhein-payroll-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-15T14:50:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhein Payroll Services AG",
+    "registeredCountry": "CH",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

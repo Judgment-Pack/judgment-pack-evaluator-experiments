@@ -1,0 +1,15 @@
+{
+  "caseId": "andean-components-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T10:40:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andean Components SpA",
+    "registeredCountry": "CL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-office-supply-registration",
+  "decision": {
+    "decidedAt": "2026-06-02T14:40:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Office Supply Company",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

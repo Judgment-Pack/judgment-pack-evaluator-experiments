@@ -1,0 +1,15 @@
+{
+  "caseId": "rhine-infrastructure-group",
+  "decision": {
+    "decidedAt": "2026-06-05T14:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Rhine Infrastructure Group GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

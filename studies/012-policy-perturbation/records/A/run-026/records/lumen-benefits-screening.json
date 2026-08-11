@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-benefits-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T14:45:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Benefits SAS",
+    "registeredCountry": "FR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

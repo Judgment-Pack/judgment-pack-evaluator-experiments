@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-components",
+  "decision": {
+    "decidedAt": "2026-06-18T16:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Components S.A.",
+    "registeredCountry": "BR",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

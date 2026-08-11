@@ -1,0 +1,15 @@
+{
+  "caseId": "koryo-digital-works",
+  "decision": {
+    "decidedAt": "2026-06-09T10:30:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Koryo Digital Works Company",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

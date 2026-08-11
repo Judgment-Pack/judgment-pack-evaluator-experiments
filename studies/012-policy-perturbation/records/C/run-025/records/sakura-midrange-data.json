@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-midrange-data",
+  "decision": {
+    "decidedAt": "2026-06-06T13:25:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Platforms KK",
+    "registeredCountry": "JP",
+    "riskScore": "52.75",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "bluebell-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T08:15:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluebell Customer Insights Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-sanctions-embargoed",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Malcolm Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Trade Bureau",
+    "registeredCountry": "IR",
+    "riskScore": "88.4",
+    "sanctionsHit": true
+  }
+}

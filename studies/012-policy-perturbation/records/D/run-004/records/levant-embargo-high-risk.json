@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T08:15:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Atlas Logistics",
+    "registeredCountry": "SY",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

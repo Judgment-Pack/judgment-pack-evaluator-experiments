@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-threshold-forty",
+  "decision": {
+    "decidedAt": "2026-06-10T09:15:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Data Services KK",
+    "registeredCountry": "JP",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

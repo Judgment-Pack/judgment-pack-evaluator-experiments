@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-crm-forty",
+  "decision": {
+    "decidedAt": "2026-06-05T15:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor CRM Limited",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

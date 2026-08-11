@@ -1,0 +1,15 @@
+{
+  "caseId": "orion-payments-processing",
+  "decision": {
+    "decidedAt": "2026-06-07T09:10:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orion Payments Processing S.A.",
+    "registeredCountry": "CH",
+    "riskScore": "55.25",
+    "sanctionsHit": true
+  }
+}

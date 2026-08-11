@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-routine-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T11:45:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pacific Tooling Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "27.5",
+    "sanctionsHit": false
+  }
+}

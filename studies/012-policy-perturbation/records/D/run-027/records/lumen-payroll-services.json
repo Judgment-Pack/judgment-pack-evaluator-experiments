@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-03T11:05:00Z",
+    "decidedBy": "Claire Dubois",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Payroll Services S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

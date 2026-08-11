@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-review-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T11:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Systems AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

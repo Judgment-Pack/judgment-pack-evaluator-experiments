@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-09T13:40:00Z",
+    "decidedBy": "Elena Marlow",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Identity Solutions Inc.",
+    "registeredCountry": "US",
+    "riskScore": "91.25",
+    "sanctionsHit": false
+  }
+}

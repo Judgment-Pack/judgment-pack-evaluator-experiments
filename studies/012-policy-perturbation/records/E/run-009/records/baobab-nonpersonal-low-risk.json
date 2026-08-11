@@ -1,0 +1,15 @@
+{
+  "caseId": "baobab-nonpersonal-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-15T14:00:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baobab Office Furnishings Ltd.",
+    "registeredCountry": "ZA",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

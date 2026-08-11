@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-industrial-tools",
+  "decision": {
+    "decidedAt": "2026-06-03T15:40:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Industrial Tools Co.",
+    "registeredCountry": "US",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

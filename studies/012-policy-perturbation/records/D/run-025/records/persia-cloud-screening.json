@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-cloud-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Cloud Services PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

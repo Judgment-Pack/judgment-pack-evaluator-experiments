@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-benefits-below-upper-bound",
+  "decision": {
+    "decidedAt": "2026-06-15T10:45:00Z",
+    "decidedBy": "Jonas Weber",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Benefits AG",
+    "registeredCountry": "CH",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

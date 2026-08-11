@@ -1,0 +1,15 @@
+{
+  "caseId": "boreal-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-08T08:45:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Boreal Payroll Services Oy",
+    "registeredCountry": "FI",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-cloud-screening",
+  "decision": {
+    "decidedAt": "2026-03-11T10:00:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Cloud Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

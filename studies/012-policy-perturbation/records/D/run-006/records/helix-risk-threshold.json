@@ -1,0 +1,15 @@
+{
+  "caseId": "helix-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-04-01T10:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Helix Procurement GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

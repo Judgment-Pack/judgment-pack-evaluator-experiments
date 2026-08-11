@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-facilities-management",
+  "decision": {
+    "decidedAt": "2026-06-18T08:20:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Facilities Management AG",
+    "registeredCountry": "AT",
+    "riskScore": "39.5",
+    "sanctionsHit": true
+  }
+}

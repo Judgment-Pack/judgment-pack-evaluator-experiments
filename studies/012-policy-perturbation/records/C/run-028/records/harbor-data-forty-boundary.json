@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-data-forty-boundary",
+  "decision": {
+    "decidedAt": "2026-06-05T10:15:00Z",
+    "decidedBy": "Sofia Alvarez",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Data Solutions Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

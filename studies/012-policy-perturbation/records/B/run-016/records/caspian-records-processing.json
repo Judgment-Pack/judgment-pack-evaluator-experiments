@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-records-processing",
+  "decision": {
+    "decidedAt": "2026-06-04T16:40:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Records Processing LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-supplies-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T12:25:00Z",
+    "decidedBy": "Mara Velez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Office Supplies Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "seventieth-parallel-consulting-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T09:00:00Z",
+    "decidedBy": "Jonas Vale",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Seventieth Parallel Consulting GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

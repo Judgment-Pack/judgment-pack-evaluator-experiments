@@ -1,0 +1,15 @@
+{
+  "caseId": "orion-data-just-below-seventy-two",
+  "decision": {
+    "decidedAt": "2026-06-07T16:25:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orion Identity Services Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

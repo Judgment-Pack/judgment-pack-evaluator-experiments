@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-identity-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T14:35:00Z",
+    "decidedBy": "Jonah Brooks",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Identity K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

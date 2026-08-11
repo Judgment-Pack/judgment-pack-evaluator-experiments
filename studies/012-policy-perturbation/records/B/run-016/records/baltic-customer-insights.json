@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-12T12:25:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Customer Insights O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

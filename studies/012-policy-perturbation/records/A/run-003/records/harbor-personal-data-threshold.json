@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-personal-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T08:55:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Patient Logistics Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-nonpersonal-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-09T13:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tulip Packaging B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

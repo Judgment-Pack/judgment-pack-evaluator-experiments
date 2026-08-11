@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-11T11:30:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Savanna Workforce Cloud Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

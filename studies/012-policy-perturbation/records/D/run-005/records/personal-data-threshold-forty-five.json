@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-threshold-forty-five",
+  "decision": {
+    "decidedAt": "2026-06-04T08:30:00Z",
+    "decidedBy": "Jonah Mercer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Benefits O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

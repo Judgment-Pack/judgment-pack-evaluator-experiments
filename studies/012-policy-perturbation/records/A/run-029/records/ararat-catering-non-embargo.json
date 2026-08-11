@@ -1,0 +1,15 @@
+{
+  "caseId": "ararat-catering-non-embargo",
+  "decision": {
+    "decidedAt": "2026-08-06T13:45:00Z",
+    "decidedBy": "Jonas Becker",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Ararat Catering CJSC",
+    "registeredCountry": "AM",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

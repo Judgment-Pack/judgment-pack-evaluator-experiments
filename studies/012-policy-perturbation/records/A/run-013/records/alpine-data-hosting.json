@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-data-hosting",
+  "decision": {
+    "decidedAt": "2026-06-02T14:45:00Z",
+    "decidedBy": "Mateo Singh",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Data Hosting AG",
+    "registeredCountry": "CH",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

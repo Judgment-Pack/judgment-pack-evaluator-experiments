@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-security-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T14:55:00Z",
+    "decidedBy": "Liam Murphy",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Security SARL",
+    "registeredCountry": "MA",
+    "riskScore": "87.25",
+    "sanctionsHit": false
+  }
+}

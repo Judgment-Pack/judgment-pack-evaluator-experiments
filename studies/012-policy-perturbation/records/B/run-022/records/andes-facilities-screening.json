@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-facilities-screening",
+  "decision": {
+    "decidedAt": "2026-08-06T16:25:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Facilities SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69",
+    "sanctionsHit": false
+  }
+}

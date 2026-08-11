@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-personal-data-below-review",
+  "decision": {
+    "decidedAt": "2026-06-08T12:50:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Benefits Administration Ltd.",
+    "registeredCountry": "NZ",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

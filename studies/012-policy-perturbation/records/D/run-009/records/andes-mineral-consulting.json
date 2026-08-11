@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-mineral-consulting",
+  "decision": {
+    "decidedAt": "2026-06-04T14:25:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Mineral Consulting SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-10T13:40:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Payroll Services AS",
+    "registeredCountry": "NO",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

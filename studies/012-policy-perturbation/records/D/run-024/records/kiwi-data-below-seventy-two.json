@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-data-below-seventy-two",
+  "decision": {
+    "decidedAt": "2026-06-09T10:05:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Kiwi Health Records Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "nile-no-data-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T10:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nile Mechanical Works S.A.E.",
+    "registeredCountry": "EG",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

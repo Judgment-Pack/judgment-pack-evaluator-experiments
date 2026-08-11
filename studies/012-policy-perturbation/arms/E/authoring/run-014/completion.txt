@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-sanctions-embargo-overlap",
+    "vendor": {
+      "legalName": "Cedar Meridian Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "84"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargo-zero-risk",
+    "vendor": {
+      "legalName": "Paektu Industrial Supply",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T13:20:00Z"
+    }
+  },
+  {
+    "caseId": "pars-embargo-personal-data",
+    "vendor": {
+      "legalName": "Pars Data Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T14:45:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Machinery Establishment",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-03T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "granite-review-threshold",
+    "vendor": {
+      "legalName": "Granite Peak Logistics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-03T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "blueharbor-above-review-threshold",
+    "vendor": {
+      "legalName": "Blueharbor Marine GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70.001"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Owen Clarke",
+      "decidedAt": "2026-06-04T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "lumen-high-risk-personal-data",
+    "vendor": {
+      "legalName": "Lumen Identity SAS",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Owen Clarke",
+      "decidedAt": "2026-06-04T15:35:00Z"
+    }
+  },
+  {
+    "caseId": "silverfern-personal-threshold",
+    "vendor": {
+      "legalName": "Silver Fern Analytics Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Alvarez",
+      "decidedAt": "2026-06-05T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-personal-midband",
+    "vendor": {
+      "legalName": "Sakura Customer Systems K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Alvarez",
+      "decidedAt": "2026-06-05T12:40:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-personal-below-review",
+    "vendor": {
+      "legalName": "Fjord Health Platforms AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-08T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-nonpersonal-below-review",
+    "vendor": {
+      "legalName": "Atlas Fasteners S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Daniel Okafor",
+      "decidedAt": "2026-06-08T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "maple-nonpersonal-personal-threshold",
+    "vendor": {
+      "legalName": "Maple Circuitry Corporation",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-09T09:45:00Z"
+    }
+  },
+  {
+    "caseId": "sunbird-personal-just-below-threshold",
+    "vendor": {
+      "legalName": "Sunbird Payroll Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-09T13:30:00Z"
+    }
+  },
+  {
+    "caseId": "delta-personal-zero-risk",
+    "vendor": {
+      "legalName": "Delta Archive Solutions B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nair",
+      "decidedAt": "2026-06-10T11:15:00Z"
+    }
+  },
+  {
+    "caseId": "andes-nonpersonal-midband",
+    "vendor": {
+      "legalName": "Andes Mineral Services SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Owen Clarke",
+      "decidedAt": "2026-06-10T16:20:00Z"
+    }
+  }
+]

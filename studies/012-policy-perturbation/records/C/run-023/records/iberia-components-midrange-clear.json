@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-components-midrange-clear",
+  "decision": {
+    "decidedAt": "2026-06-15T08:55:00Z",
+    "decidedBy": "Jonas Weber",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Iberia Components S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

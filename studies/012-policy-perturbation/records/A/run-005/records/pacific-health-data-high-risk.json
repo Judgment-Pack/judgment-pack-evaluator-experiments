@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-health-data-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Health Data Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "87.25",
+    "sanctionsHit": false
+  }
+}

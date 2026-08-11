@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-lower-border",
+  "decision": {
+    "decidedAt": "2026-06-11T14:05:00Z",
+    "decidedBy": "Sofia Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Records Processing Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

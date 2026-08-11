@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-orchid-sanctions-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T13:15:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Orchid Analytics Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "70",
+    "sanctionsHit": true
+  }
+}

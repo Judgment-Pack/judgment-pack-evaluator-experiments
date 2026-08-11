@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-logistics",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Logistics Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

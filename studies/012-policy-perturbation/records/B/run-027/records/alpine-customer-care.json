@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-customer-care",
+  "decision": {
+    "decidedAt": "2026-06-08T12:10:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Customer Care AG",
+    "registeredCountry": "CH",
+    "riskScore": "40.01",
+    "sanctionsHit": false
+  }
+}

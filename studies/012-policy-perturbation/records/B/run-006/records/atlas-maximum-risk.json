@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-05T15:15:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Heavy Equipment SARL",
+    "registeredCountry": "MA",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

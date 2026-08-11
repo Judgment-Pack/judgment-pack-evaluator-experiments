@@ -1,0 +1,15 @@
+{
+  "caseId": "orchard-packaging-screening",
+  "decision": {
+    "decidedAt": "2026-07-02T13:05:00Z",
+    "decidedBy": "Jonah Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Orchard Packaging Sp. z o.o.",
+    "registeredCountry": "PL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

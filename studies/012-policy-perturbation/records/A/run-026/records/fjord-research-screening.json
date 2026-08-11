@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-research-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T10:50:00Z",
+    "decidedBy": "Elena Ruiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Research AS",
+    "registeredCountry": "NO",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

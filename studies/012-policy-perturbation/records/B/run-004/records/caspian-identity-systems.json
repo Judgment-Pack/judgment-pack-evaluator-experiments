@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-identity-systems",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Identity Systems LLC",
+    "registeredCountry": "IR",
+    "riskScore": "96.5",
+    "sanctionsHit": true
+  }
+}

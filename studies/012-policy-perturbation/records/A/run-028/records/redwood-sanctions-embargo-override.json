@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-sanctions-embargo-override",
+  "decision": {
+    "decidedAt": "2026-06-01T10:05:00Z",
+    "decidedBy": "Jonas Meyer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Trade Services PLC",
+    "registeredCountry": "IR",
+    "riskScore": "88.5",
+    "sanctionsHit": true
+  }
+}

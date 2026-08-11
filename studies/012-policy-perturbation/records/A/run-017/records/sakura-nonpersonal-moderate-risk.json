@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-nonpersonal-moderate-risk",
+  "decision": {
+    "decidedAt": "2026-06-12T07:55:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Packaging Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "27.6",
+    "sanctionsHit": false
+  }
+}

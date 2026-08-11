@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-archive-services",
+  "decision": {
+    "decidedAt": "2026-06-03T08:45:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Archive Services Inc.",
+    "registeredCountry": "NZ",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

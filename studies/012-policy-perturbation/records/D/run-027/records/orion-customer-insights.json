@@ -1,0 +1,15 @@
+{
+  "caseId": "orion-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Orion Customer Insights Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-personal-data-midrange",
+  "decision": {
+    "decidedAt": "2026-06-04T10:35:00Z",
+    "decidedBy": "Elias Ford",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harbor Patient Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "55.25",
+    "sanctionsHit": false
+  }
+}

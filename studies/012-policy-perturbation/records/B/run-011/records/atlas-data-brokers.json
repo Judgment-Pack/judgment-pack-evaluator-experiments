@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-data-brokers",
+  "decision": {
+    "decidedAt": "2026-06-10T09:55:00Z",
+    "decidedBy": "Lucia Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Data Brokers S.A.",
+    "registeredCountry": "BR",
+    "riskScore": "88.75",
+    "sanctionsHit": true
+  }
+}

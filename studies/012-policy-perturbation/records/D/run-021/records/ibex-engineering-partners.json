@@ -1,0 +1,15 @@
+{
+  "caseId": "ibex-engineering-partners",
+  "decision": {
+    "decidedAt": "2026-06-12T14:45:00Z",
+    "decidedBy": "Elena Marlowe",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Ibex Engineering Partners S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "44.99",
+    "sanctionsHit": true
+  }
+}

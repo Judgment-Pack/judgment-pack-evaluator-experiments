@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-nondata-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T11:05:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Equipment Leasing Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

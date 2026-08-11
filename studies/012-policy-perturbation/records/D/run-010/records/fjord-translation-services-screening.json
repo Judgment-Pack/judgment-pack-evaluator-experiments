@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-translation-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-19T16:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Translation Services AS",
+    "registeredCountry": "NO",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

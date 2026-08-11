@@ -1,0 +1,15 @@
+{
+  "caseId": "bluefin-personal-data-threshold",
+  "decision": {
+    "decidedAt": "2026-06-12T12:30:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Bluefin Customer Insights Pty Ltd.",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

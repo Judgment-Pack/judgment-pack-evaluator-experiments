@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-midrange-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T13:50:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Workforce Cloud Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "58.7",
+    "sanctionsHit": false
+  }
+}

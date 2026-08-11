@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-industrial-supply",
+  "decision": {
+    "decidedAt": "2026-06-03T10:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Supply",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

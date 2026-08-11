@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-embargo-precedence",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Elias Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Technical Services SA",
+    "registeredCountry": "SY",
+    "riskScore": "85.4",
+    "sanctionsHit": false
+  }
+}

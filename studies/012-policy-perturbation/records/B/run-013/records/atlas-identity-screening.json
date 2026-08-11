@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-identity-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T10:40:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Identity SARL",
+    "registeredCountry": "MA",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

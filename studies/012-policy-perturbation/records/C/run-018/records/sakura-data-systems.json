@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-05T15:25:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Data Systems Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-above-review",
+  "decision": {
+    "decidedAt": "2026-06-04T14:40:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Robotics K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "70.001",
+    "sanctionsHit": false
+  }
+}

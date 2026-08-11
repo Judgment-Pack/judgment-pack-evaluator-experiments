@@ -1,0 +1,15 @@
+{
+  "caseId": "personal-data-just-below-seventy-two",
+  "decision": {
+    "decidedAt": "2026-06-04T09:50:00Z",
+    "decidedBy": "Luc Moreau",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberian Customer Insights S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-market-research",
+  "decision": {
+    "decidedAt": "2026-06-08T14:30:00Z",
+    "decidedBy": "Sofia Laurent",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Market Research Establishment",
+    "registeredCountry": "SY",
+    "riskScore": "70",
+    "sanctionsHit": true
+  }
+}

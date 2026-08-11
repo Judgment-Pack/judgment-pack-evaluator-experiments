@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-facilities-screening",
+  "decision": {
+    "decidedAt": "2026-06-19T11:55:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Facilities Limited",
+    "registeredCountry": "KE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

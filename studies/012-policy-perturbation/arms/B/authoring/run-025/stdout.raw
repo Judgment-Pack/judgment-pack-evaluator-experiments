@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-sanctions",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics-sanctions-override",
+    "vendor": {
+      "legalName": "Cedar Analytics GmbH",
+      "sanctionsHit": true,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "85"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-industrial-supply",
+    "vendor": {
+      "legalName": "Pyongyang Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-data-systems",
+    "vendor": {
+      "legalName": "Tehran Data Systems LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-02T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-procurement-network",
+    "vendor": {
+      "legalName": "Levant Procurement Network",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-controls-threshold",
+    "vendor": {
+      "legalName": "Alpine Controls AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-biometric-services",
+    "vendor": {
+      "legalName": "Pacific Biometric Services Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "94.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-04T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-office-machines",
+    "vendor": {
+      "legalName": "Sakura Office Machines K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-05T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-payroll",
+    "vendor": {
+      "legalName": "Blue Harbor Payroll Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-05T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "maple-health-records",
+    "vendor": {
+      "legalName": "Maple Health Records Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-06T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-customer-insights",
+    "vendor": {
+      "legalName": "Tulip Customer Insights B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-08T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-document-services",
+    "vendor": {
+      "legalName": "Fjord Document Services AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-08T15:05:00Z"
+    }
+  },
+  {
+    "caseId": "iberian-facilities-group",
+    "vendor": {
+      "legalName": "Iberian Facilities Group S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-09T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-component-works",
+    "vendor": {
+      "legalName": "Baltic Component Works OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "69.5"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Reed",
+      "decidedAt": "2026-06-09T11:55:00Z"
+    }
+  },
+  {
+    "caseId": "andean-cloud-hosting",
+    "vendor": {
+      "legalName": "Andean Cloud Hosting SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": true,
+      "riskScore": "55.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-10T14:45:00Z"
+    }
+  },
+  {
+    "caseId": "emerald-security-testing",
+    "vendor": {
+      "legalName": "Emerald Security Testing Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IE",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-11T16:20:00Z"
+    }
+  }
+]

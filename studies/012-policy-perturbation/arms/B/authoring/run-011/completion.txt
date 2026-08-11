@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-industrial-parts",
+    "vendor": {
+      "legalName": "Fjord Industrial Parts AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Mercer",
+      "decidedAt": "2026-06-02T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-freight-systems",
+    "vendor": {
+      "legalName": "Meridian Freight Systems GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Mercer",
+      "decidedAt": "2026-06-02T11:40:00Z"
+    }
+  },
+  {
+    "caseId": "bluebell-customer-care",
+    "vendor": {
+      "legalName": "Bluebell Customer Care Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Lucia Chen",
+      "decidedAt": "2026-06-03T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "solstice-payroll-services",
+    "vendor": {
+      "legalName": "Solstice Payroll Services Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Lucia Chen",
+      "decidedAt": "2026-06-03T13:25:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-health-records",
+    "vendor": {
+      "legalName": "Harbor Health Records Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-04T10:20:00Z"
+    }
+  },
+  {
+    "caseId": "summit-machinery",
+    "vendor": {
+      "legalName": "Summit Machinery Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Mercer",
+      "decidedAt": "2026-06-04T15:45:00Z"
+    }
+  },
+  {
+    "caseId": "aurora-identity-platform",
+    "vendor": {
+      "legalName": "Aurora Identity Platform OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Lucia Chen",
+      "decidedAt": "2026-06-05T08:50:00Z"
+    }
+  },
+  {
+    "caseId": "granite-infrastructure",
+    "vendor": {
+      "legalName": "Granite Infrastructure S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-05T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "taedong-export-bureau",
+    "vendor": {
+      "legalName": "Taedong Export Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Mercer",
+      "decidedAt": "2026-06-08T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "pars-cloud-processing",
+    "vendor": {
+      "legalName": "Pars Cloud Processing Company",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Lucia Chen",
+      "decidedAt": "2026-06-08T12:00:00Z"
+    }
+  },
+  {
+    "caseId": "levant-engineering-group",
+    "vendor": {
+      "legalName": "Levant Engineering Group",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-09T08:25:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-security-consulting",
+    "vendor": {
+      "legalName": "Redwood Security Consulting LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Mercer",
+      "decidedAt": "2026-06-09T11:15:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-data-brokers",
+    "vendor": {
+      "legalName": "Atlas Data Brokers S.A.",
+      "sanctionsHit": true,
+      "registeredCountry": "BR",
+      "handlesPersonalData": true,
+      "riskScore": "88.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Lucia Chen",
+      "decidedAt": "2026-06-10T09:55:00Z"
+    }
+  },
+  {
+    "caseId": "euphrates-trading-house",
+    "vendor": {
+      "legalName": "Euphrates Trading House",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "42.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-10T16:30:00Z"
+    }
+  }
+]

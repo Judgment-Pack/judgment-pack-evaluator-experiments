@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-equipment-export",
+  "decision": {
+    "decidedAt": "2026-06-05T10:25:00Z",
+    "decidedBy": "Amina Laurent",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Equipment Export Company",
+    "registeredCountry": "IR",
+    "riskScore": "12.5",
+    "sanctionsHit": false
+  }
+}

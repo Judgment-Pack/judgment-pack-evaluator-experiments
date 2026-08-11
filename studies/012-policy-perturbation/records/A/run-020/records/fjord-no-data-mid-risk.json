@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-no-data-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T08:30:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Office Supply AS",
+    "registeredCountry": "NO",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

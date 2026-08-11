@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-ledger-embargo",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Ledger Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

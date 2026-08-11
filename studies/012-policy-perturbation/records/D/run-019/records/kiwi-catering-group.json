@@ -1,0 +1,15 @@
+{
+  "caseId": "kiwi-catering-group",
+  "decision": {
+    "decidedAt": "2026-06-11T16:30:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Kiwi Catering Group Limited",
+    "registeredCountry": "NZ",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-nonpersonal-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T13:10:00Z",
+    "decidedBy": "Elena Marquez",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Solstice Renewable Materials SL",
+    "registeredCountry": "ES",
+    "riskScore": "18.25",
+    "sanctionsHit": false
+  }
+}

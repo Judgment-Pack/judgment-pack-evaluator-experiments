@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-payroll-screening",
+  "decision": {
+    "decidedAt": "2026-06-05T15:10:00Z",
+    "decidedBy": "Priya Banerjee",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Payroll KK",
+    "registeredCountry": "JP",
+    "riskScore": "54.375",
+    "sanctionsHit": false
+  }
+}

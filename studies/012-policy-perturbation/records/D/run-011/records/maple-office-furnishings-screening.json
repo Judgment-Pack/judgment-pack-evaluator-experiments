@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-office-furnishings-screening",
+  "decision": {
+    "decidedAt": "2026-06-16T08:40:00Z",
+    "decidedBy": "Nadia Ortiz",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Office Furnishings Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "71.99",
+    "sanctionsHit": false
+  }
+}

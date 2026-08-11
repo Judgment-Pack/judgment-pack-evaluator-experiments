@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Heavy Equipment SARL",
+    "registeredCountry": "FR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

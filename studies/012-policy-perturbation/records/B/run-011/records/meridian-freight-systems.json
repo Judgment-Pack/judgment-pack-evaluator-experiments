@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-freight-systems",
+  "decision": {
+    "decidedAt": "2026-06-02T11:40:00Z",
+    "decidedBy": "Jonas Mercer",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Freight Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

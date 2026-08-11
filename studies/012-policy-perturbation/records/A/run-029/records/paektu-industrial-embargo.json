@@ -1,0 +1,15 @@
+{
+  "caseId": "paektu-industrial-embargo",
+  "decision": {
+    "decidedAt": "2026-02-03T09:40:00Z",
+    "decidedBy": "Amina Yusuf",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Paektu Industrial Works",
+    "registeredCountry": "KP",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

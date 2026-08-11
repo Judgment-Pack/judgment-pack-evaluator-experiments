@@ -1,0 +1,15 @@
+{
+  "caseId": "tigris-procurement-group",
+  "decision": {
+    "decidedAt": "2026-06-05T09:05:00Z",
+    "decidedBy": "Omar Haddad",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tigris Procurement Group Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "72",
+    "sanctionsHit": true
+  }
+}

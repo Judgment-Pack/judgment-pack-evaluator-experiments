@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-registry-bureau",
+  "decision": {
+    "decidedAt": "2026-06-18T16:15:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Registry Bureau",
+    "registeredCountry": "SY",
+    "riskScore": "75",
+    "sanctionsHit": true
+  }
+}

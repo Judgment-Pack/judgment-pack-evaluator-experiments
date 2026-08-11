@@ -1,0 +1,58 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--ignore-user-config",
+    "-m",
+    "gpt-5.6-sol",
+    "--sandbox",
+    "workspace-write",
+    "-c",
+    "mcp_servers={}",
+    "<the exact bytes of PROBE-PROMPT.txt>"
+  ],
+  "slot": "capture-001",
+  "slotIndex": 1,
+  "arm": null,
+  "armPromptSha256": null,
+  "promptKind": "probe",
+  "promptSha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7",
+  "pinsSha256": "sha256:70eae70211c362bbf7b053aaa70549f0c1d76242350828d933435b025f387e41",
+  "goldenSha256": null,
+  "isolation": "isolated",
+  "startedAt": "2026-08-10T23:41:06Z",
+  "endedAt": "2026-08-10T23:41:11Z",
+  "cwd": "/tmp/s012-cap-U93hX4/s012-authoring-none-capture-001-2913499",
+  "home": "/tmp/s012-cap-U93hX4/s012-home-none-capture-001-2913499",
+  "codexHome": "/tmp/s012-cap-U93hX4/s012-home-none-capture-001-2913499/.codex",
+  "environment": [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "CODEX_HOME"
+  ],
+  "environmentValues": {
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/s012-cap-U93hX4/s012-bin-none-capture-001-2913499",
+    "HOME": "/tmp/s012-cap-U93hX4/s012-home-none-capture-001-2913499",
+    "TMPDIR": "/tmp/s012-cap-U93hX4/s012-authoring-none-capture-001-2913499/tmp",
+    "CODEX_HOME": "/tmp/s012-cap-U93hX4/s012-home-none-capture-001-2913499/.codex"
+  },
+  "environmentScrubbed": true,
+  "codexHomeIsolated": true,
+  "homeIsolated": true,
+  "isolatedHomeInventory": [
+    ".codex",
+    ".codex/auth.json"
+  ],
+  "operatorHomeSkillsPresent": true,
+  "credentialCopied": true,
+  "credentialRemoved": true,
+  "ignoreUserConfig": true,
+  "model": "gpt-5.6-sol",
+  "cli": "codex-cli 0.145.0",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "exitStatus": 0,
+  "newSessionCount": 1,
+  "stdin": "closed (/dev/null)",
+  "note": "One run of one of Study 012's five cells; session.jsonl is the transcript evidence."
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pacific-identity-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T16:00:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pacific Identity Solutions Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

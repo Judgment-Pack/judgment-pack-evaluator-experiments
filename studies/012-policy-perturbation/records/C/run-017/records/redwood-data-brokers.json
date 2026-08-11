@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-data-brokers",
+  "decision": {
+    "decidedAt": "2026-06-15T17:05:00Z",
+    "decidedBy": "Nadia Brooks",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Redwood Data Brokers Inc.",
+    "registeredCountry": "US",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "caspian-data-systems",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Caspian Data Systems PJSC",
+    "registeredCountry": "IR",
+    "riskScore": "92.5",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "taedong-dual-rejection",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Elena Ward",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Taedong Industrial Supply Co.",
+    "registeredCountry": "KP",
+    "riskScore": "91.2",
+    "sanctionsHit": true
+  }
+}

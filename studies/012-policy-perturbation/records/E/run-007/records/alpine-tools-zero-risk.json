@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-tools-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T14:05:00Z",
+    "decidedBy": "Avery Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Tools AG",
+    "registeredCountry": "CH",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

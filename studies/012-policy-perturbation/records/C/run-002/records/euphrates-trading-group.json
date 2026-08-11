@@ -1,0 +1,15 @@
+{
+  "caseId": "euphrates-trading-group",
+  "decision": {
+    "decidedAt": "2026-06-11T15:00:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Euphrates Trading Group",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": true
+  }
+}

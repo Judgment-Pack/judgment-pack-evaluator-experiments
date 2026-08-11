@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-no-data-at-forty-five",
+  "decision": {
+    "decidedAt": "2026-06-09T10:00:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Fjord Equipment AS",
+    "registeredCountry": "NO",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

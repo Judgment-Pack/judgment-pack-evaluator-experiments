@@ -1,0 +1,15 @@
+{
+  "caseId": "harborlight-data-services",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harborlight Data Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

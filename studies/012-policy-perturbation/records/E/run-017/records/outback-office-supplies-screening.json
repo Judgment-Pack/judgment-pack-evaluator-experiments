@@ -1,0 +1,15 @@
+{
+  "caseId": "outback-office-supplies-screening",
+  "decision": {
+    "decidedAt": "2026-06-08T08:20:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Outback Office Supplies Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

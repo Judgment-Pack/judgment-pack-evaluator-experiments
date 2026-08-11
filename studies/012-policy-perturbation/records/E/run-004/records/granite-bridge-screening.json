@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-bridge-screening",
+  "decision": {
+    "decidedAt": "2026-06-06T16:40:00Z",
+    "decidedBy": "Noor Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Bridge Security AS",
+    "registeredCountry": "NO",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

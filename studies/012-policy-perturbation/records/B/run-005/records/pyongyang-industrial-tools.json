@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-industrial-tools",
+  "decision": {
+    "decidedAt": "2026-06-03T11:05:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Industrial Tools Corporation",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-data-sanctions-override",
+  "decision": {
+    "decidedAt": "2026-06-02T11:15:00Z",
+    "decidedBy": "Jonas Weber",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Data Services GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

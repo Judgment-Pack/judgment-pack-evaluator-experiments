@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-personal-data-at-seventy",
+  "decision": {
+    "decidedAt": "2026-06-08T12:05:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Health Administration SARL",
+    "registeredCountry": "FR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

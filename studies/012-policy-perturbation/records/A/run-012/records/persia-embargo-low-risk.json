@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-embargo-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T14:40:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Ledger Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "2.75",
+    "sanctionsHit": false
+  }
+}

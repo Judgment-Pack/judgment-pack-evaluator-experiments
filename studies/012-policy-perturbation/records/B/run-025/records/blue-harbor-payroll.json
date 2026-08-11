@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-payroll",
+  "decision": {
+    "decidedAt": "2026-06-05T10:40:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Harbor Payroll Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

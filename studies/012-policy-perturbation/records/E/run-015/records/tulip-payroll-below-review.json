@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-payroll-below-review",
+  "decision": {
+    "decidedAt": "2026-06-08T10:50:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Payroll B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

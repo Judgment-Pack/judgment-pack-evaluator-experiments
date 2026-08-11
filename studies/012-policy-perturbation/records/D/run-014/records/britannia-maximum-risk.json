@@ -1,0 +1,15 @@
+{
+  "caseId": "britannia-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-06T10:10:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Britannia Machine Tools plc",
+    "registeredCountry": "GB",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

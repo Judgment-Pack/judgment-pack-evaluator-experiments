@@ -1,0 +1,15 @@
+{
+  "caseId": "quartz-nonpersonal-at-forty",
+  "decision": {
+    "decidedAt": "2026-06-08T11:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Quartz Tooling SAS",
+    "registeredCountry": "FR",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

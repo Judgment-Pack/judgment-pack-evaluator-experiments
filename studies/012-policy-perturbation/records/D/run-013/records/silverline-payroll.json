@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-payroll",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Payroll Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-metals-export",
+  "decision": {
+    "decidedAt": "2026-06-06T08:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Metals Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

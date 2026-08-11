@@ -1,0 +1,30 @@
+```python
+from decimal import Decimal
+
+
+def verdict(vendor):
+    """Return the vendor-screening outcome for a complete, well-formed input."""
+    # P1: A sanctions hit always results in rejection.
+    if vendor["sanctionsHit"]:
+        return "reject"
+
+    # P2: Without a sanctions hit, registration in KP, IR, or SY is rejected.
+    if vendor["registeredCountry"] in {"KP", "IR", "SY"}:
+        return "reject"
+
+    risk_score = Decimal(vendor["riskScore"])
+
+    # P4: Personal-data handling with risk at least 40 but below 70
+    # requires manual review.
+    if vendor["handlesPersonalData"] and Decimal("40") <= risk_score < Decimal("70"):
+        return "manual-review"
+
+    # P5: Risk below 70 is cleared unless P4 applies.
+    if risk_score < Decimal("70"):
+        return "clear"
+
+    # P3: Risk of 70 or above requires manual review.
+    return "manual-review"
+```
+
+I consulted only the vendor screening policy provided in the prompt.

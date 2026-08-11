@@ -1,0 +1,15 @@
+{
+  "caseId": "harborview-benefits-admin",
+  "decision": {
+    "decidedAt": "2026-06-08T08:30:00Z",
+    "decidedBy": "Mei Laurent",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Harborview Benefits Administration Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

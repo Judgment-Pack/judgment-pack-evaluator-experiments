@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-10T15:50:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Aeronautics Corporation",
+    "registeredCountry": "US",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

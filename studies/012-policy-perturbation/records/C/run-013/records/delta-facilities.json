@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-facilities",
+  "decision": {
+    "decidedAt": "2026-06-09T12:45:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Delta Facilities B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

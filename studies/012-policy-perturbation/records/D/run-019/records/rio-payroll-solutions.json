@@ -1,0 +1,15 @@
+{
+  "caseId": "rio-payroll-solutions",
+  "decision": {
+    "decidedAt": "2026-06-08T14:05:00Z",
+    "decidedBy": "Mei Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rio Payroll Solutions Ltda.",
+    "registeredCountry": "BR",
+    "riskScore": "60",
+    "sanctionsHit": false
+  }
+}

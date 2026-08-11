@@ -1,0 +1,15 @@
+{
+  "caseId": "red-dune-security",
+  "decision": {
+    "decidedAt": "2026-06-09T13:55:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Red Dune Security LLC",
+    "registeredCountry": "AE",
+    "riskScore": "95",
+    "sanctionsHit": true
+  }
+}

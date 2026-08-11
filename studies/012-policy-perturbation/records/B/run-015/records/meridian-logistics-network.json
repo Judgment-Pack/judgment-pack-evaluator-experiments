@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-logistics-network",
+  "decision": {
+    "decidedAt": "2026-06-08T10:10:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Logistics Network B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

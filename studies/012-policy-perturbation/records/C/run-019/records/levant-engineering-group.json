@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-engineering-group",
+  "decision": {
+    "decidedAt": "2026-06-17T16:05:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Engineering Group",
+    "registeredCountry": "SY",
+    "riskScore": "82.4",
+    "sanctionsHit": false
+  }
+}

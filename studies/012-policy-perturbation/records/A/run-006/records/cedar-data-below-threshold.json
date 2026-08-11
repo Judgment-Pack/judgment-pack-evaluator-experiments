@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-17T14:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Benefits Administration Ltd.",
+    "registeredCountry": "NZ",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

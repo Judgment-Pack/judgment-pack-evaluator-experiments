@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-below-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T14:55:00Z",
+    "decidedBy": "Mateo Silva",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Benefits Processing Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

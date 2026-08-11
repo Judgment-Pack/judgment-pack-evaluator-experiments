@@ -1,0 +1,15 @@
+{
+  "caseId": "helios-sanctions-embargo",
+  "decision": {
+    "decidedAt": "2026-06-01T10:15:00Z",
+    "decidedBy": "Owen Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Helios Trading Company",
+    "registeredCountry": "IR",
+    "riskScore": "92",
+    "sanctionsHit": true
+  }
+}

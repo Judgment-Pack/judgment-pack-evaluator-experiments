@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-maritime-brokers",
+  "decision": {
+    "decidedAt": "2026-06-09T13:30:00Z",
+    "decidedBy": "Jonas Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Maritime Brokers LLC",
+    "registeredCountry": "US",
+    "riskScore": "20",
+    "sanctionsHit": true
+  }
+}

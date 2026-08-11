@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-cloud-hosting",
+  "decision": {
+    "decidedAt": "2026-06-22T13:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Cloud Hosting Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "92.75",
+    "sanctionsHit": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "bosphorus-low-risk-services",
+  "decision": {
+    "decidedAt": "2026-06-10T11:55:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Bosphorus Facilities A.S.",
+    "registeredCountry": "TR",
+    "riskScore": "18.375",
+    "sanctionsHit": false
+  }
+}

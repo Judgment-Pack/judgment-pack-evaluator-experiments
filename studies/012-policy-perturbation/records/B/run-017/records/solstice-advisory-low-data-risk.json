@@ -1,0 +1,15 @@
+{
+  "caseId": "solstice-advisory-low-data-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T16:05:00Z",
+    "decidedBy": "Marcus Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Solstice Advisory Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "18.5",
+    "sanctionsHit": false
+  }
+}

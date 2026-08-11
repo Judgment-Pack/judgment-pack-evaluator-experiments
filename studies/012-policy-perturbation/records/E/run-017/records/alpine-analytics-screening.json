@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-03T11:10:00Z",
+    "decidedBy": "Elena Varga",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Analytics AG",
+    "registeredCountry": "CH",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

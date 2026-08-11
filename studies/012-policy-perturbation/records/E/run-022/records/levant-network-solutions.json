@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-network-solutions",
+  "decision": {
+    "decidedAt": "2026-06-05T16:05:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Network Solutions",
+    "registeredCountry": "SY",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

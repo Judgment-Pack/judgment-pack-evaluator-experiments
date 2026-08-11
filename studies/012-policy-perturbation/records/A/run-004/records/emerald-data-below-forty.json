@@ -1,0 +1,15 @@
+{
+  "caseId": "emerald-data-below-forty",
+  "decision": {
+    "decidedAt": "2026-06-11T14:45:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Emerald Benefits Limited",
+    "registeredCountry": "IE",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-no-data-at-forty-five",
+  "decision": {
+    "decidedAt": "2026-07-02T13:05:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Machine Supply S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-customer-analytics",
+  "decision": {
+    "decidedAt": "2026-06-04T15:35:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Lumen Customer Analytics S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

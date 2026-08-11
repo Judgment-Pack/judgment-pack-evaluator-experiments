@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-industrial-components",
+  "decision": {
+    "decidedAt": "2026-06-11T09:15:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Industrial Components Co.",
+    "registeredCountry": "IR",
+    "riskScore": "12.5",
+    "sanctionsHit": false
+  }
+}

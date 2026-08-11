@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-freight-exchange",
+  "decision": {
+    "decidedAt": "2026-06-09T12:00:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Freight Exchange O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

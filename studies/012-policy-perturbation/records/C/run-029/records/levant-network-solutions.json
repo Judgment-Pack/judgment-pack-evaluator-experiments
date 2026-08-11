@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-network-solutions",
+  "decision": {
+    "decidedAt": "2026-06-11T09:35:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Network Solutions LLC",
+    "registeredCountry": "SY",
+    "riskScore": "82",
+    "sanctionsHit": false
+  }
+}

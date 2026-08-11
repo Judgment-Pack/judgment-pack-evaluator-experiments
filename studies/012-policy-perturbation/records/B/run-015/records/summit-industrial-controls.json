@@ -1,0 +1,15 @@
+{
+  "caseId": "summit-industrial-controls",
+  "decision": {
+    "decidedAt": "2026-06-10T15:00:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Summit Industrial Controls K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

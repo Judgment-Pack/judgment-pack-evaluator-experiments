@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-security-threshold",
+  "decision": {
+    "decidedAt": "2026-03-18T13:00:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Security Services S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

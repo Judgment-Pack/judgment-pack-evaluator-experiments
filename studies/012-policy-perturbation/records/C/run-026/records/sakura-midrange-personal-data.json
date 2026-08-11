@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-midrange-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-05T10:00:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Customer Insights KK",
+    "registeredCountry": "JP",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

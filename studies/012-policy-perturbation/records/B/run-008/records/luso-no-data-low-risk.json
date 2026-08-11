@@ -1,0 +1,15 @@
+{
+  "caseId": "luso-no-data-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-22T11:45:00Z",
+    "decidedBy": "Elena Marlow",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Luso Office Supply Lda.",
+    "registeredCountry": "PT",
+    "riskScore": "18.75",
+    "sanctionsHit": false
+  }
+}

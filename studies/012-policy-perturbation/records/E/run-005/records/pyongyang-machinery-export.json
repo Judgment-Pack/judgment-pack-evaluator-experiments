@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-machinery-export",
+  "decision": {
+    "decidedAt": "2026-06-12T12:00:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Machinery Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "5",
+    "sanctionsHit": false
+  }
+}

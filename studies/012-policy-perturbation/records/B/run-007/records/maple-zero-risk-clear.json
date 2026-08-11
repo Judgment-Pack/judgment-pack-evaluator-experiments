@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-zero-risk-clear",
+  "decision": {
+    "decidedAt": "2026-06-10T09:50:00Z",
+    "decidedBy": "Jonah Patel",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Fixture Cooperative",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

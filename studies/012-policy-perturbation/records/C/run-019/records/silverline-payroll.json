@@ -1,0 +1,15 @@
+{
+  "caseId": "silverline-payroll",
+  "decision": {
+    "decidedAt": "2026-06-04T16:45:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Silverline Payroll Services, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

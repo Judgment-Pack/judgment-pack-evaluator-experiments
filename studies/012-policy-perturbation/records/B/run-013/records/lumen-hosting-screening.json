@@ -1,0 +1,15 @@
+{
+  "caseId": "lumen-hosting-screening",
+  "decision": {
+    "decidedAt": "2026-06-10T15:05:00Z",
+    "decidedBy": "Mara Voss",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Lumen Hosting GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "southern-cross-mining",
+  "decision": {
+    "decidedAt": "2026-06-10T15:50:00Z",
+    "decidedBy": "Martin Shaw",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Southern Cross Mining Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

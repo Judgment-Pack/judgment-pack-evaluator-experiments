@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-logistics-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T09:15:00Z",
+    "decidedBy": "Elena Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Logistics SARL",
+    "registeredCountry": "MA",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

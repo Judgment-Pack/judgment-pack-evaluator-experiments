@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-components",
+  "decision": {
+    "decidedAt": "2026-06-16T08:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Components, Inc.",
+    "registeredCountry": "US",
+    "riskScore": "12",
+    "sanctionsHit": true
+  }
+}

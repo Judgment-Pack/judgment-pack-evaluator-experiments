@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-security-labs",
+  "decision": {
+    "decidedAt": "2026-06-04T14:25:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Security Labs O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-document-services-screening",
+  "decision": {
+    "decidedAt": "2026-06-22T14:45:00Z",
+    "decidedBy": "Elena Ortiz",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord Document Services AS",
+    "registeredCountry": "NO",
+    "riskScore": "39.99",
+    "sanctionsHit": true
+  }
+}

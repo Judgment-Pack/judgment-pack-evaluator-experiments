@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-logistics-below-seventy",
+  "decision": {
+    "decidedAt": "2026-06-08T09:50:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Logistics SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

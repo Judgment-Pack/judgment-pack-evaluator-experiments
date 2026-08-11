@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-health-services",
+  "decision": {
+    "decidedAt": "2026-06-04T14:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Health Services S.A.",
+    "registeredCountry": "FR",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

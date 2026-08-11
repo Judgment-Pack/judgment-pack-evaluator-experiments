@@ -1,0 +1,15 @@
+{
+  "caseId": "persia-cloud-embargo",
+  "decision": {
+    "decidedAt": "2026-06-04T14:40:00Z",
+    "decidedBy": "Amira Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Persia Cloud Systems Ltd.",
+    "registeredCountry": "IR",
+    "riskScore": "44.999",
+    "sanctionsHit": false
+  }
+}

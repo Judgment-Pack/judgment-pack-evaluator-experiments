@@ -1,0 +1,15 @@
+{
+  "caseId": "tehran-embargo-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-03T08:20:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Tehran Meridian Logistics",
+    "registeredCountry": "IR",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

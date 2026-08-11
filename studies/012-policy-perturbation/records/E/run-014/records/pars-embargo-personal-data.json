@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-embargo-personal-data",
+  "decision": {
+    "decidedAt": "2026-06-02T14:45:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Data Services LLC",
+    "registeredCountry": "IR",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

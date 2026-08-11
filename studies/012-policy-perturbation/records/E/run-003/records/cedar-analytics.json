@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-analytics",
+  "decision": {
+    "decidedAt": "2026-06-02T08:45:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Cedar Analytics SAS",
+    "registeredCountry": "FR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

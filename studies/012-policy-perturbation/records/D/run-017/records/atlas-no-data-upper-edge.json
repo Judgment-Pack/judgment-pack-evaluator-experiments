@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-no-data-upper-edge",
+  "decision": {
+    "decidedAt": "2026-06-10T16:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Machine Works SARL",
+    "registeredCountry": "FR",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

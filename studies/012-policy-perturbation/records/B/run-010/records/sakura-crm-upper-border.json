@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-crm-upper-border",
+  "decision": {
+    "decidedAt": "2026-06-16T08:35:00Z",
+    "decidedBy": "Elena Ward",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura CRM Kabushiki Kaisha",
+    "registeredCountry": "JP",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

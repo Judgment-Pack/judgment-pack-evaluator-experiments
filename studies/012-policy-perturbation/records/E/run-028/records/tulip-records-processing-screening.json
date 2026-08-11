@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-records-processing-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T13:05:00Z",
+    "decidedBy": "Elias Grant",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Records Processing B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-engineering-group",
+  "decision": {
+    "decidedAt": "2026-06-16T13:50:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Engineering Group",
+    "registeredCountry": "SY",
+    "riskScore": "88.2",
+    "sanctionsHit": false
+  }
+}

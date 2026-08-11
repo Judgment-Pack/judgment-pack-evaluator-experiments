@@ -1,0 +1,15 @@
+{
+  "caseId": "parallax-sanctions-precedence",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Parallax Data Systems GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "85",
+    "sanctionsHit": true
+  }
+}

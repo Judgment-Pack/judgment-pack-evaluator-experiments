@@ -1,0 +1,15 @@
+{
+  "caseId": "risk-threshold-seventy-two",
+  "decision": {
+    "decidedAt": "2026-06-03T09:00:00Z",
+    "decidedBy": "Sofia Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Danube Components GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

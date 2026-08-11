@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-personal-midrange",
+  "decision": {
+    "decidedAt": "2026-06-05T12:40:00Z",
+    "decidedBy": "Jonas Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Identity Solutions B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "55.75",
+    "sanctionsHit": false
+  }
+}

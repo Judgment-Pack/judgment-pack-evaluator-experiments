@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-logistics",
+    "vendor": {
+      "legalName": "Blue Harbor Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "71.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mei Lin",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "summit-industrial-controls",
+    "vendor": {
+      "legalName": "Summit Industrial Controls Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-02T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "lumen-payroll-services",
+    "vendor": {
+      "legalName": "Lumen Payroll Services S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "44.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Claire Dubois",
+      "decidedAt": "2026-06-03T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "maple-patient-systems",
+    "vendor": {
+      "legalName": "Maple Patient Systems Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-03T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "orion-customer-insights",
+    "vendor": {
+      "legalName": "Orion Customer Insights Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "71.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-04T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-identity-cloud",
+    "vendor": {
+      "legalName": "Pacific Identity Cloud Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mei Lin",
+      "decidedAt": "2026-06-04T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-export-bureau",
+    "vendor": {
+      "legalName": "Pyongyang Export Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "3.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Claire Dubois",
+      "decidedAt": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-data-processing",
+    "vendor": {
+      "legalName": "Tehran Data Processing Company",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "44"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-05T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-risk-advisory",
+    "vendor": {
+      "legalName": "Damascus Risk Advisory LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "88.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-05T16:00:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-components",
+    "vendor": {
+      "legalName": "Redwood Components S.A. de C.V.",
+      "sanctionsHit": true,
+      "registeredCountry": "MX",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mei Lin",
+      "decidedAt": "2026-06-08T09:35:00Z"
+    }
+  },
+  {
+    "caseId": "euphrates-trading-house",
+    "vendor": {
+      "legalName": "Euphrates Trading House",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "96"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Claire Dubois",
+      "decidedAt": "2026-06-08T12:15:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-facilities",
+    "vendor": {
+      "legalName": "Fjord Facilities AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "17.25"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-09T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-network-operations",
+    "vendor": {
+      "legalName": "Sakura Network Operations K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mei Lin",
+      "decidedAt": "2026-06-09T14:45:00Z"
+    }
+  },
+  {
+    "caseId": "andes-security-platform",
+    "vendor": {
+      "legalName": "Andes Security Platform SpA",
+      "sanctionsHit": true,
+      "registeredCountry": "CL",
+      "handlesPersonalData": true,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-10T10:30:00Z"
+    }
+  }
+]

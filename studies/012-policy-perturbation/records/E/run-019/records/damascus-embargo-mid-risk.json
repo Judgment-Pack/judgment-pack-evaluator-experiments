@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-embargo-mid-risk",
+  "decision": {
+    "decidedAt": "2026-06-02T11:20:00Z",
+    "decidedBy": "Jonah Reed",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Ledger Services",
+    "registeredCountry": "SY",
+    "riskScore": "55.4",
+    "sanctionsHit": false
+  }
+}

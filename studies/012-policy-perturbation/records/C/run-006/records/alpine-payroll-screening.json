@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-payroll-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T14:10:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Payroll AG",
+    "registeredCountry": "CH",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

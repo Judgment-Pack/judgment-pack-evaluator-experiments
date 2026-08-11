@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-ledger-screening",
+  "decision": {
+    "decidedAt": "2026-06-09T12:05:00Z",
+    "decidedBy": "Noor Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Ledger Cooperative",
+    "registeredCountry": "CA",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

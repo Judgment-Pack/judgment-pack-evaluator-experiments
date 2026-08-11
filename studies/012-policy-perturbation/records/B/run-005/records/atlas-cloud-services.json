@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-cloud-services",
+  "decision": {
+    "decidedAt": "2026-06-08T10:20:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Cloud Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

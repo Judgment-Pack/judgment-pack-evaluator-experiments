@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-industrial-maximum-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T15:40:00Z",
+    "decidedBy": "Maya Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Industrial Supply Inc.",
+    "registeredCountry": "US",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

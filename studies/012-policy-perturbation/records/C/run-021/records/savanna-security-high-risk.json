@@ -1,0 +1,15 @@
+{
+  "caseId": "savanna-security-high-risk",
+  "decision": {
+    "decidedAt": "2026-06-19T11:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Savanna Security Ltd.",
+    "registeredCountry": "KE",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

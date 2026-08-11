@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-records-screening",
+  "decision": {
+    "decidedAt": "2026-06-11T11:30:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Records Management S.A.L.",
+    "registeredCountry": "LB",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

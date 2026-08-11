@@ -1,0 +1,15 @@
+{
+  "caseId": "boreal-above-seventy",
+  "decision": {
+    "decidedAt": "2026-06-04T09:10:00Z",
+    "decidedBy": "Elias Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Boreal Analytics Oy",
+    "registeredCountry": "FI",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

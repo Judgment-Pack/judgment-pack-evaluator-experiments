@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-document-storage",
+  "decision": {
+    "decidedAt": "2026-06-19T09:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Document Storage Co., Ltd.",
+    "registeredCountry": "JP",
+    "riskScore": "0.01",
+    "sanctionsHit": false
+  }
+}

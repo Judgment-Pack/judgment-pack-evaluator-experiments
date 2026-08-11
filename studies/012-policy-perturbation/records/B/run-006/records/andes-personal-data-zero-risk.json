@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-personal-data-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-11T11:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Andes Survey Partners SpA",
+    "registeredCountry": "CL",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

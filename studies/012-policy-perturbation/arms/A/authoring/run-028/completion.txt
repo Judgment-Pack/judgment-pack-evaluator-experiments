@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-sanctions-embargo-override",
+    "vendor": {
+      "legalName": "Redwood Trade Services PLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "baekdu-embargo-zero-risk",
+    "vendor": {
+      "legalName": "Baekdu Industrial Supply Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Lucia Ortiz",
+      "decidedAt": "2026-06-02T08:15:00Z"
+    }
+  },
+  {
+    "caseId": "persia-embargo-moderate-risk",
+    "vendor": {
+      "legalName": "Persia Systems Cooperative",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-02T11:40:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Logistics Establishment",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "92"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-03T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-risk-seventy",
+    "vendor": {
+      "legalName": "Alpine Metrics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Lucia Ortiz",
+      "decidedAt": "2026-06-04T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-high-risk-personal-data",
+    "vendor": {
+      "legalName": "Harbor Identity Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-04T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "summit-maximum-risk",
+    "vendor": {
+      "legalName": "Summit Procurement Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-personal-data-forty",
+    "vendor": {
+      "legalName": "Cedar People Analytics Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Lucia Ortiz",
+      "decidedAt": "2026-06-08T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-personal-data-midrange",
+    "vendor": {
+      "legalName": "Sakura Customer Insights KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-08T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-personal-data-below-seventy",
+    "vendor": {
+      "legalName": "Fjord Health Data AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-09T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "maple-personal-data-zero-risk",
+    "vendor": {
+      "legalName": "Maple Archive Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Lucia Ortiz",
+      "decidedAt": "2026-06-10T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-personal-data-below-forty",
+    "vendor": {
+      "legalName": "Tulip Client Services BV",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-10T15:30:00Z"
+    }
+  },
+  {
+    "caseId": "rhine-nonpersonal-forty",
+    "vendor": {
+      "legalName": "Rhine Equipment GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Meyer",
+      "decidedAt": "2026-06-11T08:35:00Z"
+    }
+  },
+  {
+    "caseId": "andes-nonpersonal-below-seventy",
+    "vendor": {
+      "legalName": "Andes Materials SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Lucia Ortiz",
+      "decidedAt": "2026-06-11T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "nile-nonpersonal-moderate-risk",
+    "vendor": {
+      "legalName": "Nile Packaging SAE",
+      "sanctionsHit": false,
+      "registeredCountry": "EG",
+      "handlesPersonalData": false,
+      "riskScore": "58.25"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Chen",
+      "decidedAt": "2026-06-12T11:55:00Z"
+    }
+  }
+]

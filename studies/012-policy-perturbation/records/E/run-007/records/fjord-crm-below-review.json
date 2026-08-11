@@ -1,0 +1,15 @@
+{
+  "caseId": "fjord-crm-below-review",
+  "decision": {
+    "decidedAt": "2026-06-06T09:45:00Z",
+    "decidedBy": "Jonah Clarke",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Fjord CRM AS",
+    "registeredCountry": "NO",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-office-low-risk",
+  "decision": {
+    "decidedAt": "2026-06-07T08:40:00Z",
+    "decidedBy": "Mara Singh",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Office Products K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

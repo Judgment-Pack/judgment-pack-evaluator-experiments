@@ -1,0 +1,15 @@
+{
+  "caseId": "rhein-data-services",
+  "decision": {
+    "decidedAt": "2026-06-04T14:10:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Rhein Data Services GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

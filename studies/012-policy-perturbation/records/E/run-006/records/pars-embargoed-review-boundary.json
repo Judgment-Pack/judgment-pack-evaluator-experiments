@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-embargoed-review-boundary",
+  "decision": {
+    "decidedAt": "2026-06-02T14:45:00Z",
+    "decidedBy": "Daniel Okafor",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Network Services Co.",
+    "registeredCountry": "IR",
+    "riskScore": "70",
+    "sanctionsHit": false
+  }
+}

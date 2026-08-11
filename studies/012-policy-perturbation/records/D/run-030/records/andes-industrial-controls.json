@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-industrial-controls",
+  "decision": {
+    "decidedAt": "2026-06-10T16:25:00Z",
+    "decidedBy": "Owen Mercer",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Industrial Controls SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

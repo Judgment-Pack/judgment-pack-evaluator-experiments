@@ -1,0 +1,15 @@
+{
+  "caseId": "nile-packaging-nonpersonal-boundary",
+  "decision": {
+    "decidedAt": "2026-06-08T16:20:00Z",
+    "decidedBy": "Elena Garc\u00eda",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Nile Packaging S.A.E.",
+    "registeredCountry": "EG",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

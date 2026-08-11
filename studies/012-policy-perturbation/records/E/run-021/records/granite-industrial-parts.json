@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-03T14:10:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Industrial Parts S.A.",
+    "registeredCountry": "MX",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

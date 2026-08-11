@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-records-processing",
+  "decision": {
+    "decidedAt": "2026-06-17T11:05:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Meridian Records Processing Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "50",
+    "sanctionsHit": true
+  }
+}

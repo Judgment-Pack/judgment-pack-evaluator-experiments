@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-risk-threshold",
+  "decision": {
+    "decidedAt": "2026-06-05T14:25:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Services Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "72",
+    "sanctionsHit": false
+  }
+}

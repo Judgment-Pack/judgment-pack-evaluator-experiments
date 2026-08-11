@@ -1,0 +1,15 @@
+{
+  "caseId": "koryo-industrial-export",
+  "decision": {
+    "decidedAt": "2026-06-11T09:15:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Koryo Industrial Export Company",
+    "registeredCountry": "KP",
+    "riskScore": "2.5",
+    "sanctionsHit": false
+  }
+}

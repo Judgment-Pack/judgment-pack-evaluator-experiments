@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-low-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-22T11:55:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Atlas Payroll Solutions SARL",
+    "registeredCountry": "MA",
+    "riskScore": "12.375",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "saffron-customer-support",
+  "decision": {
+    "decidedAt": "2026-06-22T16:10:00Z",
+    "decidedBy": "Elias Morgan",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Saffron Customer Support Private Limited",
+    "registeredCountry": "IN",
+    "riskScore": "39.999",
+    "sanctionsHit": false
+  }
+}

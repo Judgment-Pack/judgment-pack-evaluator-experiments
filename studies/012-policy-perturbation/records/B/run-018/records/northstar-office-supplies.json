@@ -1,0 +1,15 @@
+{
+  "caseId": "northstar-office-supplies",
+  "decision": {
+    "decidedAt": "2026-06-01T09:30:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Northstar Office Supplies Ltd.",
+    "registeredCountry": "CA",
+    "riskScore": "12.5",
+    "sanctionsHit": true
+  }
+}

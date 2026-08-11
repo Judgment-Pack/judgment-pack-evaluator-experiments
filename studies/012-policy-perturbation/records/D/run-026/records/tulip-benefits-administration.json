@@ -1,0 +1,15 @@
+{
+  "caseId": "tulip-benefits-administration",
+  "decision": {
+    "decidedAt": "2026-06-06T16:05:00Z",
+    "decidedBy": "Jonas Keller",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Tulip Benefits Administration B.V.",
+    "registeredCountry": "NL",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

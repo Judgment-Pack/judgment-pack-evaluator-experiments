@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-privacy-tools-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T15:55:00Z",
+    "decidedBy": "Jonas Vale",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Privacy Tools O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

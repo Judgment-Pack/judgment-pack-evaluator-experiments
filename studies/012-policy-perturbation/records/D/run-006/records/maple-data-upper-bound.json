@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-data-upper-bound",
+  "decision": {
+    "decidedAt": "2026-05-21T14:35:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Identity Services Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-office-zero-risk",
+  "decision": {
+    "decidedAt": "2026-06-09T08:25:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Office Supply AG",
+    "registeredCountry": "CH",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

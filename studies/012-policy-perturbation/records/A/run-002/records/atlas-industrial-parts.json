@@ -1,0 +1,15 @@
+{
+  "caseId": "atlas-industrial-parts",
+  "decision": {
+    "decidedAt": "2026-06-05T16:10:00Z",
+    "decidedBy": "Martin Shaw",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Atlas Industrial Parts S.A.",
+    "registeredCountry": "ES",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

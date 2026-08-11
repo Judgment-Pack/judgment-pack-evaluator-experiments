@@ -1,0 +1,15 @@
+{
+  "caseId": "iberia-customer-insights",
+  "decision": {
+    "decidedAt": "2026-06-02T14:40:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Iberia Customer Insights S.L.",
+    "registeredCountry": "ES",
+    "riskScore": "55.5",
+    "sanctionsHit": false
+  }
+}

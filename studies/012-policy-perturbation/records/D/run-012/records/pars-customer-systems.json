@@ -1,0 +1,15 @@
+{
+  "caseId": "pars-customer-systems",
+  "decision": {
+    "decidedAt": "2026-06-04T09:50:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Pars Customer Systems Co.",
+    "registeredCountry": "IR",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

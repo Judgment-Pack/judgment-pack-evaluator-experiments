@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-office-machines",
+  "decision": {
+    "decidedAt": "2026-06-05T08:15:00Z",
+    "decidedBy": "Marcus Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Sakura Office Machines K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "69.999",
+    "sanctionsHit": false
+  }
+}

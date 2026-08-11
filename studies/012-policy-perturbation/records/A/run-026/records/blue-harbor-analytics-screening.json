@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-harbor-analytics-screening",
+  "decision": {
+    "decidedAt": "2026-06-02T13:05:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Harbor Analytics Inc.",
+    "registeredCountry": "US",
+    "riskScore": "39.99",
+    "sanctionsHit": true
+  }
+}

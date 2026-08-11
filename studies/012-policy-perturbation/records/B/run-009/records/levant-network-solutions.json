@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-network-solutions",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Leila Morgan",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Network Solutions",
+    "registeredCountry": "SY",
+    "riskScore": "95.75",
+    "sanctionsHit": false
+  }
+}

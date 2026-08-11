@@ -1,0 +1,15 @@
+{
+  "caseId": "redwood-trading-partners",
+  "decision": {
+    "decidedAt": "2026-06-08T09:00:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Redwood Trading Partners Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "12.7",
+    "sanctionsHit": true
+  }
+}

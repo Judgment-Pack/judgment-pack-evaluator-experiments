@@ -1,0 +1,15 @@
+{
+  "caseId": "granite-freight-tools",
+  "decision": {
+    "decidedAt": "2026-06-08T11:55:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Granite Freight Tools GmbH",
+    "registeredCountry": "DE",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

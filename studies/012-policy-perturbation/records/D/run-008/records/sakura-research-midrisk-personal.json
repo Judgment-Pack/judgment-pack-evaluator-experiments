@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-research-midrisk-personal",
+  "decision": {
+    "decidedAt": "2026-06-04T11:05:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura Research KK",
+    "registeredCountry": "JP",
+    "riskScore": "58.25",
+    "sanctionsHit": false
+  }
+}

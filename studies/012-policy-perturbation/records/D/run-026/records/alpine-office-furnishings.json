@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-office-furnishings",
+  "decision": {
+    "decidedAt": "2026-06-08T09:20:00Z",
+    "decidedBy": "Amira Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Alpine Office Furnishings AG",
+    "registeredCountry": "CH",
+    "riskScore": "71.999",
+    "sanctionsHit": false
+  }
+}

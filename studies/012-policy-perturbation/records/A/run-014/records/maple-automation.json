@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-automation",
+  "decision": {
+    "decidedAt": "2026-06-12T12:35:00Z",
+    "decidedBy": "Marcus Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Maple Automation Corp.",
+    "registeredCountry": "CA",
+    "riskScore": "40",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-facilities-partners",
+  "decision": {
+    "decidedAt": "2026-06-08T12:30:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Facilities Partners SpA",
+    "registeredCountry": "CL",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

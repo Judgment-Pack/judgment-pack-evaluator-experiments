@@ -1,0 +1,15 @@
+{
+  "caseId": "delta-payroll-services",
+  "decision": {
+    "decidedAt": "2026-06-08T09:50:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Delta Payroll Services Pty Ltd",
+    "registeredCountry": "AU",
+    "riskScore": "52.4",
+    "sanctionsHit": false
+  }
+}

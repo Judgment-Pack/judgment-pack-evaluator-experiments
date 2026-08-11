@@ -1,0 +1,15 @@
+{
+  "caseId": "damascus-data-services",
+  "decision": {
+    "decidedAt": "2026-06-15T10:35:00Z",
+    "decidedBy": "Jonas Patel",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Damascus Data Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88.4",
+    "sanctionsHit": false
+  }
+}

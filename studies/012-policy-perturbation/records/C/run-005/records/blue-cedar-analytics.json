@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-cedar-analytics",
+  "decision": {
+    "decidedAt": "2026-06-02T14:05:00Z",
+    "decidedBy": "Owen Malik",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Cedar Analytics LLC",
+    "registeredCountry": "US",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

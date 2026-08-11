@@ -1,0 +1,15 @@
+{
+  "caseId": "sakura-hr-personal-threshold",
+  "decision": {
+    "decidedAt": "2026-06-11T09:10:00Z",
+    "decidedBy": "Elena Rossi",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Sakura HR Solutions K.K.",
+    "registeredCountry": "JP",
+    "riskScore": "45",
+    "sanctionsHit": false
+  }
+}

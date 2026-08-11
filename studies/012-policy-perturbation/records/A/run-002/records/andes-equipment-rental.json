@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-equipment-rental",
+  "decision": {
+    "decidedAt": "2026-06-22T13:10:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Equipment Rental SpA",
+    "registeredCountry": "CL",
+    "riskScore": "39.5",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "rheinland-industrial-parts",
+    "vendor": {
+      "legalName": "Rheinland Industrial Parts GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-analytics",
+    "vendor": {
+      "legalName": "Cedar Analytics Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-services",
+    "vendor": {
+      "legalName": "Sakura Data Services Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nand",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "harbour-customer-insights",
+    "vendor": {
+      "legalName": "Harbour Customer Insights Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nand",
+      "decidedAt": "2026-06-02T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-benefits-platform",
+    "vendor": {
+      "legalName": "Fjord Benefits Platform AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-logistics",
+    "vendor": {
+      "legalName": "Alpine Logistics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-03T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "liffey-cloud-hosting",
+    "vendor": {
+      "legalName": "Liffey Cloud Hosting Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "IE",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-03T10:35:00Z"
+    }
+  },
+  {
+    "caseId": "andes-equipment-leasing",
+    "vendor": {
+      "legalName": "Andes Equipment Leasing SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nand",
+      "decidedAt": "2026-06-03T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-trade-bureau",
+    "vendor": {
+      "legalName": "Pyongyang Trade Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Omar Haddad",
+      "decidedAt": "2026-06-04T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-document-solutions",
+    "vendor": {
+      "legalName": "Tehran Document Solutions Company",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Omar Haddad",
+      "decidedAt": "2026-06-04T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-network-services",
+    "vendor": {
+      "legalName": "Damascus Network Services LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "85.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Omar Haddad",
+      "decidedAt": "2026-06-04T11:50:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-metals",
+    "vendor": {
+      "legalName": "Meridian Metals Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Sofia Alvarez",
+      "decidedAt": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-procurement-group",
+    "vendor": {
+      "legalName": "Caspian Procurement Group",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Sofia Alvarez",
+      "decidedAt": "2026-06-05T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-facilities-management",
+    "vendor": {
+      "legalName": "Tulip Facilities Management B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-05T13:25:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-payroll-systems",
+    "vendor": {
+      "legalName": "Baltic Payroll Systems OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "0.01"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T15:55:00Z"
+    }
+  }
+]

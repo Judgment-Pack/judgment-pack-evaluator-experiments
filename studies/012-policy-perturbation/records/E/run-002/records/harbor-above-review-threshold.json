@@ -1,0 +1,15 @@
+{
+  "caseId": "harbor-above-review-threshold",
+  "decision": {
+    "decidedAt": "2026-06-04T13:35:00Z",
+    "decidedBy": "Jon Bell",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Harbor Logistics Pte. Ltd.",
+    "registeredCountry": "SG",
+    "riskScore": "70.01",
+    "sanctionsHit": false
+  }
+}

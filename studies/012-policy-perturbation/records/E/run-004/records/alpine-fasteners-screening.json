@@ -1,0 +1,15 @@
+{
+  "caseId": "alpine-fasteners-screening",
+  "decision": {
+    "decidedAt": "2026-06-12T09:50:00Z",
+    "decidedBy": "Mara Chen",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Alpine Fasteners AG",
+    "registeredCountry": "CH",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

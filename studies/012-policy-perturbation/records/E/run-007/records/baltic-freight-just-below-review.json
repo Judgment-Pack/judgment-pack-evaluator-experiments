@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-freight-just-below-review",
+  "decision": {
+    "decidedAt": "2026-06-07T11:55:00Z",
+    "decidedBy": "Jonah Clarke",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Baltic Freight O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "69.99",
+    "sanctionsHit": false
+  }
+}

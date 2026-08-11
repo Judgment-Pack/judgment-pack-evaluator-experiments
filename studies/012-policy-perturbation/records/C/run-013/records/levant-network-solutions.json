@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-network-solutions",
+  "decision": {
+    "decidedAt": "2026-06-05T15:05:00Z",
+    "decidedBy": "Priya Nair",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Levant Network Solutions LLC",
+    "registeredCountry": "SY",
+    "riskScore": "92.25",
+    "sanctionsHit": false
+  }
+}

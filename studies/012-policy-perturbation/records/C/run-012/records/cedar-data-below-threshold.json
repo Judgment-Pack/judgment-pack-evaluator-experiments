@@ -1,0 +1,15 @@
+{
+  "caseId": "cedar-data-below-threshold",
+  "decision": {
+    "decidedAt": "2026-06-08T10:00:00Z",
+    "decidedBy": "Priya Shah",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Cedar Data Services Inc.",
+    "registeredCountry": "US",
+    "riskScore": "39.99",
+    "sanctionsHit": false
+  }
+}

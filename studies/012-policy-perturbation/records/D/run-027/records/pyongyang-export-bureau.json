@@ -1,0 +1,15 @@
+{
+  "caseId": "pyongyang-export-bureau",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Claire Dubois",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Pyongyang Export Bureau",
+    "registeredCountry": "KP",
+    "riskScore": "3.5",
+    "sanctionsHit": false
+  }
+}

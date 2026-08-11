@@ -1,0 +1,15 @@
+{
+  "caseId": "andes-security-consulting",
+  "decision": {
+    "decidedAt": "2026-06-11T09:45:00Z",
+    "decidedBy": "Priya Nwosu",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Andes Security Consulting SpA",
+    "registeredCountry": "CL",
+    "riskScore": "100",
+    "sanctionsHit": false
+  }
+}

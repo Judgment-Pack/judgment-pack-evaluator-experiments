@@ -1,0 +1,15 @@
+{
+  "caseId": "levant-infrastructure-services",
+  "decision": {
+    "decidedAt": "2026-06-15T14:55:00Z",
+    "decidedBy": "Owen Mercer",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Levant Infrastructure Services LLC",
+    "registeredCountry": "SY",
+    "riskScore": "88",
+    "sanctionsHit": false
+  }
+}

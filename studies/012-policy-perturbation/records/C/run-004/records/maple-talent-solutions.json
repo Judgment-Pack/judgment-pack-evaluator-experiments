@@ -1,0 +1,15 @@
+{
+  "caseId": "maple-talent-solutions",
+  "decision": {
+    "decidedAt": "2026-06-12T14:50:00Z",
+    "decidedBy": "Elena Park",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Maple Talent Solutions Inc.",
+    "registeredCountry": "CA",
+    "riskScore": "0",
+    "sanctionsHit": false
+  }
+}

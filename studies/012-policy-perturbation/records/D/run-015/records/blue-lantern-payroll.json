@@ -1,0 +1,15 @@
+{
+  "caseId": "blue-lantern-payroll",
+  "decision": {
+    "decidedAt": "2026-06-03T11:20:00Z",
+    "decidedBy": "Jonas Reed",
+    "outcome": "clear"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Blue Lantern Payroll Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "44.99",
+    "sanctionsHit": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "meridian-metals",
+  "decision": {
+    "decidedAt": "2026-06-05T08:30:00Z",
+    "decidedBy": "Sofia Alvarez",
+    "outcome": "reject"
+  },
+  "vendor": {
+    "handlesPersonalData": false,
+    "legalName": "Meridian Metals Ltd.",
+    "registeredCountry": "GB",
+    "riskScore": "5",
+    "sanctionsHit": true
+  }
+}

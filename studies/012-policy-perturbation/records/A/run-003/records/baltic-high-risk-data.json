@@ -1,0 +1,15 @@
+{
+  "caseId": "baltic-high-risk-data",
+  "decision": {
+    "decidedAt": "2026-06-05T14:10:00Z",
+    "decidedBy": "Priya Nordin",
+    "outcome": "manual-review"
+  },
+  "vendor": {
+    "handlesPersonalData": true,
+    "legalName": "Baltic Identity Labs O\u00dc",
+    "registeredCountry": "EE",
+    "riskScore": "84.25",
+    "sanctionsHit": false
+  }
+}
