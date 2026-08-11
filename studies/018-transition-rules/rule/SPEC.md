@@ -36,9 +36,10 @@ A **rule configuration** states one relying party's rule for one series:
  "windowDuration": <string> | null}
 ```
 
-Rules are **configuration, not code paths**, so that no rule is privileged by construction
-and a fourth rule would be a configuration rather than a patch. The vocabulary is closed;
-an unregistered rule is fail-closed.
+Rule **selection** is configuration; the vocabulary and each rule's semantics are code, so a
+fourth rule would be a registered patch and not merely a configuration (round-1 R1-7 — the
+earlier claim to the contrary is withdrawn). The vocabulary is closed; an unregistered rule is fail-closed, `position-window` must name
+exactly one window form, and the other rules must name none.
 
 ## 3. The evaluation ceremony
 
@@ -78,9 +79,10 @@ Outcome strings are `usable`, `unavailable`, or `not-usable:<code>`.
 | Code | Meaning |
 |---|---|
 | `transition-unavailable` | a required input or configuration is absent or malformed, the rule is stated for another series, the rule needs a citation and none is retained or it cannot be located in this history, or the rule names an ordering this apparatus does not have — fail-closed, never a permission |
-| `not-usable-version-retired` | the version is not in the supported set at the auditor's snapshot and the stated rule permits no reliance beyond that point |
+| `not-usable-not-in-supported-set` | this exact `(version, digest)` is not in the supported set at the auditor's snapshot, and the stated rule permits no reliance beyond that point. It says non-membership, never "retired": Study 016 establishes only the former |
+| `not-usable-never-supported` | this exact `(version, digest)` is in the supported set at **no** position of the history — it did not depart, it was never there |
 | `not-usable-window-elapsed` | more registry positions have elapsed since the version left the set than the stated window permits |
-| `not-usable-cited-state-not-supported` | the cited head is at or after the position at which the version left the supported set |
+| `not-usable-cited-state-not-supported` | this exact `(version, digest)` is not in the supported set **at the cited position**, whatever it may be elsewhere in the history |
 
 ## 5. What a verdict means, exactly
 

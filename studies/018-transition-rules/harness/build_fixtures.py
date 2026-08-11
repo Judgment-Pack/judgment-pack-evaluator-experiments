@@ -165,6 +165,13 @@ def build_payloads():
     cells["neg-currency-unauthenticated"]["snapshot.json"] = _json.dumps(
         broken, indent=2, ensure_ascii=False).encode("utf-8")
 
+    # Round-2 R2-1's controls: a digest the registry never bound did not depart.
+    never_bound = commitment_bytes(digest="sha256:" + "b" * 64)
+    cells["neg-never-supported-digest"] = cell("stop-at-retirement", cited=None,
+                                               commitment=never_bound)
+    cells["neg-never-supported-window"] = cell("position-window", cited=2, window=5,
+                                               commitment=never_bound)
+
     # A rule stated for another series confers nothing here.
     cells["bnd-foreign-series-rule"] = cell("grandfather-on-cited-support", cited=2,
                                             series=OTHER_SERIES_ID)

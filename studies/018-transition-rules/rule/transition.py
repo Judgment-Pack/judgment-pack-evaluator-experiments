@@ -41,7 +41,8 @@ RULES = ("stop-at-retirement", "position-window", "grandfather-on-cited-support"
 
 CODES = (
     "transition-unavailable",
-    "not-usable-version-retired",
+    "not-usable-not-in-supported-set",
+    "not-usable-never-supported",
     "not-usable-window-elapsed",
     "not-usable-cited-state-not-supported",
 )
@@ -157,6 +158,35 @@ def _left_position(payloads, series_id, member, fold):
     return left
 
 
+def _ever_supported(payloads, series_id, member, fold):
+    """True when `member` is in the supported set after some prefix.
+
+    Distinguishes a version that departed from one that was never bound at all
+    (round-2 R2-1): Study 016 establishes non-membership, never retirement, and
+    a wrong digest or an unknown version must not receive a departure code.
+    """
+    for position in range(1, len(payloads) + 1):
+        state = _supported_at(payloads, series_id, member, position, fold)
+        if state is None:
+            return None
+        if state:
+            return True
+    return False
+
+
+def _departure_after(payloads, series_id, member, cited, fold):
+    """The first position after `cited` at which `member` leaves the set."""
+    previous = _supported_at(payloads, series_id, member, cited, fold)
+    for position in range(cited + 1, len(payloads) + 1):
+        current = _supported_at(payloads, series_id, member, position, fold)
+        if current is None:
+            return None
+        if previous and not current:
+            return position
+        previous = current
+    return None
+
+
 ADJUDICABLE_CURRENCY = ("pass", "fail:not-current-at-snapshot")
 
 
@@ -214,10 +244,23 @@ def layer_transition(commitment, snapshot_digests, snapshot_payloads,
 
     # `stop-at-retirement` consumes the registry's own answer and needs no
     # citation — the rule for which the citation buys nothing.
+    # Every branch below decides from the pinned fold's own answers. Nothing
+    # infers a departure from a bare non-membership (round-2 R2-1) and nothing
+    # treats never-bound as still-supported (round-2 R1-1/R1-2 residuals).
     if config["rule"] == "stop-at-retirement":
         if currency_outcome == "pass":
             return result("usable", None, "in the supported set at the auditor's snapshot")
-        return _unusable("not-usable-version-retired",
+        if fold is None or not isinstance(snapshot_payloads, list):
+            return _unavailable("no history to distinguish departure from never-supported")
+        ever = _ever_supported(snapshot_payloads, series_id, member, fold)
+        if ever is None:
+            return _unavailable("the history does not fold cleanly")
+        if not ever:
+            return _unusable("not-usable-never-supported",
+                             "this exact (version, digest) is in the supported set at no "
+                             "position of this history - it did not depart, it was never "
+                             "there, and the registry establishes only non-membership")
+        return _unusable("not-usable-not-in-supported-set",
                          "not in the supported set at the auditor's snapshot, and this "
                          "rule permits no reliance beyond that point")
 
@@ -242,36 +285,43 @@ def layer_transition(commitment, snapshot_digests, snapshot_payloads,
     cited_position = snapshot_digests.index(citation["citedHead"]) + 1
     supported_at_cited = _supported_at(snapshot_payloads, series_id, member,
                                        cited_position, fold)
-    if supported_at_cited is None:
+    ever = _ever_supported(snapshot_payloads, series_id, member, fold)
+    if supported_at_cited is None or ever is None:
         return _unavailable("the history does not fold cleanly to the cited position")
-    left = _left_position(snapshot_payloads, series_id, member, fold)
-    fields = {"citedPosition": cited_position, "retiredAtPosition": left}
+    departure = _departure_after(snapshot_payloads, series_id, member,
+                                 cited_position, fold) if supported_at_cited else None
+    fields = {"citedPosition": cited_position, "retiredAtPosition": departure}
+
+    if not supported_at_cited:
+        if not ever:
+            return _unusable("not-usable-never-supported",
+                             "this exact (version, digest) is in the supported set at no "
+                             "position of this history", **fields)
+        return _unusable("not-usable-cited-state-not-supported",
+                         "this exact (version, digest) is not in the supported set at the "
+                         "cited position, whatever it may be elsewhere in the history",
+                         **fields)
 
     if config["rule"] == "grandfather-on-cited-support":
-        if supported_at_cited:
-            return result("usable", None,
-                          "the cited head is a position at which this exact "
-                          "(version, digest) was in the supported set, and this rule does "
-                          "not block reliance on that ground. It establishes nothing about "
-                          "when the artifact was created", **fields)
-        return _unusable("not-usable-cited-state-not-supported",
-                         "the cited head is not a position at which this exact "
-                         "(version, digest) was in the supported set", **fields)
-
-    # position-window
-    if left is None:
         return result("usable", None,
-                      "this (version, digest) has not left the supported set at this "
-                      "snapshot", **fields)
-    if not supported_at_cited or cited_position >= left:
-        return _unusable("not-usable-cited-state-not-supported",
-                         "the cited head is not a supported position before the most "
-                         "recent departure at position %d" % left, **fields)
-    elapsed = len(snapshot_digests) - left
+                      "the cited position is one at which this exact (version, digest) is "
+                      "in the supported set, and this rule does not block reliance on that "
+                      "ground. It establishes nothing about when the artifact was created",
+                      **fields)
+
+    # position-window: measured from the first departure AFTER the cited position,
+    # so a version reinstated later is handled by the fold rather than by arithmetic.
+    if departure is None:
+        return result("usable", None,
+                      "this exact (version, digest) does not leave the supported set after "
+                      "the cited position anywhere in this history", **fields)
+    elapsed = len(snapshot_digests) - departure
     if elapsed <= config["windowPositions"]:
         return result("usable", None,
-                      "%d position(s) elapsed since the most recent departure; the window "
-                      "permits %d" % (elapsed, config["windowPositions"]), **fields)
+                      "%d position(s) elapsed since the departure at position %d; the "
+                      "window permits %d" % (elapsed, departure, config["windowPositions"]),
+                      **fields)
     return _unusable("not-usable-window-elapsed",
-                     "%d position(s) elapsed since the most recent departure; the window "
-                     "permits %d" % (elapsed, config["windowPositions"]), **fields)
+                     "%d position(s) elapsed since the departure at position %d; the "
+                     "window permits %d" % (elapsed, departure, config["windowPositions"]),
+                     **fields)

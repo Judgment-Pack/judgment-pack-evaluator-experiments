@@ -35,6 +35,45 @@ around the case that works.
 Post-revision state: 19 cells (11 endpoints, matrixVersion 2), 34 harness tests green, build
 pilot `R1 holds`.
 
-## Round 2 — pending
+## Round 2 — 2026-08-11
 
-Confirmation of the thirteen dispositions, plus the reviewer-authored holdout stratum.
+Same reviewer. 3 RESOLVED, 9 PARTIALLY RESOLVED, 1 NOT RESOLVED, one new MAJOR and one new
+MINOR — plus a 10-cell holdout set authored. Prompt and findings verbatim in
+[`reviews/round-2/`](reviews/round-2/). All **accepted**.
+
+The round's substance is one finding wearing several numbers: **the rule branches still
+contradicted the fold they had been made to call.** Round 1 replaced the hand-rolled
+lifecycle tracker with the pinned upstream's `fold_supported`, but the branches around it
+still reasoned from a single departure position, so a never-bound digest reached `usable`
+under `position-window` (never-entered read as still-supported), a reinstated binding was
+refused at a position the fold calls supported, and every non-membership — including a
+wrong digest and an unknown version — was reported as a *retirement* Study 016 never
+establishes (R2-1).
+
+Every branch now decides from the fold's own answers over prefixes:
+
+| # | Disposition |
+| --- | --- |
+| R1-1 / R1-2 residuals, R2-1 | **Accepted.** New codes `not-usable-not-in-supported-set` (departed) and `not-usable-never-supported` (never bound anywhere in the history) replace the single retirement code; `position-window` measures from the first departure **after** the cited position, so reinstatement is handled by the fold rather than by arithmetic; and two never-bound-digest control gates are registered. Verified: never-bound is `never-supported` under all three rules, the reinstated binding is `usable` at position 5, and the window case reports its true departure at position 4. |
+| R1-4, R1-5 residuals | **Accepted.** The stale `div-run-to-expiry` usage example is gone and the SPEC now defines each code by what the fold establishes rather than by an at/after-departure condition. |
+| R1-6 residual | **Accepted.** The ownership, placement and "picking is not its job" conclusions are removed from the remaining documents, and the claim to measure Unresolved #10 is narrowed to informing it. |
+| R1-7 residual | **Accepted.** The "configuration, not code paths" claim is withdrawn in the SPEC: selection is configured, semantics and vocabulary are code requiring a registered patch. |
+| R1-10 residual | **Accepted.** R1's wording now names the structured channels `decide()` actually counts, and the renderer publishes `citedPosition`/`retiredAt` instead of stale witness triples. |
+| R1-11 residual | **Accepted.** The README headline now matches the matrix: four configured evaluations, three exact outcomes. |
+| R1-13 (NOT RESOLVED) | **Accepted.** The builder derives the authority from the registered label, and the PINS text no longer claims the writer is off the scoring path — the scorer legitimately loads it to recompute authority pins, so the claim was corrected rather than the behaviour. |
+| R2-2 | **Accepted.** The preregistration's cell and role counts were stale against the matrix; reconciled, with the counts derived from the matrix by a harness test. |
+| R1-3, R1-8, R1-9, R1-12 | **Confirmed RESOLVED** by the reviewer. The endpoint set was additionally scanned for hidden duplication and found unique. |
+
+A note on the apparatus catching itself: after the semantics change, two cells' registered
+`retiredAtPosition` values were stale, and the run reported `R1 falsified` on
+`transition:retiredAtPosition` — the structured-evidence channel added in round 1 doing
+exactly what it was added for. The registrations were corrected to what the layer now
+reports, and the reason is recorded here rather than silently amended.
+
+Post-revision state: 21 cells (11 endpoints), 36 harness tests green, build pilot
+`R1 holds`. The reviewer's 10 cells are **not yet landed** — that is the next step, together
+with their construction hooks and structured-expectation map.
+
+## Round 3 — pending
+
+Confirmation of the round-2 dispositions, and of the holdout landing once it is made.

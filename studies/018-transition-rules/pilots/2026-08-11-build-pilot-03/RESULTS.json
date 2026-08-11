@@ -1,15 +1,15 @@
 {
-  "attemptRoot": "2026-08-11-build-pilot-02",
+  "attemptRoot": "2026-08-11-build-pilot-03",
   "label": "PILOT",
   "includeHoldout": false,
   "pipelineInvalid": false,
   "pinsRawSha256": "d5098122f1ae771b2001108eb3a2fab2162c34f7434c7a05210ba291388eadb7",
-  "matrixSha256": "fd13317834d6d8d3ad29786c0fb215ef5c09d132defb912a3bbbfe67fbf53b6f",
+  "matrixSha256": "bb52614b4357044a2ca310a8a82526baf5f65807c74cb730a802108bf091c201",
   "verdict": "R1 holds (PILOT)",
   "verdictCells": [],
   "summary": {
-    "cells": 19,
-    "adjudicated": 19,
+    "cells": 21,
+    "adjudicated": 21,
     "endpoints": 11,
     "endpointDivergences": 0,
     "registeredUndetectedConfirmed": [
@@ -38,7 +38,7 @@
       },
       "detail": {
         "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
-        "transition": "the cited head is a position at which this exact (version, digest) was in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
+        "transition": "the cited position is one at which this exact (version, digest) is in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
       }
     },
     "bnd-duration-window": {
@@ -94,13 +94,13 @@
       "adjudicated": true,
       "expected": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
       "observed": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
-      "combined": "not-usable:not-usable-version-retired",
+      "combined": "not-usable:not-usable-not-in-supported-set",
       "divergentLayers": [],
       "divergent": false,
       "registeredUndetected": false,
@@ -142,13 +142,13 @@
       "adjudicated": true,
       "expected": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
       "observed": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
-      "combined": "not-usable:not-usable-version-retired",
+      "combined": "not-usable:not-usable-not-in-supported-set",
       "divergentLayers": [],
       "divergent": false,
       "registeredUndetected": false,
@@ -202,11 +202,11 @@
       "registeredUndetected": false,
       "ruleEvidence": {
         "citedPosition": 4,
-        "retiredAtPosition": 3
+        "retiredAtPosition": null
       },
       "detail": {
         "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
-        "transition": "the cited head is not a position at which this exact (version, digest) was in the supported set"
+        "transition": "this exact (version, digest) is not in the supported set at the cited position, whatever it may be elsewhere in the history"
       }
     },
     "cite-unsupported-window": {
@@ -226,11 +226,11 @@
       "registeredUndetected": false,
       "ruleEvidence": {
         "citedPosition": 4,
-        "retiredAtPosition": 3
+        "retiredAtPosition": null
       },
       "detail": {
         "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
-        "transition": "the cited head is not a supported position before the most recent departure at position 3"
+        "transition": "this exact (version, digest) is not in the supported set at the cited position, whatever it may be elsewhere in the history"
       }
     },
     "div-grandfather-on-cited-support": {
@@ -254,7 +254,7 @@
       },
       "detail": {
         "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
-        "transition": "the cited head is a position at which this exact (version, digest) was in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
+        "transition": "the cited position is one at which this exact (version, digest) is in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
       }
     },
     "div-position-window-elapsed": {
@@ -278,7 +278,7 @@
       },
       "detail": {
         "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
-        "transition": "2 position(s) elapsed since the most recent departure; the window permits 1"
+        "transition": "2 position(s) elapsed since the departure at position 3; the window permits 1"
       }
     },
     "div-position-window-open": {
@@ -302,7 +302,7 @@
       },
       "detail": {
         "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
-        "transition": "2 position(s) elapsed since the most recent departure; the window permits 5"
+        "transition": "2 position(s) elapsed since the departure at position 3; the window permits 5"
       }
     },
     "div-stop-at-retirement": {
@@ -310,13 +310,13 @@
       "adjudicated": true,
       "expected": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
       "observed": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
-      "combined": "not-usable:not-usable-version-retired",
+      "combined": "not-usable:not-usable-not-in-supported-set",
       "divergentLayers": [],
       "divergent": false,
       "registeredUndetected": false,
@@ -351,6 +351,54 @@
       "detail": {
         "currency": "checkpoint 2 does not verify under the pinned authority key",
         "transition": "the currency layer returned 'fail:snapshot-signature-invalid': a transition rule is evaluated only over an authenticated membership answer, never over an integrity or availability failure"
+      }
+    },
+    "neg-never-supported-digest": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "combined": "not-usable:not-usable-never-supported",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) is not in the supported set at snapshot position 5",
+        "transition": "this exact (version, digest) is in the supported set at no position of this history - it did not depart, it was never there, and the registry establishes only non-membership"
+      }
+    },
+    "neg-never-supported-window": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "combined": "not-usable:not-usable-never-supported",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) is not in the supported set at snapshot position 5",
+        "transition": "this exact (version, digest) is in the supported set at no position of this history"
       }
     },
     "neg-ruleconfig-malformed": {
@@ -398,7 +446,7 @@
       },
       "detail": {
         "currency": "current at snapshot position 2",
-        "transition": "the cited head is a position at which this exact (version, digest) was in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
+        "transition": "the cited position is one at which this exact (version, digest) is in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
       }
     },
     "pos-current-stop": {
@@ -446,7 +494,7 @@
       },
       "detail": {
         "currency": "current at snapshot position 2",
-        "transition": "this (version, digest) has not left the supported set at this snapshot"
+        "transition": "this exact (version, digest) does not leave the supported set after the cited position anywhere in this history"
       }
     },
     "unchanged": {

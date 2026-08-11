@@ -54,7 +54,7 @@ def run(world, rule, cited=None, currency="fail:not-current-at-snapshot", **kw):
 
 def test_the_divergence_is_deterministic(world):
     """One registry verdict, four usability answers, same evidence."""
-    assert out(run(world, "stop-at-retirement")) == "not-usable:not-usable-version-retired"
+    assert out(run(world, "stop-at-retirement")) == "not-usable:not-usable-not-in-supported-set"
     assert out(run(world, "position-window", cited=2, window_positions=5)) == "usable"
     assert out(run(world, "position-window", cited=2, window_positions=1)) == \
         "not-usable:not-usable-window-elapsed"
@@ -63,7 +63,7 @@ def test_the_divergence_is_deterministic(world):
 
 def test_stop_at_retirement_needs_no_citation(world):
     assert out(run(world, "stop-at-retirement", cited=None)) == \
-        "not-usable:not-usable-version-retired"
+        "not-usable:not-usable-not-in-supported-set"
     assert out(run(world, "stop-at-retirement", currency="pass")) == "usable"
 
 
@@ -130,8 +130,9 @@ def test_duplicate_members_refuse(world):
 
 
 def test_every_registered_code_is_reachable():
-    assert {"transition-unavailable", "not-usable-version-retired",
-            "not-usable-window-elapsed", "not-usable-cited-state-not-supported"} == set(tr.CODES)
+    assert {"transition-unavailable", "not-usable-not-in-supported-set",
+            "not-usable-never-supported", "not-usable-window-elapsed",
+            "not-usable-cited-state-not-supported"} == set(tr.CODES)
 
 
 def test_evaluator_never_imports_the_writer():
@@ -156,3 +157,38 @@ def test_position_window_needs_exactly_one_window_form(world):
     for rule in ("stop-at-retirement", "grandfather-on-cited-support"):
         carried = run(world, rule, cited=2, window_positions=1)
         assert carried["code"] == "transition-unavailable"
+
+
+def test_never_bound_digest_is_never_usable(world):
+    """Round-2 R2-1 and the R1-1/R1-2 residual: a digest the registry never
+    bound did not depart, and must not reach `usable` under any rule."""
+    never = {"commitmentVersion": "1",
+             "judgment": {"packId": SERIES, "packVersion": "2.0.0",
+                          "packDigest": "sha256:" + "b" * 64}}
+    for rule, kw, cited in (("stop-at-retirement", {}, None),
+                            ("position-window", {"window_positions": 5}, 2),
+                            ("grandfather-on-cited-support", {}, 2)):
+        config = ct.ruleconfig_bytes(series_id=SERIES, rule=rule, **kw)
+        citation = None if cited is None else ct.citation_bytes(
+            series_id=SERIES, cited_head=world["digests"][cited - 1])
+        result = tr.layer_transition(never, world["digests"], world["payloads"],
+                                     citation, config, "fail:not-current-at-snapshot",
+                                     fold=world["fold"])
+        assert (result["verdict"], result["code"]) == (
+            "not-usable", "not-usable-never-supported"), rule
+
+
+def test_reinstated_binding_follows_the_fold(world):
+    """2.0.0/digest-B departs at 4 and returns at 5; the rules must track that."""
+    real = {"commitmentVersion": "1",
+            "judgment": {"packId": SERIES, "packVersion": "2.0.0", "packDigest": DB}}
+    def go(rule, cited, **kw):
+        config = ct.ruleconfig_bytes(series_id=SERIES, rule=rule, **kw)
+        citation = ct.citation_bytes(series_id=SERIES,
+                                     cited_head=world["digests"][cited - 1])
+        return tr.layer_transition(real, world["digests"], world["payloads"], citation,
+                                   config, "fail:not-current-at-snapshot",
+                                   fold=world["fold"])
+    assert go("grandfather-on-cited-support", 5)["verdict"] == "usable"
+    assert go("position-window", 2, window_positions=1)["verdict"] == "usable"
+    assert go("position-window", 2, window_positions=1)["retiredAtPosition"] == 4

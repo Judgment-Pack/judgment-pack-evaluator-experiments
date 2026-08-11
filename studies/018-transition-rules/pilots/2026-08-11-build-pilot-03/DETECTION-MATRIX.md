@@ -19,7 +19,7 @@ consumes that verdict as a fact and answers usability under a stated rule.
 | neg-currency-unauthenticated | control-gate | currency | `fail:snapshot-signature-invalid` | `fail:snapshot-signature-invalid` | — |
 | neg-currency-unauthenticated | control-gate | transition | `unavailable` | `unavailable` | compared=None, attributed=None, unattributed=None |
 | div-stop-at-retirement | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
-| div-stop-at-retirement | endpoint | transition | `not-usable:not-usable-version-retired` | `not-usable:not-usable-version-retired` | compared=None, attributed=None, unattributed=None |
+| div-stop-at-retirement | endpoint | transition | `not-usable:not-usable-not-in-supported-set` | `not-usable:not-usable-not-in-supported-set` | compared=None, attributed=None, unattributed=None |
 | div-position-window-open | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
 | div-position-window-open | endpoint | transition | `usable` | `usable` | compared=None, attributed=None, unattributed=None |
 | div-position-window-elapsed | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
@@ -27,7 +27,7 @@ consumes that verdict as a fact and answers usability under a stated rule.
 | div-grandfather-on-cited-support | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
 | div-grandfather-on-cited-support | endpoint | transition | `usable` | `usable` | compared=None, attributed=None, unattributed=None |
 | cite-absent-stop-unaffected | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
-| cite-absent-stop-unaffected | endpoint | transition | `not-usable:not-usable-version-retired` | `not-usable:not-usable-version-retired` | compared=None, attributed=None, unattributed=None |
+| cite-absent-stop-unaffected | endpoint | transition | `not-usable:not-usable-not-in-supported-set` | `not-usable:not-usable-not-in-supported-set` | compared=None, attributed=None, unattributed=None |
 | cite-absent-grandfather-unavailable | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
 | cite-absent-grandfather-unavailable | endpoint | transition | `unavailable` | `unavailable` | compared=None, attributed=None, unattributed=None |
 | cite-unsupported-grandfather | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
@@ -41,9 +41,13 @@ consumes that verdict as a fact and answers usability under a stated rule.
 | bnd-duration-window | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
 | bnd-duration-window | endpoint | transition | `unavailable` | `unavailable` | compared=None, attributed=None, unattributed=None |
 | bnd-mint-time-refusal | demonstration | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
-| bnd-mint-time-refusal | demonstration | transition | `not-usable:not-usable-version-retired` | `not-usable:not-usable-version-retired` | compared=None, attributed=None, unattributed=None |
+| bnd-mint-time-refusal | demonstration | transition | `not-usable:not-usable-not-in-supported-set` | `not-usable:not-usable-not-in-supported-set` | compared=None, attributed=None, unattributed=None |
 | bnd-foreign-series-rule | endpoint | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
 | bnd-foreign-series-rule | endpoint | transition | `unavailable` | `unavailable` | compared=None, attributed=None, unattributed=None |
+| neg-never-supported-digest | control-gate | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
+| neg-never-supported-digest | control-gate | transition | `not-usable:not-usable-never-supported` | `not-usable:not-usable-never-supported` | compared=None, attributed=None, unattributed=None |
+| neg-never-supported-window | control-gate | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
+| neg-never-supported-window | control-gate | transition | `not-usable:not-usable-never-supported` | `not-usable:not-usable-never-supported` | compared=None, attributed=None, unattributed=None |
 
 ## Registered pairs
 

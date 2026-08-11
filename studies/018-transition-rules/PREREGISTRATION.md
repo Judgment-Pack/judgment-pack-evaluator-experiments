@@ -77,8 +77,11 @@ only in the rule configuration.
 
 ## 4. Cells
 
-18 cells: 4 positive controls, 1 negative control (an unregistered rule is fail-closed), 13
-endpoints across divergence (D), citation value (C) and boundaries (B).
+21 cells (matrixVersion 2, the round-1/2 revision): 4 positive controls, 4 negative controls
+(an unregistered rule; an unauthenticated snapshot; and two never-bound-digest controls), 11
+endpoints across divergence (D), citation value (C) and boundaries (B), 1 descriptive row and
+1 demonstration — the last two byte-identical to endpoints they re-read, registered as identity
+groups and counted toward nothing. A harness test derives these counts from the matrix.
 `registeredAbsences` names the five cells that deliberately retain no citation, so an
 unregistered absence stays a validity failure rather than a finding. Cells that turn on
 *where* the artifact sits in the history additionally register `expectedRuleEvidence`

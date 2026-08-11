@@ -1,0 +1,8 @@
+{
+  "commitmentVersion": "1",
+  "judgment": {
+    "packId": "https://example.com/judgment-packs/transition-policy",
+    "packVersion": "1.0.0",
+    "packDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  }
+}

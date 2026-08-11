@@ -1,7 +1,7 @@
 {
   "matrixVersion": "2",
   "stratum": "locked-replication",
-  "note": "Registered cell expectations for Study 018, locked-replication stratum, revised at review round 1. Layers: currency = Study 016's frozen registry/verify_currency.py, a digest-pinned unmodified upstream reporting membership at snapshot and nothing more; transition = this study's rule evaluator (rule/SPEC.md), which is evaluated ONLY over an authenticated membership answer - 'pass' or exactly 'fail:not-current-at-snapshot' - and refuses every other currency outcome rather than reinterpreting it (round-1 R1-1). Membership at each cited prefix is computed by the pinned upstream's OWN fold, so lifecycle semantics are the upstream's by construction (round-1 R1-2). Expected values are adjudicated layer OUTCOME strings: 'pass'/'usable', 'unavailable', or '<verdict>:<code>'. combined is usable only when both layers permit it. Roles: endpoint rows decide R1; control-gate rows are validity gates evaluated first; descriptive and demonstration rows are published and count toward nothing. registeredUndetected marks a permissive outcome that is itself the registered finding. identityGroups registers deliberate byte-identity, verified by the scorer: bnd-backdated-citation IS div-grandfather-on-cited-support's bytes and bnd-mint-time-refusal IS cite-absent-stop-unaffected's - each is one adjudication carrying a second reading, so both are excluded from the endpoint count rather than inflating it. expectedRuleEvidence (citedPosition, retiredAtPosition) is adjudicated as its own transition:<field> divergence channel, so a cell cannot reach its registered outcome from the wrong position; R1 counts those channels.",
+  "note": "Registered cell expectations for Study 018, locked-replication stratum, revised at review round 1. Layers: currency = Study 016's frozen registry/verify_currency.py, a digest-pinned unmodified upstream reporting membership at snapshot and nothing more; transition = this study's rule evaluator (rule/SPEC.md), which is evaluated ONLY over an authenticated membership answer - 'pass' or exactly 'fail:not-current-at-snapshot' - and refuses every other currency outcome rather than reinterpreting it (round-1 R1-1). Membership at each cited prefix is computed by the pinned upstream's OWN fold, so lifecycle semantics are the upstream's by construction (round-1 R1-2). Expected values are adjudicated layer OUTCOME strings: 'pass'/'usable', 'unavailable', or '<verdict>:<code>'. combined is usable only when both layers permit it. Codes name what the fold establishes: not-in-supported-set for a tuple that departed, never-supported for one the registry never bound, cited-state-not-supported for a cited position that was not supported, window-elapsed for a departure older than the window. Roles: endpoint rows decide R1; control-gate rows are validity gates evaluated first; descriptive and demonstration rows are published and count toward nothing. registeredUndetected marks a permissive outcome that is itself the registered finding. identityGroups registers deliberate byte-identity, verified by the scorer: bnd-backdated-citation IS div-grandfather-on-cited-support's bytes and bnd-mint-time-refusal IS cite-absent-stop-unaffected's - each is one adjudication carrying a second reading, so both are excluded from the endpoint count rather than inflating it. expectedRuleEvidence (citedPosition, retiredAtPosition) is adjudicated as its own transition:<field> divergence channel, so a cell cannot reach its registered outcome from the wrong position; R1 counts those channels.",
   "identityGroups": [
     [
       "div-grandfather-on-cited-support",
@@ -120,7 +120,7 @@
       "construction": "full five-event history; the committed 1.0.0 left the supported set at position 3; stop-at-retirement",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
       "note": "the divergence, arm 1. All four div-* cells share commitment, snapshot, trust configuration AND citation byte-for-byte and differ only in ruleconfig.json - a harness test asserts the exact difference set. This arm refuses. It retains the citation its siblings carry even though the rule never reads it, so the four cells differ in ruleconfig.json alone",
       "expectedRuleEvidence": {
@@ -194,7 +194,7 @@
       "construction": "full history, NO citation retained; stop-at-retirement",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
       "note": "the citation's value is rule-dependent: this rule reaches its answer from the registry's own verdict and is unaffected by every citation finding in this matrix"
     },
@@ -226,10 +226,10 @@
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-cited-state-not-supported"
       },
-      "note": "the code names what the evidence establishes - the CITED STATE was not supported - and deliberately not when the artifact was created, which this apparatus cannot observe (round-1 R1-5)",
+      "note": "the code names what the evidence establishes - the CITED STATE was not supported - and deliberately not when the artifact was created, which this apparatus cannot observe (round-1 R1-5). retiredAtPosition is null by registration: a departure is reported only relative to a supported cited position, and this citation names one that was not supported - the layer does not volunteer a departure the rule did not use",
       "expectedRuleEvidence": {
         "citedPosition": 4,
-        "retiredAtPosition": 3
+        "retiredAtPosition": null
       }
     },
     {
@@ -244,10 +244,10 @@
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-cited-state-not-supported"
       },
-      "note": "the window rule refuses for the same reason rather than starting a window: a window measured from the departure says nothing about an artifact whose cited state was already unsupported",
+      "note": "the window rule refuses for the same reason rather than starting a window: a window measured from the departure says nothing about an artifact whose cited state was already unsupported. retiredAtPosition is null by registration: a departure is reported only relative to a supported cited position, and this citation names one that was not supported - the layer does not volunteer a departure the rule did not use",
       "expectedRuleEvidence": {
         "citedPosition": 4,
-        "retiredAtPosition": 3
+        "retiredAtPosition": null
       }
     },
     {
@@ -309,7 +309,7 @@
       "construction": "BYTE-IDENTICAL to cite-absent-stop-unaffected, re-read as the answer a producer's own check would have returned at mint time",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
-        "transition": "not-usable:not-usable-version-retired"
+        "transition": "not-usable:not-usable-not-in-supported-set"
       },
       "note": "DEMONSTRATION, published and never counted (round-1 R1-9): no producer stage, mint event, accepted-head policy or freshness rule exists in this apparatus, so the mint-time reading is prose over an existing adjudication and the identity is registered rather than left implicit. RFC 0011 Unresolved #11 makes such refusal conditional on a separately specified producer policy, which this study does not supply"
     },
@@ -326,6 +326,40 @@
         "transition": "unavailable"
       },
       "note": "a transition rule is stated per series and confers nothing outside it - the per-series discipline Study 016 applies to currency pins"
+    },
+    {
+      "id": "neg-never-supported-digest",
+      "category": "control-negative",
+      "variant": "config",
+      "role": "control-gate",
+      "attackerCapability": "tamper",
+      "registeredAbsences": [
+        "citation"
+      ],
+      "construction": "the full history with a commitment naming 1.0.0 at a digest the registry never bound; stop-at-retirement, no citation",
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "note": "validity gate and round-2 R2-1's closure: Study 016 establishes NON-MEMBERSHIP, never retirement. A wrong digest did not depart - it was never in the set - and the rule must say so with a different code rather than reporting a departure that did not happen"
+    },
+    {
+      "id": "neg-never-supported-window",
+      "category": "control-negative",
+      "variant": "config",
+      "role": "control-gate",
+      "attackerCapability": "tamper",
+      "registeredAbsences": [],
+      "construction": "the same never-bound digest; position-window windowPositions 5 with a citation of position 2",
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "note": "the same closure on the window rule, which previously returned USABLE for a never-bound digest by mistaking never-entered for still-supported (round-2 R1-1/R1-2 residual)",
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      }
     }
   ]
 }
