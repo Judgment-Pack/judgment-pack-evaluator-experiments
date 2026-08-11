@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-quartz-analytics",
+    "vendor": {
+      "legalName": "Blue Quartz Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-identity-services",
+    "vendor": {
+      "legalName": "Cedar Identity Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "lumen-benefits-processing",
+    "vendor": {
+      "legalName": "Lumen Benefits Processing S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-04T16:45:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-machine-parts",
+    "vendor": {
+      "legalName": "Harbor Machine Parts Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Morgan",
+      "decidedAt": "2026-06-05T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-logistics-network",
+    "vendor": {
+      "legalName": "Meridian Logistics Network B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-08T10:10:00Z"
+    }
+  },
+  {
+    "caseId": "silverfern-cloud-hosting",
+    "vendor": {
+      "legalName": "Silverfern Cloud Hosting Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-09T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "summit-industrial-controls",
+    "vendor": {
+      "legalName": "Summit Industrial Controls K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Morgan",
+      "decidedAt": "2026-06-10T15:00:00Z"
+    }
+  },
+  {
+    "caseId": "persia-trade-consortium",
+    "vendor": {
+      "legalName": "Persia Trade Consortium",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-11T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "koryo-data-systems",
+    "vendor": {
+      "legalName": "Koryo Data Systems Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-12T12:15:00Z"
+    }
+  },
+  {
+    "caseId": "levant-medical-imports",
+    "vendor": {
+      "legalName": "Levant Medical Imports LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "85.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-15T17:25:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-payment-solutions",
+    "vendor": {
+      "legalName": "Redwood Payment Solutions Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "18"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Morgan",
+      "decidedAt": "2026-06-16T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "orion-mineral-export",
+    "vendor": {
+      "legalName": "Orion Mineral Export Corporation",
+      "sanctionsHit": true,
+      "registeredCountry": "ZA",
+      "handlesPersonalData": false,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Chen",
+      "decidedAt": "2026-06-17T14:30:00Z"
+    }
+  },
+  {
+    "caseId": "euphrates-telecom-group",
+    "vendor": {
+      "legalName": "Euphrates Telecom Group",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-18T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-facilities-management",
+    "vendor": {
+      "legalName": "Alpine Facilities Management AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-19T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "saffron-customer-support",
+    "vendor": {
+      "legalName": "Saffron Customer Support Private Limited",
+      "sanctionsHit": false,
+      "registeredCountry": "IN",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Morgan",
+      "decidedAt": "2026-06-22T16:10:00Z"
+    }
+  }
+]

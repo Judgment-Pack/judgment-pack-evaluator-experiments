@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-sanctions",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-01-08T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-data-sanctions-override",
+    "vendor": {
+      "legalName": "Caspian Data Systems PLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-01-19T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-industrial-embargo",
+    "vendor": {
+      "legalName": "Paektu Industrial Works",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amina Yusuf",
+      "decidedAt": "2026-02-03T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "persia-office-supplies-embargo",
+    "vendor": {
+      "legalName": "Persia Office Supplies Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "32"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-02-17T16:15:00Z"
+    }
+  },
+  {
+    "caseId": "levant-analytics-embargo",
+    "vendor": {
+      "legalName": "Levant Analytics LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Becker",
+      "decidedAt": "2026-03-02T11:30:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-security-threshold",
+    "vendor": {
+      "legalName": "Atlas Security Services S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-03-18T13:00:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-cloud-above-threshold",
+    "vendor": {
+      "legalName": "Harbor Cloud Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "70.001"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amina Yusuf",
+      "decidedAt": "2026-04-06T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "summit-machinery-maximum-risk",
+    "vendor": {
+      "legalName": "Summit Machinery GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Becker",
+      "decidedAt": "2026-04-21T15:45:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-payments-personal-data-threshold",
+    "vendor": {
+      "legalName": "Cedar Payments Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-05-07T12:10:00Z"
+    }
+  },
+  {
+    "caseId": "bluebird-health-midrange-risk",
+    "vendor": {
+      "legalName": "Bluebird Health Technologies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-05-22T09:25:00Z"
+    }
+  },
+  {
+    "caseId": "maple-identity-below-seventy",
+    "vendor": {
+      "legalName": "Maple Identity Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amina Yusuf",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-research-zero-risk",
+    "vendor": {
+      "legalName": "Fjord Research AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Becker",
+      "decidedAt": "2026-06-16T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-support-below-forty",
+    "vendor": {
+      "legalName": "Sakura Support Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-07-02T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-components-risk-forty",
+    "vendor": {
+      "legalName": "Alpine Components AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-07-15T16:35:00Z"
+    }
+  },
+  {
+    "caseId": "lotus-freight-below-seventy",
+    "vendor": {
+      "legalName": "Lotus Freight Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amina Yusuf",
+      "decidedAt": "2026-07-28T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "ararat-catering-non-embargo",
+    "vendor": {
+      "legalName": "Ararat Catering CJSC",
+      "sanctionsHit": false,
+      "registeredCountry": "AM",
+      "handlesPersonalData": false,
+      "riskScore": "18.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Becker",
+      "decidedAt": "2026-08-06T13:45:00Z"
+    }
+  }
+]

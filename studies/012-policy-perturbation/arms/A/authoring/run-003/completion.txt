@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-match",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-sanctions-precedence",
+    "vendor": {
+      "legalName": "Caspian Data Systems LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-sanctions-low-risk",
+    "vendor": {
+      "legalName": "Cedar Office Supply Inc.",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-02T13:15:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-embargo-registration",
+    "vendor": {
+      "legalName": "Paektu Industrial Trading Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "8"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-03T08:40:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-embargo-low-risk",
+    "vendor": {
+      "legalName": "Tehran Meridian Services PJSC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "levant-embargo-high-risk",
+    "vendor": {
+      "legalName": "Levant Archive Solutions Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-04T15:45:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-risk-threshold",
+    "vendor": {
+      "legalName": "Alpine Freight Analytics AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-05T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-high-risk-data",
+    "vendor": {
+      "legalName": "Baltic Identity Labs OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "84.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-05T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-maximum-risk",
+    "vendor": {
+      "legalName": "Atlas Structural Consulting SARL",
+      "sanctionsHit": false,
+      "registeredCountry": "MA",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-06T16:25:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-personal-data-threshold",
+    "vendor": {
+      "legalName": "Harbor Patient Logistics Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-08T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "maple-personal-data-midrange",
+    "vendor": {
+      "legalName": "Maple Benefits Processing Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-08T12:35:00Z"
+    }
+  },
+  {
+    "caseId": "delta-personal-data-upper-edge",
+    "vendor": {
+      "legalName": "Delta Customer Insights BV",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-09T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-zero-risk-clearance",
+    "vendor": {
+      "legalName": "Sakura Packaging KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Mara Voss",
+      "decidedAt": "2026-06-10T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-data-below-threshold",
+    "vendor": {
+      "legalName": "Fjord Payroll Services AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elias Chen",
+      "decidedAt": "2026-06-10T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "savanna-nondata-forty",
+    "vendor": {
+      "legalName": "Savanna Equipment Leasing Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "KE",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nordin",
+      "decidedAt": "2026-06-11T11:05:00Z"
+    }
+  },
+  {
+    "caseId": "andes-nondata-upper-edge",
+    "vendor": {
+      "legalName": "Andes Mineral Testing SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Reed",
+      "decidedAt": "2026-06-12T14:30:00Z"
+    }
+  }
+]

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-sanctions-override",
+    "vendor": {
+      "legalName": "Northstar Components Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "damascus-sanctions-embargo",
+    "vendor": {
+      "legalName": "Damascus Industrial Export Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "85"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-iran-registration",
+    "vendor": {
+      "legalName": "Caspian Ledger Services",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "paektu-korea-registration",
+    "vendor": {
+      "legalName": "Paektu Machinery Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-04T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "levant-syria-high-risk",
+    "vendor": {
+      "legalName": "Levant Network Systems",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-seventy-threshold",
+    "vendor": {
+      "legalName": "Atlas Freight Analytics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-high-risk-data",
+    "vendor": {
+      "legalName": "Cedar Identity Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "91.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-09T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "harbor-high-risk-no-data",
+    "vendor": {
+      "legalName": "Harbor Steel Trading Pte. Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SG",
+      "handlesPersonalData": false,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-10T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "maple-data-forty-threshold",
+    "vendor": {
+      "legalName": "Maple Contact Services Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-11T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-data-mid-risk",
+    "vendor": {
+      "legalName": "Fjord Payroll AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "55.5"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-12T12:05:00Z"
+    }
+  },
+  {
+    "caseId": "southern-cross-data-upper-bound",
+    "vendor": {
+      "legalName": "Southern Cross Benefits Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-15T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-data-below-forty",
+    "vendor": {
+      "legalName": "Alpine Records AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-16T14:50:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-data-zero-risk",
+    "vendor": {
+      "legalName": "Sakura Client Systems KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-17T10:35:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-no-data-upper-bound",
+    "vendor": {
+      "legalName": "Baltic Equipment OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-18T16:20:00Z"
+    }
+  },
+  {
+    "caseId": "andes-no-data-forty",
+    "vendor": {
+      "legalName": "Andes Mineral Logistics SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-19T09:55:00Z"
+    }
+  },
+  {
+    "caseId": "luso-no-data-low-risk",
+    "vendor": {
+      "legalName": "Luso Office Supply Lda.",
+      "sanctionsHit": false,
+      "registeredCountry": "PT",
+      "handlesPersonalData": false,
+      "riskScore": "18.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-22T11:45:00Z"
+    }
+  }
+]

@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-logistics-sanctions",
+    "vendor": {
+      "legalName": "Northstar Logistics Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Maya Chen",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "caspian-data-sanctions-override",
+    "vendor": {
+      "legalName": "Caspian Data Systems PJSC",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-02T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "oryx-consulting-high-risk-sanctions",
+    "vendor": {
+      "legalName": "Oryx Consulting GmbH",
+      "sanctionsHit": true,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Maya Chen",
+      "decidedAt": "2026-06-03T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "pyongyang-machine-works",
+    "vendor": {
+      "legalName": "Pyongyang Machine Works Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-04T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-clerical-services",
+    "vendor": {
+      "legalName": "Tehran Clerical Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-05T16:10:00Z"
+    }
+  },
+  {
+    "caseId": "levant-network-solutions",
+    "vendor": {
+      "legalName": "Levant Network Solutions",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "95.75"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-08T10:00:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-infrastructure-threshold",
+    "vendor": {
+      "legalName": "Alpine Infrastructure AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-09T13:35:00Z"
+    }
+  },
+  {
+    "caseId": "pacific-analytics-high-risk",
+    "vendor": {
+      "legalName": "Pacific Analytics Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "70.01"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-10T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-industrial-maximum-risk",
+    "vendor": {
+      "legalName": "Atlas Industrial Supply Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Maya Chen",
+      "decidedAt": "2026-06-11T15:40:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-health-data-threshold",
+    "vendor": {
+      "legalName": "Meridian Health Data Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-12T12:25:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-payments-mid-risk",
+    "vendor": {
+      "legalName": "Sakura Payments KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "55.6"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-15T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "baltic-crm-upper-bound",
+    "vendor": {
+      "legalName": "Baltic CRM OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-16T17:05:00Z"
+    }
+  },
+  {
+    "caseId": "maple-office-supplies-zero-risk",
+    "vendor": {
+      "legalName": "Maple Office Supplies Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Maya Chen",
+      "decidedAt": "2026-06-17T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "fjord-hosting-personal-data-boundary",
+    "vendor": {
+      "legalName": "Fjord Hosting AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "39.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonas Reed",
+      "decidedAt": "2026-06-18T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "andes-equipment-upper-clearance",
+    "vendor": {
+      "legalName": "Andes Equipment SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "69.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Leila Morgan",
+      "decidedAt": "2026-06-19T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "tulip-records-low-risk",
+    "vendor": {
+      "legalName": "Tulip Records B.V.",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "12.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Shah",
+      "decidedAt": "2026-06-22T16:45:00Z"
+    }
+  }
+]

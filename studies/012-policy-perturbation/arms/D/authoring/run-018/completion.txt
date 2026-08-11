@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "northstar-office-supplies",
+    "vendor": {
+      "legalName": "Northstar Office Supplies Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "blue-harbor-logistics",
+    "vendor": {
+      "legalName": "Blue Harbor Logistics GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-01T10:15:00Z"
+    }
+  },
+  {
+    "caseId": "cedar-people-services",
+    "vendor": {
+      "legalName": "Cedar People Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-02T13:05:00Z"
+    }
+  },
+  {
+    "caseId": "maple-records-processing",
+    "vendor": {
+      "legalName": "Maple Records Processing Corp.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "silverline-benefits-admin",
+    "vendor": {
+      "legalName": "Silverline Benefits Administration PLC",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": true,
+      "riskScore": "71.99"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "alpine-components",
+    "vendor": {
+      "legalName": "Alpine Components AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-04T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "lumen-customer-analytics",
+    "vendor": {
+      "legalName": "Lumen Customer Analytics S.A.",
+      "sanctionsHit": false,
+      "registeredCountry": "FR",
+      "handlesPersonalData": true,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-04T15:35:00Z"
+    }
+  },
+  {
+    "caseId": "atlas-industrial-controls",
+    "vendor": {
+      "legalName": "Atlas Industrial Controls Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-05T09:10:00Z"
+    }
+  },
+  {
+    "caseId": "tehran-caspian-trading",
+    "vendor": {
+      "legalName": "Tehran Caspian Trading Co.",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Okafor",
+      "decidedAt": "2026-06-08T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "koryo-data-systems",
+    "vendor": {
+      "legalName": "Koryo Data Systems Company",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "44"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Okafor",
+      "decidedAt": "2026-06-08T11:40:00Z"
+    }
+  },
+  {
+    "caseId": "levant-infrastructure-group",
+    "vendor": {
+      "legalName": "Levant Infrastructure Group",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": false,
+      "riskScore": "88.25"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Okafor",
+      "decidedAt": "2026-06-09T09:55:00Z"
+    }
+  },
+  {
+    "caseId": "redwood-maritime-brokers",
+    "vendor": {
+      "legalName": "Redwood Maritime Brokers LLC",
+      "sanctionsHit": true,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "20"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Okafor",
+      "decidedAt": "2026-06-09T13:30:00Z"
+    }
+  },
+  {
+    "caseId": "eastern-gate-consulting",
+    "vendor": {
+      "legalName": "Eastern Gate Consulting Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "IR",
+      "handlesPersonalData": true,
+      "riskScore": "90"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Okafor",
+      "decidedAt": "2026-06-10T08:20:00Z"
+    }
+  },
+  {
+    "caseId": "sunbird-field-services",
+    "vendor": {
+      "legalName": "Sunbird Field Services (Pty) Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "ZA",
+      "handlesPersonalData": true,
+      "riskScore": "18.75"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Park",
+      "decidedAt": "2026-06-10T14:05:00Z"
+    }
+  },
+  {
+    "caseId": "sakura-machine-works",
+    "vendor": {
+      "legalName": "Sakura Machine Works Co., Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-11T10:50:00Z"
+    }
+  },
+  {
+    "caseId": "meridian-identity-platform",
+    "vendor": {
+      "legalName": "Meridian Identity Platform Pte. Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "SG",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonas Okafor",
+      "decidedAt": "2026-06-12T16:15:00Z"
+    }
+  }
+]

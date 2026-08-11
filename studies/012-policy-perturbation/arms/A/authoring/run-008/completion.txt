@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "sanctions-hit-low-risk",
+    "vendor": {
+      "legalName": "Northstar Office Supply Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "sanctions-hit-embargoed",
+    "vendor": {
+      "legalName": "Pyongyang Meridian Trading Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "sanctions-hit-review-range",
+    "vendor": {
+      "legalName": "Atlas Identity Systems GmbH",
+      "sanctionsHit": true,
+      "registeredCountry": "DE",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T13:20:00Z"
+    }
+  },
+  {
+    "caseId": "iran-registration-zero-risk",
+    "vendor": {
+      "legalName": "Caspian Fixture Works",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-02T14:10:00Z"
+    }
+  },
+  {
+    "caseId": "syria-registration-personal-data",
+    "vendor": {
+      "legalName": "Levant Records Services",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "north-korea-registration-high-risk",
+    "vendor": {
+      "legalName": "Chollima Industrial Export Bureau",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "88.4"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-03T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "exact-seventy-no-personal-data",
+    "vendor": {
+      "legalName": "Blue Quarry Logistics PLC",
+      "sanctionsHit": false,
+      "registeredCountry": "GB",
+      "handlesPersonalData": false,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Feld",
+      "decidedAt": "2026-06-04T11:00:00Z"
+    }
+  },
+  {
+    "caseId": "exact-seventy-personal-data",
+    "vendor": {
+      "legalName": "Sakura Benefits Analytics KK",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "70"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Feld",
+      "decidedAt": "2026-06-04T11:35:00Z"
+    }
+  },
+  {
+    "caseId": "maximum-risk-non-embargoed",
+    "vendor": {
+      "legalName": "Summit Reactor Maintenance Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "US",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-05T15:25:00Z"
+    }
+  },
+  {
+    "caseId": "just-below-seventy-personal-data",
+    "vendor": {
+      "legalName": "Koala Health Processing Pty Ltd",
+      "sanctionsHit": false,
+      "registeredCountry": "AU",
+      "handlesPersonalData": true,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-08T09:40:00Z"
+    }
+  },
+  {
+    "caseId": "exact-forty-personal-data",
+    "vendor": {
+      "legalName": "Maple Credential Services Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-08T10:10:00Z"
+    }
+  },
+  {
+    "caseId": "midrange-personal-data",
+    "vendor": {
+      "legalName": "Tulip Customer Insights BV",
+      "sanctionsHit": false,
+      "registeredCountry": "NL",
+      "handlesPersonalData": true,
+      "riskScore": "55.25"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Feld",
+      "decidedAt": "2026-06-09T12:50:00Z"
+    }
+  },
+  {
+    "caseId": "just-below-forty-personal-data",
+    "vendor": {
+      "legalName": "Alpine Payroll Support AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": true,
+      "riskScore": "39.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Elena Marlow",
+      "decidedAt": "2026-06-10T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "zero-risk-personal-data",
+    "vendor": {
+      "legalName": "Nordic Contact Vault AS",
+      "sanctionsHit": false,
+      "registeredCountry": "NO",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Marcus Chen",
+      "decidedAt": "2026-06-10T09:05:00Z"
+    }
+  },
+  {
+    "caseId": "just-below-seventy-no-personal-data",
+    "vendor": {
+      "legalName": "Baltic Machine Components OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": false,
+      "riskScore": "69.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Priya Nwosu",
+      "decidedAt": "2026-06-11T14:20:00Z"
+    }
+  },
+  {
+    "caseId": "exact-forty-no-personal-data",
+    "vendor": {
+      "legalName": "Andes Packaging SpA",
+      "sanctionsHit": false,
+      "registeredCountry": "CL",
+      "handlesPersonalData": false,
+      "riskScore": "40"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Feld",
+      "decidedAt": "2026-06-12T16:45:00Z"
+    }
+  }
+]

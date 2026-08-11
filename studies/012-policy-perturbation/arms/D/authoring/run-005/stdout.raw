@@ -1,0 +1,242 @@
+[
+  {
+    "caseId": "sanctions-hit-low-risk",
+    "vendor": {
+      "legalName": "Northbridge Paperworks Ltd.",
+      "sanctionsHit": true,
+      "registeredCountry": "CA",
+      "handlesPersonalData": false,
+      "riskScore": "12"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T09:30:00Z"
+    }
+  },
+  {
+    "caseId": "sanctions-hit-embargoed",
+    "vendor": {
+      "legalName": "Pyongyang Industrial Supply Co.",
+      "sanctionsHit": true,
+      "registeredCountry": "KP",
+      "handlesPersonalData": true,
+      "riskScore": "88.5"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-01T10:05:00Z"
+    }
+  },
+  {
+    "caseId": "sanctions-hit-review-range",
+    "vendor": {
+      "legalName": "Silver Coast Analytics S.A.",
+      "sanctionsHit": true,
+      "registeredCountry": "PT",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-01T11:20:00Z"
+    }
+  },
+  {
+    "caseId": "iran-registration-low-risk",
+    "vendor": {
+      "legalName": "Caspian Office Systems LLC",
+      "sanctionsHit": false,
+      "registeredCountry": "IR",
+      "handlesPersonalData": false,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-02T08:45:00Z"
+    }
+  },
+  {
+    "caseId": "syria-registration-personal-data",
+    "vendor": {
+      "legalName": "Levant Data Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "SY",
+      "handlesPersonalData": true,
+      "riskScore": "44.99"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-02T09:15:00Z"
+    }
+  },
+  {
+    "caseId": "north-korea-registration-high-risk",
+    "vendor": {
+      "legalName": "Koryo Freight Cooperative",
+      "sanctionsHit": false,
+      "registeredCountry": "KP",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "reject",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-02T10:40:00Z"
+    }
+  },
+  {
+    "caseId": "risk-threshold-seventy-two",
+    "vendor": {
+      "legalName": "Danube Components GmbH",
+      "sanctionsHit": false,
+      "registeredCountry": "DE",
+      "handlesPersonalData": false,
+      "riskScore": "72"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Chen",
+      "decidedAt": "2026-06-03T09:00:00Z"
+    }
+  },
+  {
+    "caseId": "high-risk-personal-data",
+    "vendor": {
+      "legalName": "Maple Metric Solutions Inc.",
+      "sanctionsHit": false,
+      "registeredCountry": "CA",
+      "handlesPersonalData": true,
+      "riskScore": "92.75"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Chen",
+      "decidedAt": "2026-06-03T10:25:00Z"
+    }
+  },
+  {
+    "caseId": "maximum-risk-no-personal-data",
+    "vendor": {
+      "legalName": "Alpine Foundry AG",
+      "sanctionsHit": false,
+      "registeredCountry": "CH",
+      "handlesPersonalData": false,
+      "riskScore": "100"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-03T13:10:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-threshold-forty-five",
+    "vendor": {
+      "legalName": "Baltic Benefits OÜ",
+      "sanctionsHit": false,
+      "registeredCountry": "EE",
+      "handlesPersonalData": true,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-04T08:30:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-just-below-seventy-two",
+    "vendor": {
+      "legalName": "Iberian Customer Insights S.L.",
+      "sanctionsHit": false,
+      "registeredCountry": "ES",
+      "handlesPersonalData": true,
+      "riskScore": "71.999"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-04T09:50:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-midrange-risk",
+    "vendor": {
+      "legalName": "Osaka Payroll Partners K.K.",
+      "sanctionsHit": false,
+      "registeredCountry": "JP",
+      "handlesPersonalData": true,
+      "riskScore": "58.4"
+    },
+    "decision": {
+      "outcome": "manual-review",
+      "decidedBy": "Sofia Chen",
+      "decidedAt": "2026-06-04T11:35:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-just-below-forty-five",
+    "vendor": {
+      "legalName": "Kiwi Research Services Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "NZ",
+      "handlesPersonalData": true,
+      "riskScore": "44.999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Amira Patel",
+      "decidedAt": "2026-06-05T08:55:00Z"
+    }
+  },
+  {
+    "caseId": "personal-data-zero-risk",
+    "vendor": {
+      "legalName": "Nordic Archive AB",
+      "sanctionsHit": false,
+      "registeredCountry": "SE",
+      "handlesPersonalData": true,
+      "riskScore": "0"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Jonah Mercer",
+      "decidedAt": "2026-06-05T10:10:00Z"
+    }
+  },
+  {
+    "caseId": "no-personal-data-near-review-threshold",
+    "vendor": {
+      "legalName": "Andean Packaging S.A.C.",
+      "sanctionsHit": false,
+      "registeredCountry": "PE",
+      "handlesPersonalData": false,
+      "riskScore": "71.9999"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Luc Moreau",
+      "decidedAt": "2026-06-05T13:40:00Z"
+    }
+  },
+  {
+    "caseId": "no-personal-data-at-forty-five",
+    "vendor": {
+      "legalName": "Savanna Equipment Pty Ltd.",
+      "sanctionsHit": false,
+      "registeredCountry": "ZA",
+      "handlesPersonalData": false,
+      "riskScore": "45"
+    },
+    "decision": {
+      "outcome": "clear",
+      "decidedBy": "Sofia Chen",
+      "decidedAt": "2026-06-05T15:05:00Z"
+    }
+  }
+]
