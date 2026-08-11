@@ -1,11 +1,21 @@
 # Study 012 — is the blinded author's test surface anchored to the policy's surface form?
 
+> **Corrected on 2026-08-11.** This file was published, then checked claim by
+> claim against `RESULTS.json`. `R1-UNSUPPORTED`, the decision row and the arm
+> table survived unchanged; several supporting sentences did not. The corrected
+> passages are marked below, and the full list is at the head of
+> [`CORRECTION.md`](CORRECTION.md). The largest error: "in every arm, including
+> the baseline, the count of records below that edge is zero" was false — arm C
+> has one, and the 464/432 denominators misdescribed a windowed count.
+
 **R1 is UNSUPPORTED. The prediction this study was built to test failed, and it
 failed cleanly.** We published, before this study existed, that removing a
 policy's stated numerals would collapse the blinded author's coverage of the
 numeric classes, because placement follows named numbers. Arm E — the same rules
-with every numeral removed — covered all six semantic classes in all 27 of its
-valid runs, reading HIGH on every one, indistinguishable from the baseline.
+with the threshold **literals** removed, both values instead defined in words as
+fractions of a stated zero-to-one-hundred scale — covered all six semantic
+classes in all 27 of its valid runs, reading HIGH on every one, indistinguishable
+from the baseline.
 §5.3 (i) row 4 fired. **And this study does not thereby establish the opposite:**
 maintained coverage is equally compatible with the author deriving the
 boundaries from prose and with it recognising this policy family from a corpus
@@ -17,9 +27,15 @@ before the data existed. The full retraction is at the head of
 
 150 authoring calls, 30 per arm, sequential, all begun and completed within
 2026-08-11 UTC (`schedule.utcDay.oneDayEstablished` is true, `crossedMidnight`
-false, no slot without a readable stamp). One model, one CLI, both pinned by
-digest; the preregistration and the whole tree frozen at
-`sha256:9fa37a51…` after nineteen cross-vendor review rounds. 142 runs valid;
+false, no slot without a readable stamp). One CLI pinned by digest
+(`codex.binarySha256`) and one model pinned by name (`gpt-5.6-sol`) — the
+wrapper refuses a binary that does not hash to the digest *and* refuses a run
+that does not report that model name, but a model name is not a digest, and an
+earlier version of this sentence claimed both were. The preregistration and the
+whole tree were frozen at `sha256:9fa37a51…` after nineteen review rounds,
+**eighteen of them cross-vendor** — round 1 was an internal adversarial pass by
+the drafter's own model lineage and `PREREG-REVIEW.md` labels it as such; an
+earlier version of this sentence called all nineteen cross-vendor. 142 runs valid;
 8 pipeline-invalid, of which 2 were caused by the host filesystem filling
 mid-batch and are recorded in [`DEVIATIONS.md`](DEVIATIONS.md).
 
@@ -31,7 +47,7 @@ mid-batch and are recorded in [`DEVIATIONS.md`](DEVIATIONS.md).
 | **B** reworded | states 40 and 70 | 28/30 | 6 of 6 | HIGH |
 | **C** reordered clauses | states 40 and 70 | 28/30 | 6 of 6 | HIGH |
 | **D** renamed | states 45 and 72 | 30/30 | 6 of 6 | HIGH |
-| **E** denamed | **no numerals** | 27/30 | 6 of 6 | HIGH |
+| **E** denamed | **neither literal — both defined in words as fractions of a stated 0–100 scale** | 27/30 | 6 of 6 | HIGH |
 
 `nP = 0`, `nC = 0`, `nH = 4`. The B/C control gate passed on 6 of 6 classes in
 both control arms, so the arms were comparable and the null result is not a
@@ -40,22 +56,39 @@ only with pipeline-invalid runs.
 
 ## Three readings, and which the data support
 
-**The anchoring reading is refuted.** Arm E never saw `40` or `70` and still put
-**107 records exactly on an edge** — the same count as arm A. The hugging shape
-survives denaming intact, so it is not produced by the numerals being printed.
+**The anchoring reading is refuted.** Arm E never saw the literals `40` or `70`
+and still put **107 records exactly on an edge** — the same count as arm A. The
+exactly-on-edge mass survives denaming intact, so it is not produced by the
+numerals being printed. *(Corrected: an earlier version added that the hugging
+shape survived "intact" one and two decimal places out. The aggregate
+within-0.01 counts are comparable; the split is not — A is 36 within 0.001 and
+89 within 0.01, E is 59 and 61.)*
 
 **Misderivation is refuted.** §4.5's X6 sentinels were registered in advance to
 catch an arm E that derived the thresholds *wrongly* — mass at 0.7/0.4, at 7/4,
-at 28. Every sentinel is empty. Arm E produced 40 and 70 exactly, from prose
-alone, in every run.
+at 28. **All five misderivation sentinels are empty.** Arm E produced 40 and 70
+exactly, in every run, from a stated fraction of a stated range. *(Corrected: an
+earlier version said "every sentinel is empty." X6 registers seven rows, and the
+first two record the correct derivation — 70 in 49 records, 40 in 54 — which are
+populated by design.)*
 
-**The blind spot is not refuted, and is now the sharper finding.** The policy
-implies a boundary at 39 that its text never states. In **every arm, including
-the baseline**, the count of records below that edge is **zero** — 0 of 464 in
-arm A, 0 of 432 in arm E. Study 011's original observation reproduces exactly.
-What this study kills is our *explanation* of it. The unstated edge is missed
-whether or not the stated ones are printed, so "it copies the numerals it sees"
-cannot be why.
+**The blind spot is not refuted, but it is narrower than first published.** The
+policy implies a boundary at 39 that its text never states. The count of records
+in the window `[38, 39)` is **zero in arms A, B and E, and 1 in arm C**; arm D
+has no 39 edge, and at its own unstated edge of 44 the windowed count is zero.
+
+*(Corrected, and this was the largest error in the first version: it said "in
+every arm, including the baseline … zero — 0 of 464 in arm A, 0 of 432 in arm
+E." Arm C is a counterexample and was already printed in `CENSUS.md`; and the
+464/432 denominators describe the whole arm while the numerator is windowed —
+**117 of arm A's 464 records and 101 of arm E's 432 are strictly below 39**.
+Study 011's empty approach band `(23.75, 39)` reproduces in **arm B alone**.)*
+
+What this study kills is still our *explanation*. The immediate approach to the
+unstated edge is close to unpopulated whether or not the stated thresholds are
+printed, so "it copies the numerals it sees" cannot be why — but "the unstated
+edge is invisible" is stronger than the data support, and the baseline was never
+the clean contrast the first version implied.
 
 That leaves a question this design was not built to answer and does not: whether
 a boundary a policy only implies is invisible because the author reasons from
