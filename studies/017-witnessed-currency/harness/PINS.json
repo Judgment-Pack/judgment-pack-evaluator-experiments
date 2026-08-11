@@ -38,27 +38,27 @@
   },
   "matrix": {
     "path": "harness/MATRIX.json",
-    "sha256": null,
+    "sha256": "1aa72724c7d559d1074ca1905fe00285878582cb0e7ed701b3f0aaad9c72e46b",
     "note": "locked-replication cell expectations; digest filled at the freeze. The frozen cell-id set is additionally asserted in harness/score.py"
   },
   "matrixHoldout": {
     "path": "harness/MATRIX-HOLDOUT.json",
-    "sha256": null,
+    "sha256": "7fcbc209613cbc5c7a38ad2c57a22dec7a96f910fdc701361ed7fb928857375e",
     "note": "reviewer-authored holdout stratum, authored during the review rounds, never executed pre-freeze; construction machinery lands with the cells"
   },
   "matrixHoldoutEvidence": {
     "path": "harness/MATRIX-HOLDOUT-EVIDENCE.json",
-    "sha256": null,
+    "sha256": "84a98f4060fa4cf57e351aeb3e02596c7b97c2cf18002dbcb54e56408e62cac6",
     "note": "structured-evidence expectations for the reviewer's holdout cells, kept separate so their authored block stays byte-for-byte (round-3 R3-1); digest filled at the freeze"
   },
   "witnessSpec": {
     "path": "witness/SPEC.md",
-    "sha256": null,
+    "sha256": "5c456e1d34976f62681c77f0b0c735820ee5361dc62b938260ff15f3ccebd637",
     "note": "the registered sighting schema and Layer WITNESS ceremony; digest filled at the freeze"
   },
   "studyManifest": {
     "path": "harness/STUDY-MANIFEST.sha256",
-    "sha256": null,
+    "sha256": "aeef60c09b90a755a504e2587e4f62b2e55a90ca1e818ea16c54def13f59d7cf",
     "generator": "harness/make_manifest.py",
     "covers": "README.md, PREREGISTRATION.md, PREREG-REVIEW.md, DEVIATIONS.md, witness/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/MATRIX-HOLDOUT-EVIDENCE.json, every witness/*.py and harness/*.py, harness/tests/*.py, and every fixtures/cells/*/MANIFEST.sha256",
     "excludes": "harness/PINS.json (this file) and harness/STUDY-MANIFEST.sha256 (itself)",
@@ -66,7 +66,7 @@
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",
-    "sha256": null,
+    "sha256": "a14433e15996b97ba0295518ab7ca5bfdd7175c3746af731e08778e879b95883",
     "note": "Filled at the freeze; null until then - while any freeze pin is null the attempt is a PILOT"
   }
 }

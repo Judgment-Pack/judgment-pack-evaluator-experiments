@@ -1,7 +1,10 @@
 # Preregistration — Study 017: the witness contract, measured over Study 016's registry
 
-**Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing
-thereafter.**
+**Status: FROZEN by the squash-merge of PR #57 to `main`; governing thereafter.** The
+merge commit of that pull request is the freeze commit — named by reference because a
+squash hash cannot exist before the merge; the repository history renders the reference
+unambiguous. Seven pre-freeze cross-vendor review rounds concluded with `freezable as
+written` (`PREREG-REVIEW.md`).
 
 **Nothing has run.** No registered attempt exists; everything executed during harness
 development lands under `pilots/`, is labeled harness validation, and supports no claim.
@@ -20,7 +23,7 @@ artifacts could diverge, the pinned artifacts govern.
 
 ## The freeze and the primary attempt
 
-- **Freeze commit**: the squash-merge commit of this study's freeze pull request on `main`.
+- **Freeze commit**: the squash-merge commit of PR #57 on `main`.
 - **Primary attempt root**: `results/primary-attempt-001` — literal, must not exist at the
   freeze; the scorer refuses an existing root, and the first invocation of the governing
   command is the primary attempt, crash and all.

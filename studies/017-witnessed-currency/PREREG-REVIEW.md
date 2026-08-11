@@ -154,6 +154,39 @@ residual narrowed, R5-1 not fully closed, one new MINOR. All **accepted**.
 Post-revision state: 18 locked cells, 48 harness tests green, the whole-study manifest
 covering 36 files including the evidence map.
 
-## Round 7 — pending
+## Round 7 — 2026-08-11
 
-Confirmation of the round-6 closures, and the freeze question asked plainly.
+Same reviewer. Verdict: **`freezable as written`** — R4-1(a), R5-1 and R6-1 all RESOLVED,
+**no new findings**, and an explicit freeze judgement given in answer to a directly posed
+question. Prompt and findings verbatim in [`reviews/round-7/`](reviews/round-7/).
+
+The reviewer's judgement, quoted: *"Yes — this is ready to freeze. The registered claim is
+expressly bounded, the reviewer holdout and its expectations are committed pre-freeze, and
+the scorer cannot execute it until all six pins are filled or with missing or partial
+evidence. The registered claims are honest, the expectations are not post-selectable, and
+the apparatus does what the document says."*
+
+## The record, closed
+
+Seven rounds. Round 1 returned DO NOT FREEZE with fifteen findings, including the one that
+changed the study's shape: the draft associated sighting records by an unauthenticated
+label, and the reviewer's construction turned a detected conflict into a pass. Round 2
+found a second such defect — attribution counted before series scoping, so a required
+witness's foreign-series record satisfied a per-series floor — and authored the nine-cell
+holdout stratum. **Both were reproduced locally before being accepted**, and both fixes
+enlarged what the study registers rather than only what it computes: closing the label
+channel exposed delivery-controlled suppression, which is now its own registered family of
+expected-undetected cells.
+
+Rounds 3 to 6 tightened the machinery around the stratum itself: the construction hooks
+were verified to build what the reviewer's own construction text describes (so no
+registered expectation is unfalsifiable), the holdout's structured expectations were made
+adjudicated rather than decorative, and a postdictivity hazard in the freeze gating — the
+evidence pin present in the registry but absent from both execution gates — was closed.
+Round 6's last finding is the character of the whole record: an integrity claim that was
+merely *untrue* rather than exploitable, and was corrected because untrue is enough.
+
+Nothing in this record is a claim that the harness is flawless. It is the record of a
+preregistration whose registered claims are bounded and honest, whose registered
+expectations cannot be selected after observation, and whose apparatus does what the
+document says — which is the standard a freeze is held to.

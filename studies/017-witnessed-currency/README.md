@@ -1,6 +1,8 @@
 # Study 017 — witnessed currency: what a witness contract buys, and which clause each remaining silence isolates
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.**
+**Status: preregistration FROZEN at the squash-merge of PR #57 (seven cross-vendor review
+rounds; final verdict `freezable as written`). Nothing has run under the freeze;
+`results/` is absent until the registered primary attempt.**
 
 Study 016 measured that a single-operator signed currency registry is silent to a fresh,
 stateless verifier shown one view of a split history — and that the silence is exactly
