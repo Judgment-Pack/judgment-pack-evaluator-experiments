@@ -35,10 +35,65 @@ import tempfile
 from pathlib import Path
 
 STUDY = Path(__file__).resolve().parent.parent
+
+
+def _cache_problems_for(sources):
+    """Compare every cache a plain import WOULD accept against its source.
+
+    CPython uses a timestamp cache only when mtime/size match, and a
+    *checked* hash cache only when the source hash matches — both are safely
+    ignored otherwise. An **unchecked** hash cache is used without validating
+    anything (round-2 residual of R1-1), so it is always compared here.
+    """
+    problems = []
+    for source in sources:
+        source = Path(source)
+        if not source.is_file():
+            continue
+        cached_path = Path(importlib.util.cache_from_source(str(source)))
+        if not cached_path.is_file():
+            continue
+        where = source.name
+        data = cached_path.read_bytes()
+        if len(data) < 16:
+            problems.append("cached bytecode is truncated for " + where)
+            continue
+        raw = source.read_bytes()
+        flags = int.from_bytes(data[4:8], "little")
+        if flags & 0b1:
+            # hash-based; bit 1 = check_source. Unchecked caches are used as-is.
+            if (flags & 0b10) and data[8:16] != importlib.util.source_hash(raw):
+                continue
+        else:
+            status = source.stat()
+            if (int.from_bytes(data[8:12], "little") != int(status.st_mtime) & 0xFFFFFFFF
+                    or int.from_bytes(data[12:16], "little") != status.st_size & 0xFFFFFFFF):
+                continue
+        try:
+            cached = marshal.loads(data[16:])
+            fresh = compile(raw, str(source), "exec")
+        except Exception:
+            problems.append("cached bytecode is unreadable for " + where)
+            continue
+        if cached != fresh:
+            problems.append("cached bytecode differs from its source for " + where)
+    return problems
+
+
+def _own_sources():
+    return sorted(STUDY.glob("witness/*.py")) + sorted(STUDY.glob("harness/*.py"))
+
+
+# BOOTSTRAP — runs before any study or third-party module is imported, so the
+# check precedes the code it is about to trust (round-2 residual of R1-1/R1-2).
+# `__main__` is never loaded from a cache, so this file itself is exempt by
+# construction. Stdlib only, deliberately.
+_BOOTSTRAP_PROBLEMS = _cache_problems_for(_own_sources())
+
 sys.path.insert(0, str(STUDY / "harness"))
 sys.path.insert(0, str(STUDY / "witness"))
 
-import build_fixtures  # noqa: E402
+import build_fixtures  # noqa: E402  (this study's; imported after the bootstrap)
 import run_verify  # noqa: E402
 import upstream016  # noqa: E402
 import verify_witness  # noqa: E402
@@ -80,7 +135,7 @@ CELL_REQUIRED_KEYS = {
     "id", "category", "variant", "role", "attackerCapability",
     "registeredAbsences", "construction", "expected", "note",
 }
-CELL_OPTIONAL_KEYS = {"registeredUndetected", "pair"}
+CELL_OPTIONAL_KEYS = {"registeredUndetected", "pair", "expectedComparisonPerformed"}
 
 
 class PipelineInvalid(RuntimeError):
@@ -161,54 +216,12 @@ def matrix_schema_problems(matrix):
 
 
 def bytecode_cache_problems():
-    """Refuse when cached bytecode that WOULD BE USED differs from its source.
-
-    A pinned `.py` digest does not describe the bytes the interpreter executes
-    if a `__pycache__` entry is loaded instead (round-1 R1-1). Mere existence is
-    not the hazard: CPython ignores a cache whose recorded source mtime/size (or
-    source hash) does not match and recompiles, and a cache written under
-    another tag — pytest's assertion-rewritten copies, for instance — is never
-    used by a plain import at all. The hazard is precisely the cache a plain
-    import WOULD accept whose code is not this source's, so the check looks at
-    exactly `importlib.util.cache_from_source(...)` for every source on the
-    adjudication path, unmarshals it, and compares against `compile()` of the
-    source. Any difference, or an unreadable entry, refuses. The pinned upstream
-    is separately executed from its hashed source bytes and never through this
-    path at all.
-    """
-    problems = []
-    sources = sorted(STUDY.glob("witness/*.py")) + sorted(STUDY.glob("harness/*.py"))
-    sources += [upstream016.STUDY_016 / relative
-                for relative in sorted(upstream016.pinned_files())]
-    for source in sources:
-        if not source.is_file():
-            continue
-        cached_path = Path(importlib.util.cache_from_source(str(source)))
-        if not cached_path.is_file():
-            continue
-        where = source.relative_to(STUDY.parent).as_posix()
-        data = cached_path.read_bytes()
-        if len(data) < 16:
-            problems.append("cached bytecode is truncated for " + where)
-            continue
-        raw = source.read_bytes()
-        flags = int.from_bytes(data[4:8], "little")
-        if flags & 0b1:
-            if data[8:16] != importlib.util.source_hash(raw):
-                continue
-        else:
-            status = source.stat()
-            if (int.from_bytes(data[8:12], "little") != int(status.st_mtime) & 0xFFFFFFFF
-                    or int.from_bytes(data[12:16], "little") != status.st_size & 0xFFFFFFFF):
-                continue
-        try:
-            cached = marshal.loads(data[16:])
-            fresh = compile(raw, str(source), "exec")
-        except Exception:
-            problems.append("cached bytecode is unreadable for " + where)
-            continue
-        if cached != fresh:
-            problems.append("cached bytecode differs from its source for " + where)
+    """The bootstrap result for this study's own modules (computed before they
+    were imported), plus the pinned upstream's sources. The upstream is also
+    executed from its hashed bytes and never through import machinery."""
+    problems = list(_BOOTSTRAP_PROBLEMS)
+    problems.extend(_cache_problems_for(
+        upstream016.STUDY_016 / relative for relative in sorted(upstream016.pinned_files())))
     return problems
 
 
@@ -243,6 +256,19 @@ def dependency_problems(pins):
         if origin == studies or studies in origin.parents:
             problems.append("dependency %s resolves inside the studies tree (%s)"
                             % (name, origin))
+        # Authenticate the ORIGIN of the module actually imported, not merely
+        # the distribution's (round-2 residual of R1-2): a shadowing copy on an
+        # earlier path entry would otherwise satisfy a version check while
+        # different code ran. Package CONTENTS are not digest-pinned here, and
+        # the preregistration records that as a stated limitation rather than
+        # claiming otherwise.
+        module = sys.modules.get(name.replace("-", "_"))
+        module_file = getattr(module, "__file__", None) if module is not None else None
+        if module_file is not None:
+            resolved = Path(module_file).resolve()
+            if origin not in resolved.parents:
+                problems.append("dependency %s is imported from %s, outside its "
+                                "distribution root %s" % (name, resolved, origin))
     return problems
 
 
@@ -328,6 +354,7 @@ def _collusion_structure(members, pins):
     pinned_in_config = []
     counted = []
     head_matches_view = []
+    series_ids = []
     for cid in members:
         directory = build_fixtures.cell_directory(STUDY / "fixtures", cid)
         try:
@@ -358,7 +385,16 @@ def _collusion_structure(members, pins):
         if payload.get("seriesId") != config.get("seriesId"):
             return {"validated": False, "problem": "sighting series is not the cell's: " + cid}
         pinned_in_config.append(encoded in (config.get("witnessKeys") or []))
-        counted.append(int(config.get("minimumSightings") or 0) >= 1)
+        # The floor is satisfied by the records this cell actually retains for
+        # its own series, not by the configured number alone (round-2 R1-6).
+        same_series = [
+            r for r in document.get("sightings", ())
+            if isinstance(r.get("sighting"), dict)
+            and r["sighting"].get("seriesId") == config.get("seriesId")
+        ]
+        counted.append(len(same_series) >= int(config.get("minimumSightings") or 0)
+                       and int(config.get("minimumSightings") or 0) >= 1)
+        series_ids.append(config.get("seriesId"))
         digests = [
             "sha256:" + hashlib.sha256(
                 rfc8785.dumps({"domain": verify_witness.DOMAIN_CHECKPOINT,
@@ -373,6 +409,7 @@ def _collusion_structure(members, pins):
         attested.append(payload)
     a, b = attested
     checks = {
+        "sameSeriesAcrossCells": len(set(series_ids)) == 1 and series_ids[0] is not None,
         "oneRecordFromTheSameKeyInEachCell": True,
         "bothSightingsVerifyUnderThatKey": True,
         "keyPinnedInBothConfigurations": all(pinned_in_config),
@@ -404,6 +441,13 @@ def adjudicate(matrix):
         divergent = sorted(
             layer for layer in LAYERS if observed[layer] != cell["expected"][layer]
         )
+        # The registered structured expectation is adjudicated, not decorative
+        # (round-2 residual of R1-9): a cell that registers whether a comparison
+        # happened diverges if it did not.
+        expected_compared = cell.get("expectedComparisonPerformed")
+        if (expected_compared is not None
+                and bool(outcome["witness"].get("comparisonPerformed")) != expected_compared):
+            divergent = sorted(set(divergent) | {"witness:comparisonPerformed"})
         cells[cid] = {
             "role": cell["role"], "adjudicated": True,
             "expected": cell["expected"], "observed": observed,
@@ -443,6 +487,138 @@ def pair_reports(matrix, cells, pins):
             ),
         }
     return reports
+
+
+HOLDOUT_PATH = STUDY / "harness" / "MATRIX-HOLDOUT.json"
+PREREG_PATH = STUDY / "PREREGISTRATION.md"
+
+
+def holdout_schema_problems(holdout):
+    problems = []
+    cells = holdout.get("cells")
+    if not isinstance(cells, list) or not cells:
+        return ["holdout registry carries no cell list"]
+    seen = set()
+    for cell in cells:
+        if not isinstance(cell, dict) or not isinstance(cell.get("id"), str):
+            problems.append("a holdout cell is not an object with a string id")
+            continue
+        cid = cell["id"]
+        if cid in seen:
+            problems.append("duplicate holdout cell id: " + cid)
+        seen.add(cid)
+        missing = CELL_REQUIRED_KEYS - set(cell)
+        if missing:
+            problems.append("%s lacks %s" % (cid, ", ".join(sorted(missing))))
+        if cell.get("role") not in ROLES:
+            problems.append("%s carries an unregistered role" % cid)
+        if cell.get("attackerCapability") not in CAPABILITIES:
+            problems.append("%s carries an unregistered attackerCapability" % cid)
+        if cell.get("variant") not in VARIANTS:
+            problems.append("%s carries an unregistered variant" % cid)
+        expected = cell.get("expected")
+        if not isinstance(expected, dict) or set(expected) != set(LAYERS):
+            problems.append("%s expected outcomes do not cover exactly the two layers" % cid)
+        if cid not in build_fixtures.HOLDOUT_HOOKS:
+            problems.append("no construction hook is registered for " + cid)
+    return problems
+
+
+def _stamp_holdout(root, cells):
+    stamps = {}
+    for cell in cells:
+        directory = Path(root) / cell["id"]
+        stamps[cell["id"]] = {
+            path.relative_to(directory).as_posix(): sha256_file(path)
+            for path in sorted(directory.rglob("*")) if path.is_file()
+        }
+    return stamps
+
+
+def _holdout_integrity(root, stamps):
+    report = []
+    for cell_id, files in sorted(stamps.items()):
+        directory = Path(root) / cell_id
+        seen = set()
+        for relative, stamped in sorted(files.items()):
+            path = directory / relative
+            final = sha256_file(path) if path.is_file() else None
+            report.append({"cell": cell_id, "path": relative, "stampedSha256": stamped,
+                           "finalSha256": final, "match": final == stamped})
+            seen.add(relative)
+        for path in sorted(directory.rglob("*")):
+            if path.is_file():
+                relative = path.relative_to(directory).as_posix()
+                if relative not in seen:
+                    report.append({"cell": cell_id, "path": relative,
+                                   "stampedSha256": None,
+                                   "finalSha256": sha256_file(path), "match": False})
+    return report
+
+
+def adjudicate_holdout(holdout, attempt_root, pins_raw_sha256):
+    """Construct inside the attempt, adjudicate, report separately (014/016 §1a)."""
+    context = build_fixtures.HoldoutAttemptContext(
+        attempt_root=str(attempt_root),
+        pins_raw_sha256=pins_raw_sha256,
+        preregistration_sha256=sha256_file(PREREG_PATH),
+        matrix_holdout_sha256=sha256_file(HOLDOUT_PATH),
+    )
+    root = Path(attempt_root) / "holdout-fixtures"
+    construction = build_fixtures.construct_holdout(context, root, holdout["cells"])
+    stamps = _stamp_holdout(root, holdout["cells"])
+    cells = {}
+    for cell in holdout["cells"]:
+        cid = cell["id"]
+        record = construction.get(cid, {})
+        if record.get("status") != "built":
+            cells[cid] = {"role": cell["role"], "adjudicated": False,
+                          "problems": ["construction status: %s" % record.get("status"),
+                                       record.get("harnessError", "")],
+                          "expected": cell["expected"]}
+            continue
+        directory = root / cid
+        problems = run_verify.manifest_problems(directory)
+        problems += run_verify.required_file_problems(directory, cell)
+        if problems:
+            cells[cid] = {"role": cell["role"], "adjudicated": False,
+                          "problems": problems, "expected": cell["expected"]}
+            continue
+        outcome = run_verify.verify_cell(directory)
+        observed = {layer: outcome[layer]["outcome"] for layer in LAYERS}
+        divergent = sorted(l for l in LAYERS if observed[l] != cell["expected"][l])
+        cells[cid] = {
+            "role": cell["role"], "adjudicated": True, "expected": cell["expected"],
+            "observed": observed, "combined": outcome["combined"],
+            "divergentLayers": divergent, "divergent": bool(divergent),
+            "witnessEvidence": {
+                "comparisonPerformed": outcome["witness"].get("comparisonPerformed"),
+                "validSightings": outcome["witness"].get("validSightings"),
+                "unattributedSightings": outcome["witness"].get("unattributedSightings"),
+            },
+            "detail": {l: outcome[l].get("detail") for l in LAYERS},
+        }
+    integrity = _holdout_integrity(root, stamps)
+    invalid = sorted(c for c, r in cells.items() if not r["adjudicated"])
+    gates = sorted(c for c, r in cells.items() if r["role"] == "control-gate"
+                   and (not r["adjudicated"] or r["divergent"]))
+    divergent = sorted(c for c, r in cells.items() if r["adjudicated"] and r["divergent"]
+                       and r["role"] != "control-gate")
+    clean = all(item["match"] for item in integrity)
+    if invalid or not clean:
+        summary = "holdout inconclusive - validity problem"
+    elif gates:
+        summary = "holdout inconclusive - control gate failed"
+    elif divergent:
+        summary = "holdout DIVERGENT"
+    else:
+        summary = "holdout concordant - %d/%d adjudicated, 0 divergent" % (len(cells), len(cells))
+    return {"reviewer": holdout.get("reviewer"), "construction": construction,
+            "fixtureDigests": stamps, "cells": cells,
+            "postAdjudicationIntegrity": integrity, "notAdjudicated": invalid,
+            "gatesFailed": gates, "divergent": divergent, "summary": summary,
+            "note": "reported separately: no holdout outcome enters a locked-stratum "
+                    "count and none can change the R1 verdict"}
 
 
 def decide(cells):
@@ -556,6 +732,7 @@ def main(argv=None):
             for member in FREEZE_PINS
         ) else "PILOT"
 
+        holdout = None
         if arguments.include_holdout:
             if (pins.get("preregistration") or {}).get("sha256") is None or (
                 pins.get("matrixHoldout") or {}
@@ -571,11 +748,9 @@ def main(argv=None):
                     "is not a passing holdout and leaves the postdictivity "
                     "finding open"
                 )
-            return terminal(
-                "registered holdout cells exist but this scorer carries no "
-                "holdout construction machinery yet; the machinery lands with "
-                "the reviewer's cells before the freeze"
-            )
+            schema_problems = holdout_schema_problems(holdout)
+            if schema_problems:
+                return terminal("holdout registry enforcement failed", schema_problems)
 
         problems = pin_problems(pins)
         if problems:
@@ -586,6 +761,9 @@ def main(argv=None):
             return terminal("matrix schema enforcement failed", schema_problems)
 
         cells = adjudicate(matrix)
+        holdout_report = None
+        if holdout is not None:
+            holdout_report = adjudicate_holdout(holdout, attempt_root, pins_raw_sha256)
         pairs = pair_reports(matrix, cells, pins)
         # A registered pair whose structure does not validate is a validity
         # failure on the attempt, never a silent footnote (round-1 R1-6).
@@ -618,7 +796,7 @@ def main(argv=None):
             "summary": summary,
             "cells": {cid: cells[cid] for cid in sorted(cells)},
             "pairs": pairs,
-            "holdout": None,
+            "holdout": holdout_report,
         }
         write_json(attempt_root / "RESULTS.json", results)
         atomic_write_bytes(

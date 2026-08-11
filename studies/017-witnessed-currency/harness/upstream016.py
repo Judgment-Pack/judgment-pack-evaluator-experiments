@@ -10,6 +10,7 @@ re-verifies each owned module's identity, origin, and bytes.
 
 import hashlib
 import importlib.util
+import types
 import json
 import sys
 from pathlib import Path
@@ -45,14 +46,14 @@ def pinned_files():
     if _PINNED_FILES is not None:
         return _PINNED_FILES
     pins = json.loads(PINS_PATH.read_text(encoding="utf-8"))
-    return pins["study016"]["files"]
+    return types.MappingProxyType(dict(pins["study016"]["files"]))
 
 
 def bind_pins(mapping):
     """Freeze the upstream digest mapping for this process."""
     global _PINNED_FILES
-    frozen = dict(mapping)
-    if _PINNED_FILES is not None and _PINNED_FILES != frozen:
+    frozen = types.MappingProxyType(dict(mapping))
+    if _PINNED_FILES is not None and dict(_PINNED_FILES) != dict(frozen):
         raise Upstream016Error("the upstream digest mapping is already bound differently")
     _PINNED_FILES = frozen
     return frozen

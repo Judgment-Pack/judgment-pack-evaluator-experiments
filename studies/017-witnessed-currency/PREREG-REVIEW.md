@@ -39,8 +39,49 @@ Post-revision state: 18 cells (matrixVersion 2), 39 harness tests green, build p
 green, zero endpoint divergence, the collusion pair structurally validated, and the seven
 registered-undetected cells confirmed undetected.
 
-## Round 2 — pending
+## Round 2 — 2026-08-11
 
-Confirmation of R1-1..R1-15, plus the reviewer-authored holdout stratum (committed verbatim
-with attribution, never executed pre-freeze; its construction machinery lands with the
-cells).
+Same reviewer. Verdict: **freezable after listed fixes** — 5 RESOLVED, 9 PARTIALLY
+RESOLVED (each with a precise residual), 1 new **BLOCKER** and 1 new MINOR — plus the
+reviewer-authored **9-cell holdout set**, landed verbatim with attribution. Prompt and
+findings verbatim in [`reviews/round-2/`](reviews/round-2/). Every item **accepted**.
+
+R2-1 is the round's centre and the second reproduced defect in this study: the reviewer
+found that `attributed_keys` was updated *before* series scoping, so a required witness's
+record for an unrelated series satisfied `requiredWitnesses`. Reproduced locally, fixed by
+moving attribution inside the same-series branch, and confirmed
+(`fail:witness-required-absent`). The reviewer's own `h09` is the mirror image of that
+bug — a pinned witness's foreign-series record where the floor is zero — so the holdout
+now guards the fix from both directions.
+
+| # | Disposition |
+| --- | --- |
+| R2-1 (BLOCKER) | **Accepted, reproduced, fixed.** Attribution for enforcement is now series-scoped: a verifying record for another series is skipped before it can satisfy a per-series named-witness floor. |
+| R2-2 (MINOR) | **Accepted.** The governing document said 14 cells while the matrix said 18, and still named `neg-sighting-forged`, `neg-unpinned-conflict` and `wit-retention-horizon`. All reconciled against the pinned 18-cell matrix. |
+| R1-1 residual | **Accepted.** Two gaps: Study 017's own modules executed before the check, and an **unchecked** hash-based cache — which CPython uses without validating anything — was being skipped as harmless. The check now runs as a stdlib **bootstrap at the top of `score.py`, before any study or third-party import** (`__main__` is never loaded from a cache, so the entry point is exempt by construction), and unchecked-hash caches are always compared. |
+| R1-2 residual | **Accepted.** The origin of the module *actually imported* is now authenticated against its distribution root, so a shadowing copy cannot satisfy a version check while other code runs. Package **contents** remain undigested; that residue is now stated in the preregistration rather than left implied. |
+| R1-3 residual | **Accepted.** `bind_pins()` and `pinned_files()` returned a mutable mapping. Both now hand out an immutable `MappingProxyType` over a private copy. |
+| R1-4 residual | **Accepted** (see R2-1) — the reviewer confirmed the association loop itself is sound in both the layer and the pair check, with only the foreign-series path outstanding. |
+| R1-6 residual | **Accepted.** Cross-cell series equality is now checked, and "satisfies the enforcement floor" now means the cell's own retained same-series records meet its configured floor, not merely that the floor is ≥ 1. |
+| R1-8 residual | **Accepted.** The last retired identifiers are gone from the governing document (see R2-2). |
+| R1-9 residual | **Accepted.** Structured fields were published but not adjudicated and not printed. Cells that turn on the distinction now register `expectedComparisonPerformed`, the scorer adjudicates it as its own divergence channel (`witness:comparisonPerformed`), and the detection matrix prints the three fields per row. |
+| R1-13 residual | **Accepted.** A mutation regression over every registered label is added. |
+| R1-15 residual | **Accepted.** The registered SPEC still carried the "an exchanged head IS a sighting" wording the finding was about — the earlier edit reached only the module docstring. Now narrowed in both. |
+| R1-5, R1-7, R1-10, R1-11, R1-12, R1-14 | **Confirmed RESOLVED** by the reviewer against the revised files. |
+
+The reviewer's nine cells (`h01`–`h09`) are committed byte-for-byte in
+`harness/MATRIX-HOLDOUT.json` with attribution, together with their construction
+machinery: hooks reachable only through a `HoldoutAttemptContext` that the scorer mints
+after its freeze gates pass, each hook verifying the context itself, construction inside
+the attempt under `<attempt>/holdout-fixtures/`, digest stamps re-hashed after
+adjudication, and a separate report that can never touch the locked stratum's R1 verdict.
+**Nothing has executed the stratum**: the pilots' `holdout` member is null and the harness
+tests assert only the refusal gates and static properties.
+
+Post-revision state: 18 locked cells, 42 harness tests green, build pilot 03
+(`pilots/2026-08-11-build-pilot-03`, non-citable) adjudicates 18/18 with all control gates
+green, zero endpoint divergence, and the collusion pair structurally validated.
+
+## Round 3 — pending
+
+Confirmation of R2-1, R2-2 and the nine residual closures, and of the holdout landing.

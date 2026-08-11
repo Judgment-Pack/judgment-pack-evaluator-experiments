@@ -1,7 +1,41 @@
+# Round-2 review (verbatim)
+
+Reviewer: codex-cli 0.145.0, model gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only sandbox.
+Run: 2026-08-11. Verdict: **freezable after listed fixes** (5 RESOLVED, 9 PARTIALLY RESOLVED, 1 new BLOCKER + 1 new MINOR; 9-cell holdout set authored).
+
+> Tooling note: as in round 1, a first attempt at this round was refused by the reviewer's
+> provider-side content filter and returned nothing; the prompt was rephrased in plainer
+> peer-review register and re-run. An empty output was never treated as a review.
+
+## Findings (verbatim, unedited)
+
+## Confirmation
+
+- R1-1 — PARTIALLY RESOLVED — Exact-source loading now protects Study 016, and `cache_from_source` correctly identifies the plain-import cache, but Study 017 modules execute before the check; additionally, unchecked-hash bytecode with a mismatching stored hash is accepted by CPython but skipped as harmless by the checker. (`harness/upstream016.py:72-105`; `harness/score.py:37-44,163-212,580`; `/home/onword/.pyenv/versions/3.12.11/lib/python3.12/importlib/_bootstrap_external.py:1080-1114`)
+- R1-2 — PARTIALLY RESOLVED — Dependency names, versions, and distribution roots are checked, but `cryptography` and `rfc8785` execute before that check, and neither imported-module origins nor code bytes are authenticated; same-version modified or shadowed code remains possible. (`harness/PINS.json:32-37`; `harness/score.py:37-44,215-246`)
+- R1-3 — PARTIALLY RESOLVED — The governing path single-reads, stamps, parses, and binds the upstream mapping before loading, closing the original live-reread case; however, `bind_pins()` stores and returns a mutable dictionary and `pinned_files()` exposes it directly, so mutation can still make the bound mapping differ from the stamped bytes. (`harness/score.py:521-552`; `harness/upstream016.py:36-58,61-69,87-94`)
+- R1-4 — PARTIALLY RESOLVED — Both the layer and pair checker now associate records by signature verification, and rerunning the round-1 identity case with unpinned, arbitrary, or other-pinned string labels preserved `fail:snapshot-conflicts-with-witnessed-head`; only malformed label shape affects schema validity. Omitted, non-verifying, and never-pinned records are honestly registered, and same-series `requiredWitnesses` cases refuse—but a required key’s foreign-series record bypasses that bound, as R2-1 records. (`witness/verify_witness.py:151-168,243-285`; `harness/score.py:320-356`; `witness/SPEC.md:69-81,100-109`)
+- R1-5 — RESOLVED — The revision now calls this the same threat class, expressly disclaims replaying Study 016’s four-layer add-versus-retire cells, and uses the internal split-view/zero-sighting comparison where only sightings differ. (`README.md:17-20`; `PREREGISTRATION.md:115-122,143-151`; `harness/build_fixtures.py:164-173,193-195`; `../016-policy-currency-anchor/harness/MATRIX.json:103-121`)
+- R1-6 — PARTIALLY RESOLVED — Current pair bytes validate, and `validated:false` is now terminal pipeline-invalid; key pinning, uniqueness, and own-view head correspondence are checked, but cross-cell series equality is absent and “satisfies the enforcement floor” merely tests `minimumSightings >= 1`, not whether retained valid records meet that floor. (`harness/score.py:312-384,588-597`; `harness/tests/test_study.py:97-109`)
+- R1-7 — RESOLVED — The revision consistently describes one additional pinned conflicting record reaching the comparator, treats the pair as an argument for non-collusion, and disclaims measuring organizational independence. (`README.md:21-26`; `harness/MATRIX.json:46-64`; `PREREGISTRATION.md:132-146`)
+- R1-8 — PARTIALLY RESOLVED — The causal claims are narrowed to zero-sighting enforcement and positional prefix coverage, but the governing preregistration still names the removed `wit-retention-horizon` cell and other retired identifiers. (`PREREGISTRATION.md:46-55,160-183,207-210`; `harness/MATRIX.json:86-104`)
+- R1-9 — PARTIALLY RESOLVED — The three structured fields are returned and retained in `RESULTS.json`, but per-cell expected field values are not adjudicated and `detection_matrix_markdown()` still publishes only outcome strings. (`witness/verify_witness.py:84-93,273-321`; `harness/score.py:387-419,463-500`; `pilots/2026-08-11-build-pilot-02/DETECTION-MATRIX.md:6-43`)
+- R1-10 — RESOLVED — Recency is an explicit two-valued configuration policy; the registered arms use identical commitment, snapshot, trust configuration, and sightings bytes, differing only between `ignore` and `refuse-behind`, with the expected pass/refusal outcomes. (`witness/verify_witness.py:71,131-148,297-321`; `harness/build_fixtures.py:199-205`; `harness/MATRIX.json:106-117`)
+- R1-11 — RESOLVED — Every attributed record is examined and registered conflict-over-behind precedence is order-independent, including the reversed-order regression. (`witness/SPEC.md:85-92`; `witness/verify_witness.py:287-317`; `harness/tests/test_witness.py:141-156`)
+- R1-12 — RESOLVED — Byte inputs and nested commitment shape are guarded, conversions are exception-bounded, and the original malformed shapes remain inside the registered vocabulary. (`witness/verify_witness.py:193-241,293-295`; `harness/tests/test_witness.py:159-176`)
+- R1-13 — PARTIALLY RESOLVED — All four keys are now derived from the registered seed labels and each label is compared with its builder constant, but the requested committed mutation regression for every label is absent. (`harness/score.py:263-290`; `harness/tests/test_study.py:77-86,118-133`)
+- R1-14 — RESOLVED — Both reserved upstream module names are preflighted before the first module executes, and later build-path loading retains its own foreign-module refusal. (`harness/upstream016.py:134-160`)
+- R1-15 — PARTIALLY RESOLVED — The verifier module has the requested narrow wording, but the registered witness specification still says an exchanged accepted head “IS a sighting” and that one mechanism models both witnessing and gossip—the exact overclaim under review. (`witness/verify_witness.py:3-11`; `witness/SPEC.md:32-35`)
+
+## New findings
+
+- R2-1 — BLOCKER — `witness/verify_witness.py`, attribution/enforcement: `attributed_keys` is updated before series scoping, so a valid signature from a required key over an unrelated series satisfies `requiredWitnesses`. Reproduced with zero same-series sightings: WITNESS returned `pass`, `comparisonPerformed:false`, and `validSightings:0`. This defeats the claimed per-series named-witness suppression bound. Move the owner update inside the matching-series branch and add the executed case as a locked regression expecting `fail:witness-required-absent`. (`witness/verify_witness.py:243-285`; `witness/SPEC.md:38-58,79-81,100-106`; `harness/MATRIX.json:80-84`)
+- R2-2 — MINOR — `PREREGISTRATION.md`, §§1a/4b/7: the governing document says the locked matrix has 14 cells while later saying 18, and still names removed controls including `neg-sighting-forged`, `neg-unpinned-conflict`, and `wit-retention-horizon`. Reconcile the count and identifiers with the pinned 18-cell matrix before freeze. (`PREREGISTRATION.md:61-70,124-130,157-170,205-211`; `harness/MATRIX.json:1-9,124`)
+
+## Holdout set (authored by the round-2 reviewer)
+
+```json
 {
-  "matrixVersion": "2",
-  "stratum": "reviewer-holdout",
-  "note": "The reviewer-authored holdout stratum (014/016 convention): cells authored by the round-2 cross-vendor reviewer, committed VERBATIM below with attribution, never executed before the freeze. The construction machinery lands with these cells and has never been run; the first-ever execution is the registered primary attempt, and these registered expectations are what it is scored against. Every construction is a deterministic registry, sighting, configuration or byte operation over the frozen apparatus, so construction statuses are built or harness-error only. Holdout outcomes report separately and never touch the locked stratum's R1 verdict.",
   "reviewer": "codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), round 2",
   "cells": [
     {
@@ -132,3 +166,6 @@
     }
   ]
 }
+```
+
+DO NOT FREEZE

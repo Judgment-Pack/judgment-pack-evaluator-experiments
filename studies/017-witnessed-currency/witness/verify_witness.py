@@ -266,9 +266,13 @@ def layer_witness(commitment, snapshot_bytes, witnessconfig_bytes, sightings_byt
         if owner is None:
             unattributed += 1
             continue
+        # Series scoping FIRST (round-2 R2-1, reproduced): a verifying record
+        # for an unrelated series must not satisfy a per-series named-witness
+        # floor. Attribution for enforcement counts only same-series records.
+        if record["sighting"]["seriesId"] != series_id:
+            continue
         attributed_keys.add(owner)
-        if record["sighting"]["seriesId"] == series_id:
-            valid.append(record["sighting"])
+        valid.append(record["sighting"])
 
     counts = {"validSightings": len(valid), "unattributedSightings": unattributed}
 

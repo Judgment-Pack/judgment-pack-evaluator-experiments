@@ -61,7 +61,7 @@ study-internal end to end; its claims are correspondingly narrow (§9).
 ## 1a. Two strata
 
 The 014/016 remedy, inherited: the locked-replication stratum
-(`harness/MATRIX.json`, 14 cells) is a conformance suite over behaviour the maintainer
+(`harness/MATRIX.json`, 18 cells) is a conformance suite over behaviour the maintainer
 observed during harness development; R1 has a locked replication's standing, never a
 prospective prediction. The **reviewer holdout** stratum is authored by the cross-vendor
 reviewer during the pre-freeze rounds, committed verbatim with attribution, never
@@ -79,8 +79,11 @@ the standing no-independent-mutation-oracle limitation, recorded as in 014/016.
   while any bytecode cache exists in either tree — a `.py` digest does not describe what ran
   if an unmanifested `__pycache__` entry is loaded instead.
 - **Registered third-party dependencies** (round-1 R1-2): `cryptography` and `rfc8785` are
-  registered by version in `harness/PINS.json` and enforced by name, version and origin
-  before adjudication. The draft's claim that they were "transitively pinned by the 016
+  registered by version in `harness/PINS.json` and enforced before adjudication by name,
+  version, distribution root outside the studies tree, and the origin of the module
+  actually imported (so a shadowing copy cannot satisfy a version check while other code
+  runs). Their **contents are not digest-pinned**: same-version modified package bytes
+  would pass, and that residue is stated here rather than claimed closed. The draft's claim that they were "transitively pinned by the 016
   apparatus" was false — this study consumes no lockfile of 016's — and is withdrawn.
 - **Study 016's frozen registry modules, consumed as a pinned unmodified upstream**
   (decision D-2 — the 016→014 posture applied to 016 itself): `registry/verify_currency.py`
@@ -151,15 +154,17 @@ enforcement (E), recency policy (R), and layer composition (X). Registered struc
   and no claim of replicating 016's run is made anywhere).
 - **Structured witness evidence** (round-1 R1-9): every adjudicated cell publishes
   `comparisonPerformed`, `validSightings` and `unattributedSightings` alongside the
-  outcome, so a pass after zero comparisons is machine-distinguishable from a pass after a
-  sighting-backed one, in both `RESULTS.json` and the published detection matrix.
+  outcome, in both `RESULTS.json` and the published detection matrix. Cells that turn on
+  the distinction additionally **register** `expectedComparisonPerformed`, which the
+  scorer adjudicates: a cell whose comparison did not happen as registered diverges on
+  `witness:comparisonPerformed`, so the field governs rather than decorates.
 
 ### 4b. Threat model
 
 - **`none`**: registry state, pins, and sightings vary; no key misused.
-- **`tamper`**: signed bytes changed without re-signing (`neg-sighting-forged`).
+- **`tamper`**: retained bytes changed without re-signing (`neg-sighting-malformed`).
 - **`authority-key`**: the registry authority's key signs the fork
-  (`wit-split-view-caught`, `wit-retention-horizon` — 016's single-operator adversary).
+  (`wit-split-view-caught`, `wit-prefix-coverage` — 016's single-operator adversary).
 - **`witness-key`**: a pinned witness key's own signing *behaviour* is the construction —
   a witness signing per audience (`wit-collusion-*`, `wit-one-honest`).
 - **`delivery`**: control over which retained records reach the verifier, touching no key
@@ -204,10 +209,11 @@ repeats it; `SystemExit`/`KeyboardInterrupt` are terminal-recorded and re-raised
 
 ## 7. Controls and counting integrity
 
-`pos-consistent`/`unchanged` gate the positive composition; `neg-sighting-forged` proves
-fail-closed on tampered pinned evidence; `neg-unpinned-conflict` proves the D-3 ignore
-rule is measured rather than assumed (its registered PASS may never be cited as anything
-but the rule's cost); `neg-limits` proves the resource cap. No silent exclusions; the
+`pos-consistent`/`unchanged` gate the positive composition; `neg-relabel-attack` keeps the
+round-1 falsifying construction as a standing control, so a regression to label-based
+association fails a gate rather than a boundary cell; `neg-sighting-malformed` proves the
+closed schema is fail-closed before any signature math; `neg-limits` proves the resource
+cap. No silent exclusions; the
 scorer refuses an existing attempt root; the frozen cell-id set is asserted.
 
 ## 8. What is enforced, what is recorded, what is not prevented

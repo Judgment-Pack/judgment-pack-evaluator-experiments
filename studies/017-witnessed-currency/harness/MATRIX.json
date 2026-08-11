@@ -1,125 +1,288 @@
 {
   "matrixVersion": "2",
   "stratum": "locked-replication",
-  "note": "Registered cell expectations for Study 017, locked-replication stratum, revised at review round 1 (see PREREG-REVIEW.md; matrixVersion 1 is the pre-review draft, whose D-3 routing was falsified by the reviewer's relabel construction — now a standing control, neg-relabel-attack). Layers: currency = Study 016's frozen registry/verify_currency.py, consumed as a digest-pinned unmodified upstream and compiled from its hashed source bytes; witness = this study's witness/verify_witness.py (witness/SPEC.md section 2). Expected values are adjudicated layer OUTCOME strings and nothing else: 'pass', 'fail:<code>' with an exact registered code, or 'unavailable'. combined is derived: pass iff both layer outcomes are pass. The witness layer additionally publishes the REGISTERED structured fields comparisonPerformed / validSightings / unattributedSightings, so a pass after zero comparisons is machine-distinguishable from a pass after a sighting-backed one - never a free-text distinction. Roles: endpoint rows decide R1; control-gate rows are validity gates evaluated first. registeredUndetected: true marks cells whose all-pass outcome is itself the registered finding - a detection there falsifies R1. attackerCapability: none = only registry state, pins and sightings vary; authority-key = the registry authority's key signs the construction; witness-key = a pinned witness key's own signing behaviour is the construction; delivery = the party that controls which retained sightings reach the verifier drops, corrupts, or relabels one, touching no key it does not hold; tamper = signed bytes changed without re-signing. variant: none / registry / config / sightings / tampered. pairs.collusion names the witness-equivocation exhibit; the scorer recomputes it from the two cells' retained bytes - one record attributable to the same key in each cell by SIGNATURE (never by label), the key pinned in both configurations, both satisfying the enforcement floor, each head matching its own presented view, same position, different heads - and a pair that does not validate makes the attempt pipeline-invalid rather than a footnote.",
+  "note": "Registered cell expectations for Study 017, locked-replication stratum, revised at review round 1 (see PREREG-REVIEW.md; matrixVersion 1 is the pre-review draft, whose D-3 routing was falsified by the reviewer's relabel construction — now a standing control, neg-relabel-attack). Layers: currency = Study 016's frozen registry/verify_currency.py, consumed as a digest-pinned unmodified upstream and compiled from its hashed source bytes; witness = this study's witness/verify_witness.py (witness/SPEC.md section 2). Expected values are adjudicated layer OUTCOME strings and nothing else: 'pass', 'fail:<code>' with an exact registered code, or 'unavailable'. combined is derived: pass iff both layer outcomes are pass. The witness layer additionally publishes the REGISTERED structured fields comparisonPerformed / validSightings / unattributedSightings, so a pass after zero comparisons is machine-distinguishable from a pass after a sighting-backed one - never a free-text distinction. Roles: endpoint rows decide R1; control-gate rows are validity gates evaluated first. registeredUndetected: true marks cells whose all-pass outcome is itself the registered finding - a detection there falsifies R1. attackerCapability: none = only registry state, pins and sightings vary; authority-key = the registry authority's key signs the construction; witness-key = a pinned witness key's own signing behaviour is the construction; delivery = the party that controls which retained sightings reach the verifier drops, corrupts, or relabels one, touching no key it does not hold; tamper = signed bytes changed without re-signing. variant: none / registry / config / sightings / tampered. pairs.collusion names the witness-equivocation exhibit; the scorer recomputes it from the two cells' retained bytes - one record attributable to the same key in each cell by SIGNATURE (never by label), the key pinned in both configurations, both satisfying the enforcement floor, each head matching its own presented view, same position, different heads - and a pair that does not validate makes the attempt pipeline-invalid rather than a footnote. Cells that turn on whether a comparison happened additionally register expectedComparisonPerformed, which the scorer adjudicates as a divergence channel (witness:comparisonPerformed) - the structured field governs rather than decorates.",
   "identityGroups": [],
   "pairs": {
-    "collusion": ["wit-collusion-a", "wit-collusion-b"]
+    "collusion": [
+      "wit-collusion-a",
+      "wit-collusion-b"
+    ]
   },
   "cells": [
-    {"id": "pos-consistent", "category": "control-positive", "variant": "none",
-     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
-     "construction": "view A at position 2; witness w2's record of A's head@2; minimumSightings 1; recencyPolicy ignore",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "validity gate: the positive composition must verify through both layers, with comparisonPerformed true, before any endpoint row is read"},
-
-    {"id": "unchanged", "category": "control-positive", "variant": "none",
-     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
-     "construction": "byte-copy of pos-consistent adjudicated mid-matrix (within-run control convention)",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "validity gate: the apparatus must not manufacture detections on untouched bytes"},
-
-    {"id": "neg-relabel-attack", "category": "control-negative", "variant": "sightings",
-     "role": "control-gate", "attackerCapability": "delivery", "registeredAbsences": [],
-     "construction": "view C presented; the honest conflicting record of A's head@2 carries a well-formed but UNPINNED witnessKeyId label; the record itself is untouched and still verifies under w2",
-     "expected": {"currency": "pass", "witness": "fail:snapshot-conflicts-with-witnessed-head"},
-     "note": "validity gate, and the round-1 R1-4 construction preserved as a standing control: the reviewer showed the draft's label-routing turned this exact input from a detection into a pass. Attribution is now by signature verification against every pinned key, so the unauthenticated label changes nothing - a relabelled honest record is still compared"},
-
-    {"id": "neg-sighting-malformed", "category": "control-negative", "variant": "tampered",
-     "role": "control-gate", "attackerCapability": "tamper", "registeredAbsences": [],
-     "construction": "pos-consistent with the record's sighting position set to 0 - a closed-schema violation",
-     "expected": {"currency": "pass", "witness": "fail:witness-sighting-invalid"},
-     "note": "validity gate: schema defects are fail-closed BEFORE any signature math, and this is the only path to witness-sighting-invalid - a record that merely fails to verify is unattributed, not invalid (see wit-suppression-corrupted)"},
-
-    {"id": "neg-limits", "category": "control-negative", "variant": "sightings",
-     "role": "control-gate", "attackerCapability": "none", "registeredAbsences": [],
-     "construction": "pos-consistent with 65 records - one past the registered MAX_SIGHTINGS cap",
-     "expected": {"currency": "pass", "witness": "fail:witness-limits-exceeded"},
-     "note": "validity gate: the registered resource cap refuses before unbounded work; the at-cap sibling is a unit vector"},
-
-    {"id": "wit-split-view-caught", "category": "W-what-a-sighting-buys", "variant": "sightings",
-     "role": "endpoint", "attackerCapability": "authority-key", "registeredAbsences": [],
-     "construction": "the fork: view C presented, one record from w2 of view A's head@2; minimumSightings 0",
-     "expected": {"currency": "pass", "witness": "fail:snapshot-conflicts-with-witnessed-head"},
-     "note": "the payoff: a fork that Layer CURRENCY cannot distinguish (both branches keep the committed version current, so currency passes on either) becomes observable from ONE attributed record of a sibling head. This is the same THREAT CLASS Study 016 registered as silent to a fresh stateless verifier; it is not a replay of 016's cells - different series, no receipt layers, both branches add rather than retire (round-1 R1-5). The internal 'one record is the difference' comparison is against wit-zero-sightings-vacuous, whose bytes differ only in the sighting set"},
-
-    {"id": "wit-collusion-a", "category": "W-what-a-sighting-buys", "variant": "sightings",
-     "role": "endpoint", "attackerCapability": "witness-key", "registeredAbsences": [],
-     "registeredUndetected": true, "pair": "collusion",
-     "construction": "view A presented with w1's record of A's head; w1 signs whatever each audience is shown; minimumSightings 1 (satisfied)",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "the load-bearing exhibit, half A: a witness that signs per audience restores the silence WHILE satisfying every implemented clause except non-collusion, which nothing here implements. All-pass is the registered finding"},
-
-    {"id": "wit-collusion-b", "category": "W-what-a-sighting-buys", "variant": "sightings",
-     "role": "endpoint", "attackerCapability": "witness-key", "registeredAbsences": [],
-     "registeredUndetected": true, "pair": "collusion",
-     "construction": "view C presented with the SAME key w1's record of C's head at the same position; minimumSightings 1 (satisfied)",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "half B: the same key records the contradictory head. Each run is internally valid; the contradiction exists only across the pair, which the scorer recomputes from bytes. The cells illustrate WHY a non-collusion clause may be required - they measure no organisational property, and this study claims none"},
-
-    {"id": "wit-one-honest", "category": "W-what-a-sighting-buys", "variant": "sightings",
-     "role": "endpoint", "attackerCapability": "witness-key", "registeredAbsences": [],
-     "construction": "the collusion-b construction plus one additional pinned conflicting record from w2 of view A's head@2; both keys pinned; minimumSightings 1",
-     "expected": {"currency": "pass", "witness": "fail:snapshot-conflicts-with-witnessed-head"},
-     "note": "the conditional effect of ONE ADDITIONAL PINNED CONFLICTING RECORD REACHING THE COMPARATOR (round-1 R1-7: this is not a measurement of independence - the cell changes both the pinned key set and the delivered evidence, and organisational independence is not a property any fixture here can carry). Its own boundary is the suppression trio below: the same construction with that record dropped, corrupted, or re-signed under an unpinned key passes"},
-
-    {"id": "wit-suppression-omitted", "category": "S-delivery-control", "variant": "sightings",
-     "role": "endpoint", "attackerCapability": "delivery", "registeredAbsences": [],
-     "registeredUndetected": true,
-     "construction": "the wit-one-honest configuration with w2's conflicting record simply absent from the retained set; w1's record satisfies minimumSightings 1",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "the residue the routing fix does not close, registered rather than hidden (round-1 R1-4's deeper consequence): whoever controls which records reach the verifier can omit the conflicting one, and a count-based floor is satisfied by the remaining record. Omission is indistinguishable from a witness that never spoke"},
-
-    {"id": "wit-suppression-corrupted", "category": "S-delivery-control", "variant": "sightings",
-     "role": "endpoint", "attackerCapability": "delivery", "registeredAbsences": [],
-     "registeredUndetected": true,
-     "construction": "the same configuration with w2's conflicting record present but its signature altered, so it verifies under no pinned key",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "the second suppression channel: an unverifiable record is unattributed, never invalid - because a corrupted record from a pinned witness and a genuine record from an unpinned one are indistinguishable to this verifier. The published unattributedSightings count is the only trace, and a count is not a detection. A pinned-witness fail-closed rule cannot be built on the label that says whose record it was"},
-
-    {"id": "wit-required-witness-absent", "category": "S-delivery-control", "variant": "config",
-     "role": "endpoint", "attackerCapability": "delivery", "registeredAbsences": [],
-     "construction": "the wit-suppression-omitted bytes with w2 additionally named in requiredWitnesses",
-     "expected": {"currency": "pass", "witness": "fail:witness-required-absent"},
-     "note": "the arm that bounds the two cells above: naming witnesses converts a satisfied count into a refusal when a named one contributes nothing. It refuses on ABSENCE OF EVIDENCE and cannot say why - suppression, outage, and a witness that never observed the series are one condition to this verifier"},
-
-    {"id": "wit-zero-sightings-vacuous", "category": "E-enforcement", "variant": "config",
-     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
-     "registeredUndetected": true,
-     "construction": "view C presented with an empty retained set; minimumSightings 0",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "zero-sighting vacuous consistency: nothing was compared, and the registered structured field comparisonPerformed=false is what says so - the verdict alone cannot (round-1 R1-9). No causal claim about WHY the set is empty: partition, non-production, withholding, discovery failure and retention loss are one condition here (round-1 R1-8)"},
-
-    {"id": "wit-zero-sightings-enforced", "category": "E-enforcement", "variant": "config",
-     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
-     "construction": "the same empty retained set; minimumSightings 1",
-     "expected": {"currency": "pass", "witness": "unavailable"},
-     "note": "the enforcement arm: a count floor converts silent vacuity into a fail-closed refusal to call the view witnessed at all - RFC 0011 Unresolved #9's 'verifier enforcement' clause, as far as a count can carry it"},
-
-    {"id": "wit-prefix-coverage", "category": "E-enforcement", "variant": "sightings",
-     "role": "endpoint", "attackerCapability": "authority-key", "registeredAbsences": [],
-     "registeredUndetected": true,
-     "construction": "view C presented; the only attributed record names the SHARED genesis at position 1; minimumSightings 1 (satisfied)",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "positional prefix coverage, stated as exactly that and not as retention (round-1 R1-8): a record constrains only the position it names, both branches contain that genesis, and the divergence at position 2 is above it. Nothing here models a witness's retention horizon or what it once held and dropped"},
-
-    {"id": "wit-recency-refused", "category": "R-recency-policy", "variant": "config",
-     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
-     "construction": "the position-1 prefix of view A presented, with w2's record of A's head@2; recencyPolicy refuse-behind",
-     "expected": {"currency": "pass", "witness": "fail:snapshot-behind-witnessed-head"},
-     "note": "recency is CONFIGURED POLICY, never an implicit promotion of any record to prior-acceptance state (round-1 R1-10): a sighting carries a head and a position, not a proof that its history extends the presented one. Study 016 refuses the analogous case only under an explicitly provisioned minimumHeadPin, and this arm mirrors that discipline"},
-
-    {"id": "wit-historical-audit", "category": "R-recency-policy", "variant": "config",
-     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
-     "registeredUndetected": true,
-     "construction": "the SAME presented history and record as wit-recency-refused, with recencyPolicy ignore - a deliberate audit of an older snapshot",
-     "expected": {"currency": "pass", "witness": "pass"},
-     "note": "the arm that makes the policy's cost visible: a deliberate historical audit and a stale presentation are the same bytes, so refuse-behind refuses both and ignore accepts both. The verifier cannot tell them apart; only the configured policy decides, and this pair is where that is measured rather than argued"},
-
-    {"id": "cur-retired-interplay", "category": "X-layer-composition", "variant": "registry",
-     "role": "endpoint", "attackerCapability": "none", "registeredAbsences": [],
-     "construction": "the retiring history at position 3 with a consistent record of its own head - currency must fail while witness passes",
-     "expected": {"currency": "fail:not-current-at-snapshot", "witness": "pass"},
-     "note": "attribution independence: a witnessed, consistent view can still carry a version outside the supported set. Witnessing states history consistency, never currency - and neither states usability, which RFC 0011 section 2a places outside both"}
+    {
+      "id": "pos-consistent",
+      "category": "control-positive",
+      "variant": "none",
+      "role": "control-gate",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "construction": "view A at position 2; witness w2's record of A's head@2; minimumSightings 1; recencyPolicy ignore",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "validity gate: the positive composition must verify through both layers, with comparisonPerformed true, before any endpoint row is read",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "unchanged",
+      "category": "control-positive",
+      "variant": "none",
+      "role": "control-gate",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "construction": "byte-copy of pos-consistent adjudicated mid-matrix (within-run control convention)",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "validity gate: the apparatus must not manufacture detections on untouched bytes",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "neg-relabel-attack",
+      "category": "control-negative",
+      "variant": "sightings",
+      "role": "control-gate",
+      "attackerCapability": "delivery",
+      "registeredAbsences": [],
+      "construction": "view C presented; the honest conflicting record of A's head@2 carries a well-formed but UNPINNED witnessKeyId label; the record itself is untouched and still verifies under w2",
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "note": "validity gate, and the round-1 R1-4 construction preserved as a standing control: the reviewer showed the draft's label-routing turned this exact input from a detection into a pass. Attribution is now by signature verification against every pinned key, so the unauthenticated label changes nothing - a relabelled honest record is still compared"
+    },
+    {
+      "id": "neg-sighting-malformed",
+      "category": "control-negative",
+      "variant": "tampered",
+      "role": "control-gate",
+      "attackerCapability": "tamper",
+      "registeredAbsences": [],
+      "construction": "pos-consistent with the record's sighting position set to 0 - a closed-schema violation",
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-sighting-invalid"
+      },
+      "note": "validity gate: schema defects are fail-closed BEFORE any signature math, and this is the only path to witness-sighting-invalid - a record that merely fails to verify is unattributed, not invalid (see wit-suppression-corrupted)"
+    },
+    {
+      "id": "neg-limits",
+      "category": "control-negative",
+      "variant": "sightings",
+      "role": "control-gate",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "construction": "pos-consistent with 65 records - one past the registered MAX_SIGHTINGS cap",
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-limits-exceeded"
+      },
+      "note": "validity gate: the registered resource cap refuses before unbounded work; the at-cap sibling is a unit vector"
+    },
+    {
+      "id": "wit-split-view-caught",
+      "category": "W-what-a-sighting-buys",
+      "variant": "sightings",
+      "role": "endpoint",
+      "attackerCapability": "authority-key",
+      "registeredAbsences": [],
+      "construction": "the fork: view C presented, one record from w2 of view A's head@2; minimumSightings 0",
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "note": "the payoff: a fork that Layer CURRENCY cannot distinguish (both branches keep the committed version current, so currency passes on either) becomes observable from ONE attributed record of a sibling head. This is the same THREAT CLASS Study 016 registered as silent to a fresh stateless verifier; it is not a replay of 016's cells - different series, no receipt layers, both branches add rather than retire (round-1 R1-5). The internal 'one record is the difference' comparison is against wit-zero-sightings-vacuous, whose bytes differ only in the sighting set",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "wit-collusion-a",
+      "category": "W-what-a-sighting-buys",
+      "variant": "sightings",
+      "role": "endpoint",
+      "attackerCapability": "witness-key",
+      "registeredAbsences": [],
+      "registeredUndetected": true,
+      "pair": "collusion",
+      "construction": "view A presented with w1's record of A's head; w1 signs whatever each audience is shown; minimumSightings 1 (satisfied)",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "the load-bearing exhibit, half A: a witness that signs per audience restores the silence WHILE satisfying every implemented clause except non-collusion, which nothing here implements. All-pass is the registered finding",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "wit-collusion-b",
+      "category": "W-what-a-sighting-buys",
+      "variant": "sightings",
+      "role": "endpoint",
+      "attackerCapability": "witness-key",
+      "registeredAbsences": [],
+      "registeredUndetected": true,
+      "pair": "collusion",
+      "construction": "view C presented with the SAME key w1's record of C's head at the same position; minimumSightings 1 (satisfied)",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "half B: the same key records the contradictory head. Each run is internally valid; the contradiction exists only across the pair, which the scorer recomputes from bytes. The cells illustrate WHY a non-collusion clause may be required - they measure no organisational property, and this study claims none",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "wit-one-honest",
+      "category": "W-what-a-sighting-buys",
+      "variant": "sightings",
+      "role": "endpoint",
+      "attackerCapability": "witness-key",
+      "registeredAbsences": [],
+      "construction": "the collusion-b construction plus one additional pinned conflicting record from w2 of view A's head@2; both keys pinned; minimumSightings 1",
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "note": "the conditional effect of ONE ADDITIONAL PINNED CONFLICTING RECORD REACHING THE COMPARATOR (round-1 R1-7: this is not a measurement of independence - the cell changes both the pinned key set and the delivered evidence, and organisational independence is not a property any fixture here can carry). Its own boundary is the suppression trio below: the same construction with that record dropped, corrupted, or re-signed under an unpinned key passes",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "wit-suppression-omitted",
+      "category": "S-delivery-control",
+      "variant": "sightings",
+      "role": "endpoint",
+      "attackerCapability": "delivery",
+      "registeredAbsences": [],
+      "registeredUndetected": true,
+      "construction": "the wit-one-honest configuration with w2's conflicting record simply absent from the retained set; w1's record satisfies minimumSightings 1",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "the residue the routing fix does not close, registered rather than hidden (round-1 R1-4's deeper consequence): whoever controls which records reach the verifier can omit the conflicting one, and a count-based floor is satisfied by the remaining record. Omission is indistinguishable from a witness that never spoke",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "wit-suppression-corrupted",
+      "category": "S-delivery-control",
+      "variant": "sightings",
+      "role": "endpoint",
+      "attackerCapability": "delivery",
+      "registeredAbsences": [],
+      "registeredUndetected": true,
+      "construction": "the same configuration with w2's conflicting record present but its signature altered, so it verifies under no pinned key",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "the second suppression channel: an unverifiable record is unattributed, never invalid - because a corrupted record from a pinned witness and a genuine record from an unpinned one are indistinguishable to this verifier. The published unattributedSightings count is the only trace, and a count is not a detection. A pinned-witness fail-closed rule cannot be built on the label that says whose record it was",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "wit-required-witness-absent",
+      "category": "S-delivery-control",
+      "variant": "config",
+      "role": "endpoint",
+      "attackerCapability": "delivery",
+      "registeredAbsences": [],
+      "construction": "the wit-suppression-omitted bytes with w2 additionally named in requiredWitnesses",
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-required-absent"
+      },
+      "note": "the arm that bounds the two cells above: naming witnesses converts a satisfied count into a refusal when a named one contributes nothing. It refuses on ABSENCE OF EVIDENCE and cannot say why - suppression, outage, and a witness that never observed the series are one condition to this verifier"
+    },
+    {
+      "id": "wit-zero-sightings-vacuous",
+      "category": "E-enforcement",
+      "variant": "config",
+      "role": "endpoint",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "registeredUndetected": true,
+      "construction": "view C presented with an empty retained set; minimumSightings 0",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "zero-sighting vacuous consistency: nothing was compared, and the registered structured field comparisonPerformed=false is what says so - the verdict alone cannot (round-1 R1-9). No causal claim about WHY the set is empty: partition, non-production, withholding, discovery failure and retention loss are one condition here (round-1 R1-8)",
+      "expectedComparisonPerformed": false
+    },
+    {
+      "id": "wit-zero-sightings-enforced",
+      "category": "E-enforcement",
+      "variant": "config",
+      "role": "endpoint",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "construction": "the same empty retained set; minimumSightings 1",
+      "expected": {
+        "currency": "pass",
+        "witness": "unavailable"
+      },
+      "note": "the enforcement arm: a count floor converts silent vacuity into a fail-closed refusal to call the view witnessed at all - RFC 0011 Unresolved #9's 'verifier enforcement' clause, as far as a count can carry it"
+    },
+    {
+      "id": "wit-prefix-coverage",
+      "category": "E-enforcement",
+      "variant": "sightings",
+      "role": "endpoint",
+      "attackerCapability": "authority-key",
+      "registeredAbsences": [],
+      "registeredUndetected": true,
+      "construction": "view C presented; the only attributed record names the SHARED genesis at position 1; minimumSightings 1 (satisfied)",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "positional prefix coverage, stated as exactly that and not as retention (round-1 R1-8): a record constrains only the position it names, both branches contain that genesis, and the divergence at position 2 is above it. Nothing here models a witness's retention horizon or what it once held and dropped",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "wit-recency-refused",
+      "category": "R-recency-policy",
+      "variant": "config",
+      "role": "endpoint",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "construction": "the position-1 prefix of view A presented, with w2's record of A's head@2; recencyPolicy refuse-behind",
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-behind-witnessed-head"
+      },
+      "note": "recency is CONFIGURED POLICY, never an implicit promotion of any record to prior-acceptance state (round-1 R1-10): a sighting carries a head and a position, not a proof that its history extends the presented one. Study 016 refuses the analogous case only under an explicitly provisioned minimumHeadPin, and this arm mirrors that discipline",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "wit-historical-audit",
+      "category": "R-recency-policy",
+      "variant": "config",
+      "role": "endpoint",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "registeredUndetected": true,
+      "construction": "the SAME presented history and record as wit-recency-refused, with recencyPolicy ignore - a deliberate audit of an older snapshot",
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "note": "the arm that makes the policy's cost visible: a deliberate historical audit and a stale presentation are the same bytes, so refuse-behind refuses both and ignore accepts both. The verifier cannot tell them apart; only the configured policy decides, and this pair is where that is measured rather than argued",
+      "expectedComparisonPerformed": true
+    },
+    {
+      "id": "cur-retired-interplay",
+      "category": "X-layer-composition",
+      "variant": "registry",
+      "role": "endpoint",
+      "attackerCapability": "none",
+      "registeredAbsences": [],
+      "construction": "the retiring history at position 3 with a consistent record of its own head - currency must fail while witness passes",
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "witness": "pass"
+      },
+      "note": "attribution independence: a witnessed, consistent view can still carry a version outside the supported set. Witnessing states history consistency, never currency - and neither states usability, which RFC 0011 section 2a places outside both",
+      "expectedComparisonPerformed": true
+    }
   ]
 }

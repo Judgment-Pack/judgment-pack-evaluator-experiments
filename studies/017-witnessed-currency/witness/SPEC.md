@@ -30,9 +30,11 @@ observed:
 ```
 
 Signed bytes: `JCS({"domain": "jps-study017-witness/sighting/1", "payload":
-<sighting>})`. A cross-verifier exchange is the same primitive: an accepted
-head, exchanged, IS a sighting — one mechanism models both the witness and the
-gossip variant. Retained sightings travel as
+<sighting>})`. The schema *could* encode a head exchanged between verifiers,
+but only under a separately specified authentication, role, acceptance and
+delivery contract that this study does not define; nothing here models an
+exchange, and no claim is made that one mechanism serves witnessing and gossip
+alike (round-1 R1-15). Retained sightings travel as
 `{"sightingsVersion": "1", "sightings": [ <records> ]}`.
 
 The **witness configuration** is per-series verifier state, separate from the

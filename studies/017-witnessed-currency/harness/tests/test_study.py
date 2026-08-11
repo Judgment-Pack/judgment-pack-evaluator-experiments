@@ -100,6 +100,7 @@ def test_collusion_pair_structure_is_validated_from_bytes():
     structure = score._collusion_structure(matrix["pairs"]["collusion"], pins)
     assert structure["validated"] is True
     assert structure["checks"] == {
+        "sameSeriesAcrossCells": True,
         "oneRecordFromTheSameKeyInEachCell": True,
         "bothSightingsVerifyUnderThatKey": True,
         "keyPinnedInBothConfigurations": True,
@@ -176,6 +177,37 @@ def test_scorer_is_deterministic_and_control_gates_hold(tmp_path):
             if record["role"] == "control-gate":
                 assert record["adjudicated"] and not record["divergent"], cid
     assert outputs[0] == outputs[1]
+
+
+def test_holdout_registry_schema_and_hooks():
+    """Pre-freeze this is all a test may touch: the stratum is never executed
+    before the freeze, and the context gate below is what enforces that."""
+    holdout = json.loads((STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8"))
+    assert score.holdout_schema_problems(holdout) == []
+    assert sorted(c["id"] for c in holdout["cells"]) == sorted(build_fixtures.HOLDOUT_HOOKS)
+    assert holdout["reviewer"].startswith("codex-cli")
+    assert "control-gate" in [c["role"] for c in holdout["cells"]]
+
+
+def test_holdout_construction_refuses_without_valid_context():
+    """No context, or a forged one, refuses at EVERY exposed hook — the
+    scorer's gate is not the only gate."""
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures.construct_holdout(None, STUDY / "nowhere", [])
+    forged = build_fixtures.HoldoutAttemptContext(
+        attempt_root=str(STUDY), pins_raw_sha256="0" * 64,
+        preregistration_sha256="0" * 64, matrix_holdout_sha256="0" * 64)
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures.construct_holdout(forged, STUDY / "nowhere", [])
+    assert any("does not match" in p for p in build_fixtures.holdout_context_problems(forged))
+    for hook in build_fixtures.HOLDOUT_HOOKS.values():
+        with pytest.raises(build_fixtures.HoldoutRefused):
+            hook(forged)
+
+
+def test_no_holdout_bytes_under_fixtures():
+    for cell_id in build_fixtures.HOLDOUT_HOOKS:
+        assert not (STUDY / "fixtures" / "cells" / cell_id).exists()
 
 
 def test_scorer_refuses_existing_attempt_root(tmp_path):
