@@ -1,0 +1,1348 @@
+{
+  "attemptRoot": "primary-attempt-001",
+  "label": "REGISTERED",
+  "includeHoldout": true,
+  "pipelineInvalid": false,
+  "pinsRawSha256": "9cc06daa880acc3c095301fd5a578270365bcab7f429a716598470dda42fd779",
+  "matrixSha256": "1aa72724c7d559d1074ca1905fe00285878582cb0e7ed701b3f0aaad9c72e46b",
+  "verdict": "R1 holds (REGISTERED)",
+  "verdictCells": [],
+  "summary": {
+    "cells": 18,
+    "adjudicated": 18,
+    "endpoints": 13,
+    "endpointDivergences": 0,
+    "registeredUndetectedConfirmed": [
+      "wit-collusion-a",
+      "wit-collusion-b",
+      "wit-historical-audit",
+      "wit-prefix-coverage",
+      "wit-suppression-corrupted",
+      "wit-suppression-omitted",
+      "wit-zero-sightings-vacuous"
+    ]
+  },
+  "cells": {
+    "cur-retired-interplay": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "witness": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:90a4d6221710d18ba07b94ac1cffaf90f90fdbdb0509a660fa4000513c24fee3) is not in the supported set at snapshot position 3",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "neg-limits": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-limits-exceeded"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:witness-limits-exceeded"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 0,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "sighting count exceeds the registered limit (65 > 64)"
+      }
+    },
+    "neg-relabel-attack": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "an attributed witness records a different head at position 2 — the presented history is not the one that witness recorded"
+      }
+    },
+    "neg-sighting-malformed": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-sighting-invalid"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:witness-sighting-invalid"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 0,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "sighting 1: sighting position is not a positive integer"
+      }
+    },
+    "pos-consistent": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "unchanged": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-collusion-a": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-collusion-b": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-historical-audit": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 1",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-one-honest": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 2,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "an attributed witness records a different head at position 2 — the presented history is not the one that witness recorded"
+      }
+    },
+    "wit-prefix-coverage": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-recency-refused": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-behind-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-behind-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 1",
+        "witness": "an attributed witness records position 2; the presented history ends at 1. Under recencyPolicy=refuse-behind this is refused; the sighting carries no proof that its history extends this one, so a deliberate audit of an older snapshot refuses identically"
+      }
+    },
+    "wit-required-witness-absent": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-required-absent"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:witness-required-absent"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "1 required witness(es) contributed no verifying record — indistinguishable from a witness that never spoke"
+      }
+    },
+    "wit-split-view-caught": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "an attributed witness records a different head at position 2 — the presented history is not the one that witness recorded"
+      }
+    },
+    "wit-suppression-corrupted": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 1
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 1 unattributed record(s) ignored"
+      }
+    },
+    "wit-suppression-omitted": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-zero-sightings-enforced": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "unavailable"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "unavailable"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 0,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "0 attributed sightings for this series; the configuration requires 1"
+      }
+    },
+    "wit-zero-sightings-vacuous": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 0,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "no comparison performed: zero attributed sightings"
+      }
+    }
+  },
+  "pairs": {
+    "collusion": {
+      "members": [
+        "wit-collusion-a",
+        "wit-collusion-b"
+      ],
+      "adjudicated": true,
+      "equivocationStructure": {
+        "validated": true,
+        "checks": {
+          "sameSeriesAcrossCells": true,
+          "oneRecordFromTheSameKeyInEachCell": true,
+          "bothSightingsVerifyUnderThatKey": true,
+          "keyPinnedInBothConfigurations": true,
+          "bothSatisfyTheEnforcementFloor": true,
+          "eachHeadMatchesItsOwnPresentedView": true,
+          "samePosition": true,
+          "differentHeads": true
+        }
+      },
+      "witnessOutcomes": {
+        "wit-collusion-a": "pass",
+        "wit-collusion-b": "pass"
+      },
+      "note": "derived, not asserted: the equivocation is recomputed from the two cells' retained sightings under the pinned colluding key. Each run is internally valid and satisfies its enforcement clause; the witness's contradiction exists only across the pair — the independence clause of the witness contract, exhibited"
+    }
+  },
+  "holdout": {
+    "reviewer": "codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), round 2",
+    "construction": {
+      "h01": {
+        "cell": "h01",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      },
+      "h02": {
+        "cell": "h02",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      },
+      "h03": {
+        "cell": "h03",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      },
+      "h04": {
+        "cell": "h04",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      },
+      "h05": {
+        "cell": "h05",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      },
+      "h06": {
+        "cell": "h06",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      },
+      "h07": {
+        "cell": "h07",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      },
+      "h08": {
+        "cell": "h08",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      },
+      "h09": {
+        "cell": "h09",
+        "builderVersionDigest": "e0f12694a59cdef3c59560f741ca68b854d7535c5cdb34bb658f35fa17024f46",
+        "status": "built"
+      }
+    },
+    "fixtureDigests": {
+      "h01": {
+        "CONSTRUCTION.json": "f0b4bbbdba8354a03c1e28208581f55907858a3ecf967eda276d81e3d6227cd9",
+        "MANIFEST.sha256": "f72e5c5ed089181b650b6ce949e3353ffe9b962199bd0abccf1064cbe7f75d39",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "a45cf0cdaea5aab6c2315b145c5b9d5c1fd002a34b028d67f460cdc0d9021014",
+        "snapshot.json": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "ec8d4cc7e2711fa5c9e17a5f96fd4b98e893f2396877b5a7be587e4a00b422a7"
+      },
+      "h02": {
+        "CONSTRUCTION.json": "108f8cd9405e930d21db3155233bdad442234df8b5706d5654d6915534151973",
+        "MANIFEST.sha256": "c80d0dabe65cc48860c9ae48a2047cf1b42e9b9391df7cd3ad9ce37a3bc7b21e",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "dd744ddff41b91b2ddb7f5392fbfc0bdd01ca1b270d31b48e75fa77c30f4db9a",
+        "snapshot.json": "ea438ff3f1599250d644c44db17458db9a50f894a11d7a3da89df5f44c6728ff",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "89ff01d255512008925f2fb4c6318b27be5206cd72c1ab94f91597a229a7ca20"
+      },
+      "h03": {
+        "CONSTRUCTION.json": "21ce4992e2f550c4c4a19be5bf11e8e67cd36d8e477e8cfa79709da41e9b9812",
+        "MANIFEST.sha256": "077c35b0cfdc880842eb20b0df7bfc9d49e5cb6664e5a6f3c15435c7c6482923",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "955670b7f0f7b83bc211a4ecdc93e00d7fde112eb6164fd6578d134399ee852c",
+        "snapshot.json": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "a4de5efd873ef19c485a505c0444d2c7024cf54c196ae93386c1a82c37c5ebea"
+      },
+      "h04": {
+        "CONSTRUCTION.json": "b1e1a28cdf397b4246e7387c5e2c85d97f58c7a9ba9d312794542a074f64a1dc",
+        "MANIFEST.sha256": "b61c9652bd2d627b5b812f8c8dc5c74e5b1b3436296c59451951dd12d2de69db",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "a8838b2bd03944b3363c7468411c1af8cd0e677913f2eedc2efbed6279f7470d",
+        "snapshot.json": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "7489d89b6500d3ee7c892fdf9b0e5d9cc892d7ae6ddc99c63458a18b6ea7453a"
+      },
+      "h05": {
+        "CONSTRUCTION.json": "76d2e7c7dc7612c32ae9eba38774600acf9eee5024cc852b0ae1a67037dfca73",
+        "MANIFEST.sha256": "a09aa46b72ed3f05dea7d2d6bac020815a2146135201d18b885fd6dbf293d89d",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "90179d6f289aa931a128d968fe2fb657992488f7563e6f8ce66853735cd2b6bb",
+        "snapshot.json": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "ec8d4cc7e2711fa5c9e17a5f96fd4b98e893f2396877b5a7be587e4a00b422a7"
+      },
+      "h06": {
+        "CONSTRUCTION.json": "b480a665dc969fbcb25b0ba39f3604804cf0d9d2d88126eca77f4033e4e733ec",
+        "MANIFEST.sha256": "57aaa0fed38d27c490cfd2b65839eb6b017897893365f5ee7dda1b041b5398d2",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "90179d6f289aa931a128d968fe2fb657992488f7563e6f8ce66853735cd2b6bb",
+        "snapshot.json": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "fc563cec50a4b264c6d2813fa956c063733af668957c386353b2a31ea3935a19"
+      },
+      "h07": {
+        "CONSTRUCTION.json": "ced88e6198ed782ecb40cdcb31edabf1bb156d5b97b6af5bf570c54dabe8981e",
+        "MANIFEST.sha256": "b86493e2fedfc3e3e262286804805af6916e6d13e364f0f30d16651820ebef7c",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "d59dccee10821cd20453eb748a18ec66cad48f96a1373500ec64011fd7240562",
+        "snapshot.json": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "fc563cec50a4b264c6d2813fa956c063733af668957c386353b2a31ea3935a19"
+      },
+      "h08": {
+        "CONSTRUCTION.json": "3fda4a2a356775bd0779335dbf423366be45c766b7b7230a48a61a4bcbe51983",
+        "MANIFEST.sha256": "5e329a6370aa7f1449730e7447a5050a39ee55d63ba9d26438639cbe9b4d2626",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "4ec249bcd501e7586267202110c2a6300ef1310b50df77c20dfad2242f0626d3",
+        "snapshot.json": "4a774eed95019ba9d94c70b9b04a1ef3dd6bcfe24cfc9e25167bdb8f68e0c7d5",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "b456485067c9600d95164665e79c5b42f68146614a8610c7c862f27da6562a47"
+      },
+      "h09": {
+        "CONSTRUCTION.json": "1253f5ccc1ecdd9c5783cc5c57b7008b8a9f56e8ab831f2089eb7a0d0b556e7f",
+        "MANIFEST.sha256": "69a3c03ae8f5cabb33ced79edf32b15dc950362c896d4bc379d4e00436835318",
+        "commitment.json": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "sightings.json": "1db081feacba4af8020cafbc6ef08112a15b0cb07e2b9d4ef9506cd6d3c46d80",
+        "snapshot.json": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "trustconfig.json": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "witnessconfig.json": "3b696514a0476a1fd26afcb1bfd5391ea78af7f33a92199f1cec9a28520f63ef"
+      }
+    },
+    "cells": {
+      "h01": {
+        "role": "control-gate",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "witness": "pass"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "observed": {
+          "currency": "pass",
+          "witness": "pass"
+        },
+        "combined": "pass",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "detail": {
+          "currency": "current at snapshot position 2",
+          "witness": "consistent with 2 attributed sighting(s); 0 unattributed record(s) ignored"
+        }
+      },
+      "h02": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "witness": "fail:witness-required-absent"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": false,
+          "validSightings": 1,
+          "unattributedSightings": 1
+        },
+        "observed": {
+          "currency": "pass",
+          "witness": "fail:witness-required-absent"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": false,
+          "validSightings": 1,
+          "unattributedSightings": 1
+        },
+        "detail": {
+          "currency": "current at snapshot position 2",
+          "witness": "1 required witness(es) contributed no verifying record — indistinguishable from a witness that never spoke"
+        }
+      },
+      "h03": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "witness": "unavailable"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": false,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "observed": {
+          "currency": "pass",
+          "witness": "unavailable"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": false,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "detail": {
+          "currency": "current at snapshot position 2",
+          "witness": "2 attributed sightings for this series; the configuration requires 3"
+        }
+      },
+      "h04": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "witness": "fail:witness-required-absent"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": false,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "observed": {
+          "currency": "pass",
+          "witness": "fail:witness-required-absent"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": false,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "detail": {
+          "currency": "current at snapshot position 2",
+          "witness": "1 required witness(es) contributed no verifying record — indistinguishable from a witness that never spoke"
+        }
+      },
+      "h05": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "witness": "pass"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "observed": {
+          "currency": "pass",
+          "witness": "pass"
+        },
+        "combined": "pass",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "detail": {
+          "currency": "current at snapshot position 2",
+          "witness": "consistent with 2 attributed sighting(s); 0 unattributed record(s) ignored"
+        }
+      },
+      "h06": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "witness": "fail:snapshot-behind-witnessed-head"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "observed": {
+          "currency": "pass",
+          "witness": "fail:snapshot-behind-witnessed-head"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "detail": {
+          "currency": "current at snapshot position 2",
+          "witness": "an attributed witness records position 3; the presented history ends at 2. Under recencyPolicy=refuse-behind this is refused; the sighting carries no proof that its history extends this one, so a deliberate audit of an older snapshot refuses identically"
+        }
+      },
+      "h07": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "witness": "fail:snapshot-conflicts-with-witnessed-head"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "observed": {
+          "currency": "pass",
+          "witness": "fail:snapshot-conflicts-with-witnessed-head"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 2,
+          "unattributedSightings": 0
+        },
+        "detail": {
+          "currency": "current at snapshot position 2",
+          "witness": "an attributed witness records a different head at position 2 — the presented history is not the one that witness recorded"
+        }
+      },
+      "h08": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:snapshot-signature-invalid",
+          "witness": "pass"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 1,
+          "unattributedSightings": 0
+        },
+        "observed": {
+          "currency": "fail:snapshot-signature-invalid",
+          "witness": "pass"
+        },
+        "combined": "fail",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": true,
+          "validSightings": 1,
+          "unattributedSightings": 0
+        },
+        "detail": {
+          "currency": "checkpoint 2 does not verify under the pinned authority key",
+          "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+        }
+      },
+      "h09": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "witness": "pass"
+        },
+        "expectedWitnessEvidence": {
+          "comparisonPerformed": false,
+          "validSightings": 0,
+          "unattributedSightings": 0
+        },
+        "observed": {
+          "currency": "pass",
+          "witness": "pass"
+        },
+        "combined": "pass",
+        "divergentLayers": [],
+        "divergent": false,
+        "witnessEvidence": {
+          "comparisonPerformed": false,
+          "validSightings": 0,
+          "unattributedSightings": 0
+        },
+        "detail": {
+          "currency": "current at snapshot position 2",
+          "witness": "no comparison performed: zero attributed sightings"
+        }
+      }
+    },
+    "postAdjudicationIntegrity": [
+      {
+        "cell": "h01",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "f0b4bbbdba8354a03c1e28208581f55907858a3ecf967eda276d81e3d6227cd9",
+        "finalSha256": "f0b4bbbdba8354a03c1e28208581f55907858a3ecf967eda276d81e3d6227cd9",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "f72e5c5ed089181b650b6ce949e3353ffe9b962199bd0abccf1064cbe7f75d39",
+        "finalSha256": "f72e5c5ed089181b650b6ce949e3353ffe9b962199bd0abccf1064cbe7f75d39",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "sightings.json",
+        "stampedSha256": "a45cf0cdaea5aab6c2315b145c5b9d5c1fd002a34b028d67f460cdc0d9021014",
+        "finalSha256": "a45cf0cdaea5aab6c2315b145c5b9d5c1fd002a34b028d67f460cdc0d9021014",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "snapshot.json",
+        "stampedSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "finalSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "witnessconfig.json",
+        "stampedSha256": "ec8d4cc7e2711fa5c9e17a5f96fd4b98e893f2396877b5a7be587e4a00b422a7",
+        "finalSha256": "ec8d4cc7e2711fa5c9e17a5f96fd4b98e893f2396877b5a7be587e4a00b422a7",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "108f8cd9405e930d21db3155233bdad442234df8b5706d5654d6915534151973",
+        "finalSha256": "108f8cd9405e930d21db3155233bdad442234df8b5706d5654d6915534151973",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "c80d0dabe65cc48860c9ae48a2047cf1b42e9b9391df7cd3ad9ce37a3bc7b21e",
+        "finalSha256": "c80d0dabe65cc48860c9ae48a2047cf1b42e9b9391df7cd3ad9ce37a3bc7b21e",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "sightings.json",
+        "stampedSha256": "dd744ddff41b91b2ddb7f5392fbfc0bdd01ca1b270d31b48e75fa77c30f4db9a",
+        "finalSha256": "dd744ddff41b91b2ddb7f5392fbfc0bdd01ca1b270d31b48e75fa77c30f4db9a",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "snapshot.json",
+        "stampedSha256": "ea438ff3f1599250d644c44db17458db9a50f894a11d7a3da89df5f44c6728ff",
+        "finalSha256": "ea438ff3f1599250d644c44db17458db9a50f894a11d7a3da89df5f44c6728ff",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "witnessconfig.json",
+        "stampedSha256": "89ff01d255512008925f2fb4c6318b27be5206cd72c1ab94f91597a229a7ca20",
+        "finalSha256": "89ff01d255512008925f2fb4c6318b27be5206cd72c1ab94f91597a229a7ca20",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "21ce4992e2f550c4c4a19be5bf11e8e67cd36d8e477e8cfa79709da41e9b9812",
+        "finalSha256": "21ce4992e2f550c4c4a19be5bf11e8e67cd36d8e477e8cfa79709da41e9b9812",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "077c35b0cfdc880842eb20b0df7bfc9d49e5cb6664e5a6f3c15435c7c6482923",
+        "finalSha256": "077c35b0cfdc880842eb20b0df7bfc9d49e5cb6664e5a6f3c15435c7c6482923",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "sightings.json",
+        "stampedSha256": "955670b7f0f7b83bc211a4ecdc93e00d7fde112eb6164fd6578d134399ee852c",
+        "finalSha256": "955670b7f0f7b83bc211a4ecdc93e00d7fde112eb6164fd6578d134399ee852c",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "snapshot.json",
+        "stampedSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "finalSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "witnessconfig.json",
+        "stampedSha256": "a4de5efd873ef19c485a505c0444d2c7024cf54c196ae93386c1a82c37c5ebea",
+        "finalSha256": "a4de5efd873ef19c485a505c0444d2c7024cf54c196ae93386c1a82c37c5ebea",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "b1e1a28cdf397b4246e7387c5e2c85d97f58c7a9ba9d312794542a074f64a1dc",
+        "finalSha256": "b1e1a28cdf397b4246e7387c5e2c85d97f58c7a9ba9d312794542a074f64a1dc",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "b61c9652bd2d627b5b812f8c8dc5c74e5b1b3436296c59451951dd12d2de69db",
+        "finalSha256": "b61c9652bd2d627b5b812f8c8dc5c74e5b1b3436296c59451951dd12d2de69db",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "sightings.json",
+        "stampedSha256": "a8838b2bd03944b3363c7468411c1af8cd0e677913f2eedc2efbed6279f7470d",
+        "finalSha256": "a8838b2bd03944b3363c7468411c1af8cd0e677913f2eedc2efbed6279f7470d",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "snapshot.json",
+        "stampedSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "finalSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "witnessconfig.json",
+        "stampedSha256": "7489d89b6500d3ee7c892fdf9b0e5d9cc892d7ae6ddc99c63458a18b6ea7453a",
+        "finalSha256": "7489d89b6500d3ee7c892fdf9b0e5d9cc892d7ae6ddc99c63458a18b6ea7453a",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "76d2e7c7dc7612c32ae9eba38774600acf9eee5024cc852b0ae1a67037dfca73",
+        "finalSha256": "76d2e7c7dc7612c32ae9eba38774600acf9eee5024cc852b0ae1a67037dfca73",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "a09aa46b72ed3f05dea7d2d6bac020815a2146135201d18b885fd6dbf293d89d",
+        "finalSha256": "a09aa46b72ed3f05dea7d2d6bac020815a2146135201d18b885fd6dbf293d89d",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "sightings.json",
+        "stampedSha256": "90179d6f289aa931a128d968fe2fb657992488f7563e6f8ce66853735cd2b6bb",
+        "finalSha256": "90179d6f289aa931a128d968fe2fb657992488f7563e6f8ce66853735cd2b6bb",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "snapshot.json",
+        "stampedSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "finalSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "witnessconfig.json",
+        "stampedSha256": "ec8d4cc7e2711fa5c9e17a5f96fd4b98e893f2396877b5a7be587e4a00b422a7",
+        "finalSha256": "ec8d4cc7e2711fa5c9e17a5f96fd4b98e893f2396877b5a7be587e4a00b422a7",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "b480a665dc969fbcb25b0ba39f3604804cf0d9d2d88126eca77f4033e4e733ec",
+        "finalSha256": "b480a665dc969fbcb25b0ba39f3604804cf0d9d2d88126eca77f4033e4e733ec",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "57aaa0fed38d27c490cfd2b65839eb6b017897893365f5ee7dda1b041b5398d2",
+        "finalSha256": "57aaa0fed38d27c490cfd2b65839eb6b017897893365f5ee7dda1b041b5398d2",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "sightings.json",
+        "stampedSha256": "90179d6f289aa931a128d968fe2fb657992488f7563e6f8ce66853735cd2b6bb",
+        "finalSha256": "90179d6f289aa931a128d968fe2fb657992488f7563e6f8ce66853735cd2b6bb",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "snapshot.json",
+        "stampedSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "finalSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "witnessconfig.json",
+        "stampedSha256": "fc563cec50a4b264c6d2813fa956c063733af668957c386353b2a31ea3935a19",
+        "finalSha256": "fc563cec50a4b264c6d2813fa956c063733af668957c386353b2a31ea3935a19",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "ced88e6198ed782ecb40cdcb31edabf1bb156d5b97b6af5bf570c54dabe8981e",
+        "finalSha256": "ced88e6198ed782ecb40cdcb31edabf1bb156d5b97b6af5bf570c54dabe8981e",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "b86493e2fedfc3e3e262286804805af6916e6d13e364f0f30d16651820ebef7c",
+        "finalSha256": "b86493e2fedfc3e3e262286804805af6916e6d13e364f0f30d16651820ebef7c",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "sightings.json",
+        "stampedSha256": "d59dccee10821cd20453eb748a18ec66cad48f96a1373500ec64011fd7240562",
+        "finalSha256": "d59dccee10821cd20453eb748a18ec66cad48f96a1373500ec64011fd7240562",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "snapshot.json",
+        "stampedSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "finalSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "witnessconfig.json",
+        "stampedSha256": "fc563cec50a4b264c6d2813fa956c063733af668957c386353b2a31ea3935a19",
+        "finalSha256": "fc563cec50a4b264c6d2813fa956c063733af668957c386353b2a31ea3935a19",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "3fda4a2a356775bd0779335dbf423366be45c766b7b7230a48a61a4bcbe51983",
+        "finalSha256": "3fda4a2a356775bd0779335dbf423366be45c766b7b7230a48a61a4bcbe51983",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "5e329a6370aa7f1449730e7447a5050a39ee55d63ba9d26438639cbe9b4d2626",
+        "finalSha256": "5e329a6370aa7f1449730e7447a5050a39ee55d63ba9d26438639cbe9b4d2626",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "sightings.json",
+        "stampedSha256": "4ec249bcd501e7586267202110c2a6300ef1310b50df77c20dfad2242f0626d3",
+        "finalSha256": "4ec249bcd501e7586267202110c2a6300ef1310b50df77c20dfad2242f0626d3",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "snapshot.json",
+        "stampedSha256": "4a774eed95019ba9d94c70b9b04a1ef3dd6bcfe24cfc9e25167bdb8f68e0c7d5",
+        "finalSha256": "4a774eed95019ba9d94c70b9b04a1ef3dd6bcfe24cfc9e25167bdb8f68e0c7d5",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "witnessconfig.json",
+        "stampedSha256": "b456485067c9600d95164665e79c5b42f68146614a8610c7c862f27da6562a47",
+        "finalSha256": "b456485067c9600d95164665e79c5b42f68146614a8610c7c862f27da6562a47",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "1253f5ccc1ecdd9c5783cc5c57b7008b8a9f56e8ab831f2089eb7a0d0b556e7f",
+        "finalSha256": "1253f5ccc1ecdd9c5783cc5c57b7008b8a9f56e8ab831f2089eb7a0d0b556e7f",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "69a3c03ae8f5cabb33ced79edf32b15dc950362c896d4bc379d4e00436835318",
+        "finalSha256": "69a3c03ae8f5cabb33ced79edf32b15dc950362c896d4bc379d4e00436835318",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "commitment.json",
+        "stampedSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "finalSha256": "36399f158b48094eb72bed8d1aba55007141710f03db88fe6f15f530bd6dfb2f",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "sightings.json",
+        "stampedSha256": "1db081feacba4af8020cafbc6ef08112a15b0cb07e2b9d4ef9506cd6d3c46d80",
+        "finalSha256": "1db081feacba4af8020cafbc6ef08112a15b0cb07e2b9d4ef9506cd6d3c46d80",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "snapshot.json",
+        "stampedSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "finalSha256": "92fbb19e75097c981ca9f4612337ac00419aa034c4de3aacd8f46214588fd728",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "trustconfig.json",
+        "stampedSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "finalSha256": "5aea43c2781bef4cd77d275b6005a2391b31b643ce56ac7fd418c2a88fc493c0",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "witnessconfig.json",
+        "stampedSha256": "3b696514a0476a1fd26afcb1bfd5391ea78af7f33a92199f1cec9a28520f63ef",
+        "finalSha256": "3b696514a0476a1fd26afcb1bfd5391ea78af7f33a92199f1cec9a28520f63ef",
+        "match": true
+      }
+    ],
+    "notAdjudicated": [],
+    "gatesFailed": [],
+    "divergent": [],
+    "summary": "holdout concordant - 9/9 adjudicated, 0 divergent",
+    "note": "reported separately: no holdout outcome enters a locked-stratum count and none can change the R1 verdict"
+  }
+}
