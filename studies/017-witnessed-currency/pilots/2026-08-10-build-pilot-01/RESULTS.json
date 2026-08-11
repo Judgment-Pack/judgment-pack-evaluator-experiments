@@ -1,0 +1,328 @@
+{
+  "attemptRoot": "2026-08-10-build-pilot-01",
+  "label": "PILOT",
+  "includeHoldout": false,
+  "pipelineInvalid": false,
+  "pinsRawSha256": "b2752970db9770bda72f82c8b25c50eaad8628c8a77cd382e4ebdf17201d5cf0",
+  "matrixSha256": "b2206e4de10c7bd0569bfa68e2087fb08fa7801235bc553a8136eaba547d5101",
+  "verdict": "R1 holds (PILOT)",
+  "verdictCells": [],
+  "summary": {
+    "cells": 14,
+    "adjudicated": 14,
+    "endpoints": 9,
+    "endpointDivergences": 0,
+    "registeredUndetectedConfirmed": [
+      "wit-collusion-a",
+      "wit-collusion-b",
+      "wit-partition-vacuous",
+      "wit-retention-horizon"
+    ]
+  },
+  "cells": {
+    "cur-retired-interplay": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "witness": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "(1.0.0, sha256:90a4d6221710d18ba07b94ac1cffaf90f90fdbdb0509a660fa4000513c24fee3) is not in the supported set at snapshot position 3",
+        "witness": "consistent with 1 pinned sighting(s); 0 unpinned ignored"
+      }
+    },
+    "neg-limits": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-limits-exceeded"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:witness-limits-exceeded"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "sighting count exceeds the registered limit (65 > 64)"
+      }
+    },
+    "neg-sighting-forged": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-sighting-invalid"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:witness-sighting-invalid"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "sighting 1 claims pinned witness ed25519:6aa28d27 but does not verify"
+      }
+    },
+    "neg-unpinned-conflict": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 0 pinned sighting(s); 1 unpinned ignored"
+      }
+    },
+    "pos-consistent": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 pinned sighting(s); 0 unpinned ignored"
+      }
+    },
+    "unchanged": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 pinned sighting(s); 0 unpinned ignored"
+      }
+    },
+    "wit-collusion-a": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 pinned sighting(s); 0 unpinned ignored"
+      }
+    },
+    "wit-collusion-b": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 pinned sighting(s); 0 unpinned ignored"
+      }
+    },
+    "wit-one-honest": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "a pinned witness attests a different head at position 2 — the presented history is not the witnessed one"
+      }
+    },
+    "wit-partition-enforced": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "unavailable"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "unavailable"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "0 valid pinned sightings; the configuration requires 1"
+      }
+    },
+    "wit-partition-vacuous": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 0 pinned sighting(s); 0 unpinned ignored"
+      }
+    },
+    "wit-recency-behind": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-behind-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-behind-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 1",
+        "witness": "a pinned witness attests position 2; the snapshot ends at 1"
+      }
+    },
+    "wit-retention-horizon": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 pinned sighting(s); 0 unpinned ignored"
+      }
+    },
+    "wit-split-view-caught": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "a pinned witness attests a different head at position 2 — the presented history is not the witnessed one"
+      }
+    }
+  },
+  "pairs": {
+    "collusion": {
+      "members": [
+        "wit-collusion-a",
+        "wit-collusion-b"
+      ],
+      "adjudicated": true,
+      "equivocationStructure": {
+        "validated": true,
+        "checks": {
+          "sameWitnessKey": true,
+          "bothSightingsVerify": true,
+          "samePosition": true,
+          "differentHeads": true
+        }
+      },
+      "witnessOutcomes": {
+        "wit-collusion-a": "pass",
+        "wit-collusion-b": "pass"
+      },
+      "note": "derived, not asserted: the equivocation is recomputed from the two cells' retained sightings under the pinned colluding key. Each run is internally valid and satisfies its enforcement clause; the witness's contradiction exists only across the pair — the independence clause of the witness contract, exhibited"
+    }
+  },
+  "holdout": null
+}

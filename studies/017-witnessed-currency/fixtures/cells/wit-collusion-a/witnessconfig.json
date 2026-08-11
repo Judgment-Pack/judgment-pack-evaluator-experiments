@@ -1,0 +1,10 @@
+{
+  "witnessConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/witnessed-policy",
+  "witnessKeys": [
+    "iY5+qzWz/Z/KqNpGh9YkrKFeKl8nYBg6nwBAOVw4itU="
+  ],
+  "minimumSightings": 1,
+  "requiredWitnesses": [],
+  "recencyPolicy": "ignore"
+}

@@ -1,0 +1,50 @@
+{
+  "note": "Structured-evidence expectations for the reviewer-authored holdout cells, kept SEPARATE from harness/MATRIX-HOLDOUT.json so that block stays byte-for-byte as the reviewer authored it (round-3 R3-1). Each value is read off that cell's own construction text and adjudicated as its own divergence channel (witness:<field>), so a regression that reached the registered outcome by different evidence still diverges - which is precisely the series-scoping class of R2-1 that h09 exists to guard.",
+  "cells": {
+    "h01": {
+      "comparisonPerformed": true,
+      "validSightings": 2,
+      "unattributedSightings": 0
+    },
+    "h02": {
+      "comparisonPerformed": false,
+      "validSightings": 1,
+      "unattributedSightings": 1
+    },
+    "h03": {
+      "comparisonPerformed": false,
+      "validSightings": 2,
+      "unattributedSightings": 0
+    },
+    "h04": {
+      "comparisonPerformed": false,
+      "validSightings": 2,
+      "unattributedSightings": 0
+    },
+    "h05": {
+      "comparisonPerformed": true,
+      "validSightings": 2,
+      "unattributedSightings": 0
+    },
+    "h06": {
+      "comparisonPerformed": true,
+      "validSightings": 2,
+      "unattributedSightings": 0
+    },
+    "h07": {
+      "comparisonPerformed": true,
+      "validSightings": 2,
+      "unattributedSightings": 0
+    },
+    "h08": {
+      "comparisonPerformed": true,
+      "validSightings": 1,
+      "unattributedSightings": 0
+    },
+    "h09": {
+      "comparisonPerformed": false,
+      "validSightings": 0,
+      "unattributedSightings": 0
+    }
+  }
+}

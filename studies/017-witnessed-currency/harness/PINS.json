@@ -1,0 +1,72 @@
+{
+  "pinsVersion": "1",
+  "note": "Pin registry, 011-convention as extended by Studies 014/016: every non-null member is ENFORCED before adjudication. harness/score.py compares the preregistration, matrix, matrixHoldout, matrixHoldoutEvidence, witnessSpec and studyManifest digests when filled, every study016.files digest always (harness/upstream016.py refuses to load a mismatching source and re-verifies each loaded module's identity, origin and bytes on every load), every witnessAuthority member always (keys re-derived from the REGISTERED seed labels, which must also equal the builder's constants - round-1 R1-13 found the labels unenforced - and the genesis head rebuilt from the registered genesis event); the registered dependency versions and their origins; that no bytecode cache a plain import would accept differs from compile() of its source, checked by a stdlib bootstrap before any study or third-party import (round-1 R1-1; an equivalent cache is accepted - existence is not the hazard), the witness layer's checkpoint-domain constant against the pinned upstream's, and harnessPython.version exactly. This study needs no evaluator binary and no external clone: the apparatus is registry-and-witness only (design decision D-1) and adjudication is fully offline and deterministic.",
+  "anchorOrder": "LINEAR, the 014 round-3 order: (1) harness/STUDY-MANIFEST.sha256 covers the protocol documents, both matrix strata, the holdout evidence map, every witness/ and harness/ source file, the harness tests, and every per-cell fixture manifest of the locked stratum, and covers NEITHER itself NOR this file; (2) this file pins that manifest's digest in studyManifest.sha256; (3) the freeze commit - together with the pinsRawSha256 stamp every attempt record carries (SHA-256 of this file's raw bytes, computed before the parse) - anchors this file.",
+  "registeredLabelRule": "harness/score.py labels an attempt REGISTERED only when EVERY freeze pin is non-null - preregistration, matrix, matrixHoldout, matrixHoldoutEvidence, witnessSpec, studyManifest. Any null makes it a PILOT. The non-null ones are enforced under both labels.",
+  "study016": {
+    "path": "../016-policy-currency-anchor",
+    "note": "Decision D-2 - the 016-to-014 posture applied to 016 itself: Study 016's frozen registry modules are consumed as a pinned unmodified upstream, loaded only by authenticated absolute path (no sys.path additions, no bare imports), with pre-existing sys.modules entries refused and per-load identity/origin/bytes re-verification. registry/verify_currency.py IS Layer CURRENCY, unchanged; registry/checkpoint.py is BUILD PATH ONLY (registry views and trust configurations for fixtures). 016's own frozen STUDY-MANIFEST pins the same bytes from the other side.",
+    "files": {
+      "registry/verify_currency.py": "ac9638020e0e396a68e238d3b2c107719e45ef8358fe30f038de9bbe48f73255",
+      "registry/checkpoint.py": "3a3614fbff7923aef2941c530e71f2b33bf9e6ce889c6511a75c8929e39ee233"
+    }
+  },
+  "witnessAuthority": {
+    "note": "Study-minted, fixed-seed Ed25519 - trust roots of the apparatus, stated as such: NOTHING here claims witness independence, and the seeds are public deterministic fixtures. The collusion pair is the argument for independence, not a simulation of it. witness-1 is the colluding role (its equivocation across the pair is the registered exhibit), witness-2 the honest role, witness-3 is never pinned in the locked-replication stratum (the reviewer's holdout leaves it unpinned in h02 and pins it in h03/h04). Every member below is mechanically recomputed and compared by the scorer before adjudication.",
+    "authoritySeedLabel": "study-017/currency-authority/1",
+    "authorityPublicKey": "tfiJSMZx6GRHFzptWQ/VqImH/oZgJrbvkK06LxwQ/gs=",
+    "witness1SeedLabel": "study-017/witness-1/1",
+    "witness1PublicKey": "iY5+qzWz/Z/KqNpGh9YkrKFeKl8nYBg6nwBAOVw4itU=",
+    "witness2SeedLabel": "study-017/witness-2/1",
+    "witness2PublicKey": "8FABNulPXjSyawWOkiLaK2p54KSuHs4k2V99Eq6pNG4=",
+    "witness3SeedLabel": "study-017/witness-unpinned/1",
+    "witness3PublicKey": "QfFa1EwuxEs8Evm1QC/JplcWNaJIBP/9T8eNWcWqQ9U=",
+    "genesisHead": "sha256:38305ab9589b14bfab0c51c1d531703e66b2674bfd66d82e754b597ad095155c"
+  },
+  "harnessPython": {
+    "implementation": "CPython",
+    "series": "3.12",
+    "version": "3.12.11",
+    "note": "the same venv convention as Studies 014/016. The claim that the third-party dependencies were 'pinned transitively by the 016 apparatus' was false and is withdrawn (round-1 R1-2): Study 017 consumes no lockfile of 016's, so it registers and enforces the versions itself in `dependencies` below"
+  },
+  "dependencies": {
+    "note": "Registered third-party versions, enforced by harness/score.py before adjudication (round-1 R1-2): name==version through importlib.metadata plus an origin outside the studies tree. Cryptographic and canonicalization code executes before any pin is read, so registering these versions is the least this study can do about that; it is a pin, not an attestation, and no claim is made about the packages' contents.",
+    "versions": {
+      "cryptography": "49.0.0",
+      "rfc8785": "0.1.4"
+    }
+  },
+  "matrix": {
+    "path": "harness/MATRIX.json",
+    "sha256": "1aa72724c7d559d1074ca1905fe00285878582cb0e7ed701b3f0aaad9c72e46b",
+    "note": "locked-replication cell expectations; digest filled at the freeze. The frozen cell-id set is additionally asserted in harness/score.py"
+  },
+  "matrixHoldout": {
+    "path": "harness/MATRIX-HOLDOUT.json",
+    "sha256": "7fcbc209613cbc5c7a38ad2c57a22dec7a96f910fdc701361ed7fb928857375e",
+    "note": "reviewer-authored holdout stratum, authored during the review rounds, never executed pre-freeze; construction machinery lands with the cells"
+  },
+  "matrixHoldoutEvidence": {
+    "path": "harness/MATRIX-HOLDOUT-EVIDENCE.json",
+    "sha256": "84a98f4060fa4cf57e351aeb3e02596c7b97c2cf18002dbcb54e56408e62cac6",
+    "note": "structured-evidence expectations for the reviewer's holdout cells, kept separate so their authored block stays byte-for-byte (round-3 R3-1); digest filled at the freeze"
+  },
+  "witnessSpec": {
+    "path": "witness/SPEC.md",
+    "sha256": "5c456e1d34976f62681c77f0b0c735820ee5361dc62b938260ff15f3ccebd637",
+    "note": "the registered sighting schema and Layer WITNESS ceremony; digest filled at the freeze"
+  },
+  "studyManifest": {
+    "path": "harness/STUDY-MANIFEST.sha256",
+    "sha256": "aeef60c09b90a755a504e2587e4f62b2e55a90ca1e818ea16c54def13f59d7cf",
+    "generator": "harness/make_manifest.py",
+    "covers": "README.md, PREREGISTRATION.md, PREREG-REVIEW.md, DEVIATIONS.md, witness/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/MATRIX-HOLDOUT-EVIDENCE.json, every witness/*.py and harness/*.py, harness/tests/*.py, and every fixtures/cells/*/MANIFEST.sha256",
+    "excludes": "harness/PINS.json (this file) and harness/STUDY-MANIFEST.sha256 (itself)",
+    "note": "exact-set whole-study manifest; regenerated after all record edits (016 round-3 lesson: freshness is a standing suite assertion), pinned at the freeze"
+  },
+  "preregistration": {
+    "path": "PREREGISTRATION.md",
+    "sha256": "a14433e15996b97ba0295518ab7ca5bfdd7175c3746af731e08778e879b95883",
+    "note": "Filled at the freeze; null until then - while any freeze pin is null the attempt is a PILOT"
+  }
+}
