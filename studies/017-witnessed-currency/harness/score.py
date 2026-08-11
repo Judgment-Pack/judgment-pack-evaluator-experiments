@@ -618,6 +618,7 @@ def adjudicate_holdout(holdout, attempt_root, pins_raw_sha256):
         pins_raw_sha256=pins_raw_sha256,
         preregistration_sha256=sha256_file(PREREG_PATH),
         matrix_holdout_sha256=sha256_file(HOLDOUT_PATH),
+        matrix_holdout_evidence_sha256=sha256_file(HOLDOUT_EVIDENCE_PATH),
     )
     evidence_expectations = holdout_evidence_expectations()
     root = Path(attempt_root) / "holdout-fixtures"
@@ -716,12 +717,18 @@ def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes):
             lines.append("| %s | %s | — | — | NOT-ADJUDICATED: %s | — |"
                          % (cid, record["role"], "; ".join(record["problems"])))
             continue
+        evidence = record.get("witnessEvidence") or {}
         for layer in LAYERS:
             expected = record["expected"][layer]
             observed = record["observed"][layer]
             marker = " ≠" if expected != observed else ""
-            lines.append("| %s | %s | %s | `%s` | `%s`%s |"
-                         % (cid, record["role"], layer, expected, observed, marker))
+            shown = "—" if layer != "witness" else (
+                "compared=%s, attributed=%s, unattributed=%s"
+                % (evidence.get("comparisonPerformed"),
+                   evidence.get("validSightings"),
+                   evidence.get("unattributedSightings")))
+            lines.append("| %s | %s | %s | `%s` | `%s`%s | %s |"
+                         % (cid, record["role"], layer, expected, observed, marker, shown))
     lines += ["", "## Registered pairs", ""]
     for name, report in sorted(pairs.items()):
         structure = report["equivocationStructure"]
@@ -797,13 +804,16 @@ def main(argv=None):
 
         holdout = None
         if arguments.include_holdout:
-            if (pins.get("preregistration") or {}).get("sha256") is None or (
-                pins.get("matrixHoldout") or {}
-            ).get("sha256") is None:
+            # EVERY freeze pin must be non-null before the stratum may execute
+            # (round-4 R4-1): with the evidence pin null the run would merely be
+            # labelled PILOT while the holdout still ran, which would let the
+            # structured expectations be chosen after observing results.
+            null_pins = sorted(member for member in FREEZE_PINS
+                               if (pins.get(member) or {}).get("sha256") is None)
+            if null_pins:
                 return terminal(
-                    "--include-holdout is refused while the preregistration or "
-                    "holdout-matrix freeze pin is null"
-                )
+                    "--include-holdout is refused while a freeze pin is null: "
+                    + ", ".join(null_pins))
             holdout = json.loads(HOLDOUT_PATH.read_text(encoding="utf-8"))
             if not holdout.get("cells"):
                 return terminal(
@@ -814,6 +824,15 @@ def main(argv=None):
             schema_problems = holdout_schema_problems(holdout)
             if schema_problems:
                 return terminal("holdout registry enforcement failed", schema_problems)
+            # Missing or partial structured expectations are terminal, never a
+            # silent empty map (round-4 R4-1).
+            if not HOLDOUT_EVIDENCE_PATH.is_file():
+                return terminal("the registered holdout evidence map is absent")
+            evidence = holdout_evidence_expectations()
+            uncovered = sorted({c["id"] for c in holdout["cells"]} - set(evidence))
+            if uncovered:
+                return terminal("holdout evidence expectations are incomplete",
+                                ["no registered evidence for " + cid for cid in uncovered])
 
         problems = pin_problems(pins)
         if problems:

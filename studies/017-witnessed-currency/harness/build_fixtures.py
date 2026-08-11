@@ -295,6 +295,7 @@ class HoldoutAttemptContext:
     pins_raw_sha256: str
     preregistration_sha256: str
     matrix_holdout_sha256: str
+    matrix_holdout_evidence_sha256: str
 
 
 class HoldoutRefused(RuntimeError):
@@ -309,13 +310,17 @@ def holdout_context_problems(context):
     if hashlib.sha256(pins_raw).hexdigest() != context.pins_raw_sha256:
         problems.append("context pins digest does not match the live registry")
     pins = json.loads(pins_raw.decode("utf-8"))
-    for member in ("preregistration", "matrix", "matrixHoldout", "witnessSpec",
-                   "studyManifest"):
+    # Every freeze pin, including the structured-evidence registry (round-4
+    # R4-1): the stratum must not run while any of them is null.
+    for member in ("preregistration", "matrix", "matrixHoldout",
+                   "matrixHoldoutEvidence", "witnessSpec", "studyManifest"):
         if (pins.get(member) or {}).get("sha256") is None:
             problems.append("freeze pin %s is null: the stratum executes only "
                             "after the freeze" % member)
-    for attribute, relative in (("preregistration_sha256", "PREREGISTRATION.md"),
-                                ("matrix_holdout_sha256", "harness/MATRIX-HOLDOUT.json")):
+    for attribute, relative in (
+            ("preregistration_sha256", "PREREGISTRATION.md"),
+            ("matrix_holdout_sha256", "harness/MATRIX-HOLDOUT.json"),
+            ("matrix_holdout_evidence_sha256", "harness/MATRIX-HOLDOUT-EVIDENCE.json")):
         live = hashlib.sha256((STUDY / relative).read_bytes()).hexdigest()
         if getattr(context, attribute) != live:
             problems.append("context %s does not match the live file" % attribute)

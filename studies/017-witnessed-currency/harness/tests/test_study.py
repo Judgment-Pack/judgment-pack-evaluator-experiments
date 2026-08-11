@@ -111,8 +111,8 @@ def test_collusion_pair_structure_is_validated_from_bytes():
 
 
 def test_no_bytecode_caches_shadow_pinned_source():
-    """Round-1 R1-1: a .py digest does not describe what ran if a cache is
-    loaded instead, so the scorer refuses while any cache exists."""
+    """Round-1 R1-1: a .py digest does not describe what ran if a divergent
+    cache is loaded instead; an equivalent cache is accepted."""
     assert score.bytecode_cache_problems() == []
 
 
@@ -251,13 +251,53 @@ def test_holdout_construction_refuses_without_valid_context():
         build_fixtures.construct_holdout(None, STUDY / "nowhere", [])
     forged = build_fixtures.HoldoutAttemptContext(
         attempt_root=str(STUDY), pins_raw_sha256="0" * 64,
-        preregistration_sha256="0" * 64, matrix_holdout_sha256="0" * 64)
+        preregistration_sha256="0" * 64, matrix_holdout_sha256="0" * 64,
+        matrix_holdout_evidence_sha256="0" * 64)
     with pytest.raises(build_fixtures.HoldoutRefused):
         build_fixtures.construct_holdout(forged, STUDY / "nowhere", [])
     assert any("does not match" in p for p in build_fixtures.holdout_context_problems(forged))
     for hook in build_fixtures.HOLDOUT_HOOKS.values():
         with pytest.raises(build_fixtures.HoldoutRefused):
             hook(forged)
+
+
+def test_every_freeze_pin_individually_gates_the_holdout(tmp_path, monkeypatch):
+    """Round-4 R4-1: one null pin at a time — each must refuse the stratum."""
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    for member in score.FREEZE_PINS:
+        filled = json.loads(json.dumps(pins))
+        for other in score.FREEZE_PINS:
+            filled.setdefault(other, {})["sha256"] = "0" * 64
+        filled[member]["sha256"] = None
+        registry = tmp_path / (member + "-PINS.json")
+        registry.write_text(json.dumps(filled, indent=2), encoding="utf-8")
+        monkeypatch.setattr(score, "PINS_PATH", registry)
+        root = tmp_path / ("attempt-" + member)
+        assert score.main(["--attempt-root", str(root), "--include-holdout"]) == 2
+        results = json.loads((root / "RESULTS.json").read_text(encoding="utf-8"))
+        assert results["pipelineInvalid"] is True
+        assert member in results["problem"], member
+    # and the builder's own gate refuses for the same reason
+    problems = build_fixtures.holdout_context_problems(
+        build_fixtures.HoldoutAttemptContext(
+            attempt_root=str(STUDY), pins_raw_sha256="0" * 64,
+            preregistration_sha256="0" * 64, matrix_holdout_sha256="0" * 64,
+            matrix_holdout_evidence_sha256="0" * 64))
+    assert any("matrixHoldoutEvidence" in problem for problem in problems)
+
+
+def test_detection_matrix_publishes_the_evidence_column(tmp_path):
+    """Round-4 R1-9: header and rows must agree, with the values rendered."""
+    completed = subprocess.run(
+        [sys.executable, str(STUDY / "harness" / "score.py"),
+         "--attempt-root", str(tmp_path / "matrix-shape")],
+        capture_output=True, text=True)
+    assert completed.returncode == 0, completed.stderr
+    text = (tmp_path / "matrix-shape" / "DETECTION-MATRIX.md").read_text(encoding="utf-8")
+    rows = [line for line in text.splitlines()
+            if line.startswith("| ") and "---" not in line]
+    assert rows and all(row.count("|") == 7 for row in rows), "column shape"
+    assert any("compared=" in row and "attributed=" in row for row in rows)
 
 
 def test_no_holdout_bytes_under_fixtures():

@@ -104,6 +104,25 @@ in [`reviews/round-3/`](reviews/round-3/). Every item **accepted**.
 
 Post-revision state: 18 locked cells, 45 harness tests green.
 
-## Round 4 — pending
+## Round 4 — 2026-08-11
 
-Confirmation of R3-1, R3-2 and the six residual closures.
+Same reviewer. Verdict: **freezable after listed fixes** — one new **BLOCKER**, one
+NOT RESOLVED, and three partially-resolved residuals. All **accepted**. The reviewer also
+verified the registered structured triples cell by cell against its own construction text
+and confirmed every one correct.
+
+| # | Disposition |
+| --- | --- |
+| R4-1 (BLOCKER) | **Accepted.** `matrixHoldoutEvidence` became a freeze pin but neither execution gate enumerated it, and a missing evidence file loaded silently as `{}`. With the five older pins filled and that one null, the run would merely be labelled `PILOT` while the holdout still executed under outcome-only adjudication — which would let the structured expectations be chosen *after* observing results, the exact postdictivity hazard the stratum exists to prevent. Now: `--include-holdout` refuses while **any** freeze pin is null and names the offenders; a missing or incompletely covering evidence map is terminal; the evidence digest is carried in the holdout context and re-verified there; and a one-null-pin-at-a-time regression covers every pin from both gates. |
+| R1-9 (NOT RESOLVED) | **Accepted.** The generator had gained a sixth header while still emitting five-cell rows — the header/row mismatch the reviewer caught by reading the published artifact rather than the code. Rows now render `compared/attributed/unattributed`, a regression asserts column shape *and* content, and a fresh matrix is published. |
+| R1-1 residual | **Accepted.** Three statements still claimed any cache is refused — the pin registry note, the upstream loader docstring, and a test docstring. All narrowed to what the bootstrap does: an equivalent cache is accepted; only an import-eligible divergent one refuses. |
+| R3-1 residual | **Closed by R4-1's fix** — the pin now gates execution, so "pinned before execution" is enforced rather than declared. |
+| R3-2, R2-1, R1-2, R1-6, R1-13 residuals | **Confirmed RESOLVED** by the reviewer against the revised files. |
+
+Post-revision state: 18 locked cells, 47 harness tests green, build pilot 04
+(`pilots/2026-08-11-build-pilot-04`, non-citable) adjudicates 18/18 with the
+witness-evidence column published.
+
+## Round 5 — pending
+
+Confirmation of R4-1 and the two residual closures.

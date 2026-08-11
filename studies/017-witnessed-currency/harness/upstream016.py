@@ -77,8 +77,8 @@ def _load_by_path(name, relative):
     bytes no pin covers, so a digest over the `.py` would not describe the code
     that ran (round-1 R1-1). Reading the source once, hashing that buffer, and
     executing `compile()` of it closes the gap for the pinned upstream; the
-    scorer additionally refuses to adjudicate while any bytecode cache exists
-    in either tree.
+    scorer additionally refuses when a cache a plain import would accept
+    differs from compile() of its source.
     """
     if name in sys.modules and name not in _OWNED_MODULES:
         raise Upstream016Error(
