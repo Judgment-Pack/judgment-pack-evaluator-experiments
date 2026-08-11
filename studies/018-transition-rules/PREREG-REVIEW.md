@@ -185,6 +185,40 @@ genuinely open, plus the correctness of these three predictions.
 | 5 | **Accepted, and this one was a real hole.** `_gated` wrapped only the `HOLDOUT_HOOKS` mapping, so `build_fixtures._holdout_h01(None)` would have constructed genuine registry bytes before the freeze — the gate was on the door, not on the room. `_require_context` now runs inside every raw constructor and inside both innermost primitives (`_authority`, `_holdout_cell`) before any key or payload exists. Direct-bypass tests cover all twelve routes, and a signature audit requires every holdout callable to take `context` first. |
 | 6 | **Accepted.** See the amended R2-H above. |
 
+### A defect the mutation check found, that no review had
+
+Round 3 asked whether the newly added tests fail when the property they name is broken.
+Checking that against a scratch copy — rather than answering from memory — turned up a live
+defect the reviews had not reached: **`_holdout_h03` passed `registry` where `context`
+belongs**, a leftover from threading the context through the constructors for blocker 5.
+
+It was invisible to everything. The stratum is never executed before the freeze, so no test
+runs the hook; the direct-bypass test calls it with `None` and the gate raises
+`HoldoutRefused` before the bad call is ever reached; and the static name audit written when
+the cells landed checks that every called name *exists*, not that the call *binds*. At the
+attempt it would have raised `TypeError`, recorded h03 as `harness-error`, and reported the
+whole holdout **inconclusive — validity problem**: one reviewer cell lost, and with it the
+h03 outcome prediction registered above, for a stray argument.
+
+Fixed, and the gap closed properly: `test_holdout_call_sites_bind_statically` binds every
+holdout call site against its callee's real signature via `inspect.Signature.bind` over the
+AST, and additionally requires the context argument to be the name `context` rather than any
+local that happens to sit in that position. It fails on the exact defect when reintroduced.
+
+The lesson is recorded because it generalises: **a gate that raises early hides every error
+behind it.** Defence in depth bought correctness at the door and cost observability inside
+the room, and the only thing that surfaced it was deliberately breaking the safeguards to
+see whether the tests noticed. Mutation-checked results for the other four new tests: the
+freeze-pin gate, authority binding, rendered output and count derivation tests each fail
+under a targeted mutation.
+
 ## Round 4 — pending
 
 Confirmation of the round-3 dispositions over stable bytes.
+
+**Recorded deviation on bytes reviewed.** Round 3's review ran against the working tree while
+the R2-2 count fixes were being committed, and round 4's ran while the `_holdout_h03` fix
+above was being made. Neither review is over a single frozen snapshot, and saying so is
+cheaper than pretending otherwise. The round-4 disposition below records the commit each
+finding was checked against, and any finding that turns on bytes that moved underneath it is
+re-checked against the final pre-freeze commit before the freeze is taken.

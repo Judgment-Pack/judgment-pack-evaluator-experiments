@@ -400,7 +400,7 @@ def _holdout_h03(context):
     _require_context(context)
     registry, authority = _authority(context)
     payload, _ = _holdout_cell(
-        registry, authority, _h01_events(),
+        context, registry, authority, _h01_events(),
         commitment=commitment_bytes("4.0.0", NEVER_BOUND_DIGEST),
         rule="position-window", cited=4, window=10)
     return payload

@@ -386,6 +386,52 @@ def test_no_holdout_route_constructs_bytes_without_a_context():
                 "%s does not take a context as its first parameter" % name)
 
 
+def test_holdout_call_sites_bind_statically():
+    """Every holdout call site must bind against its callee's signature.
+
+    The stratum is never executed before the freeze, so an arity error inside a
+    hook is invisible to every other test — the context gate raises first and
+    hides it. `_holdout_h03` really did pass `registry` where `context` belongs;
+    at the attempt that cell would have come back `harness-error` and the whole
+    holdout would have reported inconclusive. This binds each call statically,
+    without constructing anything.
+    """
+    import ast
+    import inspect
+
+    source = (STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    callees = {"_holdout_cell", "_authority", "_require_context", "write_cell",
+               "commitment_bytes", "event"}
+    checked = 0
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.FunctionDef)
+                and (node.name.startswith("_holdout") or node.name == "construct_holdout")):
+            continue
+        for call in ast.walk(node):
+            if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Name)):
+                continue
+            name = call.func.id
+            if name not in callees:
+                continue
+            signature = inspect.signature(getattr(build_fixtures, name))
+            positional = [object()] * len(call.args)
+            keywords = {kw.arg: object() for kw in call.keywords if kw.arg}
+            try:
+                signature.bind(*positional, **keywords)
+            except TypeError as error:
+                raise AssertionError("%s calls %s incompatibly: %s"
+                                     % (node.name, name, error))
+            # and the context must be threaded, never a stray local
+            if name in ("_holdout_cell", "_authority", "_require_context") and call.args:
+                first = call.args[0]
+                assert isinstance(first, ast.Name) and first.id == "context", (
+                    "%s passes %s as the context of %s"
+                    % (node.name, ast.dump(first)[:40], name))
+            checked += 1
+    assert checked >= 20, "the call-site audit found almost nothing to check"
+
+
 def test_holdout_construction_is_gated_on_every_freeze_pin(tmp_path, monkeypatch):
     """The stratum executes only after the freeze. Each pin is nulled in turn —
     in a temporary registry, so this holds identically before and after the
