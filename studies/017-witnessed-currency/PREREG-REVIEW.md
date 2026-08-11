@@ -82,6 +82,28 @@ Post-revision state: 18 locked cells, 42 harness tests green, build pilot 03
 (`pilots/2026-08-11-build-pilot-03`, non-citable) adjudicates 18/18 with all control gates
 green, zero endpoint divergence, and the collusion pair structurally validated.
 
-## Round 3 — pending
+## Round 3 — 2026-08-11
 
-Confirmation of R2-1, R2-2 and the nine residual closures, and of the holdout landing.
+Same reviewer. Verdict: **freezable after listed fixes**. Two results matter most and both
+are confirmations rather than findings: the reviewer's nine cells are **byte-identical** to
+what they authored in round 2, and — the check this round added — **all nine construction
+hooks MATCH their registered constructions**, so no registered expectation was made
+unfalsifiable by an implementation that built something else. Prompt and findings verbatim
+in [`reviews/round-3/`](reviews/round-3/). Every item **accepted**.
+
+| # | Disposition |
+| --- | --- |
+| R3-1 (BLOCKER) | **Accepted.** The holdout adjudicated only the two layer outcome strings, so a regression that reached the registered outcome by *different evidence* — precisely the R2-1 series-scoping class `h09` exists to guard — would have been reported concordant. The reviewer's block is untouched; a separate `harness/MATRIX-HOLDOUT-EVIDENCE.json` registers the structured values read off each cell's own construction text, it is a freeze pin (`matrixHoldoutEvidence`), and every field is adjudicated as its own `witness:<field>` divergence channel. |
+| R3-2 (MINOR) | **Accepted.** "witness-3 is never pinned by any cell" was false once the reviewer's cells landed: `h03`/`h04` pin it deliberately. Narrowed everywhere to "never pinned in the locked-replication stratum". |
+| R2-1 residual | **Accepted, and a claim withdrawn.** The combined regression is now committed (a required witness's foreign-series record satisfies neither the count floor nor the named floor and is never compared). My round-2 disposition also over-claimed that `h09` "guards the fix from both directions": `h09` requires no witnesses, so it guards the comparison path, not the named-floor path. The record says so. |
+| R1-1 residual | **Accepted.** The governing prose still said any cache is refused, while equivalent caches are deliberately accepted. Corrected to describe what the bootstrap actually does, including why `__main__` is exempt. |
+| R1-2 residual | **Accepted.** The origin check failed open when a module exposed no `__file__` and treated shared `site-packages` as the distribution root. It now refuses a missing module or missing `__file__`, and requires the imported file to appear in that distribution's own file inventory. |
+| R1-6 residual | **Accepted.** The pair's floor check counted every same-series payload. It now counts only records that are schema-shaped, verify under a pinned key, and name the cell's series — the same test the layer applies. |
+| R1-9 residual | **Accepted.** The detection matrix gained a witness-evidence column, and §5's "outcome strings alone" is corrected to name the structured channels. |
+| R1-13 residual | **Accepted.** A mutation regression now covers every registered seed label individually. |
+
+Post-revision state: 18 locked cells, 45 harness tests green.
+
+## Round 4 — pending
+
+Confirmation of R3-1, R3-2 and the six residual closures.

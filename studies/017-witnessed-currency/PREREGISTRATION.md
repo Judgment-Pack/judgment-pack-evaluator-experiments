@@ -75,9 +75,11 @@ the standing no-independent-mutation-oracle limitation, recorded as in 014/016.
 ## 2. Apparatus and pins
 
 - **Executed bytes, not just source digests** (round-1 R1-1): the pinned upstream is
-  compiled from the exact source bytes hashed at load, and the scorer refuses to adjudicate
-  while any bytecode cache exists in either tree — a `.py` digest does not describe what ran
-  if an unmanifested `__pycache__` entry is loaded instead.
+  compiled from the exact source bytes hashed at load, and a stdlib bootstrap — running before
+  any study or third-party import — refuses to adjudicate when the cache a plain import *would*
+  accept unmarshals to code differing from `compile()` of its source. An equivalent cache is
+  accepted, and mere existence is not the hazard (round-3 R1-1 residual); `__main__` is never
+  loaded from a cache, so the entry point is exempt by construction.
 - **Registered third-party dependencies** (round-1 R1-2): `cryptography` and `rfc8785` are
   registered by version in `harness/PINS.json` and enforced before adjudication by name,
   version, distribution root outside the studies tree, and the origin of the module
@@ -103,8 +105,9 @@ the standing no-independent-mutation-oracle limitation, recorded as in 014/016.
   are `cryptography` and `rfc8785`.
 - **Witness authority**: study-minted fixed-seed Ed25519 keys (`witnessAuthority` in
   `PINS.json`, seeds recorded, every member mechanically recomputed before adjudication).
-  witness-1 is the **colluding role**, witness-2 the honest role, witness-3 is never
-  pinned by any cell. **Nothing here claims witness independence** — the collusion pair
+  witness-1 is the **colluding role**, witness-2 the honest role, and witness-3 is never
+  pinned in the **locked-replication** stratum — the reviewer's holdout deliberately leaves it
+  unpinned in `h02` and pins it in `h03`/`h04` (round-3 R3-2). **Nothing here claims witness independence** — the collusion pair
   is the argument for independence, not a simulation of it.
 - **Pins are enforced, not declared** (014/016 convention): the scorer enforces the
   interpreter version, every `study016.files` digest, every `witnessAuthority` member,
@@ -192,7 +195,10 @@ from being served.
 ## 5. Endpoints and decision rule
 
 Per cell the scorer records two independent layer outcomes (`{verdict, code, detail}`,
-adjudication on registered outcome strings alone) and the derived combined verdict.
+adjudication on registered outcome strings, plus the registered structured-evidence
+fields where a cell registers them — `expectedComparisonPerformed` in the locked stratum and
+`harness/MATRIX-HOLDOUT-EVIDENCE.json` for the reviewer's cells, each adjudicated as its own
+`witness:<field>` divergence channel) and the derived combined verdict.
 Ordered, exhaustive: (1) any pipeline-invalid cell or pin/schema failure →
 `R1 inconclusive - pipeline-invalid`, terminal; (2) any control-gate divergence →
 `R1 inconclusive - control gate failed`; (3) zero endpoint divergence → `R1 holds`;

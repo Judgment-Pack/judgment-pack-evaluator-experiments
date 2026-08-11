@@ -12,7 +12,7 @@
     }
   },
   "witnessAuthority": {
-    "note": "Study-minted, fixed-seed Ed25519 - trust roots of the apparatus, stated as such: NOTHING here claims witness independence, and the seeds are public deterministic fixtures. The collusion pair is the argument for independence, not a simulation of it. witness-1 is the colluding role (its equivocation across the pair is the registered exhibit), witness-2 the honest role, witness-3 is never pinned by any cell (the ignore-rule control). Every member below is mechanically recomputed and compared by the scorer before adjudication.",
+    "note": "Study-minted, fixed-seed Ed25519 - trust roots of the apparatus, stated as such: NOTHING here claims witness independence, and the seeds are public deterministic fixtures. The collusion pair is the argument for independence, not a simulation of it. witness-1 is the colluding role (its equivocation across the pair is the registered exhibit), witness-2 the honest role, witness-3 is never pinned in the locked-replication stratum (the reviewer's holdout leaves it unpinned in h02 and pins it in h03/h04). Every member below is mechanically recomputed and compared by the scorer before adjudication.",
     "authoritySeedLabel": "study-017/currency-authority/1",
     "authorityPublicKey": "tfiJSMZx6GRHFzptWQ/VqImH/oZgJrbvkK06LxwQ/gs=",
     "witness1SeedLabel": "study-017/witness-1/1",
@@ -45,6 +45,11 @@
     "path": "harness/MATRIX-HOLDOUT.json",
     "sha256": null,
     "note": "reviewer-authored holdout stratum, authored during the review rounds, never executed pre-freeze; construction machinery lands with the cells"
+  },
+  "matrixHoldoutEvidence": {
+    "path": "harness/MATRIX-HOLDOUT-EVIDENCE.json",
+    "sha256": null,
+    "note": "structured-evidence expectations for the reviewer's holdout cells, kept separate so their authored block stays byte-for-byte (round-3 R3-1); digest filled at the freeze"
   },
   "witnessSpec": {
     "path": "witness/SPEC.md",

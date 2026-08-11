@@ -93,6 +93,9 @@ _BOOTSTRAP_PROBLEMS = _cache_problems_for(_own_sources())
 sys.path.insert(0, str(STUDY / "harness"))
 sys.path.insert(0, str(STUDY / "witness"))
 
+import rfc8785  # noqa: E402
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey  # noqa: E402
+
 import build_fixtures  # noqa: E402  (this study's; imported after the bootstrap)
 import run_verify  # noqa: E402
 import upstream016  # noqa: E402
@@ -101,6 +104,7 @@ import verify_witness  # noqa: E402
 PINS_PATH = STUDY / "harness" / "PINS.json"
 MATRIX_PATH = STUDY / "harness" / "MATRIX.json"
 HOLDOUT_PATH = STUDY / "harness" / "MATRIX-HOLDOUT.json"
+HOLDOUT_EVIDENCE_PATH = STUDY / "harness" / "MATRIX-HOLDOUT-EVIDENCE.json"
 PREREG_PATH = STUDY / "PREREGISTRATION.md"
 
 LAYERS = ("currency", "witness")
@@ -108,12 +112,13 @@ ROLES = ("endpoint", "control-gate", "demonstration", "descriptive")
 CAPABILITIES = ("none", "tamper", "authority-key", "witness-key", "delivery")
 VARIANTS = ("none", "registry", "config", "sightings", "tampered")
 
-FREEZE_PINS = ("preregistration", "matrix", "matrixHoldout", "witnessSpec",
-               "studyManifest")
+FREEZE_PINS = ("preregistration", "matrix", "matrixHoldout",
+               "matrixHoldoutEvidence", "witnessSpec", "studyManifest")
 PINNED_DIGEST_MEMBERS = (
     ("preregistration", "PREREGISTRATION.md"),
     ("matrix", "harness/MATRIX.json"),
     ("matrixHoldout", "harness/MATRIX-HOLDOUT.json"),
+    ("matrixHoldoutEvidence", "harness/MATRIX-HOLDOUT-EVIDENCE.json"),
     ("witnessSpec", "witness/SPEC.md"),
     ("studyManifest", "harness/STUDY-MANIFEST.sha256"),
 )
@@ -263,12 +268,24 @@ def dependency_problems(pins):
         # the preregistration records that as a stated limitation rather than
         # claiming otherwise.
         module = sys.modules.get(name.replace("-", "_"))
-        module_file = getattr(module, "__file__", None) if module is not None else None
-        if module_file is not None:
-            resolved = Path(module_file).resolve()
-            if origin not in resolved.parents:
-                problems.append("dependency %s is imported from %s, outside its "
-                                "distribution root %s" % (name, resolved, origin))
+        if module is None:
+            problems.append("registered dependency %s is not imported" % name)
+            continue
+        module_file = getattr(module, "__file__", None)
+        if module_file is None:
+            problems.append("dependency %s exposes no __file__ to authenticate" % name)
+            continue
+        resolved = Path(module_file).resolve()
+        try:
+            owned = {Path(origin, entry).resolve()
+                     for entry in (importlib.metadata.distribution(name).files or ())}
+        except Exception:
+            owned = set()
+        if not owned:
+            problems.append("dependency %s declares no file inventory to check against" % name)
+        elif resolved not in owned:
+            problems.append("dependency %s is imported from %s, which its own "
+                            "distribution does not own" % (name, resolved))
     return problems
 
 
@@ -387,11 +404,35 @@ def _collusion_structure(members, pins):
         pinned_in_config.append(encoded in (config.get("witnessKeys") or []))
         # The floor is satisfied by the records this cell actually retains for
         # its own series, not by the configured number alone (round-2 R1-6).
-        same_series = [
-            r for r in document.get("sightings", ())
-            if isinstance(r.get("sighting"), dict)
-            and r["sighting"].get("seriesId") == config.get("seriesId")
-        ]
+        # Count only records that are schema-shaped, verify under a PINNED key,
+        # and name this cell's series — the same test the layer applies
+        # (round-3 residual of R1-6), never a bare payload count.
+        pinned_keys = []
+        for encoded_key in (config.get("witnessKeys") or []):
+            try:
+                pinned_keys.append(Ed25519PublicKey.from_public_bytes(
+                    base64.b64decode(encoded_key, validate=True)))
+            except Exception:
+                continue
+        same_series = []
+        for r in document.get("sightings", ()):
+            if verify_witness._sighting_record_problem(r) is not None:
+                continue
+            if r["sighting"].get("seriesId") != config.get("seriesId"):
+                continue
+            try:
+                canonical = rfc8785.dumps({"domain": verify_witness.DOMAIN_SIGHTING,
+                                           "payload": r["sighting"]})
+                signature = base64.b64decode(r["signature"], validate=True)
+            except Exception:
+                continue
+            for candidate in pinned_keys:
+                try:
+                    candidate.verify(signature, canonical)
+                except Exception:
+                    continue
+                same_series.append(r)
+                break
         counted.append(len(same_series) >= int(config.get("minimumSightings") or 0)
                        and int(config.get("minimumSightings") or 0) >= 1)
         series_ids.append(config.get("seriesId"))
@@ -490,6 +531,7 @@ def pair_reports(matrix, cells, pins):
 
 
 HOLDOUT_PATH = STUDY / "harness" / "MATRIX-HOLDOUT.json"
+HOLDOUT_EVIDENCE_PATH = STUDY / "harness" / "MATRIX-HOLDOUT-EVIDENCE.json"
 PREREG_PATH = STUDY / "PREREGISTRATION.md"
 
 
@@ -556,6 +598,19 @@ def _holdout_integrity(root, stamps):
     return report
 
 
+def holdout_evidence_expectations():
+    """The structured-evidence expectations for the reviewer's cells.
+
+    Kept in a SEPARATE pinned file so the reviewer's block stays byte-for-byte
+    as authored (round-3 R3-1): these values are read off that block's own
+    construction text, registered and pinned at the freeze, and adjudicated as
+    additional divergence channels.
+    """
+    if not HOLDOUT_EVIDENCE_PATH.is_file():
+        return {}
+    return json.loads(HOLDOUT_EVIDENCE_PATH.read_text(encoding="utf-8"))["cells"]
+
+
 def adjudicate_holdout(holdout, attempt_root, pins_raw_sha256):
     """Construct inside the attempt, adjudicate, report separately (014/016 §1a)."""
     context = build_fixtures.HoldoutAttemptContext(
@@ -564,6 +619,7 @@ def adjudicate_holdout(holdout, attempt_root, pins_raw_sha256):
         preregistration_sha256=sha256_file(PREREG_PATH),
         matrix_holdout_sha256=sha256_file(HOLDOUT_PATH),
     )
+    evidence_expectations = holdout_evidence_expectations()
     root = Path(attempt_root) / "holdout-fixtures"
     construction = build_fixtures.construct_holdout(context, root, holdout["cells"])
     stamps = _stamp_holdout(root, holdout["cells"])
@@ -587,8 +643,15 @@ def adjudicate_holdout(holdout, attempt_root, pins_raw_sha256):
         outcome = run_verify.verify_cell(directory)
         observed = {layer: outcome[layer]["outcome"] for layer in LAYERS}
         divergent = sorted(l for l in LAYERS if observed[l] != cell["expected"][l])
+        # The reviewer's cells register structured evidence values; adjudicate
+        # each as its own divergence channel (round-3 R3-1), so a regression
+        # that reached the same outcome by different evidence still diverges.
+        for field, value in (evidence_expectations.get(cid) or {}).items():
+            if outcome["witness"].get(field) != value:
+                divergent = sorted(set(divergent) | {"witness:" + field})
         cells[cid] = {
             "role": cell["role"], "adjudicated": True, "expected": cell["expected"],
+            "expectedWitnessEvidence": evidence_expectations.get(cid) or {},
             "observed": observed, "combined": outcome["combined"],
             "divergentLayers": divergent, "divergent": bool(divergent),
             "witnessEvidence": {
@@ -643,14 +706,14 @@ def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes):
         "Layers: CURRENCY is Study 016's frozen verifier, unchanged; WITNESS is",
         "this study's sighting-comparison step (witness/SPEC.md §2).",
         "",
-        "| Cell | Role | Layer | Expected | Observed |",
-        "|---|---|---|---|---|",
+        "| Cell | Role | Layer | Expected | Observed | Witness evidence |",
+        "|---|---|---|---|---|---|",
     ]
     for cell in matrix["cells"]:
         cid = cell["id"]
         record = cells[cid]
         if not record["adjudicated"]:
-            lines.append("| %s | %s | — | — | NOT-ADJUDICATED: %s |"
+            lines.append("| %s | %s | — | — | NOT-ADJUDICATED: %s | — |"
                          % (cid, record["role"], "; ".join(record["problems"])))
             continue
         for layer in LAYERS:

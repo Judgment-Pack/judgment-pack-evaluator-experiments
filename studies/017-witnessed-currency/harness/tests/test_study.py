@@ -179,6 +179,61 @@ def test_scorer_is_deterministic_and_control_gates_hold(tmp_path):
     assert outputs[0] == outputs[1]
 
 
+def test_holdout_evidence_expectations_cover_every_cell():
+    """Round-3 R3-1: the reviewer's structured values are registered separately
+    (their block stays byte-for-byte) and every cell has one."""
+    holdout = json.loads((STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8"))
+    evidence = score.holdout_evidence_expectations()
+    assert sorted(evidence) == sorted(c["id"] for c in holdout["cells"])
+    for cid, fields in evidence.items():
+        assert set(fields) == {"comparisonPerformed", "validSightings",
+                               "unattributedSightings"}, cid
+        assert isinstance(fields["comparisonPerformed"], bool), cid
+
+
+def test_every_registered_seed_label_is_enforced(monkeypatch):
+    """Round-3 residual of R1-13: mutate each registered label in turn."""
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    assert score.pin_problems(pins) == []
+    for label in ("authoritySeedLabel", "witness1SeedLabel", "witness2SeedLabel",
+                  "witness3SeedLabel"):
+        broken = json.loads(json.dumps(pins))
+        broken["witnessAuthority"][label] = "study-017/mutated/1"
+        assert score.pin_problems(broken) != [], label
+
+
+def test_foreign_series_record_satisfies_no_floor():
+    """Round-3 residual of R2-1: the combined regression the reviewer asked for
+    — a required witness's record for another series satisfies neither the
+    count floor nor the named-witness floor, and is never compared."""
+    import sighting as sg
+    ns = upstream016.load(build=True)
+    registry = ns.checkpoint
+    authority = registry.private_key(sg.AUTHORITY_SEED)
+    w2 = registry.private_key(sg.WITNESS_2_SEED)
+    records = registry.build_registry(authority, [{
+        "event": "add", "seriesId": build_fixtures.SERIES_ID,
+        "packVersion": "1.0.0", "packDigest": build_fixtures.DIGEST_A,
+        "effectiveFrom": build_fixtures.T1}])
+    snapshot = registry.snapshot_bytes(registry.snapshot_of(authority, records))
+    foreign = sg.build_sighting(w2, registry.key_id(w2),
+                                series_id=build_fixtures.OTHER_SERIES_ID,
+                                head=records[0]["checkpointDigest"], position=1)
+    commitment = json.loads(build_fixtures.commitment_bytes().decode("utf-8"))
+    public = registry.public_key_b64(w2)
+    import verify_witness as vw
+    required = vw.layer_witness(commitment, snapshot, sg.witnessconfig_bytes(
+        series_id=build_fixtures.SERIES_ID, witness_keys=[public],
+        minimum_sightings=0, required_witnesses=[public]),
+        sg.sightings_bytes([foreign]))
+    assert (required["verdict"], required["code"]) == ("fail", "witness-required-absent")
+    counted = vw.layer_witness(commitment, snapshot, sg.witnessconfig_bytes(
+        series_id=build_fixtures.SERIES_ID, witness_keys=[public],
+        minimum_sightings=1), sg.sightings_bytes([foreign]))
+    assert (counted["verdict"], counted["code"]) == ("unavailable", "witness-unavailable")
+    assert counted["validSightings"] == 0 and counted["comparisonPerformed"] is False
+
+
 def test_holdout_registry_schema_and_hooks():
     """Pre-freeze this is all a test may touch: the stratum is never executed
     before the freeze, and the context gate below is what enforces that."""

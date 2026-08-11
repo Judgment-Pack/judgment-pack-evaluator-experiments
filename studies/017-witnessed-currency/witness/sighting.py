@@ -16,7 +16,7 @@ DOMAIN_SIGHTING = "jps-study017-witness/sighting/1"
 AUTHORITY_SEED = "study-017/currency-authority/1"
 WITNESS_1_SEED = "study-017/witness-1/1"       # the colluding role in the matrix
 WITNESS_2_SEED = "study-017/witness-2/1"       # the honest role
-WITNESS_3_SEED = "study-017/witness-unpinned/1"  # never pinned by any cell
+WITNESS_3_SEED = "study-017/witness-unpinned/1"  # unpinned in the locked stratum
 
 
 def build_sighting(key, key_id, *, series_id, head, position):
