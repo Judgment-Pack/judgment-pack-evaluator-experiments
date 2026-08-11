@@ -4,5 +4,7 @@
   "witnessKeys": [
     "8FABNulPXjSyawWOkiLaK2p54KSuHs4k2V99Eq6pNG4="
   ],
-  "minimumSightings": 1
+  "minimumSightings": 1,
+  "requiredWitnesses": [],
+  "recencyPolicy": "ignore"
 }

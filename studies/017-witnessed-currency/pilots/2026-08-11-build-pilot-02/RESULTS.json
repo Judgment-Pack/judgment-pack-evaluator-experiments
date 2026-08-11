@@ -1,0 +1,504 @@
+{
+  "attemptRoot": "2026-08-11-build-pilot-02",
+  "label": "PILOT",
+  "includeHoldout": false,
+  "pipelineInvalid": false,
+  "pinsRawSha256": "f50c46bc1c9982d782b26d2d22621cb0976e3eea94cdd52b5a26b05cad55bd61",
+  "matrixSha256": "a2df64c746d496ff05693b89b5e76e83987d8765e792f97fa345c88d1f9eaae0",
+  "verdict": "R1 holds (PILOT)",
+  "verdictCells": [],
+  "summary": {
+    "cells": 18,
+    "adjudicated": 18,
+    "endpoints": 13,
+    "endpointDivergences": 0,
+    "registeredUndetectedConfirmed": [
+      "wit-collusion-a",
+      "wit-collusion-b",
+      "wit-historical-audit",
+      "wit-prefix-coverage",
+      "wit-suppression-corrupted",
+      "wit-suppression-omitted",
+      "wit-zero-sightings-vacuous"
+    ]
+  },
+  "cells": {
+    "cur-retired-interplay": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "witness": "pass"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:90a4d6221710d18ba07b94ac1cffaf90f90fdbdb0509a660fa4000513c24fee3) is not in the supported set at snapshot position 3",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "neg-limits": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-limits-exceeded"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:witness-limits-exceeded"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 0,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "sighting count exceeds the registered limit (65 > 64)"
+      }
+    },
+    "neg-relabel-attack": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "an attributed witness records a different head at position 2 — the presented history is not the one that witness recorded"
+      }
+    },
+    "neg-sighting-malformed": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-sighting-invalid"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:witness-sighting-invalid"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 0,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "sighting 1: sighting position is not a positive integer"
+      }
+    },
+    "pos-consistent": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "unchanged": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-collusion-a": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-collusion-b": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-historical-audit": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 1",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-one-honest": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 2,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "an attributed witness records a different head at position 2 — the presented history is not the one that witness recorded"
+      }
+    },
+    "wit-prefix-coverage": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-recency-refused": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-behind-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-behind-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 1",
+        "witness": "an attributed witness records position 2; the presented history ends at 1. Under recencyPolicy=refuse-behind this is refused; the sighting carries no proof that its history extends this one, so a deliberate audit of an older snapshot refuses identically"
+      }
+    },
+    "wit-required-witness-absent": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:witness-required-absent"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:witness-required-absent"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "1 required witness(es) contributed no verifying record — indistinguishable from a witness that never spoke"
+      }
+    },
+    "wit-split-view-caught": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "fail:snapshot-conflicts-with-witnessed-head"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "an attributed witness records a different head at position 2 — the presented history is not the one that witness recorded"
+      }
+    },
+    "wit-suppression-corrupted": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 1
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 1 unattributed record(s) ignored"
+      }
+    },
+    "wit-suppression-omitted": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": true,
+        "validSightings": 1,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "consistent with 1 attributed sighting(s); 0 unattributed record(s) ignored"
+      }
+    },
+    "wit-zero-sightings-enforced": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "unavailable"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "unavailable"
+      },
+      "combined": "fail",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 0,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "0 attributed sightings for this series; the configuration requires 1"
+      }
+    },
+    "wit-zero-sightings-vacuous": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "observed": {
+        "currency": "pass",
+        "witness": "pass"
+      },
+      "combined": "pass",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "witnessEvidence": {
+        "comparisonPerformed": false,
+        "validSightings": 0,
+        "unattributedSightings": 0
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "witness": "no comparison performed: zero attributed sightings"
+      }
+    }
+  },
+  "pairs": {
+    "collusion": {
+      "members": [
+        "wit-collusion-a",
+        "wit-collusion-b"
+      ],
+      "adjudicated": true,
+      "equivocationStructure": {
+        "validated": true,
+        "checks": {
+          "oneRecordFromTheSameKeyInEachCell": true,
+          "bothSightingsVerifyUnderThatKey": true,
+          "keyPinnedInBothConfigurations": true,
+          "bothSatisfyTheEnforcementFloor": true,
+          "eachHeadMatchesItsOwnPresentedView": true,
+          "samePosition": true,
+          "differentHeads": true
+        }
+      },
+      "witnessOutcomes": {
+        "wit-collusion-a": "pass",
+        "wit-collusion-b": "pass"
+      },
+      "note": "derived, not asserted: the equivocation is recomputed from the two cells' retained sightings under the pinned colluding key. Each run is internally valid and satisfies its enforcement clause; the witness's contradiction exists only across the pair — the independence clause of the witness contract, exhibited"
+    }
+  },
+  "holdout": null
+}

@@ -64,8 +64,11 @@ def test_matrix_schema_and_frozen_id_set():
 def test_registered_undetected_cells_expect_all_pass():
     matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
     flagged = {c["id"]: c for c in matrix["cells"] if c.get("registeredUndetected")}
-    assert sorted(flagged) == ["wit-collusion-a", "wit-collusion-b",
-                               "wit-partition-vacuous", "wit-retention-horizon"]
+    assert sorted(flagged) == [
+        "wit-collusion-a", "wit-collusion-b", "wit-historical-audit",
+        "wit-prefix-coverage", "wit-suppression-corrupted",
+        "wit-suppression-omitted", "wit-zero-sightings-vacuous",
+    ]
     for cell in flagged.values():
         assert cell["role"] == "endpoint", cell["id"]
         assert all(v == "pass" for v in cell["expected"].values()), cell["id"]
@@ -97,9 +100,36 @@ def test_collusion_pair_structure_is_validated_from_bytes():
     structure = score._collusion_structure(matrix["pairs"]["collusion"], pins)
     assert structure["validated"] is True
     assert structure["checks"] == {
-        "sameWitnessKey": True, "bothSightingsVerify": True,
+        "oneRecordFromTheSameKeyInEachCell": True,
+        "bothSightingsVerifyUnderThatKey": True,
+        "keyPinnedInBothConfigurations": True,
+        "bothSatisfyTheEnforcementFloor": True,
+        "eachHeadMatchesItsOwnPresentedView": True,
         "samePosition": True, "differentHeads": True,
     }
+
+
+def test_no_bytecode_caches_shadow_pinned_source():
+    """Round-1 R1-1: a .py digest does not describe what ran if a cache is
+    loaded instead, so the scorer refuses while any cache exists."""
+    assert score.bytecode_cache_problems() == []
+
+
+def test_registered_dependencies_are_enforced():
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    assert score.dependency_problems(pins) == []
+    broken = json.loads(json.dumps(pins))
+    broken["dependencies"]["versions"]["rfc8785"] = "0.0.0-not-installed"
+    assert score.dependency_problems(broken) != []
+
+
+def test_upstream_pins_are_bound_from_stamped_bytes():
+    """Round-1 R1-3: the loader uses the mapping the attempt stamps."""
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    bound = upstream016.bind_pins(pins["study016"]["files"])
+    assert bound == pins["study016"]["files"]
+    with pytest.raises(upstream016.Upstream016Error):
+        upstream016.bind_pins({"registry/verify_currency.py": "0" * 64})
 
 
 def test_study_manifest_is_fresh():

@@ -41,13 +41,24 @@ def sightings_bytes(records):
     ).encode("utf-8")
 
 
-def witnessconfig_bytes(*, series_id, witness_keys, minimum_sightings):
+def witnessconfig_bytes(*, series_id, witness_keys, minimum_sightings,
+                        required_witnesses=(), recency_policy="ignore"):
+    """The verifier's per-series witness pins and enforcement configuration.
+
+    `requiredWitnesses` names keys that must each contribute a verifying
+    record (a floor a bare count cannot express); `recencyPolicy` decides
+    whether a sighting beyond the presented history's end refuses — explicit
+    configured policy, never an implicit promotion of any sighting to
+    prior-acceptance state (round-1 R1-10).
+    """
     return json.dumps(
         {
             "witnessConfigVersion": "1",
             "seriesId": series_id,
-            "witnessKeys": witness_keys,
+            "witnessKeys": list(witness_keys),
             "minimumSightings": minimum_sightings,
+            "requiredWitnesses": list(required_witnesses),
+            "recencyPolicy": recency_policy,
         },
         indent=2, ensure_ascii=False,
     ).encode("utf-8")

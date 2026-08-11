@@ -25,8 +25,10 @@ asserted by hand.
 import argparse
 import base64
 import hashlib
+import importlib.metadata
 import importlib.util
 import json
+import marshal
 import os
 import sys
 import tempfile
@@ -48,7 +50,7 @@ PREREG_PATH = STUDY / "PREREGISTRATION.md"
 
 LAYERS = ("currency", "witness")
 ROLES = ("endpoint", "control-gate", "demonstration", "descriptive")
-CAPABILITIES = ("none", "tamper", "authority-key", "witness-key")
+CAPABILITIES = ("none", "tamper", "authority-key", "witness-key", "delivery")
 VARIANTS = ("none", "registry", "config", "sightings", "tampered")
 
 FREEZE_PINS = ("preregistration", "matrix", "matrixHoldout", "witnessSpec",
@@ -62,11 +64,16 @@ PINNED_DIGEST_MEMBERS = (
 )
 
 EXPECTED_CELL_IDS = frozenset((
-    "pos-consistent", "unchanged", "neg-sighting-forged",
-    "neg-unpinned-conflict", "neg-limits",
+    "pos-consistent", "unchanged", "neg-relabel-attack",
+    "neg-sighting-malformed", "neg-limits",
     "wit-split-view-caught", "wit-collusion-a", "wit-collusion-b",
-    "wit-one-honest", "wit-partition-vacuous", "wit-partition-enforced",
-    "wit-retention-horizon", "wit-recency-behind", "cur-retired-interplay",
+    "wit-one-honest",
+    "wit-suppression-omitted", "wit-suppression-corrupted",
+    "wit-required-witness-absent",
+    "wit-zero-sightings-vacuous", "wit-zero-sightings-enforced",
+    "wit-prefix-coverage",
+    "wit-recency-refused", "wit-historical-audit",
+    "cur-retired-interplay",
 ))
 
 CELL_REQUIRED_KEYS = {
@@ -153,8 +160,96 @@ def matrix_schema_problems(matrix):
     return problems
 
 
+def bytecode_cache_problems():
+    """Refuse when cached bytecode that WOULD BE USED differs from its source.
+
+    A pinned `.py` digest does not describe the bytes the interpreter executes
+    if a `__pycache__` entry is loaded instead (round-1 R1-1). Mere existence is
+    not the hazard: CPython ignores a cache whose recorded source mtime/size (or
+    source hash) does not match and recompiles, and a cache written under
+    another tag — pytest's assertion-rewritten copies, for instance — is never
+    used by a plain import at all. The hazard is precisely the cache a plain
+    import WOULD accept whose code is not this source's, so the check looks at
+    exactly `importlib.util.cache_from_source(...)` for every source on the
+    adjudication path, unmarshals it, and compares against `compile()` of the
+    source. Any difference, or an unreadable entry, refuses. The pinned upstream
+    is separately executed from its hashed source bytes and never through this
+    path at all.
+    """
+    problems = []
+    sources = sorted(STUDY.glob("witness/*.py")) + sorted(STUDY.glob("harness/*.py"))
+    sources += [upstream016.STUDY_016 / relative
+                for relative in sorted(upstream016.pinned_files())]
+    for source in sources:
+        if not source.is_file():
+            continue
+        cached_path = Path(importlib.util.cache_from_source(str(source)))
+        if not cached_path.is_file():
+            continue
+        where = source.relative_to(STUDY.parent).as_posix()
+        data = cached_path.read_bytes()
+        if len(data) < 16:
+            problems.append("cached bytecode is truncated for " + where)
+            continue
+        raw = source.read_bytes()
+        flags = int.from_bytes(data[4:8], "little")
+        if flags & 0b1:
+            if data[8:16] != importlib.util.source_hash(raw):
+                continue
+        else:
+            status = source.stat()
+            if (int.from_bytes(data[8:12], "little") != int(status.st_mtime) & 0xFFFFFFFF
+                    or int.from_bytes(data[12:16], "little") != status.st_size & 0xFFFFFFFF):
+                continue
+        try:
+            cached = marshal.loads(data[16:])
+            fresh = compile(raw, str(source), "exec")
+        except Exception:
+            problems.append("cached bytecode is unreadable for " + where)
+            continue
+        if cached != fresh:
+            problems.append("cached bytecode differs from its source for " + where)
+    return problems
+
+
+def dependency_problems(pins):
+    """Enforce the registered third-party versions and their origins.
+
+    The apparatus runs cryptographic and canonicalization code from two
+    installed packages before any pin is read; registering their versions is
+    the least this study can do about that, and the previous claim that they
+    were "transitively pinned by the 016 apparatus" was simply false (round-1
+    R1-2).
+    """
+    problems = []
+    registered = (pins.get("dependencies") or {}).get("versions") or {}
+    if not registered:
+        return ["no dependency versions are registered"]
+    studies = STUDY.parent.resolve()
+    for name, expected in sorted(registered.items()):
+        try:
+            found = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            problems.append("registered dependency %s is not installed" % name)
+            continue
+        if found != expected:
+            problems.append("dependency %s is %s; the registry pins %s"
+                            % (name, found, expected))
+        try:
+            origin = Path(importlib.metadata.distribution(name).locate_file("")).resolve()
+        except Exception:
+            problems.append("dependency %s has no resolvable origin" % name)
+            continue
+        if origin == studies or studies in origin.parents:
+            problems.append("dependency %s resolves inside the studies tree (%s)"
+                            % (name, origin))
+    return problems
+
+
 def pin_problems(pins):
     problems = []
+    problems.extend(bytecode_cache_problems())
+    problems.extend(dependency_problems(pins))
     interpreter = "%d.%d.%d" % sys.version_info[:3]
     pinned_python = (pins.get("harnessPython") or {}).get("version")
     if interpreter != pinned_python:
@@ -165,16 +260,23 @@ def pin_problems(pins):
         ns = upstream016.load(build=True)
         registry = ns.checkpoint
         import sighting
+        # Derive from the REGISTERED labels, so a changed label is a mismatch
+        # rather than silently unenforced (round-1 R1-13); the code constants
+        # must equal the registered labels too.
         derived = {}
-        for member, seed in (
-            ("authorityPublicKey", sighting.AUTHORITY_SEED),
-            ("witness1PublicKey", sighting.WITNESS_1_SEED),
-            ("witness2PublicKey", sighting.WITNESS_2_SEED),
-            ("witness3PublicKey", sighting.WITNESS_3_SEED),
+        for key_member, label_member, constant in (
+            ("authorityPublicKey", "authoritySeedLabel", sighting.AUTHORITY_SEED),
+            ("witness1PublicKey", "witness1SeedLabel", sighting.WITNESS_1_SEED),
+            ("witness2PublicKey", "witness2SeedLabel", sighting.WITNESS_2_SEED),
+            ("witness3PublicKey", "witness3SeedLabel", sighting.WITNESS_3_SEED),
         ):
-            derived[member] = registry.public_key_b64(registry.private_key(seed))
+            label = keys.get(label_member)
+            if label != constant:
+                problems.append("witnessAuthority.%s does not match the builder constant"
+                                % label_member)
+            derived[key_member] = registry.public_key_b64(registry.private_key(label or ""))
         genesis = registry.build_checkpoint(
-            registry.private_key(sighting.AUTHORITY_SEED), sequence=1,
+            registry.private_key(keys.get("authoritySeedLabel") or ""), sequence=1,
             series_id=build_fixtures.SERIES_ID, event="add", pack_version="1.0.0",
             pack_digest=build_fixtures.DIGEST_A,
             effective_from=build_fixtures.T1, previous=None,
@@ -223,34 +325,59 @@ def _collusion_structure(members, pins):
     except (ValueError, TypeError):
         return {"validated": False, "problem": "pinned colluding-witness key unreadable"}
     attested = []
+    pinned_in_config = []
+    counted = []
+    head_matches_view = []
     for cid in members:
         directory = build_fixtures.cell_directory(STUDY / "fixtures", cid)
         try:
             document = json.loads((directory / "sightings.json").read_text(encoding="utf-8"))
+            config = json.loads((directory / "witnessconfig.json").read_text(encoding="utf-8"))
+            snapshot = json.loads((directory / "snapshot.json").read_text(encoding="utf-8"))
         except Exception:
-            return {"validated": False, "problem": "sightings unreadable: " + cid}
-        found = None
+            return {"validated": False, "problem": "cell artifacts unreadable: " + cid}
+        # Attribution by VERIFICATION, exactly as the layer does it.
+        found = []
         for record in document.get("sightings", ()):
-            if record.get("witnessKeyId") != key_id:
+            payload = record.get("sighting")
+            if not isinstance(payload, dict):
                 continue
-            payload = record["sighting"]
             try:
                 key.verify(
                     base64.b64decode(record["signature"], validate=True),
                     rfc8785.dumps({"domain": verify_witness.DOMAIN_SIGHTING,
                                    "payload": payload}),
                 )
-            except (InvalidSignature, ValueError, TypeError):
-                return {"validated": False,
-                        "problem": "colluding sighting does not verify: " + cid}
-            found = payload
-        if found is None:
-            return {"validated": False, "problem": "no colluding sighting: " + cid}
-        attested.append(found)
+            except Exception:
+                continue
+            found.append(payload)
+        if len(found) != 1:
+            return {"validated": False,
+                    "problem": "expected exactly one record from the colluding key: " + cid}
+        payload = found[0]
+        if payload.get("seriesId") != config.get("seriesId"):
+            return {"validated": False, "problem": "sighting series is not the cell's: " + cid}
+        pinned_in_config.append(encoded in (config.get("witnessKeys") or []))
+        counted.append(int(config.get("minimumSightings") or 0) >= 1)
+        digests = [
+            "sha256:" + hashlib.sha256(
+                rfc8785.dumps({"domain": verify_witness.DOMAIN_CHECKPOINT,
+                               "payload": record["checkpoint"]})
+            ).hexdigest()
+            for record in snapshot.get("checkpoints", ())
+        ]
+        position = payload.get("position")
+        head_matches_view.append(
+            isinstance(position, int) and 1 <= position <= len(digests)
+            and digests[position - 1] == payload.get("head"))
+        attested.append(payload)
     a, b = attested
     checks = {
-        "sameWitnessKey": True,
-        "bothSightingsVerify": True,
+        "oneRecordFromTheSameKeyInEachCell": True,
+        "bothSightingsVerifyUnderThatKey": True,
+        "keyPinnedInBothConfigurations": all(pinned_in_config),
+        "bothSatisfyTheEnforcementFloor": all(counted),
+        "eachHeadMatchesItsOwnPresentedView": all(head_matches_view),
         "samePosition": a["position"] == b["position"],
         "differentHeads": a["head"] != b["head"],
     }
@@ -283,6 +410,11 @@ def adjudicate(matrix):
             "combined": outcome["combined"],
             "divergentLayers": divergent, "divergent": bool(divergent),
             "registeredUndetected": bool(cell.get("registeredUndetected")),
+            "witnessEvidence": {
+                "comparisonPerformed": outcome["witness"].get("comparisonPerformed"),
+                "validSightings": outcome["witness"].get("validSightings"),
+                "unattributedSightings": outcome["witness"].get("unattributedSightings"),
+            },
             "detail": {layer: outcome[layer].get("detail") for layer in LAYERS},
         }
     return cells
@@ -413,6 +545,12 @@ def main(argv=None):
         if pins_raw_bytes is None:
             return terminal("the pin registry is unreadable")
         pins = json.loads(pins_raw_bytes.decode("utf-8"))
+        # The upstream digests used for every later check come from the bytes
+        # the marker stamped, never from a re-read (round-1 R1-3).
+        try:
+            upstream016.bind_pins((pins.get("study016") or {}).get("files") or {})
+        except upstream016.Upstream016Error as error:
+            return terminal(str(error))
         label = "REGISTERED" if all(
             (pins.get(member) or {}).get("sha256") is not None
             for member in FREEZE_PINS
@@ -449,6 +587,14 @@ def main(argv=None):
 
         cells = adjudicate(matrix)
         pairs = pair_reports(matrix, cells, pins)
+        # A registered pair whose structure does not validate is a validity
+        # failure on the attempt, never a silent footnote (round-1 R1-6).
+        broken = sorted(name for name, report in pairs.items()
+                        if not report["equivocationStructure"].get("validated"))
+        if broken:
+            return terminal("registered pair structure did not validate",
+                            ["pair %s: %s" % (name, json.dumps(
+                                pairs[name]["equivocationStructure"])) for name in broken])
         verdict, causes = decide(cells)
         summary = {
             "cells": len(cells),

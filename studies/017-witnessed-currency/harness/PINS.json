@@ -1,6 +1,6 @@
 {
   "pinsVersion": "1",
-  "note": "Pin registry, 011-convention as extended by Studies 014/016: every non-null member is ENFORCED before adjudication. harness/score.py compares the preregistration, matrix, matrixHoldout, witnessSpec and studyManifest digests when filled, every study016.files digest always (harness/upstream016.py refuses to load a mismatching source and re-verifies each loaded module's identity, origin and bytes on every load), every witnessAuthority member always (keys re-derived from the seed labels, the genesis head rebuilt from the registered genesis event), the witness layer's checkpoint-domain constant against the pinned upstream's, and harnessPython.version exactly. This study needs no evaluator binary and no external clone: the apparatus is registry-and-witness only (design decision D-1) and adjudication is fully offline and deterministic.",
+  "note": "Pin registry, 011-convention as extended by Studies 014/016: every non-null member is ENFORCED before adjudication. harness/score.py compares the preregistration, matrix, matrixHoldout, witnessSpec and studyManifest digests when filled, every study016.files digest always (harness/upstream016.py refuses to load a mismatching source and re-verifies each loaded module's identity, origin and bytes on every load), every witnessAuthority member always (keys re-derived from the REGISTERED seed labels, which must also equal the builder's constants - round-1 R1-13 found the labels unenforced - and the genesis head rebuilt from the registered genesis event); the registered dependency versions and their origins; the absence of any bytecode cache in either tree (round-1 R1-1), the witness layer's checkpoint-domain constant against the pinned upstream's, and harnessPython.version exactly. This study needs no evaluator binary and no external clone: the apparatus is registry-and-witness only (design decision D-1) and adjudication is fully offline and deterministic.",
   "anchorOrder": "LINEAR, the 014 round-3 order: (1) harness/STUDY-MANIFEST.sha256 covers the protocol documents, both matrix strata, every witness/ and harness/ source file, the harness tests, and every per-cell fixture manifest of the locked stratum, and covers NEITHER itself NOR this file; (2) this file pins that manifest's digest in studyManifest.sha256; (3) the freeze commit - together with the pinsRawSha256 stamp every attempt record carries (SHA-256 of this file's raw bytes, computed before the parse) - anchors this file.",
   "registeredLabelRule": "harness/score.py labels an attempt REGISTERED only when EVERY freeze pin is non-null - preregistration, matrix, matrixHoldout, witnessSpec, studyManifest. Any null makes it a PILOT. The non-null ones are enforced under both labels.",
   "study016": {
@@ -27,7 +27,14 @@
     "implementation": "CPython",
     "series": "3.12",
     "version": "3.12.11",
-    "note": "the same venv convention as Studies 014/016; the only third-party dependencies are cryptography and rfc8785, both already pinned transitively by the 016 apparatus"
+    "note": "the same venv convention as Studies 014/016. The claim that the third-party dependencies were 'pinned transitively by the 016 apparatus' was false and is withdrawn (round-1 R1-2): Study 017 consumes no lockfile of 016's, so it registers and enforces the versions itself in `dependencies` below"
+  },
+  "dependencies": {
+    "note": "Registered third-party versions, enforced by harness/score.py before adjudication (round-1 R1-2): name==version through importlib.metadata plus an origin outside the studies tree. Cryptographic and canonicalization code executes before any pin is read, so registering these versions is the least this study can do about that; it is a pin, not an attestation, and no claim is made about the packages' contents.",
+    "versions": {
+      "cryptography": "49.0.0",
+      "rfc8785": "0.1.4"
+    }
   },
   "matrix": {
     "path": "harness/MATRIX.json",

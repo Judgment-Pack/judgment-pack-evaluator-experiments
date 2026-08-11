@@ -14,23 +14,31 @@ non-collusion — **each remaining silence isolates**.
 
 Registered in advance, silence and payoff alike:
 
-- **The payoff**: the exact split view 016 proved silent becomes observable with **one
-  honest sighting crossing views** (`wit-split-view-caught`) — and the fork pair is built
-  so both branches keep the committed version current, isolating the attribution to the
-  witness layer alone.
-- **Collusion, the load-bearing exhibit** (`wit-collusion-a/b`, registered
-  expected-undetected): the same pinned witness key attests contradictory heads at the
-  same position across the pair, each run internally valid and satisfying its
-  enforcement clause. The scorer validates the equivocation structurally from retained
-  bytes. This is the empirical case for witness **independence** — the clause nothing in
-  the mechanism enforces. Its sibling `wit-one-honest` shows one honest, comparing
-  witness converting the silence into a refusal: independence measured as a diff.
-- **Partition and enforcement** (`wit-partition-vacuous` vs `-enforced`): an empty
-  comparison is vacuously consistent at `minimumSightings: 0` and a fail-closed refusal
-  at `1` — the enforcement clause, measured as an arm pair.
-- **The retention horizon** (`wit-retention-horizon`): a sighting anchors only the
-  prefix it names; a fork above the sighted position is invisible — the
-  fork-after-anchor limit recurring one level up.
+- **The payoff**: a fork of the same threat class 016 proved silent becomes observable
+  from **one attributed record of a sibling head** (`wit-split-view-caught`) — the fork is
+  built so both branches keep the committed version current, isolating the attribution to
+  the witness layer. This is not a replay of 016's cells, and the study says so.
+- **Collusion** (`wit-collusion-a/b`, registered expected-undetected): the same pinned key
+  records contradictory heads at the same position across the pair, each run internally
+  valid and satisfying every *implemented* clause. The scorer recomputes the contradiction
+  from retained bytes, and a pair that fails to validate makes the attempt
+  pipeline-invalid. The cells illustrate why a non-collusion clause may be required; they
+  measure no organisational property.
+- **Delivery control, the round-1 lesson** (`wit-suppression-omitted` / `-corrupted`,
+  registered expected-undetected): the reviewer falsified the draft's routing by giving an
+  honest conflicting record an unpinned key-id label — the label alone turned a detection
+  into a pass. Routing is now by signature verification (`neg-relabel-attack` keeps that
+  construction as a standing control), but whoever controls delivery can still omit or
+  corrupt the record. Those two cells register the residue rather than hiding it, and
+  `wit-required-witness-absent` is the arm that bounds them.
+- **Zero-sighting enforcement** (`wit-zero-sightings-vacuous` vs `-enforced`): an empty
+  comparison is vacuously consistent at `minimumSightings: 0` and a fail-closed refusal at
+  `1`. No cause is attributed to the emptiness — partition, outage, withholding and a
+  witness that never spoke are one condition here.
+- **Positional prefix coverage** (`wit-prefix-coverage`) and **the recency policy's cost**
+  (`wit-recency-refused` vs `wit-historical-audit`, the same bytes under both policies: a
+  deliberate audit of an older snapshot and a stale presentation are indistinguishable, so
+  only the configured policy decides).
 
 **This is not an interoperability study.** No external component exists anywhere in the
 apparatus: Layer CURRENCY is Study 016's frozen verifier consumed as a digest-pinned
@@ -47,7 +55,7 @@ independence, not a simulation of it.
   writer, and Layer WITNESS.
 - [`harness/`](harness/) — pins (incl. the frozen-016 upstream digests), matrices,
   builder, two-layer runner, scorer, deterministic tests.
-- [`fixtures/`](fixtures/) — the 14 frozen cells (fully synthetic; no evaluator binary,
+- [`fixtures/`](fixtures/) — the 18 frozen cells (fully synthetic; no evaluator binary,
   no clone — the suite runs offline on stdlib + `cryptography` + `rfc8785`).
 - `pilots/` — pre-freeze execution, labeled harness validation, non-citable.
 - `results/` — absent until a registered post-freeze attempt.

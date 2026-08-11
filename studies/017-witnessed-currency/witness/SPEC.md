@@ -42,64 +42,82 @@ touched):
 ```json
 {"witnessConfigVersion": "1", "seriesId": "…",
  "witnessKeys": ["<base64 raw Ed25519 public key>", …],
- "minimumSightings": 1}
+ "minimumSightings": 1,
+ "requiredWitnesses": ["<base64 raw Ed25519 public key>", …],
+ "recencyPolicy": "ignore" | "refuse-behind"}
 ```
 
-`minimumSightings` is the **enforcement clause** of the witness contract made
-explicit: how many valid pinned sightings must exist before the verifier will
-call a view witnessed at all. With `0`, an empty comparison is vacuously
-consistent — a registered boundary, not a defect.
+`minimumSightings` **counts** and `requiredWitnesses` **names**: the first is the
+enforcement clause as a floor on how much attributed evidence must exist, the
+second a floor on *whose*. With `minimumSightings: 0` an empty comparison is
+vacuously consistent — a registered boundary, not a defect, and the structured
+`comparisonPerformed` field is what says so. `recencyPolicy` decides whether a
+sighting beyond the presented history's end refuses; it is explicit configured
+policy, never an implicit promotion of any sighting to prior-acceptance state
+(round-1 R1-10), and Study 016 applies its analogous refusal only under an
+explicitly provisioned `minimumHeadPin`.
 
 ## 2. The Layer WITNESS ceremony
 
-Ordered, fail-closed, offline; first failure wins; runs after Layer CURRENCY
-and records independently. Registered caps: `MAX_SIGHTINGS_BYTES` 65536,
-`MAX_SIGHTINGS` 64 (`witness-limits-exceeded` above either).
+Ordered, fail-closed, offline; runs after Layer CURRENCY and records
+independently. Registered caps: `MAX_SIGHTINGS_BYTES` 65536, `MAX_SIGHTINGS` 64.
 
-1. **Pins and inputs.** Well-formed version-1 witness configuration whose
-   `seriesId` equals the commitment's `packId`; readable pinned keys; a
-   retained sightings artifact — else `witness-unavailable`.
-2. **Per-record validation.** Strict duplicate-rejecting parse; closed
-   schemas before any signature math. For each record: a sighting verified
-   under a pinned key is **valid** (kept if its series matches); a sighting
-   whose key id is **unpinned is ignored and counted** (design decision D-3 —
-   it is untrusted evidence, not a required input; the
-   `neg-unpinned-conflict` control measures the cost, and the asymmetry is
-   safe because the label can only cause refusal, never acceptance); a
-   sighting claiming a **pinned** witness that fails verification is
-   `witness-sighting-invalid` — fail-closed, never silently dropped.
-3. **Enforcement.** Fewer valid sightings than `minimumSightings` →
-   `witness-unavailable` (never a pass, never a detection).
-4. **Comparison — containment per sighting.** The presented snapshot's
-   checkpoint digests are recomputed from its bytes (content identity only;
-   authority-signature validity is Layer CURRENCY's independent job). For
-   each valid sighting, in retained order: position beyond the snapshot's
-   end → `snapshot-behind-witnessed-head` (the witness recency floor — the
-   sighting doubles as prior-acceptance state across parties); a different
-   digest at the sighted position → `snapshot-conflicts-with-witnessed-head`
-   (a pinned witness attests a different history). All consistent → pass,
-   with the valid/ignored counts recorded in detail.
+1. **Pins and inputs.** Every input is type-checked before use; a well-formed
+   version-1 witness configuration whose `seriesId` equals the commitment's
+   `packId`, readable pinned keys, and a retained sightings artifact — else
+   `witness-unavailable`.
+2. **Schema, then attribution BY VERIFICATION.** Each record is checked against
+   the closed schema first; a defect is `witness-sighting-invalid`, fail-closed,
+   before any signature math. Each surviving record is then verified against
+   **every pinned key in turn**: one that verifies is *attributed* to that key
+   and enters the comparison; one that verifies under none is *unattributed* —
+   counted, reported, never a comparison input and never a refusal. The record's
+   own `witnessKeyId` is descriptive and routes nothing. (The draft routed on
+   that unauthenticated label; the round-1 reviewer showed a relabelled honest
+   record was thereby ignored and a detected conflict became a pass — R1-4,
+   preserved as the standing control `neg-relabel-attack`.)
+3. **Enforcement.** Fewer attributed sightings for the series than
+   `minimumSightings` → `witness-unavailable`. A key named in
+   `requiredWitnesses` with no verifying record → `witness-required-absent`.
+4. **Comparison.** With zero attributed sightings the layer returns `pass` with
+   `comparisonPerformed: false` — nothing was compared, and the structured field
+   is what carries that, not the verdict and not free text (round-1 R1-9).
+   Otherwise the presented snapshot's checkpoint digests are recomputed from its
+   bytes (content identity only; authority-signature validity is Layer
+   CURRENCY's independent job) and **every** attributed sighting is examined —
+   never a first-hit scan, so the unsigned retained order cannot decide the
+   outcome (round-1 R1-11). A registered precedence then selects the code:
+   `snapshot-conflicts-with-witnessed-head` (a different digest at a position
+   inside the presented history) outranks `snapshot-behind-witnessed-head` (a
+   position beyond its end, reported only under `recencyPolicy: refuse-behind`).
 
-**What a verdict means, exactly.** A conflict means one pinned witness
-attests a different history — *observability, not prevention*: nothing is
-stopped, no view is proven the true one, and which of the two histories is
-"right" is exactly what a single conflicting pair cannot say. A pass means
-*consistency with the retained sightings of the pinned witnesses* — nothing
-more: a colluding witness restores silence while satisfying every clause
-(`wit-collusion-*`, the registered exhibit); an empty comparison is vacuous
-(`wit-partition-vacuous`); a sighting anchors only the prefix it names
-(`wit-retention-horizon`). Witnessing states history consistency, never
-currency, correctness, or truth.
+**What a verdict means, exactly.** A conflict means one pinned witness recorded a
+different history — *observability, not prevention*: nothing is stopped, neither
+view is proven the true one, and which is "right" is precisely what a single
+conflicting pair cannot say. A pass means *consistency with the attributed
+records that reached this verifier* — nothing more.
+
+**What suppression costs, stated plainly.** Whoever controls which records reach
+the verifier can drop the conflicting one, alter its signature so it attributes
+to nobody, or re-sign its payload under a fresh key. All three yield a pass; the
+first leaves no trace at all and the second leaves only an `unattributedSightings`
+count, which is not a detection. `requiredWitnesses` converts a specific
+witness's absence into a refusal, but refuses on *absence of evidence* and cannot
+distinguish suppression from outage or from a witness that never observed the
+series. A corrupted record from a pinned witness and a genuine record from an
+unpinned one are indistinguishable here, which is why no fail-closed rule can be
+built on the label claiming whose record it is.
 
 ## 3. The verdict vocabulary (exhaustive)
 
 | Code | Meaning |
 |---|---|
-| `witness-unavailable` | a required input or pin is absent or malformed, the configuration binds a different series, or fewer valid pinned sightings exist than `minimumSightings` requires — fail-closed, never a pass |
-| `witness-sighting-invalid` | a record is malformed, or a sighting claiming a pinned witness does not verify under it — tampered retained evidence refuses rather than dropping |
+| `witness-unavailable` | a required input or pin is absent or malformed, the configuration binds a different series, or fewer attributed sightings exist than `minimumSightings` requires — fail-closed, never a pass |
+| `witness-sighting-invalid` | a record violates the closed schema — the only path to this code; a record that merely fails to verify is unattributed, not invalid |
+| `witness-required-absent` | a key named in `requiredWitnesses` contributed no verifying record — a refusal on absence of evidence, which cannot say why |
 | `witness-limits-exceeded` | the sightings artifact exceeds a registered cap — refused before unbounded work |
 | `snapshot-conflicts-with-witnessed-head` | a pinned witness attests a different head at a position inside the presented history — the split view made observable |
-| `snapshot-behind-witnessed-head` | a pinned witness attests a longer history than the presented view — the witness recency floor |
+| `snapshot-behind-witnessed-head` | an attributed witness records a position beyond the presented history's end, under `recencyPolicy: refuse-behind` only — and a deliberate audit of an older snapshot refuses identically |
 
 ## 4. What each layer owns (and what none does)
 
@@ -108,11 +126,15 @@ currency, correctness, or truth.
 - **WITNESS** owns consistency of the presented history with the retained
   sightings of the pinned witnesses, and the integrity of the sightings
   artifact itself.
-- **Nothing** owns: witness independence (`wit-collusion-*` — the same key
-  satisfying the enforcement clause for contradictory views); comparison
-  actually happening (`wit-partition-vacuous`); coverage above the sighted
-  horizon (`wit-retention-horizon`); and everything 016 registered as
-  nothing's. Each has a registered cell whose outcome states it.
+- **Nothing** owns: non-collusion (`wit-collusion-*` — the same key satisfying
+  every implemented clause for contradictory views); delivery
+  (`wit-suppression-omitted`, `wit-suppression-corrupted`); whether a comparison
+  happened at all beyond what `comparisonPerformed` reports
+  (`wit-zero-sightings-vacuous`); coverage above the position a record names
+  (`wit-prefix-coverage`); the difference between a stale presentation and a
+  deliberate historical audit (`wit-recency-refused` / `wit-historical-audit`);
+  and everything Study 016 registered as nothing's. Each has a registered cell
+  whose outcome states it.
 
 Ceiling, both layers, stated once and meant: binding/lineage, not truth —
 witnessing adds *which histories the pinned witnesses attest having seen*,

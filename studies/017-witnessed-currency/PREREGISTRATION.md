@@ -43,11 +43,16 @@ detection on any `registeredUndetected` row (016's decision D-3, upheld by its r
 a witness layer that claimed to see collusion, a vacuous comparison, or a fork above the
 sighted horizon would be defective, and must be able to falsify R1.
 
-**R2 (secondary, descriptive):** the witness-contract map — which registered
-non-detection isolates which contract clause: `wit-collusion-*` → independence;
-`wit-partition-vacuous` (against its `-enforced` arm) → comparison and enforcement;
-`wit-retention-horizon` → coverage/retention. The registered-undetected cells confirmed
-undetected are boundary results with a detection's standing.
+**R2 (secondary, descriptive):** the map of what each registered non-detection isolates,
+stated as the condition the apparatus actually represents rather than a cause it cannot
+observe (round-1 R1-8): `wit-collusion-*` → a witness signing per audience, which no
+implemented clause refuses; `wit-suppression-omitted` / `-corrupted` → control over which
+records reach the verifier; `wit-zero-sightings-vacuous` (against its `-enforced` arm) →
+zero-sighting enforcement; `wit-prefix-coverage` → positional prefix coverage;
+`wit-historical-audit` (against `wit-recency-refused`) → the configured recency policy's
+cost. No cell attributes an empty or missing record to partition, retention loss,
+withholding, or discovery failure: those conditions are indistinguishable here, and the
+draft's causal wording is withdrawn.
 
 This is **not an interoperability study**: no external component exists anywhere in the
 apparatus, and the README says so. It measures a governance mechanism's floor,
@@ -69,14 +74,25 @@ the standing no-independent-mutation-oracle limitation, recorded as in 014/016.
 
 ## 2. Apparatus and pins
 
+- **Executed bytes, not just source digests** (round-1 R1-1): the pinned upstream is
+  compiled from the exact source bytes hashed at load, and the scorer refuses to adjudicate
+  while any bytecode cache exists in either tree — a `.py` digest does not describe what ran
+  if an unmanifested `__pycache__` entry is loaded instead.
+- **Registered third-party dependencies** (round-1 R1-2): `cryptography` and `rfc8785` are
+  registered by version in `harness/PINS.json` and enforced by name, version and origin
+  before adjudication. The draft's claim that they were "transitively pinned by the 016
+  apparatus" was false — this study consumes no lockfile of 016's — and is withdrawn.
 - **Study 016's frozen registry modules, consumed as a pinned unmodified upstream**
   (decision D-2 — the 016→014 posture applied to 016 itself): `registry/verify_currency.py`
   IS Layer CURRENCY, unchanged; `registry/checkpoint.py` is build-path only (views and
   trust configurations). `harness/upstream016.py` loads both by authenticated absolute
   path only — no `sys.path` additions, no bare imports, pre-existing `sys.modules`
-  entries refused, per-load identity/origin/bytes re-verification — and every digest is
-  pinned in `harness/PINS.json` (`study016.files`), with 016's own frozen STUDY-MANIFEST
-  pinning the same bytes from the other side.
+  entries refused **for every reserved name before any module executes**, per-load
+  identity/origin/bytes re-verification — and every digest is pinned in `harness/PINS.json`
+  (`study016.files`), with 016's own frozen STUDY-MANIFEST pinning the same bytes from the
+  other side. The mapping the loader trusts is extracted once from the **stamped** registry
+  bytes the attempt records, never re-read (round-1 R1-3), so the trust inputs cannot differ
+  from what the attempt commits to.
 - **No evaluator binary, no external clone, no chains** (decision D-1): a cell is
   `(commitment tuple, snapshot, trust configuration, witness configuration, sightings)`
   with synthetic commitment tuples — exactly the surface 016's own unit suite pinned.
@@ -107,10 +123,11 @@ is one-time and byte-reproducible (a harness test rebuilds and byte-compares).
 
 ## 4. Cells
 
-14 cells in `harness/MATRIX.json`: 2 positive controls, 3 negative controls
-(`neg-sighting-forged` — fail-closed on tampered pinned evidence;
-`neg-unpinned-conflict` — the ignore rule's cost made visible, a registered PASS that is
-never a detection; `neg-limits`), 9 endpoints. Registered structures:
+18 cells in `harness/MATRIX.json` (matrixVersion 2, the round-1 revision): 2 positive
+controls, 3 negative controls (`neg-relabel-attack` — the reviewer's own falsifying
+construction kept as a standing control; `neg-sighting-malformed`; `neg-limits`), and 13
+endpoints across what a sighting buys (W), what delivery control still hides (S),
+enforcement (E), recency policy (R), and layer composition (X). Registered structures:
 
 - **The collusion pair** (`pairs.collusion`): the same pinned witness key attests
   contradictory heads at the same position across the two cells, each run internally
@@ -120,13 +137,22 @@ never a detection; `neg-limits`), 9 endpoints. Registered structures:
   study's most important artifact: the empirical case for witness **independence**, the
   contract clause nothing in the mechanism enforces. Preserved as a finding, never fixed.
 - **Registered-undetected endpoints** (D-5): `wit-collusion-a`, `wit-collusion-b`,
-  `wit-partition-vacuous`, `wit-retention-horizon` — all-pass expectations whose
-  confirmation is the registered finding, and whose false detection falsifies R1.
-- **Arms that decide design points**: `wit-partition-vacuous` vs `wit-partition-enforced`
-  (`minimumSightings` 0 vs 1 — the enforcement clause); `wit-split-view-caught` vs 016's
-  registered silence (one honest sighting is the whole difference);
-  `wit-one-honest` vs `wit-collusion-b` (one honest, comparing witness is the whole
-  difference — independence measured as a diff).
+  `wit-suppression-omitted`, `wit-suppression-corrupted`, `wit-zero-sightings-vacuous`,
+  `wit-prefix-coverage`, `wit-historical-audit` — all-pass expectations whose confirmation
+  is the registered finding, and whose false detection falsifies R1.
+- **Arms that decide design points**: `wit-zero-sightings-vacuous` vs `-enforced`
+  (`minimumSightings` 0 vs 1); `wit-suppression-omitted` vs `wit-required-witness-absent`
+  (a count floor vs a named-witness floor over the same bytes); `wit-recency-refused` vs
+  `wit-historical-audit` (the same bytes under both recency policies — the policy's cost,
+  measured); and `wit-split-view-caught` vs `wit-zero-sightings-vacuous`, whose bytes
+  differ only in the sighting set, which is the study's internal "one attributed record is
+  the difference" comparison (round-1 R1-5: this study does **not** replay Study 016's
+  cells — different series, no receipt layers, both fork branches add rather than retire,
+  and no claim of replicating 016's run is made anywhere).
+- **Structured witness evidence** (round-1 R1-9): every adjudicated cell publishes
+  `comparisonPerformed`, `validSightings` and `unattributedSightings` alongside the
+  outcome, so a pass after zero comparisons is machine-distinguishable from a pass after a
+  sighting-backed one, in both `RESULTS.json` and the published detection matrix.
 
 ### 4b. Threat model
 
@@ -134,17 +160,25 @@ never a detection; `neg-limits`), 9 endpoints. Registered structures:
 - **`tamper`**: signed bytes changed without re-signing (`neg-sighting-forged`).
 - **`authority-key`**: the registry authority's key signs the fork
   (`wit-split-view-caught`, `wit-retention-horizon` — 016's single-operator adversary).
-- **`witness-key`**: a pinned witness key's own signing *behavior* is the construction —
-  the collusion threat (`wit-collusion-*`, `wit-one-honest`). This is the study's
-  registered adversary: what the sighting mechanism still cannot refuse when the witness
-  itself equivocates.
+- **`witness-key`**: a pinned witness key's own signing *behaviour* is the construction —
+  a witness signing per audience (`wit-collusion-*`, `wit-one-honest`).
+- **`delivery`**: control over which retained records reach the verifier, touching no key
+  the party does not hold — omission, corruption, or relabelling
+  (`wit-suppression-*`, `wit-required-witness-absent`, `neg-relabel-attack`). Round 1
+  established this as the study's sharpest adversary: the draft's routing let a *label*
+  suppress evidence, and closing that channel leaves omission and corruption open by
+  construction.
 
 ### 4c. Analytic limitations (not empirical rows)
 
 Transport, discovery, and retention *policies* are out of reach by design: sightings are
 retained bytes, and how they travel, how a verifier finds witnesses, and how long
 witnesses keep history are contract clauses this study names but cannot measure (no
-protocol exists). Witness *incentives* and real-world independence are likewise
+protocol exists). Consequently no result here may be read as measuring partition,
+withholding, discovery failure, or retention loss: an absent or unattributable record is
+one condition to this verifier, and the cells are named for what they represent
+(zero-sighting enforcement, positional prefix coverage, delivery control) rather than for
+causes the apparatus cannot distinguish. Witness *incentives* and real-world independence are likewise
 unmeasurable here — all keys are study-minted, and the collusion pair demonstrates the
 consequence of dependence, not its probability. Prevention is out of scope everywhere:
 witnessing makes equivocation observable at best, and nothing here stops a split view

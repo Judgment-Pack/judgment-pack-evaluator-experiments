@@ -50,9 +50,11 @@ def commitment(series=SERIES):
             "judgment": {"packId": series, "packVersion": "1.0.0", "packDigest": D1}}
 
 
-def config(keys, minimum, series=SERIES):
+def config(keys, minimum, series=SERIES, required=(), recency="ignore"):
     return sg.witnessconfig_bytes(series_id=series, witness_keys=keys,
-                                  minimum_sightings=minimum)
+                                  minimum_sightings=minimum,
+                                  required_witnesses=required,
+                                  recency_policy=recency)
 
 
 def outcome(result):
@@ -83,18 +85,127 @@ def test_conflict_detected(apparatus):
     assert outcome(result) == "fail:snapshot-conflicts-with-witnessed-head"
 
 
+def test_behind_is_configured_policy_not_implicit(apparatus):
+    """Round-1 R1-10: refusal only under the configured policy; the same bytes
+    are a legitimate historical audit under `ignore`."""
+    a = apparatus
+    key, key_id, pub = a["w2"]
+    records = [sg.build_sighting(key, key_id, series_id=SERIES,
+                                 head=a["view_a"][1]["checkpointDigest"], position=2)]
+    presented = a["snap"](a["view_a"], position=1)
+    ignored = vw.layer_witness(commitment(), presented, config([pub], 1),
+                               sg.sightings_bytes(records))
+    assert outcome(ignored) == "pass"
+    refused = vw.layer_witness(commitment(), presented,
+                               config([pub], 1, recency="refuse-behind"),
+                               sg.sightings_bytes(records))
+    assert outcome(refused) == "fail:snapshot-behind-witnessed-head"
+
+
+def test_relabelled_record_is_still_attributed(apparatus):
+    """Round-1 R1-4, the confirmed attack: routing is by verification, so an
+    unpinned key-id label on an honest record changes nothing."""
+    a = apparatus
+    key, key_id, pub = a["w2"]
+    record = sg.build_sighting(key, key_id, series_id=SERIES,
+                               head=a["view_a"][1]["checkpointDigest"], position=2)
+    record["witnessKeyId"] = "ed25519:" + "0" * 64
+    result = vw.layer_witness(commitment(), a["snap"](a["view_c"]),
+                              config([pub], 0), sg.sightings_bytes([record]))
+    assert outcome(result) == "fail:snapshot-conflicts-with-witnessed-head"
+    assert result["validSightings"] == 1 and result["unattributedSightings"] == 0
+
+
+def test_unverifiable_record_is_unattributed_not_invalid(apparatus):
+    """Suppression by corruption: counted, never a refusal — registered."""
+    a = apparatus
+    key, key_id, pub = a["w2"]
+    record = sg.build_sighting(key, key_id, series_id=SERIES,
+                               head=a["view_a"][1]["checkpointDigest"], position=2)
+    record["signature"] = ("A" if record["signature"][0] != "A" else "B") + record["signature"][1:]
+    result = vw.layer_witness(commitment(), a["snap"](a["view_c"]),
+                              config([pub], 0), sg.sightings_bytes([record]))
+    assert outcome(result) == "pass"
+    assert result["unattributedSightings"] == 1 and result["validSightings"] == 0
+
+
+def test_required_witness_absent(apparatus):
+    a = apparatus
+    _, _, pub2 = a["w2"]
+    result = vw.layer_witness(commitment(), a["snap"](a["view_c"]),
+                              config([pub2], 0, required=[pub2]),
+                              sg.sightings_bytes([]))
+    assert outcome(result) == "fail:witness-required-absent"
+
+
+def test_precedence_is_order_independent(apparatus):
+    """Round-1 R1-11: two records that would each fire a different code must
+    yield the same registered code in either retained order."""
+    a = apparatus
+    key, key_id, pub = a["w2"]
+    conflicting = sg.build_sighting(key, key_id, series_id=SERIES,
+                                    head=a["view_a"][1]["checkpointDigest"], position=2)
+    beyond = sg.build_sighting(key, key_id, series_id=SERIES,
+                               head=a["view_a"][1]["checkpointDigest"], position=9)
+    presented = a["snap"](a["view_c"])
+    settings = config([pub], 0, recency="refuse-behind")
+    first = vw.layer_witness(commitment(), presented, settings,
+                             sg.sightings_bytes([beyond, conflicting]))
+    second = vw.layer_witness(commitment(), presented, settings,
+                              sg.sightings_bytes([conflicting, beyond]))
+    assert outcome(first) == outcome(second) == "fail:snapshot-conflicts-with-witnessed-head"
+
+
+def test_malformed_inputs_stay_in_the_vocabulary(apparatus):
+    """Round-1 R1-12: no raise outside the registered verdict vocabulary."""
+    a = apparatus
+    _, _, pub = a["w2"]
+    key, key_id, _ = a["w2"]
+    one = sg.sightings_bytes([sg.build_sighting(
+        key, key_id, series_id=SERIES,
+        head=a["view_a"][1]["checkpointDigest"], position=2)])
+    for args in (
+        (commitment(), a["snap"](a["view_a"]), config([pub], 0), 7),
+        (commitment(), "not-bytes", config([pub], 1), one),
+        ({"judgment": 5}, a["snap"](a["view_a"]), config([pub], 0), sg.sightings_bytes([])),
+        (commitment(), None, config([pub], 1), one),
+    ):
+        result = vw.layer_witness(*args)
+        assert result["verdict"] in ("pass", "fail", "unavailable")
+        assert result["code"] is None or result["code"] in vw.CODES
+        assert result["code"] is not None, "a malformed input must not silently pass"
+
+
+def test_structured_fields_distinguish_vacuous_from_compared(apparatus):
+    """Round-1 R1-9."""
+    a = apparatus
+    key, key_id, pub = a["w2"]
+    vacuous = vw.layer_witness(commitment(), a["snap"](a["view_a"]),
+                               config([pub], 0), sg.sightings_bytes([]))
+    compared = vw.layer_witness(
+        commitment(), a["snap"](a["view_a"]), config([pub], 1),
+        sg.sightings_bytes([sg.build_sighting(
+            key, key_id, series_id=SERIES,
+            head=a["view_a"][1]["checkpointDigest"], position=2)]))
+    assert outcome(vacuous) == outcome(compared) == "pass"
+    assert vacuous["comparisonPerformed"] is False
+    assert compared["comparisonPerformed"] is True
+
+
 def test_behind_witnessed_head(apparatus):
     a = apparatus
     key, key_id, pub = a["w2"]
     records = [sg.build_sighting(key, key_id, series_id=SERIES,
                                  head=a["view_a"][1]["checkpointDigest"], position=2)]
     result = vw.layer_witness(commitment(), a["snap"](a["view_a"], position=1),
-                              config([pub], 1), sg.sightings_bytes(records))
+                              config([pub], 1, recency="refuse-behind"),
+                              sg.sightings_bytes(records))
     assert outcome(result) == "fail:snapshot-behind-witnessed-head"
 
 
 def test_unpinned_sighting_ignored_even_when_conflicting(apparatus):
-    """D-3: untrusted evidence is ignored-and-counted, never a detection."""
+    """A genuinely unpinned witness's record is unattributed and ignored —
+    now decided by verification, not by the record's label."""
     a = apparatus
     key, key_id, _ = a["w3"]
     _, _, pinned_pub = a["w2"]
@@ -103,15 +214,15 @@ def test_unpinned_sighting_ignored_even_when_conflicting(apparatus):
     result = vw.layer_witness(commitment(), a["snap"](a["view_c"]),
                               config([pinned_pub], 0), sg.sightings_bytes(records))
     assert outcome(result) == "pass"
-    assert "1 unpinned ignored" in result["detail"]
+    assert result["unattributedSightings"] == 1
 
 
-def test_forged_pinned_sighting_is_fail_closed(apparatus):
+def test_schema_defect_is_fail_closed(apparatus):
     a = apparatus
     key, key_id, pub = a["w2"]
     record = sg.build_sighting(key, key_id, series_id=SERIES,
                                head=a["view_a"][1]["checkpointDigest"], position=2)
-    record["signature"] = ("A" if record["signature"][0] != "A" else "B") + record["signature"][1:]
+    record["sighting"]["position"] = 0
     result = vw.layer_witness(commitment(), a["snap"](a["view_a"]),
                               config([pub], 0), sg.sightings_bytes([record]))
     assert outcome(result) == "fail:witness-sighting-invalid"
@@ -196,7 +307,8 @@ def test_unusable_snapshot_with_sightings_is_unavailable(apparatus):
 def test_every_registered_code_is_reachable():
     reached = {
         "witness-unavailable", "witness-sighting-invalid",
-        "witness-limits-exceeded", "snapshot-conflicts-with-witnessed-head",
+        "witness-limits-exceeded", "witness-required-absent",
+        "snapshot-conflicts-with-witnessed-head",
         "snapshot-behind-witnessed-head",
     }
     assert reached == set(vw.CODES)

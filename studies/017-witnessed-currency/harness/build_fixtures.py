@@ -129,11 +129,13 @@ def build_payloads():
             key, key_id, series_id=SERIES_ID, head=head, position=position
         )
 
-    def config(names, minimum):
+    def config(names, minimum, required=(), recency="ignore"):
         return sighting.witnessconfig_bytes(
             series_id=SERIES_ID,
             witness_keys=[keys[name][2] for name in names],
             minimum_sightings=minimum,
+            required_witnesses=[keys[name][2] for name in required],
+            recency_policy=recency,
         )
 
     def cell(snapshot, witnessconfig, records):
@@ -147,22 +149,26 @@ def build_payloads():
 
     cells = {}
 
-    # ---- controls ----------------------------------------------------------
+    # ---- controls -----------------------------------------------------------
     cells["pos-consistent"] = cell(snap(view_a), config(["w2"], 1),
                                    [sight("w2", head_a2, 2)])
     cells["unchanged"] = dict(cells["pos-consistent"])
 
-    forged = sight("w2", head_a2, 2)
-    forged["signature"] = flip_character(forged["signature"])
-    cells["neg-sighting-forged"] = cell(snap(view_a), config(["w2"], 1), [forged])
+    malformed = sight("w2", head_a2, 2)
+    malformed["sighting"]["position"] = 0
+    cells["neg-sighting-malformed"] = cell(snap(view_a), config(["w2"], 1), [malformed])
 
-    cells["neg-unpinned-conflict"] = cell(snap(view_c), config(["w2"], 0),
-                                          [sight("w3", head_a2, 2)])
+    cells["neg-limits"] = cell(snap(view_a), config(["w2"], 1),
+                               [sight("w2", head_a2, 2)] * 65)
 
-    over_cap = [sight("w2", head_a2, 2)] * 65
-    cells["neg-limits"] = cell(snap(view_a), config(["w2"], 1), over_cap)
+    # The round-1 R1-4 construction, now a standing control: the honest
+    # conflicting record carries a well-formed UNPINNED key-id label. Routing
+    # by verification must still attribute and compare it.
+    relabelled = sight("w2", head_a2, 2)
+    relabelled["witnessKeyId"] = "ed25519:" + "0" * 64
+    cells["neg-relabel-attack"] = cell(snap(view_c), config(["w2"], 0), [relabelled])
 
-    # ---- endpoints ---------------------------------------------------------
+    # ---- endpoints: what a sighting buys ------------------------------------
     cells["wit-split-view-caught"] = cell(snap(view_c), config(["w2"], 0),
                                           [sight("w2", head_a2, 2)])
     cells["wit-collusion-a"] = cell(snap(view_a), config(["w1"], 1),
@@ -171,12 +177,34 @@ def build_payloads():
                                     [sight("w1", head_c2, 2)])
     cells["wit-one-honest"] = cell(snap(view_c), config(["w1", "w2"], 1),
                                    [sight("w1", head_c2, 2), sight("w2", head_a2, 2)])
-    cells["wit-partition-vacuous"] = cell(snap(view_c), config(["w2"], 0), [])
-    cells["wit-partition-enforced"] = cell(snap(view_c), config(["w2"], 1), [])
-    cells["wit-retention-horizon"] = cell(snap(view_c), config(["w2"], 1),
-                                          [sight("w2", genesis, 1)])
-    cells["wit-recency-behind"] = cell(snap(view_a, position=1), config(["w2"], 1),
-                                       [sight("w2", head_a2, 2)])
+
+    # ---- endpoints: what delivery control still hides ------------------------
+    cells["wit-suppression-omitted"] = cell(snap(view_c), config(["w1", "w2"], 1),
+                                            [sight("w1", head_c2, 2)])
+    corrupted = sight("w2", head_a2, 2)
+    corrupted["signature"] = flip_character(corrupted["signature"])
+    cells["wit-suppression-corrupted"] = cell(
+        snap(view_c), config(["w1", "w2"], 1),
+        [sight("w1", head_c2, 2), corrupted])
+    cells["wit-required-witness-absent"] = cell(
+        snap(view_c), config(["w1", "w2"], 1, required=["w2"]),
+        [sight("w1", head_c2, 2)])
+
+    # ---- endpoints: enforcement and coverage --------------------------------
+    cells["wit-zero-sightings-vacuous"] = cell(snap(view_c), config(["w2"], 0), [])
+    cells["wit-zero-sightings-enforced"] = cell(snap(view_c), config(["w2"], 1), [])
+    cells["wit-prefix-coverage"] = cell(snap(view_c), config(["w2"], 1),
+                                        [sight("w2", genesis, 1)])
+
+    # ---- endpoints: recency as configured policy (both arms) ----------------
+    cells["wit-recency-refused"] = cell(
+        snap(view_a, position=1), config(["w2"], 1, recency="refuse-behind"),
+        [sight("w2", head_a2, 2)])
+    cells["wit-historical-audit"] = cell(
+        snap(view_a, position=1), config(["w2"], 1, recency="ignore"),
+        [sight("w2", head_a2, 2)])
+
+    # ---- layer composition ---------------------------------------------------
     cells["cur-retired-interplay"] = cell(snap(retired), config(["w2"], 1),
                                           [sight("w2", head_r3, 3)])
 
