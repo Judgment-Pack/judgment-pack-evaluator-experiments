@@ -51,6 +51,7 @@ CELL_FILES = (
     "sightings.json",
 )
 MANIFEST_NAME = "MANIFEST.sha256"
+PINS_PATH = STUDY / "harness" / "PINS.json"
 
 
 class BuildError(RuntimeError):
@@ -306,7 +307,7 @@ def holdout_context_problems(context):
     if not isinstance(context, HoldoutAttemptContext):
         return ["holdout construction requires a HoldoutAttemptContext"]
     problems = []
-    pins_raw = (STUDY / "harness" / "PINS.json").read_bytes()
+    pins_raw = Path(PINS_PATH).read_bytes()
     if hashlib.sha256(pins_raw).hexdigest() != context.pins_raw_sha256:
         problems.append("context pins digest does not match the live registry")
     pins = json.loads(pins_raw.decode("utf-8"))

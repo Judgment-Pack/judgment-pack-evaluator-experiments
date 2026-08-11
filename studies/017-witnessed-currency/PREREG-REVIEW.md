@@ -123,6 +123,22 @@ Post-revision state: 18 locked cells, 47 harness tests green, build pilot 04
 (`pilots/2026-08-11-build-pilot-04`, non-citable) adjudicates 18/18 with the
 witness-evidence column published.
 
-## Round 5 — pending
+## Round 5 — 2026-08-11
 
-Confirmation of R4-1 and the two residual closures.
+Same reviewer. Verdict: **freezable after listed fixes** — R1-1 RESOLVED, two residuals
+narrowed further, one new MINOR. All **accepted**. Each item is the same lesson in a
+smaller register: a gate that names a pin is not a gate that exercises it, and a
+regression that checks shape is not a regression that checks content.
+
+| # | Disposition |
+| --- | --- |
+| R4-1 residual (a) | **Accepted.** An evidence entry missing one of the three fields silently dropped that divergence channel — the postdictivity hazard one field at a time. `holdout_evidence_problems()` now validates every cell, exactly the three fields, with types (booleans genuinely boolean, counts non-negative integers and not booleans), and any defect is terminal. A regression mutates a dropped field, a wrong type, a boolean-as-int and a missing cell. |
+| R4-1 residual (b) | **Accepted.** The builder leg of the gate regression ran once against the live registry and asserted only one pin. `build_fixtures` now reads its registry through a patchable `PINS_PATH`, and the regression nulls each of the six pins in turn and asserts the builder gate names that pin. |
+| R1-9 residual | **Accepted.** The matrix regression checked pipe counts and that *some* row mentioned two of the three fields. It now compares **every** witness row's rendered triple against `RESULTS.json`'s own `witnessEvidence`, and asserts every cell is rendered — shape proved nothing on its own. |
+| R5-1 (MINOR) | **Accepted.** Two purportedly exhaustive inventories still omitted the evidence map: the preregistration said "Three companion artifacts" and the pin-registry prose enumerated five pins against a six-pin gate. Both corrected. |
+
+Post-revision state: 18 locked cells, 48 harness tests green.
+
+## Round 6 — pending
+
+Confirmation of the round-5 closures.

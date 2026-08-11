@@ -277,13 +277,38 @@ def test_every_freeze_pin_individually_gates_the_holdout(tmp_path, monkeypatch):
         results = json.loads((root / "RESULTS.json").read_text(encoding="utf-8"))
         assert results["pipelineInvalid"] is True
         assert member in results["problem"], member
-    # and the builder's own gate refuses for the same reason
-    problems = build_fixtures.holdout_context_problems(
-        build_fixtures.HoldoutAttemptContext(
-            attempt_root=str(STUDY), pins_raw_sha256="0" * 64,
-            preregistration_sha256="0" * 64, matrix_holdout_sha256="0" * 64,
-            matrix_holdout_evidence_sha256="0" * 64))
-    assert any("matrixHoldoutEvidence" in problem for problem in problems)
+    # and the builder's own gate refuses for each pin individually (round-5)
+    for member in score.FREEZE_PINS:
+        filled = json.loads(json.dumps(pins))
+        for other in score.FREEZE_PINS:
+            filled.setdefault(other, {})["sha256"] = "0" * 64
+        filled[member]["sha256"] = None
+        registry = tmp_path / (member + "-builder-PINS.json")
+        registry.write_text(json.dumps(filled, indent=2), encoding="utf-8")
+        monkeypatch.setattr(build_fixtures, "PINS_PATH", registry)
+        problems = build_fixtures.holdout_context_problems(
+            build_fixtures.HoldoutAttemptContext(
+                attempt_root=str(STUDY), pins_raw_sha256="0" * 64,
+                preregistration_sha256="0" * 64, matrix_holdout_sha256="0" * 64,
+                matrix_holdout_evidence_sha256="0" * 64))
+        assert any(member in problem for problem in problems), member
+
+
+def test_partial_evidence_entry_is_terminal():
+    """Round-5 residual of R4-1: a missing field must not silently drop a
+    divergence channel."""
+    holdout = json.loads((STUDY / "harness" / "MATRIX-HOLDOUT.json").read_text(encoding="utf-8"))
+    evidence = score.holdout_evidence_expectations()
+    assert score.holdout_evidence_problems(holdout, evidence) == []
+    for mutate in (
+        lambda e: e["h01"].pop("unattributedSightings"),
+        lambda e: e["h01"].__setitem__("validSightings", "2"),
+        lambda e: e["h01"].__setitem__("comparisonPerformed", 1),
+        lambda e: e.pop("h09"),
+    ):
+        broken = json.loads(json.dumps(evidence))
+        mutate(broken)
+        assert score.holdout_evidence_problems(holdout, broken) != []
 
 
 def test_detection_matrix_publishes_the_evidence_column(tmp_path):
@@ -297,7 +322,20 @@ def test_detection_matrix_publishes_the_evidence_column(tmp_path):
     rows = [line for line in text.splitlines()
             if line.startswith("| ") and "---" not in line]
     assert rows and all(row.count("|") == 7 for row in rows), "column shape"
-    assert any("compared=" in row and "attributed=" in row for row in rows)
+    # Every witness row's rendered triple must equal what RESULTS.json records
+    # (round-5 residual of R1-9): shape alone proved nothing.
+    results = json.loads((tmp_path / "matrix-shape" / "RESULTS.json").read_text(encoding="utf-8"))
+    rendered = 0
+    for cid, record in results["cells"].items():
+        evidence = record["witnessEvidence"]
+        wanted = "compared=%s, attributed=%s, unattributed=%s" % (
+            evidence["comparisonPerformed"], evidence["validSightings"],
+            evidence["unattributedSightings"])
+        matching = [r for r in rows if r.startswith("| %s |" % cid) and "| witness |" in r]
+        assert len(matching) == 1, cid
+        assert wanted in matching[0], (cid, wanted, matching[0])
+        rendered += 1
+    assert rendered == len(results["cells"])
 
 
 def test_no_holdout_bytes_under_fixtures():

@@ -611,6 +611,40 @@ def holdout_evidence_expectations():
     return json.loads(HOLDOUT_EVIDENCE_PATH.read_text(encoding="utf-8"))["cells"]
 
 
+EVIDENCE_FIELDS = {"comparisonPerformed": bool, "validSightings": int,
+                   "unattributedSightings": int}
+
+
+def holdout_evidence_problems(holdout, evidence):
+    """Exact per-cell validation: every cell, every field, right types.
+
+    A partial entry would silently drop that divergence channel (round-5
+    residual of R4-1), which is the same postdictivity hazard one field at a
+    time.
+    """
+    problems = []
+    registered = {c["id"] for c in holdout["cells"]}
+    for cid in sorted(registered - set(evidence)):
+        problems.append("no registered evidence for " + cid)
+    for cid in sorted(set(evidence) - registered):
+        problems.append("evidence registered for unknown cell " + cid)
+    for cid in sorted(registered & set(evidence)):
+        fields = evidence[cid]
+        if not isinstance(fields, dict) or set(fields) != set(EVIDENCE_FIELDS):
+            problems.append("%s evidence does not carry exactly %s"
+                            % (cid, ", ".join(sorted(EVIDENCE_FIELDS))))
+            continue
+        for field, kind in sorted(EVIDENCE_FIELDS.items()):
+            value = fields[field]
+            if kind is bool and not isinstance(value, bool):
+                problems.append("%s evidence %s is not a boolean" % (cid, field))
+            elif kind is int and (not isinstance(value, int) or isinstance(value, bool)
+                                  or value < 0):
+                problems.append("%s evidence %s is not a non-negative integer"
+                                % (cid, field))
+    return problems
+
+
 def adjudicate_holdout(holdout, attempt_root, pins_raw_sha256):
     """Construct inside the attempt, adjudicate, report separately (014/016 §1a)."""
     context = build_fixtures.HoldoutAttemptContext(
@@ -829,10 +863,10 @@ def main(argv=None):
             if not HOLDOUT_EVIDENCE_PATH.is_file():
                 return terminal("the registered holdout evidence map is absent")
             evidence = holdout_evidence_expectations()
-            uncovered = sorted({c["id"] for c in holdout["cells"]} - set(evidence))
-            if uncovered:
+            evidence_problems = holdout_evidence_problems(holdout, evidence)
+            if evidence_problems:
                 return terminal("holdout evidence expectations are incomplete",
-                                ["no registered evidence for " + cid for cid in uncovered])
+                                evidence_problems)
 
         problems = pin_problems(pins)
         if problems:

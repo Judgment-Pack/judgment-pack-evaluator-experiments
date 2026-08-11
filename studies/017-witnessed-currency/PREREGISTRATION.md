@@ -8,11 +8,14 @@ development lands under `pilots/`, is labeled harness validation, and supports n
 After the freeze this file is never edited; corrections go to
 [`DEVIATIONS.md`](DEVIATIONS.md).
 
-Three companion artifacts are registered *with* this document and pinned at the freeze:
+Four companion artifacts are registered *with* this document and pinned at the freeze:
 [`witness/SPEC.md`](witness/SPEC.md) (the sighting schema, the witness configuration, the
 Layer WITNESS ceremony, and the exhaustive verdict vocabulary),
 [`harness/MATRIX.json`](harness/MATRIX.json) and
-[`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json). Where prose here and those
+[`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json), and
+[`harness/MATRIX-HOLDOUT-EVIDENCE.json`](harness/MATRIX-HOLDOUT-EVIDENCE.json) (the
+structured-evidence expectations for the reviewer's cells, kept separate so their authored
+block stays byte-for-byte, and gating execution exactly as the other pins do). Where prose here and those
 artifacts could diverge, the pinned artifacts govern.
 
 ## The freeze and the primary attempt
