@@ -17,17 +17,22 @@ Four companion artifacts are registered *with* this document and pinned at the f
 Study 016 measured that a signed registry can report membership at a snapshot and nothing
 more. [RFC 0011 §2a](https://github.com/Judgment-Pack/judgment-pack-spec/blob/main/rfcs/0011-judgment-currency-anchor.md)
 then states that membership does **not** determine continued reliance: that second question
-is a **transition rule** belonging to the relying party. Its Unresolved #10 asks where such
-a rule is sourced and audited; #11 asks what a **cited registry head** — an artifact
-recording the registry state it validated against — would be good for, and answers narrowly:
-one possible input, with no ordering.
+is a **transition rule**. Its Unresolved #10 asks where such a rule is sourced and audited
+and stays open here — this study takes no position on who owns the question. #11 asks what a
+**cited registry head** — an artifact recording the registry state it validated against —
+would be good for, and answers narrowly: one possible input, with no ordering. That is the
+question this study measures.
 
 **R1 (primary, retractable):** for every adjudicated endpoint cell, the observed
-`{currency, transition}` outcomes equal the registered expectations — where Layer CURRENCY
-is Study 016's frozen verifier reporting membership only, and Layer TRANSITION evaluates one
-of three registered rules (`stop-at-retirement`, `position-window`, `grandfather-on-cited-support`) over
-`(cited head, membership, rule)`. Divergence in either direction falsifies, including a
-refusal on a `registeredUndetected` cell.
+`{currency, transition}` outcomes **and every registered `expectedRuleEvidence` field**
+equal the registered expectations — where Layer CURRENCY is Study 016's frozen verifier
+reporting membership only, and Layer TRANSITION evaluates one of three registered rules
+(`stop-at-retirement`, `position-window`, `grandfather-on-cited-support`) over
+`(cited head, membership, rule)`. The adjudicated channels are exactly `currency`,
+`transition`, `transition:citedPosition` and `transition:retiredAtPosition`; a cell that
+reaches its registered outcome from the wrong position diverges on the structured channel
+and falsifies R1 just as an outcome divergence does. Divergence in either direction
+falsifies, including a refusal on a `registeredUndetected` cell.
 
 **R2 (descriptive):** the evidence map — which registered facts each rule needs, which it
 computes deterministically from retained artifacts, and which it cannot compute at all.

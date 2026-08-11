@@ -9,7 +9,9 @@ study is bound by it.
 
 [RFC 0011 §2a](https://github.com/Judgment-Pack/judgment-pack-spec/blob/main/rfcs/0011-judgment-currency-anchor.md)
 states that membership at a snapshot does not determine continued reliance: that second
-question is a **transition rule** and belongs to the relying party. This layer is a
+question is a **transition rule**. This study takes no position on who owns that question
+or where such a rule belongs — RFC 0011 Unresolved #10 is open, and nothing measured here
+closes it. This layer is a
 prototype of such a rule evaluator, deliberately separate from Study 016's frozen currency
 verifier — which is consumed unmodified and whose output stays exactly *membership at
 snapshot*. The transition layer consumes that verdict **as a fact**; it never recomputes
@@ -54,23 +56,55 @@ rule configuration, and Layer CURRENCY's verdict.
    `transition-unavailable`: the only ordering available offline is positional,
    `effectiveFrom` is carried and never compared in the pinned upstream, and nothing here
    holds a clock (RFC 0011 Unresolved #3).
-3. **`stop-at-retirement`** consumes Layer CURRENCY's verdict alone — `usable` if the
-   version is in the supported set at the auditor's snapshot, else
-   `not-usable-version-retired`. **It needs no citation**, and is therefore unaffected by
+3. **`stop-at-retirement`** consumes Layer CURRENCY's verdict alone: `usable` if the
+   version is in the supported set at the auditor's snapshot. Otherwise the fold decides
+   *which* refusal, because non-membership alone does not establish a departure —
+   `not-usable-never-supported` when this exact `(version, digest)` is in the supported set
+   at no position of the history, and `not-usable-not-in-supported-set` when it was there
+   and is not now. Without a foldable history the layer is `transition-unavailable` rather
+   than guessing between the two. **It needs no citation**, and is therefore unaffected by
    every citation finding in the matrix.
 4. **The citation**, for the remaining rules: present, well-formed, naming this series, and
    locating a head that is a position of the auditor's snapshot — else
    `transition-unavailable`. A head the auditor cannot locate is not evidence about the
    history it holds, and the layer says it cannot place the artifact rather than treating
    the citation as absent.
-5. **The fold.** The positions at which the committed `(version, digest)` entered and left
-   the supported set, computed with the pinned upstream's own add/retire/reinstate
-   semantics over the same payload shape — positions, where the upstream computes a set.
-6. **The rule.** `grandfather-on-cited-support`: `usable` if the cited position is one at which the version
-   was in the supported set, else `not-usable-cited-state-not-supported`. `position-window`:
-   `usable` if the version has not left the set; `not-usable-cited-state-not-supported` if
-   the cited position is at or after the leaving position; otherwise `usable` or
-   `not-usable-window-elapsed` according to how many positions have elapsed since.
+5. **The fold.** Membership of the committed `(version, digest)` is read from the pinned
+   upstream's own `fold_supported` over each **prefix** of the retained payloads, so the
+   add/retire/reinstate semantics are the upstream's by construction rather than by a
+   re-implementation that could drift (round-1 R1-2). Two questions are asked of it: is the
+   member supported at the **cited** prefix, and is it supported after **any** prefix. No
+   single "interval" is computed; a history may enter and leave repeatedly.
+6. **The rule.** If the member is not supported at the cited position, the refusal is
+   `not-usable-never-supported` when it is supported at no prefix at all, and otherwise
+   `not-usable-cited-state-not-supported` — this branch is taken *before* either remaining
+   rule is consulted, so both rules share it. If it **is** supported at the cited position,
+   `grandfather-on-cited-support` is `usable`. `position-window` then looks for the first
+   departure **strictly after** the cited position: if there is none the verdict is
+   `usable`; otherwise `elapsed = (number of retained positions) − (departure position)`,
+   and the verdict is `usable` when `elapsed ≤ windowPositions` — inclusive at the bound —
+   and `not-usable-window-elapsed` above it.
+
+### 3a. The structured evidence, defined exactly
+
+Both fields are published only on the branches that reach them, and are `null` everywhere
+else — including whenever Layer CURRENCY has already withheld an adjudicable verdict:
+
+- **`citedPosition`** — the 1-based index of the cited head within the auditor's retained
+  checkpoint digests. Non-null exactly when a citation was retained, well-formed, named
+  this series, and was located in this history; `null` for `stop-at-retirement`, which
+  reads no citation at all.
+- **`retiredAtPosition`** — the **first departure strictly after `citedPosition`**: the
+  lowest `p > citedPosition` at which the member is supported after `p−1` events and not
+  after `p`. It is **relative to the citation, not to the history as a whole**, and it is
+  `null` whenever the member is not supported at the cited position — including cases where
+  the member plainly departs elsewhere in the history. This is a deliberate choice and a
+  contestable one: `rule/transition.py` also carries `_left_position`, which computes the
+  *most recent* departure over the whole history, and the round-2 reviewer's holdout
+  registers that reading for `h05` and `h08`. The decide path does **not** use it. Which
+  reading a rule evaluator should publish is not settled by this study; see PREREG-REVIEW.md
+  §R2-H, which registers the resulting divergence in advance rather than resolving it by
+  editing either side.
 
 ## 4. Vocabulary (exhaustive)
 

@@ -14,13 +14,17 @@ conflating them is the error.
 The second is a **transition rule**, and it is not answered by membership alone. That became
 [RFC 0011 §2a](https://github.com/Judgment-Pack/judgment-pack-spec/blob/main/rfcs/0011-judgment-currency-anchor.md)
 (merged); its Unresolved #10 asks where such a rule is sourced and audited, and #11 asks what
-a cited head is worth. This study measures both.
+a cited head is worth. This study measures **#11 only**: what a cited head lets a stated rule
+compute, and where that evidence stops. It takes no position on where a transition rule
+should be sourced or audited, and #10 stays open.
 
 ## The result the matrix is built around
 
 One registry verdict — `not current at snapshot` — supports **four configured evaluations yielding three exact outcomes** over identical evidence, according to which rule the relying party holds:
 `stop-at-retirement` refuses; `position-window` permits or refuses depending on its parameter;
-`grandfather-on-cited-support` permits. A registry that answered usability would have to pick one of them. That is §2a's separation, measured rather than argued.
+`grandfather-on-cited-support` permits. The same evidence therefore does not determine a
+usability answer on its own — which is §2a's separation, measured rather than argued. What
+follows for a registry's design is not measured here and is not claimed.
 
 ## The boundaries, registered in advance
 

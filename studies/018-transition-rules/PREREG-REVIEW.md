@@ -137,7 +137,54 @@ supported, reportable as such and not as a defect discovered late. If it instead
 the two semantics coincide on these cells and the field is better pinned than the SPEC
 text alone establishes. Either way the outcome is reported separately and cannot move R1.
 
-## Round 3 — pending
+## Round 3
 
-Confirmation of the round-2 dispositions and of the holdout landing, including whether
-R2-H's handling of the `retiredAtPosition` disagreement is the right call.
+Verbatim: [`reviews/round-3/REVIEW.md`](reviews/round-3/REVIEW.md). Verdict: **not freezable**,
+six blockers. The reviewer confirmed R1-1/R1-2/R2-1, R1-11, R1-3, R1-8, R1-9, R1-12 and the
+R2-2 correction, and **rejected five dispositions** whose residuals were still live in bytes.
+
+On R2-H the reviewer ruled that the maintainer "was right not to rewrite either side merely
+to force agreement after seeing the holdout", and confirmed that **h05 and h08 were
+intentional, not authoring slips**. R2-H was, however, **incomplete**, which is blocker 6.
+
+### R2-H (amended) — a third divergence, also determined in advance
+
+h03 registers `not-usable:not-usable-cited-state-not-supported`, but its committed tuple
+carries a digest that is in the supported set at **no** position of the history, so the layer
+necessarily returns `not-usable-never-supported` — the very distinction round 2's R2-1
+disposition introduced. That is an **outcome** divergence, not merely an evidence-channel
+one, and unlike h05/h08 it was not visible from the evidence map alone.
+
+All three are now registered in advance, in `harness/MATRIX-HOLDOUT.json`'s envelope note,
+in `harness/MATRIX-HOLDOUT-EVIDENCE.json`, and here:
+
+| Cell | Registered by the reviewer | What this layer will report | Channel |
+| --- | --- | --- | --- |
+| h03 | `not-usable-cited-state-not-supported` | `not-usable-never-supported` | `transition` |
+| h05 | `retiredAtPosition: 8` | `null` | `transition:retiredAtPosition` |
+| h08 | `retiredAtPosition: 6` | `null` | `transition:retiredAtPosition` |
+
+The reviewer's expectations stay **verbatim** — h03's included — and the layer stays
+unchanged. Predicting a divergence is not the same as fitting to it: the prediction is
+falsifiable, it is recorded before the stratum has ever run, and if any of the three does not
+land as predicted then this reasoning about the layer was itself wrong, which is worth more
+than a stratum quietly edited into agreement.
+
+What this costs is stated plainly: three of ten holdout cells now carry an expected
+divergence, so the stratum's prospective content is the **seven** cells whose outcome is
+genuinely open, plus the correctness of these three predictions.
+
+### Round-3 blockers — disposition
+
+| # | Disposition |
+| --- | --- |
+| 1 | **Accepted.** `rule/SPEC.md` §3.3 promised the deleted `not-usable-version-retired` and §3.5–3.6 described a single-departure algorithm the layer abandoned; both rewritten to what the code does. New **§3a** defines `citedPosition` and `retiredAtPosition` exactly, including that the latter is citation-relative and `null` when the cited state is unsupported. `_left_position`'s docstring claimed `position-window` is measured from it — false, and corrected; it is retained, unwired, precisely because it computes the reviewer's alternative reading. The `div-run-to-expiry` example named a cell that does not exist. |
+| 2 | **Accepted.** "Belongs to the relying party" is gone from `PREREGISTRATION.md`, `rule/SPEC.md` and `rule/transition.py`; the README no longer claims to measure Unresolved #10 (it measures #11) and no longer concludes what a registry "would have to" do. `transition.py`'s "configuration rather than code paths" is withdrawn in the module itself, matching the SPEC. Historical review files untouched. |
+| 3 | **Accepted.** R1 now names all four adjudicated channels including `transition:citedPosition` and `transition:retiredAtPosition`. The renderer published Study 017's witness triple — every row read `compared=None, attributed=None, unattributed=None` — and now publishes observed and registered values of this study's two fields with a divergence marker; the "Registered pairs" section, which this study never populates, is replaced by the identity groups it actually verifies. A regression asserts the rendered output. Two further 017 residues found while fixing it: a `sys.path` insert for a `witness/` directory that does not exist, and a scorer docstring claiming a collusion pair is structurally validated. Both removed. |
+| 4 | **Accepted.** The locked builder derived its authority from a hard-coded literal; it now reads the registered label, and a test asserts the literal is absent. Pin enforcement derived *a* key from any non-empty label without ever comparing it to anything, so the pin described the fixtures rather than binding them; it now requires the derived public key to equal the `authorityPublicKey` in **every** retained trust configuration, under a mutation test. `checkpoint.py` is no longer called "BUILD PATH ONLY": the scorer loads it on both paths, and the note says so. |
+| 5 | **Accepted, and this one was a real hole.** `_gated` wrapped only the `HOLDOUT_HOOKS` mapping, so `build_fixtures._holdout_h01(None)` would have constructed genuine registry bytes before the freeze — the gate was on the door, not on the room. `_require_context` now runs inside every raw constructor and inside both innermost primitives (`_authority`, `_holdout_cell`) before any key or payload exists. Direct-bypass tests cover all twelve routes, and a signature audit requires every holdout callable to take `context` first. |
+| 6 | **Accepted.** See the amended R2-H above. |
+
+## Round 4 — pending
+
+Confirmation of the round-3 dispositions over stable bytes.

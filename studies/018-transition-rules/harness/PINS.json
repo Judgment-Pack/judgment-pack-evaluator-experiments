@@ -5,7 +5,7 @@
   "registeredLabelRule": "harness/score.py labels an attempt REGISTERED only when EVERY freeze pin is non-null - preregistration, matrix, matrixHoldout, matrixHoldoutEvidence, ruleSpec, studyManifest. Any null makes it a PILOT, and --include-holdout refuses while any is null.",
   "study016": {
     "path": "../016-policy-currency-anchor",
-    "note": "Study 016's frozen registry modules as a pinned unmodified upstream (decision D-2). registry/verify_currency.py IS Layer CURRENCY, unchanged - its output stays exactly membership-at-snapshot, and this study's transition layer consumes that verdict as a fact rather than recomputing it. registry/checkpoint.py is BUILD PATH ONLY.",
+    "note": "Study 016's frozen registry modules as a pinned unmodified upstream (decision D-2). registry/verify_currency.py IS Layer CURRENCY, unchanged - its output stays exactly membership-at-snapshot, and this study's transition layer consumes that verdict as a fact rather than recomputing it. registry/checkpoint.py is loaded on BOTH paths: the builder writes fixtures with it, and the scorer loads it to recompute the registered authority pin and to construct the holdout inside the attempt. The earlier BUILD PATH ONLY claim was false and is withdrawn (round-1 R1-13); it is pinned and verified identically on either path.",
     "files": {
       "registry/verify_currency.py": "ac9638020e0e396a68e238d3b2c107719e45ef8358fe30f038de9bbe48f73255",
       "registry/checkpoint.py": "3a3614fbff7923aef2941c530e71f2b33bf9e6ce889c6511a75c8929e39ee233"

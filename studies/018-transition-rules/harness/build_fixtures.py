@@ -48,6 +48,7 @@ T3 = "2026-02-01T00:00:00Z"
 CELL_FILES = ("commitment.json", "snapshot.json", "trustconfig.json",
               "citation.json", "ruleconfig.json")
 MANIFEST_NAME = "MANIFEST.sha256"
+PINS_PATH = STUDY / "harness" / "PINS.json"
 
 
 class BuildError(RuntimeError):
@@ -74,11 +75,22 @@ def event(kind, version, digest=None, effective=T1, series=SERIES_ID):
     return entry
 
 
+def registered_authority_label():
+    """The authority seed label as registered in harness/PINS.json."""
+    pins = json.loads(Path(PINS_PATH).read_text(encoding="utf-8"))
+    label = (pins.get("registryAuthority") or {}).get("authoritySeedLabel")
+    if not isinstance(label, str) or not label:
+        raise BuildError("registryAuthority.authoritySeedLabel is not registered")
+    return label
+
+
 def build_payloads():
     """Every registered cell's payload, keyed by cell id."""
     ns = upstream016.load(build=True)
     registry = ns.checkpoint
-    authority = registry.private_key("study-018/currency-authority/1")
+    # Round-1 R1-13: derived from the registered label, never hard-coded, so
+    # the pin binds the fixtures instead of merely describing them.
+    authority = registry.private_key(registered_authority_label())
 
     history = registry.build_registry(authority, [
         event("add", "1.0.0", DIGEST_A, T1),
@@ -257,8 +269,6 @@ if __name__ == "__main__":
 
 import dataclasses  # noqa: E402
 
-PINS_PATH = STUDY / "harness" / "PINS.json"
-
 NEVER_BOUND_DIGEST = "sha256:" + hashlib.sha256(
     b"018/round-2-holdout-never-bound").hexdigest()
 BASE64_ALPHABET = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -309,7 +319,15 @@ def _require_context(context):
         raise HoldoutRefused("; ".join(problems))
 
 
-def _authority():
+def _authority(context):
+    """Innermost holdout primitive: no key is derived without a valid context.
+
+    Round-3 blocker 5: `_gated` wrapped only the HOLDOUT_HOOKS mapping, so an
+    importer could call `_holdout_h01(None)` and construct real registry bytes
+    before the freeze. Validation now sits below every route, before any key or
+    payload exists, and the wrapper is defence in depth rather than the gate.
+    """
+    _require_context(context)
     ns = upstream016.load(build=True)
     registry = ns.checkpoint
     pins = json.loads(Path(PINS_PATH).read_text(encoding="utf-8"))
@@ -317,9 +335,10 @@ def _authority():
     return registry, registry.private_key(label)
 
 
-def _holdout_cell(registry, authority, events, *, commitment, rule,
+def _holdout_cell(context, registry, authority, events, *, commitment, rule,
                   cited=None, window=None, duration=None,
                   citation_series=SERIES_ID, rule_series=SERIES_ID):
+    _require_context(context)
     history = registry.build_registry(authority, events)
     heads = [record["checkpointDigest"] for record in history]
     payload = {
@@ -356,14 +375,16 @@ def _h04_events():
 
 
 def _holdout_h01(context):
-    registry, authority = _authority()
-    payload, _ = _holdout_cell(registry, authority, _h01_events(),
+    _require_context(context)
+    registry, authority = _authority(context)
+    payload, _ = _holdout_cell(context, registry, authority, _h01_events(),
                                commitment=commitment_bytes("4.0.0", DIGEST_A),
                                rule="stop-at-retirement")
     return payload
 
 
 def _holdout_h02(context):
+    _require_context(context)
     payload = _holdout_h01(context)
     snapshot = json.loads(payload["snapshot.json"].decode("utf-8"))
     signature = snapshot["attestation"]["signature"]
@@ -376,7 +397,8 @@ def _holdout_h02(context):
 
 
 def _holdout_h03(context):
-    registry, authority = _authority()
+    _require_context(context)
+    registry, authority = _authority(context)
     payload, _ = _holdout_cell(
         registry, authority, _h01_events(),
         commitment=commitment_bytes("4.0.0", NEVER_BOUND_DIGEST),
@@ -385,55 +407,62 @@ def _holdout_h03(context):
 
 
 def _holdout_h04(context, cited=6, rule="grandfather-on-cited-support", window=None):
-    registry, authority = _authority()
-    payload, _ = _holdout_cell(registry, authority, _h04_events(),
+    _require_context(context)
+    registry, authority = _authority(context)
+    payload, _ = _holdout_cell(context, registry, authority, _h04_events(),
                                commitment=commitment_bytes("7.0.0", DIGEST_A),
                                rule=rule, cited=cited, window=window)
     return payload
 
 
 def _holdout_h05(context):
+    _require_context(context)
     return _holdout_h04(context, cited=5)
 
 
 def _holdout_h06(context):
+    _require_context(context)
     return _holdout_h04(context, cited=6, rule="position-window", window=3)
 
 
 def _holdout_h07(context):
+    _require_context(context)
     return _holdout_h04(context, cited=6, rule="position-window", window=2)
 
 
 def _holdout_h08(context):
-    registry, authority = _authority()
+    _require_context(context)
+    registry, authority = _authority(context)
     events = [event("add", "20.0.0", DIGEST_B),
               event("add", "7.0.0", DIGEST_A, series=OTHER_SERIES_ID),
               event("retire", "7.0.0", series=OTHER_SERIES_ID),
               event("add", "7.0.0", DIGEST_A),
               event("reinstate", "7.0.0", series=OTHER_SERIES_ID),
               event("retire", "7.0.0")]
-    payload, _ = _holdout_cell(registry, authority, events,
+    payload, _ = _holdout_cell(context, registry, authority, events,
                                commitment=commitment_bytes("7.0.0", DIGEST_A),
                                rule="grandfather-on-cited-support", cited=2)
     return payload
 
 
 def _holdout_h09(context):
-    registry, authority = _authority()
+    _require_context(context)
+    registry, authority = _authority(context)
     events = [event("add", "7.0.0", DIGEST_A, series=OTHER_SERIES_ID),
               event("retire", "7.0.0", series=OTHER_SERIES_ID),
               event("reinstate", "7.0.0", series=OTHER_SERIES_ID)]
-    payload, _ = _holdout_cell(registry, authority, events,
+    payload, _ = _holdout_cell(context, registry, authority, events,
                                commitment=commitment_bytes("7.0.0", DIGEST_A),
                                rule="stop-at-retirement")
     return payload
 
 
 def _holdout_h10(context):
-    registry, authority = _authority()
+    _require_context(context)
+    registry, authority = _authority(context)
     events = [event("add", "20.0.0", DIGEST_B), event("add", "7.0.0", DIGEST_A),
               event("add", "7.0.0", DIGEST_A, series=OTHER_SERIES_ID)]
-    payload, _ = _holdout_cell(registry, authority, events,
+    payload, _ = _holdout_cell(context, registry, authority, events,
                                commitment=commitment_bytes("7.0.0", DIGEST_A),
                                rule="grandfather-on-cited-support", cited=3,
                                citation_series=OTHER_SERIES_ID)

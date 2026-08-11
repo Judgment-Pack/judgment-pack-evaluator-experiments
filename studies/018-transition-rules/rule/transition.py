@@ -1,8 +1,9 @@
 """Layer TRANSITION — a relying party's rule over cited registry state.
 
 RFC 0011 §2a states that membership at a snapshot does not determine continued
-reliance: that second question is a **transition rule** and belongs to the
-relying party, not to the registry and not to the currency verifier. This
+reliance: that second question is a **transition rule**. Who owns it and where
+it belongs is RFC 0011 Unresolved #10, which is open and which nothing measured
+here closes. This
 module is the study's prototype of such a rule evaluator, kept deliberately
 separate from Study 016's frozen currency verifier — which is consumed
 unmodified and whose output remains exactly "membership at snapshot".
@@ -16,8 +17,10 @@ created — a party able to re-mint can cite an older head deliberately, and
 this study registers that as an expected non-detection rather than repairing
 it.
 
-Three rules are registered, as configuration rather than code paths so that no
-rule is privileged by construction:
+Three rules are registered. Rule **selection** is configuration; the vocabulary
+and each rule's semantics are hard-coded branches below, so a fourth rule is a
+registered patch, not a configuration change (round-1 R1-7 — the earlier claim
+to the contrary is withdrawn):
 
 - `stop-at-retirement` — no reliance once the version has left the supported
   set at the auditor's snapshot. Needs no citation at all.
@@ -138,13 +141,23 @@ def _supported_at(payloads, series_id, member, position, fold):
 
 
 def _left_position(payloads, series_id, member, fold):
-    """The last position at which `member` left the supported set, or None.
+    """The most recent position at which `member` left the supported set, or None.
 
-    Defined over the same upstream fold: the highest p such that the member
-    was supported after p-1 events and is not after p. Multi-cycle histories
-    therefore report the most recent departure, and the window in
-    `position-window` is measured from it — stated in the SPEC rather than
-    left to a reader.
+    Defined over the same upstream fold: the highest p such that the member was
+    supported after p-1 events and is not after p.
+
+    NOT USED BY `layer_transition`, and the earlier claim here that
+    `position-window` is measured from it was false — the decide path measures
+    from `_departure_after`, the first departure strictly after the cited
+    position, so that a citation is evaluated against what happened after it
+    rather than against the whole history (SPEC §3a).
+
+    It is retained deliberately, because it computes exactly the alternative
+    reading of `retiredAtPosition` that the round-2 reviewer's holdout registers
+    for `h05` and `h08`. Wiring it into the decide path would make those cells
+    agree, and that is precisely why it is not wired in: fitting the layer to
+    unexecuted holdout answers would destroy the stratum's prospective content
+    (PREREG-REVIEW.md §R2-H).
     """
     left = None
     previous = False

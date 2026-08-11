@@ -16,10 +16,9 @@ terminal record (`SystemExit`/`KeyboardInterrupt` recorded, then re-raised);
 `--include-holdout` refuses while the preregistration or holdout freeze pin
 is null, refuses an empty registered stratum, and refuses registered cells
 without construction machinery (the machinery lands with the reviewer's
-cells before the freeze). The collusion pair is validated STRUCTURALLY from
-the two cells' retained bytes — the same pinned witness key attesting
-different heads at the same position, each signature verified — never
-asserted by hand.
+cells before the freeze). This study registers no pairs: its byte-identity
+exhibit is carried by registered `identityGroups`, and the scorer verifies
+every cell file across each group rather than asserting the identity in prose.
 """
 
 import argparse
@@ -91,7 +90,6 @@ def _own_sources():
 _BOOTSTRAP_PROBLEMS = _cache_problems_for(_own_sources())
 
 sys.path.insert(0, str(STUDY / "harness"))
-sys.path.insert(0, str(STUDY / "witness"))
 
 import rfc8785  # noqa: E402
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey  # noqa: E402
@@ -305,7 +303,23 @@ def pin_problems(pins):
         if not isinstance(label, str) or not label:
             problems.append("registryAuthority.authoritySeedLabel is not registered")
         else:
-            registry.private_key(label)
+            # Round-1 R1-13, round-3 blocker 4: deriving *a* key from the label
+            # proves nothing about the fixtures being scored. The derived public
+            # key must be the one every retained trust configuration pins, or the
+            # registered authority does not describe this matrix.
+            expected = registry.public_key_b64(registry.private_key(label))
+            matrix = json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
+            for cell in matrix["cells"]:
+                path = build_fixtures.cell_directory(
+                    STUDY / "fixtures", cell["id"]) / "trustconfig.json"
+                if not path.is_file():
+                    problems.append("%s retains no trust configuration" % cell["id"])
+                    continue
+                retained = json.loads(path.read_text(encoding="utf-8"))
+                if retained.get("authorityPublicKey") != expected:
+                    problems.append(
+                        "%s pins an authority the registered seed label does not "
+                        "derive" % cell["id"])
     except Exception as error:
         problems.append("registryAuthority pins could not be recomputed: %s" % error)
     if transition.RULES != ("stop-at-retirement", "position-window", "grandfather-on-cited-support"):
@@ -385,6 +399,7 @@ def adjudicate(matrix):
             "combined": outcome["combined"],
             "divergentLayers": divergent, "divergent": bool(divergent),
             "registeredUndetected": bool(cell.get("registeredUndetected")),
+            "expectedRuleEvidence": cell.get("expectedRuleEvidence") or {},
             "ruleEvidence": {
                 "citedPosition": outcome["transition"].get("citedPosition"),
                 "retiredAtPosition": outcome["transition"].get("retiredAtPosition"),
@@ -611,29 +626,39 @@ def detection_matrix_markdown(label, matrix, cells, pairs, verdict, causes):
             lines.append("| %s | %s | — | — | NOT-ADJUDICATED: %s | — |"
                          % (cid, record["role"], "; ".join(record["problems"])))
             continue
-        evidence = record.get("ruleEvidence") or {}
+        observed_evidence = record.get("ruleEvidence") or {}
+        expected_evidence = record.get("expectedRuleEvidence") or {}
         for layer in LAYERS:
             expected = record["expected"][layer]
             observed = record["observed"][layer]
             marker = " ≠" if expected != observed else ""
-            shown = "—" if layer != "transition" else (
-                "compared=%s, attributed=%s, unattributed=%s"
-                % (evidence.get("comparisonPerformed"),
-                   evidence.get("validSightings"),
-                   evidence.get("unattributedSightings")))
+            shown = "—" if layer != "transition" else ", ".join(
+                "%s: %s%s" % (
+                    field,
+                    observed_evidence.get(field),
+                    "" if field not in expected_evidence
+                    else " (registered %s%s)" % (
+                        expected_evidence[field],
+                        " ≠" if expected_evidence[field] != observed_evidence.get(field) else ""),
+                )
+                for field in EVIDENCE_FIELDS)
             lines.append("| %s | %s | %s | `%s` | `%s`%s | %s |"
                          % (cid, record["role"], layer, expected, observed, marker, shown))
-    lines += ["", "## Registered pairs", ""]
-    for name, report in sorted(pairs.items()):
-        structure = report["equivocationStructure"]
+    lines += ["", "## Registered identity groups", ""]
+    for group in matrix.get("identityGroups", ()) or []:
+        outcomes = {cid: cells[cid].get("observed") for cid in group}
         lines.append(
-            "- **%s** (%s): witness equivocation structurally validated from "
-            "bytes: %s%s. %s"
-            % (name, ", ".join(report["members"]), structure.get("validated"),
-               "" if structure.get("validated")
-               else " (%s)" % structure.get("problem", structure.get("checks")),
-               report["note"])
-        )
+            "- **%s** — byte-identical cells: %s"
+            % (", ".join(group),
+               "same observed outcomes" if len(
+                   {json.dumps(o, sort_keys=True) for o in outcomes.values()}) == 1
+               else "DIVERGENT observed outcomes: %s" % json.dumps(outcomes, sort_keys=True)))
+    if not matrix.get("identityGroups"):
+        lines.append("- none registered")
+    if pairs:
+        lines += ["", "## Registered pairs", ""]
+        lines += ["- **%s**: %s" % (name, json.dumps(report, sort_keys=True))
+                  for name, report in sorted(pairs.items())]
     lines += ["", "## Verdict", "", "**%s**" % verdict]
     if causes:
         lines += ["", "Cells: " + ", ".join(causes)]

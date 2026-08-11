@@ -54,6 +54,40 @@ def test_no_bytecode_caches_shadow_pinned_source():
     assert score.bytecode_cache_problems() == []
 
 
+def test_registered_authority_binds_the_retained_fixtures():
+    """Round-1 R1-13, round-3 blocker 4: the pin must bind the fixtures.
+
+    Deriving *a* key from the registered label proves nothing — the derived
+    public key has to be the one every retained trust configuration pins, and
+    the locked builder has to read the label rather than hard-code it. Both are
+    checked under mutation of the label.
+    """
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    assert score.dependency_problems(pins) == []
+    assert build_fixtures.registered_authority_label() == \
+        pins["registryAuthority"]["authoritySeedLabel"]
+
+    registry = upstream016.load(build=True).checkpoint
+    expected = registry.public_key_b64(
+        registry.private_key(pins["registryAuthority"]["authoritySeedLabel"]))
+    matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
+    for cell in matrix["cells"]:
+        retained = json.loads((build_fixtures.cell_directory(
+            STUDY / "fixtures", cell["id"]) / "trustconfig.json").read_text(encoding="utf-8"))
+        assert retained["authorityPublicKey"] == expected, cell["id"]
+
+    # a label that derives a different key must be caught, not silently accepted
+    mutated = json.loads(json.dumps(pins))
+    mutated["registryAuthority"]["authoritySeedLabel"] = "study-018/not-the-registered-label"
+    problems = score.pin_problems(mutated)
+    assert any("does not derive" in problem for problem in problems), problems
+
+    # and the builder must follow the label rather than ignore it
+    assert '"study-018/currency-authority/1"' not in (
+        STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8"), (
+        "the locked builder hard-codes the authority seed label")
+
+
 def test_registered_dependencies_are_enforced():
     pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
     assert score.dependency_problems(pins) == []
@@ -115,6 +149,33 @@ def test_scorer_is_deterministic_and_control_gates_hold(tmp_path):
             if record["role"] == "control-gate":
                 assert record["adjudicated"] and not record["divergent"], cid
     assert outputs[0] == outputs[1]
+
+
+def test_rendered_matrix_publishes_this_studys_evidence(tmp_path):
+    """Round-3 blocker 3: the renderer published Study 017's witness triple, so
+    every transition row read `compared=None, attributed=None, unattributed=None`
+    while the study's own two fields went unrendered."""
+    completed = subprocess.run(
+        [sys.executable, str(STUDY / "harness" / "score.py"),
+         "--attempt-root", str(tmp_path / "render")],
+        capture_output=True, text=True,
+    )
+    assert completed.returncode == 0, completed.stderr
+    rendered = (tmp_path / "render" / "DETECTION-MATRIX.md").read_text(encoding="utf-8")
+    for stale in ("compared=", "attributed=", "unattributed=", "witness"):
+        assert stale not in rendered, stale
+    assert "citedPosition" in rendered and "retiredAtPosition" in rendered
+    assert "## Registered identity groups" in rendered
+
+    # a cell with a registered evidence value renders it as registered, and the
+    # marker appears only where observed and registered actually differ
+    matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
+    registered = [c for c in matrix["cells"] if c.get("expectedRuleEvidence")]
+    assert registered, "no cell registers structured evidence"
+    assert "(registered " in rendered
+    results = json.loads((tmp_path / "render" / "RESULTS.json").read_text(encoding="utf-8"))
+    if not any(record["divergent"] for record in results["cells"].values()):
+        assert " ≠" not in rendered
 
 
 def test_scorer_refuses_existing_attempt_root(tmp_path):
@@ -298,6 +359,31 @@ def test_holdout_machinery_lands_with_the_reviewer_cells():
         assert "expectedRuleEvidence" not in cell, (
             "structured expectations belong in MATRIX-HOLDOUT-EVIDENCE.json so the "
             "reviewer's block stays byte-for-byte as authored")
+
+
+def test_no_holdout_route_constructs_bytes_without_a_context():
+    """Round-3 blocker 5: the gate must sit below every route, not only on the
+    HOLDOUT_HOOKS mapping. `_gated` wrapped the mapping, so an importer could
+    call `_holdout_h01(None)` directly and build real registry bytes before the
+    freeze. Every raw constructor and both innermost primitives are checked."""
+    routes = ["_holdout_h%02d" % n for n in range(1, 11)]
+    for name in routes:
+        with pytest.raises(build_fixtures.HoldoutRefused):
+            getattr(build_fixtures, name)(None)
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures._authority(None)
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures._holdout_cell(None, None, None, [], commitment=b"{}",
+                                     rule="stop-at-retirement")
+
+    # and no module-level route escapes the audit: every callable whose name
+    # marks it as holdout machinery must take a context as its first argument
+    import inspect
+    for name, value in vars(build_fixtures).items():
+        if name.startswith(("_holdout", "construct_holdout")) and callable(value):
+            first = list(inspect.signature(value).parameters)[:1]
+            assert first and first[0] == "context", (
+                "%s does not take a context as its first parameter" % name)
 
 
 def test_holdout_construction_is_gated_on_every_freeze_pin(tmp_path, monkeypatch):

@@ -7,7 +7,7 @@ verdict **as a fact** and answers a different question — usability under a
 stated rule. The separation is the point (RFC 0011 §2a), and the study fails if
 the two ever merge.
 
-Run: python harness/run_verify.py --cell fixtures/cells/div-run-to-expiry
+Run: python harness/run_verify.py --cell fixtures/cells/div-grandfather-on-cited-support
 """
 
 import argparse
