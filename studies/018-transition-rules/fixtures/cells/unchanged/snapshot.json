@@ -1,0 +1,44 @@
+{
+  "snapshotVersion": "1",
+  "checkpoints": [
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 1,
+        "seriesId": "https://example.com/judgment-packs/transition-policy",
+        "event": "add",
+        "packVersion": "1.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": null,
+        "packDigest": "sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74"
+      },
+      "checkpointDigest": "sha256:62dbf71a8943bc89c652d3b66eca99d87934725f7c4e7ba1404cbb4f50c91872",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "thrPoQIOwhpnYmwHus2ioBuLfHa5bzL79ynBN0XIKjTqQyrNpfvds8g3r5V0oIYPUaCyBwmXW1Zo5g5XU4EADQ=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 2,
+        "seriesId": "https://example.com/judgment-packs/transition-policy",
+        "event": "add",
+        "packVersion": "2.0.0",
+        "effectiveFrom": "2026-01-15T00:00:00Z",
+        "previousCheckpointDigest": "sha256:62dbf71a8943bc89c652d3b66eca99d87934725f7c4e7ba1404cbb4f50c91872",
+        "packDigest": "sha256:6952aaf36ab87fd37ab7c96a9f42cc7cbb60828eafbb1561adc6619982af134f"
+      },
+      "checkpointDigest": "sha256:e8dbfc2706e75735cdda937b3518428f19def9592d7ae62e120b45d077841e49",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "F5/nJ4gQ3pkqgFgwLyraXUwXAG1uClFClYz7wFJazxf/PWQAWDczv2r5RY25F9Lnr3lMXKTJLhuwweGj8icHAQ=="
+    }
+  ],
+  "attestation": {
+    "payload": {
+      "snapshotVersion": "1",
+      "head": "sha256:e8dbfc2706e75735cdda937b3518428f19def9592d7ae62e120b45d077841e49",
+      "position": 2
+    },
+    "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+    "signature": "PSCYLIVdZV88dxroo+RaJ/noYlm8QEb+rz37Nz8+pPiJmwbddGgEIAJK+oKl9NvoE29euJ5QBYANe4IFdSnkBQ=="
+  }
+}

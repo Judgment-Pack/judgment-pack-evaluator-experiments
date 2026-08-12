@@ -1,0 +1,45 @@
+{
+  "note": "Structured-evidence expectations for the reviewer-authored holdout cells, kept SEPARATE from harness/MATRIX-HOLDOUT.json so that block stays byte-for-byte as the reviewer authored it (017 round-3 R3-1). Each value is read off that cell's own construction and note text and is adjudicated as its own divergence channel (transition:<field>), so a regression that reached the registered outcome by different evidence still diverges. THREE divergences are registered in advance and are statically determined, not discoveries awaiting the run (round-3 blocker 6): h05 and h08 register a retiredAtPosition this layer does not compute (the most recent departure in the whole history, where the layer publishes only a departure after a SUPPORTED cited position), and h03 registers not-usable-cited-state-not-supported where the layer necessarily returns not-usable-never-supported, because h03's tuple carries a digest that is in the supported set at no position at all. Neither side was edited to agree - see PREREG-REVIEW.md R2-H.",
+  "cells": {
+    "h01": {
+      "citedPosition": null,
+      "retiredAtPosition": null
+    },
+    "h02": {
+      "citedPosition": null,
+      "retiredAtPosition": null
+    },
+    "h03": {
+      "citedPosition": 4,
+      "retiredAtPosition": null
+    },
+    "h04": {
+      "citedPosition": 6,
+      "retiredAtPosition": 8
+    },
+    "h05": {
+      "citedPosition": 5,
+      "retiredAtPosition": 8
+    },
+    "h06": {
+      "citedPosition": 6,
+      "retiredAtPosition": 8
+    },
+    "h07": {
+      "citedPosition": 6,
+      "retiredAtPosition": 8
+    },
+    "h08": {
+      "citedPosition": 2,
+      "retiredAtPosition": 6
+    },
+    "h09": {
+      "citedPosition": null,
+      "retiredAtPosition": null
+    },
+    "h10": {
+      "citedPosition": null,
+      "retiredAtPosition": null
+    }
+  }
+}
