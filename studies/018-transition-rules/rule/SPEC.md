@@ -67,7 +67,8 @@ actually takes, and each gate refuses before the next input is read:
    perfectly good citation.
 3. **`stop-at-retirement`** needs **no citation**, and is therefore unaffected by every
    citation finding in the matrix. It is *not*, however, decided by the currency verdict
-   alone: `usable` if the version is in the supported set at the auditor's snapshot, and
+   alone: `usable` if this exact `(version, digest)` binding is in the supported set at the
+   auditor's snapshot — a known version at the wrong digest is not — and
    otherwise the retained history is folded to choose *which* refusal, because non-membership
    alone does not establish a departure — `not-usable-never-supported` when this exact
    `(version, digest)` is in the supported set at no position of the history, and

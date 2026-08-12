@@ -101,7 +101,10 @@ def test_authority_check_reads_each_fixture_not_just_the_first(tmp_path, monkeyp
     matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
     pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
 
-    for victim in ("bnd-duration-window", matrix["cells"][-1]["id"]):
+    # Round-6 finding 4: two victims left a scorer free to read those two and
+    # reuse the first fixture for the other twenty. Every cell is corrupted in
+    # turn, so any cell the scorer does not actually read shows up here.
+    for victim in [cell["id"] for cell in matrix["cells"]]:
         path = build_fixtures.cell_directory(tmp_path / "fixtures", victim) / "trustconfig.json"
         original = path.read_text(encoding="utf-8")
         trust = json.loads(original)
@@ -145,11 +148,16 @@ def test_locked_builder_follows_a_mutated_authority_label(tmp_path, monkeypatch)
         # builder that kept signing histories with a hard-coded authority while
         # advertising the label-derived one — producing fixtures that cannot
         # verify. The snapshot must actually be signed by the label's key.
-        if cid == "neg-currency-unauthenticated":
-            continue                       # deliberately corrupted signature
         outcome = ns.verify_currency.layer_currency(
             json.loads(payload["commitment.json"].decode("utf-8")),
             payload["snapshot.json"], payload["trustconfig.json"])
+        if cid == "neg-currency-unauthenticated":
+            # Round-6 finding 4: skipping this cell contradicted the "every
+            # rebuilt cell" claim. It cannot demonstrate signer-follows-label,
+            # because its signature is deliberately corrupted — so it is asserted
+            # to be exactly that corruption and nothing else.
+            assert outcome["code"] == "snapshot-signature-invalid", (cid, outcome["code"])
+            continue
         assert outcome["verdict"] in ("pass", "fail"), (cid, outcome)
         assert outcome["code"] in (None, "not-current-at-snapshot"), (cid, outcome["code"])
 
@@ -260,15 +268,21 @@ def test_rendered_matrix_publishes_this_studys_evidence(tmp_path):
             # each field is checked in its own rendered clause, so registered
             # values cannot be swapped between fields and still pass
             expected_evidence = record.get("expectedRuleEvidence") or {}
-            clauses = dict(zip(score.EVIDENCE_FIELDS, parts[5].split(", ")))
-            assert set(clauses) == set(score.EVIDENCE_FIELDS), parts[5]
+            # Round-6 finding 3: `dict(zip(...))` silently dropped any extra
+            # clause, and `startswith` let "citedPosition: 20" satisfy a
+            # registered 2. The clause list is length-checked and each clause is
+            # compared for exact equality against the value RESULTS.json carries.
+            rendered_clauses = parts[5].split(", ")
+            assert len(rendered_clauses) == len(score.EVIDENCE_FIELDS), parts[5]
+            clauses = dict(zip(score.EVIDENCE_FIELDS, rendered_clauses))
             for field, value in (record.get("ruleEvidence") or {}).items():
-                clause = clauses[field]
-                assert clause.startswith("%s: %s" % (field, value)), (cid, field, clause)
                 if field in expected_evidence:
-                    assert "(registered %s" % expected_evidence[field] in clause, (cid, field)
+                    marker = " ≠" if expected_evidence[field] != value else ""
+                    wanted = "%s: %s (registered %s%s)" % (
+                        field, value, expected_evidence[field], marker)
                 else:
-                    assert "registered" not in clause, (cid, field)
+                    wanted = "%s: %s" % (field, value)
+                assert clauses[field] == wanted, (cid, field, clauses[field], wanted)
             # a concordant row carries no structured mismatch marker either
             if not record["divergent"]:
                 assert "≠" not in parts[5], (cid, parts[5])
@@ -291,13 +305,21 @@ def test_rendered_matrix_publishes_this_studys_evidence(tmp_path):
             "PILOT", matrix, fabricated, {}, "R1 falsified (PILOT)", [victim])
         return [l for l in forged.splitlines() if l.startswith("| " + victim + " |")]
 
+    # Round-6 finding 3: both fabrications left `divergent`/`divergentLayers` at
+    # their concordant values, so a renderer leaking a marker across columns
+    # *conditional on the real divergence state* passed. Each fabrication now
+    # carries the divergence state a genuine record of that kind would carry.
     def outcome_only(record):
         record["observed"]["transition"] = "usable"
+        record["divergent"] = True
+        record["divergentLayers"] = ["transition"]
 
     def evidence_only(record):
         record["ruleEvidence"]["retiredAtPosition"] = 99
         record["expectedRuleEvidence"] = dict(record.get("expectedRuleEvidence") or {},
                                               retiredAtPosition=4)
+        record["divergent"] = True
+        record["divergentLayers"] = ["transition:retiredAtPosition"]
 
     outcome_rows = render(outcome_only)
     transition_row = [r for r in outcome_rows if "| transition |" in r][0]
@@ -447,11 +469,21 @@ def test_preregistration_counts_are_derived_from_the_matrix():
 
     words = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
              7: "seven", 8: "eight", 9: "nine", 10: "ten"}
-    # the registered rule count is a count too (round-5 finding 6: changing
-    # "three registered rules" passed while the test claimed to derive them all)
-    assert "one of three registered rules" in text and len(transition.RULES) == 3
+    # Round-5 finding 6 and round-6 finding 6: the docstring claims EVERY count,
+    # so every count stated anywhere in the document is derived here, not only
+    # the cell table's — both statements of the rule count, and the number of
+    # companion artifacts pinned alongside this document.
+    assert len(transition.RULES) == 3
+    assert "one of %s registered rules" % words[len(transition.RULES)] in text
+    assert "The %s rules are a **construct**" % words[len(transition.RULES)] in text
     for rule in transition.RULES:
         assert "`%s`" % rule in text, rule
+
+    companions = [relative for member, relative in score.PINNED_DIGEST_MEMBERS
+                  if member not in ("preregistration", "studyManifest")]
+    assert "%s companion artifacts are registered" % words[len(companions)].capitalize() in text
+    for relative in companions:
+        assert "(%s)" % relative in text, relative
 
     absences = count(lambda c: c.get("registeredAbsences"))
     assert "names the %s cells that deliberately retain no citation" % words[absences] in text
@@ -515,7 +547,7 @@ def test_holdout_machinery_lands_with_the_reviewer_cells():
             "reviewer's block stays byte-for-byte as authored")
 
 
-def test_holdout_refusal_precedes_any_key_or_payload(tmp_path, monkeypatch):
+def test_holdout_refusal_precedes_any_upstream_load_or_write(tmp_path, monkeypatch):
     """Round-4 blocker 6: refusing eventually is not the property.
 
     The bypass test asserts only that `HoldoutRefused` is raised in the end; a
@@ -523,6 +555,13 @@ def test_holdout_refusal_precedes_any_key_or_payload(tmp_path, monkeypatch):
     would satisfy it while having already done the work the gate exists to
     prevent. Here the upstream loader is replaced by a tripwire, so any route
     that touches it before validating fails loudly.
+
+    Scope, stated exactly (round-6 finding 5, which caught this test claiming
+    "any key or payload"): what is proved is that no route loads the pinned
+    upstream and no route writes a file before refusing. Pure in-memory work
+    with no upstream and no write — assembling a commitment blob, say — is NOT
+    detected here, and no registry byte can be produced that way, since every
+    key and history comes from the upstream this tripwire guards.
     """
     touched = []
 
@@ -542,6 +581,11 @@ def test_holdout_refusal_precedes_any_key_or_payload(tmp_path, monkeypatch):
     with pytest.raises(build_fixtures.HoldoutRefused):
         build_fixtures._holdout_cell(None, None, None, [], commitment=b"{}",
                                      rule="stop-at-retirement")
+    # round-6 finding 5: the gated WRAPPERS in HOLDOUT_HOOKS are the routes the
+    # scorer actually calls, and none of them was exercised here
+    for cell_id, hook in sorted(build_fixtures.HOLDOUT_HOOKS.items()):
+        with pytest.raises(build_fixtures.HoldoutRefused):
+            hook(None)
     assert not touched
     # and nothing was written anywhere under the working directory
     assert not [p for p in tmp_path.rglob("*") if p.is_file()]
@@ -601,7 +645,8 @@ def test_holdout_call_sites_bind_statically():
     checked = 0
     for node in ast.walk(tree):
         if not (isinstance(node, ast.FunctionDef)
-                and (node.name.startswith("_holdout") or node.name == "construct_holdout")):
+                and (node.name.startswith(("_holdout", "_gated"))
+                     or node.name in ("construct_holdout", "gated_hook", "_authority"))):
             continue
         for call in ast.walk(node):
             if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Name)):
@@ -624,14 +669,42 @@ def test_holdout_call_sites_bind_statically():
             # is now derived from the callee: anything whose first parameter is
             # `context` must receive the caller's `context` by name.
             takes_context = list(signature.parameters)[:1] == ["context"]
-            if takes_context and call.args:
-                first = call.args[0]
+            if takes_context:
+                # round-6 finding 5: the identity check only fired when a
+                # POSITIONAL argument existed, so `_holdout_h04(context=None,
+                # cited=5)` passed. The context may arrive either way.
+                keyword = [kw.value for kw in call.keywords if kw.arg == "context"]
+                supplied = (call.args[:1] or keyword)
+                assert supplied, "%s calls %s with no context at all" % (node.name, name)
+                first = supplied[0]
                 assert isinstance(first, ast.Name) and first.id == "context", (
                     "%s passes %r as the context of %s - every holdout route "
                     "must thread the caller's context"
                     % (node.name, ast.unparse(first), name))
             checked += 1
     assert checked >= 20, "the call-site audit found almost nothing to check"
+
+    # Dynamic dispatch is invisible to a callee-name audit — `hook(context)`
+    # inside `construct_holdout` names no function. Round-6 finding 5: a literal
+    # `None` there would pass everything above and stay hidden behind the gate
+    # until the attempt. Inside holdout scope, no call may pass a literal at all
+    # where a context belongs, so the constant is banned outright.
+    banned = 0
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.FunctionDef)
+                and (node.name.startswith(("_holdout", "_gated"))
+                     or node.name in ("construct_holdout", "gated_hook", "_authority"))):
+            continue
+        for call in ast.walk(node):
+            if not isinstance(call, ast.Call):
+                continue
+            for argument in list(call.args) + [kw.value for kw in call.keywords]:
+                assert not (isinstance(argument, ast.Constant) and argument.value is None), (
+                    "%s passes a literal None to %s; inside holdout scope a "
+                    "context must always be threaded by name"
+                    % (node.name, ast.unparse(call.func)))
+                banned += 1
+    assert banned, "the literal-None audit inspected nothing"
 
 
 def test_holdout_construction_is_gated_on_every_freeze_pin(tmp_path, monkeypatch):

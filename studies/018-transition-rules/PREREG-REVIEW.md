@@ -304,6 +304,38 @@ registration even when every observable value is right.
 | 5 | **Accepted, both halves.** "Every cell was flagged" was derived from ids appearing in error strings, which a scorer re-reading the first fixture while reporting the loop id would satisfy; a new test corrupts exactly one trust configuration in a copied tree and requires exactly that cell to be flagged. And checking only the emitted trust keys would pass a builder that advertised the label-derived authority while still **signing** with a hard-coded one — producing fixtures that cannot verify. The mutated-label rebuild now runs Layer CURRENCY over every rebuilt cell and requires a clean authority result. |
 | 6 | **Accepted.** The tripwire omitted `_holdout_cell` itself. The call-site audit enforced context identity for three named functions, so `_holdout_h05` calling `_holdout_h04(None, …)` bound cleanly and stayed hidden behind the gate until the attempt — the rule is now derived from the **callee**: anything whose first parameter is `context` must receive the caller's `context` by name. Verified against the reviewer's exact mutation. The count test's "every count" claim did not cover the registered rule count; it now derives that from `transition.RULES` and requires each rule name in the prose. |
 
-## Round 6 — pending
+## Round 6
 
-Confirmation of the round-5 dispositions.
+Verbatim: [`reviews/round-6/REVIEW.md`](reviews/round-6/REVIEW.md), at clean HEAD `94a4bef6`.
+Verdict: **not freezable**. Round-5 finding 3 confirmed closed; 1, 2, 4, 5 and 6 partial.
+All accepted.
+
+### The pattern the last four rounds have found
+
+Rounds 3, 4, 5 and 6 have each found that the previous round's dispositions were written as
+complete while residuals were live — and round 6 named the mechanism precisely: the
+dispositions **over-claim**. "Every rebuilt cell" skipped one. "Every holdout call site"
+skipped dynamic dispatch. "Every count" covered the cell table only. Each was written after
+fixing the specific thing the reviewer pointed at, and each generalised the fix in prose
+beyond what the code did.
+
+That is a failure mode worth naming in the record, because it is not carelessness about the
+fix — it is carelessness about the *claim*, and the claim is what gets pinned. The response
+this round was to make each claim true where that was possible, and to narrow it where it was
+not: the tripwire test is now called
+`test_holdout_refusal_precedes_any_upstream_load_or_write` and its docstring states exactly
+what it does not prove.
+
+### Round-6 findings — disposition
+
+| # | Disposition |
+| --- | --- |
+| 1 | **Accepted.** The repudiated "different path through the pinned fold" survived in the builder comment and the unit test's docstring after being corrected in the matrix and this record — the correction was applied where the reviewer pointed and nowhere else. Both now carry the accurate mechanism and explicitly deny the old one. The cell's scope is also stated fully rather than by its most interesting property: it pins unknown-tuple classification as never-supported, the registered `citedPosition: 2, retiredAtPosition: null`, **and** that TRANSITION's prefix predicate compares the binding rather than the digest. It does **not** catch a digest-only defect confined to Layer CURRENCY at the final snapshot, where `DIGEST_A` has departed. |
+| 2 | **Accepted.** The same "the version" shorthand the ceremony had shed for `stop-at-retirement` was still in the synopsis for `grandfather-on-cited-support`, and had been reintroduced into SPEC §3.3 by round 5's own rewrite. Both now say the exact `(version, digest)` binding, and both name the counterexample: a known version at the wrong digest. |
+| 4 | **Accepted.** Three separate weaknesses: `startswith` let `citedPosition: 20 (registered 20)` satisfy a registered `2`; `dict(zip(...))` silently discarded any third clause; and both marker fabrications left `divergent`/`divergentLayers` at concordant values, so a renderer leaking a marker *conditional on the real divergence state* passed. Clause lists are now length-checked and compared for exact equality, and each fabrication carries the divergence state a genuine record of its kind would carry. |
+| 5 | **Accepted.** The corruption test exercised two of 22 victims, leaving a scorer free to read those two and reuse the first fixture for the other twenty; it now corrupts **every** cell in turn. And the mutated-label rebuild skipped `neg-currency-unauthenticated` while the disposition claimed every rebuilt cell — it is now included, asserted to be exactly `snapshot-signature-invalid`, with the reason it cannot demonstrate signer-follows-label stated inline rather than by omission. |
+| 6 | **Accepted, and this one was a live hole.** The tripwire never called the gated wrappers in `HOLDOUT_HOOKS` — the routes the scorer actually uses. The call-site audit missed `_gated` entirely, fired its identity check only when a *positional* argument existed (so `_holdout_h04(context=None, cited=5)` passed), and could not see dynamic `hook(context)` dispatch at all, which names no callee. All three are closed: wrappers exercised, keyword contexts checked, and a literal `None` banned outright anywhere inside holdout scope. Verified against both of the reviewer's exact bypasses. The count test's "every count" claim now covers both statements of the rule count and the companion-artifact count, each mutation-checked. |
+
+## Round 7 — pending
+
+Confirmation of the round-6 dispositions.

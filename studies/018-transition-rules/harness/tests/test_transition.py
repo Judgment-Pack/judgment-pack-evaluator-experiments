@@ -160,10 +160,15 @@ def test_position_window_needs_exactly_one_window_form(world):
 
 
 def test_never_seen_version_is_never_usable(world):
-    """Round-4 blocker 1: an unknown VERSION is a different path through the
-    pinned fold than a known version at a wrong digest — absent from the
-    supported map rather than present with another digest. Neither may reach
-    `usable`, and neither may be reported as a departure."""
+    """Round-4 blocker 1, rationale corrected in rounds 5 and 6.
+
+    An unknown version is NOT a different path through the pinned fold: the
+    fold receives only the history and the series, and the `(version, digest)`
+    comparison happens afterwards in `_supported_at`. What this vector pins is
+    that the comparison is over the *binding*: 9.9.9 carries the digest bound
+    to 1.0.0, so a digest-only predicate would call it supported. It must reach
+    never-supported under every rule, and must never be reported as a departure.
+    """
     unknown = commitment(version="9.9.9")
     for rule, kw, cited in (("stop-at-retirement", {}, None),
                             ("position-window", {"window_positions": 5}, 2),

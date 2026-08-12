@@ -33,8 +33,10 @@ to the contrary is withdrawn):
   computable only because the ordering it uses is positional; a duration
   window is `transition-unavailable`, because `effectiveFrom` is inert in the
   pinned upstream and nothing here holds a clock.
-- `grandfather-on-cited-support` — reliance permitted if the artifact cites a head at which
-  the version was still in the supported set. Needs the citation.
+- `grandfather-on-cited-support` — reliance permitted if the artifact cites a
+  head at which this exact `(version, digest)` binding was still in the
+  supported set. Needs the citation. A known version at the wrong digest is
+  not supported, however current that version may be.
 
 The verdict vocabulary is about **usability under a stated rule**, never about
 currency, and never about truth.

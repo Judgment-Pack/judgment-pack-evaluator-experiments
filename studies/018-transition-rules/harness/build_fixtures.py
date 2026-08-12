@@ -183,10 +183,15 @@ def build_payloads():
                                                commitment=never_bound)
     cells["neg-never-supported-window"] = cell("position-window", cited=2, window=5,
                                                commitment=never_bound)
-    # Round-4 blocker 1: both cells above name a version the registry DID bind,
-    # at a digest it did not. The unknown-version case is a different path
-    # through the pinned fold — `supported.get(version)` is absent rather than
-    # mismatched — and had no vector at all until now.
+    # Round-4 blocker 1, corrected in rounds 5 and 6. Both cells above name a
+    # version the registry DID bind, at a digest it did not. This one inverts
+    # that: 9.9.9 carries DIGEST_A, which the registry bound to 1.0.0. It is
+    # NOT a different path through the pinned fold — `fold_supported` gets only
+    # the history and the series — the (version, digest) comparison happens
+    # after the fold, in `_supported_at`. What the cell pins is that TRANSITION's
+    # prefix-membership predicate compares the binding and not the digest alone:
+    # a digest-only predicate returns `usable` here, because DIGEST_A is in the
+    # supported set at the cited position under another version.
     cells["neg-never-supported-version"] = cell(
         "grandfather-on-cited-support", cited=2,
         commitment=commitment_bytes(version="9.9.9"))
