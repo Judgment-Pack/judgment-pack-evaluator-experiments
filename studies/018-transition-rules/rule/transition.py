@@ -176,29 +176,50 @@ def _left_position(payloads, series_id, member, fold):
     return left
 
 
+#: Returned by the fold helpers when the history does not fold cleanly. It is a
+#: distinct sentinel because `None` already means "no departure", and round-9
+#: found the two conflated: a late fold failure was reported as "never left",
+#: so the layer could answer `usable` on a history it had failed to read. The
+#: composed ceremony hid it — Layer CURRENCY folds the whole history first and
+#: refuses before this layer runs — which is exactly the shape round 9 asked to
+#: be hunted: a contract true only because something upstream guarantees it.
+FOLD_FAILED = object()
+
+
 def _ever_supported(payloads, series_id, member, fold):
     """True when `member` is in the supported set after some prefix.
 
     Distinguishes a version that departed from one that was never bound at all
     (round-2 R2-1): Study 016 establishes non-membership, never retirement, and
     a wrong digest or an unknown version must not receive a departure code.
+
+    Every prefix is folded, even after the answer is known (round-10): stopping
+    at the first supported prefix made the promised "without a foldable history
+    the layer is transition-unavailable" false for any failure further along.
     """
+    ever = False
     for position in range(1, len(payloads) + 1):
         state = _supported_at(payloads, series_id, member, position, fold)
         if state is None:
             return None
-        if state:
-            return True
-    return False
+        ever = ever or state
+    return ever
 
 
 def _departure_after(payloads, series_id, member, cited, fold):
-    """The first position after `cited` at which `member` leaves the set."""
+    """The first position after `cited` at which `member` leaves the set.
+
+    Returns `None` for "it does not leave", and `FOLD_FAILED` when the history
+    cannot be folded — round-10 found both reported as `None`, so an unreadable
+    history was indistinguishable from a binding that never departed.
+    """
     previous = _supported_at(payloads, series_id, member, cited, fold)
+    if previous is None:
+        return FOLD_FAILED
     for position in range(cited + 1, len(payloads) + 1):
         current = _supported_at(payloads, series_id, member, position, fold)
         if current is None:
-            return None
+            return FOLD_FAILED
         if previous and not current:
             return position
         previous = current
@@ -308,6 +329,8 @@ def layer_transition(commitment, snapshot_digests, snapshot_payloads,
         return _unavailable("the history does not fold cleanly to the cited position")
     departure = _departure_after(snapshot_payloads, series_id, member,
                                  cited_position, fold) if supported_at_cited else None
+    if departure is FOLD_FAILED:
+        return _unavailable("the history does not fold cleanly after the cited position")
     fields = {"citedPosition": cited_position, "retiredAtPosition": departure}
 
     if not supported_at_cited:

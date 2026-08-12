@@ -641,7 +641,16 @@ def test_no_holdout_route_constructs_bytes_without_a_context():
 
 
 def test_holdout_call_sites_bind_statically():
-    """Every holdout call site must bind against its callee's signature.
+    """Every holdout call site must bind, for every callee this audit can resolve.
+
+    Resolvable means: this module's own functions, the pinned upstream registry's
+    API, and dynamic dispatch (a local, a subscript, or an attribute on a local).
+    Calls into the standard library and into `json`/`pathlib` are not bound here —
+    a spurious argument there fails immediately and loudly in every pre-freeze
+    run, which is not the hazard this audit exists for. The hazard is a call that
+    only executes inside the attempt, behind the freeze gate, where a signature
+    error becomes `harness-error` on a reviewer cell (round-10 blocker 2).
+
 
     The stratum is never executed before the freeze, so an arity error inside a
     hook is invisible to every other test — the context gate raises first and
@@ -653,6 +662,7 @@ def test_holdout_call_sites_bind_statically():
     import ast
     import inspect
 
+    upstream = upstream016.load(build=True).checkpoint
     source = (STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
     # Round-4 blocker 6: the first version of this audit listed callees by hand
@@ -734,8 +744,30 @@ def test_holdout_call_sites_bind_statically():
                     continue
             elif isinstance(call.func, ast.Subscript):
                 pass                      # HOLDOUT_HOOKS[...] and friends
+            elif isinstance(call.func, ast.Attribute):
+                # Round-10 blocker 2: attribute callees were skipped wholesale,
+                # so `registry.build_registry(..., spurious=5)` bound cleanly and
+                # would have surfaced only at the attempt, as harness-error. The
+                # pinned upstream's own API is bound against its real signatures;
+                # `hook.__call__(...)` on a local is treated as dynamic dispatch.
+                target = getattr(upstream, call.func.attr, None)
+                if callable(target):
+                    try:
+                        inspect.signature(target).bind(
+                            *[object()] * len(call.args),
+                            **{kw.arg: object() for kw in call.keywords if kw.arg})
+                    except TypeError as error:
+                        raise AssertionError(
+                            "%s calls the pinned upstream's %s incompatibly: %s"
+                            % (node.name, call.func.attr, error))
+                    checked += 1
+                    continue
+                if call.func.attr == "__call__":
+                    pass                  # hook.__call__(context, spurious=5)
+                else:
+                    continue              # pins.get, json.dumps, Path.read_bytes
             else:
-                continue                  # attribute calls: json.dumps, Path.read_bytes
+                continue
             callee = ast.unparse(call.func)
             supplied = [ast.unparse(a) for a in call.args]
             keywords = [kw.arg for kw in call.keywords]
@@ -962,6 +994,21 @@ def test_composition_gate_is_independent_of_the_transition_gate():
                         "not-usable:not-usable-window-elapsed"):
             assert run_verify.compose(allowed, refusal) == refusal
 
+    # Round-10 blocker 1: the fourth quadrant was omitted — non-adjudicable
+    # currency with a TRANSITION refusal — which is again exactly the
+    # combination the layer cannot emit. An unauthenticated registry answer
+    # leaves no basis for a reasoned refusal either, so the reason is withheld
+    # along with the permission, and MATRIX.json says so.
+    for refused in ("unavailable", "fail:snapshot-signature-invalid",
+                    "fail:binding-rebound"):
+        for refusal in ("not-usable:not-usable-never-supported",
+                        "not-usable:not-usable-window-elapsed", "unavailable"):
+            assert run_verify.compose(refused, refusal) == "unavailable", (refused, refusal)
+
+    # the note and the code must agree on that, since the note is frozen
+    note = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))["note"]
+    assert "whatever TRANSITION said" in note
+    assert "adjudicable currency or not" not in note
     # every registered cell composes exactly as before this gate was repaired
     matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
     for cell in matrix["cells"]:
@@ -971,3 +1018,40 @@ def test_composition_gate_is_independent_of_the_transition_gate():
                   and outcome["currency"]["outcome"] in adjudicable
                   else outcome["transition"]["outcome"])
         assert outcome["combined"] == legacy, cell["id"]
+
+
+def test_fold_failure_is_unavailable_without_the_currency_layer():
+    """Round-10 blocker 3: the SPEC promised `transition-unavailable` on a
+    history that will not fold, but `_ever_supported` stopped at the first
+    supported prefix and `_departure_after` returned `None` for both a late
+    fold failure and "it never departed". A layer that had failed to read the
+    history could therefore answer `usable`.
+
+    Composed, this is unreachable — Layer CURRENCY folds the whole history and
+    refuses first. That is the point: the contract was true only because
+    something upstream guaranteed it, so it is driven here with no upstream at
+    all, through a fold that fails partway.
+    """
+    import transition as tr
+
+    payloads = [{"seriesId": "s", "event": "add", "packVersion": "1.0.0",
+                 "packDigest": "sha256:" + "a" * 64}] * 4
+    member = ("1.0.0", "sha256:" + "a" * 64)
+
+    def fold_failing_after(limit):
+        def fold(prefix, series_id):
+            if len(prefix) > limit:
+                return {}, "the history does not fold"
+            return {member[0]: member[1]}, None
+        return fold
+
+    clean = lambda prefix, series_id: ({member[0]: member[1]}, None)
+    assert tr._ever_supported(payloads, "s", member, clean) is True
+    assert tr._departure_after(payloads, "s", member, 1, clean) is None
+
+    # a failure *after* the answer is already known must still be reported
+    assert tr._ever_supported(payloads, "s", member, fold_failing_after(1)) is None
+    assert tr._departure_after(payloads, "s", member, 1,
+                               fold_failing_after(1)) is tr.FOLD_FAILED
+    assert tr.FOLD_FAILED is not None
+

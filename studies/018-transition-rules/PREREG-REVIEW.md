@@ -495,6 +495,66 @@ endpoints and registered-undetected), the absence of any successful path to `REG
 without an executed holdout, the layer-versus-harness ordering scope, the endpoint-scoped
 scenario, the window-elapsed definition, the holdout envelope, and the strata count.
 
-## Round 10 — pending
 
-Confirmation of the round-9 dispositions.
+## Round 10
+
+Verbatim: [`reviews/round-10/REVIEW.md`](reviews/round-10/REVIEW.md), at clean HEAD
+`9258bf91`, worktree clean, no holdout cell executed. The reviewer states it could not rerun
+the pinned suite under its read-only environment and therefore claims no fresh test count —
+recorded because a review that says what it did *not* verify is worth more than one that
+implies it verified everything.
+
+Verdict: **not freezable**, three surgical blockers — and, asked directly, a judgement on
+stopping. All accepted.
+
+### The same shape again, twice
+
+Round 9's blocker was a safeguard that could not fail because something upstream guaranteed
+the property. Round 10 was asked to hunt that shape and found two more:
+
+- **The composed gate's fourth quadrant.** `compose(non-adjudicable, refusal)` returns
+  `unavailable`, but the frozen note said a TRANSITION refusal survives "adjudicable currency
+  or not". Both the test and the note skipped exactly the quadrant Layer TRANSITION makes
+  unreachable. The note now states what `compose` does — an unauthenticated registry answer
+  leaves no basis for a reasoned refusal either, so the composed verdict withholds the reason
+  along with the permission — and the test covers all four quadrants.
+- **The fold-failure contract.** `rule/SPEC.md` promises `transition-unavailable` on a history
+  that will not fold. It was false standalone: `_ever_supported` stopped at the first supported
+  prefix, so a later failure went unseen, and `_departure_after` returned `None` for both "no
+  departure" and "could not read the history" — so a layer that had failed to read the history
+  could answer `usable`. Composed, Layer CURRENCY folds everything first and refuses, which is
+  why nothing observable was ever wrong. Fixed in code rather than in the SPEC: every prefix is
+  folded, and `FOLD_FAILED` is a distinct sentinel. A regression drives the layer with a fold
+  that fails partway and **no currency layer at all**.
+
+### Round-10 findings — disposition
+
+| # | Disposition |
+| --- | --- |
+| Blocker 1 | **Accepted**; see above. |
+| Blocker 2 | **Accepted.** The audit skipped `ast.Attribute` callees wholesale, so `registry.build_registry(..., spurious=5)` bound cleanly and would have surfaced only at the attempt as `harness-error` on a reviewer cell. Calls into the pinned upstream's API are now bound against its real signatures, and `hook.__call__(...)` is treated as dynamic dispatch. Verified against both. The docstring's "every holdout call site" is replaced by what the audit actually resolves, with the reason stdlib calls are out of scope: they fail loudly in every pre-freeze run, which is not the hazard. |
+| Blocker 3 | **Accepted**; see above. |
+| R9 Major 2, R8-1 | **Closed in code, regressions noted as absent.** The reviewer flags that neither the `pipelineInvalid` serialization nor the endpoint/registered-undetected split has an isolating test. Recorded rather than papered over: both are correct and both are currently proved only by the aggregate suite. |
+
+### On stopping
+
+Asked whether further rounds would fix or churn, the reviewer's answer is on the record:
+the three blockers are "surgical and isolation-testable", while "exhaustively chasing every
+redundant guard or AST spelling would be churn" — and, after these corrections, it would
+"stop broad review rather than begin another open-ended sabotage audit".
+
+It also answered the question that matters most for a freeze: **no remaining defect changes
+any of the 22 locked outcomes, the registered evidence, or what the primary attempt reports.**
+The holdout still carries exactly the three preregistered divergences. Ten rounds have found
+no registered-outcome error since round 2.
+
+The maintainer's position is the same. The remaining known-imperfect items are named here
+rather than fixed: three deletion-undetectable safeguards (`_gated`, the `frozen` conjunct in
+the label predicate, the output-containment guard), each redundant with a check that is
+tested, and two correct behaviours proved only in aggregate. They are recorded so a reader can
+weigh them, which is the standard this study has been held to throughout.
+
+## Round 11 — confirmation only
+
+The next round confirms these three corrections and nothing else. If it is clean, the study
+freezes.
