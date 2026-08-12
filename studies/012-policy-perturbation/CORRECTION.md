@@ -37,6 +37,27 @@ states the publication commitment.
 > to publish: the false sentence was a universal asserted over a class instead
 > of derived from it, and the counterexample was already sitting in our own
 > published census.
+>
+> ### And a third round, on 2026-08-12
+>
+> Two further problems, neither of them arithmetic — which is why two passes of
+> number-checking missed both:
+>
+> 4. **The published narrative asserted R1's negation**, which §5.5 registers as
+>    not licensed: *"an R1-UNSUPPORTED row does not license its negation."*
+>    Sentences to the effect of "the numerals were not the cause" stood in this
+>    file, twice in `ANALYSIS.md`, and in Study 011's banner. A failed causal
+>    prediction is not evidence for the opposite cause. Struck and replaced with
+>    what the verdict does support: *this denaming did not move coverage.*
+> 5. **A confirmed prediction was missing.** §5.3 (ii)'s arm-D result —
+>    `COVERAGE-FOLLOWS-THE-NUMBERS` — appeared in `RATES.md` and in no narrative
+>    file. Reporting the failed prediction and silently omitting the confirmed
+>    one distorts the study even when every individual sentence is true. Added
+>    below and to `ANALYSIS.md`.
+>
+> The first two rounds fixed claims that were false. This one fixes a claim that
+> was *unlicensed* and an omission that was *flattering to the drama* — the two
+> failure modes a numeric check cannot see.
 
 ---
 
@@ -92,6 +113,19 @@ Arm E carries a registered stated caution over the whole arm
 "ρ_X ≥ 0.10"), as does the cross-arm valid count; the caution is about how many
 runs survived the pipeline, not about what the surviving runs covered.
 
+## The other registered verdict, omitted from this file until 2026-08-12
+
+R1 is not the only prediction this study registered, and it is the only one
+earlier versions of this file reported. §5.3 (ii)'s arm-D prediction landed on
+**row 1**, published by the scorer as **`COVERAGE-FOLLOWS-THE-NUMBERS`**: when
+the thresholds moved to 45 and 72, placement moved with them — **61 records
+exactly on 45, 50 exactly on 72, and none of arm D's 480 records on 40 or 70.**
+
+It belongs in a correction because omitting a *confirmed* prediction from the
+document that announces a *failed* one distorts the study in the direction of
+drama, even though no individual sentence was false. `RATES.md` has carried it
+since the run.
+
 ## The part that survives, and the part that does not
 
 **Does not survive: the anchoring reading.** Arm E was never shown the literals
@@ -133,9 +167,25 @@ Study 011's original observation was the *empty approach band* `(23.75, 39)`.
 C (25 ×2, 25.5, 35 ×2, 38) and in E (25, 27.5, 35). So the honest statement is
 the weaker one: across five arms the immediate approach to the unstated edge is
 close to unpopulated, but it is not empty, and it was not empty in the baseline
-either. What this study refutes remains our explanation of *why* — the pattern
+either.
+
+**Corrected again, 2026-08-12 — and this one is about what a verdict licenses,
+not about a number.** An earlier version of this paragraph ended: *"the pattern
 is not caused by the numerals being present, because removing them changed
-nothing.
+nothing."* That is the inference §5.5 registered a rule against — **"an
+R1-UNSUPPORTED row does not license its negation"** — and it appeared in this
+file, twice in `ANALYSIS.md`, and in Study 011's banner. R1 asserted a cause;
+its failure does not establish the opposite cause, because a snapshot that has
+seen this policy family can reproduce 40 and 70 without deriving them, and
+because arm E is **one** denaming of **one** family at **one** snapshot on
+**one** day (§5.5, §9).
+
+What the study is entitled to say, and all it is entitled to say: **this
+denaming did not move coverage.** That is compatible with derivation and with
+recall, and the design cannot separate them. Anything stronger — including the
+comfortable-sounding "so it wasn't the numerals" — is a claim this study did not
+earn, and stating it was the same failure as the ones above, in a register where
+no arithmetic check would ever have caught it.
 
 ## What this correction is not
 
