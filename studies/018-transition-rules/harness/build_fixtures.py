@@ -183,6 +183,13 @@ def build_payloads():
                                                commitment=never_bound)
     cells["neg-never-supported-window"] = cell("position-window", cited=2, window=5,
                                                commitment=never_bound)
+    # Round-4 blocker 1: both cells above name a version the registry DID bind,
+    # at a digest it did not. The unknown-version case is a different path
+    # through the pinned fold — `supported.get(version)` is absent rather than
+    # mismatched — and had no vector at all until now.
+    cells["neg-never-supported-version"] = cell(
+        "grandfather-on-cited-support", cited=2,
+        commitment=commitment_bytes(version="9.9.9"))
 
     # A rule stated for another series confers nothing here.
     cells["bnd-foreign-series-rule"] = cell("grandfather-on-cited-support", cited=2,

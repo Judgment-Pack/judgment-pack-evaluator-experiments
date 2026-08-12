@@ -48,6 +48,8 @@ consumes that verdict as a fact and answers usability under a stated rule.
 | neg-never-supported-digest | control-gate | transition | `not-usable:not-usable-never-supported` | `not-usable:not-usable-never-supported` | citedPosition: None, retiredAtPosition: None |
 | neg-never-supported-window | control-gate | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
 | neg-never-supported-window | control-gate | transition | `not-usable:not-usable-never-supported` | `not-usable:not-usable-never-supported` | citedPosition: 2 (registered 2), retiredAtPosition: None (registered None) |
+| neg-never-supported-version | control-gate | currency | `fail:not-current-at-snapshot` | `fail:not-current-at-snapshot` | — |
+| neg-never-supported-version | control-gate | transition | `not-usable:not-usable-never-supported` | `not-usable:not-usable-never-supported` | citedPosition: 2 (registered 2), retiredAtPosition: None (registered None) |
 
 ## Registered identity groups
 

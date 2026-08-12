@@ -1,4 +1,4 @@
-# Study 018 — transition rules over cited registry state: what a citation buys a relying party, and where the evidence stops
+# Study 018 — transition rules over cited registry state: what a citation buys a stated rule, and where the evidence stops
 
 **Status: DRAFT. Nothing is frozen and nothing has run under a freeze.**
 
@@ -20,7 +20,7 @@ should be sourced or audited, and #10 stays open.
 
 ## The result the matrix is built around
 
-One registry verdict — `not current at snapshot` — supports **four configured evaluations yielding three exact outcomes** over identical evidence, according to which rule the relying party holds:
+One registry verdict — `not current at snapshot` — supports **four configured evaluations yielding three exact outcomes** over identical evidence, according to which rule is configured:
 `stop-at-retirement` refuses; `position-window` permits or refuses depending on its parameter;
 `grandfather-on-cited-support` permits. The same evidence therefore does not determine a
 usability answer on its own — which is §2a's separation, measured rather than argued. What

@@ -131,6 +131,7 @@ EXPECTED_CELL_IDS = frozenset((
     "bnd-backdated-citation", "bnd-duration-window", "bnd-mint-time-refusal",
     "bnd-foreign-series-rule",
     "neg-never-supported-digest", "neg-never-supported-window",
+    "neg-never-supported-version",
 ))
 
 CELL_REQUIRED_KEYS = {

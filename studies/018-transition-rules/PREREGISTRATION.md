@@ -39,7 +39,7 @@ computes deterministically from retained artifacts, and which it cannot compute 
 
 ## 1a. Two strata
 
-The locked-replication stratum (`harness/MATRIX.json`, 21 cells) is a conformance suite over
+The locked-replication stratum (`harness/MATRIX.json`, 22 cells) is a conformance suite over
 behaviour the maintainer observed during development; R1 has a locked replication's standing,
 never a prospective prediction. The **reviewer holdout** is authored by the cross-vendor
 reviewer during the pre-freeze rounds, committed verbatim with attribution, never executed
@@ -82,11 +82,12 @@ only in the rule configuration.
 
 ## 4. Cells
 
-21 cells (matrixVersion 2, the round-1/2 revision): 4 positive controls, 4 negative controls
-(an unregistered rule; an unauthenticated snapshot; and two never-bound-digest controls), 11
-endpoints across divergence (D), citation value (C) and boundaries (B), 1 descriptive row and
-1 demonstration — the last two byte-identical to endpoints they re-read, registered as identity
-groups and counted toward nothing. A harness test derives these counts from the matrix.
+22 cells (matrixVersion 2, the round-1/2/4 revision): 4 positive controls, 5 negative controls
+(an unregistered rule; an unauthenticated snapshot; two never-bound-digest controls; and one
+never-bound-version control), 11 endpoints across divergence (D), citation value (C) and
+boundaries (B), 1 descriptive row and 1 demonstration — the last two byte-identical to
+endpoints they re-read, registered as identity groups and counted toward nothing. A harness
+test derives these counts from the matrix.
 `registeredAbsences` names the six cells that deliberately retain no citation, so an
 unregistered absence stays a validity failure rather than a finding. Cells that turn on
 *where* the artifact sits in the history additionally register `expectedRuleEvidence`
@@ -150,5 +151,5 @@ registered dependencies, and the retained artifact store. Binding/lineage, not t
 
 The decision matrix is published in full whichever way it lands — every divergence, every
 registered boundary, and the identity group that carries the study's sharpest limit — because
-a precise map of what a citation buys a relying party, and where it stops, is the study's most
+a precise map of what a citation buys a stated rule, and where it stops, is the study's most
 useful possible output and the registered input to RFC 0011 Unresolved #10 and #11.

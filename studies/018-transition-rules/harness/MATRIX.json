@@ -158,7 +158,7 @@
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-window-elapsed"
       },
-      "note": "the divergence, arm 3: the same rule with a tighter parameter refuses - the parameter is the relying party's, not the registry's",
+      "note": "the divergence, arm 3: the same rule with a tighter parameter refuses. The parameter is configured, and this study registers no claim about who sets it or where it is sourced - RFC 0011 Unresolved #10 stays open",
       "expectedRuleEvidence": {
         "citedPosition": 2,
         "retiredAtPosition": 3
@@ -356,6 +356,24 @@
         "transition": "not-usable:not-usable-never-supported"
       },
       "note": "the same closure on the window rule, which previously returned USABLE for a never-bound digest by mistaking never-entered for still-supported (round-2 R1-1/R1-2 residual)",
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      }
+    },
+    {
+      "id": "neg-never-supported-version",
+      "category": "control-negative",
+      "variant": "config",
+      "role": "control-gate",
+      "attackerCapability": "tamper",
+      "registeredAbsences": [],
+      "construction": "the full history with a commitment naming version 9.9.9, which this registry never bound at any digest; grandfather-on-cited-support with a citation of position 2",
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "note": "round-4 blocker 1: the other two never-supported controls name a version the registry DID bind, at a digest it did not. An unknown VERSION is a different path through the pinned fold - the version is absent from the supported map rather than present with another digest - and had no vector until this cell. It must reach never-supported, not a departure code and not usable",
       "expectedRuleEvidence": {
         "citedPosition": 2,
         "retiredAtPosition": null

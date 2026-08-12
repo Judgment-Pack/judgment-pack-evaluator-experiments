@@ -159,6 +159,26 @@ def test_position_window_needs_exactly_one_window_form(world):
         assert carried["code"] == "transition-unavailable"
 
 
+def test_never_seen_version_is_never_usable(world):
+    """Round-4 blocker 1: an unknown VERSION is a different path through the
+    pinned fold than a known version at a wrong digest — absent from the
+    supported map rather than present with another digest. Neither may reach
+    `usable`, and neither may be reported as a departure."""
+    unknown = commitment(version="9.9.9")
+    for rule, kw, cited in (("stop-at-retirement", {}, None),
+                            ("position-window", {"window_positions": 5}, 2),
+                            ("grandfather-on-cited-support", {}, 2)):
+        config = ct.ruleconfig_bytes(series_id=SERIES, rule=rule, **kw)
+        citation = None if cited is None else ct.citation_bytes(
+            series_id=SERIES, cited_head=world["digests"][cited - 1])
+        result = tr.layer_transition(unknown, world["digests"], world["payloads"],
+                                     citation, config, "fail:not-current-at-snapshot",
+                                     fold=world["fold"])
+        assert result["verdict"] == "not-usable", rule
+        assert result["code"] == "not-usable-never-supported", rule
+        assert result["retiredAtPosition"] is None, rule
+
+
 def test_never_bound_digest_is_never_usable(world):
     """Round-2 R2-1 and the R1-1/R1-2 residual: a digest the registry never
     bound did not depart, and must not reach `usable` under any rule."""

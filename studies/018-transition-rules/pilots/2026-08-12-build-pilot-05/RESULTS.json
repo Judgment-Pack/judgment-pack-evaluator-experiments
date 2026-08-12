@@ -1,15 +1,15 @@
 {
-  "attemptRoot": "2026-08-11-build-pilot-04",
+  "attemptRoot": "2026-08-12-build-pilot-05",
   "label": "PILOT",
   "includeHoldout": false,
   "pipelineInvalid": false,
   "pinsRawSha256": "96ab59bde75012510936e8d52a90945095cf65a273214756df0c4ef8db332981",
-  "matrixSha256": "bb52614b4357044a2ca310a8a82526baf5f65807c74cb730a802108bf091c201",
+  "matrixSha256": "99a07c1522f62e269e38770c554f097202b10da6212e2cad60dbaaa336b25d90",
   "verdict": "R1 holds (PILOT)",
   "verdictCells": [],
   "summary": {
-    "cells": 21,
-    "adjudicated": 21,
+    "cells": 22,
+    "adjudicated": 22,
     "endpoints": 11,
     "endpointDivergences": 0,
     "registeredUndetectedConfirmed": [
@@ -411,6 +411,34 @@
       "detail": {
         "currency": "(1.0.0, sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) is not in the supported set at snapshot position 5",
         "transition": "this exact (version, digest) is in the supported set at no position of this history - it did not depart, it was never there, and the registry establishes only non-membership"
+      }
+    },
+    "neg-never-supported-version": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "combined": "not-usable:not-usable-never-supported",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(9.9.9, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "this exact (version, digest) is in the supported set at no position of this history"
       }
     },
     "neg-never-supported-window": {

@@ -29,7 +29,7 @@ raised publicly on the Study 016 announcement thread (RFC 0011 Unresolved #11):
 It is **unsigned here on purpose**: signing changes nothing this study measures, because
 the party that would sign is the party that chooses what to cite (see `bnd-backdated-citation`).
 
-A **rule configuration** states one relying party's rule for one series:
+A **rule configuration** states one configured rule for one series:
 
 ```json
 {"ruleConfigVersion": "1", "seriesId": "…",
@@ -47,23 +47,32 @@ exactly one window form, and the other rules must name none.
 
 Ordered, fail-closed, offline. Inputs: the commitment tuple, the auditor's snapshot (its
 checkpoint digests and payloads, recomputed from its own bytes), the retained citation, the
-rule configuration, and Layer CURRENCY's verdict.
+rule configuration, and Layer CURRENCY's verdict. The steps below are the order the code
+actually takes, and each gate refuses before the next input is read:
 
+0. **The currency verdict, first.** Only `pass` and `fail:not-current-at-snapshot` are
+   adjudicable. Any other outcome — unreadable or unauthenticated snapshot, broken chain,
+   rebound binding, absent pin — is an integrity or availability failure, and this layer
+   returns `transition-unavailable` **before parsing any configuration**, rather than
+   reinterpreting it as a retirement (round-1 R1-1). The membership fold must also be
+   supplied; without it the layer refuses here.
 1. **Configuration.** Well-formed version-1 rule configuration whose `seriesId` equals the
    commitment's `packId`, else `transition-unavailable`. A rule is stated per series and
    confers nothing outside it.
 2. **Ordering.** A `position-window` naming a **duration** rather than a position count is
    `transition-unavailable`: the only ordering available offline is positional,
    `effectiveFrom` is carried and never compared in the pinned upstream, and nothing here
-   holds a clock (RFC 0011 Unresolved #3).
-3. **`stop-at-retirement`** consumes Layer CURRENCY's verdict alone: `usable` if the
-   version is in the supported set at the auditor's snapshot. Otherwise the fold decides
-   *which* refusal, because non-membership alone does not establish a departure —
-   `not-usable-never-supported` when this exact `(version, digest)` is in the supported set
-   at no position of the history, and `not-usable-not-in-supported-set` when it was there
-   and is not now. Without a foldable history the layer is `transition-unavailable` rather
-   than guessing between the two. **It needs no citation**, and is therefore unaffected by
-   every citation finding in the matrix.
+   holds a clock (RFC 0011 Unresolved #3). This refusal precedes the citation step, so a
+   duration-window cell publishes **no** structured evidence even when it retains a
+   perfectly good citation.
+3. **`stop-at-retirement`** needs **no citation**, and is therefore unaffected by every
+   citation finding in the matrix. It is *not*, however, decided by the currency verdict
+   alone: `usable` if the version is in the supported set at the auditor's snapshot, and
+   otherwise the retained history is folded to choose *which* refusal, because non-membership
+   alone does not establish a departure — `not-usable-never-supported` when this exact
+   `(version, digest)` is in the supported set at no position of the history, and
+   `not-usable-not-in-supported-set` when it was there and is not now. Without a foldable
+   history the layer is `transition-unavailable` rather than guessing between the two.
 4. **The citation**, for the remaining rules: present, well-formed, naming this series, and
    locating a head that is a position of the auditor's snapshot — else
    `transition-unavailable`. A head the auditor cannot locate is not evidence about the
@@ -91,9 +100,12 @@ Both fields are published only on the branches that reach them, and are `null` e
 else — including whenever Layer CURRENCY has already withheld an adjudicable verdict:
 
 - **`citedPosition`** — the 1-based index of the cited head within the auditor's retained
-  checkpoint digests. Non-null exactly when a citation was retained, well-formed, named
-  this series, and was located in this history; `null` for `stop-at-retirement`, which
-  reads no citation at all.
+  checkpoint digests. Non-null only when the layer **reaches** the citation step and the
+  citation was retained, well-formed, named this series and was located in this history.
+  It is `null` for `stop-at-retirement`, which reads no citation at all, and also `null`
+  whenever an earlier gate refuses first — a non-adjudicable currency verdict, a missing
+  fold, a malformed or foreign-series configuration, or a duration window — however good
+  the retained citation may be.
 - **`retiredAtPosition`** — the **first departure strictly after `citedPosition`**: the
   lowest `p > citedPosition` at which the member is supported after `p−1` events and not
   after `p`. It is **relative to the citation, not to the history as a whole**, and it is

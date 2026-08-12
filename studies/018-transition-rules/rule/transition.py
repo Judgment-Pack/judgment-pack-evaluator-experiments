@@ -1,4 +1,4 @@
-"""Layer TRANSITION — a relying party's rule over cited registry state.
+"""Layer TRANSITION — a stated rule over cited registry state.
 
 RFC 0011 §2a states that membership at a snapshot does not determine continued
 reliance: that second question is a **transition rule**. Who owns it and where

@@ -76,16 +76,53 @@ def test_registered_authority_binds_the_retained_fixtures():
             STUDY / "fixtures", cell["id"]) / "trustconfig.json").read_text(encoding="utf-8"))
         assert retained["authorityPublicKey"] == expected, cell["id"]
 
-    # a label that derives a different key must be caught, not silently accepted
+    # a label that derives a different key must be caught for EVERY cell, not
+    # merely somewhere (round-4 blocker 5: "some mismatch appears" would pass a
+    # scorer that checked one fixture and ignored the rest)
     mutated = json.loads(json.dumps(pins))
     mutated["registryAuthority"]["authoritySeedLabel"] = "study-018/not-the-registered-label"
     problems = score.pin_problems(mutated)
-    assert any("does not derive" in problem for problem in problems), problems
+    flagged = {cell["id"] for cell in matrix["cells"]
+               if any(cell["id"] in problem and "does not derive" in problem
+                      for problem in problems)}
+    assert flagged == {cell["id"] for cell in matrix["cells"]}, (
+        "the authority pin does not bind every retained trust configuration; "
+        "unflagged: %s" % sorted({c["id"] for c in matrix["cells"]} - flagged))
 
-    # and the builder must follow the label rather than ignore it
-    assert '"study-018/currency-authority/1"' not in (
-        STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8"), (
-        "the locked builder hard-codes the authority seed label")
+
+def test_locked_builder_follows_a_mutated_authority_label(tmp_path, monkeypatch):
+    """Round-4 blocker 5: banning one literal spelling is not the property.
+
+    The builder must actually *read* the registered label, so changing the label
+    must change the authority every fixture pins. Exercised by pointing
+    `PINS_PATH` at a mutated registry and rebuilding.
+    """
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    pins["registryAuthority"]["authoritySeedLabel"] = "study-018/some-other-authority"
+    mutated_pins = tmp_path / "PINS.json"
+    mutated_pins.write_text(json.dumps(pins, indent=2), encoding="utf-8")
+    monkeypatch.setattr(build_fixtures, "PINS_PATH", mutated_pins)
+
+    assert build_fixtures.registered_authority_label() == "study-018/some-other-authority"
+    payloads = build_fixtures.build_payloads()
+    registry = upstream016.load(build=True).checkpoint
+    expected = registry.public_key_b64(
+        registry.private_key("study-018/some-other-authority"))
+    committed = registry.public_key_b64(
+        registry.private_key(json.loads(
+            (STUDY / "harness" / "PINS.json").read_text(encoding="utf-8")
+        )["registryAuthority"]["authoritySeedLabel"]))
+    assert expected != committed
+    for cid, payload in payloads.items():
+        trust = json.loads(payload["trustconfig.json"].decode("utf-8"))
+        assert trust["authorityPublicKey"] == expected, cid
+
+    # an absent or empty label is refused rather than silently defaulted
+    for bad in (None, "", 7):
+        pins["registryAuthority"]["authoritySeedLabel"] = bad
+        mutated_pins.write_text(json.dumps(pins, indent=2), encoding="utf-8")
+        with pytest.raises(build_fixtures.BuildError):
+            build_fixtures.registered_authority_label()
 
 
 def test_registered_dependencies_are_enforced():
@@ -164,18 +201,49 @@ def test_rendered_matrix_publishes_this_studys_evidence(tmp_path):
     rendered = (tmp_path / "render" / "DETECTION-MATRIX.md").read_text(encoding="utf-8")
     for stale in ("compared=", "attributed=", "unattributed=", "witness"):
         assert stale not in rendered, stale
-    assert "citedPosition" in rendered and "retiredAtPosition" in rendered
-    assert "## Registered identity groups" in rendered
-
-    # a cell with a registered evidence value renders it as registered, and the
-    # marker appears only where observed and registered actually differ
-    matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
-    registered = [c for c in matrix["cells"] if c.get("expectedRuleEvidence")]
-    assert registered, "no cell registers structured evidence"
-    assert "(registered " in rendered
     results = json.loads((tmp_path / "render" / "RESULTS.json").read_text(encoding="utf-8"))
-    if not any(record["divergent"] for record in results["cells"].values()):
-        assert " ≠" not in rendered
+    matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
+
+    # Round-4 blocker 4: substring checks passed while values were wrong. Every
+    # rendered row is now parsed and reconciled against RESULTS.json.
+    rows = {}
+    for line in rendered.splitlines():
+        parts = [part.strip() for part in line.strip().strip("|").split("|")]
+        if len(parts) == 6 and parts[2] in score.LAYERS:
+            rows[(parts[0], parts[2])] = parts
+    assert len(rows) == len(results["cells"]) * len(score.LAYERS), (
+        "rendered rows do not cover every cell and layer")
+    for (cid, layer), parts in rows.items():
+        record = results["cells"][cid]
+        assert parts[1] == record["role"]
+        assert parts[3] == "`%s`" % record["expected"][layer]
+        assert parts[4].startswith("`%s`" % record["observed"][layer])
+        diverged = record["observed"][layer] != record["expected"][layer]
+        assert ("≠" in parts[4]) == diverged, (cid, layer)
+        if layer == "transition":
+            for field, value in (record.get("ruleEvidence") or {}).items():
+                assert "%s: %s" % (field, value) in parts[5], (cid, field)
+            for field, value in (record.get("expectedRuleEvidence") or {}).items():
+                assert "registered %s" % value in parts[5], (cid, field)
+
+    # every registered identity group is rendered as its own row
+    assert "## Registered identity groups" in rendered
+    for group in matrix.get("identityGroups", ()):
+        assert ", ".join(group) in rendered
+
+    # and the mismatch markers must actually appear when values disagree —
+    # exercised directly, since the locked stratum is (correctly) all-concordant
+    fabricated = json.loads(json.dumps({k: v for k, v in results["cells"].items()}))
+    victim = "div-position-window-elapsed"
+    fabricated[victim]["observed"]["transition"] = "usable"
+    fabricated[victim]["ruleEvidence"]["retiredAtPosition"] = 99
+    fabricated[victim]["expectedRuleEvidence"] = {"citedPosition": 2, "retiredAtPosition": 4}
+    forged = score.detection_matrix_markdown(
+        "PILOT", matrix, fabricated, {}, "R1 falsified (PILOT)", [victim])
+    victim_rows = [l for l in forged.splitlines() if l.startswith("| " + victim + " |")]
+    assert any("≠" in row for row in victim_rows), "outcome mismatch marker missing"
+    assert any("retiredAtPosition: 99 (registered 4 ≠)" in row for row in victim_rows), (
+        "structured-evidence mismatch marker missing")
 
 
 def test_scorer_refuses_existing_attempt_root(tmp_path):
@@ -314,6 +382,19 @@ def test_preregistration_counts_are_derived_from_the_matrix():
              7: "seven", 8: "eight", 9: "nine", 10: "ten"}
     absences = count(lambda c: c.get("registeredAbsences"))
     assert "names the %s cells that deliberately retain no citation" % words[absences] in text
+
+    # Round-4 blocker 6: the totals were derived but the prose's breakdown of
+    # the negative controls was not, so editing "two never-bound-digest
+    # controls" passed. Each named sub-count is derived too.
+    digest_controls = count(lambda c: c["id"].startswith("neg-never-supported-")
+                            and not c["id"].endswith("-version"))
+    version_controls = count(lambda c: c["id"] == "neg-never-supported-version")
+    assert "%s never-bound-digest controls" % words[digest_controls] in text
+    assert "%s\nnever-bound-version control" % words[version_controls] in text or \
+        "%s never-bound-version control" % words[version_controls] in text
+    for phrase, present in (("an unregistered rule", "neg-ruleconfig-malformed"),
+                            ("an unauthenticated snapshot", "neg-currency-unauthenticated")):
+        assert phrase in text and any(c["id"] == present for c in cells), phrase
     assert all(c["registeredAbsences"] == ["citation"]
                for c in cells if c.get("registeredAbsences")), (
         "the prose says every registered absence is a citation")
@@ -361,6 +442,33 @@ def test_holdout_machinery_lands_with_the_reviewer_cells():
             "reviewer's block stays byte-for-byte as authored")
 
 
+def test_holdout_refusal_precedes_any_key_or_payload(tmp_path, monkeypatch):
+    """Round-4 blocker 6: refusing eventually is not the property.
+
+    The bypass test asserts only that `HoldoutRefused` is raised in the end; a
+    route that derived the authority key, folded a registry and *then* refused
+    would satisfy it while having already done the work the gate exists to
+    prevent. Here the upstream loader is replaced by a tripwire, so any route
+    that touches it before validating fails loudly.
+    """
+    touched = []
+
+    def tripwire(*arguments, **keywords):
+        touched.append(True)
+        raise AssertionError("the upstream was loaded before the context was validated")
+
+    monkeypatch.setattr(build_fixtures.upstream016, "load", tripwire)
+    monkeypatch.chdir(tmp_path)
+    for name in ["_holdout_h%02d" % n for n in range(1, 11)] + ["_authority"]:
+        with pytest.raises(build_fixtures.HoldoutRefused):
+            getattr(build_fixtures, name)(None)
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures.construct_holdout(None, tmp_path, [{"id": "h01"}])
+    assert not touched
+    # and nothing was written anywhere under the working directory
+    assert not [p for p in tmp_path.rglob("*") if p.is_file()]
+
+
 def test_no_holdout_route_constructs_bytes_without_a_context():
     """Round-3 blocker 5: the gate must sit below every route, not only on the
     HOLDOUT_HOOKS mapping. `_gated` wrapped the mapping, so an importer could
@@ -401,8 +509,17 @@ def test_holdout_call_sites_bind_statically():
 
     source = (STUDY / "harness" / "build_fixtures.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
+    # Round-4 blocker 6: the first version of this audit listed callees by hand
+    # and so skipped hook-to-hook calls (`_holdout_h02` → `_holdout_h01`,
+    # `_holdout_h05`/`_holdout_h06`/`_holdout_h07` → `_holdout_h04`) — exactly
+    # the calls most likely to drift. Every holdout callable is now in scope.
     callees = {"_holdout_cell", "_authority", "_require_context", "write_cell",
-               "commitment_bytes", "event"}
+               "commitment_bytes", "event", "construct_holdout",
+               "registered_authority_label", "holdout_context_problems"}
+    callees |= {name for name in vars(build_fixtures)
+                if name.startswith("_holdout") and callable(getattr(build_fixtures, name))}
+    for hook in ("_holdout_h%02d" % n for n in range(1, 11)):
+        assert hook in callees, hook
     checked = 0
     for node in ast.walk(tree):
         if not (isinstance(node, ast.FunctionDef)
@@ -445,6 +562,11 @@ def test_holdout_construction_is_gated_on_every_freeze_pin(tmp_path, monkeypatch
 
     real = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
     filled = {"sha256": "f" * 64}
+    # Round-4 blocker 6: naming the pins via score.FREEZE_PINS makes this test
+    # shrink silently if a pin is ever dropped from that tuple. The six are
+    # asserted literally, so removing one fails here rather than going unnoticed.
+    assert score.FREEZE_PINS == ("preregistration", "matrix", "matrixHoldout",
+                                 "matrixHoldoutEvidence", "ruleSpec", "studyManifest")
     for member in score.FREEZE_PINS:
         assert member in real, "a freeze pin the gate names is missing from PINS.json"
 

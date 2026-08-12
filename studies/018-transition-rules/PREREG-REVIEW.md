@@ -212,13 +212,58 @@ see whether the tests noticed. Mutation-checked results for the other four new t
 freeze-pin gate, authority binding, rendered output and count derivation tests each fail
 under a targeted mutation.
 
-## Round 4 — pending
+**Recorded deviation on bytes reviewed.** Round 3's reviews ran against the working tree
+while the R2-2 count fixes were being committed, and round 4's ran while the `_holdout_h03`
+fix above was being made. Neither is over a single frozen snapshot, and saying so is cheaper
+than pretending otherwise. Round 4 states the clean HEAD it read (`71ebf14d`), and every
+round-4 finding below was re-checked against the current bytes before disposition.
 
-Confirmation of the round-3 dispositions over stable bytes.
+## Round 4
 
-**Recorded deviation on bytes reviewed.** Round 3's review ran against the working tree while
-the R2-2 count fixes were being committed, and round 4's ran while the `_holdout_h03` fix
-above was being made. Neither review is over a single frozen snapshot, and saying so is
-cheaper than pretending otherwise. The round-4 disposition below records the commit each
-finding was checked against, and any finding that turns on bytes that moved underneath it is
-re-checked against the final pre-freeze commit before the freeze is taken.
+Verbatim: [`reviews/round-4/REVIEW.md`](reviews/round-4/REVIEW.md). Verdict: **not freezable**,
+six blockers. Confirmed closed: the amended R2-H (blocker 6 of round 3), and the
+implementations behind the formal-R1/renderer and authority-binding blockers. Everything
+else came back partial — and one came back as never dispositioned at all.
+
+### The round-3 record was not the review that was dispositioned
+
+Round 4's first finding is a record-integrity failure, and it is the most serious thing in
+this document.
+
+Round 3 was launched twice. The first launch printed nothing and its output file was empty
+when checked, so it was treated as failed and a second launch was started over the same bytes
+with the same reviewer configuration. The first launch had not failed. It was still running,
+and it later wrote its output to the same path — **overwriting the second launch's review
+after that review had already been read and dispositioned**. The blocker table above answers
+the second run; the file committed as the round-3 record was the first.
+
+Round 4 caught it by reading the record against the dispositions: row 1 answers the committed
+review's blocker *2*, and the committed review's blocker *1* — add a never-seen-version
+control — appears nowhere. It was never dispositioned, and would have gone into the freeze
+unaddressed.
+
+Both reviews are now kept, at [`reviews/round-3/REVIEW-run-a.md`](reviews/round-3/REVIEW-run-a.md)
+and [`reviews/round-3/REVIEW-run-b.md`](reviews/round-3/REVIEW-run-b.md), with the collision
+explained in [`reviews/round-3/README.md`](reviews/round-3/README.md). Run B was recovered
+verbatim from the session transcript, since the bytes on disk no longer held it. Neither is
+treated as authoritative; both were addressed. Review output now goes to a run-specific path,
+so two runs can no longer write the same file.
+
+Worth stating rather than burying: two runs of the same reviewer over the same bytes produced
+**different blocker sets**. That is a fact about the review instrument, not only about this
+incident, and it argues against reading any single round as exhaustive.
+
+### Round-4 blockers — disposition
+
+| # | Disposition |
+| --- | --- |
+| 1 | **Accepted — the omission above.** `neg-never-supported-version` is registered and built: version `9.9.9`, which the registry never bound at any digest, under `grandfather-on-cited-support` with a citation of position 2. It is a genuinely different path through the pinned fold than the existing controls — the version is *absent* from the supported map rather than *present at another digest* — and it reports `not-usable-never-supported` with `citedPosition: 2, retiredAtPosition: null`, as registered. A unit vector covers the same tuple under all three rules. Counts updated: 22 cells, 5 negative controls. |
+| 2 | **Accepted.** Three residual contradictions between SPEC and code, all real: the ceremony is now numbered from step **0** (the currency gate refuses before any configuration is parsed); `stop-at-retirement` no longer claims to consume the verdict "alone", since it folds history to choose between its two refusals; and `citedPosition` is defined by whether the layer *reaches* the citation step, with the duration-window case named explicitly — it refuses first and publishes no evidence however good the retained citation is. |
+| 3 | **Accepted.** The explicit claims were fixed in round 3 while equivalent ones survived in the module title, the SPEC's configuration section, a matrix cell note, the README headline and R2's own summary sentence. All now say *stated* or *configured* rule. The only surviving mention of a relying party is the §4c limitation that disclaims exactly this. |
+| 4 | **Accepted.** The regression checked substrings, so wrong values would have passed. It now parses every rendered row, reconciles role, expected, observed and both structured fields against `RESULTS.json`, requires the row count to cover every cell and layer, requires each identity group to render, and exercises both mismatch markers by rendering a fabricated divergent record — since the locked stratum is correctly all-concordant and cannot produce one. |
+| 5 | **Accepted.** "Some mismatch appears" would have passed a scorer checking one fixture, so the test now requires the mutated label to flag **every** cell by id. Banning one literal spelling proved nothing about the builder reading the label, so a second test points `PINS_PATH` at a mutated registry, rebuilds, and asserts every fixture's `authorityPublicKey` follows the new label — and that an absent, empty or non-string label is refused rather than defaulted. |
+| 6 | **Accepted.** The six pins are now asserted literally, so dropping one from `FREEZE_PINS` fails here instead of silently shrinking the test. A tripwire on the upstream loader proves refusal precedes any key derivation or byte, and that nothing is written under the working directory. The static call-site audit listed callees by hand and so skipped hook-to-hook calls — exactly the ones most likely to drift — and now covers every holdout callable. The count test derives the negative-control breakdown too, so editing "two never-bound-digest controls" no longer passes. |
+
+## Round 5 — pending
+
+Confirmation of the round-4 dispositions.
