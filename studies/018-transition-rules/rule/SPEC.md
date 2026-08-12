@@ -105,7 +105,11 @@ else — including whenever Layer CURRENCY has already withheld an adjudicable v
   It is `null` for `stop-at-retirement`, which reads no citation at all, and also `null`
   whenever an earlier gate refuses first — a non-adjudicable currency verdict, a missing
   fold, a malformed or foreign-series configuration, or a duration window — however good
-  the retained citation may be.
+  the retained citation may be. It is `null` in one **later** case too: if the citation is
+  located but the history then fails to fold cleanly, the layer returns
+  `transition-unavailable` without attaching either field. So a located citation is
+  necessary for a non-null `citedPosition` and not sufficient, and no cell may be read as
+  "the citation was absent" merely because the field is null.
 - **`retiredAtPosition`** — the **first departure strictly after `citedPosition`**: the
   lowest `p > citedPosition` at which the member is supported after `p−1` events and not
   after `p`. It is **relative to the citation, not to the history as a whole**, and it is
@@ -142,5 +146,5 @@ Closing that gap needs a trusted ordering between the artifact and the registry,
 RFC 0011 Unresolved #3 leaves open and this study does not supply.
 
 Ceiling, both layers, stated once and meant: binding/lineage, not truth. The registry says
-which versions an authority asserted in force; a transition rule says what one relying
-party does with that; neither says that anything is right.
+which versions an authority asserted in force; a transition rule says what one stated rule
+makes of that; neither says that anything is right.

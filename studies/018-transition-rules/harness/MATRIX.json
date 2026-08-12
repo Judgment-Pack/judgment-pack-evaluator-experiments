@@ -368,12 +368,12 @@
       "role": "control-gate",
       "attackerCapability": "tamper",
       "registeredAbsences": [],
-      "construction": "the full history with a commitment naming version 9.9.9, which this registry never bound at any digest; grandfather-on-cited-support with a citation of position 2",
+      "construction": "the full history with a commitment naming version 9.9.9 at DIGEST_A - a digest this registry DID bind, but to version 1.0.0, never to 9.9.9; grandfather-on-cited-support with a citation of position 2",
       "expected": {
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-never-supported"
       },
-      "note": "round-4 blocker 1: the other two never-supported controls name a version the registry DID bind, at a digest it did not. An unknown VERSION is a different path through the pinned fold - the version is absent from the supported map rather than present with another digest - and had no vector until this cell. It must reach never-supported, not a departure code and not usable",
+      "note": "round-4 blocker 1, corrected in round 5: the other two never-supported controls name a version the registry bound at a digest it did not. This cell inverts that - the DIGEST is in the supported set, under another version - so it fails any implementation that treats membership as a digest question rather than a (version, digest) binding. It does NOT take a different path through the pinned fold: fold_supported is given only the history and the series and returns a version-to-digest map, and the key-miss versus digest-mismatch distinction happens afterwards in this study's _supported_at. It must reach never-supported, not a departure code and not usable",
       "expectedRuleEvidence": {
         "citedPosition": 2,
         "retiredAtPosition": null

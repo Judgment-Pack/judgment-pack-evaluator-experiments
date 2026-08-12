@@ -4,6 +4,7 @@ import dataclasses
 import importlib.util
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -90,6 +91,29 @@ def test_registered_authority_binds_the_retained_fixtures():
         "unflagged: %s" % sorted({c["id"] for c in matrix["cells"]} - flagged))
 
 
+def test_authority_check_reads_each_fixture_not_just_the_first(tmp_path, monkeypatch):
+    """Round-5 finding 5: deriving "every cell was checked" from ids in error
+    strings passes a scorer that re-reads the FIRST trust configuration while
+    reporting the current loop id. Here exactly one fixture is corrupted, in a
+    copied tree, and exactly that cell must be flagged."""
+    shutil.copytree(STUDY / "fixtures", tmp_path / "fixtures")
+    monkeypatch.setattr(score, "STUDY", tmp_path)
+    matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+
+    for victim in ("bnd-duration-window", matrix["cells"][-1]["id"]):
+        path = build_fixtures.cell_directory(tmp_path / "fixtures", victim) / "trustconfig.json"
+        original = path.read_text(encoding="utf-8")
+        trust = json.loads(original)
+        trust["authorityPublicKey"] = "A" + trust["authorityPublicKey"][1:]
+        path.write_text(json.dumps(trust, indent=2), encoding="utf-8")
+        try:
+            problems = [p for p in score.pin_problems(pins) if "does not derive" in p]
+        finally:
+            path.write_text(original, encoding="utf-8")
+        assert len(problems) == 1 and victim in problems[0], (victim, problems)
+
+
 def test_locked_builder_follows_a_mutated_authority_label(tmp_path, monkeypatch):
     """Round-4 blocker 5: banning one literal spelling is not the property.
 
@@ -113,9 +137,21 @@ def test_locked_builder_follows_a_mutated_authority_label(tmp_path, monkeypatch)
             (STUDY / "harness" / "PINS.json").read_text(encoding="utf-8")
         )["registryAuthority"]["authoritySeedLabel"]))
     assert expected != committed
+    ns = upstream016.load(build=True)
     for cid, payload in payloads.items():
         trust = json.loads(payload["trustconfig.json"].decode("utf-8"))
         assert trust["authorityPublicKey"] == expected, cid
+        # Round-5 finding 5: checking only the emitted trust key would pass a
+        # builder that kept signing histories with a hard-coded authority while
+        # advertising the label-derived one — producing fixtures that cannot
+        # verify. The snapshot must actually be signed by the label's key.
+        if cid == "neg-currency-unauthenticated":
+            continue                       # deliberately corrupted signature
+        outcome = ns.verify_currency.layer_currency(
+            json.loads(payload["commitment.json"].decode("utf-8")),
+            payload["snapshot.json"], payload["trustconfig.json"])
+        assert outcome["verdict"] in ("pass", "fail"), (cid, outcome)
+        assert outcome["code"] in (None, "not-current-at-snapshot"), (cid, outcome["code"])
 
     # an absent or empty label is refused rather than silently defaulted
     for bad in (None, "", 7):
@@ -221,29 +257,60 @@ def test_rendered_matrix_publishes_this_studys_evidence(tmp_path):
         diverged = record["observed"][layer] != record["expected"][layer]
         assert ("≠" in parts[4]) == diverged, (cid, layer)
         if layer == "transition":
+            # each field is checked in its own rendered clause, so registered
+            # values cannot be swapped between fields and still pass
+            expected_evidence = record.get("expectedRuleEvidence") or {}
+            clauses = dict(zip(score.EVIDENCE_FIELDS, parts[5].split(", ")))
+            assert set(clauses) == set(score.EVIDENCE_FIELDS), parts[5]
             for field, value in (record.get("ruleEvidence") or {}).items():
-                assert "%s: %s" % (field, value) in parts[5], (cid, field)
-            for field, value in (record.get("expectedRuleEvidence") or {}).items():
-                assert "registered %s" % value in parts[5], (cid, field)
+                clause = clauses[field]
+                assert clause.startswith("%s: %s" % (field, value)), (cid, field, clause)
+                if field in expected_evidence:
+                    assert "(registered %s" % expected_evidence[field] in clause, (cid, field)
+                else:
+                    assert "registered" not in clause, (cid, field)
+            # a concordant row carries no structured mismatch marker either
+            if not record["divergent"]:
+                assert "≠" not in parts[5], (cid, parts[5])
 
     # every registered identity group is rendered as its own row
     assert "## Registered identity groups" in rendered
     for group in matrix.get("identityGroups", ()):
         assert ", ".join(group) in rendered
 
-    # and the mismatch markers must actually appear when values disagree —
-    # exercised directly, since the locked stratum is (correctly) all-concordant
-    fabricated = json.loads(json.dumps({k: v for k, v in results["cells"].items()}))
+    # The mismatch markers must appear when values disagree. Round-5 finding 4:
+    # a single fabrication that breaks BOTH at once, checked with "does any row
+    # contain ≠", passes even when one of the two markers is deleted. The two
+    # are therefore fabricated and asserted separately.
     victim = "div-position-window-elapsed"
-    fabricated[victim]["observed"]["transition"] = "usable"
-    fabricated[victim]["ruleEvidence"]["retiredAtPosition"] = 99
-    fabricated[victim]["expectedRuleEvidence"] = {"citedPosition": 2, "retiredAtPosition": 4}
-    forged = score.detection_matrix_markdown(
-        "PILOT", matrix, fabricated, {}, "R1 falsified (PILOT)", [victim])
-    victim_rows = [l for l in forged.splitlines() if l.startswith("| " + victim + " |")]
-    assert any("≠" in row for row in victim_rows), "outcome mismatch marker missing"
-    assert any("retiredAtPosition: 99 (registered 4 ≠)" in row for row in victim_rows), (
+
+    def render(mutate):
+        fabricated = json.loads(json.dumps(results["cells"]))
+        mutate(fabricated[victim])
+        forged = score.detection_matrix_markdown(
+            "PILOT", matrix, fabricated, {}, "R1 falsified (PILOT)", [victim])
+        return [l for l in forged.splitlines() if l.startswith("| " + victim + " |")]
+
+    def outcome_only(record):
+        record["observed"]["transition"] = "usable"
+
+    def evidence_only(record):
+        record["ruleEvidence"]["retiredAtPosition"] = 99
+        record["expectedRuleEvidence"] = dict(record.get("expectedRuleEvidence") or {},
+                                              retiredAtPosition=4)
+
+    outcome_rows = render(outcome_only)
+    transition_row = [r for r in outcome_rows if "| transition |" in r][0]
+    assert "`usable` ≠" in transition_row, "outcome mismatch marker missing"
+    assert "≠" not in transition_row.rsplit("|", 2)[1], (
+        "an outcome-only mismatch must not mark the evidence column")
+
+    evidence_rows = render(evidence_only)
+    transition_row = [r for r in evidence_rows if "| transition |" in r][0]
+    assert "retiredAtPosition: 99 (registered 4 ≠)" in transition_row, (
         "structured-evidence mismatch marker missing")
+    assert "` ≠" not in transition_row, (
+        "an evidence-only mismatch must not mark the outcome column")
 
 
 def test_scorer_refuses_existing_attempt_root(tmp_path):
@@ -380,6 +447,12 @@ def test_preregistration_counts_are_derived_from_the_matrix():
 
     words = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
              7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+    # the registered rule count is a count too (round-5 finding 6: changing
+    # "three registered rules" passed while the test claimed to derive them all)
+    assert "one of three registered rules" in text and len(transition.RULES) == 3
+    for rule in transition.RULES:
+        assert "`%s`" % rule in text, rule
+
     absences = count(lambda c: c.get("registeredAbsences"))
     assert "names the %s cells that deliberately retain no citation" % words[absences] in text
 
@@ -464,6 +537,11 @@ def test_holdout_refusal_precedes_any_key_or_payload(tmp_path, monkeypatch):
             getattr(build_fixtures, name)(None)
     with pytest.raises(build_fixtures.HoldoutRefused):
         build_fixtures.construct_holdout(None, tmp_path, [{"id": "h01"}])
+    # round-5 finding 6: `_holdout_cell` is a holdout-producing primitive in its
+    # own right and was omitted from this tripwire
+    with pytest.raises(build_fixtures.HoldoutRefused):
+        build_fixtures._holdout_cell(None, None, None, [], commitment=b"{}",
+                                     rule="stop-at-retirement")
     assert not touched
     # and nothing was written anywhere under the working directory
     assert not [p for p in tmp_path.rglob("*") if p.is_file()]
@@ -539,12 +617,19 @@ def test_holdout_call_sites_bind_statically():
             except TypeError as error:
                 raise AssertionError("%s calls %s incompatibly: %s"
                                      % (node.name, name, error))
-            # and the context must be threaded, never a stray local
-            if name in ("_holdout_cell", "_authority", "_require_context") and call.args:
+            # The context must be threaded, never a stray local and never a
+            # literal. Round-5 finding 6: restricting this to three inner
+            # functions let `_holdout_h05` call `_holdout_h04(None, ...)` and
+            # still bind, with the gate hiding it until the attempt. The rule
+            # is now derived from the callee: anything whose first parameter is
+            # `context` must receive the caller's `context` by name.
+            takes_context = list(signature.parameters)[:1] == ["context"]
+            if takes_context and call.args:
                 first = call.args[0]
                 assert isinstance(first, ast.Name) and first.id == "context", (
-                    "%s passes %s as the context of %s"
-                    % (node.name, ast.dump(first)[:40], name))
+                    "%s passes %r as the context of %s - every holdout route "
+                    "must thread the caller's context"
+                    % (node.name, ast.unparse(first), name))
             checked += 1
     assert checked >= 20, "the call-site audit found almost nothing to check"
 

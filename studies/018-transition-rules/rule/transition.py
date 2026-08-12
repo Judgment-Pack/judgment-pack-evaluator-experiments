@@ -22,14 +22,17 @@ and each rule's semantics are hard-coded branches below, so a fourth rule is a
 registered patch, not a configuration change (round-1 R1-7 — the earlier claim
 to the contrary is withdrawn):
 
-- `stop-at-retirement` — no reliance once the version has left the supported
-  set at the auditor's snapshot. Needs no citation at all.
+- `stop-at-retirement` — no reliance unless this exact `(version, digest)` is
+  in the supported set at the auditor's snapshot. Needs no citation at all.
+  When it is not, the fold decides *which* refusal: never-supported when the
+  binding is in the set at no prefix, not-in-supported-set when it departed.
 - `position-window` — reliance permitted for a bounded number of registry
-  **positions** after the position at which the version left the set. Needs
-  the citation, and is computable only because the ordering it uses is
-  positional; a duration window is `transition-unavailable`, because
-  `effectiveFrom` is inert in the pinned upstream and nothing here holds a
-  clock.
+  **positions** after the **first departure strictly after the cited
+  position**, not after some single leaving position of the history: a
+  binding may enter and leave repeatedly. Needs the citation, and is
+  computable only because the ordering it uses is positional; a duration
+  window is `transition-unavailable`, because `effectiveFrom` is inert in the
+  pinned upstream and nothing here holds a clock.
 - `grandfather-on-cited-support` — reliance permitted if the artifact cites a head at which
   the version was still in the supported set. Needs the citation.
 

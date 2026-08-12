@@ -139,7 +139,10 @@ text alone establishes. Either way the outcome is reported separately and cannot
 
 ## Round 3
 
-Verbatim: [`reviews/round-3/REVIEW.md`](reviews/round-3/REVIEW.md). Verdict: **not freezable**,
+Verbatim: [`reviews/round-3/REVIEW-run-b.md`](reviews/round-3/REVIEW-run-b.md) — this is the
+run these dispositions answer; see [`reviews/round-3/README.md`](reviews/round-3/README.md)
+and [`REVIEW-run-a.md`](reviews/round-3/REVIEW-run-a.md) for the other run and why there are
+two. Verdict: **not freezable**,
 six blockers. The reviewer confirmed R1-1/R1-2/R2-1, R1-11, R1-3, R1-8, R1-9, R1-12 and the
 R2-2 correction, and **rejected five dispositions** whose residuals were still live in bytes.
 
@@ -257,13 +260,50 @@ incident, and it argues against reading any single round as exhaustive.
 
 | # | Disposition |
 | --- | --- |
-| 1 | **Accepted — the omission above.** `neg-never-supported-version` is registered and built: version `9.9.9`, which the registry never bound at any digest, under `grandfather-on-cited-support` with a citation of position 2. It is a genuinely different path through the pinned fold than the existing controls — the version is *absent* from the supported map rather than *present at another digest* — and it reports `not-usable-never-supported` with `citedPosition: 2, retiredAtPosition: null`, as registered. A unit vector covers the same tuple under all three rules. Counts updated: 22 cells, 5 negative controls. |
+| 1 | **Accepted — the omission above.** `neg-never-supported-version` is registered and built: version `9.9.9`, which the registry never bound at any digest, under `grandfather-on-cited-support` with a citation of position 2. Round 5 corrected the mechanism claimed for it: it does **not** take a different path through the pinned fold, which is given only the history and the series and returns a version-to-digest map — the key-miss versus digest-mismatch distinction happens afterwards in `_supported_at`. What makes it non-redundant is the inverse of the existing controls: its digest **is** in the supported set, bound to another version, so it fails any implementation treating membership as a digest question rather than a `(version, digest)` binding. It reports `not-usable-never-supported` with `citedPosition: 2, retiredAtPosition: null`, as registered. A unit vector covers the same tuple under all three rules. Counts updated: 22 cells, 5 negative controls. |
 | 2 | **Accepted.** Three residual contradictions between SPEC and code, all real: the ceremony is now numbered from step **0** (the currency gate refuses before any configuration is parsed); `stop-at-retirement` no longer claims to consume the verdict "alone", since it folds history to choose between its two refusals; and `citedPosition` is defined by whether the layer *reaches* the citation step, with the duration-window case named explicitly — it refuses first and publishes no evidence however good the retained citation is. |
 | 3 | **Accepted.** The explicit claims were fixed in round 3 while equivalent ones survived in the module title, the SPEC's configuration section, a matrix cell note, the README headline and R2's own summary sentence. All now say *stated* or *configured* rule. The only surviving mention of a relying party is the §4c limitation that disclaims exactly this. |
 | 4 | **Accepted.** The regression checked substrings, so wrong values would have passed. It now parses every rendered row, reconciles role, expected, observed and both structured fields against `RESULTS.json`, requires the row count to cover every cell and layer, requires each identity group to render, and exercises both mismatch markers by rendering a fabricated divergent record — since the locked stratum is correctly all-concordant and cannot produce one. |
 | 5 | **Accepted.** "Some mismatch appears" would have passed a scorer checking one fixture, so the test now requires the mutated label to flag **every** cell by id. Banning one literal spelling proved nothing about the builder reading the label, so a second test points `PINS_PATH` at a mutated registry, rebuilds, and asserts every fixture's `authorityPublicKey` follows the new label — and that an absent, empty or non-string label is refused rather than defaulted. |
 | 6 | **Accepted.** The six pins are now asserted literally, so dropping one from `FREEZE_PINS` fails here instead of silently shrinking the test. A tripwire on the upstream loader proves refusal precedes any key derivation or byte, and that nothing is written under the working directory. The static call-site audit listed callees by hand and so skipped hook-to-hook calls — exactly the ones most likely to drift — and now covers every holdout callable. The count test derives the negative-control breakdown too, so editing "two never-bound-digest controls" no longer passes. |
 
-## Round 5 — pending
+## Round 5
 
-Confirmation of the round-4 dispositions.
+Verbatim: [`reviews/round-5/REVIEW.md`](reviews/round-5/REVIEW.md), at clean HEAD `014de8e8`.
+Verdict: **not freezable**. Blocker 1 substantively implemented; 2–6 partial. Every finding
+accepted, and one of them corrects a claim rather than a defect.
+
+### The new control was right for the wrong reason
+
+Round 4's blocker 1 was closed with a mechanism that is **false**:
+`neg-never-supported-version` was described — in the matrix note and in the disposition — as
+taking "a different path through the pinned fold". It does not. `fold_supported` receives
+only the history and the series and returns a version-to-digest map; the key-miss versus
+digest-mismatch distinction happens afterwards, in this study's own `_supported_at`.
+
+The reviewer also supplied the reason the cell *is* non-redundant, which is better than the
+one claimed: version `9.9.9` carries `DIGEST_A`, a digest this registry **did** bind — to
+`1.0.0`. So the cell is the inverse of the other two controls. Their digest is absent from
+the supported set; this one's is present, under another version. It therefore fails any
+implementation that treats membership as a digest question rather than a `(version, digest)`
+binding — a defect class no other cell covers. Both statements of the mechanism are corrected.
+
+This is worth recording as a pattern rather than a slip: the cell was correct, its outcome
+was correct, its evidence was correct, and the *explanation attached to it* was wrong. A
+registered artifact carries its rationale into the freeze, and a wrong rationale is a wrong
+registration even when every observable value is right.
+
+### Round-5 findings — disposition
+
+| # | Disposition |
+| --- | --- |
+| 1 | **Accepted.** See above. The matrix note and this record now state what the cell actually exercises, and explicitly deny the fold-path claim so it cannot be re-derived from the old wording. |
+| 2 | **Accepted.** The module synopsis still defined `stop-at-retirement` by "once the version has left" and `position-window` by "the position at which the version left" — the single-departure model round 2 removed from the code and round 3 removed from the SPEC, surviving in the docstring a reader meets first. Rewritten to the exact `(version, digest)` fold, the never-supported split, and the first departure **after the citation**. SPEC §3a also gained the null case it was missing: a citation can be located and the fold then fail, returning `transition-unavailable` with **no** fields — so a located citation is necessary but not sufficient for a non-null `citedPosition`, and a null must never be read as "no citation was retained". |
+| 3 | **Accepted.** The disposition claimed only §4c still mentioned a relying party; the governing SPEC's closing ceiling paragraph still said a transition rule "says what one relying party does". That is exactly the assertion §4c disclaims, in the document that gets pinned. Fixed. The record also still linked `reviews/round-3/REVIEW.md`, which no longer exists after the two runs were separated — now points at run B, with the README and run A alongside. |
+| 4 | **Accepted, and the flaw was in how the test was constructed.** Expected evidence was matched as an unbound substring, so registered values could be swapped between fields; each field is now checked inside its own rendered clause, and a field with no registration must render none. Worse, the fabricated divergence broke the outcome **and** the evidence at once and the assertion asked only whether some victim row contained `≠` — so deleting either marker still passed. There are now two fabrications, one per marker, each asserting the marker appears in its own column and **not** in the other. Concordant rows are also asserted to carry no structured marker. |
+| 5 | **Accepted, both halves.** "Every cell was flagged" was derived from ids appearing in error strings, which a scorer re-reading the first fixture while reporting the loop id would satisfy; a new test corrupts exactly one trust configuration in a copied tree and requires exactly that cell to be flagged. And checking only the emitted trust keys would pass a builder that advertised the label-derived authority while still **signing** with a hard-coded one — producing fixtures that cannot verify. The mutated-label rebuild now runs Layer CURRENCY over every rebuilt cell and requires a clean authority result. |
+| 6 | **Accepted.** The tripwire omitted `_holdout_cell` itself. The call-site audit enforced context identity for three named functions, so `_holdout_h05` calling `_holdout_h04(None, …)` bound cleanly and stayed hidden behind the gate until the attempt — the rule is now derived from the **callee**: anything whose first parameter is `context` must receive the caller's `context` by name. Verified against the reviewer's exact mutation. The count test's "every count" claim did not cover the registered rule count; it now derives that from `transition.RULES` and requires each rule name in the prose. |
+
+## Round 6 — pending
+
+Confirmation of the round-5 dispositions.
