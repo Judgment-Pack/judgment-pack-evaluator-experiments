@@ -9,7 +9,9 @@ timestamp or an absolute path.
 Regime, inherited from Studies 014/016: the marker precedes the registry
 parse and carries `pinsRawSha256` over the exact bytes then parsed (single
 read); every non-null pin is enforced before adjudication; `REGISTERED`
-requires every freeze pin non-null; the validity channel is separate from
+requires every freeze pin non-null AND `--include-holdout`, because the frozen
+stratum states that its first execution IS the registered primary attempt; a
+fully pinned run without it is a PILOT; the validity channel is separate from
 detection (NOT-ADJUDICATED, never a true/false detection); the scorer refuses
 an existing attempt root; every failure path after the marker persists a
 terminal record (`SystemExit`/`KeyboardInterrupt` recorded, then re-raised);
@@ -794,7 +796,13 @@ def main(argv=None):
             "cells": len(cells),
             "adjudicated": sum(1 for r in cells.values() if r["adjudicated"]),
             "endpoints": sum(1 for r in cells.values() if r["role"] == "endpoint"),
-            "endpointDivergences": len(causes) if verdict == "R1 falsified" else 0,
+            "endpointDivergences": sum(
+                1 for cid in causes
+                if verdict == "R1 falsified" and cells[cid]["role"] == "endpoint"),
+            "registeredUndetectedDivergences": sum(
+                1 for cid in causes
+                if verdict == "R1 falsified" and cells[cid].get("registeredUndetected")
+                and cells[cid]["role"] != "endpoint"),
             "registeredUndetectedConfirmed": sorted(
                 cid for cid, r in cells.items()
                 if r.get("registeredUndetected") and r["adjudicated"] and not r["divergent"]
@@ -804,7 +812,7 @@ def main(argv=None):
             "attemptRoot": attempt_root.name,
             "label": label,
             "includeHoldout": bool(arguments.include_holdout),
-            "pipelineInvalid": False,
+            "pipelineInvalid": verdict.endswith("pipeline-invalid"),
             "pinsRawSha256": pins_raw_sha256,
             "matrixSha256": sha256_file(MATRIX_PATH),
             "verdict": "%s (%s)" % (verdict, label),

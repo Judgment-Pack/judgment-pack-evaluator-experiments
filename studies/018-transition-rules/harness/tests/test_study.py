@@ -558,7 +558,7 @@ def test_holdout_machinery_lands_with_the_reviewer_cells():
             "reviewer's block stays byte-for-byte as authored")
 
 
-def test_holdout_refusal_precedes_any_upstream_load_or_write(tmp_path, monkeypatch):
+def test_holdout_refusal_precedes_the_upstream_loader_and_this_modules_writers(tmp_path, monkeypatch):
     """Round-4 blocker 6: refusing eventually is not the property.
 
     The bypass test asserts only that `HoldoutRefused` is raised in the end; a
@@ -722,18 +722,30 @@ def test_holdout_call_sites_bind_statically():
                      or node.name in ("construct_holdout", "gated_hook", "_authority"))):
             continue
         for call in ast.walk(node):
-            if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Name)):
+            if not isinstance(call, ast.Call):
                 continue
-            if hasattr(build_fixtures, call.func.id) or hasattr(builtins, call.func.id):
-                continue          # a named module callable (bound above) or a builtin
+            # Round-9 finding 3: restricting this to `ast.Name` callees let
+            # `HOLDOUT_HOOKS[cell_id](context, spurious=5)` through, because a
+            # subscript is not a Name. Any callee that is not a known module
+            # function or a builtin is treated as a dynamic holdout dispatch.
+            if isinstance(call.func, ast.Name):
+                if (hasattr(build_fixtures, call.func.id)
+                        or hasattr(builtins, call.func.id)):
+                    continue
+            elif isinstance(call.func, ast.Subscript):
+                pass                      # HOLDOUT_HOOKS[...] and friends
+            else:
+                continue                  # attribute calls: json.dumps, Path.read_bytes
+            callee = ast.unparse(call.func)
             supplied = [ast.unparse(a) for a in call.args]
             keywords = [kw.arg for kw in call.keywords]
             assert supplied == ["context"] and not keywords, (
                 "%s dispatches %s with %r / %r; a dynamic holdout call must pass "
-                "the context and nothing else — round-8 finding 6a: restricting "
-                "this to positional arguments let hook(context, spurious=5) pass "
-                "every audit and fail only at the attempt, as harness-error"
-                % (node.name, call.func.id, supplied, keywords))
+                "the context and nothing else. Round-8 finding 6a: positional-only "
+                "checking let hook(context, spurious=5) pass every audit and fail "
+                "at the attempt as harness-error. Round-9 finding 3: Name-only "
+                "checking let HOLDOUT_HOOKS[cell_id](context, spurious=5) do the same"
+                % (node.name, callee, supplied, keywords))
             dynamic += 1
     assert dynamic, "the dynamic-dispatch audit inspected nothing"
 
@@ -746,6 +758,13 @@ def test_holdout_call_sites_bind_statically():
         for call in ast.walk(node):
             if not isinstance(call, ast.Call):
                 continue
+            assert not any(kw.arg is None for kw in call.keywords), (
+                "%s expands **mapping into %s; inside holdout scope every argument "
+                "must be visible to this audit (round-9 finding 3)"
+                % (node.name, ast.unparse(call.func)))
+            assert not any(isinstance(a, ast.Starred) for a in call.args), (
+                "%s expands *sequence into %s; same reason"
+                % (node.name, ast.unparse(call.func)))
             for argument in list(call.args) + [kw.value for kw in call.keywords]:
                 assert not (isinstance(argument, ast.Constant) and argument.value is None), (
                     "%s passes a literal None to %s; inside holdout scope a "
@@ -906,3 +925,49 @@ def test_registered_label_requires_the_holdout_stratum(tmp_path, monkeypatch):
     results = json.loads((root / "RESULTS.json").read_text(encoding="utf-8"))
     assert results["label"] != "REGISTERED", (
         "a run without the holdout stratum must never carry the registered label")
+
+
+def test_composition_gate_is_independent_of_the_transition_gate():
+    """Round-9 blocker: the composed verdict was algebraically a no-op.
+
+    It read `usable if transition is usable AND currency is adjudicable else
+    <transition outcome>` — and in the one case the gate exists for, transition
+    IS `usable`, so the `else` handed back `usable` anyway. Nothing was wrong in
+    practice only because `layer_transition` refuses a non-adjudicable currency
+    verdict itself. No test caught it because every test drove the composition
+    through the layer, which can never produce the combination that exposes it.
+
+    This test therefore calls `compose` directly with combinations the layer
+    cannot emit — that isolation is the point, not an artifact.
+    """
+    adjudicable = transition.ADJUDICABLE_CURRENCY
+    assert "pass" in adjudicable and "fail:not-current-at-snapshot" in adjudicable
+
+    # the case the gate exists for: the layer could never say this, but if it
+    # did, composition must withhold `usable` on its own authority
+    for refused in ("unavailable", "fail:snapshot-signature-invalid",
+                    "fail:snapshot-chain-inconsistent", "fail:binding-rebound",
+                    "fail:currency-unavailable"):
+        assert refused not in adjudicable
+        assert run_verify.compose(refused, "usable") != "usable", refused
+
+    # and it must not withhold `usable` from an adjudicable answer — including
+    # the failing one, which is the entire subject of the study
+    for allowed in adjudicable:
+        assert run_verify.compose(allowed, "usable") == "usable", allowed
+
+    # a refusal is carried through unchanged, never upgraded
+    for allowed in adjudicable:
+        for refusal in ("unavailable", "not-usable:not-usable-never-supported",
+                        "not-usable:not-usable-window-elapsed"):
+            assert run_verify.compose(allowed, refusal) == refusal
+
+    # every registered cell composes exactly as before this gate was repaired
+    matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
+    for cell in matrix["cells"]:
+        outcome = run_verify.verify_cell(
+            build_fixtures.cell_directory(STUDY / "fixtures", cell["id"]))
+        legacy = ("usable" if outcome["transition"]["outcome"] == "usable"
+                  and outcome["currency"]["outcome"] in adjudicable
+                  else outcome["transition"]["outcome"])
+        assert outcome["combined"] == legacy, cell["id"]

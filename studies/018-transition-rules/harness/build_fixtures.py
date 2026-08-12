@@ -85,7 +85,12 @@ def registered_authority_label():
 
 
 def build_payloads():
-    """Every registered cell's payload, keyed by cell id."""
+    """Every LOCKED-stratum cell's payload, keyed by cell id.
+
+    Not every registered cell: the reviewer holdout is built by
+    `construct_holdout` inside the attempt, behind the freeze gate, and never
+    passes through here (round-9).
+    """
     ns = upstream016.load(build=True)
     registry = ns.checkpoint
     # Round-1 R1-13: derived from the registered label, never hard-coded, so
@@ -162,8 +167,10 @@ def build_payloads():
     cells["bnd-backdated-citation"] = cell("grandfather-on-cited-support", cited=2)
     # A duration window: no trusted ordering exists offline.
     cells["bnd-duration-window"] = cell("position-window", cited=2, duration="24h")
-    # Mint-time refusal is a producer policy, exhibited as a rule that would
-    # have refused at the head the producer saw.
+    # Mint-time refusal is a COUNTERFACTUAL: no producer stage and no
+    # accepted-head policy exist in this apparatus, so nothing here performs
+    # such a check. The cell exhibits what one WOULD have returned at the head
+    # a producer saw, and is byte-identical to cite-absent-stop-unaffected.
     cells["bnd-mint-time-refusal"] = dict(cells["cite-absent-stop-unaffected"])
     # Round-1 R1-1's control: an unauthenticated snapshot must never reach a rule.
     import json as _json

@@ -1,0 +1,6 @@
+{
+  "attemptRoot": "2026-08-12-build-pilot-10",
+  "includeHoldout": false,
+  "study": "018-transition-rules",
+  "pinsRawSha256": "260c1f1f54dd5ef6696d77fa91205fb928e1ec4ea82e94668aa6966a3655b56c"
+}

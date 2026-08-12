@@ -29,8 +29,11 @@ equal the registered expectations — where Layer CURRENCY is Study 016's frozen
 reporting membership only, and Layer TRANSITION evaluates one of three registered rules
 (`stop-at-retirement`, `position-window`, `grandfather-on-cited-support`) over
 `(cited head, membership at the snapshot, the retained history folded by the pinned upstream,
-rule)` — the fold is an input, not an implementation detail, since every refusal below
-`usable` is chosen by it. The adjudicated channels are exactly `currency`,
+rule)` — the fold is an input, not an implementation detail, because it is what chooses
+*between* the refusals that name the history: never-supported, not-in-supported-set,
+cited-state-not-supported and window-elapsed. The refusals that precede it — a non-adjudicable
+currency verdict, a malformed or foreign-series configuration, a duration window, an absent or
+unlocatable citation — are decided without it. The adjudicated channels are exactly `currency`,
 `transition`, `transition:citedPosition` and `transition:retiredAtPosition`; a cell that
 reaches its registered outcome from the wrong position diverges on the structured channel
 and falsifies R1 just as an outcome divergence does. Divergence in either direction
@@ -96,8 +99,11 @@ cell — `neg-currency-unauthenticated` carries the full history and reports
 (an unregistered rule; an unauthenticated snapshot; two never-bound-digest controls; and one
 never-bound-version control), 11 endpoints across divergence (D), citation value (C) and
 boundaries (B), 1 descriptive row and 1 demonstration — the last two byte-identical to
-endpoints they re-read, registered as identity groups and counted toward nothing. A harness
-test derives these counts from the matrix.
+endpoints they re-read, registered as identity groups and excluded from the **endpoint
+tally** — not from the run. Both are constructed, verified and reported like any other cell;
+either can be NOT-ADJUDICATED and make the pipeline invalid; and a divergence on the
+`registeredUndetected` one falsifies R1 whatever its role. A harness test derives these
+counts from the matrix.
 `registeredAbsences` names the six cells that deliberately retain no citation, so an
 unregistered absence stays a validity failure rather than a finding. Cells that turn on
 *where* the artifact sits in the history additionally register `expectedRuleEvidence`
@@ -146,7 +152,9 @@ control-gate failure → zero divergence among endpoints and registered-undetect
 which is `R1 holds` → otherwise `R1 falsified`); validity separated from detection, with
 `registeredAbsences` read from the registry alone and identity-group divergence a validity
 failure; `ATTEMPT.json` written before the registry is parsed and carrying `pinsRawSha256`
-over the exact bytes then parsed; every terminal path recorded; the scorer refusing an existing
+over the exact bytes then parsed; every terminal path **after that marker** recorded — a
+failure before the marker exists leaves no record by construction, which is why the marker is
+written first; the scorer refusing an existing
 attempt root; the frozen cell-id set and per-cell schema asserted; the SPEC/code vocabulary
 diffed against the evaluator; and builder determinism (build twice, byte-identical).
 

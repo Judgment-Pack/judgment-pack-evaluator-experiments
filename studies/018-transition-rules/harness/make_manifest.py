@@ -1,8 +1,10 @@
 """The whole-study exact-set manifest (the 014/016 linear anchor, link 1).
 
-Covers the protocol documents, both matrix strata, every registry/ and
-harness/ source file, the harness tests, the upstream records, both vendored
-pack fixtures, and every per-cell fixture manifest of the locked stratum. It
+Covers the protocol documents, both matrix strata, the holdout evidence map,
+every rule/ and harness/ source file, the harness tests, and every per-cell
+fixture manifest of the locked stratum. It does NOT cover a registry/ tree,
+upstream records or vendored pack fixtures — this study has none; that wording
+was inherited from Study 016 and was false here (round-9). It
 covers NEITHER itself NOR `harness/PINS.json` — the registry pins the
 manifest's digest (`studyManifest.sha256`), and the freeze commit anchors the
 registry, so after the freeze regenerating the manifest cannot rewrite the

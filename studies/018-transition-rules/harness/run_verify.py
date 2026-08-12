@@ -123,15 +123,31 @@ def verify_cell(cell_dir):
         "currency": dict(currency, outcome=currency_outcome),
         "transition": dict(rule, outcome=outcome_of(rule)),
     }
-    # Usable requires an ADJUDICABLE currency answer plus the rule's
-    # permission — not both layers permitting. A binding outside the
-    # supported set still composes to `usable` under a rule that allows it,
-    # which is the study's whole subject; what is refused is an
-    # unauthenticated or unavailable registry answer (round-1 R1-1).
-    composed = ("usable" if layers["transition"]["outcome"] == "usable"
-                and layers["currency"]["outcome"] in transition.ADJUDICABLE_CURRENCY
-                else layers["transition"]["outcome"])
+    composed = compose(layers["currency"]["outcome"], layers["transition"]["outcome"])
     return dict(layers, combined=composed)
+
+
+def compose(currency_outcome, transition_outcome):
+    """The composed verdict, as an independent gate over the two layers.
+
+    Round-9 blocker: the previous expression was algebraically a no-op. It read
+    `usable if transition is usable AND currency is adjudicable else <transition
+    outcome>` — and in the one case the gate exists for, transition IS `usable`,
+    so the `else` returned `usable` too. The apparatus stayed correct only
+    because `layer_transition` refuses a non-adjudicable currency verdict itself,
+    which is the layer's gate, not this one. The registered matrix note claims
+    composition adds a condition, so it now adds one.
+
+    On every registered cell this returns exactly what it returned before —
+    a non-adjudicable currency verdict already forces `transition-unavailable`
+    upstream — so no expectation changes. What changes is that the claim is true
+    independently of the layer, and defence in depth is actually two deep.
+    """
+    if currency_outcome not in transition.ADJUDICABLE_CURRENCY:
+        return "unavailable"
+    if transition_outcome == "usable":
+        return "usable"
+    return transition_outcome
 
 
 def registered_cell(cell_id):

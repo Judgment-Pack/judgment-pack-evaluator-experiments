@@ -2,7 +2,7 @@
   "pinsVersion": "1",
   "note": "Pin registry, the 016/017 convention. Every non-null member is ENFORCED before adjudication: the freeze-pin digests when filled, every study016.files digest always (harness/upstream016.py loads by authenticated absolute path, compiles from hashed source bytes, refuses pre-existing sys.modules entries for every reserved name, and re-verifies identity/origin/bytes on every load), the registered dependency versions with their distribution roots and imported-module origins, that no bytecode cache a plain import would accept differs from compile() of its source (a stdlib bootstrap before any study or third-party import; an equivalent cache is accepted - existence is not the hazard), and harnessPython.version exactly. Registry-and-rule only (design decision D-1): no evaluator binary and no external clone, so adjudication is fully offline and deterministic.",
   "anchorOrder": "LINEAR, the 014 round-3 order: (1) harness/STUDY-MANIFEST.sha256 covers the protocol documents, both matrix strata, the holdout evidence map, every rule/ and harness/ source file, the harness tests, and every per-cell fixture manifest; it covers NEITHER itself NOR this file; (2) this file pins that manifest's digest in studyManifest.sha256; (3) the freeze commit - together with the pinsRawSha256 stamp every attempt record carries - anchors this file.",
-  "registeredLabelRule": "harness/score.py labels an attempt REGISTERED only when EVERY freeze pin is non-null - preregistration, matrix, matrixHoldout, matrixHoldoutEvidence, ruleSpec, studyManifest. Any null makes it a PILOT, and --include-holdout refuses while any is null.",
+  "registeredLabelRule": "harness/score.py labels an attempt REGISTERED only when EVERY freeze pin is non-null - preregistration, matrix, matrixHoldout, matrixHoldoutEvidence, ruleSpec, studyManifest - AND the run carries --include-holdout, because harness/MATRIX-HOLDOUT.json states that the stratum's first execution IS the registered primary attempt (round-8). Any null pin makes it a PILOT; so does a fully pinned run without the stratum. --include-holdout refuses outright while any pin is null.",
   "study016": {
     "path": "../016-policy-currency-anchor",
     "note": "Study 016's frozen registry modules as a pinned unmodified upstream (decision D-2). registry/verify_currency.py IS Layer CURRENCY, unchanged - its output stays exactly membership-at-snapshot, and this study's transition layer consumes that verdict as a fact rather than recomputing it. registry/checkpoint.py is loaded on BOTH paths: the builder writes fixtures with it, and the scorer loads it to recompute the registered authority pin and to construct the holdout inside the attempt. The earlier BUILD PATH ONLY claim was false and is withdrawn (round-1 R1-13); it is pinned and verified identically on either path.",
@@ -13,25 +13,50 @@
   },
   "dependencies": {
     "note": "Registered third-party versions, enforced before adjudication by name, version, distribution root outside the studies tree, and the origin of the module actually imported. Package CONTENTS are not digest-pinned; that residue is stated in the preregistration rather than claimed closed.",
-    "versions": {"cryptography": "49.0.0", "rfc8785": "0.1.4"}
+    "versions": {
+      "cryptography": "49.0.0",
+      "rfc8785": "0.1.4"
+    }
   },
   "registryAuthority": {
     "note": "Study-minted, fixed-seed Ed25519 - a trust root of the apparatus, stated as such; the seed is a public deterministic fixture and nothing depends on its secrecy.",
     "authoritySeedLabel": "study-018/currency-authority/1"
   },
-  "harnessPython": {"implementation": "CPython", "series": "3.12", "version": "3.12.11"},
-  "matrix": {"path": "harness/MATRIX.json", "sha256": null,
-             "note": "locked-replication cell expectations; digest filled at the freeze. The frozen cell-id set is additionally asserted in harness/score.py"},
-  "matrixHoldout": {"path": "harness/MATRIX-HOLDOUT.json", "sha256": null,
-                    "note": "reviewer-authored holdout stratum, authored during the review rounds, never executed pre-freeze; construction machinery lands with the cells"},
-  "matrixHoldoutEvidence": {"path": "harness/MATRIX-HOLDOUT-EVIDENCE.json", "sha256": null,
-                            "note": "structured-evidence expectations for the reviewer's cells, kept separate so their authored block stays byte-for-byte (the Study 017 round-3 lesson); digest filled at the freeze"},
-  "ruleSpec": {"path": "rule/SPEC.md", "sha256": null,
-               "note": "the registered citation schema, rule vocabulary and evaluation ceremony; digest filled at the freeze"},
-  "studyManifest": {"path": "harness/STUDY-MANIFEST.sha256", "sha256": null,
-                    "generator": "harness/make_manifest.py",
-                    "covers": "README.md, PREREGISTRATION.md, PREREG-REVIEW.md, DEVIATIONS.md, rule/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/MATRIX-HOLDOUT-EVIDENCE.json, every rule/*.py and harness/*.py, harness/tests/*.py, and every fixtures/cells/*/MANIFEST.sha256",
-                    "excludes": "harness/PINS.json (this file) and harness/STUDY-MANIFEST.sha256 (itself)"},
-  "preregistration": {"path": "PREREGISTRATION.md", "sha256": null,
-                      "note": "filled at the freeze; while any freeze pin is null the attempt is a PILOT"}
+  "harnessPython": {
+    "implementation": "CPython",
+    "series": "3.12",
+    "version": "3.12.11"
+  },
+  "matrix": {
+    "path": "harness/MATRIX.json",
+    "sha256": null,
+    "note": "locked-replication cell expectations; digest filled at the freeze. The frozen cell-id set is additionally asserted in harness/score.py"
+  },
+  "matrixHoldout": {
+    "path": "harness/MATRIX-HOLDOUT.json",
+    "sha256": null,
+    "note": "reviewer-authored holdout stratum, authored during the review rounds, never executed pre-freeze; construction machinery lands with the cells"
+  },
+  "matrixHoldoutEvidence": {
+    "path": "harness/MATRIX-HOLDOUT-EVIDENCE.json",
+    "sha256": null,
+    "note": "structured-evidence expectations for the reviewer's cells, kept separate so their authored block stays byte-for-byte (the Study 017 round-3 lesson); digest filled at the freeze"
+  },
+  "ruleSpec": {
+    "path": "rule/SPEC.md",
+    "sha256": null,
+    "note": "the registered citation schema, rule vocabulary and evaluation ceremony; digest filled at the freeze"
+  },
+  "studyManifest": {
+    "path": "harness/STUDY-MANIFEST.sha256",
+    "sha256": null,
+    "generator": "harness/make_manifest.py",
+    "covers": "README.md, PREREGISTRATION.md, PREREG-REVIEW.md, DEVIATIONS.md, rule/SPEC.md, harness/MATRIX.json, harness/MATRIX-HOLDOUT.json, harness/MATRIX-HOLDOUT-EVIDENCE.json, every rule/*.py and harness/*.py, harness/tests/*.py, and every fixtures/cells/*/MANIFEST.sha256",
+    "excludes": "harness/PINS.json (this file) and harness/STUDY-MANIFEST.sha256 (itself)"
+  },
+  "preregistration": {
+    "path": "PREREGISTRATION.md",
+    "sha256": null,
+    "note": "filled at the freeze; while any freeze pin is null the attempt is a PILOT"
+  }
 }

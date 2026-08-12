@@ -38,7 +38,9 @@ follows for a registry's design is not measured here and is not claimed.
   organisation means by "24 hours" — that objection *is* the cell.
 - **The citation's value is rule-dependent**: `stop-at-retirement` needs none and is
   unaffected by every citation finding here; the other two are fail-closed without one.
-- **Mint-time refusal is a producer policy**, not a property of the citation.
+- **Mint-time refusal is a counterfactual**, conditional on a policy this study does not
+  supply: there is no producer stage and no accepted-head policy anywhere in the apparatus.
+  Whatever it shows belongs to that hypothetical policy, never to the citation.
 
 ## Shape
 

@@ -311,7 +311,7 @@
         "currency": "fail:not-current-at-snapshot",
         "transition": "not-usable:not-usable-not-in-supported-set"
       },
-      "note": "DEMONSTRATION, published and never counted (round-1 R1-9): no producer stage, mint event, accepted-head policy or freshness rule exists in this apparatus, so the mint-time reading is prose over an existing adjudication and the identity is registered rather than left implicit. RFC 0011 Unresolved #11 makes such refusal conditional on a separately specified producer policy, which this study does not supply"
+      "note": "DEMONSTRATION, published and never counted (round-1 R1-9): no producer stage, mint event, accepted-head policy or freshness rule exists in this apparatus, so the mint-time reading is prose over an existing adjudication and the identity is registered rather than left implicit. RFC 0011 Unresolved #11 makes such refusal conditional on a separately specified counterfactual policy this apparatus does not supply, which this study does not supply"
     },
     {
       "id": "bnd-foreign-series-rule",

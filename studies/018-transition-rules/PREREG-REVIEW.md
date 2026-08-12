@@ -446,6 +446,55 @@ no such flag, remain pilots after the freeze — as they should be.
 | 10 | **Accepted, all three.** "One adjudication" and "count toward nothing" understated the aliases, which are separately executed, included in 22/22, able to invalidate the pipeline, and — post-finding-1 — able to falsify R1. The decision rule omitted `R1 holds` and claimed "every terminal path" when the guarantee begins at the attempt marker. And dependency distribution roots and origins are checked **live**, not registered or pinned, so a reader cannot reconstruct them from the frozen files; the preregistration implied otherwise. |
 | 6a/6b/tripwire residuals | **Accepted.** `hook(context, spurious=5)` passed every audit and would have failed only at the attempt as `harness-error` — dynamic calls now admit no keywords either. "Every count" still omitted the strata count. The tripwire claimed "any write" while trapping two named writers; it now names them and says a direct `Path.write_bytes` would not be detected. |
 
-## Round 9 — pending
 
-Confirmation of the round-8 dispositions.
+## Round 9
+
+Verbatim: [`reviews/round-9/REVIEW.md`](reviews/round-9/REVIEW.md), at clean HEAD `e7fbea2e`,
+`48 passed`, every manifest green, worktree clean, no holdout cell executed. Verdict: **not
+freezable** — one blocker, two majors, and eight round-8 items rejected as incompletely
+closed. All accepted.
+
+### The composition gate did nothing at all
+
+`run_verify` computed `usable if transition is usable AND currency is adjudicable else
+<the transition outcome>`. In the one case the gate exists for — a rule permitting over a
+currency verdict that is *not* adjudicable — the transition outcome **is** `usable`, so the
+`else` handed back exactly the value the gate was written to withhold. It was algebraically
+a no-op, and had been since round 1's R1-1, whose disposition claims it as the fix.
+
+The apparatus was never wrong: `layer_transition` refuses a non-adjudicable currency verdict
+itself, so the combination can't arise. That is precisely why no test caught it — **every
+test drove composition through the layer, which can never produce the input that exposes the
+defect.** A second line of defence that cannot be reached by the tests is indistinguishable
+from no second line at all, and the frozen matrix note claimed it as an "extra condition".
+
+`compose()` is now a named function that refuses on its own authority, and a regression calls
+it directly with combinations the layer cannot emit — the isolation is the point. On every
+registered cell it returns exactly what it returned before, so no expectation moves; what
+changes is that the registered claim is true independently of the layer. Verified: the test
+fails against the original expression.
+
+### Round-9 findings — disposition
+
+| # | Disposition |
+| --- | --- |
+| Blocker 1 | **Accepted**; see above. |
+| Major 2 | **Accepted.** `RESULTS.json` carried `"pipelineInvalid": false` unconditionally on the success path, so a run whose verdict is `R1 inconclusive - pipeline-invalid` published a flag saying it was not. Derived from the verdict now. |
+| Major 3 | **Accepted.** The widened audit still could not see `HOLDOUT_HOOKS[cell_id](...)`, because a subscript is not an `ast.Name` — the same defect one level up from round 8's. Any callee that is neither a known module function nor a builtin is now treated as a dynamic dispatch, and `*sequence`/`**mapping` expansions are refused outright since they hide arguments from the audit. Verified against both. |
+| Minor 4 | **Accepted.** `make_manifest`'s docstring claimed coverage of a `registry/` tree, upstream records and two vendored pack fixtures — none of which exist in this study; the wording was inherited from Study 016. `build_payloads` claimed to build "every registered cell" when the holdout is built by `construct_holdout` inside the attempt. |
+| R8-1 residual | **Accepted.** Widening `decide()` made `endpointDivergences = len(causes)` wrong: causes can now include the descriptive registered-undetected row. Counted by role, with a separate `registeredUndetectedDivergences`. |
+| R8-3 residual | **Accepted.** "Every refusal below `usable` is chosen by the fold" is false — currency, configuration, duration and citation refusals precede it. And the fold's third question is asked for `grandfather-on-cited-support` too, which publishes `retiredAtPosition` without depending on it. |
+| R8-6 residual | **Accepted.** The behaviour was closed but `PINS.json`'s `registeredLabelRule` and the scorer's own module docstring still stated only the pin requirement — the two places a reader looks for the label rule. |
+| R8-8 residual | **Accepted.** "Producer policy" survived in `README.md` and a builder comment after being corrected in the preregistration. Same fix-where-pointed-at pattern as rounds 6 and 7. |
+| R8-10 residual | **Accepted.** "Counted toward nothing" and "every terminal path" survived in the preregistration and one matrix cell. |
+| R8-6a residual | **Accepted**; see Major 3. |
+| Tripwire residual | **Accepted.** The docstring was honestly scoped but the test's **name** still said "any write". Renamed to `test_holdout_refusal_precedes_the_upstream_loader_and_this_modules_writers` — long, and exactly what it proves. |
+
+The reviewer confirmed closed: the `decide()` precedence (pipeline-invalid → control gates →
+endpoints and registered-undetected), the absence of any successful path to `REGISTERED`
+without an executed holdout, the layer-versus-harness ordering scope, the endpoint-scoped
+scenario, the window-elapsed definition, the holdout envelope, and the strata count.
+
+## Round 10 — pending
+
+Confirmation of the round-9 dispositions.

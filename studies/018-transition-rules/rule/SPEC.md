@@ -91,8 +91,10 @@ resource limits — by the time the refusal below is returned:
    upstream's own `fold_supported` over each **prefix** of the retained payloads, so the
    add/retire/reinstate semantics are the upstream's by construction rather than by a
    re-implementation that could drift (round-1 R1-2). Three questions are asked of it: is the
-   member supported at the **cited** prefix; is it supported after **any** prefix; and, for
-   `position-window`, at which position does it first leave the set **after** the cited one.
+   member supported at the **cited** prefix; is it supported after **any** prefix; and at which
+   position does it first leave the set **after** the cited one. The third is asked whenever
+   the member is supported at the cited position, so `grandfather-on-cited-support` computes
+   and publishes `retiredAtPosition` too even though its verdict does not depend on it.
    No single "interval" is computed; a history may enter and leave repeatedly.
 6. **The rule.** If the member is not supported at the cited position, the refusal is
    `not-usable-never-supported` when it is supported at no prefix at all, and otherwise
