@@ -1,0 +1,1508 @@
+{
+  "attemptRoot": "primary-attempt-001",
+  "label": "REGISTERED",
+  "includeHoldout": true,
+  "pipelineInvalid": false,
+  "pinsRawSha256": "04cad6dfe1dbb42c1dcdc26d669be4d1bab5fcaf40f7e517754d82697cedcecd",
+  "matrixSha256": "8c1c7b2b802c67781890ad8eef18a84ee1293f08e77c1825b12a2835f9c3c48d",
+  "verdict": "R1 holds (REGISTERED)",
+  "verdictCells": [],
+  "summary": {
+    "cells": 22,
+    "adjudicated": 22,
+    "endpoints": 11,
+    "endpointDivergences": 0,
+    "registeredUndetectedDivergences": 0,
+    "registeredUndetectedConfirmed": [
+      "bnd-backdated-citation"
+    ]
+  },
+  "cells": {
+    "bnd-backdated-citation": {
+      "role": "descriptive",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": true,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the cited position is one at which this exact (version, digest) is in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
+      }
+    },
+    "bnd-duration-window": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "this rule names a duration window; no trusted ordering between the artifact and the registry exists offline, so it is not evaluable here (RFC 0011 Unresolved #3)"
+      }
+    },
+    "bnd-foreign-series-rule": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the rule configuration is stated for a different series"
+      }
+    },
+    "bnd-mint-time-refusal": {
+      "role": "demonstration",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-not-in-supported-set"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-not-in-supported-set"
+      },
+      "combined": "not-usable:not-usable-not-in-supported-set",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "not in the supported set at the auditor's snapshot, and this rule permits no reliance beyond that point"
+      }
+    },
+    "cite-absent-grandfather-unavailable": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "this rule needs a cited registry head and none is retained"
+      }
+    },
+    "cite-absent-stop-unaffected": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-not-in-supported-set"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-not-in-supported-set"
+      },
+      "combined": "not-usable:not-usable-not-in-supported-set",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "not in the supported set at the auditor's snapshot, and this rule permits no reliance beyond that point"
+      }
+    },
+    "cite-foreign-history": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the cited head is not a position of the auditor's snapshot: this rule cannot place the artifact in the history it is auditing"
+      }
+    },
+    "cite-unsupported-grandfather": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-cited-state-not-supported"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-cited-state-not-supported"
+      },
+      "combined": "not-usable:not-usable-cited-state-not-supported",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 4,
+        "retiredAtPosition": null
+      },
+      "ruleEvidence": {
+        "citedPosition": 4,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "this exact (version, digest) is not in the supported set at the cited position, whatever it may be elsewhere in the history"
+      }
+    },
+    "cite-unsupported-window": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-cited-state-not-supported"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-cited-state-not-supported"
+      },
+      "combined": "not-usable:not-usable-cited-state-not-supported",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 4,
+        "retiredAtPosition": null
+      },
+      "ruleEvidence": {
+        "citedPosition": 4,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "this exact (version, digest) is not in the supported set at the cited position, whatever it may be elsewhere in the history"
+      }
+    },
+    "div-grandfather-on-cited-support": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "the cited position is one at which this exact (version, digest) is in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
+      }
+    },
+    "div-position-window-elapsed": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-window-elapsed"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-window-elapsed"
+      },
+      "combined": "not-usable:not-usable-window-elapsed",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "2 position(s) elapsed since the departure at position 3; the window permits 1"
+      }
+    },
+    "div-position-window-open": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": 3
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "2 position(s) elapsed since the departure at position 3; the window permits 5"
+      }
+    },
+    "div-stop-at-retirement": {
+      "role": "endpoint",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-not-in-supported-set"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-not-in-supported-set"
+      },
+      "combined": "not-usable:not-usable-not-in-supported-set",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "not in the supported set at the auditor's snapshot, and this rule permits no reliance beyond that point"
+      }
+    },
+    "neg-currency-unauthenticated": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:snapshot-signature-invalid",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:snapshot-signature-invalid",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "checkpoint 2 does not verify under the pinned authority key",
+        "transition": "the currency layer returned 'fail:snapshot-signature-invalid': a transition rule is evaluated only over an authenticated membership answer, never over an integrity or availability failure"
+      }
+    },
+    "neg-never-supported-digest": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "combined": "not-usable:not-usable-never-supported",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) is not in the supported set at snapshot position 5",
+        "transition": "this exact (version, digest) is in the supported set at no position of this history - it did not depart, it was never there, and the registry establishes only non-membership"
+      }
+    },
+    "neg-never-supported-version": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "combined": "not-usable:not-usable-never-supported",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(9.9.9, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "this exact (version, digest) is in the supported set at no position of this history"
+      }
+    },
+    "neg-never-supported-window": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "not-usable:not-usable-never-supported"
+      },
+      "combined": "not-usable:not-usable-never-supported",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) is not in the supported set at snapshot position 5",
+        "transition": "this exact (version, digest) is in the supported set at no position of this history"
+      }
+    },
+    "neg-ruleconfig-malformed": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "observed": {
+        "currency": "fail:not-current-at-snapshot",
+        "transition": "unavailable"
+      },
+      "combined": "unavailable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "(1.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 5",
+        "transition": "rule is not one of stop-at-retirement, position-window, grandfather-on-cited-support"
+      }
+    },
+    "pos-current-grandfather": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "transition": "the cited position is one at which this exact (version, digest) is in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
+      }
+    },
+    "pos-current-stop": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "transition": "in the supported set at the auditor's snapshot"
+      }
+    },
+    "pos-current-window": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "ruleEvidence": {
+        "citedPosition": 2,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "transition": "this exact (version, digest) does not leave the supported set after the cited position anywhere in this history"
+      }
+    },
+    "unchanged": {
+      "role": "control-gate",
+      "adjudicated": true,
+      "expected": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "observed": {
+        "currency": "pass",
+        "transition": "usable"
+      },
+      "combined": "usable",
+      "divergentLayers": [],
+      "divergent": false,
+      "registeredUndetected": false,
+      "expectedRuleEvidence": {},
+      "ruleEvidence": {
+        "citedPosition": null,
+        "retiredAtPosition": null
+      },
+      "detail": {
+        "currency": "current at snapshot position 2",
+        "transition": "in the supported set at the auditor's snapshot"
+      }
+    }
+  },
+  "pairs": {},
+  "holdout": {
+    "reviewer": "codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), round 2",
+    "construction": {
+      "h01": {
+        "cell": "h01",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h02": {
+        "cell": "h02",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h03": {
+        "cell": "h03",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h04": {
+        "cell": "h04",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h05": {
+        "cell": "h05",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h06": {
+        "cell": "h06",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h07": {
+        "cell": "h07",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h08": {
+        "cell": "h08",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h09": {
+        "cell": "h09",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      },
+      "h10": {
+        "cell": "h10",
+        "builderVersionDigest": "d66c7a0b6d9e737cc6cb61a98bdbf9ee917e53cb9fda189733491e02f5af63a2",
+        "status": "built"
+      }
+    },
+    "fixtureDigests": {
+      "h01": {
+        "CONSTRUCTION.json": "0b5ddfb0a0e74ac989264f05c8fa202dcceea343c7b7e5330d181a9a3fed3955",
+        "MANIFEST.sha256": "bb824eda6d9c5a8137d1dba3921d7c349c07036b0f2370881a5b3ec790aced11",
+        "commitment.json": "a7729aba2069c0bbb948e81c62c02c3db1a9f09773bc21dd0af1e8315f160682",
+        "ruleconfig.json": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "snapshot.json": "201fd300060be28d123e5d72320a985c58ed6bf847efdb2cf65b9e6eae3b8d73",
+        "trustconfig.json": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4"
+      },
+      "h02": {
+        "CONSTRUCTION.json": "87f53503553413186d969d59d2dad7d37f92aebec8bcc55e43b5d6b8b8c10c0d",
+        "MANIFEST.sha256": "f7ae9d501c516c0f7658ca198ec1b0c32bd56c5abfd4586ce2df43e05fb9e0b9",
+        "commitment.json": "a7729aba2069c0bbb948e81c62c02c3db1a9f09773bc21dd0af1e8315f160682",
+        "ruleconfig.json": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "snapshot.json": "93c35b7326c6f71daed6819c92c7db034831b22d163b2a0131f860aee41537fd",
+        "trustconfig.json": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4"
+      },
+      "h03": {
+        "CONSTRUCTION.json": "27e80d324aa0c74dc6e463d5a3980cea187330062ce2b021aa2e82e629b25db7",
+        "MANIFEST.sha256": "b1667ce172af395a7cb13b31a3e3897f1f854d712cc79ce54dfed15390e541a5",
+        "citation.json": "b9afef47e927ddf51ec75845f18553b2c5f8b40f4989df7d928224633bbeb534",
+        "commitment.json": "f1b4e9b34ab4c5e1ffd63f3268fdca1d032af808e3c653ece198cd9c60c09d55",
+        "ruleconfig.json": "aea3825c8476e97726cb7cb7072e7d118230e29825e78877d9df54b162c7e8fc",
+        "snapshot.json": "201fd300060be28d123e5d72320a985c58ed6bf847efdb2cf65b9e6eae3b8d73",
+        "trustconfig.json": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4"
+      },
+      "h04": {
+        "CONSTRUCTION.json": "a63cf0296e56d09e05bab2558778bda3339cbb330d20064dcaa168d19a356cc7",
+        "MANIFEST.sha256": "6d36fa2a6eaeb208399adaa9ba749334a4e0bdd1a77918cc14e1230889d72f80",
+        "citation.json": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "commitment.json": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "ruleconfig.json": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "snapshot.json": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "trustconfig.json": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e"
+      },
+      "h05": {
+        "CONSTRUCTION.json": "5ed6e137e0f22c14d47dc0e5d28c09b6c245c302f6dc85724bf54c1a3f2ca78d",
+        "MANIFEST.sha256": "e0b4de24eb41f0d8445d416de5e6c9961dc39996c4250c97867ea7461d64a03d",
+        "citation.json": "6c493a531138f80b16f6fda998d3ad712c167b506e3e0dc3d48b9f13ff200310",
+        "commitment.json": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "ruleconfig.json": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "snapshot.json": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "trustconfig.json": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e"
+      },
+      "h06": {
+        "CONSTRUCTION.json": "ad3499930a4a9e54488a846efd5c7c0f533b235250de3aa9edd2be3491dd5ab1",
+        "MANIFEST.sha256": "2ed3790ba2b006ac979a42aa8c81da4977956c58fe6c00552131f2610f6f28e8",
+        "citation.json": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "commitment.json": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "ruleconfig.json": "cf7904f526b65078089dd1ac4f47ac7e2e746c5ef1fdc3f7459b6427a1082ffc",
+        "snapshot.json": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "trustconfig.json": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e"
+      },
+      "h07": {
+        "CONSTRUCTION.json": "5813a298dd2d7ff823b17440a7bb3a817872a403705eb0f4cae509354d960f6d",
+        "MANIFEST.sha256": "f5b3892a566836e7d925e7e0274005fddfb87bd6b3fc7d6dc1cbab1e08e67904",
+        "citation.json": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "commitment.json": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "ruleconfig.json": "87b46f050257a3cfe3207fe2df8513f20f8aa918dad04d2ed63558f630b4534a",
+        "snapshot.json": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "trustconfig.json": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e"
+      },
+      "h08": {
+        "CONSTRUCTION.json": "3c64578762b43dadf719f4dff1d0fd7c150a9de7dc16ae6d88ced1a28bcc3c96",
+        "MANIFEST.sha256": "6ee339c1746f05b8c6248c9e66ae79954c69302256fd3ef1a96059cee00ffbd7",
+        "citation.json": "3102322f0d3dd0c2a85918a93c9532c8b6680b41a0b35ddf53b1738a7624a409",
+        "commitment.json": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "ruleconfig.json": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "snapshot.json": "e97dfdbcc3cb13d59306e9858a40dfa02bcb762a21d3a2ac4fa041b4bbbaff78",
+        "trustconfig.json": "6f08559859bc24ad379d14c3e3e8cb368b8de0a344a3e5dd43f1bad87bf8c82c"
+      },
+      "h09": {
+        "CONSTRUCTION.json": "64a024183cee3ed630b716e27f7a793233362d534fab24ef384f71c388923d98",
+        "MANIFEST.sha256": "13a3dbb8d51223ff0dcc6998e55607254eeff26550cdd98bd8097bed0c898c2f",
+        "commitment.json": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "ruleconfig.json": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "snapshot.json": "70105e18544453f863c10422dfa3a1b8919bf76d9880227d944fbaee09c161d3",
+        "trustconfig.json": "ef8466c2a5bbf6ca05c3e35fdcbc3dbba46fabfb58bdaa428f3bd974ca48d825"
+      },
+      "h10": {
+        "CONSTRUCTION.json": "b5b49d7dfacf0deb9add576588102aba8d07b3ae7a4c9a11bac19bc7a07c9c59",
+        "MANIFEST.sha256": "7081dad441a5f8182c5188c1e7c9b70bf667ff3e8670bc4988e2933754cda24f",
+        "citation.json": "edb97570f102a76a34695f4ac73bbe7e2122e2d326bf44250dd7e8e508991993",
+        "commitment.json": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "ruleconfig.json": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "snapshot.json": "4f0312cd7db2c9cb2ed2fe0c318c117ee003d8721d4f6c4a96fd8796bf68ddc6",
+        "trustconfig.json": "6f08559859bc24ad379d14c3e3e8cb368b8de0a344a3e5dd43f1bad87bf8c82c"
+      }
+    },
+    "cells": {
+      "h01": {
+        "role": "control-gate",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "transition": "usable"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": null,
+          "retiredAtPosition": null
+        },
+        "observed": {
+          "currency": "pass",
+          "transition": "usable"
+        },
+        "combined": "usable",
+        "divergentLayers": [],
+        "divergent": false,
+        "ruleEvidence": {
+          "citedPosition": null,
+          "retiredAtPosition": null
+        },
+        "detail": {
+          "currency": "current at snapshot position 7",
+          "transition": "in the supported set at the auditor's snapshot"
+        }
+      },
+      "h02": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:snapshot-signature-invalid",
+          "transition": "unavailable"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": null,
+          "retiredAtPosition": null
+        },
+        "observed": {
+          "currency": "fail:snapshot-signature-invalid",
+          "transition": "unavailable"
+        },
+        "combined": "unavailable",
+        "divergentLayers": [],
+        "divergent": false,
+        "ruleEvidence": {
+          "citedPosition": null,
+          "retiredAtPosition": null
+        },
+        "detail": {
+          "currency": "snapshot head attestation does not verify under the pinned authority key",
+          "transition": "the currency layer returned 'fail:snapshot-signature-invalid': a transition rule is evaluated only over an authenticated membership answer, never over an integrity or availability failure"
+        }
+      },
+      "h03": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "not-usable:not-usable-cited-state-not-supported"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": 4,
+          "retiredAtPosition": null
+        },
+        "observed": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "not-usable:not-usable-never-supported"
+        },
+        "combined": "not-usable:not-usable-never-supported",
+        "divergentLayers": [
+          "transition"
+        ],
+        "divergent": true,
+        "ruleEvidence": {
+          "citedPosition": 4,
+          "retiredAtPosition": null
+        },
+        "detail": {
+          "currency": "(4.0.0, sha256:94a3e62ee7fc48c4639a4cc7028c8f43528efd39e5011e18c5b95f0c38302dd1) is not in the supported set at snapshot position 7",
+          "transition": "this exact (version, digest) is in the supported set at no position of this history"
+        }
+      },
+      "h04": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "usable"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": 6,
+          "retiredAtPosition": 8
+        },
+        "observed": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "usable"
+        },
+        "combined": "usable",
+        "divergentLayers": [],
+        "divergent": false,
+        "ruleEvidence": {
+          "citedPosition": 6,
+          "retiredAtPosition": 8
+        },
+        "detail": {
+          "currency": "(7.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 11",
+          "transition": "the cited position is one at which this exact (version, digest) is in the supported set, and this rule does not block reliance on that ground. It establishes nothing about when the artifact was created"
+        }
+      },
+      "h05": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "not-usable:not-usable-cited-state-not-supported"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": 5,
+          "retiredAtPosition": 8
+        },
+        "observed": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "not-usable:not-usable-cited-state-not-supported"
+        },
+        "combined": "not-usable:not-usable-cited-state-not-supported",
+        "divergentLayers": [
+          "transition:retiredAtPosition"
+        ],
+        "divergent": true,
+        "ruleEvidence": {
+          "citedPosition": 5,
+          "retiredAtPosition": null
+        },
+        "detail": {
+          "currency": "(7.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 11",
+          "transition": "this exact (version, digest) is not in the supported set at the cited position, whatever it may be elsewhere in the history"
+        }
+      },
+      "h06": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "usable"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": 6,
+          "retiredAtPosition": 8
+        },
+        "observed": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "usable"
+        },
+        "combined": "usable",
+        "divergentLayers": [],
+        "divergent": false,
+        "ruleEvidence": {
+          "citedPosition": 6,
+          "retiredAtPosition": 8
+        },
+        "detail": {
+          "currency": "(7.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 11",
+          "transition": "3 position(s) elapsed since the departure at position 8; the window permits 3"
+        }
+      },
+      "h07": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "not-usable:not-usable-window-elapsed"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": 6,
+          "retiredAtPosition": 8
+        },
+        "observed": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "not-usable:not-usable-window-elapsed"
+        },
+        "combined": "not-usable:not-usable-window-elapsed",
+        "divergentLayers": [],
+        "divergent": false,
+        "ruleEvidence": {
+          "citedPosition": 6,
+          "retiredAtPosition": 8
+        },
+        "detail": {
+          "currency": "(7.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 11",
+          "transition": "3 position(s) elapsed since the departure at position 8; the window permits 2"
+        }
+      },
+      "h08": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "not-usable:not-usable-cited-state-not-supported"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": 2,
+          "retiredAtPosition": 6
+        },
+        "observed": {
+          "currency": "fail:not-current-at-snapshot",
+          "transition": "not-usable:not-usable-cited-state-not-supported"
+        },
+        "combined": "not-usable:not-usable-cited-state-not-supported",
+        "divergentLayers": [
+          "transition:retiredAtPosition"
+        ],
+        "divergent": true,
+        "ruleEvidence": {
+          "citedPosition": 2,
+          "retiredAtPosition": null
+        },
+        "detail": {
+          "currency": "(7.0.0, sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74) is not in the supported set at snapshot position 6",
+          "transition": "this exact (version, digest) is not in the supported set at the cited position, whatever it may be elsewhere in the history"
+        }
+      },
+      "h09": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "fail:series-unknown-at-snapshot",
+          "transition": "unavailable"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": null,
+          "retiredAtPosition": null
+        },
+        "observed": {
+          "currency": "fail:series-unknown-at-snapshot",
+          "transition": "unavailable"
+        },
+        "combined": "unavailable",
+        "divergentLayers": [],
+        "divergent": false,
+        "ruleEvidence": {
+          "citedPosition": null,
+          "retiredAtPosition": null
+        },
+        "detail": {
+          "currency": "the snapshot carries no events for this series",
+          "transition": "the currency layer returned 'fail:series-unknown-at-snapshot': a transition rule is evaluated only over an authenticated membership answer, never over an integrity or availability failure"
+        }
+      },
+      "h10": {
+        "role": "endpoint",
+        "adjudicated": true,
+        "expected": {
+          "currency": "pass",
+          "transition": "unavailable"
+        },
+        "expectedRuleEvidence": {
+          "citedPosition": null,
+          "retiredAtPosition": null
+        },
+        "observed": {
+          "currency": "pass",
+          "transition": "unavailable"
+        },
+        "combined": "unavailable",
+        "divergentLayers": [],
+        "divergent": false,
+        "ruleEvidence": {
+          "citedPosition": null,
+          "retiredAtPosition": null
+        },
+        "detail": {
+          "currency": "current at snapshot position 3",
+          "transition": "the citation names a different series"
+        }
+      }
+    },
+    "postAdjudicationIntegrity": [
+      {
+        "cell": "h01",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "0b5ddfb0a0e74ac989264f05c8fa202dcceea343c7b7e5330d181a9a3fed3955",
+        "finalSha256": "0b5ddfb0a0e74ac989264f05c8fa202dcceea343c7b7e5330d181a9a3fed3955",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "bb824eda6d9c5a8137d1dba3921d7c349c07036b0f2370881a5b3ec790aced11",
+        "finalSha256": "bb824eda6d9c5a8137d1dba3921d7c349c07036b0f2370881a5b3ec790aced11",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "commitment.json",
+        "stampedSha256": "a7729aba2069c0bbb948e81c62c02c3db1a9f09773bc21dd0af1e8315f160682",
+        "finalSha256": "a7729aba2069c0bbb948e81c62c02c3db1a9f09773bc21dd0af1e8315f160682",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "ruleconfig.json",
+        "stampedSha256": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "finalSha256": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "snapshot.json",
+        "stampedSha256": "201fd300060be28d123e5d72320a985c58ed6bf847efdb2cf65b9e6eae3b8d73",
+        "finalSha256": "201fd300060be28d123e5d72320a985c58ed6bf847efdb2cf65b9e6eae3b8d73",
+        "match": true
+      },
+      {
+        "cell": "h01",
+        "path": "trustconfig.json",
+        "stampedSha256": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4",
+        "finalSha256": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "87f53503553413186d969d59d2dad7d37f92aebec8bcc55e43b5d6b8b8c10c0d",
+        "finalSha256": "87f53503553413186d969d59d2dad7d37f92aebec8bcc55e43b5d6b8b8c10c0d",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "f7ae9d501c516c0f7658ca198ec1b0c32bd56c5abfd4586ce2df43e05fb9e0b9",
+        "finalSha256": "f7ae9d501c516c0f7658ca198ec1b0c32bd56c5abfd4586ce2df43e05fb9e0b9",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "commitment.json",
+        "stampedSha256": "a7729aba2069c0bbb948e81c62c02c3db1a9f09773bc21dd0af1e8315f160682",
+        "finalSha256": "a7729aba2069c0bbb948e81c62c02c3db1a9f09773bc21dd0af1e8315f160682",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "ruleconfig.json",
+        "stampedSha256": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "finalSha256": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "snapshot.json",
+        "stampedSha256": "93c35b7326c6f71daed6819c92c7db034831b22d163b2a0131f860aee41537fd",
+        "finalSha256": "93c35b7326c6f71daed6819c92c7db034831b22d163b2a0131f860aee41537fd",
+        "match": true
+      },
+      {
+        "cell": "h02",
+        "path": "trustconfig.json",
+        "stampedSha256": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4",
+        "finalSha256": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "27e80d324aa0c74dc6e463d5a3980cea187330062ce2b021aa2e82e629b25db7",
+        "finalSha256": "27e80d324aa0c74dc6e463d5a3980cea187330062ce2b021aa2e82e629b25db7",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "b1667ce172af395a7cb13b31a3e3897f1f854d712cc79ce54dfed15390e541a5",
+        "finalSha256": "b1667ce172af395a7cb13b31a3e3897f1f854d712cc79ce54dfed15390e541a5",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "citation.json",
+        "stampedSha256": "b9afef47e927ddf51ec75845f18553b2c5f8b40f4989df7d928224633bbeb534",
+        "finalSha256": "b9afef47e927ddf51ec75845f18553b2c5f8b40f4989df7d928224633bbeb534",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "commitment.json",
+        "stampedSha256": "f1b4e9b34ab4c5e1ffd63f3268fdca1d032af808e3c653ece198cd9c60c09d55",
+        "finalSha256": "f1b4e9b34ab4c5e1ffd63f3268fdca1d032af808e3c653ece198cd9c60c09d55",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "ruleconfig.json",
+        "stampedSha256": "aea3825c8476e97726cb7cb7072e7d118230e29825e78877d9df54b162c7e8fc",
+        "finalSha256": "aea3825c8476e97726cb7cb7072e7d118230e29825e78877d9df54b162c7e8fc",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "snapshot.json",
+        "stampedSha256": "201fd300060be28d123e5d72320a985c58ed6bf847efdb2cf65b9e6eae3b8d73",
+        "finalSha256": "201fd300060be28d123e5d72320a985c58ed6bf847efdb2cf65b9e6eae3b8d73",
+        "match": true
+      },
+      {
+        "cell": "h03",
+        "path": "trustconfig.json",
+        "stampedSha256": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4",
+        "finalSha256": "34da24b7935e76575bf72242ad6a972f863af4533fa9fe03530b82dc4ad464b4",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "a63cf0296e56d09e05bab2558778bda3339cbb330d20064dcaa168d19a356cc7",
+        "finalSha256": "a63cf0296e56d09e05bab2558778bda3339cbb330d20064dcaa168d19a356cc7",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "6d36fa2a6eaeb208399adaa9ba749334a4e0bdd1a77918cc14e1230889d72f80",
+        "finalSha256": "6d36fa2a6eaeb208399adaa9ba749334a4e0bdd1a77918cc14e1230889d72f80",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "citation.json",
+        "stampedSha256": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "finalSha256": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "commitment.json",
+        "stampedSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "finalSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "ruleconfig.json",
+        "stampedSha256": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "finalSha256": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "snapshot.json",
+        "stampedSha256": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "finalSha256": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "match": true
+      },
+      {
+        "cell": "h04",
+        "path": "trustconfig.json",
+        "stampedSha256": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e",
+        "finalSha256": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "5ed6e137e0f22c14d47dc0e5d28c09b6c245c302f6dc85724bf54c1a3f2ca78d",
+        "finalSha256": "5ed6e137e0f22c14d47dc0e5d28c09b6c245c302f6dc85724bf54c1a3f2ca78d",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "e0b4de24eb41f0d8445d416de5e6c9961dc39996c4250c97867ea7461d64a03d",
+        "finalSha256": "e0b4de24eb41f0d8445d416de5e6c9961dc39996c4250c97867ea7461d64a03d",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "citation.json",
+        "stampedSha256": "6c493a531138f80b16f6fda998d3ad712c167b506e3e0dc3d48b9f13ff200310",
+        "finalSha256": "6c493a531138f80b16f6fda998d3ad712c167b506e3e0dc3d48b9f13ff200310",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "commitment.json",
+        "stampedSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "finalSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "ruleconfig.json",
+        "stampedSha256": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "finalSha256": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "snapshot.json",
+        "stampedSha256": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "finalSha256": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "match": true
+      },
+      {
+        "cell": "h05",
+        "path": "trustconfig.json",
+        "stampedSha256": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e",
+        "finalSha256": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "ad3499930a4a9e54488a846efd5c7c0f533b235250de3aa9edd2be3491dd5ab1",
+        "finalSha256": "ad3499930a4a9e54488a846efd5c7c0f533b235250de3aa9edd2be3491dd5ab1",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "2ed3790ba2b006ac979a42aa8c81da4977956c58fe6c00552131f2610f6f28e8",
+        "finalSha256": "2ed3790ba2b006ac979a42aa8c81da4977956c58fe6c00552131f2610f6f28e8",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "citation.json",
+        "stampedSha256": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "finalSha256": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "commitment.json",
+        "stampedSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "finalSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "ruleconfig.json",
+        "stampedSha256": "cf7904f526b65078089dd1ac4f47ac7e2e746c5ef1fdc3f7459b6427a1082ffc",
+        "finalSha256": "cf7904f526b65078089dd1ac4f47ac7e2e746c5ef1fdc3f7459b6427a1082ffc",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "snapshot.json",
+        "stampedSha256": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "finalSha256": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "match": true
+      },
+      {
+        "cell": "h06",
+        "path": "trustconfig.json",
+        "stampedSha256": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e",
+        "finalSha256": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "5813a298dd2d7ff823b17440a7bb3a817872a403705eb0f4cae509354d960f6d",
+        "finalSha256": "5813a298dd2d7ff823b17440a7bb3a817872a403705eb0f4cae509354d960f6d",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "f5b3892a566836e7d925e7e0274005fddfb87bd6b3fc7d6dc1cbab1e08e67904",
+        "finalSha256": "f5b3892a566836e7d925e7e0274005fddfb87bd6b3fc7d6dc1cbab1e08e67904",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "citation.json",
+        "stampedSha256": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "finalSha256": "31e32626cd68f54291919970b97bf59de92906b34ab1a06fe17a93c67caee206",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "commitment.json",
+        "stampedSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "finalSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "ruleconfig.json",
+        "stampedSha256": "87b46f050257a3cfe3207fe2df8513f20f8aa918dad04d2ed63558f630b4534a",
+        "finalSha256": "87b46f050257a3cfe3207fe2df8513f20f8aa918dad04d2ed63558f630b4534a",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "snapshot.json",
+        "stampedSha256": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "finalSha256": "a5f90c7abbd03cbee4759b87411cac3865736794e2039f09a99d8ec909ba7fec",
+        "match": true
+      },
+      {
+        "cell": "h07",
+        "path": "trustconfig.json",
+        "stampedSha256": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e",
+        "finalSha256": "4a52547d9f0f868a3e42db9e30d739cef7d7ddd9937503c69e11fb39a4117b0e",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "3c64578762b43dadf719f4dff1d0fd7c150a9de7dc16ae6d88ced1a28bcc3c96",
+        "finalSha256": "3c64578762b43dadf719f4dff1d0fd7c150a9de7dc16ae6d88ced1a28bcc3c96",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "6ee339c1746f05b8c6248c9e66ae79954c69302256fd3ef1a96059cee00ffbd7",
+        "finalSha256": "6ee339c1746f05b8c6248c9e66ae79954c69302256fd3ef1a96059cee00ffbd7",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "citation.json",
+        "stampedSha256": "3102322f0d3dd0c2a85918a93c9532c8b6680b41a0b35ddf53b1738a7624a409",
+        "finalSha256": "3102322f0d3dd0c2a85918a93c9532c8b6680b41a0b35ddf53b1738a7624a409",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "commitment.json",
+        "stampedSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "finalSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "ruleconfig.json",
+        "stampedSha256": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "finalSha256": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "snapshot.json",
+        "stampedSha256": "e97dfdbcc3cb13d59306e9858a40dfa02bcb762a21d3a2ac4fa041b4bbbaff78",
+        "finalSha256": "e97dfdbcc3cb13d59306e9858a40dfa02bcb762a21d3a2ac4fa041b4bbbaff78",
+        "match": true
+      },
+      {
+        "cell": "h08",
+        "path": "trustconfig.json",
+        "stampedSha256": "6f08559859bc24ad379d14c3e3e8cb368b8de0a344a3e5dd43f1bad87bf8c82c",
+        "finalSha256": "6f08559859bc24ad379d14c3e3e8cb368b8de0a344a3e5dd43f1bad87bf8c82c",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "64a024183cee3ed630b716e27f7a793233362d534fab24ef384f71c388923d98",
+        "finalSha256": "64a024183cee3ed630b716e27f7a793233362d534fab24ef384f71c388923d98",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "13a3dbb8d51223ff0dcc6998e55607254eeff26550cdd98bd8097bed0c898c2f",
+        "finalSha256": "13a3dbb8d51223ff0dcc6998e55607254eeff26550cdd98bd8097bed0c898c2f",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "commitment.json",
+        "stampedSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "finalSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "ruleconfig.json",
+        "stampedSha256": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "finalSha256": "102bae9bf4af30a8ce3b3e6fa93a64cc4786631ad3a4f8a8625a8cd9abeb7066",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "snapshot.json",
+        "stampedSha256": "70105e18544453f863c10422dfa3a1b8919bf76d9880227d944fbaee09c161d3",
+        "finalSha256": "70105e18544453f863c10422dfa3a1b8919bf76d9880227d944fbaee09c161d3",
+        "match": true
+      },
+      {
+        "cell": "h09",
+        "path": "trustconfig.json",
+        "stampedSha256": "ef8466c2a5bbf6ca05c3e35fdcbc3dbba46fabfb58bdaa428f3bd974ca48d825",
+        "finalSha256": "ef8466c2a5bbf6ca05c3e35fdcbc3dbba46fabfb58bdaa428f3bd974ca48d825",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "CONSTRUCTION.json",
+        "stampedSha256": "b5b49d7dfacf0deb9add576588102aba8d07b3ae7a4c9a11bac19bc7a07c9c59",
+        "finalSha256": "b5b49d7dfacf0deb9add576588102aba8d07b3ae7a4c9a11bac19bc7a07c9c59",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "MANIFEST.sha256",
+        "stampedSha256": "7081dad441a5f8182c5188c1e7c9b70bf667ff3e8670bc4988e2933754cda24f",
+        "finalSha256": "7081dad441a5f8182c5188c1e7c9b70bf667ff3e8670bc4988e2933754cda24f",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "citation.json",
+        "stampedSha256": "edb97570f102a76a34695f4ac73bbe7e2122e2d326bf44250dd7e8e508991993",
+        "finalSha256": "edb97570f102a76a34695f4ac73bbe7e2122e2d326bf44250dd7e8e508991993",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "commitment.json",
+        "stampedSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "finalSha256": "3cd480c73177ee642dd06287064b68c6bd48a16509d57823d5a1a70e46792ad2",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "ruleconfig.json",
+        "stampedSha256": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "finalSha256": "c60f47971bc7ee826e0a635d6e70b15e7ced53821cb07bef49da6d0a8dce4fe1",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "snapshot.json",
+        "stampedSha256": "4f0312cd7db2c9cb2ed2fe0c318c117ee003d8721d4f6c4a96fd8796bf68ddc6",
+        "finalSha256": "4f0312cd7db2c9cb2ed2fe0c318c117ee003d8721d4f6c4a96fd8796bf68ddc6",
+        "match": true
+      },
+      {
+        "cell": "h10",
+        "path": "trustconfig.json",
+        "stampedSha256": "6f08559859bc24ad379d14c3e3e8cb368b8de0a344a3e5dd43f1bad87bf8c82c",
+        "finalSha256": "6f08559859bc24ad379d14c3e3e8cb368b8de0a344a3e5dd43f1bad87bf8c82c",
+        "match": true
+      }
+    ],
+    "notAdjudicated": [],
+    "gatesFailed": [],
+    "divergent": [
+      "h03",
+      "h05",
+      "h08"
+    ],
+    "summary": "holdout DIVERGENT",
+    "note": "reported separately: no holdout outcome enters a locked-stratum count and none can change the R1 verdict"
+  }
+}
