@@ -17,9 +17,18 @@
 > separate them, and said so before it ran.
 >
 > **What this census actually observed still stands**: the corpus hugs the two
-> stated thresholds, and nothing in it approaches the unstated 39 edge. Study 012
-> reproduced that blind spot in *every* arm, baseline included — which is why the
-> causal reading is the part that had to go. The numerals were not the cause.
+> stated thresholds, and its nearest approach from below to the unstated 39 edge
+> is 23.75. Study 012 found the same near-absence in its arms — and crucially it
+> found it in the **baseline** too, which is why the causal reading is the part
+> that had to go. The numerals were not the cause.
+>
+> *(Corrected 2026-08-11: an earlier version of this banner said Study 012
+> reproduced the blind spot "in every arm, baseline included." That is not true
+> as stated — arm C has one record in the window below the edge, and arm D has no
+> 39 edge at all. This census's own empty band `(23.75, 39)` reproduces in one of
+> Study 012's five arms. The near-absence is real and is arm-independent; the
+> universal was not ours to claim. See the head of
+> [`CORRECTION.md`](../012-policy-perturbation/CORRECTION.md).)*
 >
 > Full retraction:
 > [`studies/012-policy-perturbation/CORRECTION.md`](../012-policy-perturbation/CORRECTION.md).

@@ -29,12 +29,15 @@ and agreement tracks are kept separate and why.
 | [016](016-policy-currency-anchor/) | Can a signed pack-version currency registry detect a retired-version decision offline — and where must it fail? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
 | [017](017-witnessed-currency/) | What does a minimal witness/cross-view comparison step buy against the registry split view — and which contract clause does each remaining silence isolate? | Currency governance | — | Frozen + run — R1 holds (both strata) |
 
-Study 012 is the only study here whose registered prediction **failed**. Removing every
-numeral from the policy changed nothing: the same six semantic classes were covered, and
-records still landed exactly on thresholds the author could no longer read. That kills the
+Study 012 is the only study here whose registered prediction **failed**. No longer
+printing the thresholds changed nothing: the same six semantic classes were covered, and
+records still landed exactly on values the policy never spelled out. That kills the
 anchoring explanation Study 011 offered, which is retracted in 012's `CORRECTION.md` and
-in a banner on Study 011's `DIVERSITY.md`. The observation Study 011 reported still
-reproduces; only our account of its cause does not. Study 015 is merged as a **draft**:
+in a banner on Study 011's `DIVERSITY.md`. The pattern Study 011 reported is still there,
+in the baseline as much as anywhere; only our account of its cause does not survive. That
+retraction was itself corrected the same day — the head of 012's `CORRECTION.md` lists
+what it got wrong, and why the largest error was claiming a universal our own published
+census already contradicted. Study 015 is merged as a **draft**:
 five consecutive cross-vendor review rounds
 each returned DO-NOT-FREEZE, every blocker they raised is closed, and the remaining open
 items are listed in its `PREREG-REVIEW.md`. It is registered evidence of a boundary and of
