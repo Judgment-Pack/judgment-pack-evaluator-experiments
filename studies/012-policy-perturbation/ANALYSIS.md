@@ -54,12 +54,39 @@ both control arms, so the arms were comparable and the null result is not a
 broken pipeline. Per-protocol coverage is 100% everywhere; the ITT column varies
 only with pipeline-invalid runs.
 
+## The second registered verdict, which this file omitted until 2026-08-12
+
+The scorer published **two** named outcomes, and every earlier version of this
+analysis reported only one. §5.3 (ii) registered a prediction about arm D, and
+`RESULTS.json`'s `verdicts.armD` records it landing on **row 1**, published as
+**`COVERAGE-FOLLOWS-THE-NUMBERS`**: arm D's new-keyed level verdicts are HIGH on
+4 of the four narrow numeric classes, and its old-keyed (S10) verdicts are HIGH
+on **0** of them.
+
+In plain terms: when the thresholds moved to 45 and 72, the records moved with
+them. **61 records sit exactly on 45 and 50 exactly on 72, and not one of arm D's
+480 records sits on 40 or 70.** S10 — old-edge cross-scoring [D-12] — is the
+endpoint registered to see precisely this, and it saw nothing left behind.
+
+That result is not decoration on R1's failure; it is the other half of the
+instrument. It shows the author tracking the literals the policy states when it
+states them, which is what makes arm E's behaviour when they are *not* stated
+worth reporting at all. It also bears on [D-18]'s registered salience cost: 45
+and 72 are not decade-round, and placement followed them anyway, so an author
+merely drawn to round values does not account for arm D.
+
+`RATES.md` has carried this verdict since the run. Its absence here was an
+omission in the narrative, not in the data — and, unlike the other corrections
+to this file, it ran *against* the study's interest rather than for it.
+
 ## Three readings, and which the data support
 
 **The anchoring reading is refuted.** Arm E never saw the literals `40` or `70`
 and still put **107 records exactly on an edge** — the same count as arm A. The
-exactly-on-edge mass survives denaming intact, so it is not produced by the
-numerals being printed. *(Corrected: an earlier version added that the hugging
+exactly-on-edge mass survives denaming intact. **What that licenses is narrow:**
+this denaming did not move placement. It does *not* license "the numerals are
+not the cause" — §5.5 registers that "an R1-UNSUPPORTED row does not license its
+negation", and an earlier version of this sentence asserted exactly that. *(Corrected: an earlier version added that the hugging
 shape survived "intact" one and two decimal places out. The aggregate
 within-0.01 counts are comparable; the split is not — A is 36 within 0.001 and
 89 within 0.01, E is 59 and 61.)*
@@ -84,11 +111,15 @@ E." Arm C is a counterexample and was already printed in `CENSUS.md`; and the
 **117 of arm A's 464 records and 101 of arm E's 432 are strictly below 39**.
 Study 011's empty approach band `(23.75, 39)` reproduces in **arm B alone**.)*
 
-What this study kills is still our *explanation*. The immediate approach to the
-unstated edge is close to unpopulated whether or not the stated thresholds are
-printed, so "it copies the numerals it sees" cannot be why — but "the unstated
-edge is invisible" is stronger than the data support, and the baseline was never
-the clean contrast the first version implied.
+What this study kills is our *explanation*, not the numerals as a candidate
+cause. The immediate approach to the unstated edge is close to unpopulated
+whether or not the stated thresholds are printed — so the pattern does not track
+the policy's surface, and R1's account of it is withdrawn. *(Corrected
+2026-08-12: this sentence previously concluded "so 'it copies the numerals it
+sees' cannot be why". That is R1's negation, which §5.5 says the verdict does
+not license.)* "The unstated edge is invisible" is also stronger than the data
+support, and the baseline was never the clean contrast the first version
+implied.
 
 That leaves a question this design was not built to answer and does not: whether
 a boundary a policy only implies is invisible because the author reasons from

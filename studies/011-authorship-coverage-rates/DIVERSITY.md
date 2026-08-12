@@ -20,7 +20,13 @@
 > stated thresholds, and its nearest approach from below to the unstated 39 edge
 > is 23.75. Study 012 found the same near-absence in its arms — and crucially it
 > found it in the **baseline** too, which is why the causal reading is the part
-> that had to go. The numerals were not the cause.
+> that had to go.
+>
+> *(Corrected again 2026-08-12: this banner previously ended "The numerals were
+> not the cause." Study 012's §5.5 registers that an R1-UNSUPPORTED verdict does
+> not license R1's negation. The prediction failed; that is not proof of its
+> opposite. All the result supports is that this denaming did not move
+> coverage.)*
 >
 > *(Corrected 2026-08-11: an earlier version of this banner said Study 012
 > reproduced the blind spot "in every arm, baseline included." That is not true
