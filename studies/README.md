@@ -28,7 +28,7 @@ and agreement tracks are kept separate and why.
 | [015](015-cloudflare-os-boundary/) | Can a third party prove offline which judgment authorized which staged action on a governed-agent platform — and what can neither system see? | Interoperability | Cloudflare OS | **Draft — five review rounds, not frozen** |
 | [016](016-policy-currency-anchor/) | Can a signed pack-version currency registry detect a retired-version decision offline — and where must it fail? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
 | [017](017-witnessed-currency/) | What does a minimal witness/cross-view comparison step buy against the registry split view — and which contract clause does each remaining silence isolate? | Currency governance | — | Frozen + run — R1 holds (both strata) |
-| [018](018-transition-rules/) | What does a cited registry head buy a relying party's transition rule — and where does the evidence stop? | Currency governance | — | **Draft — preregistration in review** |
+| [018](018-transition-rules/) | What does a cited registry head buy a stated transition rule — and where does the evidence stop? | Currency governance | — | Frozen + run — R1 holds; reviewer holdout diverged on three preregistered cells |
 
 Study 012 is the only study here whose registered prediction **failed**. No longer
 printing the thresholds changed nothing: the same six semantic classes were covered, and
