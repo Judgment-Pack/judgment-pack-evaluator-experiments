@@ -35,6 +35,37 @@ Future implementations (TypeScript, Rust, …) get sibling directories — but t
 never happens inside this repository: an implementer working here could read the existing
 implementations. See the protocol.
 
+### Studies at a glance
+
+Navigation and status only — every finding, and every qualification that finding carries, lives
+in the study's own directory. Statuses below are the ones the [studies index](studies/README.md)
+records; it remains the canonical matrix, with the external source each study builds on.
+
+| Study | Track | Status | Evidence |
+| --- | --- | --- | --- |
+| [001](studies/001-policy-representation/) | Expressiveness / efficacy | Prepared expressiveness result; comparison arms not yet run | [Results](#results-so-far), [study](studies/001-policy-representation/) |
+| [002](studies/002-qualitative-policy/) | Expressiveness | Completed expressiveness result | [Results](#results-so-far), [study](studies/002-qualitative-policy/) |
+| [003](studies/003-escape-census/) | Expressiveness | Completed escape census | [Results](#results-so-far), [study](studies/003-escape-census/) |
+| [004](studies/004-composition-closure/) | Composition | Completed composition-closure study; no efficacy claim | [`RESULTS.md`](studies/004-composition-closure/RESULTS.md), [`run-log.md`](studies/004-composition-closure/run-log.md) |
+| [005](studies/005-semantic-source-discovery/) | Trustworthy input | Completed semantic-source-discovery study | [`README.md`](studies/005-semantic-source-discovery/README.md), [`RESULTS.md`](studies/005-semantic-source-discovery/RESULTS.md), [`ANALYSIS.md`](studies/005-semantic-source-discovery/ANALYSIS.md) |
+| [006](studies/006-evidence-lineage-gate/) | Trustworthy input | Deterministic phase completed; model-authoring phase terminated before inference because of infrastructure, so model usability is **not estimable** | [`README.md`](studies/006-evidence-lineage-gate/README.md), [`RESULTS.md`](studies/006-evidence-lineage-gate/RESULTS.md) |
+| [007](studies/007-evidence-lineage-model-replication/) | Trustworthy input | Completed evidence-lineage model replication | [`README.md`](studies/007-evidence-lineage-model-replication/README.md), [`RESULTS.md`](studies/007-evidence-lineage-model-replication/RESULTS.md), [`ANALYSIS.md`](studies/007-evidence-lineage-model-replication/ANALYSIS.md) |
+| [008](studies/008-portable-derivation-admission/) | Trustworthy input | Completed offline replay and probe with no model runs; read with the study's stated qualifications | [`README.md`](studies/008-portable-derivation-admission/README.md), [`RESULTS.md`](studies/008-portable-derivation-admission/RESULTS.md), [`ANALYSIS.md`](studies/008-portable-derivation-admission/ANALYSIS.md) |
+| [009](studies/009-transcribed-oracle-matrix/) | Blinded authorship | Completed corrected retained attempt as a **constructed existence witness** — not discovery evidence, not general pipeline validation | [`README.md`](studies/009-transcribed-oracle-matrix/README.md), [`RESULTS.json`](studies/009-transcribed-oracle-matrix/RESULTS.json), [`ANALYSIS.md`](studies/009-transcribed-oracle-matrix/ANALYSIS.md) |
+| [010](studies/010-blinded-oracle/) | Blinded authorship | Run (frozen) | [`ANALYSIS.md`](studies/010-blinded-oracle/ANALYSIS.md), [`RESULTS.json`](studies/010-blinded-oracle/RESULTS.json) |
+| [011](studies/011-authorship-coverage-rates/) | Blinded authorship | Run (frozen) | [`ANALYSIS.md`](studies/011-authorship-coverage-rates/ANALYSIS.md), [`RESULTS.json`](studies/011-authorship-coverage-rates/RESULTS.json) |
+| [012](studies/012-policy-perturbation/) | Blinded authorship | Frozen + run — **R1 unsupported; retracts a published claim** | [`ANALYSIS.md`](studies/012-policy-perturbation/ANALYSIS.md), [`CORRECTION.md`](studies/012-policy-perturbation/CORRECTION.md) |
+| [013](studies/013-agent-eval-forge-integration/) | Interoperability | Frozen + run — R1 holds (both strata) | [`ANALYSIS.md`](studies/013-agent-eval-forge-integration/ANALYSIS.md), [`results/`](studies/013-agent-eval-forge-integration/results/) |
+| [014](studies/014-openworkproof-binding/) | Interoperability | Frozen + run — R1 holds (both strata) | [`ANALYSIS.md`](studies/014-openworkproof-binding/ANALYSIS.md), [`results/`](studies/014-openworkproof-binding/results/) |
+| [015](studies/015-cloudflare-os-boundary/) | Interoperability | **Draft — five review rounds, not frozen** | [`PREREG-REVIEW.md`](studies/015-cloudflare-os-boundary/PREREG-REVIEW.md) |
+| [016](studies/016-policy-currency-anchor/) | Interoperability | Frozen + run — R1 holds (both strata) | [`ANALYSIS.md`](studies/016-policy-currency-anchor/ANALYSIS.md), [`results/`](studies/016-policy-currency-anchor/results/) |
+| [017](studies/017-witnessed-currency/) | Currency governance | Frozen + run — R1 holds (both strata) | [`ANALYSIS.md`](studies/017-witnessed-currency/ANALYSIS.md), [`results/`](studies/017-witnessed-currency/results/) |
+| [018](studies/018-transition-rules/) | Currency governance | Frozen + run — R1 holds; reviewer holdout diverged on three preregistered cells | [`ANALYSIS.md`](studies/018-transition-rules/ANALYSIS.md), [`results/`](studies/018-transition-rules/results/) |
+
+This repository claims **no JPS conformance** for anything in it, and the table above adds no
+aggregate headline: each study answers a different preregistered question and must be read with
+its own qualifications.
+
 ## Results so far
 
 ### Agreement track
@@ -49,7 +80,7 @@ implementations. See the protocol.
 
 ### Efficacy track
 
-No efficacy result yet — no comparison arm has been run in either study. Two **expressiveness**
+Later studies have retained results; each answers a different preregistered question and must be read with its study-level qualifications. On the expressiveness arms below, no comparison arm has been run in either study. Two **expressiveness**
 results, on deliberately opposite policy types and by different model families:
 
 | | Study 001 — CBA, arithmetic-dense | Study 002 — airline, qualitative | Study 003 — census, 12 decisions |
