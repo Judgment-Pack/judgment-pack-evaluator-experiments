@@ -554,7 +554,31 @@ the label predicate, the output-containment guard), each redundant with a check 
 tested, and two correct behaviours proved only in aggregate. They are recorded so a reader can
 weigh them, which is the standard this study has been held to throughout.
 
-## Round 11 — confirmation only
+## Round 11 — confirmation
 
-The next round confirms these three corrections and nothing else. If it is clean, the study
-freezes.
+Verbatim: [`reviews/round-11/REVIEW.md`](reviews/round-11/REVIEW.md), at clean HEAD
+`6a71b606`. Scope was deliberately narrowed to the three round-10 blockers. Blockers 1 and 3
+confirmed closed. **Blocker 2 rejected**, on one line: the audit's docstring claims it
+resolves all module-local functions, and `_h01_events(spurious=5)` is missed.
+
+Accepted, and the fix is the general one rather than the named one. The callee set was
+**enumerated by hand**, so any module-local helper outside the list went unbound — and
+enumerating was the defect, not the particular name that escaped it. It is now derived from
+the module: every callable `build_fixtures` defines is bound, so a helper written tomorrow is
+covered the day it is written. Callables without an introspectable signature are skipped and
+reported, and the audit fails outright if a holdout *primitive* is ever among them.
+
+This is the fourth time a fix has been applied where the reviewer pointed rather than to the
+class the defect belonged to — the pattern named in round 6 and again in rounds 7 and 9. It is
+recorded here as the last instance rather than the first.
+
+A note on verification method, since it matters: the first attempt to confirm this fix
+mutated `_h01_events()` and saw the test pass, which looked like the audit still being blind.
+It was not — the mutation had hit the `def` line, whose text also contains `_h01_events()`,
+leaving every call site valid. The same mistake was made once before, in round 6, against
+`hook(context)`. A mutation check that does not verify *what it mutated* proves nothing, and
+in both cases the apparent result was the opposite of the truth.
+
+## Round 12 — final confirmation
+
+Confirms this one correction. If clean, the study freezes.

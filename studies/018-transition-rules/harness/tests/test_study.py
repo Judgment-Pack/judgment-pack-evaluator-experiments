@@ -643,8 +643,8 @@ def test_no_holdout_route_constructs_bytes_without_a_context():
 def test_holdout_call_sites_bind_statically():
     """Every holdout call site must bind, for every callee this audit can resolve.
 
-    Resolvable means: this module's own functions, the pinned upstream registry's
-    API, and dynamic dispatch (a local, a subscript, or an attribute on a local).
+    Resolvable means: every callable this module defines, the pinned upstream
+    registry's API, and dynamic dispatch (a local, a subscript, or `__call__`).
     Calls into the standard library and into `json`/`pathlib` are not bound here —
     a spurious argument there fails immediately and loudly in every pre-freeze
     run, which is not the hazard this audit exists for. The hazard is a call that
@@ -669,14 +669,21 @@ def test_holdout_call_sites_bind_statically():
     # and so skipped hook-to-hook calls (`_holdout_h02` → `_holdout_h01`,
     # `_holdout_h05`/`_holdout_h06`/`_holdout_h07` → `_holdout_h04`) — exactly
     # the calls most likely to drift. Every holdout callable is now in scope.
-    callees = {"_holdout_cell", "_authority", "_require_context", "write_cell",
-               "commitment_bytes", "event", "construct_holdout",
-               "registered_authority_label", "holdout_context_problems"}
-    callees |= {name for name in vars(build_fixtures)
-                if name.startswith("_holdout") and callable(getattr(build_fixtures, name))}
-    for hook in ("_holdout_h%02d" % n for n in range(1, 11)):
-        assert hook in callees, hook
+    # Round-11: the callee set was enumerated by hand, so a module-local helper
+    # outside it — `_h01_events(spurious=5)` — went unbound and would have
+    # surfaced only inside the attempt as `harness-error`. Enumerating was the
+    # defect, not the particular name that escaped it: EVERY callable this
+    # module defines is bound, so a new helper is covered the day it is written.
+    callees = {name for name, value in vars(build_fixtures).items()
+               if callable(value) and getattr(value, "__module__", None)
+               == build_fixtures.__name__}
+    for required in (["_holdout_h%02d" % n for n in range(1, 11)]
+                     + ["_holdout_cell", "_authority", "_require_context", "write_cell",
+                        "commitment_bytes", "event", "construct_holdout",
+                        "_h01_events", "_h04_events"]):
+        assert required in callees, required
     checked = 0
+    unresolvable = set()
     for node in ast.walk(tree):
         if not (isinstance(node, ast.FunctionDef)
                 and (node.name.startswith(("_holdout", "_gated"))
@@ -688,7 +695,11 @@ def test_holdout_call_sites_bind_statically():
             name = call.func.id
             if name not in callees:
                 continue
-            signature = inspect.signature(getattr(build_fixtures, name))
+            try:
+                signature = inspect.signature(getattr(build_fixtures, name))
+            except (TypeError, ValueError):
+                unresolvable.add(name)     # no introspectable signature
+                continue
             positional = [object()] * len(call.args)
             keywords = {kw.arg: object() for kw in call.keywords if kw.arg}
             try:
@@ -717,6 +728,8 @@ def test_holdout_call_sites_bind_statically():
                     % (node.name, ast.unparse(first), name))
             checked += 1
     assert checked >= 20, "the call-site audit found almost nothing to check"
+    assert not unresolvable & {"_holdout_cell", "_authority", "construct_holdout"}, (
+        "a holdout primitive has no introspectable signature: %s" % sorted(unresolvable))
 
     # Dynamic dispatch is invisible to a callee-name audit — `hook(context)`
     # inside `construct_holdout` names no function. Round-6 finding 5: a literal
