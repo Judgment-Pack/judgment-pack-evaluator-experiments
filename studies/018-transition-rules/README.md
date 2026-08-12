@@ -1,6 +1,8 @@
 # Study 018 — transition rules over cited registry state: what a citation buys a stated rule, and where the evidence stops
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.**
+**Status: preregistration FROZEN at the squash-merge of PR #61 (twelve cross-vendor
+review rounds; final verdict `freezable as written`). Nothing has run under the freeze;
+`results/` is absent until the registered primary attempt.**
 
 This study does not come from an internal roadmap. A reader (`@circuit`) proposed, on the
 [Study 016 announcement thread](https://dev.to/kikashy/the-receipt-was-valid-the-policy-was-retired-164a),

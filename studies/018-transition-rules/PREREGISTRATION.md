@@ -1,7 +1,10 @@
 # Preregistration — Study 018: transition rules over cited registry state
 
-**Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing
-thereafter.**
+**Status: FROZEN by the squash-merge of PR #61 to `main`; governing thereafter.** The merge
+commit of that pull request is the freeze commit — named by reference because a squash hash
+cannot exist before the merge; the repository history renders the reference unambiguous.
+**Twelve** pre-freeze cross-vendor review rounds concluded with `freezable as written`
+([`PREREG-REVIEW.md`](PREREG-REVIEW.md)).
 
 **Nothing has run.** Everything executed during harness development lands under `pilots/`,
 is labeled harness validation, and supports no claim. After the freeze this file is never

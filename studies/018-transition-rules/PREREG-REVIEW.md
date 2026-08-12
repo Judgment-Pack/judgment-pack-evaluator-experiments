@@ -581,4 +581,48 @@ in both cases the apparent result was the opposite of the truth.
 
 ## Round 12 — final confirmation
 
-Confirms this one correction. If clean, the study freezes.
+Verbatim: [`reviews/round-12/REVIEW.md`](reviews/round-12/REVIEW.md), at clean HEAD
+`e34b5b6c`. Scope: the single round-11 correction. Verdict, in full:
+
+> freezable as written
+
+The regime is satisfied: twelve recorded cross-vendor adversarial rounds by a non-Anthropic
+model, every finding dispositioned in writing here, and a clean final verdict.
+
+## What twelve rounds actually found
+
+Worth stating for whoever reads this next, because the shape of the findings changed as the
+study got better, and the later shapes are the ones a single round would have missed:
+
+1. **Rounds 1–2 — correctness.** Two blockers in the evaluator itself: a layer separation that
+   did not hold, and a hand-rolled lifecycle tracker that was not equivalent to the pinned
+   upstream it claimed to reproduce. These are the defects a draft's own author does not find,
+   because the matrix was built around the case that works.
+2. **Rounds 3–6 — dispositions that over-claimed.** Four rounds running found the previous
+   round's dispositions written as complete while residuals were live. The mechanism, named in
+   round 6: fix exactly where the reviewer pointed, then generalise in prose beyond what the
+   code does. One disposition claimed a harness test that had never been written.
+3. **Rounds 7–8 — the frozen-reader audit.** The first round to ask what the *immutable* files
+   say to someone who has only them found three false statements, including a matrix note
+   asserting the opposite of the study's own result. The second pass found ten more, including
+   R1 contradicting its own scorer.
+4. **Rounds 9–11 — safeguards that could not fail.** A composition gate that was algebraically
+   a no-op; a fold-failure contract true only because Layer CURRENCY guaranteed it upstream; a
+   static audit whose callee set was enumerated by hand. Each was correct in every reachable
+   case and therefore invisible to every test.
+
+No registered outcome has been wrong since round 2. Everything after that was the apparatus
+claiming more than it did — which is exactly what a preregistration is for, since the claims
+are what get pinned.
+
+## Known-imperfect at the freeze, recorded rather than fixed
+
+- Three deletion-undetectable safeguards — `_gated`, the `frozen` conjunct in the label
+  predicate, the output-containment guard — each redundant with a check that *is* tested.
+- Two correct behaviours proved only in aggregate: `pipelineInvalid` serialization and the
+  endpoint / registered-undetected divergence split.
+- The static call-site audit does not bind stdlib calls; those fail loudly in every pre-freeze
+  run, which is not the hazard it exists for.
+
+Round 10's judgement, taken as the maintainer's: chasing these exhaustively would be churn,
+and none of them changes a registered outcome or what the attempt reports.
