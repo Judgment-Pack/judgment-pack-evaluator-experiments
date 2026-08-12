@@ -1,5 +1,6 @@
 """Study-level integrity: pins, vocabulary sync, pair machinery, determinism."""
 
+import builtins
 import dataclasses
 import importlib.util
 import json
@@ -479,6 +480,11 @@ def test_preregistration_counts_are_derived_from_the_matrix():
     for rule in transition.RULES:
         assert "`%s`" % rule in text, rule
 
+    divergence_cells = count(lambda c: c["id"].startswith("div-"))
+    assert "the four `div-*` cells" not in text or divergence_cells == 4
+    assert "those four cells share" in text and divergence_cells == 4, divergence_cells
+    assert "Across the %s `div-*` cells" % words[divergence_cells] in text
+
     companions = [relative for member, relative in score.PINNED_DIGEST_MEMBERS
                   if member not in ("preregistration", "studyManifest")]
     assert "%s companion artifacts are registered" % words[len(companions)].capitalize() in text
@@ -556,12 +562,15 @@ def test_holdout_refusal_precedes_any_upstream_load_or_write(tmp_path, monkeypat
     prevent. Here the upstream loader is replaced by a tripwire, so any route
     that touches it before validating fails loudly.
 
-    Scope, stated exactly (round-6 finding 5, which caught this test claiming
-    "any key or payload"): what is proved is that no route loads the pinned
-    upstream and no route writes a file before refusing. Pure in-memory work
-    with no upstream and no write — assembling a commitment blob, say — is NOT
-    detected here, and no registry byte can be produced that way, since every
-    key and history comes from the upstream this tripwire guards.
+    Scope, stated exactly (round-6 finding 5 caught this claiming "any key or
+    payload"; round 7 caught the write half being inferred from surviving files,
+    which a write-then-delete or a write outside tmp_path would defeat): what is
+    proved is that no route calls the pinned upstream loader and no route calls
+    this module's writers — both are trapped directly. Pure in-memory work that
+    touches neither — assembling a commitment blob, say — is NOT detected here.
+    No registry byte can be produced that way, since every key and history comes
+    from the upstream this tripwire guards, but that is an argument, not a proof,
+    and it is recorded as such rather than folded into the test's name.
     """
     touched = []
 
@@ -569,7 +578,15 @@ def test_holdout_refusal_precedes_any_upstream_load_or_write(tmp_path, monkeypat
         touched.append(True)
         raise AssertionError("the upstream was loaded before the context was validated")
 
+    def write_tripwire(*arguments, **keywords):
+        touched.append(True)
+        raise AssertionError("a byte was written before the context was validated")
+
     monkeypatch.setattr(build_fixtures.upstream016, "load", tripwire)
+    # Round-7: checking for surviving files under tmp_path could not see a
+    # write-then-delete, or a write anywhere else. The writer itself is trapped.
+    monkeypatch.setattr(build_fixtures, "_atomic_write", write_tripwire)
+    monkeypatch.setattr(build_fixtures, "write_cell", write_tripwire)
     monkeypatch.chdir(tmp_path)
     for name in ["_holdout_h%02d" % n for n in range(1, 11)] + ["_authority"]:
         with pytest.raises(build_fixtures.HoldoutRefused):
@@ -689,6 +706,26 @@ def test_holdout_call_sites_bind_statically():
     # `None` there would pass everything above and stay hidden behind the gate
     # until the attempt. Inside holdout scope, no call may pass a literal at all
     # where a context belongs, so the constant is banned outright.
+    # A dynamic call must pass the context and nothing else positionally, so
+    # `hook(context, 5)` — which the literal-None ban does not catch — fails too.
+    dynamic = 0
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.FunctionDef)
+                and (node.name.startswith(("_holdout", "_gated"))
+                     or node.name in ("construct_holdout", "gated_hook", "_authority"))):
+            continue
+        for call in ast.walk(node):
+            if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Name)):
+                continue
+            if hasattr(build_fixtures, call.func.id) or hasattr(builtins, call.func.id):
+                continue          # a named module callable (bound above) or a builtin
+            assert [ast.unparse(a) for a in call.args] == ["context"], (
+                "%s dispatches %s with %r; a dynamic holdout call must pass the "
+                "context and nothing else positionally"
+                % (node.name, call.func.id, [ast.unparse(a) for a in call.args]))
+            dynamic += 1
+    assert dynamic, "the dynamic-dispatch audit inspected nothing"
+
     banned = 0
     for node in ast.walk(tree):
         if not (isinstance(node, ast.FunctionDef)

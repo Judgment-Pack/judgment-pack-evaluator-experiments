@@ -123,9 +123,11 @@ def verify_cell(cell_dir):
         "currency": dict(currency, outcome=currency_outcome),
         "transition": dict(rule, outcome=outcome_of(rule)),
     }
-    # The composed verdict is usable only when BOTH layers permit it: the
-    # registry must have authenticated the history and answered membership,
-    # and the rule must permit reliance on that answer (round-1 R1-1).
+    # Usable requires an ADJUDICABLE currency answer plus the rule's
+    # permission — not both layers permitting. A binding outside the
+    # supported set still composes to `usable` under a rule that allows it,
+    # which is the study's whole subject; what is refused is an
+    # unauthenticated or unavailable registry answer (round-1 R1-1).
     composed = ("usable" if layers["transition"]["outcome"] == "usable"
                 and layers["currency"]["outcome"] in transition.ADJUDICABLE_CURRENCY
                 else layers["transition"]["outcome"])

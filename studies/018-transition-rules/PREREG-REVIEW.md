@@ -323,8 +323,13 @@ That is a failure mode worth naming in the record, because it is not carelessnes
 fix — it is carelessness about the *claim*, and the claim is what gets pinned. The response
 this round was to make each claim true where that was possible, and to narrow it where it was
 not: the tripwire test is now called
-`test_holdout_refusal_precedes_any_upstream_load_or_write` and its docstring states exactly
-what it does not prove.
+`test_holdout_refusal_precedes_any_upstream_load_or_write`.
+
+**Round 7 falsified the rest of that sentence.** The docstring did not state exactly what
+the test does not prove: it claimed no route writes before refusing, while the test only
+looked for surviving files under `tmp_path` afterwards — blind to a write-then-delete or a
+write anywhere else. Correcting an over-claim with another over-claim is the same defect,
+and it is left visible here rather than edited away.
 
 ### Round-6 findings — disposition
 
@@ -339,3 +344,57 @@ what it does not prove.
 ## Round 7 — pending
 
 Confirmation of the round-6 dispositions.
+
+## Round 7
+
+Verbatim: [`reviews/round-7/REVIEW.md`](reviews/round-7/REVIEW.md), at clean HEAD `a9fbd012`,
+with `46 passed`, the manifest check green and the worktree clean under the registered
+interpreter. Verdict: **not freezable**. Round-6 findings 2, 4 and 5 confirmed closed; 1 and
+6 partial; and — the reason this round matters most — a **frozen-reader audit** that found
+three statements which would mislead someone holding only the five pinned artifacts and the
+results.
+
+### The frozen-reader audit is the finding
+
+Every previous round examined the apparatus. This one asked what the *frozen* files say to a
+reader who cannot see the tests, the record, or the code — and three of them said something
+untrue:
+
+| Where | Claimed | Actually |
+| --- | --- | --- |
+| `MATRIX.json` note | `combined` is usable only when **both layers permit it** | `combined` is usable when TRANSITION permits and CURRENCY returned an **adjudicable** answer. Cells where currency *fails* compose to `usable` — that is the entire subject of the study, contradicted by its own matrix note |
+| `PREREGISTRATION.md` §3 | CURRENCY reports `not-current-at-snapshot` for **every full-history cell** | `neg-currency-unauthenticated` is a full-history cell reporting `snapshot-signature-invalid` — the control exists precisely to show that |
+| `MATRIX.json` cell note | `stop-at-retirement` reaches its answer **from the registry's verdict** | it also folds the retained history to choose between its two refusals, as the SPEC has said since round 3 |
+
+The first is the sharpest: the matrix note asserted the opposite of the study's own result.
+Nothing in the outcomes or the evaluator is affected — every registered expectation and every
+observed value was already correct — but a reader restricted to the frozen artifacts would
+have drawn the wrong conclusion from them, and those artifacts are the ones that become
+immutable. All three are corrected, along with the same "both layers permit" wording in the
+composing code's comment.
+
+### Round-7 findings — disposition
+
+| # | Disposition |
+| --- | --- |
+| 1 | **Accepted.** The corrected mechanism reached the builder comment and the unit test but not `MATRIX.json`, which still claimed the cell defeats "any implementation that treats membership as a digest question" — and the honest limitation lived only in this record, which is not frozen. The matrix note now carries both the claim and its bound: the cell reaches TRANSITION's prefix predicate, and does **not** catch a digest-only defect confined to Layer CURRENCY at the final snapshot. |
+| 6a | **Accepted.** The call-site audit still could not see dynamic dispatch: `hook(context, 5)` bound cleanly, since the literal-`None` ban does not catch a spurious *extra* argument. A dynamic call inside holdout scope must now pass exactly `context` and nothing else positionally. Verified against that mutation. |
+| 6b | **Accepted.** "Every count" still omitted the `div-*` count, so raising "the four `div-*` cells" to five passed. Derived now, like the rest. |
+| — | **Accepted.** The tripwire inferred "nothing was written" from surviving files, which a write-then-delete defeats. Both writers are now trapped directly, and the docstring says plainly that pure in-memory work touching neither the upstream nor a writer is undetected — with the argument for why no registry byte can be produced that way marked as an argument rather than folded into the test's name. |
+
+**Self-reported, not found by the reviewer:** the same loose phrasing sits in R1-1's
+disposition above, which says "the composed verdict requires both layers". It is left
+standing as written — a historical disposition edited after the fact is worse than an
+imprecise one — and corrected here: the composed verdict requires TRANSITION's permission and
+an **adjudicable** CURRENCY answer, not CURRENCY's permission. The frozen artifacts, which are
+what bind, now say so exactly.
+
+The reviewer also recorded what does **not** block: the three registered holdout divergences,
+the alternative `retiredAtPosition` reading, the backdating limit, the positional-window
+limitation, the shared builder/evaluator lineage, and the non-digest-pinned dependency
+contents. All are registered in the text and evaluable by a reader, which is the standard
+this study is trying to meet.
+
+## Round 8 — pending
+
+Confirmation of the round-7 dispositions.

@@ -74,11 +74,13 @@ the world:
     1 add 1.0.0   2 add 2.0.0   3 retire 1.0.0   4 retire 2.0.0   5 reinstate 2.0.0
 
 The committed decision names `(1.0.0, digest-A)` — in the supported set from position 1,
-out of it from position 3, never reinstated. Layer CURRENCY therefore reports
-`not-current-at-snapshot` for every full-history cell, and every difference in the
-transition column is the rule's doing. A harness test asserts that structurally: the four
-`div-*` cells share commitment, snapshot and trust configuration byte-for-byte and differ
-only in the rule configuration.
+out of it from position 3, never reinstated. Across the four `div-*` cells Layer CURRENCY
+therefore reports `not-current-at-snapshot`, and every difference in the transition column
+is the rule's doing. A harness test asserts that structurally: those four cells share
+commitment, snapshot and trust configuration byte-for-byte and differ only in the rule
+configuration. The claim is deliberately about those four and not about every full-history
+cell — `neg-currency-unauthenticated` carries the full history and reports
+`snapshot-signature-invalid`, which is exactly what that control exists to show.
 
 ## 4. Cells
 
