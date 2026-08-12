@@ -224,9 +224,10 @@ def test_scorer_is_deterministic_and_control_gates_hold(tmp_path):
         results = json.loads(raw)
         assert results["pipelineInvalid"] is False
         pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
-        frozen = all((pins.get(m) or {}).get("sha256") is not None
-                     for m in score.FREEZE_PINS)
-        assert results["label"] == ("REGISTERED" if frozen else "PILOT")
+        # Round-8 finding 6: REGISTERED requires the holdout as well as the pins,
+        # and this invocation passes no --include-holdout, so it is a PILOT even
+        # after the freeze.
+        assert results["label"] == "PILOT"
         for cid, record in results["cells"].items():
             if record["role"] == "control-gate":
                 assert record["adjudicated"] and not record["divergent"], cid
@@ -480,6 +481,10 @@ def test_preregistration_counts_are_derived_from_the_matrix():
     for rule in transition.RULES:
         assert "`%s`" % rule in text, rule
 
+    strata = [STUDY / "harness" / "MATRIX.json", STUDY / "harness" / "MATRIX-HOLDOUT.json"]
+    assert all(path.is_file() for path in strata)
+    assert "## 1a. %s strata" % words[len(strata)].capitalize() in text
+
     divergence_cells = count(lambda c: c["id"].startswith("div-"))
     assert "the four `div-*` cells" not in text or divergence_cells == 4
     assert "those four cells share" in text and divergence_cells == 4, divergence_cells
@@ -566,8 +571,10 @@ def test_holdout_refusal_precedes_any_upstream_load_or_write(tmp_path, monkeypat
     payload"; round 7 caught the write half being inferred from surviving files,
     which a write-then-delete or a write outside tmp_path would defeat): what is
     proved is that no route calls the pinned upstream loader and no route calls
-    this module's writers — both are trapped directly. Pure in-memory work that
-    touches neither — assembling a commitment blob, say — is NOT detected here.
+    this module's two writers, `_atomic_write` and `write_cell` — those three
+    functions are trapped directly. A route that bypassed them, calling
+    `Path.write_bytes` itself, would NOT be detected, and neither would pure
+    in-memory work touching none of the three — assembling a commitment blob, say.
     No registry byte can be produced that way, since every key and history comes
     from the upstream this tripwire guards, but that is an argument, not a proof,
     and it is recorded as such rather than folded into the test's name.
@@ -719,10 +726,14 @@ def test_holdout_call_sites_bind_statically():
                 continue
             if hasattr(build_fixtures, call.func.id) or hasattr(builtins, call.func.id):
                 continue          # a named module callable (bound above) or a builtin
-            assert [ast.unparse(a) for a in call.args] == ["context"], (
-                "%s dispatches %s with %r; a dynamic holdout call must pass the "
-                "context and nothing else positionally"
-                % (node.name, call.func.id, [ast.unparse(a) for a in call.args]))
+            supplied = [ast.unparse(a) for a in call.args]
+            keywords = [kw.arg for kw in call.keywords]
+            assert supplied == ["context"] and not keywords, (
+                "%s dispatches %s with %r / %r; a dynamic holdout call must pass "
+                "the context and nothing else — round-8 finding 6a: restricting "
+                "this to positional arguments let hook(context, spurious=5) pass "
+                "every audit and fail only at the attempt, as harness-error"
+                % (node.name, call.func.id, supplied, keywords))
             dynamic += 1
     assert dynamic, "the dynamic-dispatch audit inspected nothing"
 
@@ -838,3 +849,60 @@ def test_membership_comes_from_the_pinned_upstream_fold():
     for position in range(1, 6):
         assert transition._supported_at(payloads, series, never_bound, position, fold) is False
     assert transition._left_position(payloads, series, real, fold) == 4
+
+
+def test_r1_falsifies_on_a_registered_undetected_divergence():
+    """Round-8 finding 1: the registered decision rule and the scorer disagreed.
+
+    R1 says "divergence in either direction falsifies, INCLUDING a refusal on a
+    registeredUndetected cell". The only such cell is `descriptive`, and the
+    verdict counted endpoints alone — so a run with that row alone divergent
+    returned `R1 holds`, contradicting the preregistration that governs it.
+    """
+    matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text(encoding="utf-8"))
+    undetected = [c["id"] for c in matrix["cells"] if c.get("registeredUndetected")]
+    assert undetected, "no cell is registered as expected-undetected"
+
+    def cells_with(divergent_id, role):
+        return {
+            cell["id"]: {"role": cell["role"], "adjudicated": True,
+                         "registeredUndetected": bool(cell.get("registeredUndetected")),
+                         "divergent": cell["id"] == divergent_id}
+            for cell in matrix["cells"]
+        }
+
+    for cid in undetected:
+        role = next(c["role"] for c in matrix["cells"] if c["id"] == cid)
+        assert role != "endpoint", (
+            "this regression is only meaningful while the cell is excluded from "
+            "the endpoint count")
+        verdict, causes = score.decide(cells_with(cid, role))
+        assert verdict == "R1 falsified" and causes == [cid], (cid, verdict, causes)
+
+    # and a divergence on a row that is neither endpoint nor registered-undetected
+    # still does not falsify — the rule widened by exactly one class, not generally
+    others = [c["id"] for c in matrix["cells"]
+              if c["role"] in ("descriptive", "demonstration")
+              and not c.get("registeredUndetected")]
+    for cid in others:
+        verdict, _ = score.decide(cells_with(cid, "descriptive"))
+        assert verdict == "R1 holds", cid
+
+
+def test_registered_label_requires_the_holdout_stratum(tmp_path, monkeypatch):
+    """Round-8 finding 6: a fully pinned run with no --include-holdout could be
+    labelled REGISTERED with `holdout: null`, while the frozen stratum says its
+    first execution IS the registered primary attempt."""
+    pins = json.loads((STUDY / "harness" / "PINS.json").read_text(encoding="utf-8"))
+    # real digests, so pin enforcement passes and the label is what is under test
+    for member, relative in score.PINNED_DIGEST_MEMBERS:
+        pins.setdefault(member, {})["sha256"] = score.sha256_file(STUDY / relative)
+    filled = tmp_path / "PINS.json"
+    filled.write_text(json.dumps(pins, indent=2), encoding="utf-8")
+    monkeypatch.setattr(score, "PINS_PATH", filled)
+
+    root = tmp_path / "pinned-without-holdout"
+    score.main(["--attempt-root", str(root)])
+    results = json.loads((root / "RESULTS.json").read_text(encoding="utf-8"))
+    assert results["label"] != "REGISTERED", (
+        "a run without the holdout stratum must never carry the registered label")

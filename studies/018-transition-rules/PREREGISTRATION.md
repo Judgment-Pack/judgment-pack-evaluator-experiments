@@ -28,7 +28,9 @@ question this study measures.
 equal the registered expectations — where Layer CURRENCY is Study 016's frozen verifier
 reporting membership only, and Layer TRANSITION evaluates one of three registered rules
 (`stop-at-retirement`, `position-window`, `grandfather-on-cited-support`) over
-`(cited head, membership, rule)`. The adjudicated channels are exactly `currency`,
+`(cited head, membership at the snapshot, the retained history folded by the pinned upstream,
+rule)` — the fold is an input, not an implementation detail, since every refusal below
+`usable` is chosen by it. The adjudicated channels are exactly `currency`,
 `transition`, `transition:citedPosition` and `transition:retiredAtPosition`; a cell that
 reaches its registered outcome from the wrong position diverges on the structured channel
 and falsifies R1 just as an outcome divergence does. Divergence in either direction
@@ -60,16 +62,22 @@ evaluator share one implementation lineage — the standing no-independent-oracl
   third-party import and refuses when the cache a plain import *would* accept differs from
   `compile()` of its source. An equivalent cache is accepted; `__main__` is exempt by
   construction.
-- **Registered dependencies**: `cryptography` and `rfc8785` by version, distribution root and
-  imported-module origin. Their **contents are not digest-pinned**, and that residue is stated
-  rather than claimed closed.
+- **Registered dependencies**: `cryptography` and `rfc8785` by **version**, which is the only
+  value registered in `harness/PINS.json`. Their distribution root and imported-module origin
+  are checked *live* at attempt time — that the module imported comes from a distribution
+  outside the studies tree — and are **not** registered or pinned values, so a reader cannot
+  reconstruct them from the frozen files. Their **contents are not digest-pinned** either, and
+  that residue is stated rather than claimed closed.
 - **Pins are enforced, not declared**, and the mapping the loader trusts is bound from the
   stamped registry bytes the attempt records.
 
 ## 3. Scenario
 
-One history serves the matrix, so cells differ in the rule and the cited head rather than in
-the world:
+One history serves the **endpoint** cells, so they differ in the rule and the cited head
+rather than in the world. That is not true of the matrix as a whole: the control gates
+deliberately vary the world — snapshot prefix and authenticity, the commitment tuple,
+whether a citation is retained at all, and the series — because that is what they are for.
+The shared history is:
 
     1 add 1.0.0   2 add 2.0.0   3 retire 1.0.0   4 retire 2.0.0   5 reinstate 2.0.0
 
@@ -109,8 +117,11 @@ divergence channels, so a cell cannot reach its registered outcome from the wron
   available offline is positional; `effectiveFrom` is inert in the pinned upstream and nothing
   holds a clock. A reader may object that a position window is not what an organisation means
   by "24 hours" — that objection is the cell, and the study does not defend the model.
-- **`bnd-mint-time-refusal`**: exhibited as what a producer's own check would have returned,
-  registered as a **separately chosen producer policy**, never a property of the citation.
+- **`bnd-mint-time-refusal`**: a **counterfactual demonstration**, conditional on a policy this
+  study does not supply. There is no producer stage and no accepted-head policy anywhere in the
+  apparatus, so nothing here executes a mint-time check; the cell exhibits what such a check
+  *would* have returned had a producer chosen one. Whatever it shows is a property of that
+  hypothetical policy, never of the citation.
 - **`bnd-foreign-series-rule`**: a rule is stated per series and confers nothing outside it.
 
 ### 4b. Threat model
@@ -130,8 +141,9 @@ not answer.
 
 ## 5–8. Endpoints, validity, controls, enforcement
 
-The 016/017 regime, inherited: an ordered exhaustive decision rule (pipeline-invalid → control
-gates → zero endpoint divergence → falsified); validity separated from detection, with
+The 016/017 regime, inherited: an ordered exhaustive decision rule (pipeline-invalid →
+control-gate failure → zero divergence among endpoints and registered-undetected cells,
+which is `R1 holds` → otherwise `R1 falsified`); validity separated from detection, with
 `registeredAbsences` read from the registry alone and identity-group divergence a validity
 failure; `ATTEMPT.json` written before the registry is parsed and carrying `pinsRawSha256`
 over the exact bytes then parsed; every terminal path recorded; the scorer refusing an existing

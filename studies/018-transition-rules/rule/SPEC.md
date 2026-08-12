@@ -14,8 +14,12 @@ or where such a rule belongs — RFC 0011 Unresolved #10 is open, and nothing me
 closes it. This layer is a
 prototype of such a rule evaluator, deliberately separate from Study 016's frozen currency
 verifier — which is consumed unmodified and whose output stays exactly *membership at
-snapshot*. The transition layer consumes that verdict **as a fact**; it never recomputes
-membership, and the study fails if the two ever merge.
+snapshot*. The transition layer consumes that verdict **as a fact** — it never recomputes
+*the verdict*, and never second-guesses membership at the auditor's snapshot. It does compute
+membership at **earlier prefixes**, through the upstream's own `fold_supported`, because a
+rule about a cited position needs the state at that position and the verdict does not carry
+it. What must never merge is the *answer*: the registry says membership, this layer says
+usability, and the study fails if either starts giving the other's.
 
 ## 2. The citation and the rule configuration
 
@@ -47,8 +51,12 @@ exactly one window form, and the other rules must name none.
 
 Ordered, fail-closed, offline. Inputs: the commitment tuple, the auditor's snapshot (its
 checkpoint digests and payloads, recomputed from its own bytes), the retained citation, the
-rule configuration, and Layer CURRENCY's verdict. The steps below are the order the code
-actually takes, and each gate refuses before the next input is read:
+rule configuration, and Layer CURRENCY's verdict. The steps below are the order **this layer**
+takes, and each gate refuses before this layer reads the next input. It is not a claim about
+the composed harness: `harness/run_verify.py` parses the snapshot and reads the citation and
+rule configuration from disk before calling this layer at all, so a cell whose currency
+verdict is non-adjudicable has still had its bytes parsed — outside Layer CURRENCY's own
+resource limits — by the time the refusal below is returned:
 
 0. **The currency verdict, first.** Only `pass` and `fail:not-current-at-snapshot` are
    adjudicable. Any other outcome — unreadable or unauthenticated snapshot, broken chain,
@@ -82,9 +90,10 @@ actually takes, and each gate refuses before the next input is read:
 5. **The fold.** Membership of the committed `(version, digest)` is read from the pinned
    upstream's own `fold_supported` over each **prefix** of the retained payloads, so the
    add/retire/reinstate semantics are the upstream's by construction rather than by a
-   re-implementation that could drift (round-1 R1-2). Two questions are asked of it: is the
-   member supported at the **cited** prefix, and is it supported after **any** prefix. No
-   single "interval" is computed; a history may enter and leave repeatedly.
+   re-implementation that could drift (round-1 R1-2). Three questions are asked of it: is the
+   member supported at the **cited** prefix; is it supported after **any** prefix; and, for
+   `position-window`, at which position does it first leave the set **after** the cited one.
+   No single "interval" is computed; a history may enter and leave repeatedly.
 6. **The rule.** If the member is not supported at the cited position, the refusal is
    `not-usable-never-supported` when it is supported at no prefix at all, and otherwise
    `not-usable-cited-state-not-supported` — this branch is taken *before* either remaining
@@ -132,7 +141,7 @@ Outcome strings are `usable`, `unavailable`, or `not-usable:<code>`.
 | `transition-unavailable` | a required input or configuration is absent or malformed, the rule is stated for another series, the rule needs a citation and none is retained or it cannot be located in this history, or the rule names an ordering this apparatus does not have — fail-closed, never a permission |
 | `not-usable-not-in-supported-set` | this exact `(version, digest)` is not in the supported set at the auditor's snapshot, and the stated rule permits no reliance beyond that point. It says non-membership, never "retired": Study 016 establishes only the former |
 | `not-usable-never-supported` | this exact `(version, digest)` is in the supported set at **no** position of the history — it did not depart, it was never there |
-| `not-usable-window-elapsed` | more registry positions have elapsed since the version left the set than the stated window permits |
+| `not-usable-window-elapsed` | more registry positions have elapsed than the stated window permits, counted from the position at which this exact `(version, digest)` **first leaves the supported set after the cited position** — not from the most recent departure in the history, and not from any departure of the version at another digest. §3a states why that distinction is contestable and where it is registered |
 | `not-usable-cited-state-not-supported` | this exact `(version, digest)` is not in the supported set **at the cited position**, whatever it may be elsewhere in the history |
 
 ## 5. What a verdict means, exactly

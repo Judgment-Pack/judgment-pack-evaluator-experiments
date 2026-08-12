@@ -1,10 +1,10 @@
 {
-  "attemptRoot": "2026-08-12-build-pilot-08",
+  "attemptRoot": "2026-08-12-build-pilot-09",
   "label": "PILOT",
   "includeHoldout": false,
   "pipelineInvalid": false,
   "pinsRawSha256": "96ab59bde75012510936e8d52a90945095cf65a273214756df0c4ef8db332981",
-  "matrixSha256": "57ded634636befbb294ae5a88da118def0c98127a0ab487b9642f937eb4a28b1",
+  "matrixSha256": "ef5507a75a4b80f5b81679998edbd93df08eb6a7464ffda8ba8dff787c589a8e",
   "verdict": "R1 holds (PILOT)",
   "verdictCells": [],
   "summary": {

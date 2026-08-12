@@ -602,8 +602,17 @@ def decide(cells):
                    if record["role"] == "control-gate" and record["divergent"])
     if gates:
         return "R1 inconclusive - control gate failed", gates
+    # Endpoints decide R1, AND so does any cell registered as expected-undetected
+    # whatever its role. Round-8 finding 1: the preregistration says "divergence
+    # in either direction falsifies, including a refusal on a registeredUndetected
+    # cell", but the only such cell is `descriptive` and was therefore excluded —
+    # a synthetic run with that row alone divergent returned `R1 holds`, directly
+    # contradicting the registered decision rule. The registered claim is the
+    # commitment, so the code is brought to it rather than the other way round.
     divergent = sorted(cid for cid, record in cells.items()
-                       if record["role"] == "endpoint" and record["divergent"])
+                       if record["divergent"]
+                       and (record["role"] == "endpoint"
+                            or record.get("registeredUndetected")))
     if not divergent:
         return "R1 holds", []
     return "R1 falsified", divergent
@@ -717,10 +726,15 @@ def main(argv=None):
             upstream016.bind_pins((pins.get("study016") or {}).get("files") or {})
         except upstream016.Upstream016Error as error:
             return terminal(str(error))
-        label = "REGISTERED" if all(
-            (pins.get(member) or {}).get("sha256") is not None
-            for member in FREEZE_PINS
-        ) else "PILOT"
+        # `REGISTERED` requires every freeze pin AND the holdout stratum. Round-8
+        # finding 6: without the second condition a fully pinned run could carry
+        # the registered label with `holdout: null`, while
+        # harness/MATRIX-HOLDOUT.json states that the stratum's first execution
+        # IS the registered primary attempt. A pinned run without the stratum is
+        # a pilot, and says so.
+        frozen = all((pins.get(member) or {}).get("sha256") is not None
+                     for member in FREEZE_PINS)
+        label = "REGISTERED" if (frozen and arguments.include_holdout) else "PILOT"
 
         holdout = None
         if arguments.include_holdout:

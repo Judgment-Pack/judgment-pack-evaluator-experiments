@@ -395,6 +395,57 @@ limitation, the shared builder/evaluator lineage, and the non-digest-pinned depe
 contents. All are registered in the text and evaluable by a reader, which is the standard
 this study is trying to meet.
 
-## Round 8 — pending
 
-Confirmation of the round-7 dispositions.
+## Round 8
+
+Verbatim: [`reviews/round-8/REVIEW.md`](reviews/round-8/REVIEW.md), at clean HEAD `5eb1dbfa`,
+`46 passed`, manifest green, worktree clean. Verdict: **not freezable**. Round-7 findings 1,
+2, 4 and 5 confirmed closed; three residuals; and **ten independent frozen-reader findings**
+from an audit run without reference to round 7's list. All accepted.
+
+### The primary hypothesis contradicted its own scorer
+
+Finding 1 is the most serious defect any round has produced, and it sat in the governing
+sentence of the study. R1 says divergence falsifies "including a refusal on a
+`registeredUndetected` cell". The only such cell, `bnd-backdated-citation`, is
+**descriptive** — reclassified in round 1 precisely because it is byte-identical to an
+endpoint — and `decide()` counted endpoints alone. The reviewer constructed the synthetic
+case: that row alone divergent returns **`R1 holds`**, contradicting the preregistration that
+governs the run.
+
+It was arguably harmless in practice, since the cell is byte-identical to an endpoint that
+would diverge with it, and identity-group divergence is a validity failure besides. That is
+not a defence. **The registered text is the commitment**, so `decide()` now falsifies on a
+divergent `registeredUndetected` cell whatever its role, with a regression asserting both
+directions — the rule widened by exactly one class and not generally. Narrowing R1's wording
+instead would have been the easier fix and the wrong one: it would have quietly reduced what
+the study promises after the promise was made.
+
+### The registered label did not require the registered stratum
+
+Finding 6: `--include-holdout` is optional, so a fully pinned run could be labelled
+`REGISTERED` with `holdout: null` — while `harness/MATRIX-HOLDOUT.json` states that the
+stratum's first execution **is** the registered primary attempt. Nothing enforced the
+connection. `REGISTERED` now requires every freeze pin *and* the stratum; a pinned run without
+it is a `PILOT` and says so. This also means the harness's own determinism tests, which pass
+no such flag, remain pilots after the freeze — as they should be.
+
+### Round-8 findings — disposition
+
+| # | Disposition |
+| --- | --- |
+| 1 | **Accepted**; see above. Code brought to the registered claim, not the reverse. |
+| 2 | **Accepted.** Round 7's correction to the composition note over-corrected: "never a membership answer" reads as *combined never refuses one*, when combined is `not-usable` whenever TRANSITION refuses. The note now names the **composition gate** as its subject and states plainly that the gate can only take `usable` away, never grant it. |
+| 3 | **Accepted.** The SPEC said TRANSITION "never recomputes membership" while it folds prefix membership constantly — it never recomputes the *verdict*, which is a different claim, and the distinction is now drawn. The fold was said to answer two questions; it answers three, the third being the first post-citation departure. R1's input tuple omitted the retained history entirely, though every refusal below `usable` is chosen by the fold. |
+| 4 | **Accepted.** "Each gate refuses before the next input is read" is true of the layer and false of the harness: `run_verify` parses the snapshot and reads citation and configuration before calling TRANSITION at all, so a non-adjudicable cell has had its bytes parsed outside Layer CURRENCY's resource limits by the time the refusal returns. Stated as a property of the layer, with the harness's actual behaviour named. |
+| 5 | **Accepted.** "Cells differ in the rule and the cited head rather than in the world" is true of the endpoints and false of the matrix: the control gates vary snapshot prefix and authenticity, the commitment tuple, citation presence and series — which is what they are for. Scoped to the endpoints. |
+| 6 | **Accepted**; see above. |
+| 7 | **Accepted.** The `not-usable-window-elapsed` row said "since the version left the set", losing both qualifiers that matter: the exact binding, and *first departure after the cited position* rather than most recent. That is precisely the distinction the three registered holdout divergences turn on, so the vocabulary table was undercutting the study's own registered disagreement. |
+| 8 | **Accepted.** The preregistration called `bnd-mint-time-refusal` a registered producer policy; its own matrix note says no producer stage or accepted-head policy exists anywhere in the apparatus. It is a **counterfactual demonstration** conditional on a policy this study does not supply, and now says so. |
+| 9 | **Accepted, without touching the cells.** Several reviewer-authored notes explain their expected position by the most-recent-departure rule, and h04's names `_left_position` — a helper that exists and is not on the decide path. Where they agree with the layer (h04, h06, h07 all at position 8) they agree by coincidence, because the two readings converge in those histories. The cells are verbatim and stay verbatim; the envelope note now says exactly this and points at SPEC §3a as governing. |
+| 10 | **Accepted, all three.** "One adjudication" and "count toward nothing" understated the aliases, which are separately executed, included in 22/22, able to invalidate the pipeline, and — post-finding-1 — able to falsify R1. The decision rule omitted `R1 holds` and claimed "every terminal path" when the guarantee begins at the attempt marker. And dependency distribution roots and origins are checked **live**, not registered or pinned, so a reader cannot reconstruct them from the frozen files; the preregistration implied otherwise. |
+| 6a/6b/tripwire residuals | **Accepted.** `hook(context, spurious=5)` passed every audit and would have failed only at the attempt as `harness-error` — dynamic calls now admit no keywords either. "Every count" still omitted the strata count. The tripwire claimed "any write" while trapping two named writers; it now names them and says a direct `Path.write_bytes` would not be detected. |
+
+## Round 9 — pending
+
+Confirmation of the round-8 dispositions.
