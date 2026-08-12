@@ -1,0 +1,59 @@
+{
+  "snapshotVersion": "1",
+  "checkpoints": [
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 1,
+        "seriesId": "https://example.com/judgment-packs/transition-policy",
+        "event": "add",
+        "packVersion": "20.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": null,
+        "packDigest": "sha256:6952aaf36ab87fd37ab7c96a9f42cc7cbb60828eafbb1561adc6619982af134f"
+      },
+      "checkpointDigest": "sha256:43c649295086dd48482b7452ab088fa2bb68f61a7cad62dd73a4555f32cb930d",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "vRdbKk9WXr4taIoPKBUV7Plo28kP566Jcj0i7DL6FQWjf4aVmNs1sxZnL3jKDn5+TTVN0RDX/4Z6R9JKUyiWBQ=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 2,
+        "seriesId": "https://example.com/judgment-packs/transition-policy",
+        "event": "add",
+        "packVersion": "7.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": "sha256:43c649295086dd48482b7452ab088fa2bb68f61a7cad62dd73a4555f32cb930d",
+        "packDigest": "sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74"
+      },
+      "checkpointDigest": "sha256:b8a600f0217bc9bfa1e135b7910d4afaf88bea21bb5b8901e0dd67ffed5f987c",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "gSXVAdH3CJJcEH9Bprcc4QaZu6raS7/m+VRyIFKUKX9DYeZFeN78CJN3rVg5bExxkgbmVwTIGlVbO1NSjGTCDg=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 3,
+        "seriesId": "https://example.com/judgment-packs/other-policy",
+        "event": "add",
+        "packVersion": "7.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": "sha256:b8a600f0217bc9bfa1e135b7910d4afaf88bea21bb5b8901e0dd67ffed5f987c",
+        "packDigest": "sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74"
+      },
+      "checkpointDigest": "sha256:9c95dba5c76df099a414ae2571d391f6368280a2734b14170e4ee84d61654ab2",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "N9Wdj0GI50wZOVBKLaM6VGw72q12A6J8m8v43zkyE6/0N2wFnfJ6kR86SS4GqnP0HgbWEggfDOnw+x0FBP1vBQ=="
+    }
+  ],
+  "attestation": {
+    "payload": {
+      "snapshotVersion": "1",
+      "head": "sha256:9c95dba5c76df099a414ae2571d391f6368280a2734b14170e4ee84d61654ab2",
+      "position": 3
+    },
+    "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+    "signature": "kouzTneY2dY7IdBHpP39CD0L7PLswV3RsSo8t3+DiogPjtxfUYySjX4+3JXT5x86RosFE94Y/QeTZ3NXXCLVDA=="
+  }
+}

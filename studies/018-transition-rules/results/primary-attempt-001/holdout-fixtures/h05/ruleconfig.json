@@ -1,0 +1,7 @@
+{
+  "ruleConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/transition-policy",
+  "rule": "grandfather-on-cited-support",
+  "windowPositions": null,
+  "windowDuration": null
+}

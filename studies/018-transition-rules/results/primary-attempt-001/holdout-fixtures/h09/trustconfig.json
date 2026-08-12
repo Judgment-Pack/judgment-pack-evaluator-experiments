@@ -1,0 +1,7 @@
+{
+  "trustConfigVersion": "1",
+  "seriesId": "https://example.com/judgment-packs/transition-policy",
+  "authorityPublicKey": "si08ZIiwFfAgNTf09jXNsyZ4ZJwEiLMq3oY7AWM4QnI=",
+  "genesisHead": "sha256:1b1f15c8fea4dc9253b4b15913e072aa2f83aa5d5a5d3c6776a1468b2da104de",
+  "minimumHeadPin": null
+}

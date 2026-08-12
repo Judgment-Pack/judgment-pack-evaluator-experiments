@@ -1,0 +1,101 @@
+{
+  "snapshotVersion": "1",
+  "checkpoints": [
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 1,
+        "seriesId": "https://example.com/judgment-packs/transition-policy",
+        "event": "add",
+        "packVersion": "20.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": null,
+        "packDigest": "sha256:6952aaf36ab87fd37ab7c96a9f42cc7cbb60828eafbb1561adc6619982af134f"
+      },
+      "checkpointDigest": "sha256:43c649295086dd48482b7452ab088fa2bb68f61a7cad62dd73a4555f32cb930d",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "vRdbKk9WXr4taIoPKBUV7Plo28kP566Jcj0i7DL6FQWjf4aVmNs1sxZnL3jKDn5+TTVN0RDX/4Z6R9JKUyiWBQ=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 2,
+        "seriesId": "https://example.com/judgment-packs/other-policy",
+        "event": "add",
+        "packVersion": "7.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": "sha256:43c649295086dd48482b7452ab088fa2bb68f61a7cad62dd73a4555f32cb930d",
+        "packDigest": "sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74"
+      },
+      "checkpointDigest": "sha256:f37ac617c548a43be747664e596d9d224571f521dc7ff51ff45b5f202d140562",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "xatLhiFYQXWEOAymQfp/dDc68ztjV55FJis36957KaROa3IsQ0b8Ee3p+/BxR8dtC7rgYGSVbS73Mv/NYuq1Bw=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 3,
+        "seriesId": "https://example.com/judgment-packs/other-policy",
+        "event": "retire",
+        "packVersion": "7.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": "sha256:f37ac617c548a43be747664e596d9d224571f521dc7ff51ff45b5f202d140562"
+      },
+      "checkpointDigest": "sha256:4df9859d274b7be81e3d3e826e6bae3e62175bc41e828806da5f1ae68deffc94",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "WgJusXKEJ8B8sYiqITMD/uiDb6l5t5Us0KMTD0VHopEIuiPyZzw7fLJLAWqnxsRUdUqh/GLK4h6cL6OXzxvEDw=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 4,
+        "seriesId": "https://example.com/judgment-packs/transition-policy",
+        "event": "add",
+        "packVersion": "7.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": "sha256:4df9859d274b7be81e3d3e826e6bae3e62175bc41e828806da5f1ae68deffc94",
+        "packDigest": "sha256:4d8fde8d9ec43dd8286c7716e523f390f6020a1cca7126a1675c1da01f6afb74"
+      },
+      "checkpointDigest": "sha256:42b4939953b14813e903f12c116e828878c5e3e22977d2b01ab140ce847a8b80",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "npjJ0YKrURNtX5WGc4Qurm5cBAFw0XchWlfX/NqA0vxOFBy3zd1ST+g6TJKW64ur8LPn5OxOFpvGlU0RZTfoCg=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 5,
+        "seriesId": "https://example.com/judgment-packs/other-policy",
+        "event": "reinstate",
+        "packVersion": "7.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": "sha256:42b4939953b14813e903f12c116e828878c5e3e22977d2b01ab140ce847a8b80"
+      },
+      "checkpointDigest": "sha256:b765a235fd569f321189bc7bf5ab4abab6b00edd6929cbdc61bb291371a357e4",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "QCNe9k8NutsDYjcyvREVTg1RF5fz1Dfb2qjzJwd6B9qopXk3NVMPusQSqaLbwfZHeV0flhw4JaIt7DhDJKm6DA=="
+    },
+    {
+      "checkpoint": {
+        "checkpointVersion": "1",
+        "sequence": 6,
+        "seriesId": "https://example.com/judgment-packs/transition-policy",
+        "event": "retire",
+        "packVersion": "7.0.0",
+        "effectiveFrom": "2026-01-01T00:00:00Z",
+        "previousCheckpointDigest": "sha256:b765a235fd569f321189bc7bf5ab4abab6b00edd6929cbdc61bb291371a357e4"
+      },
+      "checkpointDigest": "sha256:932a4263457241f9ea26c3a7a68155dab43f36f019a94ed0f4478837c062d0b9",
+      "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+      "signature": "Txo+x4ZSkDNWzlNhvkXUeV82XHhRBvikq9AflOYhGRZqSTOUIaUSz5v7YnqlCxDeC5z8O4MnW/vntYzvv/t6Cg=="
+    }
+  ],
+  "attestation": {
+    "payload": {
+      "snapshotVersion": "1",
+      "head": "sha256:932a4263457241f9ea26c3a7a68155dab43f36f019a94ed0f4478837c062d0b9",
+      "position": 6
+    },
+    "authorityKeyId": "ed25519:aeee6b07c05d0f78e2ec39dc8691c7eafe34d5f7430f1ec5532c7bcf8dc53568",
+    "signature": "UXf10RklIQOZSS01iATOrRaiCchXYALuEcYSGAVOrA1XfcV6DwfnOgYFsAmJXPdqwN0j+dy9UmYRMS0nGlS4Dg=="
+  }
+}
