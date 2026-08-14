@@ -118,6 +118,30 @@ load-bearing ones, all fixed before round 3's report was read:
   re-keys the layer and field names and, for cells registering no replayed checks, translates the
   authored `pass` to `not-engaged` (the reviewed apparatus reported non-engagement as pass). A
   harness test asserts nothing else differs.
+- **`o01-observation-as-evidence`'s upstream expectation changed `not-engaged`→`pass`** with the
+  round-5 rebuild: its rebuilt observation genuinely engages `classifyTool`, so the upstream
+  layer now has something to replay. Construction-aligned, not an observed-run correction —
+  recorded here because round 5 (finding 6) asked that the protocol-relevant registry change be
+  named where registry changes are named. The holdout's h03/h04 expectations did not change.
+
+## Round-5 rescope (pre-freeze)
+
+Round 5's structural finding is accepted in the direction it named first: the claims narrow to
+what the apparatus is, rather than the apparatus growing a trusted retention boundary or live
+connector-row capture (the other convergence path it offered — declined here because the line's
+posture is offline-first and the boundary map does not need it). Concretely:
+
+- **PREREGISTRATION §9 gains four registered non-claims** — no source-reachability for retained
+  histories (the cells adjudicate selected, mostly synthetic constructions), no effect causation
+  (matched, never caused), no closed inventory (closed over what the store retains, not what the
+  platform would have written), no real private connector record (the retained flattened
+  `connectorOutcome` scalar, never a recovered private row).
+- **README's green-ceremony paragraph carries the same ceiling**, and its "the shape that
+  connector actually emits" became "a synthetic reconstruction from source, not a captured
+  emission" — the round-5 wording finding, fixed at the surface readers actually read.
+- Bridge-authored, unsigned modeled fields are constructions of the study; no cell treats them
+  as proof of source history, and any wording that suggested otherwise is in scope for the
+  round-5/6 source-of-truth sweep.
 
 ## Apparatus
 

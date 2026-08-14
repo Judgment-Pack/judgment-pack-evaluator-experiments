@@ -371,6 +371,21 @@ and the retained store as retained — enumerated, finite, and honest. And no cl
 detection here would have *prevented* anything at runtime: detection is post-hoc provability, the
 platform applies effects on its own authority, and nothing in this study sits on that path.
 
+Four more, added at round 5 and load-bearing (they are the difference between what this apparatus
+does and what a reader might wish it did). **No source-reachability claim for retained
+histories:** the lifecycle rows, staged calls, ledger records, and connector outcomes the cells
+adjudicate are selected, mostly synthetic constructions of the retained store's shape —
+internally consistent where the cell requires it — and nothing here shows that a given retained
+history could have been produced by the pinned platform's own execution paths. **No effect
+causation:** an attested effect matching a bound call's identity is *matched*, never shown to
+have been caused by that call; effect attestations are modeled records (SPEC §0a) and carry no
+causal proof. **No closed inventory:** the binding checks close the inventories they define over
+the records the store retains; they do not show the store retained everything the platform would
+have written. **No real private connector record:** where a cell speaks of a connector outcome it
+speaks of the retained flattened `connectorOutcome` scalar, never a recovered private row —
+retryability, error detail, and every private field beyond the scalar are absent by construction
+and asserted nowhere.
+
 ## 10. Publication commitment
 
 The detection matrix is published in full whichever way it lands: every divergence, every

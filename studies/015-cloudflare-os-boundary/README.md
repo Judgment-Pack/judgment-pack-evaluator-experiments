@@ -57,7 +57,14 @@ disposition authorizes anything — the disposition→action map is the adapter'
 never a platform capability. The store is unsigned because the platform signs nothing; a
 party that rewrites the *entire* store coherently around a disposition the retained
 inputs genuinely produce presents a history this ceremony accepts — the registered
-ceiling, stated up front.
+ceiling, stated up front. Nor is a green ceremony a claim that the retained history is
+source-reachable: the cells adjudicate selected, mostly synthetic constructions of the
+retained store, and nothing here shows the pinned platform's own execution paths would
+produce a given retained history. An attested effect is matched to a bound call's
+identity, never shown to be caused by it; the inventories the checks close are over what
+the store retains, not what the platform would have written; and a connector outcome in a
+fixture is the retained flattened `connectorOutcome` scalar, never a recovered private
+row (PREREGISTRATION §9).
 
 Neither system is modified. Cloudflare OS is consumed as a read-only clone at a pinned
 commit with upstream's own lockfile (probes are bundled by the clone's own esbuild; the
@@ -65,7 +72,8 @@ one injected seam is an inert `cloudflare:workers` tracing stub on the observabi
 path); jpack as a pinned release binary. The registered deployment is the pinned **MCP
 Portal** connector with `MCP_PORTAL_TRUST_ANNOTATIONS=true` — the only pinned connector
 that can be `vetted`, and therefore the only one on which an auto-approvable write exists
-at all — and every identifier in the fixtures is the shape that connector actually emits.
+at all — and every identifier in the fixtures follows the shape the pinned connector's source
+defines — a synthetic reconstruction from source, not a captured emission.
 Every retained **ledger record and auto-approval rule** is held to the pinned server-side
 `ActionRecord` and `AutoApproveTagRecord` by the clone's own TypeScript compiler (the
 modeled gatekeeper-side store has no upstream type to be held to), and `adapter/SPEC.md`
