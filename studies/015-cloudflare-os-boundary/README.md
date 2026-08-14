@@ -1,10 +1,11 @@
 # Study 015 — the judgment/staged-action boundary under a governed-agent platform
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Ten rounds of
-cross-vendor review have run and every one returned **DO-NOT-FREEZE**; every finding of
-every round is dispositioned in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus
-was rebuilt around them — including withdrawing one of the study's own recorded findings
-that source verification refuted. Round 5's structural finding is accepted in the direction
+**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Eleven rounds of
+cross-vendor review have run: the first ten returned **DO-NOT-FREEZE** and round 11 returned
+**freezable after listed fixes**. Every finding of every round is dispositioned in
+[`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus was rebuilt around them —
+including withdrawing one of the study's own recorded findings that source verification
+refuted. Round 5's structural finding is accepted in the direction
 it named first, and the resulting rescope — the claims narrowed to what the apparatus is,
 plus a source-of-truth sweep across every governing document — is applied here. Round 6
 confirmed the rescope's direction and then found its surfaces lagging and its replacement
@@ -20,11 +21,16 @@ the test is now scoped, mechanically hardened, and explicit about the part of th
 does not reach. Round 10 confirmed all of that and found the licences inside it counting
 occurrences rather than identifying them, so a forbidden sentence could be substituted for
 an allowed one at an unchanged total; each licensed occurrence now registers a fingerprint,
-and the reviewer's exact substitution is a regression test. All are fixed
+and the reviewer's exact substitution is a regression test. Round 11 confirmed the
+fingerprints do identify what they identify, returned no blocker, and found the sentence
+about them claiming more than they hold — a fingerprint fixes a locator and a passage, not a
+line and a sentence — so every statement of the guarantee is cut to the mechanism's own
+terms. All are fixed
 ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope", "Round-6 fixes", "Round-7 fixes",
-"Round-8 fixes", "Round-9 fixes" and "Round-10 fix"). **Round 11 has not run**: the freeze
-waits on it, and until then anything executed is harness validation under `pilots/`, labeled
-as such, and supports no claim beyond "the machinery works".
+"Round-8 fixes", "Round-9 fixes", "Round-10 fix" and "Round-11 fix"). Round 11's listed fix
+is this block, which round 11 did not read. **Round 12 has not run**: the freeze waits on it,
+and until then anything executed is harness validation under `pilots/`, labeled as such, and
+supports no claim beyond "the machinery works".
 
 ## What it is
 

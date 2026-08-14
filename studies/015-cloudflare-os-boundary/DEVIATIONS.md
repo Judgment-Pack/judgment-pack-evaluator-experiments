@@ -733,16 +733,19 @@ easy rounds is not a streak.
   three after, which is the property that made the attack invisible, and then that the guard
   returns three unlicensed occurrences and three dead fingerprints. The other direction is
   asserted in the same block: the unmutated tree returns `([], [])`, which means every one of the
-  fourteen fingerprints is live. A second test takes one fingerprint and moves it, rewrites the
-  sentence around it, duplicates it and deletes it — refused, refused, refused, dead. Two new
-  tests, 199 in the suite; the 21-row historical table, its 12/9 split and the asserted coverage
-  arithmetic are untouched.
+  fourteen fingerprints is live. A second test hands the adjudicator one fingerprint's own match
+  four ways — with a different locator, with a changed passage, twice over, and not at all —
+  refused, refused, refused, dead. Two new tests, 199 in the suite; the 21-row historical table,
+  its 12/9 split and the asserted coverage arithmetic are untouched.
 - **R10-1 — the claim is rewritten to the size of the mechanism.** The guard's docstring said
   reintroduction of a known formulation was *mechanically impossible*. Fingerprints do not say
-  that and neither does the docstring now: a licensed occurrence of a known phrase cannot move to
-  another line, cannot change the sentence around it, and cannot be joined by a second without
-  `WITHDRAWN_CLAIM_FINGERPRINTS` being restated. Semantic novelty is the review loop's, exactly
-  as round 9's rescope and round 10's Ruling 1 both say.
+  that and neither does the docstring now: a licensed occurrence of a known phrase cannot change
+  its registered locator or its exact normalized ±120-character passage, and cannot be joined by a
+  second without `WITHDRAWN_CLAIM_FINGERPRINTS` being restated. Semantic novelty is the review
+  loop's, exactly as round 9's rescope and round 10's Ruling 1 both say. (Round 10's block wrote
+  those two clauses as "cannot move to another line, cannot change the sentence around it", which
+  claims more than the mechanism does; the wording above is R11-1's correction, recorded under
+  *Round-11 fix* below.)
 
 **The lesson this round records: a count is not an identity, and this study already had the
 finding.** R5-1 is on its own record at round 5: a governed call carrying a foreign commitment
@@ -769,6 +772,83 @@ regenerated: its path set is unchanged at 60 entries, and exactly three digest l
 `PREREG-REVIEW.md`, `PREREGISTRATION.md` and `harness/tests/test_study.py`, the three edited
 files the manifest covers. This file and `README.md` are the two documents it deliberately
 excludes.
+
+## Round-11 fix (pre-freeze)
+
+Round 11 confirmed R10-1 resolved by execution — all fourteen fingerprints match exactly one
+standing occurrence, the held attack yields three unlicensed occurrences and three dead
+fingerprints, and changed locator, changed passage, duplication, deletion and banner-shift
+reconvergence all behave as designed — and returned no blocker. Its verdict is **freezable after
+listed fixes**, the first in this loop that is not DO-NOT-FREEZE, and the one listed fix is a
+claim-scope correction. It is dispositioned in `PREREG-REVIEW.md`; the protocol-relevant change is
+recorded here.
+
+**No registered expectation changed in either stratum, no verdict code was added, and no
+vocabulary member moved.** A before/after snapshot of all three layer outcomes, every published
+`suppressed` code and every upstream engagement list, over all 35 cells and by direct layer calls,
+showed **zero drift** — a seventh consecutive round, and this block is tests and prose, so the
+snapshot is trivially zero and is run anyway, for the same reason as last round: a streak that
+skips the easy rounds is not a streak.
+
+- **R11-1 — the claim is cut to the two fields the adjudicator reads.** Round 10's fix left the
+  guard describing itself in the vocabulary of lines and sentences: a licensed occurrence "cannot
+  move to another line, cannot change the sentence around it". The mechanism does neither of those
+  things. It compares four fields, and the two that vary are an *extracted locator* and a
+  *normalized passage*. Round 11 demonstrated both gaps on this tree: rewrapping the licensed
+  occurrence in `harness/tests/test_study.py`'s own docstring from physical line 1295 to 1296
+  keeps locator 1293, because the locator belongs to the token and not to the line; and editing
+  the same `README.md` sentence 151 normalized characters away from its match keeps the passage
+  byte-equal, because the passage stops at `PASSAGE_RADIUS` either side. Every statement of the
+  guarantee — the fingerprint table's own comment, the backstop's docstring, the regression's
+  docstring, the round-10 row in `PREREG-REVIEW.md` and the round-10 entry above — now says what
+  the mechanism does: a licensed occurrence cannot change its registered locator or its exact
+  normalized ±120-character passage, and cannot be joined by a second without
+  `WITHDRAWN_CLAIM_FINGERPRINTS` being restated. Nothing about the mechanism changed; only what is
+  claimed for it.
+- **R11-1 — the regression is described as the thing it runs.** The four-way test hands the
+  adjudicator match tuples directly — it does not edit a source file and never did — so its
+  docstring now says so, and its two locals are renamed from `moved` and `rewritten` to
+  `other_locator` and `other_passage`, which is what they hold. The backstop's *what it does NOT
+  claim* paragraph gains the residue the two demonstrations measure: a docstring rewrap that keeps
+  the token's locator, and an edit further out than `PASSAGE_RADIUS`, are both outside what a
+  fingerprint refuses, and both sit with the review loop where semantic novelty already sits. The
+  assertions themselves are unchanged, the fourteen fingerprints keep their passages, and the
+  suite stays at 199.
+- **R11-1 — the ledger rule is followed while the claim is corrected.** `PREREG-REVIEW.md` says
+  an earlier row keeps its words and gains a note rather than being rewritten. The round-10 row
+  and the round-10 entry above therefore carry the corrected clause *and* the sentence they
+  originally wrote, marked as claiming more than the mechanism does, so the record shows the
+  overstatement and its correction rather than only the corrected text.
+
+**The lesson this round records: a mechanism's description is a claim, and it drifts upward.**
+Round 10's fix was sound and its sentence about the fix was not — it reached for the reader's
+mental model (lines, sentences) instead of the comparison's own fields (locator, passage), and in
+doing so promised a guarantee two demonstrations break in a minute. The rule taken forward: state
+a guard's guarantee in the vocabulary of what the guard compares, and if the honest statement is
+smaller than the intuitive one, the difference is the part that belongs to the review loop and
+must be written down as such.
+
+### Fixture bytes changed at the round-11 fix
+
+**None.** No commitment, no ledger, no platform store, no evaluation envelope, no report, no
+evidence artifact and no cell manifest changed in either stratum, and
+`reviews/round-1/MATRIX-HOLDOUT.authored.json` is byte-preserved. `MATRIX-HOLDOUT.json` and
+everything under `reviews/` and `pilots/` are untouched, and `MATRIX.json` is unchanged — no
+cell's construction, note or `expected` value moved, and `m02`'s fingerprint keeps its passage and
+its locator. No source module and no document outside the ledgers and banners is edited: the block
+is `harness/tests/test_study.py`, this file, `PREREG-REVIEW.md`, `PREREGISTRATION.md`, `README.md`
+and the manifest. Six registered fingerprint locators move and are reconverged in this commit: the
+four on `PREREGISTRATION.md` (`406`→`408`, `408`→`410`, `413`→`415`, `158`→`160`) and the one on
+`README.md` (`86`→`92`), because the status banners above them grew; and the self-referential one
+— the licensed `producible` in `test_study.py`'s own docstring — from `1293` to `1304`, because the
+prose edits above it are eleven lines longer. All six keep a byte-identical passage, which is the
+check that says each move is a rewrap and not a rewrite. The coupling is the design and not an
+inconvenience: a table that pins locators has to be restated whenever a pinned line moves,
+including when the file doing the pinning is one of the files that moved.
+`harness/STUDY-MANIFEST.sha256` is
+regenerated: its path set is unchanged at 60 entries, and exactly three digest lines move —
+`PREREG-REVIEW.md`, `PREREGISTRATION.md` and `harness/tests/test_study.py`. This file and
+`README.md` are the two documents the manifest deliberately excludes.
 
 ## Apparatus
 

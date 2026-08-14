@@ -355,15 +355,16 @@ WITHDRAWN_CLAIM_PHRASES = (
 # same row, and the count is still three — a forbidden formulation substitutes itself for an
 # allowed one and the adjudicator sees nothing. `SUBSTITUTION_ATTACK` below holds that exact
 # edit and runs it. A fingerprint is the identity the count was standing in for: the
-# occurrence cannot move to another line, cannot change the sentence around it, and cannot
-# be joined by a second without this table being restated, and a repaired site leaves its
-# fingerprint dead, which also fails. It is the study's own R5-1 lesson — a count is not an
-# identity — applied to the study's own guard.
+# occurrence cannot change its registered locator or its exact normalized ±120-character
+# passage, and cannot be joined by a second without this table being restated, and a
+# repaired site leaves its fingerprint dead, which also fails. Round 11 (R11-1) cut that
+# sentence to those two fields, which are the only ones the adjudicator compares. It is the
+# study's own R5-1 lesson — a count is not an identity — applied to the study's own guard.
 WITHDRAWN_CLAIM_FINGERPRINTS = (
     (
         "PREREGISTRATION.md",
         "produced by",
-        "406",
+        "408",
         "internally consistent where the cell requires it — and nothing here shows that"
         " a given retained history could have been produced by the pinned platform's "
         "own execution paths. **no effect causation:** an attested effect matching a "
@@ -374,7 +375,7 @@ WITHDRAWN_CLAIM_FINGERPRINTS = (
     (
         "PREREGISTRATION.md",
         "caused by",
-        "408",
+        "410",
         "hs. **no effect causation:** an attested effect matching a bound call's "
         "identity is *matched*, never shown to have been caused by that call; effect "
         "attestations are modeled records (spec §0a) and carry no causal proof. **no "
@@ -384,7 +385,7 @@ WITHDRAWN_CLAIM_FINGERPRINTS = (
     (
         "PREREGISTRATION.md",
         "retryab",
-        "413",
+        "415",
         "s of a connector outcome it speaks of the retained flattened "
         "`connectoroutcome` scalar, never a recovered private row — retryability, error"
         " detail, and every private field beyond the scalar are absent by construction "
@@ -395,7 +396,7 @@ WITHDRAWN_CLAIM_FINGERPRINTS = (
     (
         "PREREGISTRATION.md",
         r"\bproducible\b",
-        "158",
+        "160",
         "history (§9). an earlier draft used a bare endpoint, an invented scope tag and"
         " short hand-written prose; none of it was producible, and `deviations.md` "
         "records the correction. the staged call binds the commitment at staging time "
@@ -407,7 +408,7 @@ WITHDRAWN_CLAIM_FINGERPRINTS = (
     (
         "README.md",
         "caused by",
-        "86",
+        "92",
         "ths would produce a given retained history. an attested effect is matched to a"
         " bound call's identity, never shown to be caused by it; the inventories the "
         "checks close are over what the store retains, not what the platform would have"
@@ -495,7 +496,7 @@ WITHDRAWN_CLAIM_FINGERPRINTS = (
     (
         "harness/tests/test_study.py",
         r"\bproducible\b",
-        "1293",
+        "1304",
         "ape a pinned connector's source defines. the generic mcp connector hardwires "
         "byo, so a vetted, auto-approvable write is producible only through the portal."
         " round 5 (findings 4 and 5) made the comparison a whole-description one. for "
@@ -897,20 +898,24 @@ def test_living_surfaces_carry_no_withdrawn_claims():
     return to a living surface unlicensed. Rounds 6, 7 and 8 each found the same class of
     sentence a few lines from where the previous round had repaired it, each time because
     the repair was a list of sites a reviewer had reached. What the fingerprints add to
-    that, exactly and no more: a licensed occurrence of a known phrase cannot move to
-    another line, cannot change the sentence around it, and cannot be joined by a second
-    occurrence without `WITHDRAWN_CLAIM_FINGERPRINTS` being restated — so a known
-    formulation cannot be *substituted* for a licensed one, which round 10 (R10-1) showed
-    an occurrence count permits.
+    that, exactly and no more: a licensed occurrence of a known phrase cannot change its
+    registered locator or its exact normalized ±120-character passage, and cannot be joined
+    by a second occurrence without `WITHDRAWN_CLAIM_FINGERPRINTS` being restated — so a
+    known formulation cannot be *substituted* for a licensed one, which round 10 (R10-1)
+    showed an occurrence count permits.
 
     What it does NOT claim, stated so that no later round has to discover it: it is not a
     semantic check, it does not decide whether a new sentence asserts a withdrawn claim,
     and its stem list is knowingly narrower than the class section 9 withdrew — round 9
     (R9-1) established that the two stems which would close the remaining variants are the
-    apparatus's own registered vocabulary and cannot be added. `HISTORICAL_FORMULATIONS`
-    records every formulation the four review records quoted and marks, one by one, which
-    this backstop reaches and which it does not; the ones it does not are carried by the
-    review loop, which owns semantic completeness and always did.
+    apparatus's own registered vocabulary and cannot be added. Round 11 (R11-1) measured
+    the other half of the same honesty: the locator is the extracted token's, not a
+    physical line, so rewrapping a Python docstring can keep it; and the passage stops at
+    `PASSAGE_RADIUS` normalized characters, so an edit further out than that keeps it
+    byte-equal. Neither is a move a fingerprint refuses, and neither is claimed here.
+    `HISTORICAL_FORMULATIONS` records every formulation the four review records quoted and
+    marks, one by one, which this backstop reaches and which it does not; the ones it does
+    not are carried by the review loop, which owns semantic completeness and always did.
 
     The tables are skipped wherever they are defined, since the backstop must hold the
     vocabulary it forbids; every other line of this file is scanned like any other.
@@ -997,12 +1002,18 @@ def test_the_extractor_reads_the_representations_round_nine_named(representation
 
 
 def test_a_fingerprint_licenses_one_occurrence_and_that_one_only():
-    """The four ways an occurrence can stop being the one that was licensed.
+    """The four ways a match can stop being the one a fingerprint licensed.
 
-    Round 9's count saw only the third of them. Moving the occurrence to another line,
-    rewriting the sentence around it and adding a second one beside it are each refused as
-    unlicensed; removing it leaves the fingerprint dead, so a repaired site cannot leave a
-    stale licence behind either.
+    These are match tuples handed straight to the adjudicator, not edits to any source
+    file: what varies is the registered locator and the exact normalized passage, which
+    with the surface and the phrase are the whole of what the comparison reads. Round 9's
+    count saw only the third of them. A different locator and a changed passage are each
+    refused as unlicensed, a second copy of the same match is refused because one
+    fingerprint claims one match, and a match that stops occurring leaves its fingerprint
+    dead, so a repaired site cannot leave a stale licence behind either. How placement in
+    a source file maps to a locator and a passage is the extractor's question and not the
+    adjudicator's, and this test is the adjudicator's — round 11 (R11-1) is why the
+    docstring says which of the two it runs.
     """
     assert len(WITHDRAWN_CLAIM_FINGERPRINTS) == 14
     assert len({entry[:4] for entry in WITHDRAWN_CLAIM_FINGERPRINTS}) == 14
@@ -1011,10 +1022,10 @@ def test_a_fingerprint_licenses_one_occurrence_and_that_one_only():
     surface, phrase, locator, passage = entry[:4]
     exact = (surface, locator, phrase, passage, passage)
     assert adjudicate_matches([exact], only) == ([], [])
-    moved = (surface, "9999", phrase, passage, passage)
-    assert adjudicate_matches([moved], only) != ([], [])
-    rewritten = (surface, locator, phrase, passage + " and one more clause", passage)
-    assert adjudicate_matches([rewritten], only) != ([], [])
+    other_locator = (surface, "9999", phrase, passage, passage)
+    assert adjudicate_matches([other_locator], only) != ([], [])
+    other_passage = (surface, locator, phrase, passage + " and one more clause", passage)
+    assert adjudicate_matches([other_passage], only) != ([], [])
     beside_unlicensed, beside_dead = adjudicate_matches([exact, exact], only)
     assert len(beside_unlicensed) == 1 and beside_dead == []
     assert adjudicate_matches([], only) == ([], [(surface, locator, phrase)])

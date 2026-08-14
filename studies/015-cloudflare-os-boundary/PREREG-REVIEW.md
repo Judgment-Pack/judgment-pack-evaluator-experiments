@@ -9,9 +9,9 @@ declined with reasons.
 and are never edited; the dispositions here are brought current as work lands, by amending the
 status of a row rather than rewriting what it said. Where a later round superseded an earlier
 disposition, the earlier row keeps its words and gains a note saying so. Statuses below are
-current as of the round-10 fixes (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
-`5cb4c1e`, `a7ac228`, and the round-6, round-7, round-8, round-9 and round-10 fix blocks that
-follow them).
+current as of the round-11 fix (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
+`5cb4c1e`, `a7ac228`, and the round-6, round-7, round-8, round-9, round-10 and round-11 fix blocks
+that follow them).
 
 ## Round 1 — DO-NOT-FREEZE
 
@@ -426,7 +426,7 @@ summary, and a summary admits substitution.
 
 | # | Finding | Disposition |
 |---|---|---|
-| R9-1r / R10-1 | **Blocker.** Licences are count-bound, not occurrence-bound. Deleting the legitimate `retryability` header at `SPEC.md:68` and inserting `External state is not retryable.` inside the unchanged anchor window preserves three matches, so the real adjudicator returns `([], [])` — a known forbidden formulation can replace an allowed occurrence, against the claim at `test_study.py:823-827` that reintroduction of a known formulation is mechanically impossible. | **Accepted and fixed as proposed: the licence table is now one-to-one fingerprints.** Each licensed *occurrence* registers `(surface, phrase, locator, passage, justification)`, where the passage is the exact whitespace-normalized prose around the match, clipped to the run it lives in and to ±120 characters. A match is licensed only when some entry no earlier match has claimed carries its surface, its phrase, its locator **and** a byte-equal passage; an entry nothing matches is dead and fails too. Twelve entries become **fourteen fingerprints** — section 0a's three-occurrence licence becomes three, each with its own passage and its own justification — and the ±400-character window is gone with the count it was standing in for. The reviewer's exact attack is registered as data in `SUBSTITUTION_ATTACK` and run against the whole adjudicator over a mutated copy of the SPEC (the tree is never written): the occurrence count is three before and three after, and the guard now returns three unlicensed occurrences and three dead fingerprints instead of `([], [])`. The claim at `test_study.py:823-827` is rewritten to what fingerprints actually give — a licensed occurrence cannot move to another line, cannot change the sentence around it, and cannot be joined by a second without the table being restated — and semantic novelty stays where round 10's own Ruling 1 leaves it, with the review loop. Two new tests, 199 in the suite. |
+| R9-1r / R10-1 | **Blocker.** Licences are count-bound, not occurrence-bound. Deleting the legitimate `retryability` header at `SPEC.md:68` and inserting `External state is not retryable.` inside the unchanged anchor window preserves three matches, so the real adjudicator returns `([], [])` — a known forbidden formulation can replace an allowed occurrence, against the claim at `test_study.py:823-827` that reintroduction of a known formulation is mechanically impossible. | **Accepted and fixed as proposed: the licence table is now one-to-one fingerprints.** Each licensed *occurrence* registers `(surface, phrase, locator, passage, justification)`, where the passage is the exact whitespace-normalized prose around the match, clipped to the run it lives in and to ±120 characters. A match is licensed only when some entry no earlier match has claimed carries its surface, its phrase, its locator **and** a byte-equal passage; an entry nothing matches is dead and fails too. Twelve entries become **fourteen fingerprints** — section 0a's three-occurrence licence becomes three, each with its own passage and its own justification — and the ±400-character window is gone with the count it was standing in for. The reviewer's exact attack is registered as data in `SUBSTITUTION_ATTACK` and run against the whole adjudicator over a mutated copy of the SPEC (the tree is never written): the occurrence count is three before and three after, and the guard now returns three unlicensed occurrences and three dead fingerprints instead of `([], [])`. The claim at `test_study.py:823-827` is rewritten to what fingerprints actually give — a licensed occurrence cannot change its registered locator or its exact normalized ±120-character passage, and cannot be joined by a second without the table being restated — and semantic novelty stays where round 10's own Ruling 1 leaves it, with the review loop. Two new tests, 199 in the suite. *(Round 10's block wrote the first two clauses as "cannot move to another line, cannot change the sentence around it", which claims more than the mechanism does; the wording above is R11-1's correction and is the claim now standing on the tree.)* |
 | R9-2 | **Resolved**, confirmed: the manifest replaces exactly the six covered-file digests `cb48421` changed, `1ee1ca1` touches only excluded review records, and `test_study_manifest_is_exact` passes. | No change. |
 | Ruling 1 | **Acceptable**, adopted as ruled: the registered lexical narrowness plus the semantic review loop is an honest closure model; refusing a bare `admits` or `produces` would reject legitimate apparatus vocabulary, and the asserted historical arithmetic exposes rather than conceals the uncovered cases. The 21-row table, its 12/9 split and the assertion over both are unchanged by this block. | No change. |
 | Ruling 2 | **Lawful**, adopted as ruled: `verify.py:887-902` states cited, source-level necessary constraints, and section 9 disclaims positive reachability of complete modeled histories rather than derivation from pinned source. Those sentences are not rewritten. | No change. |
@@ -445,3 +445,43 @@ ceremony, which is the one place nobody was reading for it. **The study does not
 this record.** Round 11 has not run; its job is to decide whether the fingerprints identify what
 they claim to identify, whether the substitution regression is the attack it says it runs, and
 whether anything else in this tree summarizes where it should be identifying.
+
+
+## Round 11 — FREEZABLE AFTER LISTED FIXES
+
+Reviewer: same configuration, static review with the suite and both registries executed. Study
+tree reviewed at commit `7bd0804`. Verdict: **freezable after listed fixes** — the first round in
+this loop that is not DO-NOT-FREEZE. No blocker: R10-1 is confirmed RESOLVED by execution, one
+major is returned against the guard's description of itself, and the review states that no
+apparatus expansion is needed before the freeze.
+
+Round 11 read the fingerprints against what they actually compare and found the prose around them
+one size too large. The mechanism pins an extracted locator and a normalized passage; the
+docstrings and both ledgers described it as pinning a physical line and a surrounding sentence.
+Two demonstrations settle it. Rewrapping the licensed occurrence inside this study's own
+`test_study.py` docstring from physical line 1295 to 1296 keeps locator 1293, because the locator
+is the token's rather than the line's; and editing the same `README.md` sentence 151 normalized
+characters away from its `caused by` match keeps the passage byte-equal, because the passage stops
+at `PASSAGE_RADIUS`. Both pass the guard, and neither is something the guard should ever have been
+described as refusing.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R10-1 | **Resolved**, confirmed by execution: all fourteen unique five-field fingerprints match exactly one standing occurrence, so the adjudicator returns `([], [])` over the tree; the held attack preserves the `retryab` count at three and yields exactly three unlicensed occurrences and three dead fingerprints, the injected sentence among them; and changed locator, changed passage, duplication, deletion and banner-shift reconvergence all behave as designed. | No change. |
+| R11-1 | **Major.** Claim scope, at `test_study.py:358-359,899-904,999-1020`, `PREREG-REVIEW.md:429` and `DEVIATIONS.md:736-744`: the text says an occurrence cannot move to another line or change its surrounding sentence, but the mechanism fixes only its extracted locator and its normalized ±120-character passage, and the synthetic regression changes a supplied locator/passage tuple rather than arbitrary source placement. | **Accepted and fixed exactly as proposed, at all five sites.** The guarantee is now stated in the mechanism's own terms wherever it is stated: a licensed occurrence cannot change its registered locator or its exact normalized ±120-character passage, and cannot be joined by a second without `WITHDRAWN_CLAIM_FINGERPRINTS` being restated. The regression's docstring says what it runs — match tuples handed straight to the adjudicator, with the locator field and the passage field varied, not edits to any source file — and its two locals are renamed from `moved`/`rewritten` to `other_locator`/`other_passage` so the code reads the way the claim now does. The backstop's *what it does NOT claim* paragraph gains the half R11-1 measured: the locator is the extracted token's, so rewrapping a Python docstring can keep it, and the passage stops at `PASSAGE_RADIUS` normalized characters, so an edit further out keeps it byte-equal — neither is refused here, and both sit with the review loop alongside semantic novelty. The round-10 row above keeps its words and carries the correction inline, as this ledger's rule requires. No expectation, no phrase class, no fingerprint passage and no test moved; the prose edits shift six registered locators — the four on `PREREGISTRATION.md`, the one on `README.md` and `test_study.py`'s own, `1293` to `1304` — each reconverged in the same commit with a byte-identical passage. |
+
+The verbatim prompt and review are retained and are to be filed under `reviews/round-11/` as every
+earlier round's are; this commit touches nothing under `reviews/`.
+
+**No registered expectation changed in either stratum, no verdict code was added, and no
+vocabulary member moved.** The before/after snapshot over all three layer outcomes, every
+published `suppressed` code and every upstream engagement list, for all 35 cells by direct layer
+calls, is **zero drift** — a seventh consecutive round, over a block of tests and prose only.
+
+**Standing after eleven rounds.** Every blocker from rounds 1–10 is closed, round 11 returned no
+blocker, and its one major is closed here. The shape of this round is the smallest finding the
+loop has produced and the kind it has produced most often: the apparatus was right and the
+sentence about the apparatus was larger than the apparatus. Round 11's verdict is *freezable after
+the listed fixes* — but the listed fix is this block, and round 11 did not read it. **Round 12 has
+not run**, and the freeze waits on its confirmation that this block is the correction it asked for
+and that it introduces nothing else.

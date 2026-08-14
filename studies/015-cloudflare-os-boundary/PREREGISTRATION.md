@@ -1,15 +1,17 @@
 # Preregistration — Study 015: the judgment/staged-action boundary under a governed-agent platform
 
 **Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing thereafter.**
-Ten review rounds have run and all ten returned DO-NOT-FREEZE; round 5's structural rescope —
-the claims narrowed to what the apparatus is, plus the source-of-truth sweep it asked for — is
-applied, round 6's five blockers and two majors are fixed, round 7's three blockers, two majors
-and four named residues are fixed, round 8's three blockers, one minor and three named
-residues are fixed with its ruling adopted, round 9's two blockers are fixed, and round 10's
-one blocker is fixed with both of its rulings adopted
-([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope", "Round-6 fixes", "Round-7 fixes",
-"Round-8 fixes", "Round-9 fixes" and "Round-10 fix"). **Round 11 has not run**, and the freeze
-waits on its confirmation.
+Eleven review rounds have run: the first ten returned DO-NOT-FREEZE and round 11 returned
+freezable after listed fixes. Round 5's structural rescope — the claims narrowed to what the
+apparatus is, plus the source-of-truth sweep it asked for — is applied, round 6's five blockers
+and two majors are fixed, round 7's three blockers, two majors and four named residues are
+fixed, round 8's three blockers, one minor and three named residues are fixed with its ruling
+adopted, round 9's two blockers are fixed, round 10's one blocker is fixed with both of its
+rulings adopted, and round 11's one major — a guarantee stated larger than the mechanism that
+holds it — is fixed ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope", "Round-6 fixes",
+"Round-7 fixes", "Round-8 fixes", "Round-9 fixes", "Round-10 fix" and "Round-11 fix"). Round
+11's listed fix is the block that carries this banner, which round 11 did not read. **Round 12
+has not run**, and the freeze waits on its confirmation.
 
 **Nothing has run under a freeze.** Everything executed during harness development lands under
 `pilots/`, is labeled harness validation, and supports no claim. After the freeze this file is
