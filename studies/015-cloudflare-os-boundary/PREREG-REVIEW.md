@@ -9,8 +9,8 @@ declined with reasons.
 and are never edited; the dispositions here are brought current as work lands, by amending the
 status of a row rather than rewriting what it said. Where a later round superseded an earlier
 disposition, the earlier row keeps its words and gains a note saying so. Statuses below are
-current as of the round-6 fixes (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
-`5cb4c1e`, `a7ac228`, and the round-6 block that follows them).
+current as of the round-8 fixes (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
+`5cb4c1e`, `a7ac228`, and the round-6, round-7, and round-8 fix blocks that follow them).
 
 ## Round 1 — DO-NOT-FREEZE
 
