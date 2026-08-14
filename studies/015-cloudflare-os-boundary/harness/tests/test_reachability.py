@@ -431,19 +431,47 @@ def test_retained_store_unreadable_on_a_malformed_effect_source(cell_copy):
     assert binding(cell)["code"] == "retained-store-unreadable"
 
 
-def test_read_path_effects_are_counted_and_never_matched(cell_copy):
-    """The union's other arms name no staged call, so nothing joins them to one.
+def test_unbound_execution_refuses_an_unstaged_effect_under_an_authorization(cell_copy):
+    """The union's other arms name no staged call, and inside the governed inventory that
+    is the failure, not an exemption.
 
-    `m01`'s effect is a read-path effect and is refused on the count (no approved bound
-    application authorizes it); the same effect under an authorization is counted against
-    that cap and matched against nothing, which is the registered semantics.
+    Exactly one effect against exactly one approved bound application, so the cap is
+    satisfied and the count clause cannot fire — but the store's own attestation says the
+    effect came from the read path, which is not the application the map authorized. The
+    detail is asserted so this cannot pass by the arithmetic it is here to bypass.
     """
     cell = cell_copy("pos-baseline")
     platform = load_json(cell / "platform.json")
+    assert len(platform["effects"]) == 1
     platform["effects"][0]["source"] = {"kind": "read-path"}
-    platform["effects"].append(json.loads(json.dumps(platform["effects"][0])))
     dump_json(cell / "platform.json", platform)
-    assert binding(cell)["code"] == "unbound-execution"
+    found = binding(cell)
+    assert found["code"] == "unbound-execution"
+    assert "'read-path' provenance" in found["detail"]
+
+
+def test_unbound_execution_refuses_an_out_of_band_effect_under_an_authorization(cell_copy):
+    """The same for the union's third arm: `out-of-band` names no call either."""
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["effects"][0]["source"] = {"kind": "out-of-band"}
+    dump_json(cell / "platform.json", platform)
+    found = binding(cell)
+    assert found["code"] == "unbound-execution"
+    assert "'out-of-band' provenance" in found["detail"]
+
+
+def test_unstaged_effects_still_refuse_on_the_count_under_no_authorization(cell_copy):
+    """Where the map authorizes nothing, the zero-authorization clause refuses first.
+
+    That ordering is why this fix changes no registered outcome: `m01`'s read-path effect
+    and `b06`'s claimed-but-unretained staged call are both inaction cells, and both are
+    refused before the union is consulted at all.
+    """
+    for cell_id in ("m01-readonly-bypass", "b06-unbound-execution"):
+        found = binding(cell_copy(cell_id))
+        assert found["code"] == "unbound-execution"
+        assert "no approved action record bound to this commitment" in found["detail"]
 
 
 def test_unbound_execution_catches_a_changed_argument_governed_effect(cell_copy):

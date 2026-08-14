@@ -120,9 +120,11 @@ CASES = {
     "not-applicable": "not-applicable-request-type",
 }
 
-# The captured evidence artifacts an acquiring system retains. Their bytes are frozen in
-# each cell (`evidence-artifacts.json`) so a backing digest has a checkable preimage; the
-# study never inspects their content and asserts nothing about their authenticity.
+# The evidence artifacts an acquiring system would retain. Their bytes are frozen in each
+# cell (`evidence-artifacts.json`) so a backing digest has a checkable preimage; the study
+# never inspects their content and asserts nothing about their authenticity — and nothing
+# here is a capture: these bytes are constructed, and the ceremony establishes only that a
+# retained preimage hashes to the committed digest.
 EVIDENCE_ARTIFACTS = {
     "intake-form": cmt.jcs({"artifact": "intake-form", "capture": "fixture-capture-01"}),
     "sponsor-endorsement": cmt.jcs(
@@ -755,7 +757,7 @@ def build_all():
          honest_report(envelope, built["digest"], "none",
                        note="evaluation returned unknown; no action taken"))
 
-    # a present claim backed by an approval record rather than a captured artifact.
+    # a present claim backed by an approval record rather than an evidence artifact.
     _, evidence_bytes = builder.case_bytes("proceed")
     evidence = json.loads(evidence_bytes.decode("utf-8"))
     backing = backing_for(evidence)
@@ -926,9 +928,12 @@ def build_all():
     emit("m01-readonly-bypass", built, timeline,
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
-    # The at-most-once ambiguity, in the state the pinned source can actually retain:
-    # the inner connector action is failed/non-retryable and the OUTER workspace record
-    # stays pending, because overseer.ts only transitions it after applyAction returns.
+    # The at-most-once ambiguity. The OUTER workspace record stays pending, because
+    # overseer.ts only transitions it after applyAction returns. Upstream's own inner
+    # connector action would be failed/non-retryable at this point — but that row is
+    # NOT retained here: what the cell keeps of the dispatch is the flattened
+    # `connectorOutcome` scalar alone, with no retryability, no error detail and no join
+    # to a private store (SPEC section 0a; round 5, R4-2).
     built = builder.build(case_key="proceed")
     timeline = builder.timeline(built)
     # `autoApprovable` is the classifier's verdict for this vetted, non-destructive,

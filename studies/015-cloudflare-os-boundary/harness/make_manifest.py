@@ -8,6 +8,10 @@ inputs (the pack and the conformance seed cases), and every per-cell fixture man
 `score.py` verifies this file before it adjudicates anything and a harness test verifies
 it too.
 
+What it deliberately does **not** cover is `DEVIATIONS.md` and `README.md`
+(`EXCLUDED_DOCUMENTS`, ADR 0004): the appendable files, which must stay editable after the
+freeze precisely so a correction has somewhere to land.
+
 The manifest is regenerated during drafting and pinned at the freeze; after the freeze a
 regeneration that changes a line is a deviation, not a fix.
 
@@ -33,6 +37,16 @@ REGISTERED_DOCUMENTS = (
     "fixtures/conformance-cases.json",
 )
 
+# Out of the covered set BY CONSTRUCTION, not by omission (ADR 0004). The manifest covers
+# what must not change, and a file whose whole purpose is to be appended to after the
+# freeze is not that: `DEVIATIONS.md` is the only place a post-freeze correction may land,
+# so covering it would mean the first genuine deviation broke the anchor the deviation
+# exists to protect. `README.md` is navigation and carries a status banner that must be
+# able to go from "nothing has run" to a result. Both are named here, and a harness test
+# asserts the exclusion, so a later widening fails the suite instead of quietly taking the
+# deviation mechanism with it.
+EXCLUDED_DOCUMENTS = ("DEVIATIONS.md", "README.md")
+
 
 def manifest_entries():
     """Every covered path, study-relative, sorted."""
@@ -46,6 +60,8 @@ def manifest_entries():
     seen = []
     for path in paths:
         relative = path.relative_to(STUDY).as_posix()
+        if relative in EXCLUDED_DOCUMENTS:
+            continue
         if relative not in seen:
             seen.append(relative)
     return sorted(seen)

@@ -1,7 +1,7 @@
 {
   "matrixVersion": "3",
   "stratum": "locked-replication",
-  "note": "Registered cell expectations for Study 015, matrixVersion 3 (post-round-2). The registered deployment is the pinned MCP Portal connector with MCP_PORTAL_TRUST_ANNOTATIONS=true — the only pinned connector that can be vetted, and therefore the only one on which an auto-approvable write exists at all; every identifier below is the shape that connector emits. `expected` is the per-layer registered outcome the scorer adjudicates against; only endpoint rows count toward R1. `upstream` is the platform's own policy FUNCTIONS replayed offline by the harness — `not-engaged` means that replay had nothing in this construction to decide, and is not an endorsement. `upstreamChecksReplayed` registers which pinned functions the construction actually reaches. `mutationConstraint` registers exactly what the constructor was permitted to touch, so a cell's detection cannot be read as holding against a more capable adversary than it faced. `modeledDependencies` registers every datum the cell leans on that stock Cloudflare OS does not itself retain (SPEC section 0's provenance table).",
+  "note": "Registered cell expectations for Study 015, matrixVersion 3 (post-round-2). The registered deployment is the pinned MCP Portal connector with MCP_PORTAL_TRUST_ANNOTATIONS=true — the only pinned connector that can be vetted, and therefore the only one on which an auto-approvable write exists at all; every identifier below is synthetically reconstructed at the shape that connector's source defines, from inputs this study registers — never captured from a running deployment (SPEC section 4a; PREREGISTRATION section 9). `expected` is the per-layer registered outcome the scorer adjudicates against; only endpoint rows count toward R1. `upstream` is the platform's own policy FUNCTIONS replayed offline by the harness — `not-engaged` means that replay had nothing in this construction to decide, and is not an endorsement. `upstreamChecksReplayed` registers which pinned functions the construction actually reaches. `mutationConstraint` registers exactly what the constructor was permitted to touch, so a cell's detection cannot be read as holding against a more capable adversary than it faced. `modeledDependencies` registers every datum the cell leans on that stock Cloudflare OS does not itself retain (SPEC section 0's provenance table).",
   "cells": [
     {
       "id": "pos-baseline",
@@ -377,7 +377,7 @@
         "evidenceArtifacts",
         "effectAttestation"
       ],
-      "construction": "the sponsor-endorsement requirement is claimed present with its backing entry referencing the approval record of the human who approved the action, not a captured evidence artifact",
+      "construction": "the sponsor-endorsement requirement is claimed present with its backing entry referencing the approval record of the human who approved the action, not an evidence artifact",
       "expected": {
         "upstream": "not-engaged",
         "binding": "fail:evidence-backing-invalid",
@@ -454,7 +454,7 @@
         "effectAttestation",
         "observedRouting"
       ],
-      "construction": "the intake-form requirement is claimed present with its backing entry referencing an observation record — proof the resource was read through an authorized capability — rather than a captured artifact. The observation is a genuine read-path record for a read-only tool, so the pinned classifier replays over it and correctly raises no objection",
+      "construction": "the intake-form requirement is claimed present with its backing entry referencing an observation record — proof the resource was read through an authorized capability — rather than an evidence artifact. The observation is a genuine read-path record for a read-only tool, so the pinned classifier replays over it and correctly raises no objection",
       "expected": {
         "upstream": "pass",
         "binding": "fail:evidence-backing-invalid",
@@ -696,7 +696,7 @@
       "variant": "environment",
       "role": "descriptive",
       "attackerCapability": "environment",
-      "mutationConstraint": "nothing is mutated: this is the honest trace of an ambiguous dispatch",
+      "mutationConstraint": "nothing is mutated: the cell constructs the unmutated ambiguous-dispatch trace, reconstructed from source rather than captured, and retaining only what the flattened connectorOutcome scalar carries",
       "registeredAbsences": [],
       "upstreamChecksReplayed": [],
       "modeledDependencies": [

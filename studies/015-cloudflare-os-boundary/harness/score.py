@@ -20,15 +20,21 @@ Decision rule for R1 (PREREGISTRATION section 5), over the LOCKED stratum alone:
     4. else -> "R1 falsified"
 
 The reviewer-authored holdout stratum is scored into a separate object with its own
-verdict and its own validity records. Nothing in the holdout can change R1 — round 1
-found holdout invalidity leaking into the locked verdict, and that is now structurally
-impossible: the two strata are adjudicated into disjoint collections.
+verdict and its own validity records. HOLDOUT CELL OUTCOMES DO NOT ENTER R1's ARITHMETIC:
+round 1 found holdout invalidity leaking into the locked verdict, and that much is now
+structurally impossible — the two strata are adjudicated into disjoint collections and a
+harness test asserts the routing. The wider claim is false and is not made: registry
+parsing, pin enforcement, the whole-study manifest and publication itself are
+attempt-scope preconditions shared by both strata, so a malformed holdout artifact can
+still make the whole attempt inconclusive, R1 included (round 4, R4-5).
 
-Freeze integrity is enforced, not declared. Before anything is adjudicated: every
-non-null pin is compared against the live artefact (protocol digests when filled, the
-`jpack` binary digest, the vendored external inputs' own digests, the interpreter version
-and dependency freeze, and the node/esbuild/typescript identities the probe toolchain
-actually used); the whole-study manifest is verified as an exact set; the frozen cell-id
+Freeze integrity is enforced, not declared. Before anything is adjudicated: every pin the
+registry's own `enforcement` map classes SCORER is compared against the live artefact
+(protocol digests when filled, the `jpack` binary digest, the vendored external inputs'
+own digests, the interpreter version and dependency freeze, and the
+node/esbuild/typescript identities the probe toolchain actually used) — members classed CI
+or DESCRIPTIVE are not checked here, because round 2 found the earlier "every non-null
+pin" claim false; the whole-study manifest is verified as an exact set; the frozen cell-id
 set and per-cell schema are asserted for both strata; the registered fixture typecheck
 runs as a scorer precondition rather than only as a test; and the upstream runner's
 apparatus self-report is checked against the clone pins. Any mismatch is terminal
@@ -207,7 +213,14 @@ def pip_freeze_sha256():
 
 
 def pin_problems(pins, jpack_bin):
-    """Every non-null pin compared against the live artefact. Hard, not advisory."""
+    """Every SCORER-classed pin compared against the live artefact. Hard, not advisory.
+
+    The class is the claim, and the list below is it — the members `PINS.json`'s own
+    `enforcement.scorer` names, and no others. CI and DESCRIPTIVE members are not checked
+    here: round 2 found the earlier "every non-null pin" docstring false, since
+    `cloudflareOs.pnpmVersion` and the jpack archive digest are enforced by the install
+    path rather than at adjudication time.
+    """
     problems = []
 
     for member, relative in (

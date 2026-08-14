@@ -1,11 +1,15 @@
 # Study 015 — the judgment/staged-action boundary under a governed-agent platform
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Round 1 of
-cross-vendor review returned **DO-NOT-FREEZE** with 7 blockers; every one is dispositioned
-in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus was rebuilt around them —
-including withdrawing one of the study's own recorded findings that source verification
-refuted. Anything executed before the freeze is harness validation under `pilots/`, labeled
-as such, and supports no claim beyond "the machinery works".
+**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Five rounds of
+cross-vendor review have run and every one returned **DO-NOT-FREEZE**; every finding of
+every round is dispositioned in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus
+was rebuilt around them — including withdrawing one of the study's own recorded findings
+that source verification refuted. Round 5's structural finding is accepted in the direction
+it named first, and the resulting rescope — the claims narrowed to what the apparatus is,
+plus a source-of-truth sweep across every governing document — is applied here
+([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope"). **Round 6 has not run**: the freeze
+waits on it, and until then anything executed is harness validation under `pilots/`,
+labeled as such, and supports no claim beyond "the machinery works".
 
 ## What it is
 
@@ -24,15 +28,16 @@ An interoperability falsification study between two independently designed layer
   from retained artifacts.
 
 The study then tries to break the composition: 19 registered endpoint mutations across
-six families — judgment-artifact forgery and carried-but-unchecked identity, the boundary
-analysis's five semantic collapses (unresolved→rejected, unknown auto-applied, operational
-failure retconned as epistemic unknown, approval-as-evidence, plus observation-as-evidence),
-handoff dropped, not-applicable executed, binding integrity (reuse, argument drift,
-stage-time and apply-time revision mismatch, target and action-kind substitution, unbound
-execution), and the callback-versus-commit overclaim — plus 6 controls, 1 disclosed
-demonstration (the `readOnlyHint` queue bypass, upstream's own documented tradeoff), and 1
-descriptive boundary (the at-most-once ambiguous commit, which **no offline layer can
-resolve** and which is published as exactly that).
+five endpoint categories — A judgment-artifact forgery and carried-but-unchecked identity
+(×4); S the boundary analysis's semantic collapses (unresolved→rejected, unknown
+auto-applied, operational failure retconned as epistemic unknown, approval-as-evidence)
+with handoff dropped and not-applicable executed completing the disposition space (×6);
+O observation-as-evidence, the fifth collapse (×1); B binding integrity (reuse, argument
+drift, stage-time and apply-time revision mismatch, target and action-kind substitution,
+unbound execution) (×7); and D the callback-versus-commit overclaim (×1) — plus 6 controls,
+1 disclosed demonstration (the `readOnlyHint` queue bypass, upstream's own documented
+tradeoff), and 1 descriptive boundary (the at-most-once ambiguous commit, which **no
+offline layer can resolve** and which is published as exactly that).
 
 Three layers adjudicate every cell: **upstream** — the platform's own policy *functions*
 (`classifyTool`, `AutoApprovalDrainer`), imported from the pinned clone and replayed
@@ -107,12 +112,12 @@ whether stock Cloudflare OS retains it at all.
 | [`adapter/commitment.py`](adapter/commitment.py) / [`adapter/verify.py`](adapter/verify.py) | Commitment construction; the three-layer ceremony |
 | [`harness/MATRIX.json`](harness/MATRIX.json) | 27 registered cells (locked-replication stratum) |
 | [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json) | 8 reviewer-authored holdout cells (constructed but never adjudicated pre-freeze; scorer refuses) |
-| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Round-1 dispositions: what changed and why |
-| [`harness/PINS.json`](harness/PINS.json) | Every pin, enforced before adjudication |
+| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Dispositions for all five review rounds: what changed and why — the one living ledger |
+| [`harness/PINS.json`](harness/PINS.json) | Every pin, each classified SCORER (compared before adjudication), CI, or DESCRIPTIVE |
 | [`harness/score.py`](harness/score.py) | The only thing that publishes |
 | [`harness/build_fixtures.py`](harness/build_fixtures.py) | One-time fixture construction (real evaluator runs; upstream identity functions) |
 | [`harness/cf_runner.py`](harness/cf_runner.py) / [`probes/`](probes/) | The upstream layer: pinned platform functions, bundled by the clone's own esbuild |
-| [`harness/typecheck.py`](harness/typecheck.py) | Every retained record held to the pinned server-side types; a scorer precondition |
+| [`harness/typecheck.py`](harness/typecheck.py) | Every retained ledger record and auto-approval rule held to the pinned server-side types; a scorer precondition |
 | [`harness/tests/`](harness/tests/) | Vocabulary sync, per-code reachability with first-failure ordering, refusals |
 | [`fixtures/`](fixtures/) | Frozen cells: baseline + 26 mutations + 8 holdout, each manifested |
 | [`pilots/`](pilots/) | Harness-validation runs (no claims) |

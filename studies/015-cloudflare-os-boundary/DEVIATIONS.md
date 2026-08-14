@@ -104,6 +104,10 @@ load-bearing ones, all fixed before round 3's report was read:
   `awaitDecision: true` on every write. The hazard is recorded as an analytic limitation
   (PREREGISTRATION §4c) rather than as a green or red cell. `simulationBasis` and
   `simulation-basis-invalid` remain registered as defence in depth and reachable by test.
+  **Superseded at round 2:** both were removed entirely (see *Round-2 corrections* above),
+  so this sentence records the round-1 decision only. Round 5 (R4-6) found the two
+  statements read as a contradiction with nothing marking which is current; this note is
+  the correction, and the current state is that neither the field nor the code exists.
 - **`m02-ambiguous-commit` is rebuilt** (round 1, finding 6): its earlier fixture showed the
   outer workspace record `approved` with an `appliedAt` stamp, which the platform cannot produce
   for a throwing apply. The fixture now carries the trace the pinned source can actually retain.
@@ -112,7 +116,10 @@ load-bearing ones, all fixed before round 3's report was read:
   commitments that round 1 found were carried and never checked).
 - The registry moves to `matrixVersion` 2 with an extended per-cell schema
   (`mutationConstraint`, `modeledDependencies`, `upstreamChecksReplayed`) and the layer key
-  `cf`→`upstream` with `not-engaged` as a distinct outcome.
+  `cf`→`upstream` with `not-engaged` as a distinct outcome. It moves again to
+  **`matrixVersion` 3** at the round-2 rebuild — no schema change; the bump marks the
+  re-rendering of every identifier at the portal's real shapes — and 3 is what the
+  registry in the tree carries.
 - **The holdout was migrated mechanically, never revised.** The reviewer's authored file is
   preserved byte-for-byte at `reviews/round-1/MATRIX-HOLDOUT.authored.json`. The migration
   re-keys the layer and field names and, for cells registering no replayed checks, translates the
@@ -150,10 +157,11 @@ posture is offline-first and the boundary map does not need it). Concretely:
   connector actually emits" became "a synthetic reconstruction from source, not a captured
   emission" — the round-5 wording finding, fixed at the surface readers actually read.
 - Bridge-authored, unsigned modeled fields are constructions of the study; no cell treats them
-  as proof of source history, and any wording that suggested otherwise is in scope for the
-  round-5/6 source-of-truth sweep.
+  as proof of source history, and the wording that suggested otherwise is corrected by the
+  source-of-truth sweep round 5 asked for (**G** under *Apparatus items closed*, applied in the
+  same rescope rather than deferred to round 6).
 
-### Apparatus items closed at round 5/6
+### Apparatus items closed at the round-5 rescope
 
 Each is a decision recorded before implementation; none changes a registered expectation.
 Through C8 a rebuild of both strata reproduced every frozen fixture byte-for-byte. The D and E
@@ -226,8 +234,10 @@ showed zero drift.
   stage nothing. The `source` member is now `staged-call` (with the claimed `gatekeeperId` and
   `action`), `read-path`, or `out-of-band`, validated for shape at store load —
   `retained-store-unreadable`, folded into the existing gate, no new verdict code. Only a
-  `staged-call` source is joined to the bound call; the other arms are counted against the same
-  cap and matched against nothing. `m01`'s effect becomes `read-path`, which is what its
+  `staged-call` source is joined to the bound call; at this decision the other arms were
+  counted against the same cap and matched against nothing — **narrowed by G0 below**, which
+  refuses them outright wherever the map authorizes an executable action. `m01`'s effect
+  becomes `read-path`, which is what its
   construction always said it was, and `b06` still *claims* a staged call against a store holding
   none — that contradiction is the cell, and it fails on the count exactly as before. SPEC §0a
   and step 15 now state the union and that the join establishes agreement between two retained
@@ -251,6 +261,42 @@ showed zero drift.
   said two gates while `_load_context` also returned `retained-store-unreadable`; it now names
   all three. The §4 derivation moved out of context load into the check that reads it, so every
   reading that can fail on its inputs happens inside the per-check guard. No outcome changed.
+- **G0 — an effect that names no staged call is refused, not exempted.** E1/E2 left the union's
+  `read-path` and `out-of-band` arms counted against the cap and matched against nothing. Inside
+  the governed inventory that is too generous: where the map authorizes an executable action,
+  every approved bound application is already spoken for by the cap, so an effect the store's own
+  attestation sources elsewhere is unaccounted for. Step 15 refuses it on the existing
+  `unbound-execution` code — no new verdict code, one branch in the existing path — and SPEC
+  step 15 states it. Where the map authorizes nothing the zero-authorization clause refuses
+  first, which is why this changes no registered outcome: `m01` and `b06` are both inaction
+  cells. Confirmed rather than assumed — a before/after snapshot of all three layer outcomes and
+  every suppressed code over all 35 cells, by direct layer calls, showed zero drift. Three
+  regression tests: both non-staged arms under an authorization (asserting the diagnostic, so
+  neither can pass by the arithmetic it exists to bypass), and the ordering that makes `m01` and
+  `b06` unaffected.
+- **G — one source-of-truth sweep, after the claims narrowed (round 5, finding 7).** The
+  governing documents are brought to the apparatus in one pass rather than round by round:
+  inventory scope is the governed tool and resource everywhere it is described; registered
+  identifiers are "synthetically reconstructed at the shape the connector's source defines"
+  rather than what it "actually emits"; `m02` and the connector-outcome vocabulary narrate the
+  flattened scalar and never a private row; holdout isolation is stated as "holdout cell
+  outcomes do not enter R1's arithmetic" with the shared attempt-scope gates named beside it;
+  evidence backing is retained-preimage consistency with no capture implied, in the
+  preregistration, `commitment.py` and the verifier's own diagnostics; and the pin and typecheck
+  absolutes are replaced by the `enforcement` map's SCORER/CI/DESCRIPTIVE classes and by the
+  typecheck's real surface (ledger records and auto-approval rules). `PREREG-REVIEW.md` — the one
+  living ledger — carries current statuses for R4-2, R4-3, R4-5, R4-6 and round 5. Stated counts
+  were recomputed against the tree; the drift found was the README's "six families" against the
+  registry's five endpoint categories, and the registry's `matrixVersion` 3 recorded here as 2.
+  No expectation, no fixture byte and no verdict code changed.
+- **H — the appendable files are outside the freeze set by construction (ADR 0004).**
+  `make_manifest.py` names `DEVIATIONS.md` and `README.md` in `EXCLUDED_DOCUMENTS` and filters on
+  it, and a harness test asserts both files exist, neither is covered, and the constant names
+  them. The exclusion was already implicit — the manifest lists registered documents explicitly
+  and no glob reaches a top-level `.md` — so `STUDY-MANIFEST.sha256` is unchanged; what changes is
+  that it is now deliberate and guarded. This file is the one place a post-freeze correction may
+  land, so covering it would make the first genuine deviation break the anchor it exists to
+  protect. `PINS.json`'s `studyManifest` records the exclusion beside its `covers` list.
 
 ## Apparatus
 

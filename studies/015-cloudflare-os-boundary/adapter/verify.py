@@ -654,7 +654,7 @@ def _load_context(cell):
 
     artifacts_document = cell.json("evidence-artifacts.json")
     if artifacts_document is None:
-        context.artifacts_problem = "no retained captured-artifact store"
+        context.artifacts_problem = "no retained evidence-artifact store"
     else:
         try:
             context.artifacts = cmt.decode_artifacts(artifacts_document)
@@ -855,8 +855,10 @@ def _check_evidence_backing(context):
     claim carries an `artifact` backing, that backing's digest has a preimage actually
     retained in this cell, and the preimage hashes to it. Nothing more.
 
-    What it does NOT establish, per round 2: it cannot tell captured evidence from
-    arbitrary bytes. A bridge that stores approval-record bytes *under the requirement
+    What it does NOT establish, per round 2: it cannot tell evidence acquired from the
+    named source from arbitrary bytes, and it proves no capture event — hashing a
+    retained preimage is not a provenance claim (round 5, R4-6). A bridge that stores
+    approval-record bytes *under the requirement
     id* and hashes those passes every check here. The cells that exercise this
     (`s04`, `o01`) therefore register a `bridge` capability whose mutation constraint is
     that the bridge declares its source honestly in `kind` — which is what a bridge
@@ -874,7 +876,7 @@ def _check_evidence_backing(context):
     if backing and context.artifacts is None:
         return (
             "evidence-backing-invalid",
-            "backing entries are committed but the captured-artifact store is "
+            "backing entries are committed but the evidence-artifact store is "
             "unusable: %s" % context.artifacts_problem,
         )
     for requirement in sorted(backing):
@@ -887,7 +889,7 @@ def _check_evidence_backing(context):
         if entry.get("kind") != "artifact":
             return (
                 "evidence-backing-invalid",
-                "backing for %s declares kind %r, not a captured artifact — resource "
+                "backing for %s declares kind %r, not an evidence artifact — resource "
                 "access and human approval are not evidence. (This detects a bridge "
                 "that names its source honestly; it cannot detect one that stores "
                 "those bytes under the requirement id and calls them an artifact.)"
@@ -1251,14 +1253,22 @@ def _check_unbound_execution(context):
     # attestation names it and the ceremony joins on that name rather than inferring it.
     #
     # Round 5: the name is one arm of a union. An effect that claims the READ PATH or an
-    # OUT-OF-BAND origin names no staged call, so there is nothing to join it to — it is
-    # counted above, against the same cap, and is never matched here. What the claim buys
-    # in either arm is the same and no more: the store says where the effect came from.
+    # OUT-OF-BAND origin names no staged call, so there is nothing to join it to. What the
+    # claim buys in either arm is the same and no more: the store says where the effect
+    # came from — and here the store says it did not come from the authorized application.
+    # Every approved bound application is spoken for by the cap, so a governed effect the
+    # store itself sources elsewhere is unaccounted for and refuses. Under a non-executable
+    # disposition the zero-authorization return above has already fired, which is why
+    # `m01`'s read-path effect and `b06`'s claimed-but-unretained staged call are untouched.
     bound = {(call.get("gatekeeperId"), call.get("action")) for call, _ in context.applied_bound}
     for effect in effects:
         source = effect["source"]
         if source["kind"] != "staged-call":
-            continue
+            return (
+                "unbound-execution",
+                "an attested effect on the governed resource claims %r provenance, which "
+                "no approved bound application accounts for" % (source["kind"],),
+            )
         identity = (source["gatekeeperId"], source["action"])
         if identity not in bound:
             return (

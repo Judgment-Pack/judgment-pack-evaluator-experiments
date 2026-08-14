@@ -191,6 +191,29 @@ def test_study_manifest_is_exact():
     assert make_manifest.manifest_problems() == []
 
 
+def test_the_study_manifest_excludes_the_appendable_files_by_construction():
+    """ADR 0004: the manifest covers what must not change, and these two must.
+
+    `DEVIATIONS.md` is the only place a post-freeze correction may land, so covering it
+    would mean the first genuine deviation broke the anchor the deviation exists to
+    protect; `README.md` carries a status banner that has to be able to change. Both are
+    excluded by a named constant rather than by omission, so a later widening fails here
+    instead of quietly taking the deviation mechanism with it.
+    """
+    assert make_manifest.EXCLUDED_DOCUMENTS == ("DEVIATIONS.md", "README.md")
+    covered = make_manifest.manifest_entries()
+    for name in make_manifest.EXCLUDED_DOCUMENTS:
+        assert (STUDY / name).is_file(), name  # excluded, not merely absent
+        assert name not in covered, name
+    # ...and the exclusion is the only reason: the registered documents beside them are
+    # covered, so this is a scoping decision rather than a manifest that misses .md files.
+    assert "PREREGISTRATION.md" in covered
+    assert "PREREG-REVIEW.md" in covered
+    assert "harness/STUDY-MANIFEST.sha256" not in covered, (
+        "the manifest must not cover itself either"
+    )
+
+
 def test_every_fixture_manifest_is_exact():
     roots = [STUDY / "fixtures" / "baseline"]
     for parent in ("mutations", "holdout"):
@@ -237,8 +260,16 @@ def test_scorer_refuses_an_existing_attempt_root(tmp_path):
         score.run(tmp_path / "attempt")
 
 
-def test_holdout_invalidity_cannot_change_r1():
-    """Structural: the two strata are adjudicated into disjoint collections."""
+def test_holdout_outcomes_do_not_enter_r1_arithmetic():
+    """Structural: the two strata are adjudicated into disjoint collections.
+
+    This is the whole guarantee, and the name says so. It is **not** that nothing in the
+    holdout can affect R1: registry parsing, pin enforcement, the whole-study manifest and
+    publication are attempt-scope preconditions shared by both strata, so a malformed
+    holdout artifact can still make the whole attempt inconclusive (round 4, R4-5; round 5
+    found the earlier name `..._cannot_change_r1` claiming more than these four
+    substring assertions can carry, and more than the scorer does).
+    """
     source = (STUDY / "harness" / "score.py").read_text(encoding="utf-8")
     assert "holdout_validity = []" in source
     assert 'sink = holdout_validity if is_holdout else validity' in source
@@ -410,9 +441,9 @@ def registered_action_rows():
 
 
 def test_registered_scenario_is_connector_shaped(cfos_source):
-    """Round 2, blocker 2: every registered identifier must be one a pinned connector
-    actually emits. The generic MCP connector hardwires byo, so a vetted, auto-approvable
-    write is producible only through the portal.
+    """Round 2, blocker 2: every registered identifier must be one whose shape a pinned
+    connector's source defines. The generic MCP connector hardwires byo, so a vetted,
+    auto-approvable write is producible only through the portal.
 
     Round 5 (findings 4 and 5) made the comparison a whole-description one. For every
     action row of both strata, the retained title and description bytes are regenerated
