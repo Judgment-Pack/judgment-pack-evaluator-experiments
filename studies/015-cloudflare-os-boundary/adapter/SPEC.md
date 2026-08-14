@@ -298,17 +298,26 @@ platform endorsing anything. When a construction gives them nothing to decide th
    reading may be preferred, so the classifier is given nothing and the layer refuses; the
    binding layer refuses the same stores under `binding-reuse`.
 
-   **What an identity is, registered, and settled before uniqueness is asked.** Every id
-   and join component — a gatekeeper's `id`, a ledger record's `id`, an action row's
-   `gatekeeperId` and `action`, a staged call's `gatekeeperId` and `action` — must be a
-   non-Boolean integer in `[1, 2^53-1]`: the counters start at 1 (`overseer.ts:418-422`)
-   and every value crosses the wire as a JSON number read back through V8. Round 6 found
-   the two layers disagreeing about the question itself rather than about an answer: a
-   second gatekeeper carrying `id: 1.0` was a distinct key on the Python side (which
-   deduplicated `repr`) and the same key here (which stringified both to `"1"`), so one
-   store passed binding and was refused upstream. Floats, Booleans, `-0`, zero, negatives
-   and anything past the safe-integer boundary are refused on **both** sides before either
-   looks an identity up or counts one.
+   **What an identity is, registered lexically, and settled before uniqueness is asked.**
+   Every id and join component — a gatekeeper's `id`, a ledger record's `id`, an action
+   row's `gatekeeperId` and `action`, a staged call's `gatekeeperId` and `action` — must be
+   **written as a plain digit-only integer token** (no sign, no `.`, no exponent, and not a
+   Boolean) **and read back inside `[1, 2^53-1]`**: the counters start at 1
+   (`overseer.ts:418-422`) and every value crosses the wire as a JSON number read back
+   through V8.
+
+   Round 6 registered this against the value each side reads back, and round 7 (R7-2) found
+   that is not one definition but two: `JSON.parse("1.0")` is `1` here and
+   `Number.isSafeInteger` accepts it, while `json.loads("1.0")` is a `float` there and is
+   refused — one store, two verdicts, and round 6's own regressions masked it by using a
+   *duplicate* id, which refuses on both sides for an unrelated reason. The token is the
+   registration because the token is what the store wrote. Both sides read it: this runner
+   through `JSON.parse`'s reviver `context.source` (Node 22), the binding layer through
+   `json.loads`'s `parse_int`/`parse_float` hooks. Floats, exponent forms, signs, Booleans,
+   `-0`, zero and anything past the safe-integer boundary are refused on **both** sides
+   before either looks an identity up or counts one. A Node build that does not expose the
+   token makes this runner refuse the cell as `unavailable` — an apparatus verdict — rather
+   than fall back to a weaker rule.
 2. `drain-order-violation` — replaying the pinned `AutoApprovalDrainer` does not reproduce the
    claimed applications. The replay is against a **stage-time witness**, not a final snapshot,
    because two facts make a final-snapshot replay unsound in both directions: an auto-approval
@@ -334,6 +343,15 @@ platform endorsing anything. When a construction gives them nothing to decide th
    whose witness claimed an application while every row recorded `autoApproved: false` was
    never examined here and came out combined-green.
 
+   That accounting is **one comparison over every gatekeeper either side mentions, with
+   absence read as the empty list** — the ledger's claimed ids against the witnessed ones,
+   both directions at once. Round 7 (R7-4) found it written as two loops whose second asked
+   whether the witness's gatekeeper had a *key* among the ledger's claims rather than
+   whether the two lists agreed, so a witness that applied nothing still inserted its key
+   and was then refused for claiming an application it does not claim. An engaged witness
+   over a queue the pinned drainer leaves alone — which is what a manual-approval history
+   produces — replays coherently and passes.
+
    **The queue boundary is `resolved < at`, registered.** A row already resolved *before*
    the witness instant is legitimate history and is excluded from that pass's queue — the
    platform resolves records between passes, and the lifecycle clause above is what makes
@@ -356,6 +374,14 @@ platform endorsing anything. When a construction gives them nothing to decide th
    compare the validated **strings**: the form is fixed-width and UTC, so lexicographic
    order is chronological order and neither side does arithmetic that can fail. A row or
    witness carrying anything else is refused rather than compared.
+
+   Round 7 (R7-3) found "the same grammar" still false in two ways only the Python side
+   had, both of them defaults: `\d` is Unicode-aware there, so Arabic-Indic and every other
+   decimal digit satisfied a grammar registered as the ASCII output of `toISOString()`, and
+   `$` also matches *before* a final newline, so a stamp with a trailing `\n` passed. The
+   node side refused both (its `\d` is ASCII, its `$` is end-of-input), so a manual-approval
+   construction came out binding-`pass` and upstream-`not-engaged`. The registered class is
+   spelled `[0-9]` on both sides and the match is anchored at both ends of the whole string.
 
    **What this verdict does and does not establish, normatively.** The witness is
    *self-asserted*: it is supplied by the same retained store the ceremony is examining, is
@@ -468,7 +494,15 @@ guard below. Then, in order:
 
    A row that cannot be classified at all — an unretained gatekeeper, no resource anywhere,
    a denormalized resource its own gatekeeper contradicts, no retained action-kind label, or
-   a label the row's own action-kind tag contradicts — is refused here, not dropped. So is a
+   an action-kind **tag** that is not the whole tag this deployment derives for that row's own
+   label — is refused here, not dropped. The tag is required and compared entire: `actionKindFor`
+   (`tools.ts:94`) builds it from the calling deployment's scope tag and the tool name, and
+   `adapter/commitment.py` reproduces that derivation (double encoding included), so a row on the
+   governed resource has exactly one tag its label can stand beside. Round 6 compared only the
+   suffix after the last literal colon and skipped the comparison outright when the tag was
+   absent or empty; round 7 (R7-5) reached a green on a coherent other-tool row carrying a
+   foreign-deployment scope and on one carrying no tag at all, although the pinned connector
+   submits a nonempty deployment-derived tag on every record. So is a
    store with more than one reading: two retained gatekeepers sharing an id, two ledger
    records sharing an id, or two staged calls or ledger records sharing a
    `(gatekeeperId, action)` join identity — and, before any of that is asked, an id or join
@@ -487,8 +521,9 @@ guard below. Then, in order:
     that names no staged call at all where the commitment authorizes an executable action; or an
     effect whose claimed staged call is not the approved call bound to this commitment; or an
     effect on the bound call whose arguments are not the authorized ones. Round 4 demonstrated
-    that a correct count can coexist with an effect produced by a different, unretained call with
-    the same tuple, so an attestation carries a `source` — the **provenance the writer claims**.
+    that a correct count can coexist with an attested effect the store sources to a different,
+    unretained call with the same tuple, so an attestation carries a `source` — the **provenance
+    the writer claims**.
 
     **The provenance is a closed union**, validated for shape at store load: `staged-call`
     (naming a `gatekeeperId` and `action`), `read-path`, or `out-of-band`. Only a
@@ -539,7 +574,7 @@ canonical disposition bytes vs the commitment's `dispositionDigest`).
 `{"commitmentDigest": ..., "decision": {"kind", "outcomeId", "reasons", "handoffState"},
 "execution": <state>, "note": string}`.
 
-The five execution states are the boundary the composition must preserve, and each is a **closed
+The six execution states are the boundary the composition must preserve, and each is a **closed
 predicate over the retained store** rather than a free-text claim — round 1 found only
 `effect-attested` was correlated with anything:
 
@@ -547,9 +582,19 @@ predicate over the retained store** rather than a free-text claim — round 1 fo
 |---|---|
 | `none` | no staged call binds this commitment and no matching effect is attested |
 | `staged` | exactly one bound staged call, its ledger record (if any) still `pending`, its retained connector outcome `pending` or `failed`, no matching effect |
+| `rejected` | one bound staged call with a `rejected` ledger record and retained connector outcome `rejected` |
 | `applied` | one bound staged call with an `approved` ledger record and retained connector outcome `committed` |
 | `applied-unproven` | one bound staged call whose retained connector outcome **is** `outcome-unknown`, with no matching effect — the ambiguity state, never a default |
 | `effect-attested` | an approved bound record with retained connector outcome `committed`, **and** a matching retained effect attestation (§5 step 17) |
+
+`rejected` is round 7's one vocabulary addition (R7-1), and it is a value of the report's
+`execution` field — no verdict code is added and §5's list of nineteen binding codes is unchanged.
+Round 6 registered its absence as a *gap*: a bound call the approver refused was not `none` (a
+call is bound), not `staged` (its record is not `pending`), and neither applied nor attested, so
+every predicate refused it and the study said so rather than inventing a state. Round 7 declined
+that trade. An ordinary completed rejection is the most ordinary history this queue produces, and
+a vocabulary that cannot express it leaves a bridge two options — report it falsely or not at all
+— which is the silent unrepresentability the rest of this document exists to refuse.
 
 The connector outcome vocabulary is `pending`, `committed`, `failed`, `rejected`, `outcome-unknown`. The
 last is the platform's own at-most-once ambiguity: when an MCP dispatch's result is never
@@ -577,8 +622,8 @@ the bound call) — no new verdict code.
 | `pending` | `pending` | `staged` |
 | `failed` | `pending` | `staged` |
 | `outcome-unknown` | `pending` | `applied-unproven` |
-| `committed` | `approved`, and `pending` only through the crash window below | `applied`, `effect-attested` |
-| `rejected` | `rejected` | none — see the registered gap below |
+| `committed` | `approved`, and `pending` only through the apply-side crash window below | `applied`, `effect-attested` |
+| `rejected` | `rejected`, and `pending` only through the reject-side crash window below | `rejected` |
 
 Where each row comes from:
 
@@ -589,22 +634,23 @@ Where each row comes from:
   throws (`:136-144`'s pre-state guards; `:155-169`'s catch, which writes `failed` and
   rethrows), and a throw propagates out of `applyAction`, so `record.state = "approved"` is
   never reached.
-- **`rejected` admits `rejected` and nothing else.** It is written at one path, after `await
+- **`rejected` admits `rejected`.** It is written at one path, after `await
   gatekeeper.rejectAction(...)` (`overseer.ts:7707-7732`); the connector's `reject` proceeds
   only from `pending` and throws for `applying`, `applied` and `failed`
   (`action-store.ts:201-211`).
 - **`pending` is every history where the outer transition never happened**: an undispatched
-  call (`pending`), a determinate failure (`failed`, `retryable: true` — `action-store.ts:157-158`
-  with `callMayHaveTakenEffect` false), and the at-most-once ambiguity (the same lines with it
-  true). It admits `committed` too, and only here: the connector persists `applied` at
-  `action-store.ts:196` before `apply` returns, so a Durable Object that dies before the outer
-  `put` at `overseer.ts:2497` leaves exactly that pair retained. Refusing it would refuse a
-  producible history; what is refused instead is any *claim* about it — `applied` requires the
-  approved row the workspace never wrote, and no other state names `committed`.
-- **A registered gap, stated rather than papered over.** A bound call whose scalar is
-  `rejected` has no supportable report state: it is not `none` (a call is bound), not `staged`
-  (its record is not `pending`), and neither applied nor attested. The five-state vocabulary
-  has no state for "staged, then refused", every predicate already refused each of them before
-  round 6, and inventing a sixth state would be an unregistered vocabulary change. A `rejected`
-  scalar on a call that is **not** the bound one is untouched by this — the obstruction calls
-  of `neg-drain-skip` and `h07` are exactly that.
+  call (`pending`), a determinate failure (`failed` — `action-store.ts:157-158`, under the pinned
+  source's own `callMayHaveTakenEffect` false), and the at-most-once ambiguity (the same lines
+  with it true). It also admits **both** determinate resolutions, and only here, through the two
+  symmetric crash windows: each connector path persists its own record before the outer row is
+  written — `action-store.ts:196` saves `applied` before `apply` returns, and
+  `action-store.ts:209` writes `rejected` before `overseer.ts:7729-7732` updates the outer row —
+  so a Durable Object that dies in either window leaves exactly that pair retained. Round 6
+  admitted the apply-side window only; round 7 (R7-1) found the reject side identical in the
+  source and refused as impossible, which is refusing a producible history. What is refused
+  instead is any *claim* over either window: `applied` requires the approved row the workspace
+  never wrote, `rejected` requires the rejected row it never wrote, and no other state names
+  either scalar.
+- **A `rejected` scalar on a call that is not the bound one** is untouched by any of this — the
+  obstruction calls of `neg-drain-skip` and `h07` are exactly that, and the report table speaks
+  only of the bound call.

@@ -345,6 +345,178 @@ def test_binding_reuse_refuses_a_governed_row_whose_label_its_own_tag_contradict
     assert binding(cell)["code"] == "binding-reuse"
 
 
+# -- round 7: the reject side of every symmetry round 6 built on the apply side ---------
+#
+# R7-1. Round 6 registered one crash window and one determinate resolution. The pinned
+# source has two of each, written the same way: `action-store.ts:196` saves `applied`
+# before `applyAction` returns, `action-store.ts:209` writes `rejected` before
+# `overseer.ts:7729-7732` updates the outer row. So the lifecycle admits both pairs, the
+# report may claim neither over its crash window, and `rejected` is a report state.
+
+
+def _codes(result):
+    """Every code a failing layer record published — adjudicated and suppressed alike."""
+    return [] if result["verdict"] == "pass" else [result["code"]] + result["suppressed"]
+
+
+def _crash_window(cell, outcome):
+    """The outer row the workspace never wrote: the connector resolved, the ledger pending."""
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["state"] = "pending"
+    for member in ("appliedAt", "resolvedBy", "autoApproved"):
+        ledger[0].pop(member, None)
+    dump_json(cell / "ledger.json", ledger)
+    _connector_outcome(cell, outcome)
+
+
+def _completed_rejection(cell):
+    """The most ordinary history the queue produces: staged, then refused by the approver.
+
+    The bound call is rejected on both sides of the flatten, and nothing took effect — so
+    the retained effect attestation goes with it, exactly as it would have in a store where
+    the approver said no.
+    """
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["state"] = "rejected"
+    ledger[0].pop("autoApproved", None)
+    dump_json(cell / "ledger.json", ledger)
+    platform = load_json(cell / "platform.json")
+    platform["stagedCalls"][0]["connectorOutcome"] = "rejected"
+    platform["effects"] = []
+    dump_json(cell / "platform.json", platform)
+    report = load_json(cell / "report.json")
+    report["execution"] = "rejected"
+    dump_json(cell / "report.json", report)
+
+
+def test_lifecycle_admits_the_apply_side_crash_window(cell_copy):
+    """`committed` beside a `pending` row is producible, and round 6 registered it as such;
+    nothing had ever asserted that the check agrees."""
+    cell = cell_copy("pos-baseline")
+    _crash_window(cell, "committed")
+    assert "ledger-lifecycle-invalid" not in _codes(binding(cell))
+
+
+def test_lifecycle_admits_the_reject_side_crash_window(cell_copy):
+    """The same window on the other path, which round 6 refused as impossible (R7-1). The
+    connector persists the rejection at `action-store.ts:209`; the outer row is updated
+    afterwards at `overseer.ts:7729-7732`, and a Durable Object that dies in between leaves
+    exactly this pair retained."""
+    cell = cell_copy("pos-baseline")
+    _crash_window(cell, "rejected")
+    assert "ledger-lifecycle-invalid" not in _codes(binding(cell))
+
+
+def test_a_completed_rejection_is_reportable_and_green(cell_copy):
+    """The gap round 6 registered and round 7 declined to keep: with no `rejected` report
+    state, this store — internally consistent in every field — could be described only
+    falsely or not at all."""
+    cell = cell_copy("pos-baseline")
+    _completed_rejection(cell)
+    assert binding(cell)["verdict"] == "pass"
+
+
+def test_report_state_refuses_a_rejected_claim_over_the_crash_window(cell_copy):
+    """Adding the state does not make it a free-text claim: `rejected` requires the outer
+    row the workspace writes, so the reject-side crash window supports the history and not
+    the claim — symmetrically with `applied` over the apply-side window."""
+    cell = cell_copy("pos-baseline")
+    _completed_rejection(cell)
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["state"] = "pending"
+    for member in ("appliedAt", "resolvedBy"):
+        ledger[0].pop(member, None)
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "report-state-unsupported"
+
+
+# -- round 7: one identity definition, on the token rather than the read-back value ------
+
+
+def _sole_gatekeeper_id_literal(cell, raw_id):
+    """Rewrite the ONE retained gatekeeper's id as a raw JSON token.
+
+    Round 6's identity regressions all appended a *second* gatekeeper, which refuses on
+    both sides as a duplicate whatever the token is — so they could not see that a lone
+    `1.0` was refused here and accepted by the node runner (R7-2). A lone value is the
+    condition.
+    """
+    platform = load_json(cell / "platform.json")
+    platform["gatekeepers"][0]["id"] = "@@ID@@"
+    text = json.dumps(platform, indent=2, ensure_ascii=False) + "\n"
+    (cell / "platform.json").write_text(text.replace('"@@ID@@"', raw_id), encoding="utf-8")
+
+
+def test_binding_reuse_refuses_a_lone_float_identity(cell_copy):
+    """`JSON.parse("1.0")` is `1` and `Number.isSafeInteger` accepts it; the registered
+    identity is the token, and `1.0` is not one."""
+    cell = cell_copy("pos-baseline")
+    _sole_gatekeeper_id_literal(cell, "1.0")
+    assert binding(cell)["code"] == "binding-reuse"
+
+
+def test_binding_reuse_refuses_a_lone_exponent_identity(cell_copy):
+    """Same value, same acceptance on the node side, same refusal here: `1e0`."""
+    cell = cell_copy("pos-baseline")
+    _sole_gatekeeper_id_literal(cell, "1e0")
+    assert binding(cell)["code"] == "binding-reuse"
+
+
+# -- round 7: the instant grammar is ASCII and total, on both sides ---------------------
+
+
+def test_ledger_lifecycle_invalid_on_a_unicode_digit_stamp(cell_copy):
+    """Python's `\\d` is Unicode-aware, so Arabic-Indic digits satisfied a grammar
+    registered as the ASCII output of `toISOString()` — a form no `Date` serializes and
+    the node side already refused (R7-3)."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["appliedAt"] = "2026-08-01T00:31:00.٠٠٠Z"
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+def test_ledger_lifecycle_invalid_on_a_trailing_newline_stamp(cell_copy):
+    """Python's `$` matches before a final newline and JavaScript's does not, so a stamp
+    with a trailing `\\n` passed here and was refused there (R7-3)."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["appliedAt"] = "2026-08-01T00:31:00.000Z\n"
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+# -- round 7: the action-kind tag is required and compared whole ------------------------
+
+
+def test_binding_reuse_refuses_a_governed_row_with_no_action_kind_tag(cell_copy):
+    """Round 6 skipped the comparison when the tag was absent or empty, so a governed row
+    could be classified on an unchecked label alone; the pinned connector submits a
+    deployment-derived tag on every record it stages (R7-5)."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["description"]["actionKind"].pop("tag")
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "binding-reuse"
+
+
+def test_binding_reuse_refuses_a_foreign_scope_tag_on_a_governed_row(cell_copy):
+    """The other half: round 6 compared only the suffix after the last literal colon, so a
+    row on the governed resource could carry another deployment's scope entirely and still
+    classify — a tag no host staging this call can emit."""
+    import build_fixtures
+
+    other = build_fixtures.OTHER_PORTAL
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["description"]["actionKind"]["tag"] = cmt.action_kind_tag(
+        cmt.action_scope_tag(other["resourceUrl"], other["serverId"]),
+        cmt.ACTION_TOOL,
+    )
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "binding-reuse"
+
+
 def test_pack_artifact_missing(cell_copy):
     cell = cell_copy("pos-baseline")
     (cell / "pack.json").unlink()
@@ -1081,6 +1253,13 @@ def test_upstream_refuses_alias_identities_contradicted_witnesses_and_near_misse
     _second_gatekeeper_with_id(negative_zero, "-0")
     cells.append(("negative-zero-gatekeeper-id", negative_zero))
 
+    # R6-3's disposition claimed four constructions here and carried three; round 7 (R6-3
+    # residue) found the Boolean missing. `true` coerces to 1 in JavaScript and is an `int`
+    # subclass in Python, so it is the one alias both languages produce on their own.
+    boolean = _variant(tmp_path, "boolean-gatekeeper-id")
+    _second_gatekeeper_with_id(boolean, "true")
+    cells.append(("boolean-gatekeeper-id", boolean))
+
     joined = _variant(tmp_path, "duplicate-ledger-join-identity")
     ledger = load_json(joined / "ledger.json")
     twin = json.loads(json.dumps(ledger[0]))
@@ -1121,6 +1300,7 @@ def test_upstream_refuses_alias_identities_contradicted_witnesses_and_near_misse
         "float-gatekeeper-id",
         "unsafe-gatekeeper-id",
         "negative-zero-gatekeeper-id",
+        "boolean-gatekeeper-id",
         "duplicate-ledger-join-identity",
     ):
         assert verdicts[cell_id]["code"] == "classification-refused", cell_id
@@ -1131,6 +1311,70 @@ def test_upstream_refuses_alias_identities_contradicted_witnesses_and_near_misse
         "resolved-strictly-before-the-witness",
     ):
         assert verdicts[cell_id]["code"] == "drain-order-violation", cell_id
+
+
+def test_upstream_reads_lone_identity_tokens_stamps_and_an_empty_witness(
+    tmp_path, cfos_source
+):
+    """Round 7's node-side repairs, in one batched runner invocation.
+
+    Each condition is one this runner used to answer differently from the binding layer
+    over the same retained bytes — which is the defect, whichever side is right. The first
+    three are refusals this side did not make; the last is a refusal it made and should
+    not have.
+
+    The identity pairs are LONE values, not duplicates. Round 6's constructions appended a
+    second gatekeeper, so both sides refused them as ambiguous stores and the divergence in
+    what an identity *is* stayed invisible (R7-2).
+    """
+    del cfos_source
+    cells = []
+
+    lone_float = _variant(tmp_path, "lone-float-identity")
+    _sole_gatekeeper_id_literal(lone_float, "1.0")
+    cells.append(("lone-float-identity", lone_float))
+
+    lone_exponent = _variant(tmp_path, "lone-exponent-identity")
+    _sole_gatekeeper_id_literal(lone_exponent, "1e0")
+    cells.append(("lone-exponent-identity", lone_exponent))
+
+    unicode_digits = _variant(tmp_path, "unicode-digit-stamp")
+    ledger = load_json(unicode_digits / "ledger.json")
+    ledger[0]["appliedAt"] = "2026-08-01T00:31:00.٠٠٠Z"
+    dump_json(unicode_digits / "ledger.json", ledger)
+    cells.append(("unicode-digit-stamp", unicode_digits))
+
+    trailing_newline = _variant(tmp_path, "trailing-newline-stamp")
+    ledger = load_json(trailing_newline / "ledger.json")
+    ledger[0]["appliedAt"] = "2026-08-01T00:31:00.000Z\n"
+    dump_json(trailing_newline / "ledger.json", ledger)
+    cells.append(("trailing-newline-stamp", trailing_newline))
+
+    # A manual approval beside a drain pass that found nothing to do: no rule was in force,
+    # the pinned drainer applies nothing, and the witness records exactly that. Round 6's
+    # reverse accounting asked whether the witness's gatekeeper appeared among the ledger's
+    # claims rather than whether the two lists agreed, so this coherent pass was refused for
+    # claiming an application it does not claim (R7-4).
+    empty_witness = _variant(tmp_path, "engaged-empty-witness")
+    ledger = load_json(empty_witness / "ledger.json")
+    ledger[0]["autoApproved"] = False
+    dump_json(empty_witness / "ledger.json", ledger)
+    platform = load_json(empty_witness / "platform.json")
+    platform["autoApproveTags"] = []
+    for witness in platform["drainWitnesses"]:
+        witness["appliedActionIds"] = []
+        witness["rules"] = []
+    dump_json(empty_witness / "platform.json", platform)
+    cells.append(("engaged-empty-witness", empty_witness))
+
+    verdicts = cf_runner.ceremony(cells)["cells"]
+    for cell_id in ("lone-float-identity", "lone-exponent-identity"):
+        assert verdicts[cell_id]["code"] == "classification-refused", cell_id
+    for cell_id in ("unicode-digit-stamp", "trailing-newline-stamp"):
+        assert verdicts[cell_id]["code"] == "drain-order-violation", cell_id
+    coherent = verdicts["engaged-empty-witness"]
+    assert coherent["verdict"] == "pass", coherent
+    assert "AutoApprovalDrainer" in coherent["engaged"], coherent
 
 
 def test_upstream_apparatus_self_report_matches_pins(upstream_verdicts):

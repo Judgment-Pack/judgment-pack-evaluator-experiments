@@ -124,6 +124,44 @@ function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
+// The token an identity must be written as: digits and nothing else. Same sentence as
+// `_INTEGER_LEXEME` in `adapter/verify.py`. JavaScript's `$` is end-of-input (Python's is
+// not, which is half of R7-3), so this is a full match.
+const INTEGER_LEXEME = /^[0-9]+$/;
+
+// What a number token that is NOT a plain integer lexeme becomes when the store is read.
+//
+// Round 7 (R7-2): round 6 settled identity on the value each side reads back, which is not
+// one definition but two. `JSON.parse("1.0")` is `1` here and `Number.isSafeInteger`
+// accepts it; `json.loads("1.0")` is a `float` there and is refused. Round 6's own
+// regressions used a DUPLICATE id, which refuses on both sides for an unrelated reason, so
+// the divergence went unseen. Node 22 exposes each primitive's source token to a
+// `JSON.parse` reviver (`context.source`), so the store is read through one: a number
+// whose token is not a plain digit-only integer is replaced by this object, which is not a
+// `number` and therefore cannot be an identity, cannot be counted, and cannot alias a real
+// identity in any key the checks below build. The token is kept so a diagnostic can print
+// what the store actually wrote.
+type NonIntegerLexeme = { nonIntegerLexeme: string };
+
+function readStore(path: string): unknown {
+  return JSON.parse(readFileSync(path, "utf-8"), function (_key, value, context) {
+    if (typeof value !== "number") return value;
+    const source = (context as { source?: unknown } | undefined)?.source;
+    if (typeof source !== "string") {
+      // Apparatus failure, never a detection: without the token this runner cannot apply
+      // the registered identity rule at all, and a weaker check in its place would be the
+      // divergence R7-2 was filed about. The driver turns a throw here into an
+      // `unavailable` record for the cell.
+      throw new Error(
+        "this Node build does not expose JSON.parse source access, which the registered " +
+          "identity rule requires",
+      );
+    }
+    if (INTEGER_LEXEME.test(source)) return value;
+    return { nonIntegerLexeme: source } satisfies NonIntegerLexeme;
+  });
+}
+
 // The ONE serialized form the platform can write: `Date.prototype.toISOString()` output,
 // `YYYY-MM-DDTHH:mm:ss.sssZ`. Round 5 narrowed this to a strict RFC 3339 grammar; round 6
 // (R6-5) found that still neither strict nor identical to the Python side — the regex was
@@ -136,7 +174,13 @@ function readJson(path: string): unknown {
 // STRING is the instant. The form is fixed-width and UTC, so lexicographic order is
 // chronological order, and `adapter/verify.py` validates and compares exactly the same
 // bytes with exactly the same rule.
-const PLATFORM_INSTANT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$/;
+//
+// The class is spelled `[0-9]` rather than `\d` to be the same sentence as
+// `adapter/verify.py`'s: they are the same set in JavaScript and are not in Python, and
+// round 7 (R7-3) found that side's `\d` accepting Unicode decimal digits — plus its `$`
+// accepting a trailing newline, which this `$` does not.
+const PLATFORM_INSTANT =
+  /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\.([0-9]{3})Z$/;
 const MONTH_LENGTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 function daysInMonth(year: number, month: number): number {
@@ -158,9 +202,14 @@ function platformInstant(value: unknown): string | null {
 // A platform identity is a JSON number assigned from a monotonic counter starting at 1
 // (`overseer.ts:418-422`). Round 6 (R6-3) found the two layers disagreeing about what
 // that means: `String(id)` collapsed `1` and `1.0` here while Python's `repr` kept them
-// apart, so one store was refused upstream and accepted by binding. Booleans coerce to
-// 1/0, `-0` stringifies to `"0"`, and anything past 2^53-1 does not round-trip; all are
-// refused, identically to `_platform_id` in `adapter/verify.py`.
+// apart, so one store was refused upstream and accepted by binding.
+//
+// Round 7 (R7-2) moved the definition onto the token, which `readStore` above has already
+// applied: a number reaching this function was written as a plain digit-only integer, and
+// anything else — `1.0`, `1e0`, `-1`, `-0` — arrived as a `NonIntegerLexeme` object and
+// fails the first line. Booleans are not numbers either. The range test is still this
+// side's own, because `9007199254740993` is a plain integer token that V8 cannot read
+// back. Identical to `_platform_id` in `adapter/verify.py`.
 function platformId(value: unknown): number | null {
   if (typeof value !== "number") return null;
   if (!Number.isSafeInteger(value)) return null;
@@ -561,29 +610,25 @@ async function drainCheck(
     replayed.set(witness.gatekeeperId, seen);
   }
 
-  // Every claimed auto-approval must be accounted for by some witnessed pass, and no
-  // pass may claim an application the ledger does not record.
-  for (const [gatekeeperId, ids] of claimed) {
+  // Every claimed auto-approval must be accounted for by some witnessed pass, and no pass
+  // may claim an application the ledger does not record. ONE comparison answers both, over
+  // every gatekeeper either side mentions, with absence read as the empty list.
+  //
+  // Round 7 (R7-4): this was two loops, and the second asked whether the witness's
+  // gatekeeper had a *key* in the ledger's claim map rather than whether the two lists
+  // agreed. A witness that applied nothing still inserted its key above, so an engaged
+  // empty witness over a queue the pinned drainer leaves alone — a perfectly coherent
+  // pass, and the shape a manual-approval history produces — was refused for claiming an
+  // application it does not claim. Empty equals empty.
+  for (const gatekeeperId of new Set([...claimed.keys(), ...replayed.keys()])) {
     const seen = (replayed.get(gatekeeperId) ?? []).slice().sort((a, b) => a - b);
-    const expected = ids.slice().sort((a, b) => a - b);
+    const expected = (claimed.get(gatekeeperId) ?? []).slice().sort((a, b) => a - b);
     if (JSON.stringify(seen) !== JSON.stringify(expected)) {
       return {
         verdict: fail(
           "drain-order-violation",
           `gatekeeper ${gatekeeperId}: the ledger claims [${expected.join(", ")}] were ` +
             `auto-applied but the witnessed passes account for [${seen.join(", ")}]`,
-        ),
-        engaged: true,
-      };
-    }
-  }
-  for (const gatekeeperId of replayed.keys()) {
-    if (!claimed.has(gatekeeperId)) {
-      return {
-        verdict: fail(
-          "drain-order-violation",
-          `gatekeeper ${gatekeeperId}: a drain witness claims applications the ledger ` +
-            `does not record as auto-approved`,
         ),
         engaged: true,
       };
@@ -657,8 +702,8 @@ async function main(): Promise<void> {
     let ledger: LedgerEntry[];
     let platform: PlatformStore;
     try {
-      ledger = readJson(join(cell.dir, "ledger.json")) as LedgerEntry[];
-      platform = readJson(join(cell.dir, "platform.json")) as PlatformStore;
+      ledger = readStore(join(cell.dir, "ledger.json")) as LedgerEntry[];
+      platform = readStore(join(cell.dir, "platform.json")) as PlatformStore;
     } catch (error) {
       results[cell.id] = {
         verdict: "unavailable",

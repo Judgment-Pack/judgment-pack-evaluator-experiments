@@ -111,6 +111,10 @@ load-bearing ones, all fixed before round 3's report was read:
 - **`m02-ambiguous-commit` is rebuilt** (round 1, finding 6): its earlier fixture showed the
   outer workspace record `approved` with an `appliedAt` stamp, which the platform cannot produce
   for a throwing apply. The fixture now carries the trace the pinned source can actually retain.
+  **Corrected at round 7 (R6-1 residue):** "the trace the pinned source can actually retain"
+  claims of a modeled store the source-reachability PREREGISTRATION §9 registers as not
+  established. The cell is a construction the source's paths admit; nothing shows the platform
+  produced it.
 - **Four cells added**: `neg-binding-control` and `neg-replay-control` (layer liveness through
   the official scorer), `a04-judgment-identity-forged` and `b07-stage-revision-mismatch` (two
   commitments that round 1 found were carried and never checked).
@@ -128,7 +132,9 @@ load-bearing ones, all fixed before round 3's report was read:
 - **The effect-attestation schema changed, and 23 cells regenerated** (round 5, findings 4 and 6;
   decisions D1/D3/E). Twenty-one `platform.json` files changed for the schema alone: the effect's
   `gatekeeperId`/`action` pair moved inside a `source` union, `staged-call` in twenty of them and
-  `read-path` in `m01`, whose effect never came from a staged call. Two `ledger.json` files
+  `read-path` in `m01`, whose store names no staged call for it *(round 7, R6-1 residue: the
+  earlier wording, "whose effect never came from a staged call", read the union arm as a fact
+  about the world rather than as what the store says of itself)*. Two `ledger.json` files
   changed for prose: `b04` and `h04` now carry the second deployment's own `describeCall` output
   (title, description bytes and printed endpoint) and its denormalized resource title, instead of
   the first portal's prose beside the second portal's structural fields. Nothing else moved: no
@@ -396,6 +402,120 @@ No other fixture byte in either stratum changed: no commitment, no ledger, no pl
 evaluation envelope, no other report, and `reviews/round-1/MATRIX-HOLDOUT.authored.json` is
 byte-preserved. `MATRIX.json` changed in two prose fields of `m01` (`construction`, `note`) and in
 no `expected` value; `MATRIX-HOLDOUT.json` is untouched.
+
+## Round-7 fixes (pre-freeze)
+
+Round 7 confirmed the rescope's direction a second time and found no new overclaim in the scope.
+What it found is that **four of round 6's five executable repairs were asymmetric**: each was
+derived on one side of a symmetry the pinned source has two of, and enforced only there. One of
+two crash windows. The value a JSON number reads back as, rather than the token it was written
+with. One regex dialect's defaults taken for the registered grammar. One direction of a
+two-directional list comparison. A fifth finding compared an action-kind tag by suffix where the
+connector emits a whole one, and a sixth found the round-6 causal sweep repaired at the sites it
+named and nowhere else. All nine items are dispositioned in `PREREG-REVIEW.md`; the
+protocol-relevant changes are recorded here.
+
+**No registered expectation changed in either stratum, and no verdict code was added.** R7-1
+grows one vocabulary — the report's `execution` field gains `rejected` — and nothing else: the
+binding layer still runs nineteen ordered checks over 23 codes, and the SPEC's report table is
+now read back by a sync test, as its compatibility matrix has been since round 6. A before/after
+snapshot of all three layer outcomes, every published `suppressed` code and every upstream
+engagement list, over all 35 cells and by direct layer calls, showed **zero drift** — which is
+the point, because R7-1, R7-2, R7-3 and R7-5 all change adjudication paths.
+
+**The survey R7-1 required, before it was enforced.** Admitting a history and adding a report
+state can only ever turn a refusal into a pass, so both were surveyed across all 35 cells first,
+with a STOP rule if either moved a registered cell. No cell holds a `pending` outer row joined to
+a `rejected` connector outcome; no cell claims `execution: "rejected"`. The two `rejected` outer
+rows in the tree (`neg-drain-skip` id 1, `h07` id 1) are obstruction calls, already admitted, and
+are not the bound call the report table speaks of.
+
+- **R7-1 — the reject side of the queue is as producible, and as reportable, as the apply side.**
+  The lifecycle admits `pending`+`rejected` for exactly the reason round 6 admitted
+  `pending`+`committed`: each connector path persists its own record before the outer row is
+  written — `action-store.ts:196` saves `applied` before `apply` returns, `action-store.ts:209`
+  writes `rejected` before `overseer.ts:7729-7732` updates the outer row — so a Durable Object
+  that dies in either window leaves that pair retained. Round 6 derived the window on one path
+  and transcribed it to the other as its mirror image, which it is not. And the *gap* round 6
+  registered rather than papered over — a bound call the approver refused, describable by no
+  report state — is withdrawn: leaving the most ordinary history this queue produces
+  unrepresentable means a bridge reports it falsely or not at all, which is the failure mode
+  every round of this review has killed somewhere else. `rejected` is a value of the report's
+  `execution` field, requires the outer rejected row exactly as `applied` requires the outer
+  approved one, and adds no verdict code.
+- **R7-2 — one identity definition, written as a token.** Round 6 settled identity on the value
+  each language reads back, which is two rules: `JSON.parse("1.0")` is `1` and
+  `Number.isSafeInteger` accepts it, while `json.loads("1.0")` is a `float` and is refused. Its
+  four regressions could not see this, because all four appended a *duplicate* id, which refuses
+  on both sides for an unrelated reason. An identity is now what the store *wrote*: a plain
+  digit-only integer lexeme — no sign, no `.`, no exponent, not a Boolean — that reads back
+  inside `[1, 2^53-1]`. This side keeps each number's token through `json.loads`'s `parse_int`
+  and `parse_float` hooks, applied to `ledger.json` and `platform.json` alone so no other
+  retained artifact is parsed through a number type it never needed; the node side reads the same
+  token from `JSON.parse`'s reviver `context.source` (Node 22) and replaces any non-integer token
+  with a value that is not a number and cannot alias one in any key the checks build. A Node
+  build without source access makes the runner refuse the cell as `unavailable` — an apparatus
+  verdict — rather than substitute a weaker rule. Regressed with **lone** `1.0` and `1e0` on both
+  sides through the runner; the node batch also gains the Boolean case R6-3's disposition claimed
+  and did not carry.
+- **R7-3 — the instant grammar is the same grammar, not the same regex text.** Python's `\d` is
+  Unicode-aware and its `$` matches before a final newline; JavaScript's are neither. A stamp
+  written in Arabic-Indic digits and a stamp with a trailing LF therefore passed the binding layer
+  and were refused upstream — one store, two verdicts, and a manual-approval construction that
+  came out binding-`pass` and upstream-`not-engaged`. The class is spelled `[0-9]` and the match
+  is `fullmatch()`. Both stamps are regressed on both sides. **This forced no fixture
+  regeneration:** every timestamp the grammar reads in all 35 cells is ASCII and unterminated,
+  which round 6 had already established file by file.
+- **R7-4 — the drain's reverse accounting compares lists, not keys.** It is now one comparison
+  over every gatekeeper either side mentions, with absence read as the empty list. Round 6 wrote
+  it as two loops whose second asked whether a witness's gatekeeper appeared among the ledger's
+  claims at all, so a witness that applied nothing still inserted its key and was then refused for
+  claiming an application it does not claim. An engaged witness over a queue the pinned drainer
+  leaves alone — which is what a manual-approval history produces — replays coherently and passes,
+  as a node-batch regression.
+- **R7-5 — the action-kind tag is required and compared whole.** `actionKindFor` (`tools.ts:94`)
+  derives the tag from the calling deployment's scope tag and the tool name, so a row on the
+  governed resource has exactly one tag its own label can stand beside, and `adapter/commitment.py`
+  already owns that derivation. Round 6 compared only the suffix after the last literal colon and
+  skipped the comparison outright when the tag was absent or empty, so a coherent other-tool row
+  could carry another deployment's scope, or no tag at all, and still classify. `b04` and `h04`
+  are rows of the second deployment and leave the governed inventory before the tag is read, so
+  their registered outcomes do not move.
+- **R6-1 residue — the causal sweep is applied to the claim, not to a list of sites.** Round 6's
+  repair reached the four locations round 6 named and left the same sentence three lines away:
+  `SPEC.md`'s step 15 still said an effect was "produced by" an unretained call, the builder's
+  attestation comment still called a source "the staged call it came from", and PREREGISTRATION
+  D-5 still called a modeled cell "the trace the pinned source can actually retain". The
+  retryability repair was worse than incomplete — it *introduced* two new `retryable: true`
+  assertions, in `SPEC.md`'s `pending` derivation and the matching comment in `verify.py`, about
+  a field PREREGISTRATION §9 registers as asserted nowhere. Both are removed; the matrix speaks
+  of `callMayHaveTakenEffect` as the pinned source's own flag and never as a retryability claim
+  of ours. The causal reading is swept across every living surface — the three named sites plus
+  `build_fixtures.py`'s union docstring and its `m01` comment — and two superseded rows of this
+  ledger that carry it are annotated rather than rewritten, as the ledger's own rule requires.
+
+**The lesson this round records, because it is the same one twice.** Round 6 fixed the sites a
+reviewer named; round 7 found the identical claim a few lines away, four times over, in four
+different families. Enumerating what a reviewer reached produces a repair that is true where it
+was applied and false everywhere else — and, in `pending`'s crash window, a repair that reads as
+a *derivation from source* while covering only the half of the source the reviewer's
+reproduction happened to touch. The rule taken forward: derive the invariant from the pinned
+source's own symmetry, then check every place the source is symmetric.
+
+### Fixture bytes changed at the round-7 fixes
+
+**None.** No commitment, no ledger, no platform store, no evaluation envelope, no report, no
+evidence artifact and no cell manifest changed in either stratum, and
+`reviews/round-1/MATRIX-HOLDOUT.authored.json` is byte-preserved. `MATRIX-HOLDOUT.json` and
+everything under `reviews/` and `pilots/` are untouched. `MATRIX.json` is unchanged — round 7
+touched no cell's construction or note, and no `expected` value in either registry moved.
+`harness/STUDY-MANIFEST.sha256` is regenerated: its path set is unchanged at 60 entries, and the
+digests that move are exactly the source and document files this block edits.
+
+One causal-language site sits outside what this commit may touch: `MATRIX-HOLDOUT.json`'s `h08`
+note says "the outer state that pinned source can actually retain", which is the same claim
+PREREGISTRATION D-5 was corrected for. The holdout registry is the reviewer's own artifact and is
+not edited here; it is recorded so the next round can dispose of it.
 
 ## Apparatus
 

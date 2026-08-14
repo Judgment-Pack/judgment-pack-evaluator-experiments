@@ -126,6 +126,32 @@ def test_execution_states_and_connector_outcomes_are_in_the_spec():
         assert "`%s`" % state in text, state
 
 
+def report_vocabulary_rows():
+    """The registered report-state table, read back out of the document."""
+    section = spec_text().split("### Report vocabulary", 1)[1].split(
+        "### Retained outcome compatibility", 1
+    )[0]
+    return [line for line in section.splitlines() if line.startswith("| `")]
+
+
+def test_the_registered_report_states_are_the_enforced_ones():
+    """Vocabulary sync for the report table itself (R7-1).
+
+    The compatibility matrix below it has been read back since round 6; the table that
+    registers the execution states had only a presence check, so a state could be enforced
+    without a registered predicate, or registered without being enforced. Round 7 adds one
+    state to that table (`rejected`) — which is exactly the moment a table nobody parses
+    starts to drift.
+    """
+    rows = report_vocabulary_rows()
+    assert [row.split("|")[1].strip().strip("`") for row in rows] == list(
+        verify.EXECUTION_STATES
+    )
+    # `none` names no call, so it names no connector outcome; every other state describes
+    # the dispatch and must name the scalars that support it.
+    assert set(verify.REPORT_CONNECTOR_OUTCOMES) == set(verify.EXECUTION_STATES) - {"none"}
+
+
 def test_the_registered_outcome_matrix_is_the_enforced_one():
     """Vocabulary sync for round 6's compatibility matrix (R6-2).
 

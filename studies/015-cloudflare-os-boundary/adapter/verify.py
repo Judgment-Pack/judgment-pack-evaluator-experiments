@@ -78,7 +78,14 @@ REPLAY_CODES = (
     "replay-disposition-mismatch",
 )
 
-EXECUTION_STATES = ("none", "staged", "applied", "applied-unproven", "effect-attested")
+EXECUTION_STATES = (
+    "none",
+    "staged",
+    "rejected",
+    "applied",
+    "applied-unproven",
+    "effect-attested",
+)
 # The connector outcome an instrumented Gatekeeper retains per staged call. `committed`
 # and `failed` are determinate; `outcome-unknown` is the platform's own at-most-once
 # ambiguity, the only state that supports an `applied-unproven` report.
@@ -110,29 +117,37 @@ CONNECTOR_OUTCOMES = (
 # * `rejected` is written at one path, after `await gatekeeper.rejectAction(...)`
 #   (`overseer.ts:7707-7732`); the connector's `reject` proceeds only from `pending` and
 #   throws for `applying`, `applied` and `failed` (`action-store.ts:201-211`). Therefore
-#   `rejected` admits `rejected` and nothing else.
+#   `rejected` admits `rejected`.
 # * `pending` is every history in which the outer transition never happened: an
-#   undispatched call (`pending`), a determinate failure (`failed`, `retryable: true` —
-#   `action-store.ts:157-158` with `callMayHaveTakenEffect` false), and the at-most-once
-#   ambiguity (the same lines with it true, which is `outcome-unknown` here). `committed`
-#   is admitted too, and only under `pending`: the connector persists `applied` at
-#   `action-store.ts:196` before `applyAction` returns, so a Durable Object that dies
-#   before the outer `put` at `overseer.ts:2497` leaves exactly that pair retained.
-#   Refusing it would refuse a producible history; what the report table below refuses is
-#   any *claim* about it.
+#   undispatched call (`pending`), a determinate failure (`failed` — `action-store.ts:157-158`
+#   under the pinned source's own `callMayHaveTakenEffect` false), and the at-most-once
+#   ambiguity (the same lines with it true, which is `outcome-unknown` here). It also
+#   admits BOTH determinate resolutions, through the two symmetric crash windows, because
+#   each connector path persists its own record before the outer row is written:
+#   `action-store.ts:196` saves `applied` before `applyAction` returns, and
+#   `action-store.ts:209` writes `rejected` before `overseer.ts:7729-7732` updates the
+#   outer row. A Durable Object that dies in either window leaves exactly that pair
+#   retained. Round 7 (R7-1) found only the first window admitted, which refused a
+#   producible history on the reject side; what the report table below refuses is not the
+#   history but any *claim* about it.
 LIFECYCLE_CONNECTOR_OUTCOMES = {
-    "pending": ("committed", "failed", "outcome-unknown", "pending"),
+    "pending": ("committed", "failed", "outcome-unknown", "pending", "rejected"),
     "approved": ("committed",),
     "rejected": ("rejected",),
 }
 
 # And which scalar each report state may claim of the BOUND call. `none` names no call, so
-# it names no outcome; `rejected` appears in no row, because a bound call the approver
-# refused is not `none` (a call is bound), not `staged` (its record is not pending) and
-# not applied or attested — the registered five-state vocabulary has no state for it and
-# every predicate already refuses each one. That gap is registered, not papered over.
+# it names no outcome.
+#
+# Round 6 registered a *gap* here: a bound call the approver refused had no supportable
+# report state, because the five-state vocabulary had none for "staged, then refused".
+# Round 7 (R7-1) withdrew that framing — an ordinary completed rejection is the most
+# ordinary history the queue produces, and a store that cannot say so is a store that
+# reports it wrongly or not at all. `rejected` is a value of the report's `execution`
+# field, not a binding verdict code, and it is the one vocabulary member this round adds.
 REPORT_CONNECTOR_OUTCOMES = {
     "staged": ("failed", "pending"),
+    "rejected": ("rejected",),
     "applied": ("committed",),
     "applied-unproven": ("outcome-unknown",),
     "effect-attested": ("committed",),
@@ -150,8 +165,16 @@ REPORT_CONNECTOR_OUTCOMES = {
 # One form, validated identically on both sides, and the *string itself* is the instant:
 # the form is fixed-width and UTC, so lexicographic order is chronological order and no
 # side does arithmetic at all. Nothing here can raise.
+#
+# Round 7 (R7-5 of the same family, filed R7-3) found "identically" still false in two
+# ways that only this side had: Python's `\d` is Unicode-aware, so `٢٠٢٦` and its
+# neighbours matched a grammar registered as the ASCII output of `toISOString()`, and
+# `.match(...$)` accepts a trailing `\n`, because Python's `$` also matches before a final
+# newline. JavaScript's `\d` is ASCII and its `$` is end-of-input, so the node side
+# refused both — one store, two verdicts, and a manual-approval construction that came out
+# binding-`pass` here. The class is spelled `[0-9]` and the match is `fullmatch`.
 _PLATFORM_INSTANT = re.compile(
-    r"^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$"
+    r"([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\.([0-9]{3})Z"
 )
 _MONTH_LENGTHS = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
@@ -169,7 +192,7 @@ def platform_instant(value):
     applies the same grammar and the same calendar check to the same fields and compares
     the same bytes.
     """
-    match = _PLATFORM_INSTANT.match(value) if isinstance(value, str) else None
+    match = _PLATFORM_INSTANT.fullmatch(value) if isinstance(value, str) else None
     if match is None:
         return None
     year, month, day, hour, minute, second = (int(match.group(i)) for i in range(1, 7))
@@ -187,19 +210,59 @@ def platform_instant(value):
 # integer in [1, 2^53-1] — and nothing else. Round 6 (R6-3) found the two layers
 # disagreeing about that: this side deduplicated `repr(id)`, so a second gatekeeper with
 # `id: 1.0` survived uniqueness and then aliased `id: 1` at lookup, while the node side
-# stringified both as `"1"` and refused; Booleans coerce to 1/0 in JavaScript and are
-# `int` in Python; `-0` and anything past 2^53-1 round-trip through neither. Both layers
-# now settle what an identity is before either looks one up or counts one.
+# stringified both as `"1"` and refused.
+#
+# Round 7 (R7-2) found that repair still leaving one definition per side, because it was
+# written against the value each language *reads back* rather than against the token the
+# store was written with. `json.loads("1.0")` is a `float` here and refused;
+# `JSON.parse("1.0")` is `1` there and `Number.isSafeInteger` accepts it. Round 6's own
+# duplicate-id regressions masked that, since a duplicate refuses on both sides for a
+# different reason.
+#
+# So the definition is **lexical**, and it is the same sentence twice: an identity is
+# written as a plain digit-only integer token — no sign, no `.`, no exponent, and not a
+# Boolean — and reads back inside `[1, 2^53-1]`. This side keeps each number's own token
+# through `json.loads`'s two number hooks (`Cell.store`); `probes/ceremony.ts` reads the
+# same token out of `JSON.parse`'s reviver `context.source`.
 MAX_SAFE_INTEGER = 2 ** 53 - 1
+_INTEGER_LEXEME = re.compile(r"[0-9]+")
+
+
+class _LexicalInt(int):
+    """A retained JSON integer, carrying the exact token it was written as."""
+
+    def __new__(cls, token):
+        number = super().__new__(cls, token)
+        number.lexeme = token
+        return number
+
+
+class _LexicalFloat(float):
+    """A retained JSON number with a fraction or an exponent, and its own token.
+
+    Constructed rather than refused so that a store carrying one is *read* and then
+    refused by the checks that care, exactly as before — the token is what disqualifies
+    it, and `float()` never raises on a valid JSON number (an overflowing exponent gives
+    `inf`, which no range check admits).
+    """
+
+    def __new__(cls, token):
+        number = super().__new__(cls, token)
+        number.lexeme = token
+        return number
 
 
 def _platform_id(value):
-    """True iff `value` is an identity the platform can have assigned."""
-    return (
-        isinstance(value, int)
-        and not isinstance(value, bool)
-        and 1 <= value <= MAX_SAFE_INTEGER
-    )
+    """True iff `value` is an identity the platform can have assigned.
+
+    Fail-closed on provenance as well as on shape: a number with no retained token never
+    came out of `Cell.store`, so it is not something the store said and is not an
+    identity here. Booleans and strings carry no token either.
+    """
+    lexeme = getattr(value, "lexeme", None)
+    if lexeme is None or _INTEGER_LEXEME.fullmatch(lexeme) is None:
+        return False
+    return 1 <= value <= MAX_SAFE_INTEGER
 
 
 def _resolver_problems(resolver, label):
@@ -277,6 +340,29 @@ class Cell:
             return None
         try:
             return json.loads(raw.decode("utf-8"))
+        except Exception:
+            return None
+
+    def store(self, name):
+        """The retained store, parsed with every number's own token kept beside it.
+
+        Identities live in `ledger.json` and `platform.json` and nowhere else, and what
+        makes a number an identity is the token it was written as, not the value it reads
+        back as (R7-2). `parse_int` and `parse_float` are the only way to see that token.
+        They are applied here rather than in `json()` deliberately: no other retained
+        artifact is read for identities, so nothing else — a canonical disposition, a
+        facts document, a published report — is parsed through a number type it never
+        needed.
+        """
+        raw = self.bytes(name)
+        if raw is None:
+            return None
+        try:
+            return json.loads(
+                raw.decode("utf-8"),
+                parse_int=_LexicalInt,
+                parse_float=_LexicalFloat,
+            )
         except Exception:
             return None
 
@@ -509,8 +595,9 @@ class Context:
 
         **Nothing is discarded silently.** A row that cannot be classified — an unretained
         gatekeeper, no resource anywhere, a denormalized resource its own gatekeeper
-        contradicts, no retained action-kind label, or a label its own action-kind tag
-        contradicts — is reported as a problem, which step 10 refuses.
+        contradicts, no retained action-kind label, or an action-kind tag that is absent,
+        empty, or not the whole tag this deployment derives for that row's own label — is
+        reported as a problem, which step 10 refuses.
         """
         governed, problems = [], []
         for entry in self.ledger_actions:
@@ -553,18 +640,25 @@ class Context:
                     "it cannot be classified against the governed tool" % label
                 )
                 continue
-            if isinstance(tag, str) and tag:
-                # `actionKindFor` is `encodeURIComponent(scope) + ":" + encodeURIComponent(tool)`
-                # (`tools.ts:94`), and the scope's own colons are encoded, so the tool is
-                # everything after the one literal colon. A row whose tag and label name
-                # different tools describes two different actions to two different readers.
-                if tag.rsplit(":", 1)[-1] != cmt.encode_uri_component(tool):
-                    problems.append(
-                        "%s carries action-kind label %r beside a tag naming a different "
-                        "tool (%r), so what it records cannot be classified"
-                        % (label, tool, tag)
-                    )
-                    continue
+            # The tag is REQUIRED and is compared whole. `actionKindFor` (`tools.ts:94`)
+            # derives it from the calling deployment's scope tag and the tool name, so for
+            # a row on the governed resource there is exactly one tag its own label can
+            # stand beside, and `adapter/commitment.py` already owns that derivation
+            # (double encoding included). Round 6 compared only the suffix after the last
+            # literal colon and skipped the comparison entirely when the tag was absent or
+            # empty, so round 7 (R7-5) reached a green with a foreign scope and with no tag
+            # at all — while the pinned connector emits a nonempty, deployment-derived
+            # complete tag on every record it submits, and a green ceremony claims the
+            # store agrees with itself. A row whose tag is not the derived one describes
+            # two different actions to two different readers and is classified as neither.
+            if tag != cmt.action_kind_tag(tool_name=tool):
+                problems.append(
+                    "%s is on the governed resource and carries action-kind tag %r beside "
+                    "label %r; this deployment derives %r for that label, so what the row "
+                    "records cannot be classified"
+                    % (label, tag, tool, cmt.action_kind_tag(tool_name=tool))
+                )
+                continue
             if tool == cmt.ACTION_TOOL:
                 governed.append(entry)
         return governed, problems
@@ -732,8 +826,8 @@ def _load_context(cell):
     context.envelope = cell.json("evaluation.json")
     context.report = cell.json("report.json")
 
-    ledger = cell.json("ledger.json")
-    platform = cell.json("platform.json")
+    ledger = cell.store("ledger.json")
+    platform = cell.store("platform.json")
     if not isinstance(ledger, list) or not isinstance(platform, dict):
         # Without the store nothing downstream is evaluable; this is a distinct code
         # rather than a map violation, which round 1 found was conflating two states.
@@ -1194,6 +1288,9 @@ def _check_binding_reuse(context):
     # Every id and join component is now held to `_platform_id` before anything is keyed
     # on it, identically on both sides, and the raw values are what the uniqueness sets
     # then hold.
+    #
+    # Round 7 (R7-2): that agreement is now on the TOKEN, not on the read-back value —
+    # a lone `1.0` was still refused here and accepted there. See `_platform_id`.
     for candidate in context.platform.get("gatekeepers") or []:
         if not _platform_id(candidate.get("id")):
             return (
@@ -1531,6 +1628,13 @@ def _check_report_state(context):
     every scalar there is. Each state now names exactly the scalar the pinned source can
     have left behind (`REPORT_CONNECTOR_OUTCOMES`), and a state that describes the
     dispatch is unsupported when the store retains no outcome for the bound call at all.
+
+    Round 7 (R7-1): `rejected` is one of those states. Round 6 registered its absence as a
+    gap in a five-state vocabulary; what that produced was a bound call the approver
+    refused which no honest report could describe — so the store either says something
+    false about it or says nothing, which is the silent unrepresentability this ceremony
+    exists to refuse. It is a value of the report's `execution` field and adds no verdict
+    code.
     """
     report = context.report
     if report is None:
@@ -1597,6 +1701,21 @@ def _check_report_state(context):
                 "report-state-unsupported",
                 "the report claims the action is merely staged while a matching effect "
                 "is attested",
+            )
+        return None
+
+    if state == "rejected":
+        # The ordinary completed refusal, and the state round 6 left the vocabulary
+        # without (R7-1). The scalar is `rejected` by the check above; the outer row must
+        # record the refusal too. It can still be `pending` — the reject-side crash window
+        # between `action-store.ts:209` and `overseer.ts:7729-7732` — and a rejected claim
+        # over that history is unsupported for the same reason an applied claim over the
+        # apply-side window is: nothing the workspace retained records the resolution.
+        if record is None or record.get("state") != "rejected":
+            return (
+                "report-state-unsupported",
+                "the report claims the action was rejected while no single rejected "
+                "ledger record is bound to it",
             )
         return None
 

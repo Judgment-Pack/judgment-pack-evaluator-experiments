@@ -138,12 +138,12 @@ def timestamp(index):
 
 
 def staged_call_source(gatekeeper_id=1, action_key=11):
-    """The provenance an attestation claims when the effect came from a staged call."""
+    """The provenance an attestation claims when the store names a staged call as origin."""
     return {"kind": "staged-call", "gatekeeperId": gatekeeper_id, "action": action_key}
 
 
-# The other two arms of that union: an effect the read path produced (no queue entry
-# exists to name) and one produced outside the ceremony altogether.
+# The other two arms of that union: an attestation sourcing the effect to the read path (no
+# queue entry exists to name) and one sourcing it outside the ceremony altogether.
 READ_PATH_SOURCE = {"kind": "read-path"}
 
 
@@ -316,13 +316,14 @@ class Timeline:
 
     def attest_effect(self, arguments, *, resource_url=cmt.RESOURCE_URL,
                       tool_name=cmt.ACTION_TOOL, source=None):
-        # An attestation states where the effect came from. Round 4: without a call
-        # identity the ceremony could only count effects, so a correct count could
-        # coexist with an effect produced by a different, unretained call. Round 5: that
-        # identity was then written onto cells that stage nothing, so the provenance is a
-        # registered UNION — the staged call it came from, the read path, or outside the
-        # queue entirely — and it remains a claim the store makes about itself, never a
-        # corroborated one.
+        # An attestation states where the store SAYS the effect came from. Round 4:
+        # without a call identity the ceremony could only count effects, so a correct
+        # count could coexist with an effect the store sources to a different, unretained
+        # call. Round 5: that identity was then written onto cells that stage nothing, so
+        # the provenance is a registered UNION — a named staged call, the read path, or
+        # outside the queue entirely — and it remains a claim the store makes about
+        # itself, never a corroborated one. Round 7 (R6-1 residue): "the staged call it
+        # came from" was the causal reading the rescope withdrew, still living here.
         self.effects.append(
             {
                 "resourceUrl": resource_url,
@@ -920,9 +921,10 @@ def build_all():
     timeline.add_observation(1, read_described["title"], read_described["description"])
     timeline.observed.append(
         {"gatekeeperId": 1, "ledgerId": 1, "toolName": cmt.ACTION_TOOL})
-    # The effect came from the READ path — no staged call exists to name, and round 5
-    # found the earlier fixture fabricated one. The detection is unchanged: an effect on
-    # the governed resource with no approved bound application, whatever produced it.
+    # The attestation sources the effect to the READ path — no staged call exists to name,
+    # and round 5 found the earlier fixture fabricating one. The detection is unchanged: an
+    # effect on the governed resource with no approved bound application, whatever the
+    # store says about its origin.
     timeline.attest_effect(cmt.action_arguments(built["facts"]),
                            source=READ_PATH_SOURCE)
     emit("m01-readonly-bypass", built, timeline,

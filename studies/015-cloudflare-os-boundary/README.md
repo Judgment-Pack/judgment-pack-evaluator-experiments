@@ -1,6 +1,6 @@
 # Study 015 — the judgment/staged-action boundary under a governed-agent platform
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Six rounds of
+**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Seven rounds of
 cross-vendor review have run and every one returned **DO-NOT-FREEZE**; every finding of
 every round is dispositioned in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus
 was rebuilt around them — including withdrawing one of the study's own recorded findings
@@ -8,11 +8,12 @@ that source verification refuted. Round 5's structural finding is accepted in th
 it named first, and the resulting rescope — the claims narrowed to what the apparatus is,
 plus a source-of-truth sweep across every governing document — is applied here. Round 6
 confirmed the rescope's direction and then found its surfaces lagging and its replacement
-claim outrunning the code: the retained outcome fields were correlated with nothing, two
-layers disagreed about what an identity and an instant are, a witness the ledger
-contradicted was never read, and the governed inventory was resource-only. All seven are
-fixed ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope" and "Round-6 fixes").
-**Round 7 has not run**: the freeze waits on it, and until then anything executed is
+claim outrunning the code. Round 7 found four of round 6's own repairs asymmetric: they had
+been derived on one side of a symmetry and enforced only there — one crash window of two,
+the read-back value rather than the token, one regex dialect's defaults, one direction of a
+list comparison — plus a tag compared by suffix. All are fixed
+([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope", "Round-6 fixes" and "Round-7 fixes").
+**Round 8 has not run**: the freeze waits on it, and until then anything executed is
 harness validation under `pilots/`, labeled as such, and supports no claim beyond "the
 machinery works".
 
