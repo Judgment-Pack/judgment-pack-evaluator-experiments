@@ -309,7 +309,6 @@ class Context:
         self.ledger = []
         self.platform = {}
         self.report = None
-        self.derived = None
 
     # -- derived views -------------------------------------------------
 
@@ -662,9 +661,6 @@ def _load_context(cell):
         except cmt.CommitmentSchemaError as error:
             context.artifacts_problem = str(error)
 
-    if context.facts is not None and context.disposition:
-        context.derived = cmt.derived_action(context.disposition, context.facts)
-
     return context, None
 
 
@@ -948,7 +944,11 @@ def _check_action_derivation(context):
             "action-derivation-mismatch",
             "no retained disposition, so the authorized action cannot be derived",
         )
-    derived = context.derived
+    # Derived inside the check, not at context load: everything a check does is inside the
+    # per-check guard, so a derivation that raises is `retained-store-unreadable` like any
+    # other unreadable input rather than a fourth thing that can end the layer (round 5,
+    # finding 5).
+    derived = cmt.derived_action(context.disposition, context.facts)
     action = context.action
     if derived is None:
         # Inaction is derived; the null/non-null consistency is the map check's job.

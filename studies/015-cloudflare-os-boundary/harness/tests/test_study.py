@@ -59,8 +59,35 @@ def test_spec_code_tables_are_exactly_the_registered_vocabulary():
     assert replay_codes == set(verify.REPLAY_CODES)
 
 
-def test_spec_binding_order_is_the_implemented_order():
-    """The SPEC's numbered binding steps are the order the checks actually run in."""
+def reachability_asserted_codes():
+    """Every verdict code the reachability suite constructs a minimal condition for.
+
+    The join key is the assertion itself — `...["code"] == "<code>"`, read out of that
+    suite's own source — so a check whose fixture disappears cannot keep the claim that
+    one exists.
+    """
+    source = (STUDY / "harness" / "tests" / "test_reachability.py").read_text(
+        encoding="utf-8"
+    )
+    return set(
+        re.findall(
+            r'\[ ?"code" ?\] ?== ?"([a-z0-9-]+)"', re.sub(r"\s+", " ", source)
+        )
+    )
+
+
+def test_every_binding_check_is_ordered_named_and_reachable():
+    """Three registry facts about the nineteen binding checks — and only those three.
+
+    That this document's numbered steps are the order the checks run in; that the SPEC's
+    binding section names every code each check can return; and that the reachability
+    suite constructs a minimal condition for each of those codes.
+
+    It does **not** establish that the SPEC's prose and the implementation mean the same
+    thing. Round 5 (finding 5) found the earlier name — `..._is_the_implemented_order` —
+    claiming an equivalence its body never checked: it compared labels. Semantic
+    agreement between the two is what review is for, and nothing here substitutes for it.
+    """
     section = spec_text().split("### Layer `binding`", 1)[1].split(
         "### Layer `replay`", 1
     )[0]
@@ -71,6 +98,12 @@ def test_spec_binding_order_is_the_implemented_order():
             spec_order.append(match.group(1))
     implemented = [label.split("/")[0] for label, _ in verify.BINDING_CHECKS]
     assert spec_order == implemented
+
+    reachable = reachability_asserted_codes()
+    for label, _ in verify.BINDING_CHECKS:
+        for code in label.split("/"):
+            assert "`%s`" % code in section, code
+            assert code in reachable, code
 
 
 def test_scorer_vocabulary_is_derived_from_verify():
@@ -308,44 +341,142 @@ def test_adapter_tag_reproduction_agrees_with_upstream(cfos_source):
         assert item["kind"]["label"] == tool
 
 
-def test_registered_scenario_is_connector_shaped():
-    """Round 2, blocker 2: every registered identifier must be one a pinned connector
-    actually emits. The generic MCP connector hardwires byo, so a vetted, auto-approvable
-    write is producible only through the portal."""
-    assert cmt.RESOURCE_URL.endswith("#server=tracker")
-    assert cmt.ACTION_TOOL.startswith("tracker_")
-    assert cmt.SERVER_TRUST == "vetted"
-    registry = load_json(STUDY / "harness" / "MATRIX.json")
-    for cell in registry["cells"]:
-        directory = score.cell_directory(cell)
-        ledger = json.loads((directory / "ledger.json").read_text(encoding="utf-8"))
-        for entry in ledger:
-            if entry.get("type") != "action":
-                continue
-            description = entry["description"]
-            # session.ts:126-135 always sets these three.
-            assert description.get("awaitDecision") is True, cell["id"]
-            assert isinstance(description.get("autoApprovable"), bool), cell["id"]
-            assert description["implementsRevert"] is False, cell["id"]
-            # ...and the action kind is the connector's own, for the tool the staged
-            # call names — not a literal the fixture chose.
+# Cells whose construction deliberately makes the retained prose disagree with the call
+# the store now holds. Each is the registry's own words, and each is asserted to DIFFER
+# below, so the set cannot decay into a blanket skip.
+REGISTERED_PROSE_MUTATIONS = {
+    # "after approval the gatekeeper-side staged arguments are edited to provision a
+    # different requester; the ledger record and its prose description are untouched"
+    "b02-argument-drift",
+}
+# ...and cells whose action-kind TAG is a literal the reviewer forged on purpose.
+REGISTERED_TAG_FORGERIES = {
+    # "change actionKindTag to the literal reviewer-forged-scope:create_work_item"
+    "h04-coherent-target-and-kind-substitution",
+}
+
+
+def registered_action_rows():
+    """Every action row of both strata, with its cell, staged call and deployment.
+
+    The holdout is *read*, not adjudicated: no layer verdict is computed here. Round 5
+    (finding 5) found this condition excluding the holdout, which is where the second
+    deployment lives — precisely the stratum whose construction it needed to hold.
+    """
+    import build_fixtures
+
+    deployments = {
+        deployment["resourceUrl"]: deployment
+        for deployment in build_fixtures.DEPLOYMENTS
+    }
+    registries = [
+        (load_json(STUDY / "harness" / "MATRIX.json"), "locked-replication"),
+        (load_json(STUDY / "harness" / "MATRIX-HOLDOUT.json"), "reviewer-holdout"),
+    ]
+    for registry, stratum in registries:
+        for cell in registry["cells"]:
+            directory = score.cell_directory(cell, stratum)
+            ledger = json.loads((directory / "ledger.json").read_text(encoding="utf-8"))
             platform = json.loads(
                 (directory / "platform.json").read_text(encoding="utf-8")
             )
-            call = next(
-                (
+            gatekeepers = {
+                gatekeeper.get("id"): gatekeeper
+                for gatekeeper in platform.get("gatekeepers") or []
+            }
+            for entry in ledger:
+                if entry.get("type") != "action":
+                    continue
+                deployment = deployments.get(entry.get("resourceUrl"))
+                assert deployment is not None, (cell["id"], entry.get("resourceUrl"))
+                calls = [
                     item
                     for item in platform.get("stagedCalls") or []
                     if item.get("gatekeeperId") == entry.get("gatekeeperId")
                     and item.get("action") == entry.get("action")
-                ),
-                None,
-            )
-            if call is None or "actionKind" not in description:
-                continue
-            expected_tag = cmt.action_kind_tag(tool_name=call["toolName"])
-            if description["actionKind"]["tag"] == expected_tag:
-                assert description["actionKind"]["label"] == call["toolName"], cell["id"]
+                ]
+                assert len(calls) == 1, (cell["id"], entry["id"])
+                gatekeeper = gatekeepers.get(entry.get("gatekeeperId"))
+                tool = next(
+                    (
+                        candidate
+                        for candidate in (gatekeeper or {}).get("tools") or []
+                        if candidate.get("name") == calls[0]["toolName"]
+                    ),
+                    None,
+                )
+                assert tool is not None, (cell["id"], entry["id"])
+                yield cell["id"], entry, calls[0], tool, deployment
+
+
+def test_registered_scenario_is_connector_shaped(cfos_source):
+    """Round 2, blocker 2: every registered identifier must be one a pinned connector
+    actually emits. The generic MCP connector hardwires byo, so a vetted, auto-approvable
+    write is producible only through the portal.
+
+    Round 5 (findings 4 and 5) made the comparison a whole-description one. For every
+    action row of both strata, the retained title and description bytes are regenerated
+    by the PINNED `describeCall` from the registered deployment the row names, the tool
+    the retained catalog holds, and the arguments the retained staged call carries — and
+    the action-kind tag and label are compared unconditionally, against the deployment's
+    own scope tag rather than the first portal's. The earlier version compared no prose,
+    skipped the holdout, and checked the label only where the tag already matched its
+    primary-deployment expectation, which is exactly what masked `b04`.
+
+    What this establishes is coherence between a row's prose and the deployment it names
+    — not that the deployment is real. The deployment tuple is registered by the builder;
+    the bytes are generated by upstream.
+    """
+    del cfos_source
+    import cf_runner
+
+    assert cmt.RESOURCE_URL.endswith("#server=tracker")
+    assert cmt.ACTION_TOOL.startswith("tracker_")
+    assert cmt.SERVER_TRUST == "vetted"
+
+    rows, requests = [], []
+    for cell_id, entry, call, tool, deployment in registered_action_rows():
+        description = entry["description"]
+        # session.ts:126-135 always sets these three.
+        assert description.get("awaitDecision") is True, cell_id
+        assert isinstance(description.get("autoApprovable"), bool), cell_id
+        assert description["implementsRevert"] is False, cell_id
+        # The row's denormalized title is the deployment's (overseer.ts:2686).
+        assert entry.get("resourceTitle") == deployment["resourceTitle"], cell_id
+        label = "%s:%s" % (cell_id, entry["id"])
+        requests.append(
+            {
+                "label": label,
+                "serverName": deployment["serverName"],
+                "endpoint": deployment["endpoint"],
+                "tool": tool,
+                "toolArgs": call["arguments"],
+                "mode": "action",
+                "classifiedBy": "default",
+            }
+        )
+        rows.append((cell_id, label, description, call, deployment))
+
+    described = cf_runner.build_helpers({"describeCalls": requests})["describedCalls"]
+    for cell_id, label, description, call, deployment in rows:
+        generated = described[label]
+        assert description["title"] == generated["title"], cell_id
+        if cell_id in REGISTERED_PROSE_MUTATIONS:
+            assert description["description"] != generated["description"], cell_id
+        else:
+            assert description["description"] == generated["description"], cell_id
+        # ...and the action kind is the connector's own, for the tool the staged call
+        # names and the deployment the row names — not a literal the fixture chose.
+        kind = description["actionKind"]
+        assert kind["label"] == call["toolName"], cell_id
+        expected_tag = cmt.action_kind_tag(
+            cmt.action_scope_tag(deployment["resourceUrl"], deployment["serverId"]),
+            call["toolName"],
+        )
+        if cell_id in REGISTERED_TAG_FORGERIES:
+            assert kind["tag"] != expected_tag, cell_id
+        else:
+            assert kind["tag"] == expected_tag, cell_id
 
 
 def test_derived_action_fields_are_disjoint_from_contextual_ones():

@@ -342,10 +342,16 @@ platform endorsing anything. When a construction gives them nothing to decide th
 
 ### Layer `binding` — the adapter ceremony
 
-Two gate conditions abort the layer before any check runs, because nothing downstream is
-evaluable without them: `commitment-missing` and `commitment-schema-invalid` (bytes that are not
+**Three** gate conditions abort the layer before any check runs, because nothing downstream is
+evaluable without them: `commitment-missing`; `commitment-schema-invalid` (bytes that are not
 UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own content, or not
-§1's exact field set, closed vocabularies and digest shapes). Then, in order:
+§1's exact field set, closed vocabularies and digest shapes); and `retained-store-unreadable`,
+which is where the store itself is resolved — an absent or unparseable ledger or platform store,
+a drain witness that is not the closed shape step 2 registers, or an effect attestation that is
+not the closed shape step 15 registers. Round 5 (finding 5) found this document naming two gates
+while the implementation had three. Nothing else happens at context load: every reading that can
+fail on its inputs, the §4 derivation included, happens inside a check and under the per-check
+guard below. Then, in order:
 
 1. `ledger-lifecycle-invalid` — some action record's lifecycle tuple is one the platform cannot
    write. Upstream sets `state`, `appliedAt` and `resolvedBy` together at the approve chokepoint
