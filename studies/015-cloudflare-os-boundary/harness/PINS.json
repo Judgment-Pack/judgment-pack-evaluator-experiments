@@ -62,12 +62,12 @@
   },
   "matrix": {
     "path": "harness/MATRIX.json",
-    "sha256": null,
+    "sha256": "c1e36db150c2d46a9f4100203e9b6376f9d45aa9452fc08727f1160d3e4e0b90",
     "note": "locked-replication cell expectations; digest filled at the freeze together with the preregistration digest. The frozen cell-id set is additionally asserted in harness/score.py, so a reduced registry cannot satisfy zero divergence"
   },
   "matrixHoldout": {
     "path": "harness/MATRIX-HOLDOUT.json",
-    "sha256": null,
+    "sha256": "a7673c2b3514d9c986243d2189497f43c71fc1b1fcf1042f01ba33a14efd579d",
     "note": "reviewer-authored holdout stratum, committed verbatim with attribution and never executed pre-freeze; score.py --include-holdout is refused mechanically while preregistration.sha256 is null"
   },
   "studyManifest": {
@@ -79,12 +79,12 @@
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",
-    "sha256": null,
+    "sha256": "9674ac554d1ae62323da64536d182ef8ff29b5fc3ee8c75daaf7e4f1df02357f",
     "note": "Filled with the file's digest at the freeze, so a post-freeze edit is detectable. Null until then; the scorer refuses a registered (non-pilot) run while null."
   },
   "adapterSpec": {
     "path": "adapter/SPEC.md",
-    "sha256": null,
+    "sha256": "36dcec609f2ef446aea2d404b80a464ee25d79a72c07fe85cc36253536c5c6da",
     "note": "registered with the preregistration; digest filled at the freeze"
   },
   "probeToolchain": {
