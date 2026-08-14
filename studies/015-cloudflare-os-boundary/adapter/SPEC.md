@@ -349,8 +349,8 @@ platform endorsing anything. When a construction gives them nothing to decide th
    whether the witness's gatekeeper had a *key* among the ledger's claims rather than
    whether the two lists agreed, so a witness that applied nothing still inserted its key
    and was then refused for claiming an application it does not claim. An engaged witness
-   over a queue the pinned drainer leaves alone — which is what a manual-approval history
-   produces — replays coherently and passes.
+   accounting for no application, beside rows that claim none, is a record this ceremony
+   accepts: both lists are empty, and empty equals empty.
 
    **The queue boundary is `resolved < at`, registered.** A row already resolved *before*
    the witness instant is legitimate history and is excluded from that pass's queue — the

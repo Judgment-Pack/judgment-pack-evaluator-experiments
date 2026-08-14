@@ -1,13 +1,14 @@
 # Preregistration — Study 015: the judgment/staged-action boundary under a governed-agent platform
 
 **Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing thereafter.**
-Eight review rounds have run and all eight returned DO-NOT-FREEZE; round 5's structural rescope —
+Nine review rounds have run and all nine returned DO-NOT-FREEZE; round 5's structural rescope —
 the claims narrowed to what the apparatus is, plus the source-of-truth sweep it asked for — is
 applied, round 6's five blockers and two majors are fixed, round 7's three blockers, two majors
-and four named residues are fixed, and round 8's three blockers, one minor and three named
-residues are fixed with its ruling adopted ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope",
-"Round-6 fixes", "Round-7 fixes" and "Round-8 fixes"). **Round 9 has not run**, and the freeze
-waits on its confirmation.
+and four named residues are fixed, round 8's three blockers, one minor and three named
+residues are fixed with its ruling adopted, and round 9's two blockers are fixed
+([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope", "Round-6 fixes", "Round-7 fixes",
+"Round-8 fixes" and "Round-9 fixes"). **Round 10 has not run**, and the freeze waits on its
+confirmation.
 
 **Nothing has run under a freeze.** Everything executed during harness development lands under
 `pilots/`, is labeled harness validation, and supports no claim. After the freeze this file is

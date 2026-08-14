@@ -314,32 +314,50 @@ def test_typecheck_is_a_scorer_precondition():
 
 
 # ---------------------------------------------------------------------------
-# withdrawn claims — the guard that replaces the named-list sweep (R8-1)
+# withdrawn claims — the lexical backstop (R8-1, rescoped at R9-1)
 # ---------------------------------------------------------------------------
 
-# The phrase classes PREREGISTRATION section 9 withdrew. Each one names a thing this
+# The phrase classes PREREGISTRATION section 9 withdrew, written as regular expressions
+# over the whitespace-normalized, lowercased text below. Each one names a thing this
 # apparatus does not establish: that a retained history is one the pinned platform's own
 # paths reach, that an attested effect stands in a causal relation to a call, or that a
 # private connector field this study never retains is asserted anywhere.
+#
+# The list is deliberately short of the class it serves. Round 9 (R9-1) showed the two
+# stems that would close the remaining variants — a bare `admits` and a bare `produces` —
+# are registered vocabulary here: the matrix ADMITS tuples and evaluators PRODUCE
+# dispositions, both legitimately and both on many surfaces. Adding either would make the
+# backstop refuse the apparatus's own language, so neither is added, and what the backstop
+# therefore does not reach is written down in `HISTORICAL_FORMULATIONS` rather than
+# implied to be covered.
 WITHDRAWN_CLAIM_PHRASES = (
-    "can actually retain",
+    "can actually",
     "actually emits",
     "took effect",
     "produced by",
     "caused by",
     "retryab",
     "the effect happens",
+    r"\bproducible\b",
+    r"\bleaves\b[^.\x00]{0,60}\bretained\b",
 )
 
-# Where a phrase above is legitimate, and why. An entry is (surface, phrase, anchor,
-# justification): a match is permitted only when `anchor` — whitespace-normalized and
-# lowercased like the scanned text — appears in the surrounding window, so the licence is
-# granted to one passage rather than to a whole file. Every entry must be used.
+# Where a phrase above is legitimate, and why. An entry is
+# (surface, phrase, anchor, occurrences, justification): a match is permitted only when
+# `anchor` — whitespace-normalized and lowercased like the scanned text — appears in the
+# surrounding window, AND the entry's licensed matches number exactly `occurrences`.
+# Round 9 (R9-1) found the anchor alone insufficient: the licence window is wide enough to
+# shadow a second, unrelated occurrence of the same phrase, so a new claim written beside a
+# licensed passage inherited its licence. The count is what closes that — a licence covers
+# a stated number of known occurrences, and an extra one fails whether or not it sits
+# beside the anchor. A count that no longer matches also fails, so a repaired site cannot
+# leave a stale licence behind.
 WITHDRAWN_CLAIM_ALLOWLIST = (
     (
         "PREREGISTRATION.md",
         "produced by",
         "nothing here shows that a given retained history could have been produced by",
+        1,
         "section 9 registering the no-source-reachability limit; the phrase is the thing "
         "being withdrawn, stated as a negation",
     ),
@@ -347,6 +365,7 @@ WITHDRAWN_CLAIM_ALLOWLIST = (
         "PREREGISTRATION.md",
         "caused by",
         "is *matched*, never shown to have been caused by that call",
+        1,
         "section 9 registering the no-effect-causation limit, stated as a negation",
     ),
     (
@@ -354,13 +373,25 @@ WITHDRAWN_CLAIM_ALLOWLIST = (
         "retryab",
         "retryability, error detail, and every private field beyond the scalar are absent "
         "by construction and asserted nowhere",
+        1,
         "section 9 registering the no-real-private-connector-record limit; this is the "
         "canonical statement every other surface defers to",
+    ),
+    (
+        "PREREGISTRATION.md",
+        r"\bproducible\b",
+        "an earlier draft used a bare endpoint, an invented scope tag and short "
+        "hand-written prose; none of it was producible",
+        1,
+        "section 4a recording why the earlier scenario was withdrawn: a negation about "
+        "this study's own discarded draft, in the paragraph that registers section 9's "
+        "limit two sentences earlier",
     ),
     (
         "README.md",
         "caused by",
         "matched to a bound call's identity, never shown to be caused by it",
+        1,
         "the README restating section 9's no-effect-causation limit for a reader who "
         "starts here",
     ),
@@ -368,13 +399,36 @@ WITHDRAWN_CLAIM_ALLOWLIST = (
         "adapter/SPEC.md",
         "retryab",
         "yes (`error`, `retryable`), within a 100-record window",
+        3,
         "section 0a's retained-record table naming the pinned connector's own `error` and "
-        "`retryable` fields and recording that neither is retained",
+        "`retryable` fields and recording that neither is retained — one table row, one "
+        "sentence, and the word three times over: `retryability` in the column head, "
+        "`retryable` in the private-store cell, `retryability` again in the "
+        "not-retained cell",
+    ),
+    (
+        "adapter/SPEC.md",
+        r"\bproducible\b",
+        "a vetted, auto-approvable write is producible **only** through the portal",
+        1,
+        "round 2's deployment finding: a statement about which pinned connector can be "
+        "configured at all, which is what forces the registered deployment; it is not a "
+        "claim about any retained history",
+    ),
+    (
+        "adapter/SPEC.md",
+        r"\bproducible\b",
+        "an invented `jps-tracker` scope and an omitted `awaitdecision`; none of that was "
+        "producible",
+        1,
+        "the same section recording why the earlier draft's identifiers were withdrawn, "
+        "as a negation about this study's own discarded draft",
     ),
     (
         "harness/MATRIX.json",
         "retryab",
         "its retryability and its error detail are not retained and are not joined here",
+        1,
         "`m02`'s registered construction saying which private fields the cell does not "
         "keep; the registry's prose is frozen and this is a negation",
     ),
@@ -382,16 +436,159 @@ WITHDRAWN_CLAIM_ALLOWLIST = (
         "harness/build_fixtures.py",
         "retryab",
         "its retryability and its error detail are not retained and no join to a private",
+        1,
         "the builder comment for the same `m02` construction, in the same negation",
+    ),
+    (
+        "adapter/commitment.py",
+        r"\bproducible\b",
+        "round 2 established that the earlier scenario was not producible by any pinned "
+        "connector",
+        1,
+        "the same round-2 deployment finding as the SPEC entry above, stated as a "
+        "negation about the withdrawn draft scenario",
+    ),
+    (
+        "harness/tests/test_study.py",
+        r"\bproducible\b",
+        "the generic mcp connector hardwires byo, so a vetted, auto-approvable write is "
+        "producible only through the portal",
+        1,
+        "the docstring of the regression that enforces the round-2 deployment finding, "
+        "restating the SPEC sentence it checks",
     ),
 )
 
-# Skipped wherever they appear, because a guard must hold its own vocabulary verbatim.
-_GUARD_TABLES = ("WITHDRAWN_CLAIM_PHRASES", "WITHDRAWN_CLAIM_ALLOWLIST")
+# What rounds 6 through 9 actually quoted as the offending text, and whether this backstop
+# reaches it. An entry is (round, formulation, phrase or None, where it was found). The
+# `None` rows are the honest half: each is a formulation a review round found on a living
+# surface and no stem here matches, because the stem that would match it is registered
+# vocabulary (`admits`, `produces`) or because the finding was a different class of defect
+# altogether. They are not a backlog to be closed by widening the list; they are the
+# measure of how much of the class the review loop, not this test, is carrying.
+HISTORICAL_FORMULATIONS = (
+    ("6", "an attestation names the call that produced it", None,
+     "PREREG-REVIEW.md:154"),
+    ("6", "an effect produced by a different unretained call", "produced by",
+     "PREREG-REVIEW.md:154"),
+    ("6", "the verifier reasons about an effect caused by a call", "caused by",
+     "verify.py:1250-1253"),
+    ("6", "a deployment recording which call produced it", None,
+     "verify.py:1250-1253"),
+    ("6", "substituted causation, and the wrong cause", None,
+     "test_reachability.py:406-412"),
+    ("6", "the effect happens", "the effect happens", "MATRIX.json:685"),
+    ("6", "the queue bypass is real", None, "MATRIX.json:691"),
+    ("6", "external state is not retryable", "retryab",
+     "fixtures/mutations/m02-ambiguous-commit/report.json:10"),
+    ("6", "an unretained private row is failed/non-retryable", "retryab",
+     "build_fixtures.py:931-950"),
+    ("7", "an effect produced by an unretained call", "produced by",
+     "SPEC.md:490, step 15"),
+    ("7", "the staged call it came from", None, "build_fixtures.py:319-325"),
+    ("7", "the trace the pinned source can actually retain", "can actually",
+     "PREREGISTRATION D-5"),
+    ("7", "retryable: true", "retryab", "SPEC.md:597 and verify.py:115"),
+    ("8", "nothing took effect", "took effect",
+     "the passages R8-1 named under R6-1r"),
+    ("8", "the inner and outer rejections happen in the same transaction", None,
+     "verify.py:92-93 (R8-2 — a false account of the source, not a withdrawn claim; "
+     "this backstop models the claim class only)"),
+    ("9", "paths admit", None,
+     "R9-1's example class; `admits` is registered vocabulary and is not a stem"),
+    ("9", "the queue produces / a history produces", None,
+     "verify.py:147, SPEC.md:353, ceremony.ts:672; bare `produces` is registered "
+     "vocabulary and is not a stem"),
+    ("9", "refused a producible history", r"\bproducible\b", "verify.py:134"),
+    ("9", "the pinned source can produce", None,
+     "verify.py:905-906 and :969-970; the modal form of the same registered verb"),
+    ("9", "what the platform can actually write", "can actually", "verify.py:883"),
+    ("9", "dies in either window and leaves exactly that pair retained",
+     r"\bleaves\b[^.\x00]{0,60}\bretained\b", "verify.py:132-133"),
+)
+
+# The nine passages the round-9 block repaired, as they read BEFORE the repair, with the
+# phrase class that reaches each — `None` where none does. The demonstration is the point:
+# three of nine would have been refused by the hardened backstop and six would not, which
+# is the same arithmetic `HISTORICAL_FORMULATIONS` records and the reason the docstring
+# below claims only what it claims.
+ROUND_NINE_REPAIRS = (
+    ("adapter/verify.py:128-131",
+     "each connector path persists its own record before the outer row is written",
+     None),
+    ("adapter/verify.py:132-133",
+     "a durable object that dies in either window leaves exactly that pair retained",
+     r"\bleaves\b[^.\x00]{0,60}\bretained\b"),
+    ("adapter/verify.py:133-134",
+     "round 7 found only the first window admitted, which refused a producible history "
+     "on the reject side",
+     r"\bproducible\b"),
+    ("adapter/verify.py:147",
+     "an ordinary completed rejection is the most ordinary history the queue produces",
+     None),
+    ("adapter/verify.py:883",
+     "every action row's lifecycle tuple against what the platform can actually write",
+     "can actually"),
+    ("adapter/verify.py:905-906",
+     "derives which pairs the pinned source can produce",
+     None),
+    ("adapter/verify.py:969-970",
+     "the pair must be one the pinned source can produce",
+     None),
+    ("adapter/SPEC.md:352-353",
+     "over a queue the pinned drainer leaves alone — which is what a manual-approval "
+     "history produces — replays coherently and passes",
+     None),
+    ("probes/ceremony.ts:671-672",
+     "over a queue the pinned drainer leaves alone — a perfectly coherent pass, and the "
+     "shape a manual-approval history produces",
+     None),
+)
+
+# The representations round 9 named as evading extraction, as Python sources, with the
+# phrase each must yield once the extractor is right. The last entry is the control: a run
+# ends where the prose stops, so two comments five lines apart are two runs and no phrase
+# is manufactured by joining them.
+EVASION_REPRESENTATIONS = (
+    (
+        "an f-string literal (CPython 3.12 splits these into FSTRING_* tokens)",
+        'DETAIL = f"the attestation was caused by the bound call"\n',
+        "caused by",
+    ),
+    (
+        "an f-string interrupted by a replacement field",
+        'DETAIL = f"the attestation was caused {suffix} by the bound call"\n',
+        "caused by",
+    ),
+    (
+        "a phrase split across two contiguous comment lines",
+        "# the retained attestation was caused\n# by the bound call\n",
+        "caused by",
+    ),
+    (
+        "a phrase split across adjacent string literals",
+        'DETAIL = (\n    "the retained attestation was caused "\n    "by the bound call"\n)\n',
+        "caused by",
+    ),
+    (
+        "CONTROL: two comments separated by code are two runs, and do not join",
+        "# the retained attestation was caused\nA = 1\nB = 2\nC = 3\n# by the bound call\n",
+        None,
+    ),
+)
+
+# Skipped wherever they appear, because a backstop must hold its own vocabulary verbatim.
+_GUARD_TABLES = (
+    "WITHDRAWN_CLAIM_PHRASES",
+    "WITHDRAWN_CLAIM_ALLOWLIST",
+    "HISTORICAL_FORMULATIONS",
+    "ROUND_NINE_REPAIRS",
+    "EVASION_REPRESENTATIONS",
+)
 
 
 def _guard_table_lines(source):
-    """The line numbers occupied by the two tables above, in any module that defines them."""
+    """The line numbers occupied by the tables above, in any module that defines them."""
     skipped = set()
     for node in ast.parse(source).body:
         if not isinstance(node, ast.Assign):
@@ -406,45 +603,110 @@ def _normalize(text):
     return " ".join(text.split()).lower()
 
 
-def _flatten(pieces):
-    """Join (locator, text) pieces into one normalized string plus a per-character index.
+# Leading markup that is not prose: line comments in either language, block-comment rails,
+# Markdown bullets, headings and quote marks. Round 9 (R9-1) found these breaking a phrase
+# in two: `# ... pair` on one line and `# retained` on the next joined as `pair # retained`
+# and matched nothing, so a claim written across a comment wrap was invisible. Stripping
+# them is what makes a contiguous run read as one sentence.
+_LINE_MARKER = re.compile(r"^\s*(?://+|/\*+|\*/|\*(?=\s)|#+(?=\s|$)|>+)\s*")
 
-    Joining normalized pieces with a single space is what lets a phrase broken across a
-    Markdown line wrap, or across two comment lines, still be found: the scanned text has
-    no line breaks in it at all.
+# Between two runs. It is a character no phrase contains and the gapped pattern excludes,
+# so a run boundary can never be crossed by a match.
+_RUN_BREAK = "\x00"
+
+
+def _strip_markers(line):
+    previous = None
+    while previous != line:
+        previous = line
+        line = _LINE_MARKER.sub("", line, count=1)
+    return line
+
+
+def _flatten(runs):
+    """Join runs of (locator, text) into one normalized string plus a per-character index.
+
+    Pieces inside a run are joined with a single space, which is what lets a phrase broken
+    across a Markdown line wrap, a comment wrap or two adjacent string literals still be
+    found: within a run the scanned text has no line breaks and no comment markers in it at
+    all. Runs are joined with `_RUN_BREAK`, so nothing is manufactured across a gap.
     """
     parts = []
     locators = []
-    for locator, raw in pieces:
-        chunk = _normalize(raw) + " "
-        parts.append(chunk)
-        locators.extend([locator] * len(chunk))
+    for run in [run for run in runs if run]:
+        if parts:
+            parts.append(_RUN_BREAK)
+            locators.append(locators[-1])
+        for locator, raw in run:
+            chunk = _normalize(raw) + " "
+            parts.append(chunk)
+            locators.extend([locator] * len(chunk))
     return "".join(parts), locators
 
 
-def _text_pieces(path):
+def _text_runs(path):
+    """A text file is one run: every line is contiguous with the next, markers removed."""
     lines = path.read_text(encoding="utf-8").splitlines()
-    return [("%d" % (number + 1), line) for number, line in enumerate(lines)]
+    return [[("%d" % (number + 1), _strip_markers(line)) for number, line in enumerate(lines)]]
 
 
-def _python_pieces(path):
-    """Comments and string literals — never bare code, so an identifier is not prose."""
-    source = path.read_text(encoding="utf-8")
+def _string_token_text(literal):
+    """The VALUE of a string literal, so its quotes and prefix cannot break a phrase."""
+    try:
+        value = ast.literal_eval(literal)
+    except (SyntaxError, ValueError):
+        return literal
+    return value if isinstance(value, str) else literal
+
+
+def _token_prose(token):
+    """The prose a token carries, or None if it carries none.
+
+    Comments and string literals only — never bare code, so an identifier is not prose.
+    Under CPython 3.12 an f-string is no longer one STRING token (PEP 701): it arrives as
+    FSTRING_START / FSTRING_MIDDLE / FSTRING_END around its replacement fields, and round 9
+    (R9-1) found the extractor reading none of it. The MIDDLE tokens carry the literal
+    text; the delimiters carry nothing and are dropped, which also lets the two halves
+    either side of a replacement field join as one run.
+    """
+    if token.type == tokenize.COMMENT:
+        return re.sub(r"^#+\s*", "", token.string)
+    if token.type == tokenize.STRING:
+        return _string_token_text(token.string)
+    if token.type == getattr(tokenize, "FSTRING_MIDDLE", None):
+        return token.string
+    return None
+
+
+def _python_runs_from_source(source):
+    """Prose tokens, grouped into runs of consecutive lines."""
     skipped = _guard_table_lines(source)
-    pieces = []
+    runs = []
+    current = []
+    last_line = None
     for token in tokenize.generate_tokens(io.StringIO(source).readline):
-        if token.type not in (tokenize.COMMENT, tokenize.STRING):
+        text = _token_prose(token)
+        if text is None or token.start[0] in skipped:
             continue
-        if token.start[0] in skipped:
-            continue
-        pieces.append(("%d" % token.start[0], token.string))
-    return pieces
+        if last_line is not None and token.start[0] > last_line + 1:
+            runs.append(current)
+            current = []
+        current.append(("%d" % token.start[0], text))
+        last_line = token.end[0]
+    runs.append(current)
+    return runs
 
 
-def _json_pieces(path, prefix=""):
+def _python_runs(path):
+    return _python_runs_from_source(path.read_text(encoding="utf-8"))
+
+
+def _json_runs(path, prefix=""):
+    """Every string value, each its own run: two values are never one sentence."""
+
     def walk(node, where):
         if isinstance(node, str):
-            return [(where, node)]
+            return [[(where, node)]]
         if isinstance(node, dict):
             found = []
             for key, value in node.items():
@@ -481,80 +743,202 @@ def living_surfaces():
     found = []
     for path in sorted(STUDY.glob("*.md")):
         if path.name not in NARRATING_LEDGERS:
-            found.append((path.name, _text_pieces(path)))
+            found.append((path.name, _text_runs(path)))
     for path in sorted(STUDY.glob("adapter/*.md")):
-        found.append(("adapter/%s" % path.name, _text_pieces(path)))
+        found.append(("adapter/%s" % path.name, _text_runs(path)))
     # TypeScript is scanned whole: a comment extractor for it would be apparatus needing
     # its own tests, and an identifier that legitimately carries a phrase can take an
     # allowlist entry like any other use.
     for path in sorted(STUDY.glob("probes/**/*.ts")):
-        found.append((str(path.relative_to(STUDY)), _text_pieces(path)))
+        found.append((str(path.relative_to(STUDY)), _text_runs(path)))
     for pattern in ("adapter/*.py", "harness/*.py", "harness/tests/*.py"):
         for path in sorted(STUDY.glob(pattern)):
-            found.append((str(path.relative_to(STUDY)), _python_pieces(path)))
-    found.append(("harness/MATRIX.json", _json_pieces(STUDY / "harness" / "MATRIX.json")))
+            found.append((str(path.relative_to(STUDY)), _python_runs(path)))
+    found.append(("harness/MATRIX.json", _json_runs(STUDY / "harness" / "MATRIX.json")))
     return found
 
 
 # How far either side of a match an allowlist anchor may sit, and how much of the passage a
-# refusal prints. The licence radius is the wider of the two so that one entry covers one
-# passage: section 0a's table row names the private connector's fields three times over in
-# a single sentence, and that is one licence, not three.
+# refusal prints. The licence radius is the wider of the two so that one entry can cover
+# one passage: section 0a's table row names the private connector's fields three times over
+# in a single sentence. What bounds the licence is no longer the radius — it is the
+# occurrence count each entry registers.
 LICENCE_RADIUS = 400
 REPORT_RADIUS = 140
 
 
+def withdrawn_claim_hits(surface, runs):
+    """Every match of every withdrawn phrase class on one surface's runs."""
+    text, locators = _flatten(runs)
+    found = []
+    for phrase in WITHDRAWN_CLAIM_PHRASES:
+        for match in re.finditer(phrase, text):
+            start, end = match.span()
+            found.append((
+                surface,
+                locators[start],
+                phrase,
+                text[max(0, start - LICENCE_RADIUS):end + LICENCE_RADIUS],
+                text[max(0, start - REPORT_RADIUS):end + REPORT_RADIUS],
+            ))
+    return found
+
+
 def withdrawn_claim_matches():
     matches = []
-    for surface, pieces in living_surfaces():
-        text, locators = _flatten(pieces)
-        for phrase in WITHDRAWN_CLAIM_PHRASES:
-            start = text.find(phrase)
-            while start != -1:
-                end = start + len(phrase)
-                matches.append((
-                    surface,
-                    locators[start],
-                    phrase,
-                    text[max(0, start - LICENCE_RADIUS):end + LICENCE_RADIUS],
-                    text[max(0, start - REPORT_RADIUS):end + REPORT_RADIUS],
-                ))
-                start = text.find(phrase, start + 1)
+    for surface, runs in living_surfaces():
+        matches.extend(withdrawn_claim_hits(surface, runs))
     return matches
 
 
-def test_living_surfaces_carry_no_withdrawn_claims():
-    """The machinery that replaces three rounds of named-list sweeps.
-
-    Rounds 6, 7 and 8 each found the same class of sentence on a living surface, each time
-    a few lines from where the previous round had repaired it, and each time the repair was
-    a list of sites a reviewer had reached. A list cannot close a class. This scans the
-    derived population above for every phrase class section 9 withdrew, and refuses any
-    occurrence that is not licensed by name in `WITHDRAWN_CLAIM_ALLOWLIST`.
-
-    The two tables are skipped wherever they are defined, since the guard must hold the
-    vocabulary it forbids; every other line of this file is scanned like any other.
-    """
+def adjudicate_matches(matches, allowlist=None):
+    """(unlicensed occurrences, entries whose licensed count is not the registered one)."""
+    allowlist = WITHDRAWN_CLAIM_ALLOWLIST if allowlist is None else allowlist
     unlicensed = []
-    used = set()
-    for surface, locator, phrase, licence_window, shown in withdrawn_claim_matches():
+    counted = {index: 0 for index in range(len(allowlist))}
+    for surface, locator, phrase, licence_window, shown in matches:
         licences = [
             index
-            for index, entry in enumerate(WITHDRAWN_CLAIM_ALLOWLIST)
+            for index, entry in enumerate(allowlist)
             if entry[0] == surface
             and entry[1] == phrase
             and _normalize(entry[2]) in licence_window
         ]
         if licences:
-            used.update(licences)
+            for index in licences:
+                counted[index] += 1
         else:
             unlicensed.append("%s:%s %r ... %s" % (surface, locator, phrase, shown))
-    assert unlicensed == [], "\n".join(unlicensed)
-    dead = [
-        entry[0:3] for index, entry in enumerate(WITHDRAWN_CLAIM_ALLOWLIST)
-        if index not in used
+    miscounted = [
+        (entry[0], entry[1], "registered %d, found %d" % (entry[3], counted[index]))
+        for index, entry in enumerate(allowlist)
+        if counted[index] != entry[3]
     ]
-    assert dead == [], "allowlist entries no longer matching anything: %r" % (dead,)
+    return unlicensed, miscounted
+
+
+def test_living_surfaces_carry_no_withdrawn_claims():
+    """A LEXICAL BACKSTOP over formulations already found and repaired. Not a proof.
+
+    What it claims: none of the exact phrase classes in `WITHDRAWN_CLAIM_PHRASES` can
+    return to a living surface unlicensed. Rounds 6, 7 and 8 each found the same class of
+    sentence a few lines from where the previous round had repaired it, each time because
+    the repair was a list of sites a reviewer had reached; this makes reintroduction of a
+    *known* formulation mechanically impossible instead of a matter of who read what.
+
+    What it does NOT claim, stated so that no later round has to discover it: it is not a
+    semantic check, it does not decide whether a new sentence asserts a withdrawn claim,
+    and its stem list is knowingly narrower than the class section 9 withdrew — round 9
+    (R9-1) established that the two stems which would close the remaining variants are the
+    apparatus's own registered vocabulary and cannot be added. `HISTORICAL_FORMULATIONS`
+    records every formulation the four review records quoted and marks, one by one, which
+    this backstop reaches and which it does not; the ones it does not are carried by the
+    review loop, which owns semantic completeness and always did.
+
+    The tables are skipped wherever they are defined, since the backstop must hold the
+    vocabulary it forbids; every other line of this file is scanned like any other.
+    """
+    unlicensed, miscounted = adjudicate_matches(withdrawn_claim_matches())
+    assert unlicensed == [], "\n".join(unlicensed)
+    assert miscounted == [], (
+        "allowlist entries whose licensed occurrence count is not the registered one: %r"
+        % (miscounted,)
+    )
+
+
+def _hits_on(text, surface="synthetic"):
+    return withdrawn_claim_hits(surface, [[("1", text)]])
+
+
+@pytest.mark.parametrize(
+    "formulation", HISTORICAL_FORMULATIONS, ids=lambda item: "%s:%s" % (item[0], item[3])
+)
+def test_the_backstop_reaches_exactly_the_historical_formulations_it_claims(formulation):
+    """Every formulation rounds 6-9 quoted, held to the coverage the table registers.
+
+    A covered row must still be refused, or a repaired class has silently reopened. An
+    uncovered row must still be uncovered: if one starts matching, someone widened the stem
+    list and the table's arithmetic — and the honesty of the docstring above — has to be
+    restated rather than quietly improved.
+    """
+    _round, quoted, phrase, _where = formulation
+    hits = {hit[2] for hit in _hits_on(quoted)}
+    if phrase is None:
+        assert hits == set(), (quoted, hits)
+    else:
+        assert phrase in hits, (quoted, hits)
+
+
+@pytest.mark.parametrize(
+    "repair", ROUND_NINE_REPAIRS, ids=lambda item: item[0]
+)
+def test_the_round_nine_repairs_read_against_the_backstop_before_repair(repair):
+    """The five ranges R9-1 named, passage by passage, as they read before this block.
+
+    Three of the nine passages are refused by a phrase class and six are not — the six
+    being the `produces`/`can produce`/`persists` formulations no stem may cover. This is
+    the pre-repair half of the demonstration; the post-repair half is
+    `test_living_surfaces_carry_no_withdrawn_claims` passing over the repaired tree.
+    """
+    site, before, phrase = repair
+    hits = {hit[2] for hit in _hits_on(before)}
+    if phrase is None:
+        assert hits == set(), (site, hits)
+    else:
+        assert phrase in hits, (site, hits)
+
+
+def test_the_backstop_coverage_arithmetic_is_the_one_the_docstrings_state():
+    """The arithmetic the rescope rests on, asserted rather than described.
+
+    If a stem is ever widened or a formulation added, this fails and the numbers in the
+    docstrings and in `DEVIATIONS.md` have to be restated in the same commit.
+    """
+    covered = [item for item in ROUND_NINE_REPAIRS if item[2] is not None]
+    assert len(covered) == 3, [item[0] for item in covered]
+    assert len(ROUND_NINE_REPAIRS) == 9
+    reached = [item for item in HISTORICAL_FORMULATIONS if item[2] is not None]
+    assert (len(reached), len(HISTORICAL_FORMULATIONS)) == (12, 21)
+
+
+@pytest.mark.parametrize(
+    "representation", EVASION_REPRESENTATIONS, ids=lambda item: item[0]
+)
+def test_the_extractor_reads_the_representations_round_nine_named(representation):
+    """Round 9 (R9-1): a phrase hidden by REPRESENTATION rather than by wording.
+
+    An f-string, a comment wrap and an implicit string concatenation each put a phrase
+    somewhere the old extractor did not look; all three are the same sentence to a reader.
+    The control asserts the other direction — the run boundary is real, so the extractor
+    does not invent a phrase by joining two passages that are not one.
+    """
+    _name, source, phrase = representation
+    hits = {hit[2] for hit in withdrawn_claim_hits("synthetic", _python_runs_from_source(source))}
+    if phrase is None:
+        assert hits == set(), hits
+    else:
+        assert phrase in hits, hits
+
+
+def test_a_licence_covers_a_counted_set_of_occurrences_and_no_more():
+    """R9-1: the anchor window is wide enough to shadow a second occurrence.
+
+    A new claim written beside a licensed passage used to inherit its licence, because the
+    licence asked only whether the anchor was nearby. Each entry now registers how many
+    occurrences it covers, so the extra one is refused by arithmetic rather than by whether
+    a reviewer noticed it sitting there.
+    """
+    entry = WITHDRAWN_CLAIM_ALLOWLIST[0]
+    only = (entry,)
+    surface, phrase, anchor, occurrences = entry[0], entry[1], entry[2], entry[3]
+    window = _normalize(anchor)
+    exact = [(surface, "1", phrase, window, window)] * occurrences
+    assert adjudicate_matches(exact, only) == ([], [])
+    extra = exact + [(surface, "2", phrase, window, window)]
+    unlicensed, miscounted = adjudicate_matches(extra, only)
+    assert unlicensed == [], unlicensed
+    assert [item[0:2] for item in miscounted] == [(surface, phrase)]
+    assert adjudicate_matches(exact[:-1], only)[1] != []
 
 
 # ---------------------------------------------------------------------------

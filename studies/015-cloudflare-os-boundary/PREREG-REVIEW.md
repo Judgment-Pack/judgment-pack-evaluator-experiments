@@ -9,8 +9,8 @@ declined with reasons.
 and are never edited; the dispositions here are brought current as work lands, by amending the
 status of a row rather than rewriting what it said. Where a later round superseded an earlier
 disposition, the earlier row keeps its words and gains a note saying so. Statuses below are
-current as of the round-8 fixes (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
-`5cb4c1e`, `a7ac228`, and the round-6, round-7, and round-8 fix blocks that follow them).
+current as of the round-9 fixes (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
+`5cb4c1e`, `a7ac228`, and the round-6, round-7, round-8 and round-9 fix blocks that follow them).
 
 ## Round 1 — DO-NOT-FREEZE
 
@@ -366,3 +366,43 @@ fixes*. **The study does not freeze on this record.** Round 9 has not run; its j
 whether the guard's population and allowlist are honest, whether the witness identity rule now
 covers every identity either layer reads, and whether any account of the pinned source in this
 tree still contradicts the source.
+
+
+## Round 9 — DO-NOT-FREEZE
+
+Reviewer: same configuration, static review with the suite and both registries executed. Study
+tree reviewed at commit `6d0fdd5`. Verdict: **do not freeze**; two blockers, four of round 8's
+dispositions confirmed RESOLVED (R8-2, R8-3, R8-4 and the `h08` ruling), and R8-1 returned NOT
+RESOLVED with its residue named as R9-1. The verbatim prompt and review are retained and are to
+be filed under `reviews/round-9/` as every earlier round's are; this commit touches nothing under
+`reviews/`, so that directory does not yet exist and this row is the only current record of the
+round.
+
+Round 9 asked round 8's own question — is the guard honest — and answered no, in the only way
+that settles it: by writing the evasions down. It also caught the study failing its own
+pre-adjudication gate, because the one commit in this loop written by hand rather than by the
+block discipline skipped the regeneration step every other commit performed. Both items are
+accepted; neither is declined.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R8-1r / R9-1 | **Blocker.** The guard is porous and live prose still carries the class: semantic and morphological variants — "paths admit", "produces/producible", "can produce/can actually write", "leaves … retained" — evade all seven phrases; CPython 3.12 f-strings and phrases split across comments or adjacent string literals evade extraction entirely; and the ±400-character licence window can shadow a second occurrence. Named live sites: `verify.py:124-149,883-905,964-970`, `SPEC.md:351-353`, `ceremony.ts:670-673`. | **Fixed on all four axes, and the guard is rescoped to what it actually is.** The nine passages in the five named ranges are repaired to registered-compatibility language — the `pending` bullet now says the ordering of the two writes is why the matrix admits the pair and repeats §9's registration that admitting a pair records what the ceremony will not refuse; the two docstrings say the registered matrix admits, not what a source can produce; SPEC §5's witness paragraph and the matching `ceremony.ts` comment say a record this ceremony accepts. Mechanically: the extractor now reads FSTRING_MIDDLE tokens (PEP 701 split f-strings into pieces the old STRING-only reader never saw), strips comment and bullet markers so a phrase across a comment wrap or two adjacent string literals reads as one sentence, and groups prose into **runs** of consecutive lines joined by a break character no phrase can cross — so nothing is manufactured across a gap either. Each licence now registers an exact occurrence count at its anchor, so an extra occurrence beside a licensed passage fails by arithmetic; the one entry covering three occurrences says so and says which three. Two stems are added (`can actually`, `\bproducible\b`) plus one gapped pattern (`leaves … retained`), and **the two stems that would close the rest are not**: `admits` and bare `produces` are this apparatus's registered vocabulary. So the guard is renamed to what it is — a **lexical backstop** over formulations already found and repaired — and its docstring states what it does not claim. `HISTORICAL_FORMULATIONS` carries all 21 formulations the four review records quoted, marked one by one: 12 reached, 9 not, each `None` naming why. 37 new tests: 21 historical formulations, 9 pre-repair passages (3 refused, 6 not — the demonstration), 5 representations including a control that two comments five lines apart do **not** join, the coverage arithmetic itself, and the licence-count regression. |
+| R9-2 | **Blocker.** `6d0fdd5` changed manifest-covered `PREREG-REVIEW.md` without regenerating `STUDY-MANIFEST.sha256`, so HEAD fails `test_study_manifest_is_exact` — an exact-set scorer precondition, which makes a registered run terminal-invalid. | **Fixed, in the same commit as the ledger and banner edits this block writes.** The manifest is regenerated after every manifest-covered edit here rather than after the source edits alone; the path set is unchanged at 60 entries and the digests that move are exactly the files this block touches. The root cause is recorded under *Round-9 fixes*: `6d0fdd5` was the one commit in this loop written by hand to file a review record, and it skipped the regeneration step every agent-written block performed. Filing the record is not exempt from the discipline the record is about. |
+| R8-2, R8-3, R8-4, `h08` | **Resolved**, each confirmed by name: the comment records the connector-store write preceding the awaited outer-row update; every numeric identity a witness claims is validated before sorting, keying or replay, with `pass:1.0` and `pass:1e0` refusing on both sides and the differing layer-local codes accepted; the R6-5-residue citation is correct; and the `h08` note is byte-identical to the authored holdout with its disposition in `DEVIATIONS.md`. | No change. |
+
+**No registered expectation changed in either stratum, no verdict code was added, and no
+vocabulary member moved.** The before/after snapshot over all three layer outcomes, every
+published `suppressed` code and every upstream engagement list, for all 35 cells by direct layer
+calls, is **zero drift** — a fifth consecutive round, and this time over a block that is prose,
+tests and a manifest only.
+
+**Standing after nine rounds.** Every blocker from rounds 1–8 is closed; round 9's two are closed
+here. The shape of this round is a fourth recurrence and an honest end to it: the guard round 8
+wrote to close the class was itself a list — a list of phrases rather than a list of sites — and
+round 9 showed how to walk around it. The answer is not a longer list, because the stems that
+would finish the job are the apparatus's own words; it is to say so in the test, count what the
+test does and does not reach, and leave the remainder where it has been all along, with the
+review loop. **The study does not freeze on this record.** Round 10 has not run; its job is to
+decide whether the rescoped backstop's claims match its behavior, whether the nine repaired
+passages say only what §9 permits, and whether the manifest and the suite are green on the tree
+it reads.

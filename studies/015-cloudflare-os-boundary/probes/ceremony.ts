@@ -667,10 +667,10 @@ async function drainCheck(
   //
   // Round 7 (R7-4): this was two loops, and the second asked whether the witness's
   // gatekeeper had a *key* in the ledger's claim map rather than whether the two lists
-  // agreed. A witness that applied nothing still inserted its key above, so an engaged
-  // empty witness over a queue the pinned drainer leaves alone — a perfectly coherent
-  // pass, and the shape a manual-approval history produces — was refused for claiming an
-  // application it does not claim. Empty equals empty.
+  // agreed. A witness accounting for nothing still inserted its key above, so an engaged
+  // empty witness beside rows that claim no auto-approval — a record this ceremony
+  // accepts — was refused for claiming an application it does not claim. Empty equals
+  // empty.
   for (const gatekeeperId of new Set([...claimed.keys(), ...replayed.keys()])) {
     const seen = (replayed.get(gatekeeperId) ?? []).slice().sort((a, b) => a - b);
     const expected = (claimed.get(gatekeeperId) ?? []).slice().sort((a, b) => a - b);

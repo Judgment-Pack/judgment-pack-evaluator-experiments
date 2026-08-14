@@ -603,6 +603,98 @@ either registry moved. `harness/STUDY-MANIFEST.sha256` is regenerated: its path 
 at 60 entries, and the digests that move are exactly the source and document files this block
 edits.
 
+## Round-9 fixes (pre-freeze)
+
+Round 9 confirmed round 8's other three dispositions and its `h08` ruling, and returned two
+blockers: the guard round 8 wrote to close the withdrawn-claim class is porous in four separate
+ways and the class is still on live surfaces, and the tree at `6d0fdd5` cannot pass its own
+manifest gate. Both are dispositioned in `PREREG-REVIEW.md`; the protocol-relevant changes are
+recorded here.
+
+**No registered expectation changed in either stratum, no verdict code was added, and no
+vocabulary member moved.** A before/after snapshot of all three layer outcomes, every published
+`suppressed` code and every upstream engagement list, over all 35 cells and by direct layer calls,
+showed **zero drift** — a fifth consecutive round, and this block touches no adjudication path at
+all: it is prose, tests and a manifest.
+
+- **R9-1a — the nine passages.** The five ranges round 9 named carry nine passages, repaired to
+  say only what this apparatus registers. `verify.py`'s `pending` bullet no longer says a crash
+  leaves a pair retained or that round 7 refused something producible; it says the two connector
+  paths write their own record before the outer row, that between those two writes the pair is
+  one this study registers no rule against, and — in the same words §9 uses — that admitting a
+  pair records what the ceremony will not refuse and never that a store came to hold it that way.
+  The `rejected` paragraph speaks of an ordinary tuple the matrix admits rather than of what a
+  queue produces. `_check_ledger_lifecycle`'s summary line and its closing sentence, and
+  `_connector_outcome_problems`'s docstring, say the registered matrix admits rather than what a
+  pinned source can write or produce. SPEC §5's witness paragraph and the matching comment in
+  `ceremony.ts` say an engaged witness accounting for no application beside rows that claim none
+  is a record this ceremony accepts, and drop the drainer's behavior entirely.
+- **R9-1b — the backstop, mechanically.** Four repairs, each to a way a phrase could hide rather
+  than to a phrase. **F-strings:** CPython 3.12 (PEP 701) no longer emits an f-string as one
+  `STRING` token, so a claim written inside one was invisible to a `COMMENT`/`STRING` reader; the
+  extractor now reads `FSTRING_MIDDLE`, drops the delimiters, and therefore also joins the two
+  halves either side of a replacement field. **Markers:** `#`, `//`, block-comment rails, bullets,
+  headings and quote marks are stripped per line, so `... pair` on one line and `retained` on the
+  next read as one sentence instead of as `pair # retained`. **String values:** a literal is read
+  through `ast.literal_eval`, so its quotes cannot break a phrase and two adjacent literals join.
+  **Runs:** prose is grouped into runs of consecutive lines and runs are joined by a break
+  character no pattern can cross — the same change that closes the wrap also has to stop the
+  scanner inventing a phrase from two passages that are not one, and a control test asserts two
+  comments five lines apart do not join. **Licences:** each entry now registers an exact
+  occurrence count at its anchor. Round 9 found the ±400-character window wide enough for a new
+  claim written beside a licensed passage to inherit its licence; the count refuses the extra
+  occurrence by arithmetic. Twelve entries, one of which covers three occurrences and says which
+  three.
+- **R9-1c — the backstop is rescoped, because the honest scope is the narrow one.** Two stems are
+  added — `can actually` (which subsumes round 7's `can actually retain` and round 9's `can
+  actually write`) and `\bproducible\b` (word-bounded, so `reproducible` is not swept in) — plus
+  one gapped pattern for `leaves … retained`. The stems that would close the *rest* of the class
+  are **not** added and will not be: `admits` and a bare `produces` are this apparatus's own
+  registered vocabulary — the matrix admits tuples, evaluators produce dispositions — and a
+  backstop that refuses the language the study is written in is a backstop that gets deleted.
+  So the test says what it is. Its docstring names it a **lexical backstop over formulations
+  already found and repaired**, states that it is not a semantic check and does not decide
+  whether a new sentence asserts a withdrawn claim, and hands semantic completeness back to the
+  review loop, which has been carrying it all along. `HISTORICAL_FORMULATIONS` makes that
+  auditable rather than rhetorical: all 21 formulations rounds 6 through 9 quoted as offending,
+  each marked with the phrase class that reaches it or with `None` and the reason — 12 reached,
+  9 not. `ROUND_NINE_REPAIRS` does the same for this block's own nine passages: 3 refused by the
+  hardened list before repair, 6 not. Both counts are themselves asserted, so widening a stem
+  fails the suite until the numbers here are restated. 37 new tests, 198 in the suite.
+- **R9-2 — the manifest, in this commit.** `harness/STUDY-MANIFEST.sha256` is regenerated after
+  the ledger and banner edits above, not before them, so the commit that changes manifest-covered
+  documents is the commit that carries their digests.
+
+**The lesson this round records, first half: a list of phrases is still a list.** Round 8's rule
+was "when the same class survives two repairs, stop repairing instances and write the check". The
+check was written, and round 9 walked around it four times — twice by wording and twice by
+representation. The rule survives, with the correction round 9 forced: a lexical check cannot
+close a semantic class, and the failure mode is not porosity, it is a check whose docstring claims
+the class while its code holds a list. What a mechanical guard is *for* is making a known defect
+unrepeatable; what it must then say is that this is all it does. Coverage that is written down and
+counted is worth more than coverage that is implied, because the implied kind is what let three
+rounds believe the class was closed.
+
+**And the second half: the record-filing commit is not exempt.** Every fix block in this loop
+regenerated the manifest before committing. `6d0fdd5` — the one commit written by hand, to file a
+verbatim review record — edited `PREREG-REVIEW.md`, which the manifest covers, and skipped the
+step. The tree then failed the exact-set precondition the scorer runs before anything is
+adjudicated, which would have made a registered run terminal-invalid, and it stayed that way
+until a reviewer ran the suite. The rule taken forward: manifest regeneration belongs to the
+*edit*, not to the *kind of work*, and the commits that carry the study's own history are the
+ones most likely to be made outside the discipline they record.
+
+### Fixture bytes changed at the round-9 fixes
+
+**None.** No commitment, no ledger, no platform store, no evaluation envelope, no report, no
+evidence artifact and no cell manifest changed in either stratum, and
+`reviews/round-1/MATRIX-HOLDOUT.authored.json` is byte-preserved. `MATRIX-HOLDOUT.json` and
+everything under `reviews/` and `pilots/` are untouched. `MATRIX.json` is unchanged — no cell's
+construction, note or `expected` value moved, and `m02`'s construction keeps the licence it
+already had. `harness/STUDY-MANIFEST.sha256` is regenerated: its path set is unchanged at 60
+entries, and the digests that move are exactly the documents and sources this block edits, plus
+`PREREG-REVIEW.md`, whose digest `6d0fdd5` left stale.
+
 ## Apparatus
 
 - **Probe toolchain (pre-freeze, apparatus only).** The probe layer was designed to run under

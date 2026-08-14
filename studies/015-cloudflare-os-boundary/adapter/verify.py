@@ -121,18 +121,19 @@ CONNECTOR_OUTCOMES = (
 #   (`overseer.ts:7707-7732`); the connector's `reject` proceeds only from `pending` and
 #   throws for `applying`, `applied` and `failed` (`action-store.ts:201-211`). Therefore
 #   `rejected` admits `rejected`.
-# * `pending` is every history in which the outer transition never happened: an
-#   undispatched call (`pending`), a determinate failure (`failed` — `action-store.ts:157-158`
-#   under the pinned source's own `callMayHaveTakenEffect` false), and the at-most-once
-#   ambiguity (the same lines with it true, which is `outcome-unknown` here). It also
-#   admits BOTH determinate resolutions, through the two symmetric crash windows, because
-#   each connector path persists its own record before the outer row is written:
-#   `action-store.ts:196` saves `applied` before `applyAction` returns, and
-#   `action-store.ts:209` writes `rejected` before `overseer.ts:7729-7732` updates the
-#   outer row. A Durable Object that dies in either window leaves exactly that pair
-#   retained. Round 7 (R7-1) found only the first window admitted, which refused a
-#   producible history on the reject side; what the report table below refuses is not the
-#   history but any *claim* about it.
+# * `pending` is the outer state a row still carries when the outer transition has not
+#   been written: an undispatched call (`pending`), a determinate failure (`failed` —
+#   `action-store.ts:157-158` under the pinned source's own `callMayHaveTakenEffect`
+#   false), and the at-most-once ambiguity (the same lines with it true, which is
+#   `outcome-unknown` here). It also admits BOTH determinate resolutions, because the two
+#   connector paths write their own record and the outer row in that order — the ordering
+#   is at `action-store.ts:196` before `applyAction` returns, and at `action-store.ts:209`
+#   before `overseer.ts:7729-7732` updates the outer row — so between those two writes the
+#   pair is one this study registers no rule against. Round 7 (R7-1) admitted only the
+#   apply side, so the matrix refused on the reject side a tuple the same reading admits on
+#   the apply side. What the report table below refuses is not the tuple but any *claim*
+#   about it. Admitting a pair records what the ceremony will not refuse, never that a
+#   store came to hold it that way (PREREGISTRATION §9).
 LIFECYCLE_CONNECTOR_OUTCOMES = {
     "pending": ("committed", "failed", "outcome-unknown", "pending", "rejected"),
     "approved": ("committed",),
@@ -144,9 +145,9 @@ LIFECYCLE_CONNECTOR_OUTCOMES = {
 #
 # Round 6 registered a *gap* here: a bound call the approver refused had no supportable
 # report state, because the five-state vocabulary had none for "staged, then refused".
-# Round 7 (R7-1) withdrew that framing — an ordinary completed rejection is the most
-# ordinary history the queue produces, and a store that cannot say so is a store that
-# reports it wrongly or not at all. `rejected` is a value of the report's `execution`
+# Round 7 (R7-1) withdrew that framing — a completed rejection is an ordinary tuple the
+# matrix above admits, and a store that cannot say so is a store that reports it wrongly
+# or not at all. `rejected` is a value of the report's `execution`
 # field, not a binding verdict code, and it is the one vocabulary member this round adds.
 REPORT_CONNECTOR_OUTCOMES = {
     "staged": ("failed", "pending"),
@@ -880,7 +881,7 @@ def _load_context(cell):
 # --------------------------------------------------------------------------
 
 def _check_ledger_lifecycle(context):
-    """Every action row's lifecycle tuple against what the platform can actually write.
+    """Every action row's lifecycle tuple against the shapes this layer registers.
 
     Round 4 found lifecycle validity was enforced only inside an engaged drain replay, so
     a cell whose ledger claimed no auto-approval was never checked at all, and nine
@@ -901,9 +902,8 @@ def _check_ledger_lifecycle(context):
     rejected row is a member the chokepoint never writes there, and `is not None` said
     otherwise. And the row is joined to the staged call sharing its identity, because the
     outer lifecycle state and the flattened `connectorOutcome` scalar are not independent
-    — `LIFECYCLE_CONNECTOR_OUTCOMES` above derives which pairs the pinned source can
-    produce, and a store holding any other pair is not internally consistent whatever it
-    reports.
+    — `LIFECYCLE_CONNECTOR_OUTCOMES` above registers which pairs this matrix admits, and a
+    store holding any other pair is not internally consistent whatever it reports.
     """
     problems = []
     for entry in context.ledger_actions:
@@ -967,7 +967,7 @@ def _connector_outcome_problems(context, entry, label, state):
     A row with no staged call, or with more than one, contributes nothing here — the
     first retains no scalar to contradict and the second has no single reading, which
     step 10 refuses on its own. Where exactly one call joins, the pair must be one the
-    pinned source can produce (`LIFECYCLE_CONNECTOR_OUTCOMES`).
+    registered matrix admits (`LIFECYCLE_CONNECTOR_OUTCOMES`).
     """
     calls = context.calls_for(entry)
     if len(calls) != 1:
