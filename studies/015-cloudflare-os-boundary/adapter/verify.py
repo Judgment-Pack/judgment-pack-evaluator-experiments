@@ -22,7 +22,9 @@ Two properties the binding layer holds to, both round-1 findings:
 
 import hashlib
 import json
+import re
 import subprocess
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import commitment as cmt
@@ -90,6 +92,71 @@ CONNECTOR_OUTCOMES = (
     "rejected",
     "outcome-unknown",
 )
+
+# Strict RFC 3339 `date-time`. Every retained instant is a serialized platform `Date`, so
+# a string that merely *parses* — a bare date, a space separator, an unqualified local
+# time — is not one the platform can have written. Round 5 found such a string was
+# accepted and then compared, which makes a lifecycle or queue reading quietly wrong
+# instead of refused, so both sides now validate the grammar before reading the instant.
+_RFC3339 = re.compile(
+    r"^(\d{4})-(\d{2})-(\d{2})[Tt]"
+    r"(\d{2}):(\d{2}):(\d{2})(\.\d+)?"
+    r"([Zz]|[+-]\d{2}:\d{2})$"
+)
+
+
+def rfc3339_instant(value):
+    """The instant a strict RFC 3339 `date-time` names, or None if it is not one."""
+    match = _RFC3339.match(value) if isinstance(value, str) else None
+    if match is None:
+        return None
+    year, month, day, hour, minute, second = (int(match.group(i)) for i in range(1, 7))
+    fraction = float(match.group(7) or 0)
+    offset = match.group(8)
+    if offset in ("Z", "z"):
+        delta = timedelta(0)
+    else:
+        hours, minutes = int(offset[1:3]), int(offset[4:6])
+        if hours > 23 or minutes > 59:
+            return None
+        delta = (1 if offset[0] == "+" else -1) * timedelta(hours=hours, minutes=minutes)
+    if second == 60:
+        # RFC 3339 admits the leap second, but the platform serializes a JS `Date`, which
+        # has no such value — so it is not a stamp the platform can write, and the node
+        # side refuses it identically.
+        return None
+    try:
+        stamp = datetime(year, month, day, hour, minute, second, tzinfo=timezone.utc)
+    except ValueError:
+        return None
+    return stamp - delta + timedelta(seconds=fraction)
+
+
+def _is_int(value):
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _resolver_problems(resolver, label):
+    """An `AiChatAuthorInfo` is a complete triple upstream (`api.ts:1777`).
+
+    Round 5 found only `.id` was ever compared, so a resolver carrying the right id under
+    a different name or actor type read as the same author. The whole tuple is the
+    identity on both sides now; here it is the tuple's *shape* that is held, because the
+    binding layer has no independent attribution to compare against.
+    """
+    if not isinstance(resolver, dict):
+        return ["%s records a resolver that is not an author record" % label]
+    problems = []
+    if resolver.get("type") not in ("user", "agent", "gadget"):
+        problems.append(
+            "%s records resolver type %r, which is out of the platform's own vocabulary"
+            % (label, resolver.get("type"))
+        )
+    for member in ("id", "name"):
+        value = resolver.get(member)
+        if not isinstance(value, str) or not value:
+            problems.append("%s records a resolver with no %s" % (label, member))
+    return problems
 
 
 def result(verdict, code=None, detail=None, suppressed=()):
@@ -342,34 +409,61 @@ class Context:
             if cmt.arguments_digest(effect.get("arguments")) == expected
         ]
 
-    @property
-    def governed_applications(self):
-        """Every approved ledger action row on the governed tool and resource.
+    def governed_inventory(self):
+        """Approved ledger action rows, classified against the governed resource.
 
-        Counted from the LEDGER, not by joining through retained staged calls: round 4
-        found that an approved governed row with no staged call was simply invisible.
-        A row is governed when its own denormalized resource is the governed one and the
-        staged call it names — if any — is for the governed tool.
+        Returns `(governed, problems)`. A row is governed when its own denormalized
+        resource — or, absent one, the resource of the gatekeeper it names — is the
+        resource the map governs. Counted from the LEDGER, not by joining through
+        retained staged calls: round 4 found that an approved governed row with no staged
+        call was simply invisible.
+
+        **Nothing is discarded silently.** Round 5 found two silent `continue`s here.
+        The tool named by a staged call sharing the row's identity no longer removes the
+        row from the inventory at all — a wrong-tool call was enough to erase an
+        otherwise governed approval — and a row that cannot be classified (an unretained
+        gatekeeper, no resource anywhere, or a denormalized resource its own gatekeeper
+        contradicts) is reported as a problem, which step 10 refuses. A row on a
+        *coherently different* resource is out of scope, which is not the same thing.
         """
-        governed = []
-        by_identity = {
-            (call.get("gatekeeperId"), call.get("action")): call
-            for call in self.platform.get("stagedCalls") or []
-        }
+        governed, problems = [], []
         for entry in self.ledger_actions:
             if entry.get("state") != "approved":
                 continue
-            call = by_identity.get((entry.get("gatekeeperId"), entry.get("action")))
+            label = "ledger id %s" % entry.get("id")
             gatekeeper = self.gatekeeper(entry.get("gatekeeperId"))
-            resource = entry.get("resourceUrl") or (
-                gatekeeper.get("resourceUrl") if gatekeeper else None
-            )
-            if resource != cmt.RESOURCE_URL:
+            row_resource = entry.get("resourceUrl")
+            gate_resource = gatekeeper.get("resourceUrl") if gatekeeper else None
+            if gatekeeper is None:
+                problems.append(
+                    "%s names gatekeeper %r, which the retained store does not hold, so "
+                    "the row cannot be inventoried"
+                    % (label, entry.get("gatekeeperId"))
+                )
                 continue
-            if call is not None and call.get("toolName") != cmt.ACTION_TOOL:
+            if (
+                row_resource is not None
+                and gate_resource is not None
+                and row_resource != gate_resource
+            ):
+                problems.append(
+                    "%s carries resource %r while the gatekeeper it names carries %r"
+                    % (label, row_resource, gate_resource)
+                )
                 continue
-            governed.append(entry)
-        return governed
+            resource = row_resource if row_resource is not None else gate_resource
+            if resource is None:
+                problems.append(
+                    "%s carries no resource and its gatekeeper supplies none" % label
+                )
+                continue
+            if resource == cmt.RESOURCE_URL:
+                governed.append(entry)
+        return governed, problems
+
+    @property
+    def governed_applications(self):
+        return self.governed_inventory()[0]
 
     def gatekeeper(self, gatekeeper_id):
         for candidate in self.platform.get("gatekeepers") or []:
@@ -380,6 +474,71 @@ class Context:
     @property
     def handoff_state(self):
         return (self.disposition.get("handoff") or {}).get("state")
+
+
+# The registered drain-witness shape (SPEC section 0's retained-record model). The witness
+# is study instrumentation, so its field set is closed exactly like the commitment's.
+_WITNESS_FIELDS = (
+    "appliedActionIds",
+    "at",
+    "gatekeeperId",
+    "gatekeeperPresent",
+    "pass",
+    "rules",
+)
+_WITNESS_RULE_FIELDS = ("actionKind", "enabledBy", "gatekeeperId")
+
+
+def _drain_witness_problem(platform):
+    """The retained drain witnesses, held to that shape at store load.
+
+    Round 5 found the witness was cast rather than validated, so a malformed witness
+    could reach the drain replay and slip past the attribution comparison the replay
+    rests on. A witness that is not the registered shape makes the retained store
+    unreadable — the same gate as an absent ledger, and never a detection.
+    """
+    witnesses = platform.get("drainWitnesses")
+    if witnesses is None:
+        return None
+    if not isinstance(witnesses, list):
+        return "the retained drain witnesses are not a list"
+    for index, witness in enumerate(witnesses):
+        where = "drain witness %d" % index
+        if not isinstance(witness, dict) or tuple(sorted(witness)) != _WITNESS_FIELDS:
+            return "%s does not carry the registered witness field set" % where
+        if not _is_int(witness["gatekeeperId"]) or not _is_int(witness["pass"]):
+            return "%s carries a non-integer gatekeeper id or pass number" % where
+        if rfc3339_instant(witness["at"]) is None:
+            return "%s carries %r, which is not an RFC 3339 instant" % (
+                where,
+                witness["at"],
+            )
+        if not isinstance(witness["gatekeeperPresent"], bool):
+            return "%s does not record whether the gatekeeper was present" % where
+        applied = witness["appliedActionIds"]
+        if not isinstance(applied, list) or any(not _is_int(item) for item in applied):
+            return "%s does not carry an integer applied-action-id list" % where
+        rules = witness["rules"]
+        if not isinstance(rules, list):
+            return "%s does not carry a rule list" % where
+        for rule in rules:
+            if not isinstance(rule, dict) or tuple(sorted(rule)) != _WITNESS_RULE_FIELDS:
+                return "%s carries a rule that is not the registered shape" % where
+            if not _is_int(rule["gatekeeperId"]):
+                return "%s carries a rule with a non-integer gatekeeper id" % where
+            kind = rule["actionKind"]
+            if (
+                not isinstance(kind, dict)
+                or tuple(sorted(kind)) != ("label", "tag")
+                or not all(
+                    isinstance(kind[member], str) and kind[member]
+                    for member in ("label", "tag")
+                )
+            ):
+                return "%s carries a rule with no action kind" % where
+            if _resolver_problems(rule["enabledBy"], where):
+                return "%s carries a rule whose enabler is not an author record" % where
+    return None
 
 
 def _load_context(cell):
@@ -418,6 +577,9 @@ def _load_context(cell):
             "retained-store-unreadable",
             "the retained ledger or platform store is absent or unreadable",
         )
+    witness_problem = _drain_witness_problem(platform)
+    if witness_problem is not None:
+        return None, ("retained-store-unreadable", witness_problem)
     context.ledger = ledger
     context.platform = platform
 
@@ -466,36 +628,59 @@ def _check_ledger_lifecycle(context):
     (`overseer.ts:2493-2498`) and at the reject path (`:7727-7732`) — and `autoApproved`
     is set only alongside an approval (`auto-approval.ts:85`, there is no automatic
     rejection). This check runs for every cell, in the binding layer, always.
+
+    Round 5 closed four more shapes the chokepoint cannot write: an approval carrying no
+    `autoApproved` boolean at all (it is a required argument there, both ways), the flag
+    in *any* other state rather than only a claimed automatic rejection, a resolver that
+    is not a complete `AiChatAuthorInfo`, and a timestamp that is not a strict RFC 3339
+    date-time.
     """
     problems = []
     for entry in context.ledger_actions:
         label = "ledger id %s" % entry.get("id")
         state = entry.get("state")
-        stamped = entry.get("appliedAt") is not None
-        resolved_by = entry.get("resolvedBy") is not None
+        created, applied = entry.get("createdAt"), entry.get("appliedAt")
+        created_at, applied_at = rfc3339_instant(created), rfc3339_instant(applied)
+        resolver = entry.get("resolvedBy")
         auto = entry.get("autoApproved")
+        if created_at is None:
+            problems.append(
+                "%s carries createdAt %r, which is not an RFC 3339 date-time"
+                % (label, created)
+            )
+        if applied is not None and applied_at is None:
+            problems.append(
+                "%s carries appliedAt %r, which is not an RFC 3339 date-time"
+                % (label, applied)
+            )
         if state == "pending":
-            if stamped:
+            if applied is not None:
                 problems.append("%s is pending but carries a resolution stamp" % label)
-            if resolved_by:
+            if resolver is not None:
                 problems.append("%s is pending but records a resolver" % label)
-            if auto is not None:
-                problems.append("%s is pending but records an auto-approval flag" % label)
         elif state in ("approved", "rejected"):
-            if not stamped:
+            if applied is None:
                 problems.append("%s is %s with no resolution stamp" % (label, state))
-            if not resolved_by:
+            if resolver is None:
                 problems.append("%s is %s with no resolver" % (label, state))
+            else:
+                problems.extend(_resolver_problems(resolver, label))
+            if state == "approved" and not isinstance(auto, bool):
+                problems.append(
+                    "%s is approved and records no autoApproved boolean; the one approve "
+                    "chokepoint requires it and persists it either way "
+                    "(overseer.ts:2493-2498)" % label
+                )
         else:
             problems.append("%s carries state %r, which is out of the platform's own "
                             "vocabulary" % (label, state))
-        if auto is True and state != "approved":
+        if auto is not None and state != "approved":
             problems.append(
-                "%s claims auto-approval in state %r; the platform has no automatic "
-                "rejection" % (label, state)
+                "%s records autoApproved %r in state %r; upstream persists the flag only "
+                "alongside an approval, and it has no automatic rejection"
+                % (label, auto, state)
             )
-        created, applied = entry.get("createdAt"), entry.get("appliedAt")
-        if isinstance(created, str) and isinstance(applied, str) and applied < created:
+        if created_at is not None and applied_at is not None and applied_at < created_at:
             problems.append("%s is resolved before it was created" % label)
     if problems:
         return "ledger-lifecycle-invalid", "; ".join(problems[:4])
@@ -760,10 +945,14 @@ def _check_action_map(context):
 def _check_binding_reuse(context):
     """One decision, one action — counted over the judged SUBJECT, not over labels.
 
-    Two questions are asked. Is one commitment claimed by more than one call or record
-    (reuse in the narrow sense)? And does the store hold more calls or applications
-    against the judged subject than the map authorizes at all, whatever digest they
-    carry or omit? The second is round 2's blocker: an unlabelled twin was invisible.
+    Three questions are asked. Is one commitment claimed by more than one call or record
+    (reuse in the narrow sense)? Can the store be read at all — are gatekeeper ids,
+    ledger ids and staged-call join identities unique, and is every approved row
+    classifiable against the governed resource? And does the store hold more calls or
+    applications against the judged subject than the map authorizes, whatever digest they
+    carry or omit? The third is round 2's blocker (an unlabelled twin was invisible); the
+    second is round 5's (ambiguity was resolved by silent preference or silent discard,
+    both of which hide an application).
     """
     bound = context.bound_calls
     applied = context.applied_bound
@@ -779,6 +968,29 @@ def _check_binding_reuse(context):
                 "binding-reuse",
                 "more than one ledger record claims the bound staged call",
             )
+
+    # Identity uniqueness, fail-closed on both sides. Round 5 found gatekeeper ids and
+    # ledger ids were never required to be unique at all: Python resolved the first
+    # duplicate and the TypeScript replay's `Map` kept the last, so one store could be
+    # read two ways. Upstream assigns both from monotonic counters, so a duplicate is a
+    # state it cannot write and neither reading may be preferred.
+    gatekeeper_ids = [
+        repr(candidate.get("id"))
+        for candidate in context.platform.get("gatekeepers") or []
+    ]
+    if len(gatekeeper_ids) != len(set(gatekeeper_ids)):
+        return (
+            "binding-reuse",
+            "two retained gatekeepers share one id, so no record can be resolved to a "
+            "resource or trust tier unambiguously",
+        )
+    ledger_ids = [repr(entry.get("id")) for entry in context.ledger]
+    if len(ledger_ids) != len(set(ledger_ids)):
+        return (
+            "binding-reuse",
+            "two ledger records share one id, so no application can be counted "
+            "unambiguously",
+        )
 
     calls = context.platform.get("stagedCalls") or []
     identities = [(call.get("gatekeeperId"), call.get("action")) for call in calls]
@@ -831,8 +1043,14 @@ def _check_binding_reuse(context):
             )
 
     # Applications are inventoried from the ledger itself, so an approved governed row
-    # with no staged call cannot hide (round 4, blocker 1).
-    applications = context.governed_applications
+    # with no staged call cannot hide (round 4, blocker 1) — and a row the inventory
+    # cannot classify is refused rather than dropped (round 5, R4-1).
+    applications, ambiguous = context.governed_inventory()
+    if ambiguous:
+        return (
+            "binding-reuse",
+            "the governed inventory cannot be resolved: " + "; ".join(ambiguous[:3]),
+        )
     if len(applications) > authorized:
         return (
             "binding-reuse",

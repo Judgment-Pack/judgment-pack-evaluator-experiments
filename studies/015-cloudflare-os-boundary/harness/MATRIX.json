@@ -708,7 +708,7 @@
         "connectorOutcome",
         "evidenceArtifacts"
       ],
-      "construction": "the dispatched call timed out after the request left the connector: the private connector action is failed and non-retryable, and the OUTER workspace record therefore remains pending, because the platform only transitions it after the gatekeeper call returns. The honest bridge reports applied-unproven",
+      "construction": "the dispatched call timed out after the request left the connector: the OUTER workspace record therefore remains pending, because the platform only transitions it after the gatekeeper call returns, and what the cell retains of the dispatch is the flattened connectorOutcome scalar 'outcome-unknown' — the private connector row, its retryability and its error detail are not retained and are not joined here. The honest bridge reports applied-unproven",
       "expected": {
         "upstream": "not-engaged",
         "binding": "pass",

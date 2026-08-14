@@ -143,6 +143,58 @@ posture is offline-first and the boundary map does not need it). Concretely:
   as proof of source history, and any wording that suggested otherwise is in scope for the
   round-5/6 source-of-truth sweep.
 
+### Apparatus items closed at round 5/6
+
+Each is a decision recorded before implementation; none changes a registered expectation, and a
+rebuild of both strata after them reproduced every frozen fixture byte-for-byte.
+
+- **C1 — a record resolved before the witness instant is registered, not refused.** Exclusion
+  from that pass's queue is legitimate history, and SPEC §5 (upstream step 2) now says so
+  instead of leaving the acceptance implicit.
+- **C4 — the queue boundary is registered as strict `resolved < at`.** Equality reads as
+  not-yet-resolved at the witness and keeps the row in the queue, which is the reading the
+  registered baseline relies on. Behaviour unchanged; no fixture churn.
+- **C3 — timestamps are strict RFC 3339 on both sides.** A serialized `Date` always is one, so
+  a parseable near-miss (bare date, space separator, unqualified local time, `:60` leap second)
+  is refused rather than compared: `ledger-lifecycle-invalid` in the binding layer,
+  `drain-order-violation` in the replay.
+- **C5 — an `approved` action row must carry an `autoApproved` boolean**, since the one approve
+  chokepoint takes it as a required argument and persists it either way. The decision also
+  called for the builder to attach the boolean to *every* approved row and for `o01`/`m01` to be
+  regenerated; that part is **withdrawn as source-impossible**. The only approved rows lacking
+  the flag are the two `type: "observation"` records, which upstream writes with none of the
+  resolution fields (`overseer.ts:2688`, `:2859`) and whose server-side type has no such member
+  at all — the pinned compiler rejects it (`error TS2353`). Attaching it would have manufactured
+  exactly the class of unproducible fixture this study refuses, so the check is scoped to action
+  rows and no fixture byte changed.
+- **C6 — an `autoApproved` value of any kind outside `approved` is refused**, `false` as firmly
+  as `true`: nothing but the approve chokepoint ever writes the flag.
+- **C2 — attribution compares the whole author tuple.** Actor type, id and display name are the
+  complete `AiChatAuthorInfo`; the drain replay compares all three against what the pinned
+  drainer passed, and the binding layer holds every resolver to that shape.
+- **C7 — the drain witness is validated at store load.** It was cast, never checked, so a
+  malformed witness could reach the replay and slip past the attribution comparison. Its field
+  set is now closed like the commitment's, and a witness that is not that shape is
+  `retained-store-unreadable` — an apparatus verdict, never a detection.
+- **B2/B3 — the governed inventory is fail-closed.** Two silent `continue`s are gone: a
+  wrong-tool staged call sharing an approved row's join identity no longer erases that row from
+  the inventory, and a row that cannot be classified at all (unretained gatekeeper, no resource
+  anywhere, a denormalized resource its own gatekeeper contradicts) is refused under
+  `binding-reuse` rather than discarded.
+- **B4 — duplicate identities are refused on both sides.** Duplicate gatekeeper ids, ledger ids
+  and staged-call join identities gave one store two readings (this side resolved the first
+  duplicate, the node replay's `Map` the last). Upstream assigns both ids from monotonic
+  counters, so neither reading may be preferred: `binding-reuse` here,
+  `classification-refused` there.
+- **B5 — the step-10 identity wording is corrected.** Inventory scope is the governed tool and
+  resource; the *bound call's* arguments are compared by digest at step 12. The sentence that
+  said scope included "exact arguments" contradicted both the implementation and round 4's own
+  disposition.
+- **C8 — the ambiguity trace is described as the flattened scalar it is.** SPEC's report
+  vocabulary, the §0a provenance row and `m02`'s registry construction no longer narrate a
+  private connector row: what is retained is the `connectorOutcome` scalar, and the private
+  row, its retryability and its error detail are not.
+
 ## Apparatus
 
 - **Probe toolchain (pre-freeze, apparatus only).** The probe layer was designed to run under

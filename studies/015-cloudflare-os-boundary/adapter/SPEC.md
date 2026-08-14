@@ -65,7 +65,7 @@ it does not.
 | Resource revision at apply | not retained | not retained | **instrumentation** |
 | Commitment carrier | none — no digest or signature over any record | none | **instrumentation**, wholly |
 | Simulation basis | not retained; `awaitDecision` is an inverted advisory hint | not retained (MCP hardcodes `awaitDecision: true`) | **removed from the schema** — unreachable for this connector (§4b) |
-| Connector outcome / retryability | not retained; the outer log has no failure state at all | yes (`error`, `retryable`), within a 100-record window | **instrumentation** at the outer layer |
+| Connector outcome / retryability | not retained; the outer log has no failure state at all | yes (`error`, `retryable`), within a 100-record window | **instrumentation**, and flattened: one `connectorOutcome` scalar at the outer layer, never the private row, its retryability or its error detail |
 | External effect attestation, **and the identity of the staged call that produced it** | none — `approved` means an in-process call returned | first-party response only | **instrumentation**, wholly; the call identity is what makes `unbound-execution` a causal join rather than a count |
 | Drain witness (stage-time rule set, pass identity, pass instant, applied ids, gatekeeper presence) | not retained; rules are hard-deleted with no tombstone (`overseer.ts:7762`) | n/a | **instrumentation, and self-asserted** — supplied by the same store under examination, so the verdict is consistency-with-the-witness, never historical lawfulness (§5) |
 | Record timestamps (`createdAt`, `appliedAt`) | **yes**, stock; `appliedAt` is stamped on approve *and* reject | n/a | the queue reconstruction; never read as evidence of application |
@@ -281,6 +281,14 @@ platform endorsing anything. When a construction gives them nothing to decide th
    classified by the pinned `classifyTool(tool, trust)` over the retained catalog and trust
    tier, comes out `autoApprovable: false` or `mode: "read"`; or a call claimed to have taken
    the read path classifies as an action. The platform's own policy would not have done it.
+   This step also refuses a store that has **more than one reading**: two retained
+   gatekeepers sharing an id, two ledger records sharing an id, or two staged calls sharing
+   a `(gatekeeperId, action)` join identity. Upstream assigns both ids from monotonic
+   counters, so a duplicate is a state it cannot write, and round 5 found the two sides
+   silently disagreed about which duplicate wins (this runner's maps kept the last, the
+   binding layer's lookups the first). Neither reading may be preferred, so the classifier
+   is given nothing and the layer refuses; the binding layer refuses the same stores under
+   `binding-reuse`.
 2. `drain-order-violation` — replaying the pinned `AutoApprovalDrainer` does not reproduce the
    claimed applications. The replay is against a **stage-time witness**, not a final snapshot,
    because two facts make a final-snapshot replay unsound in both directions: an auto-approval
@@ -293,9 +301,22 @@ platform endorsing anything. When a construction gives them nothing to decide th
    is stamped on both approve (`overseer.ts:2495`) and reject (`overseer.ts:7730`) — it is a
    *resolution* stamp, never read here as evidence of application. A row whose state and
    resolution stamp disagree is refused outright rather than excluded, and a witnessed
-   auto-approval that records no `resolvedBy` fails, because upstream always attributes one.
-   A ledger that claims an auto-approval with no witness fails; so does a witness claiming an
-   application the ledger does not record.
+   auto-approval whose `resolvedBy` is not the **whole** author tuple the pinned drainer
+   passed — actor type, id and display name, the complete `AiChatAuthorInfo`
+   (`api.ts:1777`) — fails, because upstream always attributes one and round 5 found only
+   the id was compared. A ledger that claims an auto-approval with no witness fails; so does
+   a witness claiming an application the ledger does not record.
+
+   **The queue boundary is `resolved < at`, registered.** A row already resolved *before*
+   the witness instant is legitimate history and is excluded from that pass's queue — the
+   platform resolves records between passes, and the lifecycle clause above is what makes
+   the exclusion checkable rather than convenient. Equality is the other way: a row whose
+   resolution stamp is exactly the witness instant reads as **not yet resolved** at that
+   instant and stays in the queue, which is the reading the registered baseline relies on.
+   Both instants must be strict RFC 3339 `date-time`s on both sides of the ceremony — the
+   platform serializes a JS `Date`, so a string that merely parses (a bare date, a space
+   separator, an unqualified local time, a `:60` leap second) is not one it can have
+   written, and a row or witness carrying one is refused rather than compared.
 
    **What this verdict does and does not establish, normatively.** The witness is
    *self-asserted*: it is supplied by the same retained store the ceremony is examining, is
@@ -310,6 +331,15 @@ platform endorsing anything. When a construction gives them nothing to decide th
    *queue* is reconstructed from the ledger's own records rather than from the witness, so an
    obstruction cannot be erased by resolving it later.
 
+   The witness's own shape is **validated at store load**, not assumed: its field set is
+   closed exactly as the commitment's is (`gatekeeperId`, `pass`, `at`, `appliedActionIds`,
+   `rules`, `gatekeeperPresent`, each with its registered type, every rule carrying a
+   gatekeeper id, an action kind and a complete author record as its enabler). Round 5 found
+   the witness was cast rather than checked, so a malformed one could reach the replay and
+   slip past the attribution comparison the replay rests on. A witness that is not that
+   shape makes the retained store unreadable (`retained-store-unreadable`), which is an
+   apparatus verdict about the store, never a detection about the bridge.
+
 ### Layer `binding` — the adapter ceremony
 
 Two gate conditions abort the layer before any check runs, because nothing downstream is
@@ -321,9 +351,14 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
    write. Upstream sets `state`, `appliedAt` and `resolvedBy` together at the approve chokepoint
    (`overseer.ts:2493-2498`) and at the reject path (`:7727-7732`), and `autoApproved` only
    alongside an approval (there is no automatic rejection), so: a `pending` row carrying a
-   resolution stamp, a resolver or an auto-approval flag; an `approved`/`rejected` row missing a
-   stamp or a resolver; an out-of-vocabulary state; an auto-approval claimed in any state but
-   `approved`; or a row resolved before it was created. This runs for **every** cell in the
+   resolution stamp or a resolver; an `approved`/`rejected` row missing a
+   stamp or a resolver; an out-of-vocabulary state; an `approved` row carrying **no**
+   `autoApproved` boolean, since the chokepoint takes it as a required argument and persists
+   it either way; an `autoApproved` value of any kind in any state but `approved`, since
+   nothing else ever writes the flag; a `resolvedBy` that is not a complete `AiChatAuthorInfo`
+   (`api.ts:1777`) — actor type in vocabulary, non-empty id and non-empty name; a `createdAt`
+   or `appliedAt` that is not a strict RFC 3339 `date-time`, which a serialized `Date` always
+   is; or a row resolved before it was created. This runs for **every** cell in the
    binding layer — round 4 found lifecycle validity was enforced only inside an engaged drain
    replay, so a cell claiming no auto-approval was never checked at all.
 2. `pack-artifact-missing` / `pack-digest-mismatch` — retained pack bytes absent, or their
@@ -353,9 +388,27 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
    approved records on the governed tool and resource than the map authorizes, a governed call
    that is not the one bound to this commitment, or an approved governed record that is not the
    bound one. Counting alone is insufficient — round 5 found a single unbound governed call
-   satisfying the cap while every downstream check skipped it. Subject identity
-   is the tool, resource and exact arguments the map derives — round 2 found that counting only
-   digest-labelled calls let an unlabelled twin execute a second time invisibly.
+   satisfying the cap while every downstream check skipped it.
+
+   **Two identities, kept apart.** The *inventory scope* — what the decision is answerable
+   for — is the tool and resource the map governs, and nothing else; arguments never narrow it,
+   because an attacker chooses those, and round 3 found an exact-arguments filter let a
+   changed-argument twin sit outside the count. What the **bound call's** arguments must be is a
+   separate question, answered by digest at step 12 (`argument-drift`) and, for effects, at
+   step 15. Round 2 found that counting only digest-labelled calls let an unlabelled twin
+   execute a second time invisibly, which is why the scope is labelling-independent.
+
+   **The inventory is closed, and ambiguity refuses rather than discards.** An approved
+   ledger row is governed when its own denormalized resource — or, absent one, the resource of
+   the gatekeeper it names — is the governed resource; the tool named by a staged call sharing
+   its join identity does not remove it, because round 5 found a wrong-tool call was enough to
+   erase an otherwise governed approval. A row that cannot be classified at all — an
+   unretained gatekeeper, no resource anywhere, or a denormalized resource its own gatekeeper
+   contradicts — is refused here, not dropped. So is a store with more than one reading: two
+   retained gatekeepers sharing an id, two ledger records sharing an id, or two staged calls
+   or ledger records sharing a `(gatekeeperId, action)` join identity. The upstream layer
+   refuses the same stores under `classification-refused`, and neither side prefers a
+   duplicate.
 11. `target-mismatch` — the bound staged call's gatekeeper, resource URL, trust tier, tool name,
     or the record's action-kind tag differs from the commitment's `action`.
 12. `argument-drift` — the staged call's arguments do not digest to `action.argumentsDigest`.
@@ -384,7 +437,9 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
     state).
 
 A check that raises is reported as `retained-store-unreadable` rather than taking the layer
-down silently; the same code covers a ledger or platform store that is absent or unparseable.
+down silently; the same code covers a ledger or platform store that is absent or unparseable,
+and a retained drain witness that is not the closed shape step 2 registers. All three are
+statements about the apparatus's inputs, never detections.
 
 ### Layer `replay` — the pinned evaluator
 
@@ -413,7 +468,10 @@ predicate over the retained store** rather than a free-text claim — round 1 fo
 
 The connector outcome vocabulary is `pending`, `committed`, `failed`, `rejected`, `outcome-unknown`. The
 last is the platform's own at-most-once ambiguity: when an MCP dispatch's result is never
-observed, the connector's private record becomes failed and non-retryable while the **outer**
-workspace record stays `pending`, because the platform transitions it only after the gatekeeper
-call returns. `m02-ambiguous-commit` registers that honest trace (all three layers pass, and the
-row is descriptive: pass here does not mean the effect happened).
+observed, the **outer** workspace record stays `pending`, because the platform transitions it
+only after the gatekeeper call returns. What the cell retains for that history is the
+flattened `connectorOutcome` scalar and nothing else — the private connector row, its
+retryability and its error detail are not retained, and no join to a private store exists here
+(SPEC §0a; round 5 asked that this be said where readers rely on it rather than only in the
+retrospective review). `m02-ambiguous-commit` registers that trace (all three layers pass, and
+the row is descriptive: pass here does not mean the effect happened).

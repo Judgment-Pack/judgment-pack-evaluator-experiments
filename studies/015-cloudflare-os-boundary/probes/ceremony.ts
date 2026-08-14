@@ -18,7 +18,9 @@
 // harness/PINS.json. Nothing here reads the registry — expectations never enter a layer.
 //
 // Ordering within the layer (SPEC section 5, first failure wins):
-//   1. classification-refused   — classifyTool over every routing decision the ledger claims
+//   1. classification-refused   — a store with two readings (duplicate gatekeeper ids,
+//                                 ledger ids or staged-call join identities), then
+//                                 classifyTool over every routing decision the ledger claims
 //   2. drain-order-violation    — AutoApprovalDrainer replayed against the stage-time witness
 
 import { execFileSync } from "node:child_process";
@@ -122,6 +124,61 @@ function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
+// Every retained instant is a serialized platform `Date`, so it must be a strict RFC 3339
+// date-time. `Date.parse` accepts far more than that — bare dates, unqualified local
+// times, implementation-defined forms — and round 5 found such a string was read as an
+// instant and compared rather than refused. A `:60` leap second is refused too: the
+// platform serializes a JS `Date`, which has no such value, so it is not a stamp it can
+// write. `adapter/verify.py` applies the same grammar to the same fields.
+const RFC3339 = /^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[+-]\d{2}:\d{2})$/;
+
+function rfc3339(value: unknown): number | null {
+  if (typeof value !== "string" || !RFC3339.test(value)) return null;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+// An `AiChatAuthorInfo` is a complete triple upstream (`api.ts:1777`): actor type, id and
+// display name. Round 5 found only `.id` was compared, so the same id under a different
+// name or actor type read as the same author. The key below is the whole tuple, and a
+// value that is not a complete author record has no key at all.
+function authorKey(value: unknown): string | null {
+  const author = value as { type?: unknown; id?: unknown; name?: unknown } | undefined;
+  if (!author || typeof author !== "object") return null;
+  if (author.type !== "user" && author.type !== "agent" && author.type !== "gadget") {
+    return null;
+  }
+  if (typeof author.id !== "string" || author.id === "") return null;
+  if (typeof author.name !== "string" || author.name === "") return null;
+  return JSON.stringify([author.type, author.id, author.name]);
+}
+
+function firstDuplicate(keys: string[]): string | null {
+  const seen = new Set<string>();
+  for (const key of keys) {
+    if (seen.has(key)) return key;
+    seen.add(key);
+  }
+  return null;
+}
+
+// The retained store must have exactly one reading. Round 5 found that gatekeeper ids,
+// ledger ids and staged-call join identities were never required to be unique: the `Map`s
+// below keep the LAST duplicate while the Python ceremony resolves the FIRST, so one
+// store could be read two ways and neither reading is preferable. Upstream assigns both
+// ids from monotonic counters, so a duplicate is a state it cannot write.
+function storeAmbiguity(ledger: LedgerEntry[], platform: PlatformStore): string | null {
+  const gatekeeper = firstDuplicate((platform.gatekeepers ?? []).map((g) => String(g.id)));
+  if (gatekeeper !== null) return `two retained gatekeepers share id ${gatekeeper}`;
+  const record = firstDuplicate(ledger.map((entry) => String(entry.id)));
+  if (record !== null) return `two ledger records share id ${record}`;
+  const call = firstDuplicate(
+    (platform.stagedCalls ?? []).map((c) => `${c.gatekeeperId}:${c.action}`),
+  );
+  if (call !== null) return `two staged calls share the join identity ${call}`;
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // check 1 — classification (pinned classifyTool over every claimed routing)
 // ---------------------------------------------------------------------------
@@ -130,6 +187,19 @@ function classificationCheck(
   ledger: LedgerEntry[],
   platform: PlatformStore,
 ): { verdict: Verdict | null; engaged: boolean } {
+  const ambiguity = storeAmbiguity(ledger, platform);
+  if (ambiguity !== null) {
+    // Fail closed before the pinned classifier is given anything: with two readings of
+    // the store there is no determinate routing to classify.
+    return {
+      verdict: fail(
+        "classification-refused",
+        `${ambiguity}, so the retained store has no single reading and no claimed ` +
+          `routing can be classified against it`,
+      ),
+      engaged: false,
+    };
+  }
   const gatekeepers = new Map(platform.gatekeepers.map((g) => [g.id, g]));
   const staged = new Map(
     platform.stagedCalls.map((c) => [`${c.gatekeeperId}:${c.action}`, c]),
@@ -232,8 +302,8 @@ function makeStorage(): AutoApprovalStorage {
 // sound, and why a resolution stamp is never read as evidence of application.
 function pendingAt(entry: LedgerEntry, at: number): boolean | null {
   if (entry.type !== "action") return false;
-  const created = Date.parse(entry.createdAt);
-  if (Number.isNaN(created)) return null; // unusable timestamp: refuse, never exclude
+  const created = rfc3339(entry.createdAt);
+  if (created === null) return null; // unusable timestamp: refuse, never exclude
   // Strict lifecycle equivalence: upstream stamps `appliedAt` and `resolvedBy` exactly
   // when a record leaves `pending` (overseer.ts:2495-2496, :7729-7731). A row that is
   // still `pending` yet carries a resolution stamp — or is resolved without one — is a
@@ -243,10 +313,13 @@ function pendingAt(entry: LedgerEntry, at: number): boolean | null {
   const resolvedState = entry.state !== "pending";
   if (resolvedStamped !== resolvedState) return null;
   if (resolvedStamped) {
-    const resolved = Date.parse(entry.appliedAt as string);
-    if (Number.isNaN(resolved)) return null;
+    const resolved = rfc3339(entry.appliedAt);
+    if (resolved === null) return null;
     if (resolved < created) return null; // resolved before it existed
-    if (resolved < at) return false; // already resolved when the pass ran
+    // Strictly before, and registered as such (SPEC section 5, upstream step 2): a record
+    // resolved before the pass instant is legitimate history and is excluded from that
+    // queue, while equality reads as not-yet-resolved at the witness and stays in it.
+    if (resolved < at) return false;
   }
   return created <= at;
 }
@@ -291,12 +364,12 @@ async function drainCheck(
         engaged: true,
       };
     }
-    const at = Date.parse(witness.at);
-    if (Number.isNaN(at)) {
+    const at = rfc3339(witness.at);
+    if (at === null) {
       return {
         verdict: fail(
           "drain-order-violation",
-          `pass ${witness.pass}: the witness carries no usable instant`,
+          `pass ${witness.pass}: the witness carries no RFC 3339 instant`,
         ),
         engaged: true,
       };
@@ -343,13 +416,14 @@ async function drainCheck(
     }
 
     const applied: number[] = [];
-    const attribution = new Map<number, string | undefined>();
+    const attribution = new Map<number, string | null>();
     const applyFn: ApplyPendingActionFn = async (record, resolvedBy) => {
       applied.push(record.id);
       // Upstream persists the rule enabler as the audit attribution
-      // (auto-approval.ts:85 -> overseer.ts:2496); the replay records what the pinned
-      // drainer passed so a forged `resolvedBy` in the ledger is checkable.
-      attribution.set(record.id, (resolvedBy as { id?: string } | undefined)?.id);
+      // (auto-approval.ts:85 -> overseer.ts:2496); the replay records the whole author
+      // tuple the pinned drainer passed, so a forged or partial `resolvedBy` in the
+      // ledger is checkable.
+      attribution.set(record.id, authorKey(resolvedBy));
       const fresh = storage.actions.get(record.id) as Record<string, unknown> | undefined;
       if (fresh && fresh.type === "action") {
         fresh.state = "approved";
@@ -373,23 +447,38 @@ async function drainCheck(
     }
     for (const id of witnessed) {
       const expected = attribution.get(id);
+      if (expected === undefined) continue; // the pass applied nothing under this id
       const recorded = ledger.find((entry) => entry.id === id);
-      const claimed = (recorded?.resolvedBy as { id?: string } | undefined)?.id;
+      const claimed = authorKey(recorded?.resolvedBy);
       // Attribution is MANDATORY for a witnessed automatic resolution: upstream always
       // persists the rule enabler (auto-approval.ts:85 -> overseer.ts:2496), so a
       // missing `resolvedBy` is itself a state the platform does not produce. Round 3
-      // found that an optional comparison let deletion pass.
-      if (expected !== undefined && claimed === undefined) {
+      // found that an optional comparison let deletion pass; round 5 found the
+      // comparison itself read only `.id`, so the enabler's name and actor type could
+      // be anything.
+      if (expected === null) {
         return {
           verdict: fail(
             "drain-order-violation",
-            `action ${id} is claimed auto-approved but records no resolvedBy; upstream ` +
-              `always attributes an auto-approval to the rule enabler`,
+            `pass ${witness.pass}: the rule that auto-applied action ${id} names an ` +
+              `enabler that is not a complete author record, so the resolution cannot ` +
+              `be attributed at all`,
           ),
           engaged: true,
         };
       }
-      if (expected !== undefined && claimed !== undefined && expected !== claimed) {
+      if (claimed === null) {
+        return {
+          verdict: fail(
+            "drain-order-violation",
+            `action ${id} is claimed auto-approved but records no complete resolvedBy ` +
+              `(type, id and name); upstream always attributes an auto-approval to the ` +
+              `rule enabler`,
+          ),
+          engaged: true,
+        };
+      }
+      if (expected !== claimed) {
         return {
           verdict: fail(
             "drain-order-violation",
