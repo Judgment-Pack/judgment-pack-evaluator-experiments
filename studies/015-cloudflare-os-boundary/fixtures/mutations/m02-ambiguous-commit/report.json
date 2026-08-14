@@ -7,5 +7,5 @@
     "handoffState": "none"
   },
   "execution": "applied-unproven",
-  "note": "dispatch timed out after the request left the connector; the external commit state is unknown and not retryable"
+  "note": "dispatch timed out after the request left the connector; the external commit state is unknown"
 }

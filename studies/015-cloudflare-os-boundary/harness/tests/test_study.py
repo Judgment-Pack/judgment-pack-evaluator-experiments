@@ -126,6 +126,41 @@ def test_execution_states_and_connector_outcomes_are_in_the_spec():
         assert "`%s`" % state in text, state
 
 
+def test_the_registered_outcome_matrix_is_the_enforced_one():
+    """Vocabulary sync for round 6's compatibility matrix (R6-2).
+
+    SPEC section 5 registers which flattened `connectorOutcome` scalar may stand beside
+    which outer lifecycle state, and which report state may claim it of the bound call.
+    `verify.py` enforces two dicts. This reads the registered table back out of the
+    document and asserts they are the same matrix — the SPEC's table is the registration,
+    and a table that drifts from what runs is the unreachable prose this study forbids.
+    """
+    section = spec_text().split("### Retained outcome compatibility", 1)[1]
+    rows = [
+        line for line in section.splitlines() if line.startswith("| `")
+    ]
+    assert {row.split("|")[1].strip().strip("`") for row in rows} == set(
+        verify.CONNECTOR_OUTCOMES
+    )
+    for row in rows:
+        columns = row.split("|")
+        scalar = columns[1].strip().strip("`")
+        registered_states = set(re.findall(r"`([a-z-]+)`", columns[2]))
+        registered_reports = set(re.findall(r"`([a-z-]+)`", columns[3]))
+        enforced_states = {
+            state
+            for state, scalars in verify.LIFECYCLE_CONNECTOR_OUTCOMES.items()
+            if scalar in scalars
+        }
+        enforced_reports = {
+            state
+            for state, scalars in verify.REPORT_CONNECTOR_OUTCOMES.items()
+            if scalar in scalars
+        }
+        assert registered_states == enforced_states, scalar
+        assert registered_reports == enforced_reports, scalar
+
+
 def test_not_engaged_is_not_a_pass_anywhere_in_the_scorer():
     """`not-engaged` must be its own outcome, never folded into pass in the vocabulary."""
     assert "not-engaged" in score.LAYER_OUTCOMES["upstream"]
@@ -191,26 +226,36 @@ def test_study_manifest_is_exact():
     assert make_manifest.manifest_problems() == []
 
 
-def test_the_study_manifest_excludes_the_appendable_files_by_construction():
+def test_the_study_manifest_excludes_the_appendable_files_by_construction(monkeypatch):
     """ADR 0004: the manifest covers what must not change, and these two must.
 
     `DEVIATIONS.md` is the only place a post-freeze correction may land, so covering it
     would mean the first genuine deviation broke the anchor the deviation exists to
-    protect; `README.md` carries a status banner that has to be able to change. Both are
-    excluded by a named constant rather than by omission, so a later widening fails here
-    instead of quietly taking the deviation mechanism with it.
+    protect; `README.md` carries a status banner that has to be able to change.
+
+    Round 6 (R6-7) found the earlier version of this test tautological: no candidate glob
+    reached a top-level `.md`, so the filter never met either name and removing the
+    constant changed nothing. The population now includes every top-level `*.md`, and the
+    load-bearing assertion below is the counterfactual — disable the constant and both
+    files enter the manifest, which is what makes their absence a decision.
     """
     assert make_manifest.EXCLUDED_DOCUMENTS == ("DEVIATIONS.md", "README.md")
     covered = make_manifest.manifest_entries()
     for name in make_manifest.EXCLUDED_DOCUMENTS:
         assert (STUDY / name).is_file(), name  # excluded, not merely absent
         assert name not in covered, name
-    # ...and the exclusion is the only reason: the registered documents beside them are
-    # covered, so this is a scoping decision rather than a manifest that misses .md files.
     assert "PREREGISTRATION.md" in covered
     assert "PREREG-REVIEW.md" in covered
     assert "harness/STUDY-MANIFEST.sha256" not in covered, (
         "the manifest must not cover itself either"
+    )
+
+    monkeypatch.setattr(make_manifest, "EXCLUDED_DOCUMENTS", ())
+    widened = make_manifest.manifest_entries()
+    assert "DEVIATIONS.md" in widened
+    assert "README.md" in widened
+    assert set(widened) - set(covered) == {"DEVIATIONS.md", "README.md"}, (
+        "the exclusion is the only difference the constant makes"
     )
 
 

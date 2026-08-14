@@ -124,18 +124,48 @@ function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
-// Every retained instant is a serialized platform `Date`, so it must be a strict RFC 3339
-// date-time. `Date.parse` accepts far more than that — bare dates, unqualified local
-// times, implementation-defined forms — and round 5 found such a string was read as an
-// instant and compared rather than refused. A `:60` leap second is refused too: the
-// platform serializes a JS `Date`, which has no such value, so it is not a stamp it can
-// write. `adapter/verify.py` applies the same grammar to the same fields.
-const RFC3339 = /^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[+-]\d{2}:\d{2})$/;
+// The ONE serialized form the platform can write: `Date.prototype.toISOString()` output,
+// `YYYY-MM-DDTHH:mm:ss.sssZ`. Round 5 narrowed this to a strict RFC 3339 grammar; round 6
+// (R6-5) found that still neither strict nor identical to the Python side — the regex was
+// digit-shaped and the instant then came from `Date.parse`, which normalizes an impossible
+// calendar date (`2026-02-29` silently became March 1) and collapses `.0004Z` and `.0005Z`
+// onto one millisecond, so a genuinely earlier resolution could be retained in the queue
+// and pass its witness.
+//
+// No `Date.parse` and no arithmetic: the calendar is checked by integers and the validated
+// STRING is the instant. The form is fixed-width and UTC, so lexicographic order is
+// chronological order, and `adapter/verify.py` validates and compares exactly the same
+// bytes with exactly the same rule.
+const PLATFORM_INSTANT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$/;
+const MONTH_LENGTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-function rfc3339(value: unknown): number | null {
-  if (typeof value !== "string" || !RFC3339.test(value)) return null;
-  const parsed = Date.parse(value);
-  return Number.isNaN(parsed) ? null : parsed;
+function daysInMonth(year: number, month: number): number {
+  if (month === 2 && year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) return 29;
+  return MONTH_LENGTHS[month - 1];
+}
+
+function platformInstant(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const match = PLATFORM_INSTANT.exec(value);
+  if (match === null) return null;
+  const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
+  if (month < 1 || month > 12) return null;
+  if (day < 1 || day > daysInMonth(year, month)) return null;
+  if (hour > 23 || minute > 59 || second > 59) return null;
+  return value;
+}
+
+// A platform identity is a JSON number assigned from a monotonic counter starting at 1
+// (`overseer.ts:418-422`). Round 6 (R6-3) found the two layers disagreeing about what
+// that means: `String(id)` collapsed `1` and `1.0` here while Python's `repr` kept them
+// apart, so one store was refused upstream and accepted by binding. Booleans coerce to
+// 1/0, `-0` stringifies to `"0"`, and anything past 2^53-1 does not round-trip; all are
+// refused, identically to `_platform_id` in `adapter/verify.py`.
+function platformId(value: unknown): number | null {
+  if (typeof value !== "number") return null;
+  if (!Number.isSafeInteger(value)) return null;
+  if (value < 1) return null;
+  return value;
 }
 
 // An `AiChatAuthorInfo` is a complete triple upstream (`api.ts:1777`): actor type, id and
@@ -167,7 +197,31 @@ function firstDuplicate(keys: string[]): string | null {
 // below keep the LAST duplicate while the Python ceremony resolves the FIRST, so one
 // store could be read two ways and neither reading is preferable. Upstream assigns both
 // ids from monotonic counters, so a duplicate is a state it cannot write.
+//
+// Round 6 (R6-3) added the two things missing from that: every id and join component is
+// held to `platformId` BEFORE it is keyed on, so the two layers cannot disagree about
+// which values are even identities, and the ledger's own `(gatekeeperId, action)` join
+// identities are checked here as the binding layer already checked them.
 function storeAmbiguity(ledger: LedgerEntry[], platform: PlatformStore): string | null {
+  for (const g of platform.gatekeepers ?? []) {
+    if (platformId(g.id) === null) {
+      return `a retained gatekeeper carries id ${JSON.stringify(g.id)}, which is not an identity the platform assigns`;
+    }
+  }
+  for (const entry of ledger) {
+    if (platformId(entry.id) === null) {
+      return `a ledger record carries id ${JSON.stringify(entry.id)}, which is not an identity the platform assigns`;
+    }
+    if (entry.type !== "action") continue;
+    if (platformId(entry.gatekeeperId) === null || platformId(entry.action) === null) {
+      return `ledger record ${entry.id} carries a join identity the platform cannot have assigned`;
+    }
+  }
+  for (const c of platform.stagedCalls ?? []) {
+    if (platformId(c.gatekeeperId) === null || platformId(c.action) === null) {
+      return `a staged call carries a join identity the platform cannot have assigned`;
+    }
+  }
   const gatekeeper = firstDuplicate((platform.gatekeepers ?? []).map((g) => String(g.id)));
   if (gatekeeper !== null) return `two retained gatekeepers share id ${gatekeeper}`;
   const record = firstDuplicate(ledger.map((entry) => String(entry.id)));
@@ -176,6 +230,12 @@ function storeAmbiguity(ledger: LedgerEntry[], platform: PlatformStore): string 
     (platform.stagedCalls ?? []).map((c) => `${c.gatekeeperId}:${c.action}`),
   );
   if (call !== null) return `two staged calls share the join identity ${call}`;
+  const join = firstDuplicate(
+    ledger
+      .filter((entry) => entry.type === "action")
+      .map((entry) => `${entry.gatekeeperId}:${entry.action}`),
+  );
+  if (join !== null) return `two ledger action records share the join identity ${join}`;
   return null;
 }
 
@@ -300,9 +360,9 @@ function makeStorage(): AutoApprovalStorage {
 // yet been resolved. `appliedAt` is stamped on BOTH approve and reject (overseer.ts:2495
 // and :7729), so it is a resolution timestamp — which is what makes this reconstruction
 // sound, and why a resolution stamp is never read as evidence of application.
-function pendingAt(entry: LedgerEntry, at: number): boolean | null {
+function pendingAt(entry: LedgerEntry, at: string): boolean | null {
   if (entry.type !== "action") return false;
-  const created = rfc3339(entry.createdAt);
+  const created = platformInstant(entry.createdAt);
   if (created === null) return null; // unusable timestamp: refuse, never exclude
   // Strict lifecycle equivalence: upstream stamps `appliedAt` and `resolvedBy` exactly
   // when a record leaves `pending` (overseer.ts:2495-2496, :7729-7731). A row that is
@@ -313,7 +373,7 @@ function pendingAt(entry: LedgerEntry, at: number): boolean | null {
   const resolvedState = entry.state !== "pending";
   if (resolvedStamped !== resolvedState) return null;
   if (resolvedStamped) {
-    const resolved = rfc3339(entry.appliedAt);
+    const resolved = platformInstant(entry.appliedAt);
     if (resolved === null) return null;
     if (resolved < created) return null; // resolved before it existed
     // Strictly before, and registered as such (SPEC section 5, upstream step 2): a record
@@ -336,11 +396,18 @@ async function drainCheck(
       claimed.set(entry.gatekeeperId, list);
     }
   }
-  if (claimed.size === 0) {
+  // Witnesses are read BEFORE the early exit, and non-engagement means both sides are
+  // empty. Round 6 (R6-4) found this returning not-engaged the moment the ledger claimed
+  // no auto-approval, which made the reverse accounting at the end of this function
+  // unreachable: a store whose witness claims `appliedActionIds: [1]` while every row
+  // records `autoApproved: false` passed binding, went unexamined upstream, and combined
+  // green — although SPEC section 5 says a witness claiming an application the ledger
+  // does not record fails. A witness is a retained record about this gatekeeper's drain;
+  // that it contradicts the ledger is exactly what there is to check.
+  const witnesses = platform.drainWitnesses ?? [];
+  if (claimed.size === 0 && witnesses.length === 0) {
     return { verdict: null, engaged: false };
   }
-
-  const witnesses = platform.drainWitnesses ?? [];
   if (witnesses.length === 0) {
     return {
       verdict: fail(
@@ -364,12 +431,12 @@ async function drainCheck(
         engaged: true,
       };
     }
-    const at = rfc3339(witness.at);
+    const at = platformInstant(witness.at);
     if (at === null) {
       return {
         verdict: fail(
           "drain-order-violation",
-          `pass ${witness.pass}: the witness carries no RFC 3339 instant`,
+          `pass ${witness.pass}: the witness carries no serialized platform instant`,
         ),
         engaged: true,
       };

@@ -24,7 +24,6 @@ import hashlib
 import json
 import re
 import subprocess
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import commitment as cmt
@@ -93,47 +92,114 @@ CONNECTOR_OUTCOMES = (
     "outcome-unknown",
 )
 
-# Strict RFC 3339 `date-time`. Every retained instant is a serialized platform `Date`, so
-# a string that merely *parses* — a bare date, a space separator, an unqualified local
-# time — is not one the platform can have written. Round 5 found such a string was
-# accepted and then compared, which makes a lifecycle or queue reading quietly wrong
-# instead of refused, so both sides now validate the grammar before reading the instant.
-_RFC3339 = re.compile(
-    r"^(\d{4})-(\d{2})-(\d{2})[Tt]"
-    r"(\d{2}):(\d{2}):(\d{2})(\.\d+)?"
-    r"([Zz]|[+-]\d{2}:\d{2})$"
+# The registered compatibility matrix (SPEC section 5, "Retained outcome compatibility"),
+# derived from the pinned source. Round 6 (R6-2) found `applied` refusing only
+# `outcome-unknown` and nothing correlating the flattened scalar with the outer row at
+# all, so a store carrying `connectorOutcome: "rejected"` on an `approved` record with an
+# `applied` report came out completely green — against a README that says green means the
+# retained store is internally consistent.
+#
+# Which outer lifecycle state each scalar can stand beside:
+#
+# * `approved` is written at one chokepoint, *after* `await gatekeeper.applyAction(...)`
+#   returns (`overseer.ts:2490-2497`). The connector's apply reaches its success tail —
+#   `state = "applied"` (`action-store.ts:172-173`) — only when the dispatch returned;
+#   every other path throws (`:136-144` pre-state guards, `:155-169` the catch that writes
+#   `failed` and rethrows), and a throw propagates out of `applyAction` so the assignment
+#   is never reached. Therefore `approved` admits `committed` and nothing else.
+# * `rejected` is written at one path, after `await gatekeeper.rejectAction(...)`
+#   (`overseer.ts:7707-7732`); the connector's `reject` proceeds only from `pending` and
+#   throws for `applying`, `applied` and `failed` (`action-store.ts:201-211`). Therefore
+#   `rejected` admits `rejected` and nothing else.
+# * `pending` is every history in which the outer transition never happened: an
+#   undispatched call (`pending`), a determinate failure (`failed`, `retryable: true` —
+#   `action-store.ts:157-158` with `callMayHaveTakenEffect` false), and the at-most-once
+#   ambiguity (the same lines with it true, which is `outcome-unknown` here). `committed`
+#   is admitted too, and only under `pending`: the connector persists `applied` at
+#   `action-store.ts:196` before `applyAction` returns, so a Durable Object that dies
+#   before the outer `put` at `overseer.ts:2497` leaves exactly that pair retained.
+#   Refusing it would refuse a producible history; what the report table below refuses is
+#   any *claim* about it.
+LIFECYCLE_CONNECTOR_OUTCOMES = {
+    "pending": ("committed", "failed", "outcome-unknown", "pending"),
+    "approved": ("committed",),
+    "rejected": ("rejected",),
+}
+
+# And which scalar each report state may claim of the BOUND call. `none` names no call, so
+# it names no outcome; `rejected` appears in no row, because a bound call the approver
+# refused is not `none` (a call is bound), not `staged` (its record is not pending) and
+# not applied or attested — the registered five-state vocabulary has no state for it and
+# every predicate already refuses each one. That gap is registered, not papered over.
+REPORT_CONNECTOR_OUTCOMES = {
+    "staged": ("failed", "pending"),
+    "applied": ("committed",),
+    "applied-unproven": ("outcome-unknown",),
+    "effect-attested": ("committed",),
+}
+
+# The ONE serialized form the platform can write: `Date.prototype.toISOString()` output,
+# `YYYY-MM-DDTHH:mm:ss.sssZ` — four-digit year, three fraction digits, UTC, no offsets, no
+# lowercase separators, no leap second. Round 5 narrowed the grammar to "strict RFC 3339",
+# and round 6 (R6-5) found that still neither strict nor identical across the two layers:
+# RFC 3339 admits offsets and any fraction width, this side parsed the fraction through
+# `float` (so an extreme valid-shaped fraction raised `OverflowError` out of a check
+# instead of returning a result), and the node side finished with `Date.parse`, which
+# normalizes an impossible calendar date and collapses sub-millisecond neighbours.
+#
+# One form, validated identically on both sides, and the *string itself* is the instant:
+# the form is fixed-width and UTC, so lexicographic order is chronological order and no
+# side does arithmetic at all. Nothing here can raise.
+_PLATFORM_INSTANT = re.compile(
+    r"^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$"
 )
+_MONTH_LENGTHS = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
-def rfc3339_instant(value):
-    """The instant a strict RFC 3339 `date-time` names, or None if it is not one."""
-    match = _RFC3339.match(value) if isinstance(value, str) else None
+def _days_in_month(year, month):
+    if month == 2 and (year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)):
+        return 29
+    return _MONTH_LENGTHS[month - 1]
+
+
+def platform_instant(value):
+    """The canonical stamp a serialized platform `Date` is, or None if it is not one.
+
+    Returns the validated string, which is the comparable instant: `probes/ceremony.ts`
+    applies the same grammar and the same calendar check to the same fields and compares
+    the same bytes.
+    """
+    match = _PLATFORM_INSTANT.match(value) if isinstance(value, str) else None
     if match is None:
         return None
     year, month, day, hour, minute, second = (int(match.group(i)) for i in range(1, 7))
-    fraction = float(match.group(7) or 0)
-    offset = match.group(8)
-    if offset in ("Z", "z"):
-        delta = timedelta(0)
-    else:
-        hours, minutes = int(offset[1:3]), int(offset[4:6])
-        if hours > 23 or minutes > 59:
-            return None
-        delta = (1 if offset[0] == "+" else -1) * timedelta(hours=hours, minutes=minutes)
-    if second == 60:
-        # RFC 3339 admits the leap second, but the platform serializes a JS `Date`, which
-        # has no such value — so it is not a stamp the platform can write, and the node
-        # side refuses it identically.
+    if not 1 <= month <= 12:
         return None
-    try:
-        stamp = datetime(year, month, day, hour, minute, second, tzinfo=timezone.utc)
-    except ValueError:
+    if not 1 <= day <= _days_in_month(year, month):
         return None
-    return stamp - delta + timedelta(seconds=fraction)
+    if hour > 23 or minute > 59 or second > 59:
+        return None
+    return value
 
 
-def _is_int(value):
-    return isinstance(value, int) and not isinstance(value, bool)
+# The platform's identities are JSON numbers assigned from monotonic counters starting at
+# 1 (`overseer.ts:418-422`) and read back through V8, so an identity is a non-Boolean
+# integer in [1, 2^53-1] — and nothing else. Round 6 (R6-3) found the two layers
+# disagreeing about that: this side deduplicated `repr(id)`, so a second gatekeeper with
+# `id: 1.0` survived uniqueness and then aliased `id: 1` at lookup, while the node side
+# stringified both as `"1"` and refused; Booleans coerce to 1/0 in JavaScript and are
+# `int` in Python; `-0` and anything past 2^53-1 round-trip through neither. Both layers
+# now settle what an identity is before either looks one up or counts one.
+MAX_SAFE_INTEGER = 2 ** 53 - 1
+
+
+def _platform_id(value):
+    """True iff `value` is an identity the platform can have assigned."""
+    return (
+        isinstance(value, int)
+        and not isinstance(value, bool)
+        and 1 <= value <= MAX_SAFE_INTEGER
+    )
 
 
 def _resolver_problems(resolver, label):
@@ -368,6 +434,19 @@ class Context:
         matches = self.records_for(call)
         return matches[0] if len(matches) == 1 else None
 
+    def calls_for(self, entry):
+        """The reverse join: every staged call sharing an action row's identity.
+
+        Cardinality is the caller's business, exactly as it is for `records_for` — a
+        store holding two of either has more than one reading and is refused at step 10.
+        """
+        return [
+            call
+            for call in self.platform.get("stagedCalls") or []
+            if call.get("gatekeeperId") == entry.get("gatekeeperId")
+            and call.get("action") == entry.get("action")
+        ]
+
     @property
     def applied_bound(self):
         applied = []
@@ -409,21 +488,29 @@ class Context:
         ]
 
     def governed_inventory(self):
-        """Approved ledger action rows, classified against the governed resource.
+        """Approved ledger action rows, classified against the governed tool and resource.
 
         Returns `(governed, problems)`. A row is governed when its own denormalized
         resource — or, absent one, the resource of the gatekeeper it names — is the
-        resource the map governs. Counted from the LEDGER, not by joining through
-        retained staged calls: round 4 found that an approved governed row with no staged
-        call was simply invisible.
+        resource the map governs, **and** its own retained action-kind label is the tool
+        the map governs. Counted from the LEDGER, not by joining through retained staged
+        calls: round 4 found that an approved governed row with no staged call was simply
+        invisible.
 
-        **Nothing is discarded silently.** Round 5 found two silent `continue`s here.
-        The tool named by a staged call sharing the row's identity no longer removes the
-        row from the inventory at all — a wrong-tool call was enough to erase an
-        otherwise governed approval — and a row that cannot be classified (an unretained
-        gatekeeper, no resource anywhere, or a denormalized resource its own gatekeeper
-        contradicts) is reported as a problem, which step 10 refuses. A row on a
-        *coherently different* resource is out of scope, which is not the same thing.
+        **Classified by the row's own record, never by a joined call.** Round 5 removed a
+        discard keyed on the staged call's tool name, and round 6 (R6-6) found the
+        replacement resource-only: a coherent `tracker_close_work_item` approval on the
+        governed resource was counted against the create-work-item authorization and
+        refused as `binding-reuse`, although the SPEC's normative scope is "the governed
+        tool and resource … and nothing else". The label the row itself retains is what
+        classifies it, in both directions: a target-tool row stays governed even when a
+        staged call sharing its identity says otherwise, and a coherently different-tool
+        row is out of scope the same way a different-resource row is.
+
+        **Nothing is discarded silently.** A row that cannot be classified — an unretained
+        gatekeeper, no resource anywhere, a denormalized resource its own gatekeeper
+        contradicts, no retained action-kind label, or a label its own action-kind tag
+        contradicts — is reported as a problem, which step 10 refuses.
         """
         governed, problems = [], []
         for entry in self.ledger_actions:
@@ -456,7 +543,29 @@ class Context:
                     "%s carries no resource and its gatekeeper supplies none" % label
                 )
                 continue
-            if resource == cmt.RESOURCE_URL:
+            if resource != cmt.RESOURCE_URL:
+                continue
+            kind = (entry.get("description") or {}).get("actionKind") or {}
+            tool, tag = kind.get("label"), kind.get("tag")
+            if not isinstance(tool, str) or not tool:
+                problems.append(
+                    "%s is on the governed resource and retains no action-kind label, so "
+                    "it cannot be classified against the governed tool" % label
+                )
+                continue
+            if isinstance(tag, str) and tag:
+                # `actionKindFor` is `encodeURIComponent(scope) + ":" + encodeURIComponent(tool)`
+                # (`tools.ts:94`), and the scope's own colons are encoded, so the tool is
+                # everything after the one literal colon. A row whose tag and label name
+                # different tools describes two different actions to two different readers.
+                if tag.rsplit(":", 1)[-1] != cmt.encode_uri_component(tool):
+                    problems.append(
+                        "%s carries action-kind label %r beside a tag naming a different "
+                        "tool (%r), so what it records cannot be classified"
+                        % (label, tool, tag)
+                    )
+                    continue
+            if tool == cmt.ACTION_TOOL:
                 governed.append(entry)
         return governed, problems
 
@@ -505,26 +614,30 @@ def _drain_witness_problem(platform):
         where = "drain witness %d" % index
         if not isinstance(witness, dict) or tuple(sorted(witness)) != _WITNESS_FIELDS:
             return "%s does not carry the registered witness field set" % where
-        if not _is_int(witness["gatekeeperId"]) or not _is_int(witness["pass"]):
-            return "%s carries a non-integer gatekeeper id or pass number" % where
-        if rfc3339_instant(witness["at"]) is None:
-            return "%s carries %r, which is not an RFC 3339 instant" % (
+        if not _platform_id(witness["gatekeeperId"]) or not _platform_id(witness["pass"]):
+            return "%s carries a gatekeeper id or pass number that is not a platform " \
+                   "identity" % where
+        if platform_instant(witness["at"]) is None:
+            return "%s carries %r, which is not a serialized platform instant" % (
                 where,
                 witness["at"],
             )
         if not isinstance(witness["gatekeeperPresent"], bool):
             return "%s does not record whether the gatekeeper was present" % where
         applied = witness["appliedActionIds"]
-        if not isinstance(applied, list) or any(not _is_int(item) for item in applied):
-            return "%s does not carry an integer applied-action-id list" % where
+        if not isinstance(applied, list) or any(
+            not _platform_id(item) for item in applied
+        ):
+            return "%s does not carry a list of platform action identities" % where
         rules = witness["rules"]
         if not isinstance(rules, list):
             return "%s does not carry a rule list" % where
         for rule in rules:
             if not isinstance(rule, dict) or tuple(sorted(rule)) != _WITNESS_RULE_FIELDS:
                 return "%s carries a rule that is not the registered shape" % where
-            if not _is_int(rule["gatekeeperId"]):
-                return "%s carries a rule with a non-integer gatekeeper id" % where
+            if not _platform_id(rule["gatekeeperId"]):
+                return "%s carries a rule whose gatekeeper id is not a platform " \
+                       "identity" % where
             kind = rule["actionKind"]
             if (
                 not isinstance(kind, dict)
@@ -585,9 +698,10 @@ def _effect_problem(platform):
         if tuple(sorted(source)) != fields:
             return "%s claims %r provenance in the wrong shape" % (where, source["kind"])
         if source["kind"] == "staged-call" and not (
-            _is_int(source["gatekeeperId"]) and _is_int(source["action"])
+            _platform_id(source["gatekeeperId"]) and _platform_id(source["action"])
         ):
-            return "%s names a staged call with a non-integer identity" % where
+            return "%s names a staged call whose identity the platform cannot have " \
+                   "assigned" % where
     return None
 
 
@@ -682,36 +796,48 @@ def _check_ledger_lifecycle(context):
     Round 5 closed four more shapes the chokepoint cannot write: an approval carrying no
     `autoApproved` boolean at all (it is a required argument there, both ways), the flag
     in *any* other state rather than only a claimed automatic rejection, a resolver that
-    is not a complete `AiChatAuthorInfo`, and a timestamp that is not a strict RFC 3339
-    date-time.
+    is not a complete `AiChatAuthorInfo`, and a timestamp that is not a serialized
+    platform instant.
+
+    Round 6 closed two more (R6-4, R6-2). The three resolution-only members are read by
+    KEY PRESENCE, not by `.get()`: an explicit `autoApproved: null` on a pending or
+    rejected row is a member the chokepoint never writes there, and `is not None` said
+    otherwise. And the row is joined to the staged call sharing its identity, because the
+    outer lifecycle state and the flattened `connectorOutcome` scalar are not independent
+    — `LIFECYCLE_CONNECTOR_OUTCOMES` above derives which pairs the pinned source can
+    produce, and a store holding any other pair is not internally consistent whatever it
+    reports.
     """
     problems = []
     for entry in context.ledger_actions:
         label = "ledger id %s" % entry.get("id")
         state = entry.get("state")
         created, applied = entry.get("createdAt"), entry.get("appliedAt")
-        created_at, applied_at = rfc3339_instant(created), rfc3339_instant(applied)
+        created_at, applied_at = platform_instant(created), platform_instant(applied)
+        has_stamp = "appliedAt" in entry
+        has_resolver = "resolvedBy" in entry
+        has_auto = "autoApproved" in entry
         resolver = entry.get("resolvedBy")
         auto = entry.get("autoApproved")
         if created_at is None:
             problems.append(
-                "%s carries createdAt %r, which is not an RFC 3339 date-time"
+                "%s carries createdAt %r, which is not a serialized platform instant"
                 % (label, created)
             )
-        if applied is not None and applied_at is None:
+        if has_stamp and applied_at is None:
             problems.append(
-                "%s carries appliedAt %r, which is not an RFC 3339 date-time"
+                "%s carries appliedAt %r, which is not a serialized platform instant"
                 % (label, applied)
             )
         if state == "pending":
-            if applied is not None:
+            if has_stamp:
                 problems.append("%s is pending but carries a resolution stamp" % label)
-            if resolver is not None:
+            if has_resolver:
                 problems.append("%s is pending but records a resolver" % label)
         elif state in ("approved", "rejected"):
-            if applied is None:
+            if not has_stamp:
                 problems.append("%s is %s with no resolution stamp" % (label, state))
-            if resolver is None:
+            if not has_resolver:
                 problems.append("%s is %s with no resolver" % (label, state))
             else:
                 problems.extend(_resolver_problems(resolver, label))
@@ -724,7 +850,7 @@ def _check_ledger_lifecycle(context):
         else:
             problems.append("%s carries state %r, which is out of the platform's own "
                             "vocabulary" % (label, state))
-        if auto is not None and state != "approved":
+        if has_auto and state != "approved":
             problems.append(
                 "%s records autoApproved %r in state %r; upstream persists the flag only "
                 "alongside an approval, and it has no automatic rejection"
@@ -732,9 +858,40 @@ def _check_ledger_lifecycle(context):
             )
         if created_at is not None and applied_at is not None and applied_at < created_at:
             problems.append("%s is resolved before it was created" % label)
+        problems.extend(_connector_outcome_problems(context, entry, label, state))
     if problems:
         return "ledger-lifecycle-invalid", "; ".join(problems[:4])
     return None
+
+
+def _connector_outcome_problems(context, entry, label, state):
+    """The outer row against the flattened scalar its staged call retains.
+
+    A row with no staged call, or with more than one, contributes nothing here — the
+    first retains no scalar to contradict and the second has no single reading, which
+    step 10 refuses on its own. Where exactly one call joins, the pair must be one the
+    pinned source can produce (`LIFECYCLE_CONNECTOR_OUTCOMES`).
+    """
+    calls = context.calls_for(entry)
+    if len(calls) != 1:
+        return []
+    call = calls[0]
+    if "connectorOutcome" not in call:
+        return []
+    outcome = call.get("connectorOutcome")
+    if outcome not in CONNECTOR_OUTCOMES:
+        return [
+            "%s joins a staged call whose connector outcome %r is out of the registered "
+            "vocabulary" % (label, outcome)
+        ]
+    admissible = LIFECYCLE_CONNECTOR_OUTCOMES.get(state)
+    if admissible is None or outcome in admissible:
+        return []
+    return [
+        "%s is %s while its staged call retains connector outcome %r; the platform "
+        "writes that outer state only for %s (SPEC section 5, retained outcome "
+        "compatibility)" % (label, state, outcome, " or ".join(admissible))
+    ]
 
 
 def _check_pack(context):
@@ -1030,9 +1187,49 @@ def _check_binding_reuse(context):
     # duplicate and the TypeScript replay's `Map` kept the last, so one store could be
     # read two ways. Upstream assigns both from monotonic counters, so a duplicate is a
     # state it cannot write and neither reading may be preferred.
+    #
+    # Round 6 (R6-3): uniqueness first needs the two sides to agree on what an identity
+    # IS. This side deduplicated `repr(id)`, so `1.0` and `1` were two keys here and one
+    # key (`"1"`) on the node side — a store that passed binding and was refused upstream.
+    # Every id and join component is now held to `_platform_id` before anything is keyed
+    # on it, identically on both sides, and the raw values are what the uniqueness sets
+    # then hold.
+    for candidate in context.platform.get("gatekeepers") or []:
+        if not _platform_id(candidate.get("id")):
+            return (
+                "binding-reuse",
+                "a retained gatekeeper carries id %r, which is not an identity the "
+                "platform assigns, so no record can be resolved through it"
+                % (candidate.get("id"),),
+            )
+    for entry in context.ledger:
+        if not _platform_id(entry.get("id")):
+            return (
+                "binding-reuse",
+                "a ledger record carries id %r, which is not an identity the platform "
+                "assigns" % (entry.get("id"),),
+            )
+    for entry in context.ledger_actions:
+        for member in ("gatekeeperId", "action"):
+            if not _platform_id(entry.get(member)):
+                return (
+                    "binding-reuse",
+                    "ledger id %s carries %s %r, which is not an identity the platform "
+                    "assigns, so the row cannot be joined to a staged call"
+                    % (entry.get("id"), member, entry.get(member)),
+                )
+    for call in context.platform.get("stagedCalls") or []:
+        for member in ("gatekeeperId", "action"):
+            if not _platform_id(call.get(member)):
+                return (
+                    "binding-reuse",
+                    "a staged call carries %s %r, which is not an identity the platform "
+                    "assigns, so it cannot be joined to a ledger record"
+                    % (member, call.get(member)),
+                )
+
     gatekeeper_ids = [
-        repr(candidate.get("id"))
-        for candidate in context.platform.get("gatekeepers") or []
+        candidate.get("id") for candidate in context.platform.get("gatekeepers") or []
     ]
     if len(gatekeeper_ids) != len(set(gatekeeper_ids)):
         return (
@@ -1040,7 +1237,7 @@ def _check_binding_reuse(context):
             "two retained gatekeepers share one id, so no record can be resolved to a "
             "resource or trust tier unambiguously",
         )
-    ledger_ids = [repr(entry.get("id")) for entry in context.ledger]
+    ledger_ids = [entry.get("id") for entry in context.ledger]
     if len(ledger_ids) != len(set(ledger_ids)):
         return (
             "binding-reuse",
@@ -1247,15 +1444,18 @@ def _check_unbound_execution(context):
             "%d effects on the governed resource are attested where %d approved bound "
             "applications authorize them" % (len(effects), authorized),
         )
-    # Identity, not arithmetic. Round 4 showed that matching counts alone cannot tell an
-    # effect caused by the bound call from one caused by an unretained call with the same
-    # tuple. A retaining deployment records which staged call produced the effect, so the
-    # attestation names it and the ceremony joins on that name rather than inferring it.
+    # Identity, not arithmetic. Round 4 showed that matching counts alone cannot tell a
+    # store whose effect names the bound call from one whose effect names some other,
+    # unretained call with the same tuple. A retaining deployment records the provenance
+    # its writer claims for each effect, so the attestation carries that claim and the
+    # ceremony joins on it rather than inferring an origin from a count. What the join
+    # settles is agreement between two retained records — never that the named call caused
+    # anything (SPEC section 0a; PREREGISTRATION section 9, "no effect causation").
     #
     # Round 5: the name is one arm of a union. An effect that claims the READ PATH or an
     # OUT-OF-BAND origin names no staged call, so there is nothing to join it to. What the
-    # claim buys in either arm is the same and no more: the store says where the effect
-    # came from — and here the store says it did not come from the authorized application.
+    # claim buys in either arm is the same and no more: the store says where it claims the
+    # effect came from — and here it claims something other than the authorized application.
     # Every approved bound application is spoken for by the cap, so a governed effect the
     # store itself sources elsewhere is unaccounted for and refuses. Under a non-executable
     # disposition the zero-authorization return above has already fired, which is why
@@ -1324,6 +1524,13 @@ def _check_report_state(context):
 
     Round 1: only `effect-attested` was correlated with anything retained, so `none`,
     `staged`, `applied` and `applied-unproven` were accepted as free-text claims.
+
+    Round 6 (R6-2): the predicates were correlated with the outer row and, for `applied`,
+    with one forbidden scalar rather than with the admissible one — so `applied` accepted
+    `rejected`, `failed` and `pending` alike, and `staged` and `effect-attested` accepted
+    every scalar there is. Each state now names exactly the scalar the pinned source can
+    have left behind (`REPORT_CONNECTOR_OUTCOMES`), and a state that describes the
+    dispatch is unsupported when the store retains no outcome for the bound call at all.
     """
     report = context.report
     if report is None:
@@ -1360,6 +1567,24 @@ def _check_report_state(context):
             "commitment" % state,
         )
 
+    # Every remaining state describes the dispatch, so the bound call must retain an
+    # outcome and it must be the one that state names.
+    admissible = REPORT_CONNECTOR_OUTCOMES[state]
+    if connector is None:
+        return (
+            "report-state-unsupported",
+            "the report claims execution state %r while the bound staged call retains no "
+            "connector outcome; that state is supported only by %s"
+            % (state, " or ".join(admissible)),
+        )
+    if connector not in admissible:
+        return (
+            "report-state-unsupported",
+            "the report claims execution state %r while the bound staged call retains "
+            "connector outcome %r; that state is supported only by %s (SPEC section 5, "
+            "retained outcome compatibility)" % (state, connector, " or ".join(admissible)),
+        )
+
     if state == "staged":
         if record is not None and record.get("state") != "pending":
             return (
@@ -1376,27 +1601,22 @@ def _check_report_state(context):
         return None
 
     if state == "applied":
+        # The scalar is `committed` by the check above; what remains is the outer row.
+        # It can still be `pending` — that pair is the crash window between the
+        # connector's own save and the outer put — and an applied claim over it is
+        # unsupported, because nothing the workspace retained records the approval.
         if record is None or record.get("state") != "approved":
             return (
                 "report-state-unsupported",
                 "the report claims the action was applied while no single approved "
                 "ledger record is bound to it",
             )
-        if connector == "outcome-unknown":
-            return (
-                "report-state-unsupported",
-                "the connector outcome is unknown; an at-most-once dispatch whose "
-                "result was never observed is applied-unproven, not applied",
-            )
         return None
 
     if state == "applied-unproven":
-        if connector != "outcome-unknown":
-            return (
-                "report-state-unsupported",
-                "the report claims an unproven application while the retained connector "
-                "outcome is %r — unproven is the ambiguity state, not a default" % connector,
-            )
+        # `outcome-unknown` is the scalar this state names, enforced above: an
+        # at-most-once dispatch whose result was never observed. It is the ambiguity
+        # state, never a default, and never a place to put a determinate outcome.
         if effects:
             return (
                 "report-state-unsupported",

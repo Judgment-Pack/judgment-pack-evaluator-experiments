@@ -1,15 +1,20 @@
 # Study 015 — the judgment/staged-action boundary under a governed-agent platform
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Five rounds of
+**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Six rounds of
 cross-vendor review have run and every one returned **DO-NOT-FREEZE**; every finding of
 every round is dispositioned in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus
 was rebuilt around them — including withdrawing one of the study's own recorded findings
 that source verification refuted. Round 5's structural finding is accepted in the direction
 it named first, and the resulting rescope — the claims narrowed to what the apparatus is,
-plus a source-of-truth sweep across every governing document — is applied here
-([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope"). **Round 6 has not run**: the freeze
-waits on it, and until then anything executed is harness validation under `pilots/`,
-labeled as such, and supports no claim beyond "the machinery works".
+plus a source-of-truth sweep across every governing document — is applied here. Round 6
+confirmed the rescope's direction and then found its surfaces lagging and its replacement
+claim outrunning the code: the retained outcome fields were correlated with nothing, two
+layers disagreed about what an identity and an instant are, a witness the ledger
+contradicted was never read, and the governed inventory was resource-only. All seven are
+fixed ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope" and "Round-6 fixes").
+**Round 7 has not run**: the freeze waits on it, and until then anything executed is
+harness validation under `pilots/`, labeled as such, and supports no claim beyond "the
+machinery works".
 
 ## What it is
 
@@ -54,8 +59,10 @@ binding layer can say why that is wrong. (The live Durable Object path never run
 nothing in this study reports what the platform would do at runtime.)
 
 What a green ceremony means, stated narrowly: **the retained store is internally
-consistent, the action it records is the one the registered map derives from the recorded
-judgment, and the judgment itself recomputes.** It is not a claim that any effect physically
+consistent — including the registered compatibility of each action row's lifecycle state,
+the flattened connector outcome its staged call retains, and what the report claims of it
+(`adapter/SPEC.md` §5) — the action it records is the one the registered map derives from
+the recorded judgment, and the judgment itself recomputes.** It is not a claim that any effect physically
 happened (the platform's `approved` state covers its callback returning; MCP delivery is
 at-most-once), not a claim that the judgment is correct, and not a claim that a JPS
 disposition authorizes anything — the disposition→action map is the adapter's contract,
@@ -112,7 +119,7 @@ whether stock Cloudflare OS retains it at all.
 | [`adapter/commitment.py`](adapter/commitment.py) / [`adapter/verify.py`](adapter/verify.py) | Commitment construction; the three-layer ceremony |
 | [`harness/MATRIX.json`](harness/MATRIX.json) | 27 registered cells (locked-replication stratum) |
 | [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json) | 8 reviewer-authored holdout cells (constructed but never adjudicated pre-freeze; scorer refuses) |
-| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Dispositions for all five review rounds: what changed and why — the one living ledger |
+| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Dispositions for all six review rounds: what changed and why — the one living ledger |
 | [`harness/PINS.json`](harness/PINS.json) | Every pin, each classified SCORER (compared before adjudication), CI, or DESCRIPTIVE |
 | [`harness/score.py`](harness/score.py) | The only thing that publishes |
 | [`harness/build_fixtures.py`](harness/build_fixtures.py) | One-time fixture construction (real evaluator runs; upstream identity functions) |

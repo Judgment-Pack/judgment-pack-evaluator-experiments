@@ -682,13 +682,13 @@
         "observedRouting",
         "evidenceArtifacts"
       ],
-      "construction": "the mutating tool is annotated readOnlyHint true by the server; the pinned classifier routes it to the read path (mode read, classifiedBy server-annotation); the effect happens with an observation record and no action record",
+      "construction": "the mutating tool is annotated readOnlyHint true by the server; the pinned classifier routes it to the read path (mode read, classifiedBy server-annotation); the synthetic retained store holds an observation record and an effect attestation whose claimed source is read-path, and no action record at all",
       "expected": {
         "upstream": "pass",
         "binding": "fail:unbound-execution",
         "replay": "pass"
       },
-      "note": "disclosed designed demonstration, not a discovery: upstream documents honouring readOnlyHint on both tiers as a deliberate tradeoff (tools.ts:53-58). The cell shows the queue bypass is real and that only the binding layer notices the effect afterwards. Cannot be cited as a detection"
+      "note": "disclosed designed demonstration, not a discovery: upstream documents honouring readOnlyHint on both tiers as a deliberate tradeoff (tools.ts:53-58). What the cell demonstrates is an offline replay of the pinned functions over a modeled retained store, and only that: replayed over the retained routing, classifyTool agrees the annotated tool is a read, so the platform's own policy asks for no queue record of it, and the binding layer's governed-effect inventory is the one layer that objects to the retained attestation afterwards. Nothing runs at runtime and no effect is shown to have occurred — the store attests one and claims read-path provenance for it. Cannot be cited as a detection"
     },
     {
       "id": "m02-ambiguous-commit",

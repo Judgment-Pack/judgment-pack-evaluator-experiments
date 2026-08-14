@@ -929,11 +929,11 @@ def build_all():
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
     # The at-most-once ambiguity. The OUTER workspace record stays pending, because
-    # overseer.ts only transitions it after applyAction returns. Upstream's own inner
-    # connector action would be failed/non-retryable at this point — but that row is
-    # NOT retained here: what the cell keeps of the dispatch is the flattened
-    # `connectorOutcome` scalar alone, with no retryability, no error detail and no join
-    # to a private store (SPEC section 0a; round 5, R4-2).
+    # overseer.ts only transitions it after applyAction returns. What the cell keeps of
+    # the dispatch is the flattened `connectorOutcome` scalar alone: the private connector
+    # row, its retryability and its error detail are not retained and no join to a private
+    # store exists here, so this construction asserts nothing about any of them (SPEC
+    # section 0a; PREREGISTRATION section 9, "no real private connector record").
     built = builder.build(case_key="proceed")
     timeline = builder.timeline(built)
     # `autoApprovable` is the classifier's verdict for this vetted, non-destructive,
@@ -947,7 +947,7 @@ def build_all():
     emit("m02-ambiguous-commit", built, timeline,
          honest_report(built["envelope"], built["digest"], "applied-unproven",
                        note="dispatch timed out after the request left the connector; "
-                            "the external commit state is unknown and not retryable"))
+                            "the external commit state is unknown"))
 
     build_holdout(builder, emit)
 

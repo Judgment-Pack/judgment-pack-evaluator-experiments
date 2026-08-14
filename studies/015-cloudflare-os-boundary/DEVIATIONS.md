@@ -179,7 +179,10 @@ showed zero drift.
 - **C3 — timestamps are strict RFC 3339 on both sides.** A serialized `Date` always is one, so
   a parseable near-miss (bare date, space separator, unqualified local time, `:60` leap second)
   is refused rather than compared: `ledger-lifecycle-invalid` in the binding layer,
-  `drain-order-violation` in the replay.
+  `drain-order-violation` in the replay. **Narrowed at the round-6 fixes (R6-5):** strict RFC
+  3339 is neither strict enough nor the same grammar twice — it admits offsets and any fraction
+  width, one side finished with `Date.parse` and the other with `float`. The registered form is
+  now the single serialized-`Date` form; see *Round-6 fixes* below.
 - **C5 — an `approved` action row must carry an `autoApproved` boolean**, since the one approve
   chokepoint takes it as a required argument and persists it either way. The decision also
   called for the builder to attach the boolean to *every* approved row and for `o01`/`m01` to be
@@ -294,9 +297,105 @@ showed zero drift.
   it, and a harness test asserts both files exist, neither is covered, and the constant names
   them. The exclusion was already implicit — the manifest lists registered documents explicitly
   and no glob reaches a top-level `.md` — so `STUDY-MANIFEST.sha256` is unchanged; what changes is
-  that it is now deliberate and guarded. This file is the one place a post-freeze correction may
+  that it is now deliberate and guarded. **Corrected at the round-6 fixes (R6-7):** "already
+  implicit" was the defect, not a reassurance — with no candidate reaching a top-level `.md` the
+  filter met neither name and deleting the constant produced the identical manifest, so the
+  safeguard and its test were tautological. The candidate population now includes them; see
+  *Round-6 fixes* below. This file is the one place a post-freeze correction may
   land, so covering it would make the first genuine deviation break the anchor it exists to
   protect. `PINS.json`'s `studyManifest` records the exclusion beside its `covers` list.
+
+## Round-6 fixes (pre-freeze)
+
+Round 6 accepted the round-5 rescope's direction and found two different failures on top of it:
+the sweep had not reached every surface (R6-1, R6-7), and the claim the rescope put in its place
+— that a green ceremony means the retained store is internally consistent — was false on
+executable paths (R6-2 through R6-6). All seven findings are dispositioned in
+`PREREG-REVIEW.md`; the protocol-relevant changes are recorded here.
+
+**No registered expectation changed in either stratum, and no verdict code was added.** A
+before/after snapshot of all three layer outcomes, every published `suppressed` code and every
+upstream engagement list, over all 35 cells and by direct layer calls, showed **zero drift** —
+which is the point, because R6-2, R6-3, R6-4, R6-5 and R6-6 all change adjudication paths.
+
+- **R6-1 — the rescope's surfaces are brought to the rescope's decision.** Causal language is
+  gone from the verifier's comment at the effect join, from the regression's name
+  (`..._catches_substituted_causation` → `..._catches_a_claimed_source_that_is_not_the_bound_call`)
+  and from `MATRIX.json`'s `m01` construction and note, which now say what that cell
+  demonstrates: an offline replay of the pinned functions over a modeled retained store, in
+  which `classifyTool` agrees the annotated tool is a read and the binding layer's governed-effect
+  inventory is the only layer that objects to the retained attestation. Every retryability
+  assertion about `m02` is gone — from its `report.json` note, the builder comment,
+  PREREGISTRATION's D-5, and (as an annotation, since history rows are not rewritten)
+  `PREREG-REVIEW.md`'s round-1 row 6. Five superseded rows in the living ledger gained explicit
+  correction notes, which that file had promised and not delivered.
+- **R6-2 — the retained outcome fields are one registered matrix, derived from source.** SPEC §5
+  gains *Retained outcome compatibility*: which flattened `connectorOutcome` scalar can stand
+  beside which outer lifecycle state, and which report state may claim it of the bound call, with
+  the pinned-source citation for every row. `approved` admits only `committed`; `rejected` only
+  `rejected`; `pending` admits `pending`, `failed` and `outcome-unknown`, and `committed` through
+  the crash window between the connector's own save and the outer put — admitted deliberately,
+  because refusing a producible history is not the repair. Enforced in the existing
+  `ledger-lifecycle-invalid` (the store half, every action row of every cell) and
+  `report-state-unsupported` (the claim half), with one regression per scalar and no new verdict
+  code. Two now-unreachable branches were deleted rather than left as prose the matrix had
+  already made dead. The reviewer's own reproduction — baseline plus `connectorOutcome: rejected`
+  plus `execution: applied` — is one of the five regressions.
+- **R6-3 — both layers settle what an identity is before either keys on one.** Every id and join
+  component must be a non-Boolean integer in `[1, 2^53-1]`. The old asymmetry was real and
+  produced two verdicts for one store: `repr(1.0) != repr(1)` here, `String(1.0) === String(1)`
+  there. `storeAmbiguity()` also gains the ledger's own `(gatekeeperId, action)` identities, which
+  the binding layer had checked since round 5 and the node side never had.
+- **R6-4 — the drain check reads its witnesses before deciding it has nothing to do.**
+  `not-engaged` now requires both an empty claim set and no retained witness, which makes the
+  reverse accounting at the end of that function reachable for the first time. Lifecycle-only
+  members (`appliedAt`, `resolvedBy`, `autoApproved`) are read by key presence, so an explicit
+  `autoApproved: null` is refused as the member the chokepoint never writes there.
+- **R6-5 — one serialized instant form, checked against every fixture first.** Every timestamp
+  the ceremony's grammar reads, in all 35 cells, is already the canonical
+  `YYYY-MM-DDTHH:mm:ss.sssZ`; the only non-conforming stamps in the tree are two JPS pack
+  metadata fields inside `pack.json` (`sources[0].publishedAt`, `metadata.createdAt`), which the
+  ceremony hashes and never parses. That form is therefore registered and enforced identically on
+  both sides — same regex, same integer calendar check, and the validated **string** as the
+  instant, since the form is fixed-width UTC and lexicographic order is chronological order. No
+  `Date.parse`, no `float`, and nothing left that can raise: the `OverflowError` the reviewer
+  reached came from a store-load path outside the per-check guard, and a regression now asserts
+  that same construction returns an apparatus verdict. **This forced no fixture regeneration**,
+  which was the reason for checking before choosing.
+- **R6-6 — the governed inventory is the governed tool and resource, from the row's own record.**
+  Membership now requires the row's `description.actionKind.label` to be the governed tool as well
+  as its resource to be the governed resource. Target-tool rows still stay governed when a joined
+  staged call contradicts them (round 5's B2/B3 repair, unchanged, and `b05` is unaffected in
+  either direction); coherently different-tool rows are out of scope as different-resource rows
+  are; a row with no label or with a label its own action-kind tag contradicts is refused rather
+  than dropped. The reviewer's reproduction — a coherent `tracker_close_work_item` approval and
+  matching call on the governed resource, falsely refused as `binding-reuse` — is a regression
+  that now asserts a **pass**.
+- **R6-7 — the appendable-file exclusion is real rather than implicit.** `make_manifest.py`'s
+  candidate population now globs every top-level `*.md`, so `DEVIATIONS.md` and `README.md` are
+  removed by the filter instead of never having been candidates, and a new protocol document is
+  covered the moment it is written. The test disables the constant and asserts both files enter
+  the manifest, and that they are the only difference it makes. `H` above recorded that the
+  exclusion was "already implicit"; that was the defect, and this is its repair. The manifest's
+  path set is unchanged at 60 entries.
+
+### Fixture bytes changed at the round-6 fixes
+
+Exactly one artifact, in one cell, plus the two manifests that cover it:
+
+- `fixtures/mutations/m02-ambiguous-commit/report.json` — the report `note` loses the words "and
+  not retryable" (R6-1). The private connector row's retryability is not retained by this cell and
+  is registered as asserted nowhere (PREREGISTRATION §9), so the honest bridge's own note may not
+  assert it either. Digest `1dac5dab…` → `5b1326ef…`.
+- `fixtures/mutations/m02-ambiguous-commit/MANIFEST.sha256` — regenerated for that one line; the
+  other eight artifact digests are unchanged.
+- `harness/STUDY-MANIFEST.sha256` — regenerated. Its path set is unchanged; the digests that move
+  are that cell manifest and the source and document files this block edits.
+
+No other fixture byte in either stratum changed: no commitment, no ledger, no platform store, no
+evaluation envelope, no other report, and `reviews/round-1/MATRIX-HOLDOUT.authored.json` is
+byte-preserved. `MATRIX.json` changed in two prose fields of `m01` (`construction`, `note`) and in
+no `expected` value; `MATRIX-HOLDOUT.json` is untouched.
 
 ## Apparatus
 

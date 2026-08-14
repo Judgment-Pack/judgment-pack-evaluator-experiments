@@ -15,6 +15,7 @@ attempt exercises them on every run.
 """
 
 import json
+import shutil
 
 import pytest
 
@@ -108,8 +109,8 @@ def test_ledger_lifecycle_invalid_approval_without_an_autoapproved_boolean(cell_
     assert binding(cell)["code"] == "ledger-lifecycle-invalid"
 
 
-def test_ledger_lifecycle_invalid_non_rfc3339_timestamp(cell_copy):
-    """A serialized `Date` is a strict RFC 3339 date-time; a parseable near-miss is not."""
+def test_ledger_lifecycle_invalid_non_platform_timestamp(cell_copy):
+    """Every retained instant is a serialized `Date`; a parseable near-miss is not one."""
     cell = cell_copy("pos-baseline")
     ledger = load_json(cell / "ledger.json")
     ledger[0]["appliedAt"] = "2026-08-01 00:31:00Z"
@@ -124,6 +125,224 @@ def test_ledger_lifecycle_invalid_partial_resolver(cell_copy):
     ledger[0]["resolvedBy"] = {"id": "governor@example.invalid"}
     dump_json(cell / "ledger.json", ledger)
     assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+# -- round 6: the retained outcome compatibility matrix, one condition per scalar -------
+#
+# SPEC section 5 registers the flattened `connectorOutcome`, the outer lifecycle state and
+# the report state as one derived matrix. Both halves are enforced on existing codes: the
+# store half under `ledger-lifecycle-invalid`, the claim half under
+# `report-state-unsupported`. Each of the five scalars gets a condition.
+
+def _connector_outcome(cell, outcome):
+    platform = load_json(cell / "platform.json")
+    platform["stagedCalls"][0]["connectorOutcome"] = outcome
+    dump_json(cell / "platform.json", platform)
+
+
+def test_lifecycle_refuses_a_rejected_outcome_beside_an_approved_row(cell_copy):
+    """Round 6's reproduction, exactly: the reviewer took the baseline to a complete green
+    result by changing only `connectorOutcome` to `rejected` and the report to `applied`.
+
+    The connector's `reject` proceeds only from `pending` and throws for every other state
+    (`action-store.ts:201-211`), and the outer row is set `rejected` in the same call
+    (`overseer.ts:7707-7732`), so `rejected` beside an `approved` row is a pair the
+    platform cannot have retained.
+    """
+    cell = cell_copy("pos-baseline")
+    _connector_outcome(cell, "rejected")
+    report = load_json(cell / "report.json")
+    report["execution"] = "applied"
+    dump_json(cell / "report.json", report)
+    result = binding(cell)
+    assert result["code"] == "ledger-lifecycle-invalid"
+    assert "rejected" in result["detail"]
+
+
+def test_lifecycle_refuses_a_pending_outcome_beside_an_approved_row(cell_copy):
+    """`approved` is written only after the dispatch returned, so the private row cannot
+    still be waiting to be sent."""
+    cell = cell_copy("pos-baseline")
+    _connector_outcome(cell, "pending")
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+def test_lifecycle_refuses_a_failed_outcome_beside_an_approved_row(cell_copy):
+    """A determinate failure throws out of `applyAction`, so the chokepoint's
+    `record.state = "approved"` is never reached (`overseer.ts:2490-2497`)."""
+    cell = cell_copy("pos-baseline")
+    _connector_outcome(cell, "failed")
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+def test_report_state_refuses_a_committed_outcome_claimed_unproven(cell_copy):
+    """`applied-unproven` is the ambiguity state, never a default and never a place to
+    file a determinate outcome — the claim half of the same matrix."""
+    cell = cell_copy("pos-baseline")
+    report = load_json(cell / "report.json")
+    report["execution"] = "applied-unproven"
+    dump_json(cell / "report.json", report)
+    assert binding(cell)["code"] == "report-state-unsupported"
+
+
+def test_report_state_refuses_an_unknown_outcome_claimed_merely_staged(cell_copy):
+    """The understatement in the other direction: a dispatch whose result was never
+    observed may have landed, so reporting it as still queued hides the ambiguity that
+    `applied-unproven` exists to name."""
+    cell = cell_copy("m02-ambiguous-commit")
+    report = load_json(cell / "report.json")
+    report["execution"] = "staged"
+    dump_json(cell / "report.json", report)
+    assert binding(cell)["code"] == "report-state-unsupported"
+
+
+# -- round 6: identities are settled before anything is keyed on them ------------------
+
+def _second_gatekeeper_with_id(cell, raw_id):
+    """Append a second retained gatekeeper carrying `raw_id`, written as raw JSON.
+
+    The literal matters: `-0` and `1.0` are distinct JSON tokens that read back as one
+    Python value and as two JavaScript values (or the reverse), which is exactly the
+    cross-language aliasing round 6 (R6-3) found.
+    """
+    platform = load_json(cell / "platform.json")
+    twin = json.loads(json.dumps(platform["gatekeepers"][0]))
+    twin["id"] = "@@ID@@"
+    platform["gatekeepers"].append(twin)
+    text = json.dumps(platform, indent=2, ensure_ascii=False) + "\n"
+    (cell / "platform.json").write_text(text.replace('"@@ID@@"', raw_id), encoding="utf-8")
+
+
+def test_binding_reuse_refuses_a_float_gatekeeper_id_aliasing_an_integer(cell_copy):
+    """The reviewer's alias: a second gatekeeper with `id: 1.0` used to survive uniqueness
+    here (`repr(1.0) != repr(1)`) while the node side stringified both to `"1"` and
+    refused — one store, two verdicts."""
+    cell = cell_copy("pos-baseline")
+    _second_gatekeeper_with_id(cell, "1.0")
+    assert binding(cell)["code"] == "binding-reuse"
+
+
+def test_binding_reuse_refuses_a_boolean_gatekeeper_id(cell_copy):
+    """`true` is an `int` subclass here and coerces to 1 in JavaScript."""
+    cell = cell_copy("pos-baseline")
+    _second_gatekeeper_with_id(cell, "true")
+    assert binding(cell)["code"] == "binding-reuse"
+
+
+def test_binding_reuse_refuses_a_negative_zero_gatekeeper_id(cell_copy):
+    """`-0` is the same value as `0` here and a distinct one in JavaScript, where it
+    stringifies to `"0"`; the platform assigns neither, so both sides refuse it."""
+    cell = cell_copy("pos-baseline")
+    _second_gatekeeper_with_id(cell, "-0")
+    assert binding(cell)["code"] == "binding-reuse"
+
+
+def test_binding_reuse_refuses_an_id_past_the_javascript_safe_integer_boundary(cell_copy):
+    """Past 2^53-1 a JSON number no longer round-trips through V8, so it is not an
+    identity the platform can have assigned or read back."""
+    cell = cell_copy("pos-baseline")
+    _second_gatekeeper_with_id(cell, "9007199254740992")
+    assert binding(cell)["code"] == "binding-reuse"
+
+
+# -- round 6: lifecycle-only members are read by key presence --------------------------
+
+def test_ledger_lifecycle_invalid_on_an_explicit_null_autoapproved(cell_copy):
+    """Round 6 (R6-4): `entry.get("autoApproved") is not None` accepted an explicit null on
+    a pending row, although the chokepoint writes that member nowhere but an approval."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["state"] = "pending"
+    ledger[0].pop("appliedAt")
+    ledger[0].pop("resolvedBy")
+    ledger[0]["autoApproved"] = None
+    dump_json(cell / "ledger.json", ledger)
+    result = binding(cell)
+    assert result["code"] == "ledger-lifecycle-invalid"
+    assert "autoApproved" in result["detail"]
+
+
+# -- round 6: one serialized instant form, and a total parse ---------------------------
+
+def test_ledger_lifecycle_invalid_on_an_impossible_calendar_date(cell_copy):
+    """`2026-02-29` is digit-shaped and not a date; `Date.parse` used to normalize it to
+    March 1 on the node side rather than refuse it."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["appliedAt"] = "2026-02-29T00:31:00.000Z"
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+def test_ledger_lifecycle_invalid_below_the_millisecond_boundary(cell_copy):
+    """A serialized `Date` carries exactly three fraction digits. Sub-millisecond
+    neighbours are not stamps the platform writes, and the node side collapsed `.0004Z`
+    and `.0005Z` onto one instant rather than refusing both."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["appliedAt"] = "2026-08-01T00:31:00.0004Z"
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "ledger-lifecycle-invalid"
+
+
+def test_a_valid_shaped_extreme_fraction_returns_a_verdict_rather_than_raising(cell_copy):
+    """Totality, at the exact site round 6 (R6-5) found: the witness's own instant was
+    parsed through `float` at store load, *outside* the per-check guard, so an extreme
+    valid-shaped fraction raised `OverflowError` out of the layer instead of producing an
+    apparatus verdict. The grammar admits three digits and nothing computes."""
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["drainWitnesses"][0]["at"] = "2026-08-01T00:31:00." + "9" * 400 + "Z"
+    dump_json(cell / "platform.json", platform)
+    assert binding(cell)["code"] == "retained-store-unreadable"
+
+
+# -- round 6: the inventory is the governed tool AND resource --------------------------
+
+def test_a_coherent_other_tool_approval_is_out_of_the_governed_inventory(cell_copy):
+    """Round 6 (R6-6)'s reciprocal: the inventory was resource-only, so a coherent
+    `tracker_close_work_item` approval and its matching call on the governed resource were
+    counted against the create-work-item authorization and refused as `binding-reuse`.
+
+    The row is classified by its OWN retained action-kind label, so a coherently different
+    tool is out of scope exactly as a different resource is, and the cell is green. The
+    other direction — a target-tool row a wrong-tool call disagrees with — stays governed,
+    which `test_binding_reuse_counts_a_governed_row_a_wrong_tool_call_used_to_erase`
+    holds.
+    """
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    other = json.loads(json.dumps(ledger[0]))
+    other["id"] = 2
+    other["action"] = 12
+    other["autoApproved"] = False
+    other["description"]["actionKind"] = {
+        "tag": cmt.action_kind_tag(tool_name=cmt.SECOND_TOOL),
+        "label": cmt.SECOND_TOOL,
+    }
+    ledger.append(other)
+    dump_json(cell / "ledger.json", ledger)
+    platform = load_json(cell / "platform.json")
+    call = json.loads(json.dumps(platform["stagedCalls"][0]))
+    call["action"] = 12
+    call["toolName"] = cmt.SECOND_TOOL
+    call.pop("commitmentDigest")
+    platform["stagedCalls"].append(call)
+    dump_json(cell / "platform.json", platform)
+    assert binding(cell)["verdict"] == "pass"
+
+
+def test_binding_reuse_refuses_a_governed_row_whose_label_its_own_tag_contradicts(
+    cell_copy,
+):
+    """Unclassifiable, not silently dropped: `actionKindFor` builds the tag from the tool
+    (`tools.ts:94`), so a row whose tag and label name different tools records two
+    different actions to two different readers and can be classified as neither."""
+    cell = cell_copy("pos-baseline")
+    ledger = load_json(cell / "ledger.json")
+    ledger[0]["description"]["actionKind"]["label"] = cmt.SECOND_TOOL
+    dump_json(cell / "ledger.json", ledger)
+    assert binding(cell)["code"] == "binding-reuse"
 
 
 def test_pack_artifact_missing(cell_copy):
@@ -286,11 +505,15 @@ def test_report_state_unsupported_phantom_staged(cell_copy):
 
 
 def test_report_state_unsupported_unknown_outcome_reported_applied(cell_copy):
-    cell = cell_copy("pos-baseline")
-    platform = load_json(cell / "platform.json")
-    platform["stagedCalls"][0]["connectorOutcome"] = "outcome-unknown"
-    platform["effects"] = []
-    dump_json(cell / "platform.json", platform)
+    """The at-most-once overclaim, isolated to the report.
+
+    Round 6 (R6-2) moved the store-internal half of this construction to
+    `ledger-lifecycle-invalid`: an `approved` outer row can only stand beside `committed`,
+    because the chokepoint writes `approved` after the connector call returns. So the
+    overclaim is built on the cell whose store really is the ambiguity — outer `pending`,
+    scalar `outcome-unknown` — and nothing but the report is mutated.
+    """
+    cell = cell_copy("m02-ambiguous-commit")
     report = load_json(cell / "report.json")
     report["execution"] = "applied"
     dump_json(cell / "report.json", report)
@@ -403,13 +626,16 @@ def test_binding_reuse_catches_a_subject_call_under_an_inaction_commitment(cell_
     assert binding(cell)["code"] == "binding-reuse"
 
 
-def test_unbound_execution_catches_substituted_causation(cell_copy):
-    """Round 4's decisive construction: correct cardinality, wrong cause.
+def test_unbound_execution_catches_a_claimed_source_that_is_not_the_bound_call(cell_copy):
+    """Round 4's decisive construction, restated as what it checks: correct cardinality,
+    disagreeing retained records.
 
-    One bound approved call, one retained effect — but the effect was produced by a
-    different, unretained call with the same tuple. Counting alone cannot tell the two
-    histories apart, so the attestation claims the staged call it came from and the
-    ceremony joins on that claim.
+    One bound approved call, one retained effect — but the effect's attestation claims a
+    staged-call identity the store does not hold as the bound approved call. Counting
+    alone cannot tell that store from the compliant one, so the attestation carries the
+    provenance its writer claims and the ceremony joins on that claim. The join settles
+    agreement between two retained records and nothing about what caused the effect
+    (PREREGISTRATION section 9, "no effect causation").
     """
     cell = cell_copy("pos-baseline")
     platform = load_json(cell / "platform.json")
@@ -802,7 +1028,7 @@ def test_upstream_refuses_ambiguous_stores_and_partial_attribution(cell_copy, cf
     ledger = load_json(stamped / "ledger.json")
     ledger[0]["createdAt"] = "2026-08-01 00:01:00Z"
     dump_json(stamped / "ledger.json", ledger)
-    cells.append(("non-rfc3339-created-at", stamped))
+    cells.append(("near-miss-created-at", stamped))
 
     renamed = cell_copy("s02-unknown-auto-applied")
     ledger = load_json(renamed / "ledger.json")
@@ -812,8 +1038,99 @@ def test_upstream_refuses_ambiguous_stores_and_partial_attribution(cell_copy, cf
 
     verdicts = cf_runner.ceremony(cells)["cells"]
     assert verdicts["duplicate-gatekeeper-id"]["code"] == "classification-refused"
-    assert verdicts["non-rfc3339-created-at"]["code"] == "drain-order-violation"
+    assert verdicts["near-miss-created-at"]["code"] == "drain-order-violation"
     assert verdicts["resolver-name-substituted"]["code"] == "drain-order-violation"
+
+
+def _variant(tmp_path, name, cell_id="pos-baseline"):
+    """A named copy of a frozen locked cell — one batch invocation carries many of them,
+    so each needs its own directory (`cell_copy` keys on the cell id alone)."""
+    source = (
+        STUDY / "fixtures" / "baseline"
+        if cell_id == "pos-baseline"
+        else STUDY / "fixtures" / "mutations" / cell_id
+    )
+    target = tmp_path / name
+    shutil.copytree(source, target)
+    return target
+
+
+def test_upstream_refuses_alias_identities_contradicted_witnesses_and_near_misses(
+    tmp_path, cfos_source
+):
+    """Round 6's node-side repairs, in one batched runner invocation.
+
+    Three families, and each used to end somewhere other than a refusal: an identity the
+    two layers read differently (R6-3), a witness the check never looked at because the
+    ledger claimed nothing (R6-4), and a stamp `Date.parse` normalized or collapsed
+    instead of refusing (R6-5). The equality half of the registered `resolved < at`
+    boundary is `pos-baseline` itself, which passes above; the half below it is here.
+    """
+    del cfos_source
+    cells = []
+
+    alias = _variant(tmp_path, "float-gatekeeper-id")
+    _second_gatekeeper_with_id(alias, "1.0")
+    cells.append(("float-gatekeeper-id", alias))
+
+    boundary = _variant(tmp_path, "unsafe-gatekeeper-id")
+    _second_gatekeeper_with_id(boundary, "9007199254740992")
+    cells.append(("unsafe-gatekeeper-id", boundary))
+
+    negative_zero = _variant(tmp_path, "negative-zero-gatekeeper-id")
+    _second_gatekeeper_with_id(negative_zero, "-0")
+    cells.append(("negative-zero-gatekeeper-id", negative_zero))
+
+    joined = _variant(tmp_path, "duplicate-ledger-join-identity")
+    ledger = load_json(joined / "ledger.json")
+    twin = json.loads(json.dumps(ledger[0]))
+    twin["id"] = 2
+    ledger.append(twin)  # the same (gatekeeperId, action) — never checked on this side
+    dump_json(joined / "ledger.json", ledger)
+    cells.append(("duplicate-ledger-join-identity", joined))
+
+    contradicted = _variant(tmp_path, "witness-the-ledger-contradicts")
+    ledger = load_json(contradicted / "ledger.json")
+    ledger[0]["autoApproved"] = False
+    dump_json(contradicted / "ledger.json", ledger)
+    cells.append(("witness-the-ledger-contradicts", contradicted))
+
+    calendar = _variant(tmp_path, "impossible-calendar-witness")
+    platform = load_json(calendar / "platform.json")
+    platform["drainWitnesses"][0]["at"] = "2026-02-29T00:31:00.000Z"
+    dump_json(calendar / "platform.json", platform)
+    cells.append(("impossible-calendar-witness", calendar))
+
+    submillisecond = _variant(tmp_path, "sub-millisecond-boundary")
+    ledger = load_json(submillisecond / "ledger.json")
+    ledger[0]["appliedAt"] = "2026-08-01T00:31:00.0004Z"
+    dump_json(submillisecond / "ledger.json", ledger)
+    platform = load_json(submillisecond / "platform.json")
+    platform["drainWitnesses"][0]["at"] = "2026-08-01T00:31:00.0005Z"
+    dump_json(submillisecond / "platform.json", platform)
+    cells.append(("sub-millisecond-boundary", submillisecond))
+
+    earlier = _variant(tmp_path, "resolved-strictly-before-the-witness")
+    ledger = load_json(earlier / "ledger.json")
+    ledger[0]["appliedAt"] = "2026-08-01T00:30:00.000Z"
+    dump_json(earlier / "ledger.json", ledger)
+    cells.append(("resolved-strictly-before-the-witness", earlier))
+
+    verdicts = cf_runner.ceremony(cells)["cells"]
+    for cell_id in (
+        "float-gatekeeper-id",
+        "unsafe-gatekeeper-id",
+        "negative-zero-gatekeeper-id",
+        "duplicate-ledger-join-identity",
+    ):
+        assert verdicts[cell_id]["code"] == "classification-refused", cell_id
+    for cell_id in (
+        "witness-the-ledger-contradicts",
+        "impossible-calendar-witness",
+        "sub-millisecond-boundary",
+        "resolved-strictly-before-the-witness",
+    ):
+        assert verdicts[cell_id]["code"] == "drain-order-violation", cell_id
 
 
 def test_upstream_apparatus_self_report_matches_pins(upstream_verdicts):

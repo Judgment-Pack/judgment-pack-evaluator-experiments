@@ -290,13 +290,25 @@ platform endorsing anything. When a construction gives them nothing to decide th
    tier, comes out `autoApprovable: false` or `mode: "read"`; or a call claimed to have taken
    the read path classifies as an action. The platform's own policy would not have done it.
    This step also refuses a store that has **more than one reading**: two retained
-   gatekeepers sharing an id, two ledger records sharing an id, or two staged calls sharing
-   a `(gatekeeperId, action)` join identity. Upstream assigns both ids from monotonic
-   counters, so a duplicate is a state it cannot write, and round 5 found the two sides
-   silently disagreed about which duplicate wins (this runner's maps kept the last, the
-   binding layer's lookups the first). Neither reading may be preferred, so the classifier
-   is given nothing and the layer refuses; the binding layer refuses the same stores under
-   `binding-reuse`.
+   gatekeepers sharing an id, two ledger records sharing an id, two staged calls sharing a
+   `(gatekeeperId, action)` join identity, or two ledger action records sharing one.
+   Upstream assigns both ids from monotonic counters, so a duplicate is a state it cannot
+   write, and round 5 found the two sides silently disagreed about which duplicate wins
+   (this runner's maps kept the last, the binding layer's lookups the first). Neither
+   reading may be preferred, so the classifier is given nothing and the layer refuses; the
+   binding layer refuses the same stores under `binding-reuse`.
+
+   **What an identity is, registered, and settled before uniqueness is asked.** Every id
+   and join component — a gatekeeper's `id`, a ledger record's `id`, an action row's
+   `gatekeeperId` and `action`, a staged call's `gatekeeperId` and `action` — must be a
+   non-Boolean integer in `[1, 2^53-1]`: the counters start at 1 (`overseer.ts:418-422`)
+   and every value crosses the wire as a JSON number read back through V8. Round 6 found
+   the two layers disagreeing about the question itself rather than about an answer: a
+   second gatekeeper carrying `id: 1.0` was a distinct key on the Python side (which
+   deduplicated `repr`) and the same key here (which stringified both to `"1"`), so one
+   store passed binding and was refused upstream. Floats, Booleans, `-0`, zero, negatives
+   and anything past the safe-integer boundary are refused on **both** sides before either
+   looks an identity up or counts one.
 2. `drain-order-violation` — replaying the pinned `AutoApprovalDrainer` does not reproduce the
    claimed applications. The replay is against a **stage-time witness**, not a final snapshot,
    because two facts make a final-snapshot replay unsound in both directions: an auto-approval
@@ -313,7 +325,14 @@ platform endorsing anything. When a construction gives them nothing to decide th
    passed — actor type, id and display name, the complete `AiChatAuthorInfo`
    (`api.ts:1777`) — fails, because upstream always attributes one and round 5 found only
    the id was compared. A ledger that claims an auto-approval with no witness fails; so does
-   a witness claiming an application the ledger does not record.
+   a witness claiming an application the ledger does not record — and the second half of
+   that sentence is reachable only because **the retained witnesses are read before this
+   check decides it has nothing to do**. The verdict is `not-engaged` when the ledger claims
+   no auto-approval *and* no witness is retained; a retained witness is a record about this
+   gatekeeper's drain and is replayed whatever the ledger claims. Round 6 found the early
+   exit taken on the ledger alone, which made the reverse accounting unreachable: a store
+   whose witness claimed an application while every row recorded `autoApproved: false` was
+   never examined here and came out combined-green.
 
    **The queue boundary is `resolved < at`, registered.** A row already resolved *before*
    the witness instant is legitimate history and is excluded from that pass's queue — the
@@ -321,10 +340,22 @@ platform endorsing anything. When a construction gives them nothing to decide th
    the exclusion checkable rather than convenient. Equality is the other way: a row whose
    resolution stamp is exactly the witness instant reads as **not yet resolved** at that
    instant and stays in the queue, which is the reading the registered baseline relies on.
-   Both instants must be strict RFC 3339 `date-time`s on both sides of the ceremony — the
-   platform serializes a JS `Date`, so a string that merely parses (a bare date, a space
-   separator, an unqualified local time, a `:60` leap second) is not one it can have
-   written, and a row or witness carrying one is refused rather than compared.
+
+   **One serialized form, registered, identical on both sides.** Every retained instant —
+   `createdAt`, `appliedAt`, a witness's `at` — must be exactly `YYYY-MM-DDTHH:mm:ss.sssZ`,
+   the output of `Date.prototype.toISOString()`, over a calendar-valid date. That is the
+   only form the platform can write, because every one of those fields is a serialized JS
+   `Date`. The registered grammar was "strict RFC 3339" until round 6, which found it
+   neither strict nor identical across the layers: RFC 3339 admits offsets, lowercase
+   separators and any fraction width; the Python side read the fraction through `float`, so
+   a valid-shaped extreme fraction raised out of a check instead of returning a verdict;
+   and the node side finished with `Date.parse`, which normalizes an impossible calendar
+   date such as `2026-02-29` and collapses `.0004Z` and `.0005Z` onto one millisecond —
+   enough to keep a genuinely earlier resolution in a queue and have its witness pass. Both
+   sides now apply the same fixed-width grammar and the same integer calendar check, and
+   compare the validated **strings**: the form is fixed-width and UTC, so lexicographic
+   order is chronological order and neither side does arithmetic that can fail. A row or
+   witness carrying anything else is refused rather than compared.
 
    **What this verdict does and does not establish, normatively.** The witness is
    *self-asserted*: it is supplied by the same retained store the ceremony is examining, is
@@ -371,10 +402,20 @@ guard below. Then, in order:
    it either way; an `autoApproved` value of any kind in any state but `approved`, since
    nothing else ever writes the flag; a `resolvedBy` that is not a complete `AiChatAuthorInfo`
    (`api.ts:1777`) — actor type in vocabulary, non-empty id and non-empty name; a `createdAt`
-   or `appliedAt` that is not a strict RFC 3339 `date-time`, which a serialized `Date` always
-   is; or a row resolved before it was created. This runs for **every** cell in the
+   or `appliedAt` that is not the serialized-`Date` form registered under upstream step 2;
+   or a row resolved before it was created. This runs for **every** cell in the
    binding layer — round 4 found lifecycle validity was enforced only inside an engaged drain
    replay, so a cell claiming no auto-approval was never checked at all.
+
+   The three resolution-only members — `appliedAt`, `resolvedBy`, `autoApproved` — are read
+   by **key presence**, not by value. Round 6 found them read with `.get()` against a `None`
+   comparison, so an explicit `autoApproved: null` on an otherwise valid `pending` or
+   `rejected` row passed a check whose entire subject is that the chokepoint never writes
+   that member there. A member the platform does not write is refused whatever it carries.
+
+   This step also holds each row against the **flattened connector outcome** the staged call
+   sharing its identity retains, because the two are not independent — see *Retained outcome
+   compatibility* under the report vocabulary below.
 2. `pack-artifact-missing` / `pack-digest-mismatch` — retained pack bytes absent, or their
    digest differs from `judgment.packDigest`.
 3. `judgment-identity-mismatch` — a committed identity or release field is not the one its
@@ -413,15 +454,26 @@ guard below. Then, in order:
    execute a second time invisibly, which is why the scope is labelling-independent.
 
    **The inventory is closed, and ambiguity refuses rather than discards.** An approved
-   ledger row is governed when its own denormalized resource — or, absent one, the resource of
-   the gatekeeper it names — is the governed resource; the tool named by a staged call sharing
-   its join identity does not remove it, because round 5 found a wrong-tool call was enough to
-   erase an otherwise governed approval. A row that cannot be classified at all — an
-   unretained gatekeeper, no resource anywhere, or a denormalized resource its own gatekeeper
-   contradicts — is refused here, not dropped. So is a store with more than one reading: two
-   retained gatekeepers sharing an id, two ledger records sharing an id, or two staged calls
-   or ledger records sharing a `(gatekeeperId, action)` join identity. The upstream layer
-   refuses the same stores under `classification-refused`, and neither side prefers a
+   ledger row is governed when two things hold of the row's own retained record: its
+   denormalized resource — or, absent one, the resource of the gatekeeper it names — is the
+   governed resource, **and** its `description.actionKind.label` is the governed tool. The
+   tool named by a staged call sharing its join identity decides nothing either way, because
+   round 5 found a wrong-tool call was enough to erase an otherwise governed approval — so a
+   target-tool row stays governed however a joined call contradicts it, and a *coherently*
+   different-tool row is out of scope exactly as a different-resource row is. Round 6 found
+   this half missing: membership was resource-only, so a coherent `tracker_close_work_item`
+   approval on the governed resource was counted against the create-work-item authorization
+   and refused as `binding-reuse`, although the scope registered two paragraphs above is the
+   governed tool **and** resource and nothing else.
+
+   A row that cannot be classified at all — an unretained gatekeeper, no resource anywhere,
+   a denormalized resource its own gatekeeper contradicts, no retained action-kind label, or
+   a label the row's own action-kind tag contradicts — is refused here, not dropped. So is a
+   store with more than one reading: two retained gatekeepers sharing an id, two ledger
+   records sharing an id, or two staged calls or ledger records sharing a
+   `(gatekeeperId, action)` join identity — and, before any of that is asked, an id or join
+   component that is not an identity the platform assigns (upstream step 1). The upstream
+   layer refuses the same stores under `classification-refused`, and neither side prefers a
    duplicate.
 11. `target-mismatch` — the bound staged call's gatekeeper, resource URL, trust tier, tool name,
     or the record's action-kind tag differs from the commitment's `action`.
@@ -494,10 +546,10 @@ predicate over the retained store** rather than a free-text claim — round 1 fo
 | State | Supported only when |
 |---|---|
 | `none` | no staged call binds this commitment and no matching effect is attested |
-| `staged` | exactly one bound staged call, its ledger record (if any) still `pending`, no matching effect |
-| `applied` | one bound staged call with an `approved` ledger record, and the connector outcome is not `outcome-unknown` |
+| `staged` | exactly one bound staged call, its ledger record (if any) still `pending`, its retained connector outcome `pending` or `failed`, no matching effect |
+| `applied` | one bound staged call with an `approved` ledger record and retained connector outcome `committed` |
 | `applied-unproven` | one bound staged call whose retained connector outcome **is** `outcome-unknown`, with no matching effect — the ambiguity state, never a default |
-| `effect-attested` | an approved bound record **and** a matching retained effect attestation (§5 step 17) |
+| `effect-attested` | an approved bound record with retained connector outcome `committed`, **and** a matching retained effect attestation (§5 step 17) |
 
 The connector outcome vocabulary is `pending`, `committed`, `failed`, `rejected`, `outcome-unknown`. The
 last is the platform's own at-most-once ambiguity: when an MCP dispatch's result is never
@@ -507,4 +559,52 @@ flattened `connectorOutcome` scalar and nothing else — the private connector r
 retryability and its error detail are not retained, and no join to a private store exists here
 (SPEC §0a; round 5 asked that this be said where readers rely on it rather than only in the
 retrospective review). `m02-ambiguous-commit` registers that trace (all three layers pass, and
-the row is descriptive: pass here does not mean the effect happened).
+the row is descriptive: pass here does not mean an effect occurred).
+
+### Retained outcome compatibility
+
+Round 6 found the predicates above correlating the flattened scalar with nothing at all except
+one forbidden value under `applied`, so a store carrying `connectorOutcome: "rejected"` beside
+an `approved` ledger row and an `applied` report came out completely green — against a README
+that says a green ceremony means the retained store is internally consistent. The scalar, the
+outer lifecycle state and the report state are therefore registered as **one matrix**, derived
+from the pinned source, and enforced under the existing `ledger-lifecycle-invalid` (the store
+half, for every action row of every cell) and `report-state-unsupported` (the claim half, for
+the bound call) — no new verdict code.
+
+| flattened `connectorOutcome` | admissible outer lifecycle state | admissible report state for the **bound** call |
+|---|---|---|
+| `pending` | `pending` | `staged` |
+| `failed` | `pending` | `staged` |
+| `outcome-unknown` | `pending` | `applied-unproven` |
+| `committed` | `approved`, and `pending` only through the crash window below | `applied`, `effect-attested` |
+| `rejected` | `rejected` | none — see the registered gap below |
+
+Where each row comes from:
+
+- **`approved` admits `committed` and nothing else.** The outer state is written at one
+  chokepoint, *after* `await gatekeeper.applyAction(...)` returns
+  (`overseer.ts:2490-2497`). The connector's `apply` reaches its success tail — `state =
+  "applied"` at `action-store.ts:172-173` — only when the dispatch returned; every other path
+  throws (`:136-144`'s pre-state guards; `:155-169`'s catch, which writes `failed` and
+  rethrows), and a throw propagates out of `applyAction`, so `record.state = "approved"` is
+  never reached.
+- **`rejected` admits `rejected` and nothing else.** It is written at one path, after `await
+  gatekeeper.rejectAction(...)` (`overseer.ts:7707-7732`); the connector's `reject` proceeds
+  only from `pending` and throws for `applying`, `applied` and `failed`
+  (`action-store.ts:201-211`).
+- **`pending` is every history where the outer transition never happened**: an undispatched
+  call (`pending`), a determinate failure (`failed`, `retryable: true` — `action-store.ts:157-158`
+  with `callMayHaveTakenEffect` false), and the at-most-once ambiguity (the same lines with it
+  true). It admits `committed` too, and only here: the connector persists `applied` at
+  `action-store.ts:196` before `apply` returns, so a Durable Object that dies before the outer
+  `put` at `overseer.ts:2497` leaves exactly that pair retained. Refusing it would refuse a
+  producible history; what is refused instead is any *claim* about it — `applied` requires the
+  approved row the workspace never wrote, and no other state names `committed`.
+- **A registered gap, stated rather than papered over.** A bound call whose scalar is
+  `rejected` has no supportable report state: it is not `none` (a call is bound), not `staged`
+  (its record is not `pending`), and neither applied nor attested. The five-state vocabulary
+  has no state for "staged, then refused", every predicate already refused each of them before
+  round 6, and inventing a sixth state would be an unregistered vocabulary change. A `rejected`
+  scalar on a call that is **not** the bound one is untouched by this — the obstruction calls
+  of `neg-drain-skip` and `h07` are exactly that.

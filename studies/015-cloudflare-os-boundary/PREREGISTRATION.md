@@ -1,10 +1,11 @@
 # Preregistration — Study 015: the judgment/staged-action boundary under a governed-agent platform
 
 **Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing thereafter.**
-Five review rounds have run and all five returned DO-NOT-FREEZE; round 5's structural rescope —
+Six review rounds have run and all six returned DO-NOT-FREEZE; round 5's structural rescope —
 the claims narrowed to what the apparatus is, plus the source-of-truth sweep it asked for — is
-applied ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope"). **Round 6 has not run**, and the
-freeze waits on its confirmation.
+applied, and round 6's five blockers and two majors are fixed
+([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope" and "Round-6 fixes"). **Round 7 has not
+run**, and the freeze waits on its confirmation.
 
 **Nothing has run under a freeze.** Everything executed during harness development lands under
 `pilots/`, is labeled harness validation, and supports no claim. After the freeze this file is
@@ -434,8 +435,10 @@ Round 1 (`reviews/round-1/`, verdict DO-NOT-FREEZE, 7 blockers and 6 majors) is 
 - [D-4] **Answered by change.** Two locked negative controls now exercise the binding and replay
   layers through the official scorer, alongside the per-code reachability suite.
 - [D-5] **Answered by change.** `m02`'s fixture was source-impossible and is rebuilt to the trace
-  the pinned source can actually retain (outer record pending, connector outcome unknown and
-  non-retryable); the inverse overclaim is the reviewer's own holdout cell.
+  the pinned source can actually retain: the outer workspace record stays pending, and what the
+  cell keeps of the dispatch is the flattened `connectorOutcome` scalar `outcome-unknown` — the
+  private connector row, its retryability and its error detail are not retained and are asserted
+  nowhere (§9). The inverse overclaim is the reviewer's own holdout cell.
 
 Open for the next round:
 
