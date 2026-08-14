@@ -462,8 +462,8 @@ guard below. Then, in order:
    disposition are unreadable, so no action can be derived.
 9. `action-map-violation` — the commitment's `action` contradicts the map for the committed
    disposition (an action object under a non-executable disposition, null under `proceed`); an
-   action-class record binds to a commitment to inaction; or a bound staged call took effect
-   with no approved ledger record.
+   action-class record binds to a commitment to inaction; or a retained effect attestation
+   matches the bound staged call while no ledger record approves it.
 10. `binding-reuse` — more than one staged call, applied record, or ledger record claims one
    `commitmentDigest`; **or** the governed inventory does not match the authorization exactly: more staged calls or
    approved records on the governed tool and resource than the map authorizes, a governed call
@@ -534,7 +534,7 @@ guard below. Then, in order:
     elsewhere is unaccounted for and refuses; where the map authorizes none, the
     no-approved-bound-application clause above has already refused it. Round 5 found the
     earlier schema fabricating a staged identity for every effect, including on `m01`,
-    whose effect reaches the resource through the read path, and on `b06`, whose store
+    whose retained attestation names the read path as its source, and on `b06`, whose store
     retains no staged call at all — `b06` still *claims* one, and that contradiction
     between the claim and the store is the cell. Both are inaction cells, so both refuse on
     the missing authorization, ahead of anything the union decides.
@@ -592,18 +592,18 @@ predicate over the retained store** rather than a free-text claim — round 1 fo
 Round 6 registered its absence as a *gap*: a bound call the approver refused was not `none` (a
 call is bound), not `staged` (its record is not `pending`), and neither applied nor attested, so
 every predicate refused it and the study said so rather than inventing a state. Round 7 declined
-that trade. An ordinary completed rejection is the most ordinary history this queue produces, and
-a vocabulary that cannot express it leaves a bridge two options — report it falsely or not at all
-— which is the silent unrepresentability the rest of this document exists to refuse.
+that trade. A `rejected` ledger row beside a `rejected` scalar is a tuple the matrix below admits,
+and a vocabulary that cannot express it leaves a bridge two options — report it falsely or not at
+all — which is the silent unrepresentability the rest of this document exists to refuse.
 
 The connector outcome vocabulary is `pending`, `committed`, `failed`, `rejected`, `outcome-unknown`. The
-last is the platform's own at-most-once ambiguity: when an MCP dispatch's result is never
-observed, the **outer** workspace record stays `pending`, because the platform transitions it
-only after the gatekeeper call returns. What the cell retains for that history is the
-flattened `connectorOutcome` scalar and nothing else — the private connector row, its
-retryability and its error detail are not retained, and no join to a private store exists here
+last is the platform's own at-most-once ambiguity: the pinned source transitions the **outer**
+workspace record only after the gatekeeper call returns (`overseer.ts:2490-2497`), so the matrix
+below pairs that scalar with a `pending` outer row. What a cell retains under it is the
+flattened `connectorOutcome` scalar and nothing else — the private connector row and every field
+of it beyond that scalar are not retained, and no join to a private store exists here
 (SPEC §0a; round 5 asked that this be said where readers rely on it rather than only in the
-retrospective review). `m02-ambiguous-commit` registers that trace (all three layers pass, and
+retrospective review). `m02-ambiguous-commit` registers that tuple (all three layers pass, and
 the row is descriptive: pass here does not mean an effect occurred).
 
 ### Retained outcome compatibility
@@ -638,19 +638,20 @@ Where each row comes from:
   gatekeeper.rejectAction(...)` (`overseer.ts:7707-7732`); the connector's `reject` proceeds
   only from `pending` and throws for `applying`, `applied` and `failed`
   (`action-store.ts:201-211`).
-- **`pending` is every history where the outer transition never happened**: an undispatched
-  call (`pending`), a determinate failure (`failed` — `action-store.ts:157-158`, under the pinned
-  source's own `callMayHaveTakenEffect` false), and the at-most-once ambiguity (the same lines
-  with it true). It also admits **both** determinate resolutions, and only here, through the two
-  symmetric crash windows: each connector path persists its own record before the outer row is
-  written — `action-store.ts:196` saves `applied` before `apply` returns, and
-  `action-store.ts:209` writes `rejected` before `overseer.ts:7729-7732` updates the outer row —
-  so a Durable Object that dies in either window leaves exactly that pair retained. Round 6
-  admitted the apply-side window only; round 7 (R7-1) found the reject side identical in the
-  source and refused as impossible, which is refusing a producible history. What is refused
-  instead is any *claim* over either window: `applied` requires the approved row the workspace
-  never wrote, `rejected` requires the rejected row it never wrote, and no other state names
-  either scalar.
+- **`pending` stands beside every scalar the pinned source writes without the outer
+  transition**: an undispatched call (`pending`), a determinate failure (`failed` —
+  `action-store.ts:157-158`, under the pinned source's own `callMayHaveTakenEffect` false), and
+  the at-most-once ambiguity (the same lines with it true). It also admits **both** determinate
+  resolutions, and only here, through the two symmetric crash windows: each connector path
+  writes its own record before the outer row is written — `action-store.ts:196` saves `applied`
+  before `apply` returns, and `action-store.ts:209` writes `rejected` before
+  `overseer.ts:7729-7732` updates the outer row — so neither pair is one that write order rules
+  out. Round 6 admitted the apply-side window only; round 7 (R7-1) found the reject side
+  symmetric in the source and refused the pair anyway. **Admitting a pair registers what this
+  ceremony will not refuse, and never that any retained store came to hold it that way** (§9,
+  no source-reachability claim). What *is* refused is any claim over either window: `applied`
+  requires the approved row the workspace never wrote, `rejected` requires the rejected row it
+  never wrote, and no other state names either scalar.
 - **A `rejected` scalar on a call that is not the bound one** is untouched by any of this — the
   obstruction calls of `neg-drain-skip` and `h07` are exactly that, and the report table speaks
   only of the bound call.

@@ -89,8 +89,11 @@ EXECUTION_STATES = (
 # The connector outcome an instrumented Gatekeeper retains per staged call. `committed`
 # and `failed` are determinate; `outcome-unknown` is the platform's own at-most-once
 # ambiguity, the only state that supports an `applied-unproven` report.
-# `rejected` is the private record's state when the approver refuses; the outer row is
-# rejected in the same transaction (overseer.ts:7727-7732).
+# `rejected` is the private record's state when the approver refuses. The two writes are
+# ordered, not atomic: `action-store.ts:209` writes `rejected` before
+# `overseer.ts:7729-7732` updates the outer row, which is the reject-side crash window the
+# matrix below admits (R7-1). Round 7 wrote "in the same transaction" here, contradicting
+# the window it derived from the same two locations further down this block (R8-2).
 CONNECTOR_OUTCOMES = (
     "pending",
     "committed",
@@ -166,7 +169,7 @@ REPORT_CONNECTOR_OUTCOMES = {
 # the form is fixed-width and UTC, so lexicographic order is chronological order and no
 # side does arithmetic at all. Nothing here can raise.
 #
-# Round 7 (R7-5 of the same family, filed R7-3) found "identically" still false in two
+# Round 7 (the R6-5 residue, filed R7-3) found "identically" still false in two
 # ways that only this side had: Python's `\d` is Unicode-aware, so `٢٠٢٦` and its
 # neighbours matched a grammar registered as the ASCII output of `toISOString()`, and
 # `.match(...$)` accepts a trailing `\n`, because Python's `$` also matches before a final
@@ -1244,7 +1247,8 @@ def _check_action_map(context):
             if not any(record.get("state") == "approved" for record in records):
                 return (
                     "action-map-violation",
-                    "the bound staged call took effect with no approved ledger record",
+                    "a retained effect attestation matches the bound staged call while no "
+                    "ledger record approves it",
                 )
     return None
 

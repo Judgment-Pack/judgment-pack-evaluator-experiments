@@ -433,6 +433,36 @@ function pendingAt(entry: LedgerEntry, at: string): boolean | null {
   return created <= at;
 }
 
+// The identities one retained witness claims: its own pass and gatekeeper, every action id
+// it says the pass applied, and the gatekeeper each of its rules names. `adapter/verify.py`
+// holds exactly this set to `_platform_id` at store load.
+function witnessIdentityProblem(witness: DrainWitness): string | null {
+  const named: Array<[string, unknown]> = [
+    ["pass identity", witness.pass],
+    ["gatekeeper id", witness.gatekeeperId],
+  ];
+  if (!Array.isArray(witness.appliedActionIds)) {
+    return "carries no list of applied action identities";
+  }
+  witness.appliedActionIds.forEach((id, index) => {
+    named.push([`applied action id at position ${index}`, id]);
+  });
+  if (!Array.isArray(witness.rules)) return "carries no rule list";
+  witness.rules.forEach((rule, index) => {
+    const held = rule as { gatekeeperId?: unknown } | undefined;
+    named.push([`gatekeeper id of rule ${index}`, held?.gatekeeperId]);
+  });
+  for (const [what, value] of named) {
+    if (platformId(value) === null) {
+      return (
+        `carries a ${what} of ${JSON.stringify(value)}, which is not an identity the ` +
+        `platform assigns`
+      );
+    }
+  }
+  return null;
+}
+
 async function drainCheck(
   ledger: LedgerEntry[],
   platform: PlatformStore,
@@ -466,6 +496,27 @@ async function drainCheck(
       ),
       engaged: true,
     };
+  }
+
+  // Every identity a witness claims, held to `platformId` BEFORE anything sorts, keys or
+  // replays on it — the same gate `storeAmbiguity` applies to the store's other identities
+  // (R6-3), and the same set `_drain_witness_problem` validates in `adapter/verify.py`.
+  //
+  // Round 8 (R8-3): the pass number reached the sort below unvalidated, so a witness
+  // written `"pass": 1.0` arrived as a `NonIntegerLexeme`, `a.pass - b.pass` returned
+  // `NaN`, the sort silently did nothing, and the cell came out `pass` with both checks
+  // engaged — while the binding layer refused the same bytes as
+  // `retained-store-unreadable`. One store, two readings, which is the divergence R7-2 was
+  // filed about: that repair was made for the gatekeeper's own id and not for the
+  // witness's.
+  for (const [index, witness] of witnesses.entries()) {
+    const problem = witnessIdentityProblem(witness);
+    if (problem !== null) {
+      return {
+        verdict: fail("drain-order-violation", `drain witness ${index} ${problem}`),
+        engaged: true,
+      };
+    }
   }
 
   const replayed = new Map<number, number[]>();

@@ -1,12 +1,13 @@
 # Preregistration — Study 015: the judgment/staged-action boundary under a governed-agent platform
 
 **Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing thereafter.**
-Seven review rounds have run and all seven returned DO-NOT-FREEZE; round 5's structural rescope —
+Eight review rounds have run and all eight returned DO-NOT-FREEZE; round 5's structural rescope —
 the claims narrowed to what the apparatus is, plus the source-of-truth sweep it asked for — is
-applied, round 6's five blockers and two majors are fixed, and round 7's three blockers, two
-majors and four named residues are fixed ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope",
-"Round-6 fixes" and "Round-7 fixes"). **Round 8 has not run**, and the freeze waits on its
-confirmation.
+applied, round 6's five blockers and two majors are fixed, round 7's three blockers, two majors
+and four named residues are fixed, and round 8's three blockers, one minor and three named
+residues are fixed with its ruling adopted ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope",
+"Round-6 fixes", "Round-7 fixes" and "Round-8 fixes"). **Round 9 has not run**, and the freeze
+waits on its confirmation.
 
 **Nothing has run under a freeze.** Everything executed during harness development lands under
 `pilots/`, is labeled harness validation, and supports no claim. After the freeze this file is
@@ -435,15 +436,18 @@ Round 1 (`reviews/round-1/`, verdict DO-NOT-FREEZE, 7 blockers and 6 majors) is 
   consistency, never proof that the retained bytes were captured from the named source (§9).
 - [D-4] **Answered by change.** Two locked negative controls now exercise the binding and replay
   layers through the official scorer, alongside the per-code reachability suite.
-- [D-5] **Answered by change.** `m02`'s fixture was source-impossible and is rebuilt to a trace
-  the pinned source's own paths admit: the outer workspace record stays pending, and what the
-  cell keeps of the dispatch is the flattened `connectorOutcome` scalar `outcome-unknown` — the
-  private connector row, its retryability and its error detail are not retained and are asserted
-  nowhere (§9). The inverse overclaim is the reviewer's own holdout cell. *(Corrected at the
-  round-7 fixes, R6-1 residue: this row said the fixture was rebuilt to "the trace the pinned
-  source can actually retain", which claims of a modeled store exactly the source-reachability
-  §9 registers as **not** established. The cell is a construction the source's paths admit, and
-  nothing here shows the platform produced it.)*
+- [D-5] **Answered by change.** `m02`'s fixture was refused at round 1 as source-impossible and is
+  rebuilt to a store whose retained tuple the compatibility matrix registered in SPEC §5 admits:
+  the outer workspace record stays `pending` beside a flattened `connectorOutcome` scalar of
+  `outcome-unknown`, a pair that matrix gives exactly one supportable report state,
+  `applied-unproven`. The
+  private connector row and every field of it beyond that scalar are not retained and are asserted
+  nowhere (§9). The inverse overclaim is the reviewer's own holdout cell. *(Corrected twice. At the
+  round-7 fixes (R6-1 residue) this row still called the rebuilt cell the trace the pinned source
+  itself keeps; at the round-8 fixes (R8-1) the replacement still called it a trace that source's
+  own paths admit. Both are source-reachability claims about a modeled store, and §9 registers
+  source-reachability as **not** established. What the row says now is what the apparatus checks:
+  a locally registered tuple, and nothing about how the bytes came to be there.)*
 
 Open for the next round:
 

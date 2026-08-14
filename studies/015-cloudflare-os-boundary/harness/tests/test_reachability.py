@@ -370,11 +370,12 @@ def _crash_window(cell, outcome):
 
 
 def _completed_rejection(cell):
-    """The most ordinary history the queue produces: staged, then refused by the approver.
+    """A completed rejection, written as the registered matrix admits one.
 
-    The bound call is rejected on both sides of the flatten, and nothing took effect — so
-    the retained effect attestation goes with it, exactly as it would have in a store where
-    the approver said no.
+    The bound call is `rejected` on both sides of the flatten and the report claims that
+    state, which is the one tuple SPEC section 5 pairs with a `rejected` scalar. The
+    retained effect attestation goes with it: an attestation matched to a call the store
+    also records as refused is a different tuple, and the matrix is what decides either.
     """
     ledger = load_json(cell / "ledger.json")
     ledger[0]["state"] = "rejected"
@@ -390,7 +391,7 @@ def _completed_rejection(cell):
 
 
 def test_lifecycle_admits_the_apply_side_crash_window(cell_copy):
-    """`committed` beside a `pending` row is producible, and round 6 registered it as such;
+    """`committed` beside a `pending` row is a pair round 6 registered as admissible;
     nothing had ever asserted that the check agrees."""
     cell = cell_copy("pos-baseline")
     _crash_window(cell, "committed")
@@ -399,9 +400,9 @@ def test_lifecycle_admits_the_apply_side_crash_window(cell_copy):
 
 def test_lifecycle_admits_the_reject_side_crash_window(cell_copy):
     """The same window on the other path, which round 6 refused as impossible (R7-1). The
-    connector persists the rejection at `action-store.ts:209`; the outer row is updated
-    afterwards at `overseer.ts:7729-7732`, and a Durable Object that dies in between leaves
-    exactly this pair retained."""
+    connector writes the rejection at `action-store.ts:209` and the outer row is updated
+    afterwards at `overseer.ts:7729-7732`, so that write order rules this pair out no more
+    than it rules out the apply-side one."""
     cell = cell_copy("pos-baseline")
     _crash_window(cell, "rejected")
     assert "ledger-lifecycle-invalid" not in _codes(binding(cell))
@@ -515,6 +516,38 @@ def test_binding_reuse_refuses_a_foreign_scope_tag_on_a_governed_row(cell_copy):
     )
     dump_json(cell / "ledger.json", ledger)
     assert binding(cell)["code"] == "binding-reuse"
+
+
+# -- round 8: the identity rule reaches the witness's own identities too ----------------
+
+
+def _witness_pass_literal(cell, raw_pass):
+    """Rewrite the sole retained witness's `pass` as a raw JSON token.
+
+    The same construction `_sole_gatekeeper_id_literal` uses, aimed at the one identity
+    round 7's repair did not reach: R7-2 moved the rule onto the token for the gatekeeper's
+    id, and the witness's pass number went on being whatever `JSON.parse` returned (R8-3).
+    """
+    platform = load_json(cell / "platform.json")
+    platform["drainWitnesses"][0]["pass"] = "@@PASS@@"
+    text = json.dumps(platform, indent=2, ensure_ascii=False) + "\n"
+    (cell / "platform.json").write_text(
+        text.replace('"@@PASS@@"', raw_pass), encoding="utf-8"
+    )
+
+
+def test_store_unreadable_on_a_lone_float_witness_pass(cell_copy):
+    """The binding side already refused this; the value of the row is the pair it makes
+    with the node-side batch below, over the same bytes."""
+    cell = cell_copy("pos-baseline")
+    _witness_pass_literal(cell, "1.0")
+    assert binding(cell)["code"] == "retained-store-unreadable"
+
+
+def test_store_unreadable_on_a_lone_exponent_witness_pass(cell_copy):
+    cell = cell_copy("pos-baseline")
+    _witness_pass_literal(cell, "1e0")
+    assert binding(cell)["code"] == "retained-store-unreadable"
 
 
 def test_pack_artifact_missing(cell_copy):
@@ -1375,6 +1408,32 @@ def test_upstream_reads_lone_identity_tokens_stamps_and_an_empty_witness(
     coherent = verdicts["engaged-empty-witness"]
     assert coherent["verdict"] == "pass", coherent
     assert "AutoApprovalDrainer" in coherent["engaged"], coherent
+
+
+def test_upstream_holds_the_witness_to_the_same_identity_rule(tmp_path, cfos_source):
+    """Round 8 (R8-3): the identity repair had not reached the witness's own identities.
+
+    A witness written `"pass": 1.0` or `"pass": 1e0` arrived at `witnesses.sort((a, b) =>
+    a.pass - b.pass)` as a `NonIntegerLexeme`, so the comparator returned `NaN`, the sort
+    did nothing, and the cell came out `pass` with `AutoApprovalDrainer` engaged — over
+    bytes the binding layer refuses as `retained-store-unreadable` (the two rows above).
+    That is one store with two readings, which is the R7-2 defect surviving at the one
+    identity R7-2's repair did not cover.
+
+    Each layer keeps its own vocabulary — the binding layer calls an unreadable store
+    unreadable, this one refuses the pass it cannot order — and the registered property is
+    that neither reads the store where the other refuses it.
+    """
+    del cfos_source
+    cells = []
+    for name, raw in (("witness-pass-float", "1.0"), ("witness-pass-exponent", "1e0")):
+        variant = _variant(tmp_path, name)
+        _witness_pass_literal(variant, raw)
+        cells.append((name, variant))
+
+    verdicts = cf_runner.ceremony(cells)["cells"]
+    for cell_id, _ in cells:
+        assert verdicts[cell_id]["code"] == "drain-order-violation", cell_id
 
 
 def test_upstream_apparatus_self_report_matches_pins(upstream_verdicts):

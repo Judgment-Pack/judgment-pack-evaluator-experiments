@@ -319,3 +319,50 @@ fixing the instance the reviewer reached. **The study does not freeze on this re
 has not run; its job is to decide whether the four symmetries are now closed on both sides,
 whether the lexical identity rule and the `rejected` report state are derived and enforced as
 registered, and whether any repair in this ceremony is still one-sided.
+
+
+## Round 8 — DO-NOT-FREEZE
+
+Reviewer: same configuration, static review only. Study tree reviewed at commit `e78ff3e`.
+Verdict: **do not freeze**; three blockers, one minor, three of round 7's dispositions returned
+NOT RESOLVED with the residue named, three confirmed resolved, and one ruling on a note the
+round-7 block referred forward. The verbatim prompt and review are retained and are to be filed
+under `reviews/round-8/` as every earlier round's are; this commit touches nothing under
+`reviews/`, so that directory does not yet exist and this row is the only current record of the
+round.
+
+Round 8 asked round 7's own question — are the four symmetries closed on both sides — and largely
+answered yes: the reject side, the report state and the completed-rejection enforcement all work,
+the lone-identity refusal is symmetric, the grammar is one grammar, the engaged empty witness
+passes, and the tag comparison is whole. It confirmed the zero-drift discipline a third time
+(both `{id, expected}` projections unchanged from `dc4bc91`, no fixture byte moved since
+`3730d0b`, the authored holdout byte-identical, and no cell holding a pending+rejected pair or a
+`rejected` report). What it found is one *third* recurrence of the withdrawn-claim class on
+living surfaces, and two governing accounts of the pinned source that are internally false —
+including one inside the comment block that derives the opposite. All items are accepted; none is
+declined.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R6-1r / R8-1 | **Blocker.** Source-reachability and effect-causation language remains or was reintroduced on living surfaces: PREREGISTRATION D-5 (`:438-446`), `SPEC.md:537` and `:595-650`, and `test_reachability.py:372-393`. §9 disclaims source-reachable histories, effect causation and closed inventory. | **Fixed at the named sites, and the class converted to machinery.** The prose now describes only locally registered tuple compatibility and retained attestations: D-5 says the rebuilt cell is a tuple the SPEC §5 matrix admits and says nothing about how the bytes came to be there; step 15's `m01` clause says the retained attestation *names* the read path as its source; the `rejected` paragraph speaks of a tuple the matrix admits rather than of what the queue produces; the `pending` bullet states in bold that admitting a pair registers what the ceremony will not refuse and never that a store came to hold it that way; the two crash-window docstrings and the completed-rejection helper say the same. The machinery is `test_living_surfaces_carry_no_withdrawn_claims`: seven withdrawn phrase classes scanned across a **derived** population — every top-level and adapter document, every probe, every adapter and harness module's comments and string literals, and `MATRIX.json`'s prose — with a seven-entry allowlist that licenses one passage each, by anchor, with a justification, and fails if an entry ever stops matching. The three named sites failed it before the fix; so did two further live instances of the same class the named list had not reached (`SPEC.md`'s `action-map-violation` clause and the matching detail string in `verify.py:1247`), which is the point of the guard. |
+| R7-1r / R8-2 | **Blocker.** `verify.py:92-93` says the inner and outer rejections happen "in the same transaction", contradicting the reject-side crash window derived further down the same comment block and the source at `action-store.ts:209` → `overseer.ts:7729-7732`. | **Fixed.** The comment now states the ordering it actually derives — the connector writes `rejected` before the outer row is updated — cites the same two locations the matrix row cites, and records that round 7 wrote the contradiction three lines from its own derivation. |
+| R7-2r / R8-3 | **Blocker.** `ceremony.ts:472` sorts on `witness.pass` without holding it to `platformId`, so a witness written `"pass": 1.0` or `1e0` yields `NaN` from the comparator, a sort that does nothing, and a cell that passes with both checks engaged — while binding refuses the same bytes as `retained-store-unreadable`. | **Fixed for every identity a witness claims, not for the pass alone.** `witnessIdentityProblem()` holds the pass, the witness's gatekeeper id, every applied action id and every rule's gatekeeper id to `platformId` before anything sorts, keys or replays on them — the same set `_drain_witness_problem` validates on the Python side. R7-2's repair had been made for the gatekeeper's own id and stopped there. Four regressions: both tokens on the binding side (`retained-store-unreadable`) and both through the runner (`drain-order-violation`), which is the registered property — each layer keeps its own vocabulary, and neither reads a store the other refuses. |
+| R8-4 | **Minor.** `verify.py:169` cites "R7-5 of the same family, filed R7-3", which names the wrong finding. | **Fixed:** the R6-5 residue, filed R7-3. |
+| R7-3, R7-4, R7-5 | **Resolved**, each confirmed by name: `[0-9]` plus `fullmatch()` makes valid, Unicode-digit and trailing-LF acceptance identical on both sides; the engaged coherent empty witness passes with `AutoApprovalDrainer` engaged; absent, empty and foreign-scope tags refuse through the whole commitment-derived comparison, with `b04` and `h04` outside that inventory and their projections unchanged. | No change. |
+| h08 note | **Ruling.** The `h08` note in `MATRIX-HOLDOUT.json` carries the same withdrawn phrasing PREREGISTRATION D-5 was corrected for. The note must stand and be dispositioned in `DEVIATIONS.md` alone: it is reviewer prose promised verbatim, not migration-authored prose, and editing the working copy would violate PREREGISTRATION §1a's authorship instruction (`:77-84`), the round-1 instruction it records, and the enforced note-equality test. | **Adopted as ruled.** The registry is untouched; `DEVIATIONS.md` carries the disposition, naming the phrasing, the ruling and the two reasons it cannot be repaired in place. The phrase guard therefore does not scan `MATRIX-HOLDOUT.json`, and its docstring records that exclusion with its reason. |
+
+**No registered expectation changed in either stratum, no verdict code was added, and no
+vocabulary member moved.** The before/after snapshot over all three layer outcomes, every
+published `suppressed` code and every upstream engagement list, for all 35 cells by direct layer
+calls, is **zero drift** — which is the point, because R8-3 changes an adjudication path.
+
+**Standing after eight rounds.** Every blocker from rounds 1–7 is closed; round 8's three
+blockers, one minor and three residues are closed here, and its ruling is adopted. The shape of
+this round is the third recurrence: rounds 6, 7 and 8 each found the same class of withdrawn
+claim on a living surface, each within a few lines of where the previous round had repaired it,
+because each repair was a list of sites a reviewer had reached. A list cannot close a class, and
+the fix for the third recurrence is not a fourth list — it is the guard recorded under *Round-8
+fixes*. **The study does not freeze on this record.** Round 9 has not run; its job is to decide
+whether the guard's population and allowlist are honest, whether the witness identity rule now
+covers every identity either layer reads, and whether any account of the pinned source in this
+tree still contradicts the source.

@@ -517,6 +517,92 @@ note says "the outer state that pinned source can actually retain", which is the
 PREREGISTRATION D-5 was corrected for. The holdout registry is the reviewer's own artifact and is
 not edited here; it is recorded so the next round can dispose of it.
 
+## Round-8 fixes (pre-freeze)
+
+Round 8 confirmed that round 7's four symmetries are closed on both sides and that three of its
+five dispositions hold as written. What it found is a **third** recurrence of the withdrawn-claim
+class on living surfaces, and two governing accounts of the pinned source that are false against
+the source — one of them inside the comment block that derives the opposite. All items are
+dispositioned in `PREREG-REVIEW.md`; the protocol-relevant changes are recorded here.
+
+**No registered expectation changed in either stratum, no verdict code was added, and no
+vocabulary member moved.** A before/after snapshot of all three layer outcomes, every published
+`suppressed` code and every upstream engagement list, over all 35 cells and by direct layer calls,
+showed **zero drift** — which is the point, because R8-3 changes an adjudication path.
+
+- **R8-1 — the withdrawn-claim class becomes machinery.** The three named sites are repaired to
+  describe only what the apparatus locally registers: PREREGISTRATION D-5 now says `m02`'s
+  rebuilt cell is a tuple the SPEC §5 compatibility matrix admits, and says nothing about how the
+  retained bytes came to be there; `SPEC.md`'s step 15 says `m01`'s retained attestation *names*
+  the read path as its source; the `rejected` paragraph and the `pending` bullet speak of tuples
+  the matrix admits, with the bold registration that **admitting a pair records what the ceremony
+  will not refuse and never that a store came to hold it that way** (§9); and the completed-
+  rejection helper and both crash-window docstrings in `test_reachability.py` say the same. The
+  guard is `test_living_surfaces_carry_no_withdrawn_claims`, which scans seven withdrawn phrase
+  classes — `can actually retain`, `actually emits`, `took effect`, `produced by`, `caused by`,
+  `retryab`, `the effect happens` — over a **derived** population: every top-level `*.md` except
+  the two narrating ledgers, `adapter/*.md`, every `probes/**/*.ts`, the comments and string
+  literals of every `adapter/*.py`, `harness/*.py` and `harness/tests/*.py`, and every string in
+  `harness/MATRIX.json`. Text is scanned whitespace-normalized, so a phrase broken across a line
+  wrap is still found. Seven allowlist entries license one passage each — §9's three
+  registrations, the README's restatement of one of them, §0a's retained-record table row, and
+  `m02`'s construction in the registry and in the builder — each anchored to its own passage and
+  each carrying its justification; an entry that stops matching fails the test, so a repaired
+  site cannot leave a licence behind.
+- **R8-2 — the reject path is ordered, not atomic.** `verify.py:92-93` said the inner and outer
+  rejections happen "in the same transaction", which contradicts the reject-side crash window
+  derived from the same two locations further down the same comment block. The source is
+  unambiguous:
+  `action-store.ts:209` writes `rejected`, and `overseer.ts:7729-7732` updates the outer row after
+  the awaited call returns. The comment now states that ordering and cites the same two locations
+  the matrix row cites.
+- **R8-3 — the identity rule reaches the witness's own identities.** R7-2 moved identity onto the
+  written token and applied it to the store's gatekeeper, ledger and staged-call identities. The
+  drain witness was not in that set, so `ceremony.ts` sorted on `witness.pass` unvalidated: a
+  witness written `"pass": 1.0` or `"pass": 1e0` arrived as a `NonIntegerLexeme`, `a.pass - b.pass`
+  returned `NaN`, the sort silently did nothing, and the cell came out `pass` with
+  `AutoApprovalDrainer` engaged — over bytes the binding layer refuses as
+  `retained-store-unreadable`. `witnessIdentityProblem()` now holds every identity a witness
+  claims — its pass, its gatekeeper id, every applied action id, and every rule's gatekeeper id,
+  which is exactly the set `_drain_witness_problem` validates — to `platformId` before anything
+  sorts, keys or replays on it. Four regressions: both tokens on the binding side and both through
+  the runner. The two layers keep their own vocabularies (`retained-store-unreadable` there,
+  `drain-order-violation` here); what is registered is that neither reads a store the other
+  refuses.
+- **R8-4 — a citation.** `verify.py:169` named "R7-5 of the same family, filed R7-3"; the item is
+  the R6-5 residue, filed R7-3.
+- **The `h08` note stands, by ruling.** `MATRIX-HOLDOUT.json`'s `h08` note carries the same
+  withdrawn phrasing PREREGISTRATION D-5 was corrected for, and the round-7 block above recorded
+  it for the next round to dispose of. Round 8 ruled that it must **not** be repaired: the note is
+  reviewer prose promised verbatim, not migration-authored prose, so editing the working copy
+  would violate PREREGISTRATION §1a's authorship instruction (`:77-84`) and would be caught by
+  `test_holdout_expectations_match_the_authored_file_modulo_the_recorded_migration`, which asserts
+  every authored note byte-equal. The disposition is this entry. The phrase guard therefore does
+  not scan `MATRIX-HOLDOUT.json`, and its docstring records that exclusion beside the others —
+  `DEVIATIONS.md` and `PREREG-REVIEW.md`, which must quote the claims they record as withdrawn,
+  and `reviews/` and `pilots/`, which are verbatim history this study may not edit at all.
+
+**The lesson this round records, because it is the same one three times.** Round 6 fixed the sites
+a reviewer named. Round 7 found the identical claim a few lines away and swept "every living
+surface" — by hand, against a list it wrote down. Round 8 found it again, in two of the same files.
+A sweep performed by reading is a list whether or not it is written as one, and a list cannot close
+a class: it closes the instances someone happened to see, and the class regenerates at the next
+edit. The rule taken forward: when the same class of defect survives two repairs, stop repairing
+instances and write the check — with the population derived rather than enumerated (R6-7's lesson,
+which this reuses), and with every exception named, anchored and justified in the test itself, so
+the exceptions are reviewable and a stale one fails.
+
+### Fixture bytes changed at the round-8 fixes
+
+**None.** No commitment, no ledger, no platform store, no evaluation envelope, no report, no
+evidence artifact and no cell manifest changed in either stratum, and
+`reviews/round-1/MATRIX-HOLDOUT.authored.json` is byte-preserved. `MATRIX-HOLDOUT.json` and
+everything under `reviews/` and `pilots/` are untouched. `MATRIX.json` is unchanged — the phrase
+guard licenses `m02`'s construction rather than requiring it to move, and no `expected` value in
+either registry moved. `harness/STUDY-MANIFEST.sha256` is regenerated: its path set is unchanged
+at 60 entries, and the digests that move are exactly the source and document files this block
+edits.
+
 ## Apparatus
 
 - **Probe toolchain (pre-freeze, apparatus only).** The probe layer was designed to run under

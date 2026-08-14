@@ -1,6 +1,6 @@
 # Study 015 — the judgment/staged-action boundary under a governed-agent platform
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Seven rounds of
+**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Eight rounds of
 cross-vendor review have run and every one returned **DO-NOT-FREEZE**; every finding of
 every round is dispositioned in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus
 was rebuilt around them — including withdrawing one of the study's own recorded findings
@@ -11,11 +11,13 @@ confirmed the rescope's direction and then found its surfaces lagging and its re
 claim outrunning the code. Round 7 found four of round 6's own repairs asymmetric: they had
 been derived on one side of a symmetry and enforced only there — one crash window of two,
 the read-back value rather than the token, one regex dialect's defaults, one direction of a
-list comparison — plus a tag compared by suffix. All are fixed
-([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope", "Round-6 fixes" and "Round-7 fixes").
-**Round 8 has not run**: the freeze waits on it, and until then anything executed is
-harness validation under `pilots/`, labeled as such, and supports no claim beyond "the
-machinery works".
+list comparison — plus a tag compared by suffix. Round 8 confirmed those four closed and
+found the withdrawn-claim class back on two of the same surfaces for a third time, plus two
+accounts of the pinned source that contradicted it; the class is now a test rather than
+another sweep. All are fixed ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope",
+"Round-6 fixes", "Round-7 fixes" and "Round-8 fixes"). **Round 9 has not run**: the freeze
+waits on it, and until then anything executed is harness validation under `pilots/`,
+labeled as such, and supports no claim beyond "the machinery works".
 
 ## What it is
 

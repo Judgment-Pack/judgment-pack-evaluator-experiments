@@ -9,8 +9,11 @@ verdict is computed over one until the preregistration is frozen, so every condi
 below is built from locked fixtures or from the registry alone.
 """
 
+import ast
+import io
 import json
 import re
+import tokenize
 
 import pytest
 
@@ -308,6 +311,250 @@ def test_typecheck_is_a_scorer_precondition():
     source = (STUDY / "harness" / "score.py").read_text(encoding="utf-8")
     assert "typecheck.typecheck_problems(include_holdout=False)" in source
     assert "typecheck.typecheck_problems(include_holdout=True)" in source
+
+
+# ---------------------------------------------------------------------------
+# withdrawn claims — the guard that replaces the named-list sweep (R8-1)
+# ---------------------------------------------------------------------------
+
+# The phrase classes PREREGISTRATION section 9 withdrew. Each one names a thing this
+# apparatus does not establish: that a retained history is one the pinned platform's own
+# paths reach, that an attested effect stands in a causal relation to a call, or that a
+# private connector field this study never retains is asserted anywhere.
+WITHDRAWN_CLAIM_PHRASES = (
+    "can actually retain",
+    "actually emits",
+    "took effect",
+    "produced by",
+    "caused by",
+    "retryab",
+    "the effect happens",
+)
+
+# Where a phrase above is legitimate, and why. An entry is (surface, phrase, anchor,
+# justification): a match is permitted only when `anchor` — whitespace-normalized and
+# lowercased like the scanned text — appears in the surrounding window, so the licence is
+# granted to one passage rather than to a whole file. Every entry must be used.
+WITHDRAWN_CLAIM_ALLOWLIST = (
+    (
+        "PREREGISTRATION.md",
+        "produced by",
+        "nothing here shows that a given retained history could have been produced by",
+        "section 9 registering the no-source-reachability limit; the phrase is the thing "
+        "being withdrawn, stated as a negation",
+    ),
+    (
+        "PREREGISTRATION.md",
+        "caused by",
+        "is *matched*, never shown to have been caused by that call",
+        "section 9 registering the no-effect-causation limit, stated as a negation",
+    ),
+    (
+        "PREREGISTRATION.md",
+        "retryab",
+        "retryability, error detail, and every private field beyond the scalar are absent "
+        "by construction and asserted nowhere",
+        "section 9 registering the no-real-private-connector-record limit; this is the "
+        "canonical statement every other surface defers to",
+    ),
+    (
+        "README.md",
+        "caused by",
+        "matched to a bound call's identity, never shown to be caused by it",
+        "the README restating section 9's no-effect-causation limit for a reader who "
+        "starts here",
+    ),
+    (
+        "adapter/SPEC.md",
+        "retryab",
+        "yes (`error`, `retryable`), within a 100-record window",
+        "section 0a's retained-record table naming the pinned connector's own `error` and "
+        "`retryable` fields and recording that neither is retained",
+    ),
+    (
+        "harness/MATRIX.json",
+        "retryab",
+        "its retryability and its error detail are not retained and are not joined here",
+        "`m02`'s registered construction saying which private fields the cell does not "
+        "keep; the registry's prose is frozen and this is a negation",
+    ),
+    (
+        "harness/build_fixtures.py",
+        "retryab",
+        "its retryability and its error detail are not retained and no join to a private",
+        "the builder comment for the same `m02` construction, in the same negation",
+    ),
+)
+
+# Skipped wherever they appear, because a guard must hold its own vocabulary verbatim.
+_GUARD_TABLES = ("WITHDRAWN_CLAIM_PHRASES", "WITHDRAWN_CLAIM_ALLOWLIST")
+
+
+def _guard_table_lines(source):
+    """The line numbers occupied by the two tables above, in any module that defines them."""
+    skipped = set()
+    for node in ast.parse(source).body:
+        if not isinstance(node, ast.Assign):
+            continue
+        names = {t.id for t in node.targets if isinstance(t, ast.Name)}
+        if names & set(_GUARD_TABLES):
+            skipped.update(range(node.lineno, (node.end_lineno or node.lineno) + 1))
+    return skipped
+
+
+def _normalize(text):
+    return " ".join(text.split()).lower()
+
+
+def _flatten(pieces):
+    """Join (locator, text) pieces into one normalized string plus a per-character index.
+
+    Joining normalized pieces with a single space is what lets a phrase broken across a
+    Markdown line wrap, or across two comment lines, still be found: the scanned text has
+    no line breaks in it at all.
+    """
+    parts = []
+    locators = []
+    for locator, raw in pieces:
+        chunk = _normalize(raw) + " "
+        parts.append(chunk)
+        locators.extend([locator] * len(chunk))
+    return "".join(parts), locators
+
+
+def _text_pieces(path):
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return [("%d" % (number + 1), line) for number, line in enumerate(lines)]
+
+
+def _python_pieces(path):
+    """Comments and string literals — never bare code, so an identifier is not prose."""
+    source = path.read_text(encoding="utf-8")
+    skipped = _guard_table_lines(source)
+    pieces = []
+    for token in tokenize.generate_tokens(io.StringIO(source).readline):
+        if token.type not in (tokenize.COMMENT, tokenize.STRING):
+            continue
+        if token.start[0] in skipped:
+            continue
+        pieces.append(("%d" % token.start[0], token.string))
+    return pieces
+
+
+def _json_pieces(path, prefix=""):
+    def walk(node, where):
+        if isinstance(node, str):
+            return [(where, node)]
+        if isinstance(node, dict):
+            found = []
+            for key, value in node.items():
+                found.extend(walk(value, "%s.%s" % (where, key)))
+            return found
+        if isinstance(node, list):
+            found = []
+            for index, value in enumerate(node):
+                found.extend(walk(value, "%s[%d]" % (where, index)))
+            return found
+        return []
+
+    return walk(load_json(path), prefix)
+
+
+# Never scanned, and each for a reason the round-8 ruling on `h08` makes explicit:
+# `DEVIATIONS.md` and `PREREG-REVIEW.md` narrate the study's own history and must quote the
+# claims they record as withdrawn; `reviews/` and `pilots/` are verbatim third-party and
+# attempt records this study may not edit at all; `harness/MATRIX-HOLDOUT.json` is the
+# reviewer's authored registry, held byte-equal to `reviews/round-1/` by its own test, so a
+# phrase inside it is dispositioned in `DEVIATIONS.md` and never repaired in place.
+NARRATING_LEDGERS = ("DEVIATIONS.md", "PREREG-REVIEW.md")
+
+
+def living_surfaces():
+    """Every surface a reader reads as this study's current claims, by glob not by list.
+
+    Round 6 (R6-7) found an enumerated population making its own filter tautological, and
+    round 7 found a named-list sweep repairing three sites while the same sentence lived on
+    three lines away. So the population is derived: top-level documents, the SPEC, both
+    adapter modules, every harness module and test, every probe, and the locked registry's
+    prose. A document added tomorrow is covered the day it is written.
+    """
+    found = []
+    for path in sorted(STUDY.glob("*.md")):
+        if path.name not in NARRATING_LEDGERS:
+            found.append((path.name, _text_pieces(path)))
+    for path in sorted(STUDY.glob("adapter/*.md")):
+        found.append(("adapter/%s" % path.name, _text_pieces(path)))
+    # TypeScript is scanned whole: a comment extractor for it would be apparatus needing
+    # its own tests, and an identifier that legitimately carries a phrase can take an
+    # allowlist entry like any other use.
+    for path in sorted(STUDY.glob("probes/**/*.ts")):
+        found.append((str(path.relative_to(STUDY)), _text_pieces(path)))
+    for pattern in ("adapter/*.py", "harness/*.py", "harness/tests/*.py"):
+        for path in sorted(STUDY.glob(pattern)):
+            found.append((str(path.relative_to(STUDY)), _python_pieces(path)))
+    found.append(("harness/MATRIX.json", _json_pieces(STUDY / "harness" / "MATRIX.json")))
+    return found
+
+
+# How far either side of a match an allowlist anchor may sit, and how much of the passage a
+# refusal prints. The licence radius is the wider of the two so that one entry covers one
+# passage: section 0a's table row names the private connector's fields three times over in
+# a single sentence, and that is one licence, not three.
+LICENCE_RADIUS = 400
+REPORT_RADIUS = 140
+
+
+def withdrawn_claim_matches():
+    matches = []
+    for surface, pieces in living_surfaces():
+        text, locators = _flatten(pieces)
+        for phrase in WITHDRAWN_CLAIM_PHRASES:
+            start = text.find(phrase)
+            while start != -1:
+                end = start + len(phrase)
+                matches.append((
+                    surface,
+                    locators[start],
+                    phrase,
+                    text[max(0, start - LICENCE_RADIUS):end + LICENCE_RADIUS],
+                    text[max(0, start - REPORT_RADIUS):end + REPORT_RADIUS],
+                ))
+                start = text.find(phrase, start + 1)
+    return matches
+
+
+def test_living_surfaces_carry_no_withdrawn_claims():
+    """The machinery that replaces three rounds of named-list sweeps.
+
+    Rounds 6, 7 and 8 each found the same class of sentence on a living surface, each time
+    a few lines from where the previous round had repaired it, and each time the repair was
+    a list of sites a reviewer had reached. A list cannot close a class. This scans the
+    derived population above for every phrase class section 9 withdrew, and refuses any
+    occurrence that is not licensed by name in `WITHDRAWN_CLAIM_ALLOWLIST`.
+
+    The two tables are skipped wherever they are defined, since the guard must hold the
+    vocabulary it forbids; every other line of this file is scanned like any other.
+    """
+    unlicensed = []
+    used = set()
+    for surface, locator, phrase, licence_window, shown in withdrawn_claim_matches():
+        licences = [
+            index
+            for index, entry in enumerate(WITHDRAWN_CLAIM_ALLOWLIST)
+            if entry[0] == surface
+            and entry[1] == phrase
+            and _normalize(entry[2]) in licence_window
+        ]
+        if licences:
+            used.update(licences)
+        else:
+            unlicensed.append("%s:%s %r ... %s" % (surface, locator, phrase, shown))
+    assert unlicensed == [], "\n".join(unlicensed)
+    dead = [
+        entry[0:3] for index, entry in enumerate(WITHDRAWN_CLAIM_ALLOWLIST)
+        if index not in used
+    ]
+    assert dead == [], "allowlist entries no longer matching anything: %r" % (dead,)
 
 
 # ---------------------------------------------------------------------------
