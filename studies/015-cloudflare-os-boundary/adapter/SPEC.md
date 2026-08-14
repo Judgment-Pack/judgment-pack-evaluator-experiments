@@ -66,7 +66,7 @@ it does not.
 | Commitment carrier | none — no digest or signature over any record | none | **instrumentation**, wholly |
 | Simulation basis | not retained; `awaitDecision` is an inverted advisory hint | not retained (MCP hardcodes `awaitDecision: true`) | **removed from the schema** — unreachable for this connector (§4b) |
 | Connector outcome / retryability | not retained; the outer log has no failure state at all | yes (`error`, `retryable`), within a 100-record window | **instrumentation**, and flattened: one `connectorOutcome` scalar at the outer layer, never the private row, its retryability or its error detail |
-| External effect attestation, **and the identity of the staged call that produced it** | none — `approved` means an in-process call returned | first-party response only | **instrumentation**, wholly; the call identity is what makes `unbound-execution` a causal join rather than a count |
+| External effect attestation, **and the provenance its writer claims for it** | none — `approved` means an in-process call returned | first-party response only | **instrumentation**, wholly. The provenance is a closed union — `staged-call` (with the `gatekeeperId` and `action` of the call claimed to have produced the effect), `read-path`, or `out-of-band` — validated for shape at store load and read at step 15. It is a *claim by the store about itself*: unsigned, uncorroborated by any private connector result, and matched rather than shown to be true (PREREGISTRATION §9, "no effect causation") |
 | Drain witness (stage-time rule set, pass identity, pass instant, applied ids, gatekeeper presence) | not retained; rules are hard-deleted with no tombstone (`overseer.ts:7762`) | n/a | **instrumentation, and self-asserted** — supplied by the same store under examination, so the verdict is consistency-with-the-witness, never historical lawfulness (§5) |
 | Record timestamps (`createdAt`, `appliedAt`) | **yes**, stock; `appliedAt` is stamped on approve *and* reject | n/a | the queue reconstruction; never read as evidence of application |
 | `autoApprovable`, action-kind tag/label | **yes**, stock, frozen in the persisted description | n/a | drain eligibility, read as-is |
@@ -418,13 +418,25 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
 15. `unbound-execution` — over the **governed inventory** (every attested effect on the tool
     and resource the map governs, whatever arguments it carries): an effect exists with no
     approved bound application; or more effects than approved bound applications; or an effect
-    whose named staged call is not the approved call bound to this commitment; or an effect on
-    the bound call whose arguments are not the authorized ones. The identity join is what makes
-    this a statement about *causation* rather than arithmetic — round 4 demonstrated that a
+    whose claimed staged call is not the approved call bound to this commitment; or an effect on
+    the bound call whose arguments are not the authorized ones. Round 4 demonstrated that a
     correct count can coexist with an effect produced by a different, unretained call with the
-    same tuple, so an attestation names the staged call that produced it (`gatekeeperId`,
-    `action`) and the ceremony joins on that name. That identity is instrumentation, like the
-    attestation itself: stock Cloudflare OS retains neither.
+    same tuple, so an attestation carries a `source` — the **provenance the writer claims**.
+
+    **The provenance is a closed union**, validated for shape at store load: `staged-call`
+    (naming a `gatekeeperId` and `action`), `read-path`, or `out-of-band`. Only a
+    `staged-call` source is joined to the bound call, because only it names one; a
+    `read-path` or `out-of-band` source is counted against the same cap and matched
+    against nothing. Round 5 found the earlier schema fabricating a staged identity for
+    every effect, including on `m01`, whose effect reaches the resource through the read
+    path, and on `b06`, whose store retains no staged call at all — `b06` still *claims*
+    one, and that contradiction between the claim and the store is the cell.
+
+    What the join establishes is **agreement between two retained records**, not causation:
+    the source is written by the same store under examination, is unsigned, and is
+    corroborated by no private connector result (§0a; PREREGISTRATION §9, "no effect
+    causation"). Like the attestation itself, it is instrumentation — stock Cloudflare OS
+    retains neither.
 16. `handoff-dropped` — the committed disposition carries handoff `requested` and `report.json`
     carries no handoff.
 17. `commit-overclaim` — `report.json` claims `effect-attested` while no matching effect
@@ -438,8 +450,9 @@ UTF-8 JSON without duplicate keys, not the canonical JCS encoding of their own c
 
 A check that raises is reported as `retained-store-unreadable` rather than taking the layer
 down silently; the same code covers a ledger or platform store that is absent or unparseable,
-and a retained drain witness that is not the closed shape step 2 registers. All three are
-statements about the apparatus's inputs, never detections.
+a retained drain witness that is not the closed shape step 2 registers, and an effect
+attestation that is not the closed shape step 15 registers. All four are statements about the
+apparatus's inputs, never detections.
 
 ### Layer `replay` — the pinned evaluator
 

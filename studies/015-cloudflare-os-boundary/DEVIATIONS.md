@@ -118,6 +118,16 @@ load-bearing ones, all fixed before round 3's report was read:
   re-keys the layer and field names and, for cells registering no replayed checks, translates the
   authored `pass` to `not-engaged` (the reviewed apparatus reported non-engagement as pass). A
   harness test asserts nothing else differs.
+- **The effect-attestation schema changed, and 23 cells regenerated** (round 5, findings 4 and 6;
+  decisions D1/D3/E). Twenty-one `platform.json` files changed for the schema alone: the effect's
+  `gatekeeperId`/`action` pair moved inside a `source` union, `staged-call` in twenty of them and
+  `read-path` in `m01`, whose effect never came from a staged call. Two `ledger.json` files
+  changed for prose: `b04` and `h04` now carry the second deployment's own `describeCall` output
+  (title, description bytes and printed endpoint) and its denormalized resource title, instead of
+  the first portal's prose beside the second portal's structural fields. Nothing else moved: no
+  commitment, no report, no staged call, no expectation in either registry, and the reviewer's
+  authored holdout file is byte-preserved. A before/after snapshot of all three layer outcomes
+  over all 35 cells, computed by direct layer calls, showed zero drift.
 - **`o01-observation-as-evidence`'s upstream expectation changed `not-engaged`→`pass`** with the
   round-5 rebuild: its rebuilt observation genuinely engages `classifyTool`, so the upstream
   layer now has something to replay. Construction-aligned, not an observed-run correction —
@@ -145,8 +155,12 @@ posture is offline-first and the boundary map does not need it). Concretely:
 
 ### Apparatus items closed at round 5/6
 
-Each is a decision recorded before implementation; none changes a registered expectation, and a
-rebuild of both strata after them reproduced every frozen fixture byte-for-byte.
+Each is a decision recorded before implementation; none changes a registered expectation.
+Through C8 a rebuild of both strata reproduced every frozen fixture byte-for-byte. The D and E
+items below change fixture bytes by construction — a schema change and a regenerated deployment
+— and what changed, in which cells, is recorded under *Registry changes before the freeze*; a
+before/after snapshot of all three layer outcomes over all 35 cells, taken by direct layer calls,
+showed zero drift.
 
 - **C1 — a record resolved before the witness instant is registered, not refused.** Exclusion
   from that pass's queue is legitimate history, and SPEC §5 (upstream step 2) now says so
@@ -194,6 +208,30 @@ rebuild of both strata after them reproduced every frozen fixture byte-for-byte.
   vocabulary, the §0a provenance row and `m02`'s registry construction no longer narrate a
   private connector row: what is retained is the `connectorOutcome` scalar, and the private
   row, its retryability and its error detail are not.
+- **D1 — `describe()` takes a registered DEPLOYMENT, not the first portal's constants.** A
+  deployment is the scope label, bare endpoint, scoped resource URL, upstream server id and
+  denormalized resource title a record inherits from the binding it was staged through; both
+  portals are now registered as complete deployments and the description cache is keyed by
+  deployment. `describeCall` prints the *calling* host's own server name and endpoint
+  (`session.ts:110-117`), so prose generated for one deployment cannot appear on a record staged
+  through another.
+- **D3 — `b04` and `h04` are regenerated on the second deployment's own prose.** Their
+  descriptions previously named the first portal beside the second portal's structural fields, a
+  tuple no host can emit; the regenerated rows carry the second deployment's title, description
+  bytes, endpoint and denormalized resource title. The holdout's authored expectations are
+  untouched, and `reviews/round-1/MATRIX-HOLDOUT.authored.json` is byte-preserved: holdout
+  fixtures are builder products and this is a construction repair, not an adjudication.
+- **E1/E2 — an effect attestation states its provenance as a closed union.** Round 4 gave each
+  effect a staged-call identity to join on; round 5 found that identity fabricated on cells that
+  stage nothing. The `source` member is now `staged-call` (with the claimed `gatekeeperId` and
+  `action`), `read-path`, or `out-of-band`, validated for shape at store load —
+  `retained-store-unreadable`, folded into the existing gate, no new verdict code. Only a
+  `staged-call` source is joined to the bound call; the other arms are counted against the same
+  cap and matched against nothing. `m01`'s effect becomes `read-path`, which is what its
+  construction always said it was, and `b06` still *claims* a staged call against a store holding
+  none — that contradiction is the cell, and it fails on the count exactly as before. SPEC §0a
+  and step 15 now state the union and that the join establishes agreement between two retained
+  records, never causation (PREREGISTRATION §9).
 
 ## Apparatus
 

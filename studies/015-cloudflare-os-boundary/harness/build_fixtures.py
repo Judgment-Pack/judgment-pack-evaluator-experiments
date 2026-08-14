@@ -47,6 +47,42 @@ OTHER_TOOL_NAME = "other_create_work_item"
 BOUND_REVISION = "rev-7"
 DRIFTED_REVISION = "rev-9"
 
+# A DEPLOYMENT is everything a retained record inherits from the portal binding its call
+# was staged through, registered as one object rather than assumed:
+#
+# * `serverName` — the portal's scope label, `${serverName} / ${scopeServerName ?? serverId}`
+#   (`gatekeeper-mcp-portal/src/portal.ts:495-498`). It is what `describeCall` prints and
+#   what an approval prompt names.
+# * `endpoint` — `host.endpoint`, the BARE endpoint `describeCall` renders
+#   (`mcp-shared/src/session.ts:113`, `facet.ts:82-83`); the `#server=` form is the
+#   resourceUrl, never the printed endpoint.
+# * `resourceUrl` / `serverId` — the scoped grant, and the upstream server id the
+#   action-kind scope tag encodes (`portal.ts:523-525`).
+# * `resourceTitle` — the workspace's denormalized title for the connection
+#   (`overseer.ts:2686` from `:2557`). Its default is the same scope label; the value here
+#   is a workspace-local title override, the one mutation upstream allows on that field
+#   (`overseer.ts:9388-9393`), and each deployment carries its own.
+#
+# Round 5 (R4-3) found `describe()` hard-coded the first deployment's server name and
+# endpoint, cache key included, so `b04` and `h04` retained the second deployment's
+# structural fields beside prose naming the first — a tuple no host can emit, since
+# `session.ts:110-117` supplies the CURRENT host's own `serverName` and `endpoint`.
+PORTAL = {
+    "serverName": "tracker portal / tracker",
+    "endpoint": cmt.PORTAL_ENDPOINT,
+    "serverId": cmt.UPSTREAM_SERVER_ID,
+    "resourceUrl": cmt.RESOURCE_URL,
+    "resourceTitle": "Tracker",
+}
+OTHER_PORTAL = {
+    "serverName": "other tracker portal / other",
+    "endpoint": OTHER_ENDPOINT,
+    "serverId": OTHER_SERVER_ID,
+    "resourceUrl": OTHER_RESOURCE_URL,
+    "resourceTitle": "Other Tracker",
+}
+DEPLOYMENTS = (PORTAL, OTHER_PORTAL)
+
 ENABLER = {"type": "user", "id": "governor@example.invalid", "name": "Governor"}
 APPROVER = {"type": "user", "id": "approver@example.invalid", "name": "Approver"}
 AGENT_CALLER = {"from": "agent", "chatId": 1}
@@ -73,11 +109,6 @@ DELETE_TOOL = {
     "description": "Delete a work item in the tracker.",
     "annotations": {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": True},
 }
-# The portal's `host.serverName` is its scope label — `${serverName} / ${serverId}`
-# (gatekeeper-mcp-portal/src/portal.ts:559-561, :495-498) — so it always contains the
-# separator. And `describeCall`'s endpoint is `host.endpoint`, the BARE endpoint
-# (session.ts:113, facet.ts:82-83); the `#server=` form is the resourceUrl.
-PORTAL_SERVER_NAME = "tracker portal / tracker"
 
 # The specification conformance seed cases each cell evaluates (facts + evidence verbatim).
 CASES = {
@@ -102,6 +133,16 @@ EVIDENCE_ARTIFACTS = {
 
 def timestamp(index):
     return "2026-08-01T00:%02d:00.000Z" % index
+
+
+def staged_call_source(gatekeeper_id=1, action_key=11):
+    """The provenance an attestation claims when the effect came from a staged call."""
+    return {"kind": "staged-call", "gatekeeperId": gatekeeper_id, "action": action_key}
+
+
+# The other two arms of that union: an effect the read path produced (no queue entry
+# exists to name) and one produced outside the ceremony altogether.
+READ_PATH_SOURCE = {"kind": "read-path"}
 
 
 def load_cases():
@@ -153,7 +194,7 @@ class Timeline:
         self.gatekeepers = [
             {
                 "id": 1,
-                "resourceUrl": cmt.RESOURCE_URL,
+                "resourceUrl": PORTAL["resourceUrl"],
                 "serverTrust": "vetted",
                 "tools": [copy.deepcopy(TRACKER_TOOL)],
             }
@@ -196,7 +237,7 @@ class Timeline:
 
     def add_action(self, ledger_id, *, gatekeeper_id=1, action_key, state,
                    auto=False, autoApprovable=True, kind=None, resolved_at=None,
-                   described=None):
+                   described=None, deployment=None):
         # The exact field set `mcp-shared/src/session.ts:126-135` submits: describeCall's
         # title and description, implementsRevert false, awaitDecision ALWAYS true, an
         # explicit autoApprovable boolean, and the connector-derived action kind.
@@ -209,12 +250,12 @@ class Timeline:
         }
         if kind is not False:
             description["actionKind"] = dict(kind or self.action_kind)
+        deployment = deployment or PORTAL
         record = {
             "id": ledger_id,
             "gatekeeperId": gatekeeper_id,
-            "resourceTitle": "Tracker",
-            "resourceUrl": (cmt.RESOURCE_URL if gatekeeper_id == 1
-                            else OTHER_RESOURCE_URL),
+            "resourceTitle": deployment["resourceTitle"],
+            "resourceUrl": deployment["resourceUrl"],
             "caller": dict(AGENT_CALLER),
             "createdAt": timestamp(ledger_id),
             "state": state,
@@ -234,13 +275,14 @@ class Timeline:
         self.ledger.append(record)
         return record
 
-    def add_observation(self, ledger_id, title, description):
+    def add_observation(self, ledger_id, title, description, deployment=None):
+        deployment = deployment or PORTAL
         self.ledger.append(
             {
                 "id": ledger_id,
                 "gatekeeperId": 1,
-                "resourceTitle": "Tracker",
-                "resourceUrl": cmt.RESOURCE_URL,
+                "resourceTitle": deployment["resourceTitle"],
+                "resourceUrl": deployment["resourceUrl"],
                 "caller": dict(AGENT_CALLER),
                 "createdAt": timestamp(ledger_id),
                 "state": "approved",
@@ -271,17 +313,20 @@ class Timeline:
         self.apply_revisions["%s:%s" % (gatekeeper_id, action_key)] = revision
 
     def attest_effect(self, arguments, *, resource_url=cmt.RESOURCE_URL,
-                      tool_name=cmt.ACTION_TOOL, gatekeeper_id=1, action_key=11):
-        # An attestation names the staged call it came from. Round 4: without a call
+                      tool_name=cmt.ACTION_TOOL, source=None):
+        # An attestation states where the effect came from. Round 4: without a call
         # identity the ceremony could only count effects, so a correct count could
-        # coexist with an effect produced by a different, unretained call.
+        # coexist with an effect produced by a different, unretained call. Round 5: that
+        # identity was then written onto cells that stage nothing, so the provenance is a
+        # registered UNION — the staged call it came from, the read path, or outside the
+        # queue entirely — and it remains a claim the store makes about itself, never a
+        # corroborated one.
         self.effects.append(
             {
                 "resourceUrl": resource_url,
                 "toolName": tool_name,
-                "gatekeeperId": gatekeeper_id,
-                "action": action_key,
                 "arguments": arguments,
+                "source": dict(source or staged_call_source()),
             }
         )
 
@@ -372,21 +417,32 @@ class Builder:
         self._descriptions = {}
         self._envelopes = {}
 
-    def describe(self, tool, tool_args, mode="action", classified_by="default"):
+    def describe(self, tool, tool_args, mode="action", classified_by="default",
+                 deployment=None):
         """The prose the pinned connector would submit, from upstream's own describeCall.
 
         Round 2: the fixtures previously carried invented short prose, which no connector
         emits. These are the real strings, generated by the pinned function.
+
+        Round 5: the DEPLOYMENT is an input, not a constant. `describeCall` prints the
+        calling host's own server name and endpoint, so prose generated for one deployment
+        cannot appear on a record staged through another — and the cache key carries the
+        deployment for the same reason.
         """
-        key = json.dumps([tool["name"], tool_args, mode, classified_by], sort_keys=True)
+        deployment = deployment or PORTAL
+        key = json.dumps(
+            [deployment["serverName"], deployment["endpoint"],
+             tool["name"], tool_args, mode, classified_by],
+            sort_keys=True,
+        )
         if key not in self._descriptions:
             helpers = cf_runner.build_helpers(
                 {
                     "describeCalls": [
                         {
                             "label": "d",
-                            "serverName": PORTAL_SERVER_NAME,
-                            "endpoint": cmt.PORTAL_ENDPOINT,
+                            "serverName": deployment["serverName"],
+                            "endpoint": deployment["endpoint"],
                             "tool": tool,
                             "toolArgs": tool_args,
                             "mode": mode,
@@ -520,7 +576,8 @@ class Builder:
         if auto:
             timeline.witness(at=record["appliedAt"], applied_ids=[1])
         if attest:
-            timeline.attest_effect(cmt.action_arguments(built["facts"]), action_key=11)
+            timeline.attest_effect(cmt.action_arguments(built["facts"]),
+                                   source=staged_call_source(action_key=11))
         return timeline
 
     def inaction_cell(self, case_key, *, report_mutator=None, envelope_bytes=None):
@@ -783,18 +840,22 @@ def build_all():
     other_tool = dict(copy.deepcopy(TRACKER_TOOL), name=OTHER_TOOL_NAME)
     other_kind = {
         "tag": cmt.action_kind_tag(
-            scope_tag=cmt.action_scope_tag(OTHER_RESOURCE_URL, OTHER_SERVER_ID),
+            scope_tag=cmt.action_scope_tag(
+                OTHER_PORTAL["resourceUrl"], OTHER_PORTAL["serverId"]),
             tool_name=OTHER_TOOL_NAME,
         ),
         "label": OTHER_TOOL_NAME,
     }
     timeline.gatekeepers.append(
-        {"id": 2, "resourceUrl": OTHER_RESOURCE_URL, "serverTrust": "vetted",
+        {"id": 2, "resourceUrl": OTHER_PORTAL["resourceUrl"], "serverTrust": "vetted",
          "tools": [other_tool]})
     other_arguments = cmt.action_arguments(built["facts"])
+    # Every field of this row belongs to the second deployment — including the prose the
+    # SECOND portal's own `describeCall` renders (round 5, R4-3).
     timeline.add_action(1, gatekeeper_id=2, action_key=21, state="approved", auto=False,
-                        kind=other_kind,
-                        described=builder.describe(other_tool, other_arguments))
+                        kind=other_kind, deployment=OTHER_PORTAL,
+                        described=builder.describe(other_tool, other_arguments,
+                                                   deployment=OTHER_PORTAL))
     timeline.stage(gatekeeper_id=2, action_key=21, tool_name=OTHER_TOOL_NAME,
                    arguments=other_arguments, commitment_digest=built["digest"])
     timeline.applied_at_revision(gatekeeper_id=2, action_key=21, revision=BOUND_REVISION)
@@ -821,7 +882,11 @@ def build_all():
 
     built = builder.build(case_key="clarify")
     timeline = builder.timeline(built)
-    timeline.attest_effect(cmt.action_arguments(built["facts"]))
+    # The attestation CLAIMS a staged call against a store that retains none: the writer
+    # asserts provenance the store cannot corroborate, which is the whole cell. Round 5
+    # read the identity as dead data; it is a contradiction, and step 15 refuses it.
+    timeline.attest_effect(cmt.action_arguments(built["facts"]),
+                           source=staged_call_source())
     emit("b06-unbound-execution", built, timeline,
          honest_report(built["envelope"], built["digest"], "none"))
 
@@ -853,7 +918,11 @@ def build_all():
     timeline.add_observation(1, read_described["title"], read_described["description"])
     timeline.observed.append(
         {"gatekeeperId": 1, "ledgerId": 1, "toolName": cmt.ACTION_TOOL})
-    timeline.attest_effect(cmt.action_arguments(built["facts"]))
+    # The effect came from the READ path — no staged call exists to name, and round 5
+    # found the earlier fixture fabricated one. The detection is unchanged: an effect on
+    # the governed resource with no approved bound application, whatever produced it.
+    timeline.attest_effect(cmt.action_arguments(built["facts"]),
+                           source=READ_PATH_SOURCE)
     emit("m01-readonly-bypass", built, timeline,
          honest_report(built["envelope"], built["digest"], "effect-attested"))
 
@@ -941,21 +1010,27 @@ def build_holdout(builder, emit):
     built = builder.build(
         case_key="proceed",
         action_override=builder.forced_action(
-            "proceed", gatekeeperId=2, resourceUrl=OTHER_RESOURCE_URL,
+            "proceed", gatekeeperId=2, resourceUrl=OTHER_PORTAL["resourceUrl"],
             toolName=OTHER_TOOL_NAME, actionKindTag=forged_tag),
     )
     timeline = builder.timeline(built)
     # A second portal deployment with its own scope and correspondingly-named tool. The
     # action-kind TAG remains the reviewer's forged literal — that forgery is the point
-    # of the cell — but everything around it is a shape the portal could host.
+    # of the cell — but everything around it is a shape the portal could host, and round 5
+    # found the one field still naming the first deployment: the prose. `describeCall`
+    # prints the calling host's own server name and endpoint, so the authored requirement
+    # that EVERY target-bearing ledger field move to the second deployment reaches the
+    # description bytes and the denormalized resource title too.
     h04_tool = dict(copy.deepcopy(TRACKER_TOOL), name=OTHER_TOOL_NAME)
     timeline.gatekeepers.append(
-        {"id": 2, "resourceUrl": OTHER_RESOURCE_URL, "serverTrust": "vetted",
+        {"id": 2, "resourceUrl": OTHER_PORTAL["resourceUrl"], "serverTrust": "vetted",
          "tools": [h04_tool]})
     h04_arguments = cmt.action_arguments(built["facts"])
     timeline.add_action(1, gatekeeper_id=2, action_key=21, state="approved", auto=False,
                         kind={"tag": forged_tag, "label": OTHER_TOOL_NAME},
-                        described=builder.describe(h04_tool, h04_arguments))
+                        deployment=OTHER_PORTAL,
+                        described=builder.describe(h04_tool, h04_arguments,
+                                                   deployment=OTHER_PORTAL))
     timeline.stage(gatekeeper_id=2, action_key=21, tool_name=OTHER_TOOL_NAME,
                    arguments=h04_arguments,
                    commitment_digest=built["digest"])

@@ -2,7 +2,7 @@
   {
     "id": 1,
     "gatekeeperId": 2,
-    "resourceTitle": "Tracker",
+    "resourceTitle": "Other Tracker",
     "resourceUrl": "https://other-tracker.example/mcp#server=other",
     "caller": {
       "from": "agent",
@@ -13,8 +13,8 @@
     "type": "action",
     "action": 21,
     "description": {
-      "title": "tracker portal / tracker: othercreateworkitem",
-      "description": "**tracker portal / tracker** → `other_create_work_item`\n\n> Create a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"provision-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://tracker.example/mcp`\n\nTreated as an action because the server did not declare it read-only. Nothing has been sent yet.",
+      "title": "other tracker portal / other: othercreateworkitem",
+      "description": "**other tracker portal / other** → `other_create_work_item`\n\n> Create a work item in the tracker.\n\nArguments:\n```json\n{\n  \"kind\": \"provision-intake\",\n  \"requestType\": \"new-data-pipeline\",\n  \"source\": \"jps-triage\"\n}\n```\n\nEndpoint: `https://other-tracker.example/mcp`\n\nTreated as an action because the server did not declare it read-only. Nothing has been sent yet.",
       "implementsRevert": false,
       "awaitDecision": true,
       "autoApprovable": true,

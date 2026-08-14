@@ -408,12 +408,40 @@ def test_unbound_execution_catches_substituted_causation(cell_copy):
 
     One bound approved call, one retained effect — but the effect was produced by a
     different, unretained call with the same tuple. Counting alone cannot tell the two
-    histories apart, so the attestation names the staged call it came from and the
-    ceremony joins on that name.
+    histories apart, so the attestation claims the staged call it came from and the
+    ceremony joins on that claim.
     """
     cell = cell_copy("pos-baseline")
     platform = load_json(cell / "platform.json")
-    platform["effects"][0]["action"] = 99
+    platform["effects"][0]["source"]["action"] = 99
+    dump_json(cell / "platform.json", platform)
+    assert binding(cell)["code"] == "unbound-execution"
+
+
+def test_retained_store_unreadable_on_a_malformed_effect_source(cell_copy):
+    """Round 5: the effect's provenance is a closed union, checked at store load.
+
+    A source outside the union is not a detection about the bridge — it is a store this
+    apparatus cannot read, exactly like a malformed drain witness.
+    """
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["effects"][0]["source"] = {"kind": "hearsay"}
+    dump_json(cell / "platform.json", platform)
+    assert binding(cell)["code"] == "retained-store-unreadable"
+
+
+def test_read_path_effects_are_counted_and_never_matched(cell_copy):
+    """The union's other arms name no staged call, so nothing joins them to one.
+
+    `m01`'s effect is a read-path effect and is refused on the count (no approved bound
+    application authorizes it); the same effect under an authorization is counted against
+    that cap and matched against nothing, which is the registered semantics.
+    """
+    cell = cell_copy("pos-baseline")
+    platform = load_json(cell / "platform.json")
+    platform["effects"][0]["source"] = {"kind": "read-path"}
+    platform["effects"].append(json.loads(json.dumps(platform["effects"][0])))
     dump_json(cell / "platform.json", platform)
     assert binding(cell)["code"] == "unbound-execution"
 

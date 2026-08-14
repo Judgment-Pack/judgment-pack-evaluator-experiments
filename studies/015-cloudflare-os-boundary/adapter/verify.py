@@ -541,6 +541,57 @@ def _drain_witness_problem(platform):
     return None
 
 
+# The registered effect-attestation shape. An attestation is instrumentation, so its field
+# set is closed exactly like the commitment's and the witness's — and its `source` is a
+# closed UNION: the staged call the writer claims produced the effect, the read path (which
+# stages nothing, so there is no call to name), or outside the queue entirely.
+_EFFECT_FIELDS = ("arguments", "resourceUrl", "source", "toolName")
+_EFFECT_SOURCE_KINDS = ("staged-call", "read-path", "out-of-band")
+_STAGED_CALL_SOURCE_FIELDS = ("action", "gatekeeperId", "kind")
+_UNSTAGED_SOURCE_FIELDS = ("kind",)
+
+
+def _effect_problem(platform):
+    """The retained effect attestations, held to that shape at store load.
+
+    Round 5 found every effect carrying a fabricated staged-call identity, including on
+    cells that stage nothing at all. The identity is now one arm of a validated union, and
+    a record that is not the registered shape makes the retained store unreadable — an
+    apparatus verdict, never a detection. What the union does NOT do is authenticate the
+    claim: the source is written by the same store under examination (SPEC section 0a).
+    """
+    effects = platform.get("effects")
+    if effects is None:
+        return None
+    if not isinstance(effects, list):
+        return "the retained effect attestations are not a list"
+    for index, effect in enumerate(effects):
+        where = "effect attestation %d" % index
+        if not isinstance(effect, dict) or tuple(sorted(effect)) != _EFFECT_FIELDS:
+            return "%s does not carry the registered attestation field set" % where
+        for member in ("resourceUrl", "toolName"):
+            value = effect[member]
+            if not isinstance(value, str) or not value:
+                return "%s carries no %s" % (where, member)
+        if not isinstance(effect["arguments"], dict):
+            return "%s does not carry an argument object" % where
+        source = effect["source"]
+        if not isinstance(source, dict) or source.get("kind") not in _EFFECT_SOURCE_KINDS:
+            return "%s claims a provenance outside the registered union" % where
+        fields = (
+            _STAGED_CALL_SOURCE_FIELDS
+            if source["kind"] == "staged-call"
+            else _UNSTAGED_SOURCE_FIELDS
+        )
+        if tuple(sorted(source)) != fields:
+            return "%s claims %r provenance in the wrong shape" % (where, source["kind"])
+        if source["kind"] == "staged-call" and not (
+            _is_int(source["gatekeeperId"]) and _is_int(source["action"])
+        ):
+            return "%s names a staged call with a non-integer identity" % where
+    return None
+
+
 def _load_context(cell):
     """Resolve the context, or return a gate failure that forbids further checks."""
     context = Context(cell)
@@ -580,6 +631,9 @@ def _load_context(cell):
     witness_problem = _drain_witness_problem(platform)
     if witness_problem is not None:
         return None, ("retained-store-unreadable", witness_problem)
+    effect_problem = _effect_problem(platform)
+    if effect_problem is not None:
+        return None, ("retained-store-unreadable", effect_problem)
     context.ledger = ledger
     context.platform = platform
 
@@ -1195,9 +1249,17 @@ def _check_unbound_execution(context):
     # effect caused by the bound call from one caused by an unretained call with the same
     # tuple. A retaining deployment records which staged call produced the effect, so the
     # attestation names it and the ceremony joins on that name rather than inferring it.
+    #
+    # Round 5: the name is one arm of a union. An effect that claims the READ PATH or an
+    # OUT-OF-BAND origin names no staged call, so there is nothing to join it to — it is
+    # counted above, against the same cap, and is never matched here. What the claim buys
+    # in either arm is the same and no more: the store says where the effect came from.
     bound = {(call.get("gatekeeperId"), call.get("action")) for call, _ in context.applied_bound}
     for effect in effects:
-        identity = (effect.get("gatekeeperId"), effect.get("action"))
+        source = effect["source"]
+        if source["kind"] != "staged-call":
+            continue
+        identity = (source["gatekeeperId"], source["action"])
         if identity not in bound:
             return (
                 "unbound-execution",
