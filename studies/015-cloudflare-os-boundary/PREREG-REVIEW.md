@@ -9,8 +9,9 @@ declined with reasons.
 and are never edited; the dispositions here are brought current as work lands, by amending the
 status of a row rather than rewriting what it said. Where a later round superseded an earlier
 disposition, the earlier row keeps its words and gains a note saying so. Statuses below are
-current as of the round-9 fixes (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
-`5cb4c1e`, `a7ac228`, and the round-6, round-7, round-8 and round-9 fix blocks that follow them).
+current as of the round-10 fixes (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
+`5cb4c1e`, `a7ac228`, and the round-6, round-7, round-8, round-9 and round-10 fix blocks that
+follow them).
 
 ## Round 1 — DO-NOT-FREEZE
 
@@ -406,3 +407,41 @@ review loop. **The study does not freeze on this record.** Round 10 has not run;
 decide whether the rescoped backstop's claims match its behavior, whether the nine repaired
 passages say only what §9 permits, and whether the manifest and the suite are green on the tree
 it reads.
+
+
+## Round 10 — DO-NOT-FREEZE
+
+Reviewer: same configuration, static review with the suite and both registries executed. Study
+tree reviewed at commit `1ee1ca1`. Verdict: **do not freeze**; one blocker, R9-2 confirmed
+RESOLVED, R9-1's nine prose repairs and all four mechanical repairs confirmed sound with the
+residue named as R10-1, and both dispositions round 9's block asked to be ruled on returned
+ACCEPTABLE and LAWFUL. The verbatim prompt and review are retained and are to be filed under
+`reviews/round-10/` as every earlier round's are; this commit touches nothing under `reviews/`.
+
+Round 10 read the guard round 9 hardened and found the one thing a count cannot see. It is the
+defect this study already has on its own record: R5-1 made the governed inventory match the
+authorization by identity rather than by arithmetic, because a foreign call satisfied
+`len(subject_calls) == authorized == 1` while sitting outside the bound set. A count is a
+summary, and a summary admits substitution.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R9-1r / R10-1 | **Blocker.** Licences are count-bound, not occurrence-bound. Deleting the legitimate `retryability` header at `SPEC.md:68` and inserting `External state is not retryable.` inside the unchanged anchor window preserves three matches, so the real adjudicator returns `([], [])` — a known forbidden formulation can replace an allowed occurrence, against the claim at `test_study.py:823-827` that reintroduction of a known formulation is mechanically impossible. | **Accepted and fixed as proposed: the licence table is now one-to-one fingerprints.** Each licensed *occurrence* registers `(surface, phrase, locator, passage, justification)`, where the passage is the exact whitespace-normalized prose around the match, clipped to the run it lives in and to ±120 characters. A match is licensed only when some entry no earlier match has claimed carries its surface, its phrase, its locator **and** a byte-equal passage; an entry nothing matches is dead and fails too. Twelve entries become **fourteen fingerprints** — section 0a's three-occurrence licence becomes three, each with its own passage and its own justification — and the ±400-character window is gone with the count it was standing in for. The reviewer's exact attack is registered as data in `SUBSTITUTION_ATTACK` and run against the whole adjudicator over a mutated copy of the SPEC (the tree is never written): the occurrence count is three before and three after, and the guard now returns three unlicensed occurrences and three dead fingerprints instead of `([], [])`. The claim at `test_study.py:823-827` is rewritten to what fingerprints actually give — a licensed occurrence cannot move to another line, cannot change the sentence around it, and cannot be joined by a second without the table being restated — and semantic novelty stays where round 10's own Ruling 1 leaves it, with the review loop. Two new tests, 199 in the suite. |
+| R9-2 | **Resolved**, confirmed: the manifest replaces exactly the six covered-file digests `cb48421` changed, `1ee1ca1` touches only excluded review records, and `test_study_manifest_is_exact` passes. | No change. |
+| Ruling 1 | **Acceptable**, adopted as ruled: the registered lexical narrowness plus the semantic review loop is an honest closure model; refusing a bare `admits` or `produces` would reject legitimate apparatus vocabulary, and the asserted historical arithmetic exposes rather than conceals the uncovered cases. The 21-row table, its 12/9 split and the assertion over both are unchanged by this block. | No change. |
+| Ruling 2 | **Lawful**, adopted as ruled: `verify.py:887-902` states cited, source-level necessary constraints, and section 9 disclaims positive reachability of complete modeled histories rather than derivation from pinned source. Those sentences are not rewritten. | No change. |
+
+**No registered expectation changed in either stratum, no verdict code was added, and no
+vocabulary member moved.** The before/after snapshot over all three layer outcomes, every
+published `suppressed` code and every upstream engagement list, for all 35 cells by direct layer
+calls, is **zero drift** — a sixth consecutive round, and over the narrowest block yet: this one
+is a test file and a manifest.
+
+**Standing after ten rounds.** Every blocker from rounds 1–9 is closed; round 10's one is closed
+here and both of its rulings are adopted as ruled. The shape of this round is the study being
+caught by its own lesson: round 5 made the ceremony check identities rather than totals, and
+round 9 then answered a licence-shadowing blocker with a total — in the guard rather than in the
+ceremony, which is the one place nobody was reading for it. **The study does not freeze on
+this record.** Round 11 has not run; its job is to decide whether the fingerprints identify what
+they claim to identify, whether the substitution regression is the attack it says it runs, and
+whether anything else in this tree summarizes where it should be identifying.

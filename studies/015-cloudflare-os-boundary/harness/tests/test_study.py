@@ -342,47 +342,64 @@ WITHDRAWN_CLAIM_PHRASES = (
     r"\bleaves\b[^.\x00]{0,60}\bretained\b",
 )
 
-# Where a phrase above is legitimate, and why. An entry is
-# (surface, phrase, anchor, occurrences, justification): a match is permitted only when
-# `anchor` — whitespace-normalized and lowercased like the scanned text — appears in the
-# surrounding window, AND the entry's licensed matches number exactly `occurrences`.
-# Round 9 (R9-1) found the anchor alone insufficient: the licence window is wide enough to
-# shadow a second, unrelated occurrence of the same phrase, so a new claim written beside a
-# licensed passage inherited its licence. The count is what closes that — a licence covers
-# a stated number of known occurrences, and an extra one fails whether or not it sits
-# beside the anchor. A count that no longer matches also fails, so a repaired site cannot
-# leave a stale licence behind.
-WITHDRAWN_CLAIM_ALLOWLIST = (
+# Where a phrase above is legitimate, and why — one entry per licensed OCCURRENCE, not one
+# per passage. An entry is (surface, phrase, locator, passage, justification). The passage
+# is the exact text around the match, whitespace-normalized and lowercased like everything
+# scanned, bounded by the prose run the occurrence lives in and by `PASSAGE_RADIUS` either
+# side. A match is licensed only when some unclaimed entry carries its surface, its phrase,
+# its locator and a byte-equal passage, and each entry licenses exactly one match.
+# Round 9 (R9-1) replaced the bare anchor with an occurrence count, because a ±400-character
+# licence window is wide enough to shadow a second occurrence of the same phrase. Round 10
+# (R10-1) showed a count is not an identity either: delete one of the three legitimate
+# occurrences section 0a's row carries, write a sentence of the withdrawn class into the
+# same row, and the count is still three — a forbidden formulation substitutes itself for an
+# allowed one and the adjudicator sees nothing. `SUBSTITUTION_ATTACK` below holds that exact
+# edit and runs it. A fingerprint is the identity the count was standing in for: the
+# occurrence cannot move to another line, cannot change the sentence around it, and cannot
+# be joined by a second without this table being restated, and a repaired site leaves its
+# fingerprint dead, which also fails. It is the study's own R5-1 lesson — a count is not an
+# identity — applied to the study's own guard.
+WITHDRAWN_CLAIM_FINGERPRINTS = (
     (
         "PREREGISTRATION.md",
         "produced by",
-        "nothing here shows that a given retained history could have been produced by",
-        1,
-        "section 9 registering the no-source-reachability limit; the phrase is the thing "
-        "being withdrawn, stated as a negation",
+        "406",
+        "internally consistent where the cell requires it — and nothing here shows that"
+        " a given retained history could have been produced by the pinned platform's "
+        "own execution paths. **no effect causation:** an attested effect matching a "
+        "bound call's identity",
+        "section 9 registering the no-source-reachability limit; the phrase is the "
+        "thing being withdrawn, stated as a negation",
     ),
     (
         "PREREGISTRATION.md",
         "caused by",
-        "is *matched*, never shown to have been caused by that call",
-        1,
+        "408",
+        "hs. **no effect causation:** an attested effect matching a bound call's "
+        "identity is *matched*, never shown to have been caused by that call; effect "
+        "attestations are modeled records (spec §0a) and carry no causal proof. **no "
+        "closed inventory:** the b",
         "section 9 registering the no-effect-causation limit, stated as a negation",
     ),
     (
         "PREREGISTRATION.md",
         "retryab",
-        "retryability, error detail, and every private field beyond the scalar are absent "
-        "by construction and asserted nowhere",
-        1,
+        "413",
+        "s of a connector outcome it speaks of the retained flattened "
+        "`connectoroutcome` scalar, never a recovered private row — retryability, error"
+        " detail, and every private field beyond the scalar are absent by construction "
+        "and asserted nowhere.  10. pub",
         "section 9 registering the no-real-private-connector-record limit; this is the "
         "canonical statement every other surface defers to",
     ),
     (
         "PREREGISTRATION.md",
         r"\bproducible\b",
-        "an earlier draft used a bare endpoint, an invented scope tag and short "
-        "hand-written prose; none of it was producible",
-        1,
+        "158",
+        "history (§9). an earlier draft used a bare endpoint, an invented scope tag and"
+        " short hand-written prose; none of it was producible, and `deviations.md` "
+        "records the correction. the staged call binds the commitment at staging time "
+        "and the published rep",
         "section 4a recording why the earlier scenario was withdrawn: a negation about "
         "this study's own discarded draft, in the paragraph that registers section 9's "
         "limit two sentences earlier",
@@ -390,72 +407,112 @@ WITHDRAWN_CLAIM_ALLOWLIST = (
     (
         "README.md",
         "caused by",
-        "matched to a bound call's identity, never shown to be caused by it",
-        1,
+        "86",
+        "ths would produce a given retained history. an attested effect is matched to a"
+        " bound call's identity, never shown to be caused by it; the inventories the "
+        "checks close are over what the store retains, not what the platform would have"
+        " written; and a c",
         "the README restating section 9's no-effect-causation limit for a reader who "
         "starts here",
     ),
     (
         "adapter/SPEC.md",
         "retryab",
-        "yes (`error`, `retryable`), within a 100-record window",
-        3,
-        "section 0a's retained-record table naming the pinned connector's own `error` and "
-        "`retryable` fields and recording that neither is retained — one table row, one "
-        "sentence, and the word three times over: `retryability` in the column head, "
-        "`retryable` in the private-store cell, `retryability` again in the "
-        "not-retained cell",
+        "68",
+        "des `awaitdecision: true`) | **removed from the schema** — unreachable for "
+        "this connector (§4b) | | connector outcome / retryability | not retained; the "
+        "outer log has no failure state at all | yes (`error`, `retryable`), within a "
+        "100-record window",
+        "section 0a's retained-record row, occurrence one of three in the one sentence "
+        "that row is: the row label, naming the pinned connector's own outcome field",
+    ),
+    (
+        "adapter/SPEC.md",
+        "retryab",
+        "68",
+        "r (§4b) | | connector outcome / retryability | not retained; the outer log has"
+        " no failure state at all | yes (`error`, `retryable`), within a 100-record "
+        "window | **instrumentation**, and flattened: one `connectoroutcome` scalar at "
+        "the outer layer,",
+        "the same row, occurrence two: the private-store cell naming `error` and "
+        "`retryable` as fields the pinned connector keeps and this study does not",
+    ),
+    (
+        "adapter/SPEC.md",
+        "retryab",
+        "68",
+        "ndow | **instrumentation**, and flattened: one `connectoroutcome` scalar at "
+        "the outer layer, never the private row, its retryability or its error detail |"
+        " | external effect attestation, **and the provenance its writer claims for "
+        "it** | none — `app",
+        "the same row, occurrence three: the study's-use cell recording that what is "
+        "kept is the flattened scalar and never the private row or its retryability",
     ),
     (
         "adapter/SPEC.md",
         r"\bproducible\b",
-        "a vetted, auto-approvable write is producible **only** through the portal",
-        1,
+        "224",
+        "ssifytool` requires `vetted` for auto-approval (`mcp-"
+        "shared/src/tools.ts:66-69`), so a vetted, auto-approvable write is producible "
+        "**only** through the portal (`gatekeeper-mcp-portal/src/config.ts:34-36`; the "
+        "repository says so itself at `gatekeeper-",
         "round 2's deployment finding: a statement about which pinned connector can be "
-        "configured at all, which is what forces the registered deployment; it is not a "
-        "claim about any retained history",
+        "configured at all, which is what forces the registered deployment; it is not a"
+        " claim about any retained history",
     ),
     (
         "adapter/SPEC.md",
         r"\bproducible\b",
-        "an invented `jps-tracker` scope and an omitted `awaitdecision`; none of that was "
-        "producible",
-        1,
-        "the same section recording why the earlier draft's identifiers were withdrawn, "
-        "as a negation about this study's own discarded draft",
-    ),
-    (
-        "harness/MATRIX.json",
-        "retryab",
-        "its retryability and its error detail are not retained and are not joined here",
-        1,
-        "`m02`'s registered construction saying which private fields the cell does not "
-        "keep; the registry's prose is frozen and this is a negation",
-    ),
-    (
-        "harness/build_fixtures.py",
-        "retryab",
-        "its retryability and its error detail are not retained and no join to a private",
-        1,
-        "the builder comment for the same `m02` construction, in the same negation",
+        "239",
+        "invented short prose, a bare endpoint, an invented `jps-tracker` scope and an "
+        "omitted `awaitdecision`; none of that was producible, and it is corrected.  "
+        "what the reconstruction establishes is **coherence between a retained row's "
+        "prose and the deploy",
+        "the same section recording why the earlier draft's identifiers were withdrawn,"
+        " as a negation about this study's own discarded draft",
     ),
     (
         "adapter/commitment.py",
         r"\bproducible\b",
-        "round 2 established that the earlier scenario was not producible by any pinned "
-        "connector",
-        1,
-        "the same round-2 deployment finding as the SPEC entry above, stated as a "
+        "31",
+        "*mcp portal** connector with `mcp_portal_trust_annotations=true`. round 2 "
+        "established that the earlier scenario was not producible by any pinned "
+        'connector: the generic mcp connector hardwires `trust = "byo"` (gatekeeper-'
+        "mcp/src/mcp.ts:77) so no write",
+        "the same round-2 deployment finding as the SPEC entries above, stated as a "
         "negation about the withdrawn draft scenario",
+    ),
+    (
+        "harness/build_fixtures.py",
+        "retryab",
+        "936",
+        "s. what the cell keeps of the dispatch is the flattened `connectoroutcome` "
+        "scalar alone: the private connector row, its retryability and its error detail"
+        " are not retained and no join to a private store exists here, so this "
+        "construction asserts not",
+        "the builder comment for the same `m02` construction, in the same negation",
     ),
     (
         "harness/tests/test_study.py",
         r"\bproducible\b",
-        "the generic mcp connector hardwires byo, so a vetted, auto-approvable write is "
-        "producible only through the portal",
-        1,
+        "1293",
+        "ape a pinned connector's source defines. the generic mcp connector hardwires "
+        "byo, so a vetted, auto-approvable write is producible only through the portal."
+        " round 5 (findings 4 and 5) made the comparison a whole-description one. for "
+        "every action row o",
         "the docstring of the regression that enforces the round-2 deployment finding, "
         "restating the SPEC sentence it checks",
+    ),
+    (
+        "harness/MATRIX.json",
+        "retryab",
+        ".cells[26].construction",
+        "ell retains of the dispatch is the flattened connectoroutcome scalar 'outcome-"
+        "unknown' — the private connector row, its retryability and its error detail "
+        "are not retained and are not joined here. the honest bridge reports applied-"
+        "unproven ",
+        "`m02`'s registered construction saying which private fields the cell does not "
+        "keep; the registry's prose is frozen and this is a negation",
     ),
 )
 
@@ -580,10 +637,11 @@ EVASION_REPRESENTATIONS = (
 # Skipped wherever they appear, because a backstop must hold its own vocabulary verbatim.
 _GUARD_TABLES = (
     "WITHDRAWN_CLAIM_PHRASES",
-    "WITHDRAWN_CLAIM_ALLOWLIST",
+    "WITHDRAWN_CLAIM_FINGERPRINTS",
     "HISTORICAL_FORMULATIONS",
     "ROUND_NINE_REPAIRS",
     "EVASION_REPRESENTATIONS",
+    "SUBSTITUTION_ATTACK",
 )
 
 
@@ -644,10 +702,14 @@ def _flatten(runs):
     return "".join(parts), locators
 
 
-def _text_runs(path):
+def _text_runs_from_text(text):
     """A text file is one run: every line is contiguous with the next, markers removed."""
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = text.splitlines()
     return [[("%d" % (number + 1), _strip_markers(line)) for number, line in enumerate(lines)]]
+
+
+def _text_runs(path):
+    return _text_runs_from_text(path.read_text(encoding="utf-8"))
 
 
 def _string_token_text(literal):
@@ -747,8 +809,8 @@ def living_surfaces():
     for path in sorted(STUDY.glob("adapter/*.md")):
         found.append(("adapter/%s" % path.name, _text_runs(path)))
     # TypeScript is scanned whole: a comment extractor for it would be apparatus needing
-    # its own tests, and an identifier that legitimately carries a phrase can take an
-    # allowlist entry like any other use.
+    # its own tests, and an identifier that legitimately carries a phrase can take a
+    # fingerprint like any other use.
     for path in sorted(STUDY.glob("probes/**/*.ts")):
         found.append((str(path.relative_to(STUDY)), _text_runs(path)))
     for pattern in ("adapter/*.py", "harness/*.py", "harness/tests/*.py"):
@@ -758,13 +820,22 @@ def living_surfaces():
     return found
 
 
-# How far either side of a match an allowlist anchor may sit, and how much of the passage a
-# refusal prints. The licence radius is the wider of the two so that one entry can cover
-# one passage: section 0a's table row names the private connector's fields three times over
-# in a single sentence. What bounds the licence is no longer the radius — it is the
-# occurrence count each entry registers.
-LICENCE_RADIUS = 400
+# How much prose a fingerprint pins, and how much of it a refusal prints. The passage is
+# what identifies an occurrence, so it is clipped on both sides — by the radius, and by the
+# run the occurrence lives in, so that a fingerprint never spans a run break and never grows
+# with the file around it. Round 9's ±400 licence window is gone: a window that had to be
+# wide enough to hold three occurrences of one sentence was exactly what let a fourth,
+# unrelated one in.
+PASSAGE_RADIUS = 120
 REPORT_RADIUS = 140
+
+
+def _passage(text, start, end):
+    """The prose around a match, clipped to its own run and to `PASSAGE_RADIUS`."""
+    left = text.rfind(_RUN_BREAK, 0, start) + 1
+    right = text.find(_RUN_BREAK, end)
+    right = len(text) if right < 0 else right
+    return text[max(left, start - PASSAGE_RADIUS):min(right, end + PASSAGE_RADIUS)]
 
 
 def withdrawn_claim_hits(surface, runs):
@@ -778,7 +849,7 @@ def withdrawn_claim_hits(surface, runs):
                 surface,
                 locators[start],
                 phrase,
-                text[max(0, start - LICENCE_RADIUS):end + LICENCE_RADIUS],
+                _passage(text, start, end),
                 text[max(0, start - REPORT_RADIUS):end + REPORT_RADIUS],
             ))
     return found
@@ -791,30 +862,32 @@ def withdrawn_claim_matches():
     return matches
 
 
-def adjudicate_matches(matches, allowlist=None):
-    """(unlicensed occurrences, entries whose licensed count is not the registered one)."""
-    allowlist = WITHDRAWN_CLAIM_ALLOWLIST if allowlist is None else allowlist
+def adjudicate_matches(matches, fingerprints=None):
+    """(unlicensed occurrences, registered fingerprints nothing on the tree matches).
+
+    One fingerprint licenses one occurrence and no other. A match is licensed when some
+    fingerprint no earlier match has claimed carries its surface, its phrase, its locator
+    and exactly its passage; everything else is unlicensed, whatever the totals come to.
+    """
+    fingerprints = WITHDRAWN_CLAIM_FINGERPRINTS if fingerprints is None else fingerprints
     unlicensed = []
-    counted = {index: 0 for index in range(len(allowlist))}
-    for surface, locator, phrase, licence_window, shown in matches:
+    claimed = set()
+    for surface, locator, phrase, passage, shown in matches:
         licences = [
             index
-            for index, entry in enumerate(allowlist)
-            if entry[0] == surface
-            and entry[1] == phrase
-            and _normalize(entry[2]) in licence_window
+            for index, entry in enumerate(fingerprints)
+            if index not in claimed and entry[:4] == (surface, phrase, locator, passage)
         ]
         if licences:
-            for index in licences:
-                counted[index] += 1
+            claimed.add(licences[0])
         else:
             unlicensed.append("%s:%s %r ... %s" % (surface, locator, phrase, shown))
-    miscounted = [
-        (entry[0], entry[1], "registered %d, found %d" % (entry[3], counted[index]))
-        for index, entry in enumerate(allowlist)
-        if counted[index] != entry[3]
+    dead = [
+        (entry[0], entry[2], entry[1])
+        for index, entry in enumerate(fingerprints)
+        if index not in claimed
     ]
-    return unlicensed, miscounted
+    return unlicensed, dead
 
 
 def test_living_surfaces_carry_no_withdrawn_claims():
@@ -823,8 +896,12 @@ def test_living_surfaces_carry_no_withdrawn_claims():
     What it claims: none of the exact phrase classes in `WITHDRAWN_CLAIM_PHRASES` can
     return to a living surface unlicensed. Rounds 6, 7 and 8 each found the same class of
     sentence a few lines from where the previous round had repaired it, each time because
-    the repair was a list of sites a reviewer had reached; this makes reintroduction of a
-    *known* formulation mechanically impossible instead of a matter of who read what.
+    the repair was a list of sites a reviewer had reached. What the fingerprints add to
+    that, exactly and no more: a licensed occurrence of a known phrase cannot move to
+    another line, cannot change the sentence around it, and cannot be joined by a second
+    occurrence without `WITHDRAWN_CLAIM_FINGERPRINTS` being restated — so a known
+    formulation cannot be *substituted* for a licensed one, which round 10 (R10-1) showed
+    an occurrence count permits.
 
     What it does NOT claim, stated so that no later round has to discover it: it is not a
     semantic check, it does not decide whether a new sentence asserts a withdrawn claim,
@@ -838,11 +915,10 @@ def test_living_surfaces_carry_no_withdrawn_claims():
     The tables are skipped wherever they are defined, since the backstop must hold the
     vocabulary it forbids; every other line of this file is scanned like any other.
     """
-    unlicensed, miscounted = adjudicate_matches(withdrawn_claim_matches())
+    unlicensed, dead = adjudicate_matches(withdrawn_claim_matches())
     assert unlicensed == [], "\n".join(unlicensed)
-    assert miscounted == [], (
-        "allowlist entries whose licensed occurrence count is not the registered one: %r"
-        % (miscounted,)
+    assert dead == [], (
+        "registered fingerprints no occurrence on a living surface matches: %r" % (dead,)
     )
 
 
@@ -920,25 +996,96 @@ def test_the_extractor_reads_the_representations_round_nine_named(representation
         assert phrase in hits, hits
 
 
-def test_a_licence_covers_a_counted_set_of_occurrences_and_no_more():
-    """R9-1: the anchor window is wide enough to shadow a second occurrence.
+def test_a_fingerprint_licenses_one_occurrence_and_that_one_only():
+    """The four ways an occurrence can stop being the one that was licensed.
 
-    A new claim written beside a licensed passage used to inherit its licence, because the
-    licence asked only whether the anchor was nearby. Each entry now registers how many
-    occurrences it covers, so the extra one is refused by arithmetic rather than by whether
-    a reviewer noticed it sitting there.
+    Round 9's count saw only the third of them. Moving the occurrence to another line,
+    rewriting the sentence around it and adding a second one beside it are each refused as
+    unlicensed; removing it leaves the fingerprint dead, so a repaired site cannot leave a
+    stale licence behind either.
     """
-    entry = WITHDRAWN_CLAIM_ALLOWLIST[0]
+    assert len(WITHDRAWN_CLAIM_FINGERPRINTS) == 14
+    assert len({entry[:4] for entry in WITHDRAWN_CLAIM_FINGERPRINTS}) == 14
+    entry = WITHDRAWN_CLAIM_FINGERPRINTS[0]
     only = (entry,)
-    surface, phrase, anchor, occurrences = entry[0], entry[1], entry[2], entry[3]
-    window = _normalize(anchor)
-    exact = [(surface, "1", phrase, window, window)] * occurrences
-    assert adjudicate_matches(exact, only) == ([], [])
-    extra = exact + [(surface, "2", phrase, window, window)]
-    unlicensed, miscounted = adjudicate_matches(extra, only)
-    assert unlicensed == [], unlicensed
-    assert [item[0:2] for item in miscounted] == [(surface, phrase)]
-    assert adjudicate_matches(exact[:-1], only)[1] != []
+    surface, phrase, locator, passage = entry[:4]
+    exact = (surface, locator, phrase, passage, passage)
+    assert adjudicate_matches([exact], only) == ([], [])
+    moved = (surface, "9999", phrase, passage, passage)
+    assert adjudicate_matches([moved], only) != ([], [])
+    rewritten = (surface, locator, phrase, passage + " and one more clause", passage)
+    assert adjudicate_matches([rewritten], only) != ([], [])
+    beside_unlicensed, beside_dead = adjudicate_matches([exact, exact], only)
+    assert len(beside_unlicensed) == 1 and beside_dead == []
+    assert adjudicate_matches([], only) == ([], [(surface, locator, phrase)])
+
+
+# Round 10 (R10-1), the reviewer's own attack, held as data because it carries the forbidden
+# sentence verbatim and this table is skipped like every other. It is
+# (surface, locator, phrase, the sentence written in, the edits): one legitimate occurrence
+# deleted from section 0a's retained-record row and one withdrawn formulation written into
+# the same row, inside the ±400-character window the round-9 licence read. One out, one in,
+# and the count does not move.
+SUBSTITUTION_ATTACK = (
+    "adapter/SPEC.md",
+    "68",
+    "retryab",
+    "External state is not retryable.",
+    (
+        ("| Connector outcome / retryability |", "| Connector outcome |"),
+        (
+            "yes (`error`, `retryable`), within a 100-record window",
+            "yes (`error`, `retryable`), within a 100-record window. "
+            "External state is not retryable.",
+        ),
+    ),
+)
+
+
+def _surface_under_substitution_attack():
+    """The attacked surface's bytes, mutated in memory. The tree is never written."""
+    text = (STUDY / SUBSTITUTION_ATTACK[0]).read_text(encoding="utf-8")
+    for before, after in SUBSTITUTION_ATTACK[4]:
+        assert text.count(before) == 1, before
+        text = text.replace(before, after)
+    return text
+
+
+def _matches_under_substitution_attack():
+    attacked = SUBSTITUTION_ATTACK[0]
+    mutated = _text_runs_from_text(_surface_under_substitution_attack())
+    matches = []
+    for surface, runs in living_surfaces():
+        matches.extend(withdrawn_claim_hits(surface, mutated if surface == attacked else runs))
+    return matches
+
+
+def test_the_delete_one_add_one_substitution_is_refused():
+    """R10-1, run against the real adjudicator over a mutated copy of one surface.
+
+    The tree itself is untouched — the mutation lives in memory — and every other surface
+    is read as it stands, so what runs here is the whole guard rather than a unit of it.
+    The attack leaves the occurrence count at three, which is exactly why the round-9
+    licence returned `([], [])` on it: a known forbidden formulation had displaced an
+    allowed one and the arithmetic still balanced. Under fingerprints the written-in
+    sentence is an occurrence no entry registers, and all three entries for that row lose
+    the passages that identified them.
+    """
+    surface, locator, phrase, written_in, _edits = SUBSTITUTION_ATTACK
+    standing, attacked = withdrawn_claim_matches(), _matches_under_substitution_attack()
+
+    def on_the_attacked_row(matches):
+        return [hit for hit in matches if hit[0] == surface and hit[2] == phrase]
+
+    # The count is unmoved, which is the whole of what round 9's licence looked at, and the
+    # standing tree licenses cleanly — so every one of the fourteen fingerprints is live.
+    assert (len(on_the_attacked_row(standing)), len(on_the_attacked_row(attacked))) == (3, 3)
+    assert adjudicate_matches(standing) == ([], [])
+
+    unlicensed, dead = adjudicate_matches(attacked)
+    assert [item.split(" ", 1)[0] for item in unlicensed] == ["%s:%s" % (surface, locator)] * 3
+    assert any(_normalize(written_in) in item for item in unlicensed), unlicensed
+    assert dead == [(surface, locator, phrase)] * 3
 
 
 # ---------------------------------------------------------------------------

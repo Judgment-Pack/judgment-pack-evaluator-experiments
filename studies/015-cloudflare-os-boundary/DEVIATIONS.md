@@ -695,6 +695,81 @@ already had. `harness/STUDY-MANIFEST.sha256` is regenerated: its path set is unc
 entries, and the digests that move are exactly the documents and sources this block edits, plus
 `PREREG-REVIEW.md`, whose digest `6d0fdd5` left stale.
 
+## Round-10 fix (pre-freeze)
+
+Round 10 confirmed R9-2 resolved, confirmed round 9's nine prose repairs and all four mechanical
+repairs sound, ruled on both dispositions round 9 asked it to rule on — the backstop's registered
+narrowness is **acceptable**, `verify.py`'s source-level constraint sentences are **lawful** —
+and returned one blocker against the licences themselves. It is dispositioned in
+`PREREG-REVIEW.md`; the protocol-relevant change is recorded here.
+
+**No registered expectation changed in either stratum, no verdict code was added, and no
+vocabulary member moved.** A before/after snapshot of all three layer outcomes, every published
+`suppressed` code and every upstream engagement list, over all 35 cells and by direct layer calls,
+showed **zero drift** — a sixth consecutive round, and this block is one test file and a
+manifest, so the snapshot is trivially zero and is run anyway because a streak that skips the
+easy rounds is not a streak.
+
+- **R10-1 — licences become fingerprints.** Round 9's licence was `(surface, phrase, anchor,
+  occurrences)`: a match was licensed if the anchor sat within ±400 characters and the total came
+  to the registered number. Round 10 broke it in one edit. Section 0a's retained-record row names
+  the private connector's outcome field three times in one sentence, so its licence registered
+  three; delete one of those three and write a sentence of the withdrawn class into the same row,
+  inside the same anchor window, and the total is still three. The adjudicator returned
+  `([], [])` on a surface that had just gained a forbidden formulation. Each licensed
+  **occurrence** now registers a fingerprint — `(surface, phrase, locator, passage,
+  justification)` — where the passage is the exact whitespace-normalized prose around the match,
+  clipped to the run it lives in and to ±120 characters either side, so it neither spans a run
+  break nor grows with the file. A match is licensed only when some entry no earlier match has
+  claimed carries its surface, its phrase, its locator **and** a byte-equal passage; an entry
+  nothing matches is dead, and dead fails too, so a repaired site cannot leave a stale licence
+  behind. Twelve entries become fourteen fingerprints, the three-occurrence licence becoming
+  three with a justification each, and the ±400-character window is deleted along with the count
+  it stood in for.
+- **R10-1 — the attack is the regression.** The reviewer's edit is held verbatim in
+  `SUBSTITUTION_ATTACK` and run against the whole adjudicator over a copy of `adapter/SPEC.md`
+  mutated in memory — the tree is never written, and every other surface is read as it stands, so
+  what runs is the guard rather than a unit of it. The test asserts the count is three before and
+  three after, which is the property that made the attack invisible, and then that the guard
+  returns three unlicensed occurrences and three dead fingerprints. The other direction is
+  asserted in the same block: the unmutated tree returns `([], [])`, which means every one of the
+  fourteen fingerprints is live. A second test takes one fingerprint and moves it, rewrites the
+  sentence around it, duplicates it and deletes it — refused, refused, refused, dead. Two new
+  tests, 199 in the suite; the 21-row historical table, its 12/9 split and the asserted coverage
+  arithmetic are untouched.
+- **R10-1 — the claim is rewritten to the size of the mechanism.** The guard's docstring said
+  reintroduction of a known formulation was *mechanically impossible*. Fingerprints do not say
+  that and neither does the docstring now: a licensed occurrence of a known phrase cannot move to
+  another line, cannot change the sentence around it, and cannot be joined by a second without
+  `WITHDRAWN_CLAIM_FINGERPRINTS` being restated. Semantic novelty is the review loop's, exactly
+  as round 9's rescope and round 10's Ruling 1 both say.
+
+**The lesson this round records: a count is not an identity, and this study already had the
+finding.** R5-1 is on its own record at round 5: a governed call carrying a foreign commitment
+digest satisfied `len(subject_calls) == authorized == 1` while sitting outside the bound set, and
+the fix was to match the inventory by identity rather than by arithmetic. Round 9 then answered a
+licence-shadowing blocker with arithmetic — not in the ceremony, where the lesson had been
+learned, but in a test, where nobody was reading for it — and round 10 ran the same
+delete-one/add-one substitution against it and it passed. The rule taken forward: a guard written
+against a class of *thing* must register the things, not how many of them there are; and the
+first place to look for the defect you have just written down is the apparatus you wrote it down
+with.
+
+### Fixture bytes changed at the round-10 fix
+
+**None.** No commitment, no ledger, no platform store, no evaluation envelope, no report, no
+evidence artifact and no cell manifest changed in either stratum, and
+`reviews/round-1/MATRIX-HOLDOUT.authored.json` is byte-preserved. `MATRIX-HOLDOUT.json` and
+everything under `reviews/` and `pilots/` are untouched. `MATRIX.json` is unchanged — `m02`'s
+construction keeps the licence it already had, now as a fingerprint, and no cell's construction,
+note or `expected` value moved. No source module and no document outside the ledgers and banners
+is edited at all: the block is `harness/tests/test_study.py`, this file, `PREREG-REVIEW.md`,
+`PREREGISTRATION.md`, `README.md` and the manifest. `harness/STUDY-MANIFEST.sha256` is
+regenerated: its path set is unchanged at 60 entries, and exactly three digest lines move —
+`PREREG-REVIEW.md`, `PREREGISTRATION.md` and `harness/tests/test_study.py`, the three edited
+files the manifest covers. This file and `README.md` are the two documents it deliberately
+excludes.
+
 ## Apparatus
 
 - **Probe toolchain (pre-freeze, apparatus only).** The probe layer was designed to run under
