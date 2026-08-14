@@ -1,36 +1,36 @@
 # Study 015 — the judgment/staged-action boundary under a governed-agent platform
 
-**Status: DRAFT. Nothing is frozen and nothing has run under a freeze.** Eleven rounds of
-cross-vendor review have run: the first ten returned **DO-NOT-FREEZE** and round 11 returned
-**freezable after listed fixes**. Every finding of every round is dispositioned in
-[`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus was rebuilt around them —
-including withdrawing one of the study's own recorded findings that source verification
-refuted. Round 5's structural finding is accepted in the direction
-it named first, and the resulting rescope — the claims narrowed to what the apparatus is,
-plus a source-of-truth sweep across every governing document — is applied here. Round 6
-confirmed the rescope's direction and then found its surfaces lagging and its replacement
-claim outrunning the code. Round 7 found four of round 6's own repairs asymmetric: they had
-been derived on one side of a symmetry and enforced only there — one crash window of two,
-the read-back value rather than the token, one regex dialect's defaults, one direction of a
-list comparison — plus a tag compared by suffix. Round 8 confirmed those four closed and
-found the withdrawn-claim class back on two of the same surfaces for a third time, plus two
-accounts of the pinned source that contradicted it; the class is now a test rather than
-another sweep. Round 9 showed that test was itself a list — of phrases rather than of
-sites — walked around it in four ways, and caught the tree failing its own manifest gate;
-the test is now scoped, mechanically hardened, and explicit about the part of the class it
-does not reach. Round 10 confirmed all of that and found the licences inside it counting
-occurrences rather than identifying them, so a forbidden sentence could be substituted for
-an allowed one at an unchanged total; each licensed occurrence now registers a fingerprint,
-and the reviewer's exact substitution is a regression test. Round 11 confirmed the
-fingerprints do identify what they identify, returned no blocker, and found the sentence
-about them claiming more than they hold — a fingerprint fixes a locator and a passage, not a
-line and a sentence — so every statement of the guarantee is cut to the mechanism's own
-terms. All are fixed
-([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope", "Round-6 fixes", "Round-7 fixes",
-"Round-8 fixes", "Round-9 fixes", "Round-10 fix" and "Round-11 fix"). Round 11's listed fix
-is this block, which round 11 did not read. **Round 12 has not run**: the freeze waits on it,
-and until then anything executed is harness validation under `pilots/`, labeled as such, and
-supports no claim beyond "the machinery works".
+**Status: FROZEN at `968a9f8`, and the registered primary attempt has run.** Eleven rounds of
+cross-vendor review preceded the freeze: rounds 1–10 returned **DO-NOT-FREEZE** and round 11
+returned **freezable after listed fixes**, with that fix landed and recorded. The freeze was
+taken on that verdict and **round 12 did not run**, which supersedes the preregistration's own
+banner and is recorded in [`DEVIATIONS.md`](DEVIATIONS.md). Every finding of every round is
+dispositioned in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus was rebuilt around
+them — including withdrawing one of the study's own recorded findings that source verification
+refuted. [`PREREGISTRATION.md`](PREREGISTRATION.md) is never edited again.
+
+**R1 holds.** All 27 locked cells adjudicated, zero endpoint-divergent, zero validity records,
+`attemptLabel: REGISTERED`, both strata published. R1's standing is that of a locked regression
+suite over behaviour already observed before the freeze — falsifiable by regression, and never
+a prospective prediction.
+
+**The reviewer holdout diverges, 7 of 8 cells.** It carries the prospective content and is
+reported with equal prominence. Six divergences run one way — the reviewer predicted the
+reviewed apparatus would accept, and the repaired apparatus refuses, which is the intended
+primary result — and one runs the other way: `h06` predicted a refusal the frozen apparatus
+does not make, and that acceptance lands on the stage-time witness the round-1 finding-4 repair
+registered. Cell by cell, with citations, in
+[`results/primary-attempt-001/ANALYSIS.md`](results/primary-attempt-001/ANALYSIS.md).
+
+The rounds, one line each: round 5 rescoped the claims to what the apparatus is; round 6 found
+the rescope's surfaces lagging and its replacement claim outrunning the code; round 7 found four
+of round 6's repairs derived on one side of a symmetry and enforced only there; round 8 found
+the withdrawn-claim class back for a third time and made it a test rather than another sweep;
+round 9 walked around that test in four ways and caught the tree failing its own manifest gate;
+round 10 found the licences inside it counting occurrences rather than identifying them; round
+11 found the sentence about those fingerprints claiming more than they hold, and it was cut to
+the mechanism's own terms ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope" through
+"Round-11 fix"). Everything under `pilots/` remains harness validation and supports no claim.
 
 ## What it is
 
@@ -108,6 +108,31 @@ modeled gatekeeper-side store has no upstream type to be held to), and `adapter/
 §0a publishes a field-by-field provenance table saying, for every datum the ceremony reads,
 whether stock Cloudflare OS retains it at all.
 
+## Results
+
+The registered primary attempt is published in full at
+[`results/primary-attempt-001/`](results/primary-attempt-001/): `RESULTS.json` (the scorer's
+own output), `DETECTION-MATRIX.md` (every cell of both strata, nothing excluded),
+`ATTEMPT.json`, and [`ANALYSIS.md`](results/primary-attempt-001/ANALYSIS.md) — R1 at its
+registered width, the eight holdout cells classified with citations, and what the attempt
+does not show.
+
+- **R1 holds** over the locked stratum: 19 endpoint cells and zero divergent, 6 control gates
+  as registered, 0 pipeline-invalid cells and 0 validity records, provenance pinned and the
+  fixture typecheck clean. It is a conformance replication, not a prediction.
+- **The holdout is divergent, 7 of 8.** Six cells the reviewer authored as passes of the
+  reviewed apparatus now refuse: a backing digest with no retained preimage, a coherent
+  argument rebuild put in front of the derivation oracle, a phantom staged report, an
+  outcome-unknown reported as applied, a drain obstruction that a final-state replay would
+  have erased, and a forged target — that last one refused at the commitment schema gate
+  rather than on the mechanism it was authored against, which `ANALYSIS.md` says in those
+  words. The seventh, `h06`, runs the other way: the reviewer expected the ceremony to refuse
+  a lawful auto-approval whose rule was withdrawn afterwards, and the frozen apparatus accepts
+  it — on the stage-time witness registered for exactly that history, at the registered price
+  that the witness is self-asserted.
+- What each stratum is worth, and what neither establishes, is stated in `ANALYSIS.md` and
+  governed by [`PREREGISTRATION.md`](PREREGISTRATION.md) §9.
+
 ## How it relates to what came before
 
 - **Study 014** bound a judgment to an *execution receipt protocol* that ships its own
@@ -135,7 +160,7 @@ whether stock Cloudflare OS retains it at all.
 | [`adapter/commitment.py`](adapter/commitment.py) / [`adapter/verify.py`](adapter/verify.py) | Commitment construction; the three-layer ceremony |
 | [`harness/MATRIX.json`](harness/MATRIX.json) | 27 registered cells (locked-replication stratum) |
 | [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json) | 8 reviewer-authored holdout cells (constructed but never adjudicated pre-freeze; scorer refuses) |
-| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Dispositions for all six review rounds: what changed and why — the one living ledger |
+| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Dispositions for all eleven review rounds: what changed and why — the one living ledger |
 | [`harness/PINS.json`](harness/PINS.json) | Every pin, each classified SCORER (compared before adjudication), CI, or DESCRIPTIVE |
 | [`harness/score.py`](harness/score.py) | The only thing that publishes |
 | [`harness/build_fixtures.py`](harness/build_fixtures.py) | One-time fixture construction (real evaluator runs; upstream identity functions) |
@@ -158,6 +183,6 @@ export JPACK_BIN=<pinned v0.16.0 jpack binary>       # digest-checked before eve
 # the suite (offline, deterministic)
 python -m pytest harness/tests -q
 
-# a full attempt (PILOT until the freeze fills the digests)
-python harness/score.py --attempt-root /tmp/attempt
+# a full attempt; past the freeze a REGISTERED attempt must adjudicate both strata
+python harness/score.py --attempt-root /tmp/attempt --include-holdout
 ```

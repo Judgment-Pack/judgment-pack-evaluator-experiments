@@ -850,6 +850,76 @@ regenerated: its path set is unchanged at 60 entries, and exactly three digest l
 `PREREG-REVIEW.md`, `PREREGISTRATION.md` and `harness/tests/test_study.py`. This file and
 `README.md` are the two documents the manifest deliberately excludes.
 
+## Registered attempt (post-freeze)
+
+The registered primary attempt ran against the frozen tree at `968a9f8` and is published at
+`results/primary-attempt-001/` — `ATTEMPT.json`, `RESULTS.json`, `DETECTION-MATRIX.md` and
+`ANALYSIS.md`. It carries `attemptLabel: "REGISTERED"` and `includeHoldout: true`; both are
+mechanical, since the label follows the non-null preregistration digest in `PINS.json` and the
+scorer refuses a REGISTERED attempt that omits the holdout. **R1 holds**: 27 locked cells
+adjudicated, 19 endpoint cells with zero divergences, all six control gates as registered, zero
+pipeline-invalid cells and zero validity records. The holdout is scored separately and its verdict
+is **`holdout divergent`**: 7 of 8 cells diverge and `h01` is concordant. No expectation, no
+fixture byte, no verdict code and no registry moved; the attempt only reads the frozen tree.
+
+**One correction to the frozen text, recorded because this is the only place it may land.**
+`PREREGISTRATION.md`'s own status banner reads "**Round 12 has not run**, and the freeze waits on
+its confirmation", and its status line still says DRAFT. The freeze happened at `968a9f8` on round
+11's *freezable after listed fixes* verdict with that fix landed, and round 12 did not run. The
+banner is therefore superseded by the commit that froze the file it sits in, and it is not edited
+— the preregistration is never edited again, which is the whole point of the anchor. Every other
+sentence of that document governs unchanged; this one is stale in exactly one respect, that the
+confirmation round it waits on was not taken before the freeze. What was *reviewed* is unaffected:
+eleven rounds ran against this apparatus, all of them dispositioned in `PREREG-REVIEW.md`.
+
+Four things the attempt surfaced are recorded here rather than left to the analysis alone. None of
+them changes a registered expectation, and none is a correction to the preregistration.
+
+- **`h06` diverges onto a registered acceptance, and it is reported as a divergence.** The
+  reviewer authored `upstream: fail:drain-order-violation` and the frozen apparatus returns `pass`
+  with both pinned functions engaged. The acceptance is the one SPEC §5, upstream step 2 registers
+  in the sentence that names this exact history — the replay is against a stage-time witness
+  rather than a final snapshot, because a rule hard-deleted with no tombstone would make a lawful
+  historical apply replay as a violation — and the change is round 1, finding 4, disposed in
+  `PREREG-REVIEW.md`. The cell's fixture retains the rule in the witness while the final snapshot
+  carries `autoApproveTags: []`, and the drain replay is seeded from `witness.rules`
+  (`probes/ceremony.ts:546-548`); no adjudicated check reads the retained `autoApproveTags` at
+  all. The equality boundary registered at decisions C1/C4 is load-bearing for this row: the
+  approved row's resolution stamp is exactly the witness instant, so it stays in the queue. The
+  price is registered in the same place and is not withdrawn by this result: the witness is
+  self-asserted, a writer who adds a matching rule to it launders an auto-approval, and
+  `drain-order-violation` is consistency with that witness and never historical lawfulness (D-7).
+  So this is a documented semantic choice made after the expectations were authored — **not** an
+  open blind spot, and **not** an expectation that was met.
+- **`h04`'s refusal is at a gate, not on the mechanism it was authored against.** The adjudicated
+  code is `commitment-schema-invalid` on `action.toolName`, which aborts the binding layer before
+  any numbered check runs, so the derivation oracle the reviewer's note targets never ran on this
+  cell. The literal it trips is a product of round 2's scenario re-render, which is recorded above;
+  the authored expectations were untouched and the authored file stays byte-preserved. The replay
+  layer's `unavailable` on the same cell follows from the same gate and is an apparatus verdict,
+  never a detection (SPEC §5). Recorded so no later reader counts `h04` as evidence about step 8.
+- **`h05` and `h08` return one code through two different repairs.** `h05` fails the `staged`
+  predicate's bound-call conjunct, which exists because of round 1, finding 11; `h08` fails the
+  rounds 6–7 retained-outcome compatibility matrix (R6-2), which its own diagnostic cites.
+  Attributing both to the later work would overstate what the compatibility matrix closed.
+- **`results/` is outside both mechanical guards.** The whole-study manifest's candidate
+  population and the phrase guard's derived population each reach top-level documents, the SPEC,
+  the adapter, the harness, the probes and the locked registry, and neither recurses into an
+  attempt directory. `ANALYSIS.md` is therefore held to PREREGISTRATION §9 by authorship and
+  review rather than by machinery. This is a consequence of the manifest's exact-set design
+  (attempt outputs are products, not registered inputs) and is recorded, not repaired.
+
+`README.md` gains the result: its status banner goes from DRAFT to frozen-and-run, and a
+**Results** section above *How it relates* summarizes both strata and points at `ANALYSIS.md`. Two
+stale facts in the same file are corrected while it is open — the layout table said "six review
+rounds" where eleven have run, and the *Running* block showed the pre-freeze scorer invocation
+without `--include-holdout`, which the frozen tree refuses for a REGISTERED attempt. The banner is
+rewritten line-for-line at its previous length so that `README.md`'s registered phrase-guard
+fingerprint keeps its locator (`92`) and its byte-identical passage; the round-11 block above
+records the same coupling from the other direction. `README.md` and this file are the two
+documents the manifest deliberately excludes, so `harness/STUDY-MANIFEST.sha256` is unchanged and
+`make_manifest.py --check` exits 0 against the frozen digests.
+
 ## Apparatus
 
 - **Probe toolchain (pre-freeze, apparatus only).** The probe layer was designed to run under
