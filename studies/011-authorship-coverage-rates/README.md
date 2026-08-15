@@ -1,9 +1,16 @@
 # Study 011 — coverage rates for blinded record authorship
 
-**Status: DRAFT. Nothing has run.** No authoring call, no batch, no rate.
-[`PREREGISTRATION.md`](PREREGISTRATION.md) is a draft until it is frozen by
-merge after pre-freeze cross-vendor review; it governs thereafter, and
-[`DEVIATIONS.md`](DEVIATIONS.md) records every departure from it.
+**Status: COMPLETE.** The registered batch ran and the results are merged:
+50 slots, 49 valid, every one of the six classes covered in every valid run
+— 49/49, Clopper–Pearson 95% [0.9275, 1.0000], every class mapping to
+LIGHT review under the §5 rule registered before the data (#41); the
+post-hoc diversity census (#43) and the clean-room second mirror (#44,
+follow-up ledger closed) followed. [`RATES.md`](RATES.md) and
+[`ANALYSIS.md`](ANALYSIS.md) carry the numbers and their registered
+ceilings; [`PREREGISTRATION.md`](PREREGISTRATION.md) is frozen and
+governing; [`DEVIATIONS.md`](DEVIATIONS.md) records every departure. The
+rates transfer to nothing outside this cell (ANALYSIS §limitations); a
+further study on this line, if wanted, varies the policy or the model.
 
 ## What it is
 
@@ -45,7 +52,7 @@ fitted.
   registers exactly this mandate and notes that a rates study needs sample
   size and a preregistered analysis instead of the draw machinery.
 
-## How to run it, once frozen
+## How to run it (frozen; the batch already ran)
 
 The batch is API-dependent and non-deterministic, so it runs **manually,
 never in CI**. The deterministic controls and fixtures do run in CI: the
