@@ -1,6 +1,17 @@
 # Preregistration — Study 015: the judgment/staged-action boundary under a governed-agent platform
 
 **Status: DRAFT until frozen by merge after pre-freeze cross-vendor review; governing thereafter.**
+Eleven review rounds have run: the first ten returned DO-NOT-FREEZE and round 11 returned
+freezable after listed fixes. Round 5's structural rescope — the claims narrowed to what the
+apparatus is, plus the source-of-truth sweep it asked for — is applied, round 6's five blockers
+and two majors are fixed, round 7's three blockers, two majors and four named residues are
+fixed, round 8's three blockers, one minor and three named residues are fixed with its ruling
+adopted, round 9's two blockers are fixed, round 10's one blocker is fixed with both of its
+rulings adopted, and round 11's one major — a guarantee stated larger than the mechanism that
+holds it — is fixed ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope", "Round-6 fixes",
+"Round-7 fixes", "Round-8 fixes", "Round-9 fixes", "Round-10 fix" and "Round-11 fix"). Round
+11's listed fix is the block that carries this banner, which round 11 did not read. **Round 12
+has not run**, and the freeze waits on its confirmation.
 
 **Nothing has run under a freeze.** Everything executed during harness development lands under
 `pilots/`, is labeled harness validation, and supports no claim. After the freeze this file is
@@ -60,8 +71,13 @@ a pass.
   mechanically while `harness/PINS.json`'s `preregistration.sha256` is null, and a harness test
   asserts the refusal. The fixtures are *constructed* before the freeze — the scorer's gate
   requires them to exist — but construction computes no verdict. Holdout results are scored into
-  a separate object with its own verdict and its own validity records; nothing in the holdout can
-  change R1.
+  a separate object with its own verdict and its own validity records: **holdout cell outcomes do
+  not enter R1's arithmetic**, which is the exact guarantee and is asserted structurally by a
+  harness test. It is *not* a claim that nothing in the holdout can affect R1's publication.
+  Registry parsing, pin enforcement, the whole-study manifest and the publication step itself are
+  attempt-scope preconditions shared by both strata, so a malformed holdout artifact can make the
+  whole attempt inconclusive — including R1. Round 4 (R4-5) is right that treating those as
+  attempt-scope is defensible only if the guarantee is stated at this width, and it is.
 
   The reviewer's instruction governs their interpretation: these expectations predict the
   **reviewed** apparatus, and are never revised to follow a fix. Several of them predict blind
@@ -86,8 +102,10 @@ standing limitation Study 014 recorded, inherited knowingly.
   (`packages/mcp-shared/src/tools.ts`), `AutoApprovalDrainer`
   (`packages/workshop-backend/src/auto-approval.ts`), upstream's own mock Durable Object storage
   (`packages/workshop-backend/__tests__/mock-storage.ts`) and `createTypedStorage`
-  (`packages/typed-storage/src/index.ts`). The pinned types every retained record is held to:
-  the **server-side** `ActionRecord` and `AutoApproveTagRecord`
+  (`packages/typed-storage/src/index.ts`). The pinned types the retained **ledger records and
+  auto-approval rules** are held to — that is the whole typechecked surface; staged calls, drain
+  witnesses, catalogs and effect attestations are instrumentation with no upstream type to be
+  held to — are the **server-side** `ActionRecord` and `AutoApproveTagRecord`
   (`packages/workshop-backend/src/overseer.ts`), checked by the clone's own TypeScript under the
   backend package's own tsconfig after its one committed codegen step
   (`harness/typecheck.py`). Per-file digests in `harness/PINS.json`; the probe runner
@@ -109,9 +127,12 @@ standing limitation Study 014 recorded, inherited knowingly.
   manifest. Every fixture's facts and evidence-availability documents are verbatim cases from the
   same corpus's seed manifest (also digest-anchored), so every disposition the study binds is one
   the specification registers, not one the study authored.
-- Interpreter, node, venv, and every other pin: `harness/PINS.json`. **Pins are enforced, not
-  declared**; enforcement is in `harness/score.py` and any mismatch is terminal
-  pipeline-invalidity.
+- Interpreter, node, venv, and every other pin: `harness/PINS.json`. Every member carries an
+  explicit `enforcement` class, and the class is the claim: **SCORER** members are compared
+  against the live artefact by `harness/score.py` before anything is adjudicated and a mismatch
+  is terminal pipeline-invalidity; **CI** members are enforced by the workflow's install steps;
+  **DESCRIPTIVE** members are recorded provenance the scorer does not check. Round 2 found the
+  earlier blanket "every pin is enforced" false, and §8 lists the classes member by member.
 - `harness/STUDY-MANIFEST.sha256` is the exact-set whole-study manifest, verified before any cell
   is adjudicated.
 
@@ -130,8 +151,12 @@ deterministically from the retained facts (`adapter/SPEC.md` §4); every other d
 authorizes inaction. Every identifier in every fixture — resource URL, wire tool name, the
 double-encoded action-kind tag, and each action record's field set including its
 `describeCall`-generated prose, `awaitDecision: true` and explicit `autoApprovable` boolean — is
-the shape that connector actually emits, generated by the pinned functions themselves. An earlier
-draft used a bare endpoint, an invented scope tag and short hand-written prose; none of it was
+**synthetically reconstructed from registered inputs at the shape that connector's source
+defines**, with the prose and the action-kind tag generated by the pinned functions themselves
+over inputs this study registers. Nothing was captured from a running deployment, and no claim is
+made that the pinned platform's own execution paths would have produced a given retained history
+(§9). An earlier draft used a bare endpoint, an invented scope tag and short hand-written prose;
+none of it was
 producible, and `DEVIATIONS.md` records the correction. The staged call binds the
 commitment at staging time and the published report binds it at report time. Auto-approval
 follows the platform's own two-signal rule: the author verdict on the action plus a user-enabled
@@ -350,9 +375,13 @@ attack on the platform's actual runtime, which never runs here.
 
 ## 9. What this study cannot show
 
-No policy truth and no fact truth — binding and lineage, not truth; `evidenceBacking` digests
-assert what was captured and that a preimage exists, never that an artifact is authentic,
-sufficient, or true, and nothing here inspects one. No authorization from judgment: an
+No policy truth and no fact truth — binding and internal consistency, not truth;
+`evidenceBacking` digests assert **retained-preimage consistency** and nothing more (the store
+holds bytes under the requirement id that hash to the committed digest), never that those bytes
+were captured from the named source, never lineage, and never that an artifact is authentic,
+sufficient, or true —
+nothing here inspects one, and a bridge that stores approval bytes under the requirement id and
+calls them an artifact passes (SPEC §1, `evidenceBacking`). No authorization from judgment: an
 `approve`-family outcome is not a capability, a Gatekeeper grant, or a release of a staged
 effect, and the map's "authorizes" is the adapter's own contract, not the platform's. No claim
 about Cloudflare OS runtime behavior — the Durable Object, the submit gate, the apply chokepoint,
@@ -370,6 +399,21 @@ commit, this pack, this action encoding, this machine, one adapter written by th
 and the retained store as retained — enumerated, finite, and honest. And no claim that a
 detection here would have *prevented* anything at runtime: detection is post-hoc provability, the
 platform applies effects on its own authority, and nothing in this study sits on that path.
+
+Four more, added at round 5 and load-bearing (they are the difference between what this apparatus
+does and what a reader might wish it did). **No source-reachability claim for retained
+histories:** the lifecycle rows, staged calls, ledger records, and connector outcomes the cells
+adjudicate are selected, mostly synthetic constructions of the retained store's shape —
+internally consistent where the cell requires it — and nothing here shows that a given retained
+history could have been produced by the pinned platform's own execution paths. **No effect
+causation:** an attested effect matching a bound call's identity is *matched*, never shown to
+have been caused by that call; effect attestations are modeled records (SPEC §0a) and carry no
+causal proof. **No closed inventory:** the binding checks close the inventories they define over
+the records the store retains; they do not show the store retained everything the platform would
+have written. **No real private connector record:** where a cell speaks of a connector outcome it
+speaks of the retained flattened `connectorOutcome` scalar, never a recovered private row —
+retryability, error detail, and every private field beyond the scalar are absent by construction
+and asserted nowhere.
 
 ## 10. Publication commitment
 
@@ -390,14 +434,24 @@ Round 1 (`reviews/round-1/`, verdict DO-NOT-FREEZE, 7 blockers and 6 majors) is 
   explicitly so the verifier can re-derive the authorized action; the map is stated to be
   adapter-owned policy, and the reviewer's clarify-with-bound-execution case lives in the
   holdout.
-- [D-3] **Answered by change.** `evidenceBacking` stays inside the judgment, but the captured
+- [D-3] **Answered by change.** `evidenceBacking` stays inside the judgment, but the evidence
   artifacts are now retained and every backing digest must have a retained preimage — a
-  digest-shaped reference no longer satisfies it.
+  digest-shaped reference no longer satisfies it. What that buys is retained-preimage
+  consistency, never proof that the retained bytes were captured from the named source (§9).
 - [D-4] **Answered by change.** Two locked negative controls now exercise the binding and replay
   layers through the official scorer, alongside the per-code reachability suite.
-- [D-5] **Answered by change.** `m02`'s fixture was source-impossible and is rebuilt to the trace
-  the pinned source can actually retain (outer record pending, connector outcome unknown and
-  non-retryable); the inverse overclaim is the reviewer's own holdout cell.
+- [D-5] **Answered by change.** `m02`'s fixture was refused at round 1 as source-impossible and is
+  rebuilt to a store whose retained tuple the compatibility matrix registered in SPEC §5 admits:
+  the outer workspace record stays `pending` beside a flattened `connectorOutcome` scalar of
+  `outcome-unknown`, a pair that matrix gives exactly one supportable report state,
+  `applied-unproven`. The
+  private connector row and every field of it beyond that scalar are not retained and are asserted
+  nowhere (§9). The inverse overclaim is the reviewer's own holdout cell. *(Corrected twice. At the
+  round-7 fixes (R6-1 residue) this row still called the rebuilt cell the trace the pinned source
+  itself keeps; at the round-8 fixes (R8-1) the replacement still called it a trace that source's
+  own paths admit. Both are source-reachability claims about a modeled store, and §9 registers
+  source-reachability as **not** established. What the row says now is what the apparatus checks:
+  a locally registered tuple, and nothing about how the bytes came to be there.)*
 
 Open for the next round:
 

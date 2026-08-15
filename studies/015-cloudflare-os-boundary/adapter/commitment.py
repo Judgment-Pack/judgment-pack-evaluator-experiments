@@ -31,8 +31,9 @@ GATEKEEPER_ID = 1
 # not producible by any pinned connector: the generic MCP connector hardwires
 # `trust = "byo"` (gatekeeper-mcp/src/mcp.ts:77) so no write on it can ever be
 # auto-approvable, and the portal is the only connector that can be `vetted`
-# (gatekeeper-mcp-portal/src/config.ts:34-36). Every identifier below is therefore the
-# shape that connector actually emits, not a scenario-local placeholder.
+# (gatekeeper-mcp-portal/src/config.ts:34-36). Every identifier below is therefore
+# synthetically reconstructed at the shape that connector's source defines — not a
+# scenario-local placeholder, and not a captured emission (SPEC section 4a).
 PORTAL_ENDPOINT = "https://tracker.example/mcp"
 UPSTREAM_SERVER_ID = "tracker"
 RESOURCE_URL = "%s#server=%s" % (PORTAL_ENDPOINT, UPSTREAM_SERVER_ID)
@@ -260,11 +261,15 @@ def disposition_digest(envelope):
 def evidence_backing(evidence, artifacts):
     """The SPEC section 1 `evidenceBacking` map for a claim set.
 
-    `artifacts` maps requirement id -> the captured artifact's exact bytes. Every
-    requirement claimed `present` must have one; nothing else may. The digests are
-    checkable because the artifact bytes themselves are retained (`evidence-artifacts.json`)
-    — a backing digest with no retained preimage is a bare assertion, and the ceremony
+    `artifacts` maps requirement id -> the exact bytes retained under that requirement id.
+    Every requirement claimed `present` must have one; nothing else may. The digests are
+    checkable because those bytes themselves are retained (`evidence-artifacts.json`) —
+    a backing digest with no retained preimage is a bare assertion, and the ceremony
     refuses it.
+
+    What that buys is retained-preimage consistency and nothing more. Round 5 (R4-6)
+    found this docstring still calling the bytes *captured*: hashing a retained preimage
+    proves no capture event, and nothing in this study establishes one.
     """
     backing = {}
     for requirement, availability in (evidence or {}).items():
@@ -272,7 +277,7 @@ def evidence_backing(evidence, artifacts):
             continue
         if requirement not in artifacts:
             raise CommitmentSchemaError(
-                "no captured artifact for present claim: " + requirement
+                "no retained artifact bytes for present claim: " + requirement
             )
         backing[requirement] = {
             "kind": "artifact",
@@ -282,7 +287,7 @@ def evidence_backing(evidence, artifacts):
 
 
 def artifacts_document(artifacts):
-    """The retained captured-artifact store: requirement -> base64 of exact bytes."""
+    """The retained evidence-artifact store: requirement -> base64 of exact bytes."""
     import base64
 
     return {

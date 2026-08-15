@@ -18,7 +18,9 @@
 // harness/PINS.json. Nothing here reads the registry — expectations never enter a layer.
 //
 // Ordering within the layer (SPEC section 5, first failure wins):
-//   1. classification-refused   — classifyTool over every routing decision the ledger claims
+//   1. classification-refused   — a store with two readings (duplicate gatekeeper ids,
+//                                 ledger ids or staged-call join identities), then
+//                                 classifyTool over every routing decision the ledger claims
 //   2. drain-order-violation    — AutoApprovalDrainer replayed against the stage-time witness
 
 import { execFileSync } from "node:child_process";
@@ -122,6 +124,170 @@ function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
+// The token an identity must be written as: digits and nothing else. Same sentence as
+// `_INTEGER_LEXEME` in `adapter/verify.py`. JavaScript's `$` is end-of-input (Python's is
+// not, which is half of R7-3), so this is a full match.
+const INTEGER_LEXEME = /^[0-9]+$/;
+
+// What a number token that is NOT a plain integer lexeme becomes when the store is read.
+//
+// Round 7 (R7-2): round 6 settled identity on the value each side reads back, which is not
+// one definition but two. `JSON.parse("1.0")` is `1` here and `Number.isSafeInteger`
+// accepts it; `json.loads("1.0")` is a `float` there and is refused. Round 6's own
+// regressions used a DUPLICATE id, which refuses on both sides for an unrelated reason, so
+// the divergence went unseen. Node 22 exposes each primitive's source token to a
+// `JSON.parse` reviver (`context.source`), so the store is read through one: a number
+// whose token is not a plain digit-only integer is replaced by this object, which is not a
+// `number` and therefore cannot be an identity, cannot be counted, and cannot alias a real
+// identity in any key the checks below build. The token is kept so a diagnostic can print
+// what the store actually wrote.
+type NonIntegerLexeme = { nonIntegerLexeme: string };
+
+function readStore(path: string): unknown {
+  return JSON.parse(readFileSync(path, "utf-8"), function (_key, value, context) {
+    if (typeof value !== "number") return value;
+    const source = (context as { source?: unknown } | undefined)?.source;
+    if (typeof source !== "string") {
+      // Apparatus failure, never a detection: without the token this runner cannot apply
+      // the registered identity rule at all, and a weaker check in its place would be the
+      // divergence R7-2 was filed about. The driver turns a throw here into an
+      // `unavailable` record for the cell.
+      throw new Error(
+        "this Node build does not expose JSON.parse source access, which the registered " +
+          "identity rule requires",
+      );
+    }
+    if (INTEGER_LEXEME.test(source)) return value;
+    return { nonIntegerLexeme: source } satisfies NonIntegerLexeme;
+  });
+}
+
+// The ONE serialized form the platform can write: `Date.prototype.toISOString()` output,
+// `YYYY-MM-DDTHH:mm:ss.sssZ`. Round 5 narrowed this to a strict RFC 3339 grammar; round 6
+// (R6-5) found that still neither strict nor identical to the Python side — the regex was
+// digit-shaped and the instant then came from `Date.parse`, which normalizes an impossible
+// calendar date (`2026-02-29` silently became March 1) and collapses `.0004Z` and `.0005Z`
+// onto one millisecond, so a genuinely earlier resolution could be retained in the queue
+// and pass its witness.
+//
+// No `Date.parse` and no arithmetic: the calendar is checked by integers and the validated
+// STRING is the instant. The form is fixed-width and UTC, so lexicographic order is
+// chronological order, and `adapter/verify.py` validates and compares exactly the same
+// bytes with exactly the same rule.
+//
+// The class is spelled `[0-9]` rather than `\d` to be the same sentence as
+// `adapter/verify.py`'s: they are the same set in JavaScript and are not in Python, and
+// round 7 (R7-3) found that side's `\d` accepting Unicode decimal digits — plus its `$`
+// accepting a trailing newline, which this `$` does not.
+const PLATFORM_INSTANT =
+  /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\.([0-9]{3})Z$/;
+const MONTH_LENGTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+function daysInMonth(year: number, month: number): number {
+  if (month === 2 && year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) return 29;
+  return MONTH_LENGTHS[month - 1];
+}
+
+function platformInstant(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const match = PLATFORM_INSTANT.exec(value);
+  if (match === null) return null;
+  const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
+  if (month < 1 || month > 12) return null;
+  if (day < 1 || day > daysInMonth(year, month)) return null;
+  if (hour > 23 || minute > 59 || second > 59) return null;
+  return value;
+}
+
+// A platform identity is a JSON number assigned from a monotonic counter starting at 1
+// (`overseer.ts:418-422`). Round 6 (R6-3) found the two layers disagreeing about what
+// that means: `String(id)` collapsed `1` and `1.0` here while Python's `repr` kept them
+// apart, so one store was refused upstream and accepted by binding.
+//
+// Round 7 (R7-2) moved the definition onto the token, which `readStore` above has already
+// applied: a number reaching this function was written as a plain digit-only integer, and
+// anything else — `1.0`, `1e0`, `-1`, `-0` — arrived as a `NonIntegerLexeme` object and
+// fails the first line. Booleans are not numbers either. The range test is still this
+// side's own, because `9007199254740993` is a plain integer token that V8 cannot read
+// back. Identical to `_platform_id` in `adapter/verify.py`.
+function platformId(value: unknown): number | null {
+  if (typeof value !== "number") return null;
+  if (!Number.isSafeInteger(value)) return null;
+  if (value < 1) return null;
+  return value;
+}
+
+// An `AiChatAuthorInfo` is a complete triple upstream (`api.ts:1777`): actor type, id and
+// display name. Round 5 found only `.id` was compared, so the same id under a different
+// name or actor type read as the same author. The key below is the whole tuple, and a
+// value that is not a complete author record has no key at all.
+function authorKey(value: unknown): string | null {
+  const author = value as { type?: unknown; id?: unknown; name?: unknown } | undefined;
+  if (!author || typeof author !== "object") return null;
+  if (author.type !== "user" && author.type !== "agent" && author.type !== "gadget") {
+    return null;
+  }
+  if (typeof author.id !== "string" || author.id === "") return null;
+  if (typeof author.name !== "string" || author.name === "") return null;
+  return JSON.stringify([author.type, author.id, author.name]);
+}
+
+function firstDuplicate(keys: string[]): string | null {
+  const seen = new Set<string>();
+  for (const key of keys) {
+    if (seen.has(key)) return key;
+    seen.add(key);
+  }
+  return null;
+}
+
+// The retained store must have exactly one reading. Round 5 found that gatekeeper ids,
+// ledger ids and staged-call join identities were never required to be unique: the `Map`s
+// below keep the LAST duplicate while the Python ceremony resolves the FIRST, so one
+// store could be read two ways and neither reading is preferable. Upstream assigns both
+// ids from monotonic counters, so a duplicate is a state it cannot write.
+//
+// Round 6 (R6-3) added the two things missing from that: every id and join component is
+// held to `platformId` BEFORE it is keyed on, so the two layers cannot disagree about
+// which values are even identities, and the ledger's own `(gatekeeperId, action)` join
+// identities are checked here as the binding layer already checked them.
+function storeAmbiguity(ledger: LedgerEntry[], platform: PlatformStore): string | null {
+  for (const g of platform.gatekeepers ?? []) {
+    if (platformId(g.id) === null) {
+      return `a retained gatekeeper carries id ${JSON.stringify(g.id)}, which is not an identity the platform assigns`;
+    }
+  }
+  for (const entry of ledger) {
+    if (platformId(entry.id) === null) {
+      return `a ledger record carries id ${JSON.stringify(entry.id)}, which is not an identity the platform assigns`;
+    }
+    if (entry.type !== "action") continue;
+    if (platformId(entry.gatekeeperId) === null || platformId(entry.action) === null) {
+      return `ledger record ${entry.id} carries a join identity the platform cannot have assigned`;
+    }
+  }
+  for (const c of platform.stagedCalls ?? []) {
+    if (platformId(c.gatekeeperId) === null || platformId(c.action) === null) {
+      return `a staged call carries a join identity the platform cannot have assigned`;
+    }
+  }
+  const gatekeeper = firstDuplicate((platform.gatekeepers ?? []).map((g) => String(g.id)));
+  if (gatekeeper !== null) return `two retained gatekeepers share id ${gatekeeper}`;
+  const record = firstDuplicate(ledger.map((entry) => String(entry.id)));
+  if (record !== null) return `two ledger records share id ${record}`;
+  const call = firstDuplicate(
+    (platform.stagedCalls ?? []).map((c) => `${c.gatekeeperId}:${c.action}`),
+  );
+  if (call !== null) return `two staged calls share the join identity ${call}`;
+  const join = firstDuplicate(
+    ledger
+      .filter((entry) => entry.type === "action")
+      .map((entry) => `${entry.gatekeeperId}:${entry.action}`),
+  );
+  if (join !== null) return `two ledger action records share the join identity ${join}`;
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // check 1 — classification (pinned classifyTool over every claimed routing)
 // ---------------------------------------------------------------------------
@@ -130,6 +296,19 @@ function classificationCheck(
   ledger: LedgerEntry[],
   platform: PlatformStore,
 ): { verdict: Verdict | null; engaged: boolean } {
+  const ambiguity = storeAmbiguity(ledger, platform);
+  if (ambiguity !== null) {
+    // Fail closed before the pinned classifier is given anything: with two readings of
+    // the store there is no determinate routing to classify.
+    return {
+      verdict: fail(
+        "classification-refused",
+        `${ambiguity}, so the retained store has no single reading and no claimed ` +
+          `routing can be classified against it`,
+      ),
+      engaged: false,
+    };
+  }
   const gatekeepers = new Map(platform.gatekeepers.map((g) => [g.id, g]));
   const staged = new Map(
     platform.stagedCalls.map((c) => [`${c.gatekeeperId}:${c.action}`, c]),
@@ -230,10 +409,10 @@ function makeStorage(): AutoApprovalStorage {
 // yet been resolved. `appliedAt` is stamped on BOTH approve and reject (overseer.ts:2495
 // and :7729), so it is a resolution timestamp — which is what makes this reconstruction
 // sound, and why a resolution stamp is never read as evidence of application.
-function pendingAt(entry: LedgerEntry, at: number): boolean | null {
+function pendingAt(entry: LedgerEntry, at: string): boolean | null {
   if (entry.type !== "action") return false;
-  const created = Date.parse(entry.createdAt);
-  if (Number.isNaN(created)) return null; // unusable timestamp: refuse, never exclude
+  const created = platformInstant(entry.createdAt);
+  if (created === null) return null; // unusable timestamp: refuse, never exclude
   // Strict lifecycle equivalence: upstream stamps `appliedAt` and `resolvedBy` exactly
   // when a record leaves `pending` (overseer.ts:2495-2496, :7729-7731). A row that is
   // still `pending` yet carries a resolution stamp — or is resolved without one — is a
@@ -243,12 +422,45 @@ function pendingAt(entry: LedgerEntry, at: number): boolean | null {
   const resolvedState = entry.state !== "pending";
   if (resolvedStamped !== resolvedState) return null;
   if (resolvedStamped) {
-    const resolved = Date.parse(entry.appliedAt as string);
-    if (Number.isNaN(resolved)) return null;
+    const resolved = platformInstant(entry.appliedAt);
+    if (resolved === null) return null;
     if (resolved < created) return null; // resolved before it existed
-    if (resolved < at) return false; // already resolved when the pass ran
+    // Strictly before, and registered as such (SPEC section 5, upstream step 2): a record
+    // resolved before the pass instant is legitimate history and is excluded from that
+    // queue, while equality reads as not-yet-resolved at the witness and stays in it.
+    if (resolved < at) return false;
   }
   return created <= at;
+}
+
+// The identities one retained witness claims: its own pass and gatekeeper, every action id
+// it says the pass applied, and the gatekeeper each of its rules names. `adapter/verify.py`
+// holds exactly this set to `_platform_id` at store load.
+function witnessIdentityProblem(witness: DrainWitness): string | null {
+  const named: Array<[string, unknown]> = [
+    ["pass identity", witness.pass],
+    ["gatekeeper id", witness.gatekeeperId],
+  ];
+  if (!Array.isArray(witness.appliedActionIds)) {
+    return "carries no list of applied action identities";
+  }
+  witness.appliedActionIds.forEach((id, index) => {
+    named.push([`applied action id at position ${index}`, id]);
+  });
+  if (!Array.isArray(witness.rules)) return "carries no rule list";
+  witness.rules.forEach((rule, index) => {
+    const held = rule as { gatekeeperId?: unknown } | undefined;
+    named.push([`gatekeeper id of rule ${index}`, held?.gatekeeperId]);
+  });
+  for (const [what, value] of named) {
+    if (platformId(value) === null) {
+      return (
+        `carries a ${what} of ${JSON.stringify(value)}, which is not an identity the ` +
+        `platform assigns`
+      );
+    }
+  }
+  return null;
 }
 
 async function drainCheck(
@@ -263,11 +475,18 @@ async function drainCheck(
       claimed.set(entry.gatekeeperId, list);
     }
   }
-  if (claimed.size === 0) {
+  // Witnesses are read BEFORE the early exit, and non-engagement means both sides are
+  // empty. Round 6 (R6-4) found this returning not-engaged the moment the ledger claimed
+  // no auto-approval, which made the reverse accounting at the end of this function
+  // unreachable: a store whose witness claims `appliedActionIds: [1]` while every row
+  // records `autoApproved: false` passed binding, went unexamined upstream, and combined
+  // green — although SPEC section 5 says a witness claiming an application the ledger
+  // does not record fails. A witness is a retained record about this gatekeeper's drain;
+  // that it contradicts the ledger is exactly what there is to check.
+  const witnesses = platform.drainWitnesses ?? [];
+  if (claimed.size === 0 && witnesses.length === 0) {
     return { verdict: null, engaged: false };
   }
-
-  const witnesses = platform.drainWitnesses ?? [];
   if (witnesses.length === 0) {
     return {
       verdict: fail(
@@ -277,6 +496,27 @@ async function drainCheck(
       ),
       engaged: true,
     };
+  }
+
+  // Every identity a witness claims, held to `platformId` BEFORE anything sorts, keys or
+  // replays on it — the same gate `storeAmbiguity` applies to the store's other identities
+  // (R6-3), and the same set `_drain_witness_problem` validates in `adapter/verify.py`.
+  //
+  // Round 8 (R8-3): the pass number reached the sort below unvalidated, so a witness
+  // written `"pass": 1.0` arrived as a `NonIntegerLexeme`, `a.pass - b.pass` returned
+  // `NaN`, the sort silently did nothing, and the cell came out `pass` with both checks
+  // engaged — while the binding layer refused the same bytes as
+  // `retained-store-unreadable`. One store, two readings, which is the divergence R7-2 was
+  // filed about: that repair was made for the gatekeeper's own id and not for the
+  // witness's.
+  for (const [index, witness] of witnesses.entries()) {
+    const problem = witnessIdentityProblem(witness);
+    if (problem !== null) {
+      return {
+        verdict: fail("drain-order-violation", `drain witness ${index} ${problem}`),
+        engaged: true,
+      };
+    }
   }
 
   const replayed = new Map<number, number[]>();
@@ -291,12 +531,12 @@ async function drainCheck(
         engaged: true,
       };
     }
-    const at = Date.parse(witness.at);
-    if (Number.isNaN(at)) {
+    const at = platformInstant(witness.at);
+    if (at === null) {
       return {
         verdict: fail(
           "drain-order-violation",
-          `pass ${witness.pass}: the witness carries no usable instant`,
+          `pass ${witness.pass}: the witness carries no serialized platform instant`,
         ),
         engaged: true,
       };
@@ -343,13 +583,14 @@ async function drainCheck(
     }
 
     const applied: number[] = [];
-    const attribution = new Map<number, string | undefined>();
+    const attribution = new Map<number, string | null>();
     const applyFn: ApplyPendingActionFn = async (record, resolvedBy) => {
       applied.push(record.id);
       // Upstream persists the rule enabler as the audit attribution
-      // (auto-approval.ts:85 -> overseer.ts:2496); the replay records what the pinned
-      // drainer passed so a forged `resolvedBy` in the ledger is checkable.
-      attribution.set(record.id, (resolvedBy as { id?: string } | undefined)?.id);
+      // (auto-approval.ts:85 -> overseer.ts:2496); the replay records the whole author
+      // tuple the pinned drainer passed, so a forged or partial `resolvedBy` in the
+      // ledger is checkable.
+      attribution.set(record.id, authorKey(resolvedBy));
       const fresh = storage.actions.get(record.id) as Record<string, unknown> | undefined;
       if (fresh && fresh.type === "action") {
         fresh.state = "approved";
@@ -373,23 +614,38 @@ async function drainCheck(
     }
     for (const id of witnessed) {
       const expected = attribution.get(id);
+      if (expected === undefined) continue; // the pass applied nothing under this id
       const recorded = ledger.find((entry) => entry.id === id);
-      const claimed = (recorded?.resolvedBy as { id?: string } | undefined)?.id;
+      const claimed = authorKey(recorded?.resolvedBy);
       // Attribution is MANDATORY for a witnessed automatic resolution: upstream always
       // persists the rule enabler (auto-approval.ts:85 -> overseer.ts:2496), so a
       // missing `resolvedBy` is itself a state the platform does not produce. Round 3
-      // found that an optional comparison let deletion pass.
-      if (expected !== undefined && claimed === undefined) {
+      // found that an optional comparison let deletion pass; round 5 found the
+      // comparison itself read only `.id`, so the enabler's name and actor type could
+      // be anything.
+      if (expected === null) {
         return {
           verdict: fail(
             "drain-order-violation",
-            `action ${id} is claimed auto-approved but records no resolvedBy; upstream ` +
-              `always attributes an auto-approval to the rule enabler`,
+            `pass ${witness.pass}: the rule that auto-applied action ${id} names an ` +
+              `enabler that is not a complete author record, so the resolution cannot ` +
+              `be attributed at all`,
           ),
           engaged: true,
         };
       }
-      if (expected !== undefined && claimed !== undefined && expected !== claimed) {
+      if (claimed === null) {
+        return {
+          verdict: fail(
+            "drain-order-violation",
+            `action ${id} is claimed auto-approved but records no complete resolvedBy ` +
+              `(type, id and name); upstream always attributes an auto-approval to the ` +
+              `rule enabler`,
+          ),
+          engaged: true,
+        };
+      }
+      if (expected !== claimed) {
         return {
           verdict: fail(
             "drain-order-violation",
@@ -405,29 +661,25 @@ async function drainCheck(
     replayed.set(witness.gatekeeperId, seen);
   }
 
-  // Every claimed auto-approval must be accounted for by some witnessed pass, and no
-  // pass may claim an application the ledger does not record.
-  for (const [gatekeeperId, ids] of claimed) {
+  // Every claimed auto-approval must be accounted for by some witnessed pass, and no pass
+  // may claim an application the ledger does not record. ONE comparison answers both, over
+  // every gatekeeper either side mentions, with absence read as the empty list.
+  //
+  // Round 7 (R7-4): this was two loops, and the second asked whether the witness's
+  // gatekeeper had a *key* in the ledger's claim map rather than whether the two lists
+  // agreed. A witness accounting for nothing still inserted its key above, so an engaged
+  // empty witness beside rows that claim no auto-approval — a record this ceremony
+  // accepts — was refused for claiming an application it does not claim. Empty equals
+  // empty.
+  for (const gatekeeperId of new Set([...claimed.keys(), ...replayed.keys()])) {
     const seen = (replayed.get(gatekeeperId) ?? []).slice().sort((a, b) => a - b);
-    const expected = ids.slice().sort((a, b) => a - b);
+    const expected = (claimed.get(gatekeeperId) ?? []).slice().sort((a, b) => a - b);
     if (JSON.stringify(seen) !== JSON.stringify(expected)) {
       return {
         verdict: fail(
           "drain-order-violation",
           `gatekeeper ${gatekeeperId}: the ledger claims [${expected.join(", ")}] were ` +
             `auto-applied but the witnessed passes account for [${seen.join(", ")}]`,
-        ),
-        engaged: true,
-      };
-    }
-  }
-  for (const gatekeeperId of replayed.keys()) {
-    if (!claimed.has(gatekeeperId)) {
-      return {
-        verdict: fail(
-          "drain-order-violation",
-          `gatekeeper ${gatekeeperId}: a drain witness claims applications the ledger ` +
-            `does not record as auto-approved`,
         ),
         engaged: true,
       };
@@ -501,8 +753,8 @@ async function main(): Promise<void> {
     let ledger: LedgerEntry[];
     let platform: PlatformStore;
     try {
-      ledger = readJson(join(cell.dir, "ledger.json")) as LedgerEntry[];
-      platform = readJson(join(cell.dir, "platform.json")) as PlatformStore;
+      ledger = readStore(join(cell.dir, "ledger.json")) as LedgerEntry[];
+      platform = readStore(join(cell.dir, "platform.json")) as PlatformStore;
     } catch (error) {
       results[cell.id] = {
         verdict: "unavailable",

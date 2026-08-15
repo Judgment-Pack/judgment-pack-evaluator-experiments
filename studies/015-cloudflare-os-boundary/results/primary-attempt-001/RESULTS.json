@@ -1,0 +1,2112 @@
+{
+  "study": "015-cloudflare-os-boundary",
+  "attemptLabel": "REGISTERED",
+  "includeHoldout": true,
+  "verdict": "R1 holds",
+  "matrixVersion": "3",
+  "provenance": {
+    "harnessPython": "3.12.11",
+    "pinsSha256": "b4d6e6c343914dc42ba13b1faee77c14c9331cf340cb7bc7daa2f201465ec6fa",
+    "matrixSha256": "c1e36db150c2d46a9f4100203e9b6376f9d45aa9452fc08727f1160d3e4e0b90",
+    "matrixHoldoutSha256": "a7673c2b3514d9c986243d2189497f43c71fc1b1fcf1042f01ba33a14efd579d",
+    "specSha256": "36dcec609f2ef446aea2d404b80a464ee25d79a72c07fe85cc36253536c5c6da",
+    "preregistrationSha256": "9674ac554d1ae62323da64536d182ef8ff29b5fc3ee8c75daaf7e4f1df02357f",
+    "studyManifestSha256": "b42d14863543b3c8f639759c0c347d98ec9ee057026842c025456cdaa2b2b5b7",
+    "jpackSha256": "7c11ebef430dec9a325fa3dd036963b6bbf5e2519f9c350a7ab89fb100b79325",
+    "fixtureTypecheck": "clean",
+    "upstreamApparatus": {
+      "nodeVersion": "v22.23.1",
+      "cloneCommit": "b2a51b5426398c8353d9d4dd984bd525121ab5f2",
+      "cloneTrackedClean": true,
+      "lockfileSha256": "3bc179348c4030be4484b8298a69d8ac9aa675084506b5b0d2d01e6df9906765",
+      "typescriptVersion": "5.9.3",
+      "probedFiles": {
+        "packages/mcp-shared/src/tools.ts": "657214f3b8d0bd568ab4fcfd9cf1905d26aa8783410d76c3ce3a2d90985f5112",
+        "packages/mcp-shared/src/util.ts": "08219a2050d99e7551be2b930c1ec42d7395679b9eb99ba95ce0dc967103db18",
+        "packages/workshop-backend/src/auto-approval.ts": "94583ec27d7a4ecde63c0a2cfc2346b70d32d6851c2042c2ab3d4e675f8f3dfe",
+        "packages/workshop-backend/__tests__/mock-storage.ts": "34fa561202c1fdcd5a375677f31bc00380fc8b264b4c582234def7086d431e8d",
+        "packages/typed-storage/src/index.ts": "4277fc48d1f03650ec7a604ae060e416c71859d37b119aa8d3157178b79bac0c",
+        "packages/workshop-shared/src/gatekeeper.ts": "a88783c6e98bad865b2afdfb049f73ec77e2d8672595c42b9487e3cf29fd80d2",
+        "packages/workshop-shared/src/api.ts": "bf72dca8cf86fe62474f660f82b5dde182fcf34661dba24a23245b7ea7a5bf11",
+        "packages/workshop-backend/src/overseer.ts": "866e9f3b70aa91993476ef72f458e83c4d1b77cdb3c3e422191c3a8556c5e78d"
+      },
+      "esbuildVersion": "0.28.1"
+    }
+  },
+  "validity": {
+    "pipelineInvalidCells": [],
+    "controlGateFailures": [],
+    "records": []
+  },
+  "detection": {
+    "stratum": "locked-replication",
+    "cells": 27,
+    "adjudicated": 27,
+    "endpointCells": 19,
+    "endpointDivergentCells": [],
+    "divergentCells": [],
+    "rows": [
+      {
+        "cell": "pos-baseline",
+        "stratum": "locked-replication",
+        "category": "control-positive",
+        "role": "control-gate",
+        "attackerCapability": "none",
+        "mutationConstraint": "nothing is mutated; this is the honest run",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "drainSnapshot",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "pass",
+          "upstreamEngaged": [
+            "classifyTool",
+            "AutoApprovalDrainer"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "upstreamReplayed": [
+          "classifyTool",
+          "AutoApprovalDrainer"
+        ],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-mcp-byo-autoapply",
+        "stratum": "locked-replication",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "only the endpoint's trust tier differs from the baseline; the commitment is unchanged, because the map — not the store — fixes the tier",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "drainSnapshot",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "fail:classification-refused",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "fail",
+            "code": "classification-refused",
+            "detail": "ledger action 1: pinned classifyTool says mode=action autoApprovable=false (classifiedBy default) — the platform's own policy would not auto-apply it",
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "target-mismatch",
+            "detail": "the bound staged call diverges from the committed target: serverTrust",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": [
+            "classifyTool"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "fail:classification-refused",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [
+          "classifyTool"
+        ],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-mcp-nonidempotent-autoapply",
+        "stratum": "locked-replication",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "only the tool's idempotentHint annotation is withdrawn",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "drainSnapshot",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "fail:classification-refused",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "fail",
+            "code": "classification-refused",
+            "detail": "ledger action 1: pinned classifyTool says mode=action autoApprovable=false (classifiedBy default) — the platform's own policy would not auto-apply it",
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": [
+            "classifyTool"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "fail:classification-refused",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [
+          "classifyTool"
+        ],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-drain-skip",
+        "stratum": "locked-replication",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "one earlier manual-gate record on a different, genuinely non-auto-approvable tool is added and resolved after the claimed auto-approval; the bound action is untouched",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "drainSnapshot",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "fail:drain-order-violation",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "fail",
+            "code": "drain-order-violation",
+            "detail": "pass 1 on gatekeeper 1: the witness claims [2] were auto-applied, but replaying the pinned drainer over the queue as it stood at 2026-08-01T00:32:00.000Z applies []",
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": [
+            "classifyTool",
+            "AutoApprovalDrainer"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "fail:drain-order-violation",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [
+          "classifyTool",
+          "AutoApprovalDrainer"
+        ],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-binding-control",
+        "stratum": "locked-replication",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "store",
+        "mutationConstraint": "one byte is appended to the commitment document; nothing else is touched",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:commitment-schema-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "commitment-schema-invalid",
+            "detail": "commitment bytes are not the canonical JCS encoding of their own content",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:commitment-schema-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "neg-replay-control",
+        "stratum": "locked-replication",
+        "category": "control-negative",
+        "role": "control-gate",
+        "attackerCapability": "store",
+        "mutationConstraint": "the retained pack is truncated and its committed digest re-derived; no other artifact changes",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:judgment-identity-mismatch",
+          "replay": "fail:replay-refused",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "judgment-identity-mismatch",
+            "detail": "the retained pack does not parse, so no committed identity field can be corroborated against it",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-refused",
+            "detail": "the pinned evaluator did not evaluate the retained inputs (exit 1)",
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:judgment-identity-mismatch",
+          "replay": "fail:replay-refused",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a01-pack-bytes-drift",
+        "stratum": "locked-replication",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": "one byte of the retained pack changes; no digest, record or report is rebuilt",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "pack-digest-mismatch",
+            "detail": "retained pack bytes do not match the committed digest",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:pack-digest-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a02-disposition-forged",
+        "stratum": "locked-replication",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": "the envelope's disposition is edited and every dependent digest, record and report is rebuilt to agree with it",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-disposition-mismatch",
+            "detail": "recomputation under the pinned evaluator does not reproduce the committed disposition",
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a03-evaluator-digest-forged",
+        "stratum": "locked-replication",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": "only the committed executableDigest changes; the commitment is re-derived around it",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "fail:replay-executable-mismatch",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-executable-mismatch",
+            "detail": "the live evaluator binary is not the committed executable",
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "fail:replay-executable-mismatch",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "a04-judgment-identity-forged",
+        "stratum": "locked-replication",
+        "category": "A-judgment-artifact",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": "only the committed evaluatorRelease changes; the commitment is re-derived around it",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:judgment-identity-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "judgment-identity-mismatch",
+            "detail": "judgment.evaluatorRelease is not the retained envelope's",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:judgment-identity-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s01-conflict-as-rejected",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "the bridge publishes a different decision; no record is fabricated",
+        "modeledDependencies": [
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:report-misattribution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "report-misattribution",
+            "detail": "the published decision ('outcome', 'rejected', [], 'requested') is not the committed disposition ('unresolved', None, ['conflict'], 'requested')",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:report-misattribution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s02-unknown-auto-applied",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "the bridge stages and auto-applies under a non-executable disposition; every platform record is internally lawful",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "drainSnapshot",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "the commitment carries an action object under a non-executable disposition",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": [
+            "classifyTool",
+            "AutoApprovalDrainer"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "pass",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [
+          "classifyTool",
+          "AutoApprovalDrainer"
+        ],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s03-opfail-as-unknown",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": "the envelope and commitment are replaced coherently; the retained inputs are left as they were",
+        "modeledDependencies": [
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "fail",
+            "code": "replay-disposition-mismatch",
+            "detail": "recomputation under the pinned evaluator does not reproduce the committed disposition",
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "fail:replay-disposition-mismatch",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s04-approval-as-evidence",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "only one backing entry changes; the corresponding artifact is left retained so the failure is the reference, not an absence",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "evidence-backing-invalid",
+            "detail": "backing for sponsor-endorsement declares kind 'approval-record', not an evidence artifact — resource access and human approval are not evidence. (This detects a bridge that names its source honestly; it cannot detect one that stores those bytes under the requirement id and calls them an artifact.)",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s05-handoff-dropped",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "only the published report changes; nothing is staged",
+        "modeledDependencies": [
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:handoff-dropped",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "handoff-dropped",
+            "detail": "the disposition requests handoff and the published report drops it",
+            "suppressed": [
+              "report-misattribution"
+            ]
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:handoff-dropped",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [
+          "report-misattribution"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "s06-not-applicable-executed",
+        "stratum": "locked-replication",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "the bridge stages and applies under a non-executable disposition; the records are otherwise lawful",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "the commitment carries an action object under a non-executable disposition",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "o01-observation-as-evidence",
+        "stratum": "locked-replication",
+        "category": "O-observation-evidence",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "only one backing entry changes; a real read-path observation is added to make the reference resolvable",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation",
+          "observedRouting"
+        ],
+        "expected": {
+          "upstream": "pass",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "evidence-backing-invalid",
+            "detail": "backing for intake-form declares kind 'observation-record', not an evidence artifact — resource access and human approval are not evidence. (This detects a bridge that names its source honestly; it cannot detect one that stores those bytes under the requirement id and calls them an artifact.)",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": [
+            "classifyTool"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "pass",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [
+          "classifyTool"
+        ],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b01-commitment-reuse",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "a second staged call and ledger record are added under the same commitment digest; the first is untouched",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts",
+          "effectAttestation"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:binding-reuse",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "binding-reuse",
+            "detail": "2 staged calls / 2 applied records bind one commitment digest",
+            "suppressed": [
+              "report-state-unsupported"
+            ]
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:binding-reuse",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [
+          "report-state-unsupported"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b02-argument-drift",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": "only the staged call's retained arguments change; the ledger record, its prose and the commitment are untouched",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:argument-drift",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "argument-drift",
+            "detail": "the staged call's retained arguments do not digest to the committed value",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:argument-drift",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b03-revision-drift",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "environment",
+        "mutationConstraint": "only the world's apply-time revision differs; no record is edited",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:revision-drift",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "revision-drift",
+            "detail": "resource revision at apply ('rev-9') differs from the bound revision ('rev-7')",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:revision-drift",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b04-gatekeeper-substituted",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "the bound call and its record move to a second gatekeeper; the commitment is left naming the first",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "target-mismatch",
+            "detail": "the bound staged call diverges from the committed target: gatekeeperId, resourceUrl, toolName, actionKindTag, ledger.resourceUrl, ledger.actionKind.label",
+            "suppressed": [
+              "argument-drift"
+            ]
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [
+          "argument-drift"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b05-actionkind-substituted",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "the staged tool and the record's action kind change; the commitment is left naming the authorized ones",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "target-mismatch",
+            "detail": "the bound staged call diverges from the committed target: toolName, actionKindTag, ledger.actionKind.label",
+            "suppressed": [
+              "argument-drift"
+            ]
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:target-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [
+          "argument-drift"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b06-unbound-execution",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "out-of-band",
+        "mutationConstraint": "an effect attestation is added; no queue record is fabricated",
+        "modeledDependencies": [
+          "effectAttestation",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:unbound-execution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "unbound-execution",
+            "detail": "an effect on the governed resource is attested with no approved action record bound to this commitment",
+            "suppressed": [
+              "report-state-unsupported"
+            ]
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:unbound-execution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [
+          "report-state-unsupported"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "b07-stage-revision-mismatch",
+        "stratum": "locked-replication",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": "only the staged call's stage-time revision changes",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:stage-revision-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "stage-revision-mismatch",
+            "detail": "the staged call records revision 'rev-9'; the commitment binds 'rev-7'",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:stage-revision-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "d02-simulated-as-committed",
+        "stratum": "locked-replication",
+        "category": "D-deferred-execution",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": "only the published report's execution state changes; no attestation is removed or added",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:commit-overclaim",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "commit-overclaim",
+            "detail": "the report claims an attested effect and none is retained — a returned callback or a simulated success is not a committed external effect",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:commit-overclaim",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "m01-readonly-bypass",
+        "stratum": "locked-replication",
+        "category": "M-annotation-trust",
+        "role": "demonstration",
+        "attackerCapability": "out-of-band",
+        "mutationConstraint": "the tool's own annotation changes and the call takes the read path; no queue record is fabricated",
+        "modeledDependencies": [
+          "effectAttestation",
+          "observedRouting",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "pass",
+          "binding": "fail:unbound-execution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "unbound-execution",
+            "detail": "an effect on the governed resource is attested with no approved action record bound to this commitment",
+            "suppressed": [
+              "report-state-unsupported"
+            ]
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": [
+            "classifyTool"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "pass",
+          "binding": "fail:unbound-execution",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [
+          "classifyTool"
+        ],
+        "suppressed": [
+          "report-state-unsupported"
+        ],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "m02-ambiguous-commit",
+        "stratum": "locked-replication",
+        "category": "M-annotation-trust",
+        "role": "descriptive",
+        "attackerCapability": "environment",
+        "mutationConstraint": "nothing is mutated: the cell constructs the unmutated ambiguous-dispatch trace, reconstructed from source rather than captured, and retaining only what the flattened connectorOutcome scalar carries",
+        "modeledDependencies": [
+          "stagedCallToolName",
+          "stagedCallArguments",
+          "stageRevision",
+          "applyRevision",
+          "commitmentCarrier",
+          "connectorOutcome",
+          "evidenceArtifacts"
+        ],
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "pass",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      }
+    ]
+  },
+  "holdout": {
+    "stratum": "reviewer-holdout",
+    "verdict": "holdout divergent",
+    "note": "scored separately; nothing here can change R1",
+    "cells": 8,
+    "divergentCells": [
+      "h02-approval-digest-laundered-as-artifact",
+      "h03-coherent-argument-substitution",
+      "h04-coherent-target-and-kind-substitution",
+      "h05-phantom-staged-report",
+      "h06-autoapproval-rule-removed-after-apply",
+      "h07-drain-final-state-erases-manual-gate",
+      "h08-outcome-unknown-reported-applied"
+    ],
+    "pipelineInvalidCells": [],
+    "records": [],
+    "rows": [
+      {
+        "cell": "h01-clarify-bound-execution",
+        "stratum": "reviewer-holdout",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": null,
+        "modeledDependencies": null,
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-map-violation",
+            "detail": "the commitment carries an action object under a non-executable disposition",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:action-map-violation",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [],
+        "problems": []
+      },
+      {
+        "cell": "h02-approval-digest-laundered-as-artifact",
+        "stratum": "reviewer-holdout",
+        "category": "S-semantic-collapse",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": null,
+        "modeledDependencies": null,
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "evidence-backing-invalid",
+            "detail": "backing for sponsor-endorsement names no retained artifact — a backing digest with no preimage is an assertion, not lineage",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:evidence-backing-invalid",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [
+          {
+            "layer": "binding",
+            "expected": "pass",
+            "observed": "fail:evidence-backing-invalid"
+          },
+          {
+            "layer": "combined",
+            "expected": "pass",
+            "observed": "fail"
+          }
+        ],
+        "problems": []
+      },
+      {
+        "cell": "h03-coherent-argument-substitution",
+        "stratum": "reviewer-holdout",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": null,
+        "modeledDependencies": null,
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "action-derivation-mismatch",
+            "detail": "the committed action diverges from the action the map derives from the retained judgment: argumentsDigest",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:action-derivation-mismatch",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [
+          {
+            "layer": "binding",
+            "expected": "pass",
+            "observed": "fail:action-derivation-mismatch"
+          },
+          {
+            "layer": "combined",
+            "expected": "pass",
+            "observed": "fail"
+          }
+        ],
+        "problems": []
+      },
+      {
+        "cell": "h04-coherent-target-and-kind-substitution",
+        "stratum": "reviewer-holdout",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": null,
+        "modeledDependencies": null,
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "commitment-schema-invalid",
+            "detail": "action.toolName is not the executable tool literal",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "unavailable",
+            "code": null,
+            "detail": "commitment is not replayable: action.toolName is not the executable tool literal",
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:commitment-schema-invalid",
+          "replay": "unavailable",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [
+          {
+            "layer": "binding",
+            "expected": "pass",
+            "observed": "fail:commitment-schema-invalid"
+          },
+          {
+            "layer": "replay",
+            "expected": "pass",
+            "observed": "unavailable"
+          },
+          {
+            "layer": "combined",
+            "expected": "pass",
+            "observed": "fail"
+          }
+        ],
+        "problems": []
+      },
+      {
+        "cell": "h05-phantom-staged-report",
+        "stratum": "reviewer-holdout",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": null,
+        "modeledDependencies": null,
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "report-state-unsupported",
+            "detail": "the report claims execution state 'staged' with no staged call bound to this commitment",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:report-state-unsupported",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [
+          {
+            "layer": "binding",
+            "expected": "pass",
+            "observed": "fail:report-state-unsupported"
+          },
+          {
+            "layer": "combined",
+            "expected": "pass",
+            "observed": "fail"
+          }
+        ],
+        "problems": []
+      },
+      {
+        "cell": "h06-autoapproval-rule-removed-after-apply",
+        "stratum": "reviewer-holdout",
+        "category": "M-annotation-trust",
+        "role": "endpoint",
+        "attackerCapability": "environment",
+        "mutationConstraint": null,
+        "modeledDependencies": null,
+        "expected": {
+          "upstream": "fail:drain-order-violation",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "pass",
+          "upstreamEngaged": [
+            "classifyTool",
+            "AutoApprovalDrainer"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "upstreamReplayed": [
+          "classifyTool",
+          "AutoApprovalDrainer"
+        ],
+        "suppressed": [],
+        "divergences": [
+          {
+            "layer": "upstream",
+            "expected": "fail:drain-order-violation",
+            "observed": "pass"
+          },
+          {
+            "layer": "combined",
+            "expected": "fail",
+            "observed": "pass"
+          }
+        ],
+        "problems": []
+      },
+      {
+        "cell": "h07-drain-final-state-erases-manual-gate",
+        "stratum": "reviewer-holdout",
+        "category": "B-binding-integrity",
+        "role": "endpoint",
+        "attackerCapability": "store",
+        "mutationConstraint": null,
+        "modeledDependencies": null,
+        "expected": {
+          "upstream": "pass",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "fail",
+            "code": "drain-order-violation",
+            "detail": "pass 1 on gatekeeper 1: the witness claims [2] were auto-applied, but replaying the pinned drainer over the queue as it stood at 2026-08-01T00:32:00.000Z applies []",
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": [
+            "classifyTool",
+            "AutoApprovalDrainer"
+          ]
+        },
+        "observedOutcomes": {
+          "upstream": "fail:drain-order-violation",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [
+          "classifyTool",
+          "AutoApprovalDrainer"
+        ],
+        "suppressed": [],
+        "divergences": [
+          {
+            "layer": "upstream",
+            "expected": "pass",
+            "observed": "fail:drain-order-violation"
+          },
+          {
+            "layer": "combined",
+            "expected": "pass",
+            "observed": "fail"
+          }
+        ],
+        "problems": []
+      },
+      {
+        "cell": "h08-outcome-unknown-reported-applied",
+        "stratum": "reviewer-holdout",
+        "category": "M-annotation-trust",
+        "role": "endpoint",
+        "attackerCapability": "bridge",
+        "mutationConstraint": null,
+        "modeledDependencies": null,
+        "expected": {
+          "upstream": "not-engaged",
+          "binding": "pass",
+          "replay": "pass",
+          "combined": "pass"
+        },
+        "status": "adjudicated",
+        "observed": {
+          "upstream": {
+            "verdict": "not-engaged",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "binding": {
+            "verdict": "fail",
+            "code": "report-state-unsupported",
+            "detail": "the report claims execution state 'applied' while the bound staged call retains connector outcome 'outcome-unknown'; that state is supported only by committed (SPEC section 5, retained outcome compatibility)",
+            "suppressed": []
+          },
+          "replay": {
+            "verdict": "pass",
+            "code": null,
+            "detail": null,
+            "suppressed": []
+          },
+          "combined": "fail",
+          "upstreamEngaged": []
+        },
+        "observedOutcomes": {
+          "upstream": "not-engaged",
+          "binding": "fail:report-state-unsupported",
+          "replay": "pass",
+          "combined": "fail"
+        },
+        "upstreamReplayed": [],
+        "suppressed": [],
+        "divergences": [
+          {
+            "layer": "binding",
+            "expected": "pass",
+            "observed": "fail:report-state-unsupported"
+          },
+          {
+            "layer": "combined",
+            "expected": "pass",
+            "observed": "fail"
+          }
+        ],
+        "problems": []
+      }
+    ]
+  }
+}

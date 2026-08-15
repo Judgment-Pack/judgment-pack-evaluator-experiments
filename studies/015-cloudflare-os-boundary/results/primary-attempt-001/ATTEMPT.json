@@ -1,0 +1,5 @@
+{
+  "study": "015-cloudflare-os-boundary",
+  "includeHoldout": true,
+  "marker": "written before the pin registry was parsed"
+}

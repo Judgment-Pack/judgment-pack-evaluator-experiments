@@ -1,4 +1,9 @@
-"""The fixture typecheck — every retained record held to the pinned server-side types.
+"""The fixture typecheck — every retained LEDGER RECORD and AUTO-APPROVAL RULE held to the
+pinned server-side types.
+
+The surface is exactly those two and is stated exactly, here and everywhere: staged calls,
+drain witnesses, catalogs and effect attestations are instrumentation with no upstream type
+to be held to, and round 4 (R4-6) found documents claiming "every retained record" instead.
 
 The platform performs no offline validation of a retained or exported action record, so
 this gate supplies the only mechanical fidelity check the study has: every frozen

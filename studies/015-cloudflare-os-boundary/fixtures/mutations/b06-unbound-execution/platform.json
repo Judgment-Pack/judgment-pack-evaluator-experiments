@@ -28,12 +28,15 @@
     {
       "resourceUrl": "https://tracker.example/mcp#server=tracker",
       "toolName": "tracker_create_work_item",
-      "gatekeeperId": 1,
-      "action": 11,
       "arguments": {
         "kind": "provision-intake",
         "requestType": "data-access",
         "source": "jps-triage"
+      },
+      "source": {
+        "kind": "staged-call",
+        "gatekeeperId": 1,
+        "action": 11
       }
     }
   ]
