@@ -1,0 +1,1732 @@
+{
+ "goldVersion": "0-draft",
+ "policy": "POLICY-DRAFT.md v0.2",
+ "rows": [
+  {
+   "cite": [
+    "P1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   },
+   "id": "p1-absent",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "absent",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "absent financial evidence blocks everything"
+  },
+  {
+   "cite": [
+    "P1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "p1-unreported",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": null,
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "unreported availability is unknown, a different reason"
+  },
+  {
+   "cite": [
+    "P1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   },
+   "id": "p1-absent-match",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "absent",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "MATCH",
+    "spend": "50000.00"
+   },
+   "note": "P1 precedes even a sanctions-match rejection"
+  },
+  {
+   "cite": [
+    "P1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   },
+   "id": "p1-absent-escalation-region",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "absent",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "reason purity: no exception-escalation leaks in"
+  },
+  {
+   "cite": [
+    "P1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "p1-unreported-escalation-region",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": null,
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "same cell, unreported availability"
+  },
+  {
+   "cite": [
+    "P1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "p1-unreported-d2",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": null,
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "UNKNOWN",
+    "spend": "50000.00"
+   },
+   "note": "P1 precedes D2 as well"
+  },
+  {
+   "cite": [
+    "D1"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d1-match",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "MATCH",
+    "spend": "50000.00"
+   },
+   "note": "sanctions MATCH rejects"
+  },
+  {
+   "cite": [
+    "D1"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d1-match-bare",
+   "inputs": {
+    "country": null,
+    "critical": null,
+    "finEvidence": "present",
+    "insurance": null,
+    "newVendor": null,
+    "prior": null,
+    "risk": null,
+    "sanctions": "MATCH",
+    "spend": null
+   },
+   "note": "MATCH decides with every other fact input missing"
+  },
+  {
+   "cite": [
+    "D1"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d1-match-critical",
+   "inputs": {
+    "country": "LOW",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "MATCH",
+    "spend": "50000.00"
+   },
+   "note": "O2 never applies under MATCH"
+  },
+  {
+   "cite": [
+    "D2"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "no-match"
+    ]
+   },
+   "id": "d2-unknown",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "UNKNOWN",
+    "spend": "50000.00"
+   },
+   "note": "unreported screening: no clause matches"
+  },
+  {
+   "cite": [
+    "D2"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "no-match"
+    ]
+   },
+   "id": "d2-unknown-bare",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": null,
+    "sanctions": "UNKNOWN",
+    "spend": null
+   },
+   "note": "no-match, not unknown, with numerics missing too"
+  },
+  {
+   "cite": [
+    "D2"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "no-match"
+    ]
+   },
+   "id": "d2-unknown-critical",
+   "inputs": {
+    "country": "LOW",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "UNKNOWN",
+    "spend": "50000.00"
+   },
+   "note": "O2 never applies under UNKNOWN screening"
+  },
+  {
+   "cite": [
+    "D3"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d3-low-90",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "90",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk 90 rejects everywhere"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-low-89",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "89",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk 89 in LOW only reviews"
+  },
+  {
+   "cite": [
+    "D3"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d3-med-90",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "90",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk 90 rejects in MEDIUM"
+  },
+  {
+   "cite": [
+    "D4"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d4-high-70",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "70",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "HIGH rejection begins at exactly 70"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-high-69",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "69",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk 69 in HIGH reviews"
+  },
+  {
+   "cite": [
+    "D4"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d4-high-89",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "89",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk 89 in HIGH still D4"
+  },
+  {
+   "cite": [
+    "D3"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d3-high-90",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "90",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "at 90 in HIGH both reject; earliest clause (D3) governs"
+  },
+  {
+   "cite": [
+    "D5"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d5-low-approve-region",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "yes",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "prior action rejects inside an approval region"
+  },
+  {
+   "cite": [
+    "D5"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d5-med",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "yes",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "prior action rejects in MEDIUM too"
+  },
+  {
+   "cite": [
+    "D6a"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d5-unreported",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": null,
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "unreported prior status is treated as no"
+  },
+  {
+   "cite": [
+    "D3"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d3-over-d5",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "yes",
+    "risk": "95",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk 95 with prior action: both reject; earliest (D3) governs"
+  },
+  {
+   "cite": [
+    "D5"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d5-d6b-absent",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "absent",
+    "newVendor": "no",
+    "prior": "yes",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "1000000.00"
+   },
+   "note": "prior action beats the enhanced-review branch"
+  },
+  {
+   "cite": [
+    "D6a"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6a-39-50k",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "39",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk 39: the low band's upper edge"
+  },
+  {
+   "cite": [
+    "D6a"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6a-500k",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "500000.00"
+   },
+   "note": "spend exactly 500,000.00 is still D6a"
+  },
+  {
+   "cite": [
+    "D6a"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6a-ins-absent",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "absent",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "insurance is not consulted outside D6b"
+  },
+  {
+   "cite": [
+    "D6a"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6a-0-0",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "0",
+    "sanctions": "CLEAR",
+    "spend": "0.00"
+   },
+   "note": "domain floor: risk 0, spend 0.00"
+  },
+  {
+   "cite": [
+    "D6b"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6b-500k01",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "500000.01"
+   },
+   "note": "one cent above 500,000.00 enters D6b"
+  },
+  {
+   "cite": [
+    "D6b"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6b-2m",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "2000000.00"
+   },
+   "note": "spend exactly 2,000,000.00 is inside D6b (inclusive)"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-2m01-low",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "2000000.01"
+   },
+   "note": "one cent above 2M in LOW falls to review"
+  },
+  {
+   "cite": [
+    "D6b"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6b-1m-present",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "1000000.00"
+   },
+   "note": "insurance available: approve"
+  },
+  {
+   "cite": [
+    "D6b"
+   ],
+   "expect": {
+    "disposition": "enhanced-review",
+    "reasons": []
+   },
+   "id": "d6b-1m-absent",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "absent",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "1000000.00"
+   },
+   "note": "insurance absent: enhanced review, decided by D6b"
+  },
+  {
+   "cite": [
+    "D6b"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "d6b-1m-unreported",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": null,
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "1000000.00"
+   },
+   "note": "insurance availability unreported: unresolved as unknown"
+  },
+  {
+   "cite": [
+    "D6c"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6c-40-50k",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk exactly 40 leaves D6a for D6c"
+  },
+  {
+   "cite": [
+    "D6c"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6c-40-100k",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "spend exactly 100,000.00 is inside D6c"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-40-100k01",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": "100000.01"
+   },
+   "note": "one cent above 100,000.00 leaves D6c"
+  },
+  {
+   "cite": [
+    "D6c"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d6c-69-100k",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "69",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "risk 69: D6c's upper edge"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-70-low",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "70",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "risk 70 in LOW: no approval clause reaches it"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-40-500k",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": "500000.00"
+   },
+   "note": "mid-band risk with D6a-sized spend: review"
+  },
+  {
+   "cite": [
+    "D7"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d7-39-100k",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "39",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "MEDIUM approval at both upper edges"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-40-med",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "risk 40 in MEDIUM: no approval clause"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-39-100k01-med",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "39",
+    "sanctions": "CLEAR",
+    "spend": "100000.01"
+   },
+   "note": "one cent above 100,000.00 in MEDIUM: review"
+  },
+  {
+   "cite": [
+    "D7"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "d7-0-0",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "0",
+    "sanctions": "CLEAR",
+    "spend": "0.00"
+   },
+   "note": "MEDIUM domain floor"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-high-mid",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "HIGH below the rejection band: review"
+  },
+  {
+   "cite": [
+    "O1",
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "o1-nv-d6c",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "new vendor: D6c suspended, falls to D8"
+  },
+  {
+   "cite": [
+    "D6a"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "o1-nv-d6a",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "O1 touches only D6c: D6a still approves a new vendor"
+  },
+  {
+   "cite": [
+    "D6c"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "o1-nv-unreported",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": null,
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "unreported new-vendor status is treated as no"
+  },
+  {
+   "cite": [
+    "D7"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "o1-nv-med",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "O1 does not reach D7"
+  },
+  {
+   "cite": [
+    "O2"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "o2-reject-region",
+   "inputs": {
+    "country": "LOW",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "95",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "critical supplier: review even at risk 95"
+  },
+  {
+   "cite": [
+    "O2"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "o2-approve-region",
+   "inputs": {
+    "country": "LOW",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "critical supplier: never auto-approved"
+  },
+  {
+   "cite": [
+    "D6a"
+   ],
+   "expect": {
+    "disposition": "approve",
+    "reasons": []
+   },
+   "id": "o2-unreported",
+   "inputs": {
+    "country": "LOW",
+    "critical": null,
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "unreported critical status is treated as no"
+  },
+  {
+   "cite": [
+    "O2"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "o2-over-d5",
+   "inputs": {
+    "country": "LOW",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "yes",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "O2 beats the prior-enforcement rejection"
+  },
+  {
+   "cite": [
+    "O2"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "o2-over-d4",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "70",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "O2 beats the HIGH-country rejection"
+  },
+  {
+   "cite": [
+    "O2"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "o2-d6b-absent",
+   "inputs": {
+    "country": "LOW",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "absent",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "1000000.00"
+   },
+   "note": "O2 beats the enhanced-review branch"
+  },
+  {
+   "cite": [
+    "O3"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "exception-escalation"
+    ]
+   },
+   "id": "o3-2m01",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "2000000.01"
+   },
+   "note": "one cent above 2M in HIGH escalates"
+  },
+  {
+   "cite": [
+    "O3"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "exception-escalation"
+    ]
+   },
+   "id": "o3-3m",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "the escalation region proper"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-high-2m",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "2000000.00"
+   },
+   "note": "spend exactly 2M in HIGH does not escalate"
+  },
+  {
+   "cite": [
+    "O3"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "exception-escalation"
+    ]
+   },
+   "id": "o3-over-o2",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "O3 beats O2"
+  },
+  {
+   "cite": [
+    "O3"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "exception-escalation"
+    ]
+   },
+   "id": "o3-over-d3",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "95",
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "O3 beats even a critical-risk rejection"
+  },
+  {
+   "cite": [
+    "O3"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "exception-escalation"
+    ]
+   },
+   "id": "o3-over-d5",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "yes",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "O3 beats the prior-enforcement rejection"
+  },
+  {
+   "cite": [
+    "O3"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "exception-escalation"
+    ]
+   },
+   "id": "o3-risk-unreadable",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": null,
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "O3 reads no risk score; it decides without one"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-low-3m",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "no escalation outside HIGH: large LOW spend is review"
+  },
+  {
+   "cite": [
+    "U1",
+    "D3"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "u1-ex1",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "95",
+    "sanctions": "CLEAR",
+    "spend": "1000000.00"
+   },
+   "note": "worked example 1: risk 95 rejects whatever the country"
+  },
+  {
+   "cite": [
+    "U1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "u1-ex2",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "50",
+    "sanctions": "CLEAR",
+    "spend": null
+   },
+   "note": "worked example 2: unreadable spend straddles review and escalation"
+  },
+  {
+   "cite": [
+    "U1",
+    "O2"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "u1-ex3",
+   "inputs": {
+    "country": "LOW",
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": null,
+    "sanctions": "CLEAR",
+    "spend": "100.00"
+   },
+   "note": "worked example 3: O2 decides without the risk score"
+  },
+  {
+   "cite": [
+    "U1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "u1-ex4",
+   "inputs": {
+    "country": null,
+    "critical": "yes",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": null,
+    "sanctions": "CLEAR",
+    "spend": null
+   },
+   "note": "worked example 4: critical supplier, O3 not excludable"
+  },
+  {
+   "cite": [
+    "U1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "u1-risk-low-50k",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": null,
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "risk spans approve and review bands: unknown"
+  },
+  {
+   "cite": [
+    "U1",
+    "D5"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "u1-risk-prior",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "yes",
+    "risk": null,
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "prior action rejects at every risk value: uniform"
+  },
+  {
+   "cite": [
+    "U1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "u1-country-20-50k",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "country spans approve (LOW/MEDIUM) and review (HIGH)"
+  },
+  {
+   "cite": [
+    "U1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "u1-country-95-3m",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "95",
+    "sanctions": "CLEAR",
+    "spend": "3000000.00"
+   },
+   "note": "country spans rejection and escalation"
+  },
+  {
+   "cite": [
+    "U1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "u1-spend-low-20",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "20",
+    "sanctions": "CLEAR",
+    "spend": null
+   },
+   "note": "spend spans approve bands and review above 2M"
+  },
+  {
+   "cite": [
+    "U1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "u1-spend-high-95",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "95",
+    "sanctions": "CLEAR",
+    "spend": null
+   },
+   "note": "even risk 95 in HIGH: escalation above 2M keeps it open"
+  },
+  {
+   "cite": [
+    "U1",
+    "D3"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "u1-spend-med-95",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": "95",
+    "sanctions": "CLEAR",
+    "spend": null
+   },
+   "note": "MEDIUM has no O3: rejection is uniform over spend"
+  },
+  {
+   "cite": [
+    "U1"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "u1-risk-high-50k",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "no",
+    "risk": null,
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "HIGH with small spend: review below 70, reject above"
+  },
+  {
+   "cite": [
+    "U1",
+    "D5"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "u1-two-unreadable-uniform",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "no",
+    "prior": "yes",
+    "risk": null,
+    "sanctions": "CLEAR",
+    "spend": "50000.00"
+   },
+   "note": "prior action rejects under every completion"
+  }
+ ]
+}
