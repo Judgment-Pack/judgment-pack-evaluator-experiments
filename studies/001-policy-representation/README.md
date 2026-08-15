@@ -1,6 +1,22 @@
 # Study 001 — Does representing a policy as a judgment pack change how reliably a model applies it?
 
-A preregistered, three-arm experiment on a third-party benchmark. **No results yet.**
+A preregistered, three-arm experiment on a third-party benchmark.
+
+> **Results exist, and on the preregistered endpoint the pack arm loses.** All three arms have
+> run over the full 432-twin corpus at k = 5. On the registered answerable population (216
+> shared instances) accuracy was **A 0.781**, **A′ 0.778**, **B 0.579** — the judgment-pack arm
+> lowest of the three. An earlier draft reported the opposite by scoring the wrong population;
+> the post-run adversarial review caught it (five blockers) and the error is recorded in
+> [`DEVIATIONS.md`](DEVIATIONS.md) §2 rather than silently fixed.
+>
+> H2 is **not estimable** on that set: it contains no redacted twin, so one row of the 2×2 is
+> empty. Arm B's shortfall is diagnosed as a missing constant rather than a missing rule — it
+> reaches 0.801 on the subset it can decide ([`G3-DIAGNOSIS.md`](G3-DIAGNOSIS.md),
+> [`PIPELINE-STATUS.md`](PIPELINE-STATUS.md) §7).
+>
+> Read [`RESULTS-FIRST-PROMPT-ARMS.md`](RESULTS-FIRST-PROMPT-ARMS.md) for the verdict and its
+> correction history, and [`results/k5-report-answerable.md`](results/k5-report-answerable.md)
+> for the scored tables.
 
 | | |
 | --- | --- |
