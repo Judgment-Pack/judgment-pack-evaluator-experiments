@@ -1,10 +1,14 @@
-# Contest policy — draft v0.1 (design artifact, not frozen)
+# Contest policy — draft v0.2 (design artifact, not frozen)
 
-**Status: DRAFT v0.1, post-panel. v0 and the three-lens panel findings that produced this
-revision are retained beside this file ([`POLICY-v0.md`](POLICY-v0.md),
-[`POLICY-PANEL-FINDINGS.md`](POLICY-PANEL-FINDINGS.md)); clause renumbering is mapped at the
-bottom. Not yet through: the clean-room second oracle, the calibration pilots, or any review
-round. The frozen version will live at `policy/POLICY.md`.**
+**Status: DRAFT v0.2, post-panel and post-reference-build. Both reference implementations
+(JPS pack on the pinned jpack 0.17.0; Rego on the pinned OPA 1.19.0) agree with this text
+cell-for-cell over the 2,540-cell design grid ([`reference/AGREEMENT.md`](reference/AGREEMENT.md)).
+v0.2 adjudicates the one cross-engine divergence the build surfaced (O2 under an
+indeterminate O3 — U1 now governs uniformly) and registers one narrow arm-A
+inexpressibility class the gold grid must exclude. v0, v0.1's panel findings, and the
+reference artifacts are retained beside this file. Not yet through: the clean-room second
+oracle, the calibration pilots, or any review round. The frozen version will live at
+`policy/POLICY.md`.**
 
 Three panel discoveries reshaped v0, all verified against a built runtime: (1) "unreported
 insurance → review" was inexpressible in Core's three-valued logic (a condition true on
@@ -108,9 +112,9 @@ such requests fall to D8. An unreported new-vendor status is treated as **no**.
 result is never approved or rejected automatically: the determination is **review**. O2
 takes precedence over every determination clause D1–D8, including rejection under D3, D4,
 and D5 — but O2 never applies when the screening result is MATCH or UNKNOWN (D1 and D2
-stand), never displaces P1 or O3, and its determination stands even where the risk score,
-requested spend, or country risk cannot be read. An unreported critical-supplier status is
-treated as **no**.
+stand), and never displaces P1 or O3. Where the risk score, requested spend, or country
+risk cannot be read, U1 governs O2 cases like any other clause (worked examples 3 and 4).
+An unreported critical-supplier status is treated as **no**.
 
 **O3 — Large exposure in a high-risk country.** Where country risk is HIGH, the screening
 result is CLEAR, requested spend is above $2,000,000.00, and financial evidence is
@@ -134,7 +138,11 @@ Worked examples:
 2. CLEAR, HIGH, risk 50, spend unreadable, not critical: spend up to $2,000,000.00 gives
    review (D8) but above it gives escalation (O3) → **unresolved as unknown**.
 3. CLEAR, critical supplier yes, risk unreadable, LOW, spend 100.00: O2 determines the
-   case without the risk score → **review**.
+   case without the risk score, and no readable risk value changes it → **review**.
+4. CLEAR, critical supplier yes, country risk and requested spend unreadable, financial
+   evidence available: a readable HIGH country with spend above $2,000,000.00 would
+   escalate (O3), while every other assignment gives review (O2) — the determinations
+   differ → **unresolved as unknown**.
 
 ---
 
@@ -207,17 +215,45 @@ counterfactual test (v0's "needed by" admitted two readings — three findings).
 - Ordered comparisons are defined only over decimal strings; a JSON number or a
   leading-zero string yields `unknown` (verified) — hence the per-arm wire-form statements.
 
-### Open items for the reference build and gold authoring
+### Reference-build results (2026-08-15; artifacts under `reference/`)
 
-- **V6**: settle D8's `onUnknown` (the panel's two verified encodings differ) by building
-  the arm-A reference and running the full grid; the reference must achieve perfect gold
-  agreement **before** any calibration pilot (floor check — regoFair #9: a stimulus defect
-  shows up as E1_A ≈ 0, which is as uninformative as saturation and worse for R1).
-- **V7**: re-derive the completeness argument mechanically — a script over the full grid
-  (including the availability axes and the insurance axis, which v0's partition omitted)
-  asserting exactly one governing clause per cell under the order-of-application rules.
-- **V8**: re-derive the asymmetry ledger from the two reference implementations, not from
-  these notes (panel re-signed two of v0's rows).
+- **V6 RESOLVED.** The D8 catch-all rule carries `onUnknown: escalate`; **every other rule
+  carries `ignore`**; exception O3 is `escalate`, O1/O2 and the D5-exclusion suppressions
+  `ignore`. Basis: all 2^11 rule assignments enumerated against a §7/§8 simulator validated
+  cell-for-cell against the pinned engine (15,240 checked evaluations, 0 disagreements);
+  the reference assignment scores 0 mismatches on the grid; the panel's split is explained —
+  D8's `onUnknown` is entailed by D8's *structure*, and the negation-cascade shape (S1)
+  strictly beats the positive-union shape (S2, 24 grid mismatches). D8 is the single place
+  U1's "otherwise" is realized.
+- **Registered exclusion X1 (arm-A inexpressibility, census row).** In the class
+  {newVendor = yes, 40 ≤ risk < 70, and either country LOW with spend unreadable, or
+  country unreadable with spend ≤ $100,000.00}, the prose (via U1) says review but no
+  `onUnknown` assignment can make a pack say it (72/236,196 derived cells, 0 rescued by any
+  of the 2,048 assignments): the O1 companion rule and D8's cascade both read the
+  unreadable input, and an unknown-escalate rule poisons the cell before any candidate is
+  collected. **The gold grid must not contain cells of this class**; the exclusion is
+  registered, and the class enters the expressiveness census as a measured fragment
+  boundary (U1's counterfactual is not fully realizable when a suppression's region-scoped
+  companion depends on the unreadable input).
+- **Adjudication A1 (the one cross-engine divergence).** v0.1's O2 sentence ("its
+  determination stands even where … cannot be read") collided with O3's precedence exactly
+  where O3's applicability is indeterminate. v0.2 deletes the sentence; U1 governs
+  uniformly (worked example 4). After the one-rung Rego fix, **both references agree
+  2,540/2,540** with zero engine errors on either side.
+- **Ledger row (B/C-favorable, from the build):** O3's "financial evidence is available
+  (P1)" conjunct — the sentence that restores P1's reason purity in arm A — is
+  *behaviorally inert* in a Rego ladder (the P1 rung short-circuits first): a prose
+  sentence that exists solely to make a correct JPS pack reachable.
+
+### Still open for gold authoring
+
+- **V7**: re-derive the completeness argument mechanically over the gold grid (the
+  reference build's 236,196-cell derived-space sweep is evidence, not the registered
+  artifact), asserting exactly one governing clause per cell under the earliest-clause
+  tie-break, and asserting the X1 exclusion.
+- **V8**: re-derive the asymmetry ledger from the two reference implementations (three new
+  rows so far: X1, A1's uniform-U1 burden, the inert O3 conjunct; the panel re-signed two
+  of v0's rows).
 - Gold rows are authored as reason sets, cite governing clauses under the earliest-clause
   tie-break, and deliberately include: every boundary literal in every band; the three U1
   worked examples plus at least one more per unreadable input; D6b's three insurance
