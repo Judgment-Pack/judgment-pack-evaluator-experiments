@@ -1,0 +1,99 @@
+{
+  "admitted": 5,
+  "arm": "B",
+  "dropCodes": {
+    "invalid-artifact": 0,
+    "no-marker": 1,
+    "unparseable": 0
+  },
+  "generatedAt": "2026-08-15T16:34:01Z",
+  "goldPolicy": "POLICY-DRAFT.md v0.2",
+  "goldRows": 76,
+  "goldVersion": "0-draft",
+  "harness": "pilot_run.py (design-time, non-citable)",
+  "perRun": [
+    {
+      "detail": {
+        "checkExit": 0
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 12387,
+        "marker": "TESTS",
+        "present": true
+      },
+      "slot": "001"
+    },
+    {
+      "detail": {
+        "checkExit": 0
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 13618,
+        "marker": "TESTS",
+        "present": true
+      },
+      "slot": "002"
+    },
+    {
+      "dropCode": "no-marker",
+      "perfect": false,
+      "rowFailures": [],
+      "secondaryArtifact": {
+        "bytes": 0,
+        "marker": "TESTS",
+        "present": false
+      },
+      "slot": "003"
+    },
+    {
+      "detail": {
+        "checkExit": 0
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 17451,
+        "marker": "TESTS",
+        "present": true
+      },
+      "slot": "004"
+    },
+    {
+      "detail": {
+        "checkExit": 0
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 16804,
+        "marker": "TESTS",
+        "present": true
+      },
+      "slot": "005"
+    },
+    {
+      "detail": {
+        "checkExit": 0
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 9702,
+        "marker": "TESTS",
+        "present": true
+      },
+      "slot": "006"
+    }
+  ],
+  "perfect": 5,
+  "runs": 6
+}

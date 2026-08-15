@@ -1,0 +1,1072 @@
+{
+  "matrixVersion": "2",
+  "cases": [
+    {
+      "id": "p1-absent-beats-o3",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "3000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "yes",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "p1-unreported-beats-match",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "MATCH",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d1-match-ignores-unreadable-values",
+      "facts": {
+        "vendor": {
+          "sanctionsStatus": "MATCH",
+          "newVendor": "yes",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d2-unknown-screening-is-no-match",
+      "facts": {
+        "vendor": {
+          "sanctionsStatus": "UNKNOWN",
+          "newVendor": "yes",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "no-match"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "no-match"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "o3-above-two-million-beats-all",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "2000000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "yes",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "exception-escalation"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "exception-escalation"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "o3-exact-two-million-does-not-fire",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "yes",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "o2-overrides-d3-and-d5",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "o2-overrides-d6b-unreported-insurance",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "500000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "u1-o2-risk-unreadable-still-review",
+      "facts": {
+        "vendor": {
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "u1-o2-versus-possible-o3",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d3-boundary-90",
+      "facts": {
+        "vendor": {
+          "riskScore": "90",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d3-below-boundary-89",
+      "facts": {
+        "vendor": {
+          "riskScore": "89",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d4-boundary-70",
+      "facts": {
+        "vendor": {
+          "riskScore": "70",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d4-below-boundary-69",
+      "facts": {
+        "vendor": {
+          "riskScore": "69",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d5-prior-enforcement",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d6a-upper-spend-insurance-absent",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d6b-lower-plus-cent-insurance-present",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d6b-lower-plus-cent-insurance-absent",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "enhanced-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d6b-lower-plus-cent-insurance-unreported",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d6b-upper-spend-inclusive",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "enhanced-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d6b-above-upper-spend",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "2000000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d6c-inclusive-boundaries",
+      "facts": {
+        "vendor": {
+          "riskScore": "40",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d6c-spend-one-cent-over",
+      "facts": {
+        "vendor": {
+          "riskScore": "40",
+          "requestedSpend": "100000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "o1-suspends-d6c",
+      "facts": {
+        "vendor": {
+          "riskScore": "40",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "yes",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "unreported-statuses-mean-no",
+      "facts": {
+        "vendor": {
+          "riskScore": "69",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d7-inclusive-boundaries",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d7-spend-one-cent-over",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "100000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "d7-risk-40",
+      "facts": {
+        "vendor": {
+          "riskScore": "40",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "low-country-risk-70-is-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "70",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "u1-d3-country-unreadable-stable-reject",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "u1-high-spend-unreadable-o3-ambiguity",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-low-risk-80-spend-unreadable-stable-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "80",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "u1-country-unreadable-d4-ambiguity",
+      "facts": {
+        "vendor": {
+          "riskScore": "80",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-prior-action-masks-risk-and-country",
+      "facts": {
+        "vendor": {
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "u1-country-unreadable-stable-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "requestedSpend": "200000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "u1-new-vendor-spend-unreadable-stable-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "yes",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    },
+    {
+      "id": "u1-unreported-new-vendor-spend-ambiguity",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-d3-versus-o3-country-unreadable",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "3000000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-o3-masks-unreadable-risk",
+      "facts": {
+        "vendor": {
+          "requestedSpend": "3000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "exception-escalation"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "exception-escalation"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d5-beats-d6b-enhanced-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      }
+    }
+  ]
+}
