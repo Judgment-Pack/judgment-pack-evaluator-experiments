@@ -1,6 +1,6 @@
-# Contest policy — draft v0.2 (design artifact, not frozen)
+# Contest policy — draft v0.3 (design artifact, not frozen)
 
-**Status: DRAFT v0.2, post-panel and post-reference-build. Both reference implementations
+**Status: DRAFT v0.3, post-clean-room. v0.3 adds three clarifying sentences closing the clean-room oracle's decisions D-1, D-3, and D-6 (no cell's verdict changes; see cleanroom/DISPOSITION.md). Previously: v0.2, post-panel and post-reference-build. Both reference implementations
 (JPS pack on the pinned jpack 0.17.0; Rego on the pinned OPA 1.19.0) agree with this text
 cell-for-cell over the 2,540-cell design grid ([`reference/AGREEMENT.md`](reference/AGREEMENT.md)).
 v0.2 adjudicates the one cross-engine divergence the build surfaced (O2 under an
@@ -109,7 +109,9 @@ determines a case D3–D7 determines.
 such requests fall to D8. An unreported new-vendor status is treated as **no**.
 
 **O2 — Critical-supplier override.** A critical supplier (yes) with a CLEAR screening
-result is never approved or rejected automatically: the determination is **review**. O2
+result is never approved or rejected automatically: the determination is **review**. This
+displaces every determination D1–D8 would issue — including D6b's enhanced-review limb and
+D6b's unreported-insurance limb. O2
 takes precedence over every determination clause D1–D8, including rejection under D3, D4,
 and D5 — but O2 never applies when the screening result is MATCH or UNKNOWN (D1 and D2
 stand), and never displaces P1 or O3. Where the risk score, requested spend, or country
@@ -128,7 +130,11 @@ directed to the vendor compliance desk (queue `vendor-compliance-desk`).
 **U1.** Where the risk score, requested spend, or country risk cannot be read, the case is
 determined as follows: **if every readable value the unreadable input(s) could take would
 yield the same determination under the clauses above, that determination is issued;
-otherwise no determination is issued and the case is unresolved as unknown.** (The
+otherwise no determination is issued and the case is unresolved as unknown.** For this
+test, each readable assignment's outcome is whatever the clauses above yield for it — a
+determination, an escalation (O3), or an unresolved limb such as D6b's — and "the same
+determination" means the same outcome; the test varies only the unreadable inputs, with
+every other input keeping its reported state. (The
 screening result, evidence availability, and the yes/no statuses are never "unreadable" in
 this sense: their unreported states are governed by D2, P1, O1, O2, and D5 directly.)
 
