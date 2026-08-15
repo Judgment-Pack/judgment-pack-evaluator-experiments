@@ -62,7 +62,7 @@ with Judgment Pack — that independence is the point of the studies that use th
 | τ²-bench | [002](002-qualitative-policy/), [003](003-escape-census/) | [sierra-research/tau2-bench](https://github.com/sierra-research/tau2-bench) | `1d244f5d` | MIT |
 | Agent Eval Forge | [013](013-agent-eval-forge-integration/) | [deghosal-2026/agent-eval-forge](https://github.com/deghosal-2026/agent-eval-forge) | `8925cacc` | MIT © Debashish Ghosal |
 | OpenWorkProof | [014](014-openworkproof-binding/), [016](016-policy-currency-anchor/) | [dengyier/OpenWorkProof](https://github.com/dengyier/OpenWorkProof) | `8eeca6ff` | Apache-2.0 (per `LICENSE`) |
-| Open Policy Agent | [019](019-authorship-across-representations/) | [open-policy-agent/opa](https://github.com/open-policy-agent/opa) | *(release pinned at 019's freeze — binary asset + published sha256, not a commit)* | Apache-2.0 *(to verify from `LICENSE` at pin time)* |
+| Open Policy Agent | [019](019-authorship-across-representations/) | [open-policy-agent/opa](https://github.com/open-policy-agent/opa) | v1.19.0 release, `opa_linux_amd64_static` `1dd5c559…` *(enforced pin lands in 019's `harness/PINS.json` at the freeze)* | Apache-2.0 (per `LICENSE` at v1.19.0) |
 | Cloudflare OS | [015](015-cloudflare-os-boundary/) | [cloudflare/cloudflare-os](https://github.com/cloudflare/cloudflare-os) | `b2a51b54` | Apache-2.0 (per `LICENSE`) |
 
 The evaluator under test is the [judgment-pack-runtime](https://github.com/Judgment-Pack/judgment-pack-runtime)
