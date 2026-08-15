@@ -100,7 +100,13 @@ numeric thresholds with mixed inclusive/exclusive boundaries; 2–3 exceptions e
 three effects; precedence encoded as mutual exclusion (the hand-written negation count is a
 registered covariate); `fallbackOutcome` absent over part of the space so `no-match` is
 reachable; escalation present, its target scored descriptively only. Both tri-state
-mechanisms are present deliberately, their semantics stated exactly in prose. The canonical
+mechanisms are present deliberately, their semantics stated exactly in prose. The
+expressiveness census (descriptive companion, never adjudicated) records per row whether a
+gap is a deliberate Core refusal or a maintainer roadmap item — numeric outputs are the
+latter (stated 2026-08-14, planned for a later JPS version). Registered design rule: a spec
+change landing before the freeze does not expand the contest fragment; widening the fragment
+re-opens the design and its review, and the enriched output side belongs to a follow-up
+against the version that ships it. The canonical
 facts grid is authored as decimal strings with a registered fixed scale per numeric field; the
 Rego projection is `to_number` over those exact bytes with a freeze-time round-trip assertion.
 
@@ -209,7 +215,9 @@ constrained fourth arm, JSON Logic/DMN, deferred 2026-08-14). One model, one day
 family, one prompt per arm. Unless the registered gradient measurement runs, no direction of
 the result separates representation from training familiarity, and both directions are
 reported as confounded. Joint-reading prohibition: the expressiveness census and the fidelity
-rates live on different stimuli; no tradeoff statement combining them is licensed. An
+rates live on different stimuli; no tradeoff statement combining them is licensed. The census
+describes spec 0.2.0-draft as pinned; gaps recorded as roadmap items (numeric outputs) are
+statements about the pinned version, not about JPS's future, and are not scored. An
 INDETERMINATE or unsupported contrast licenses no negation. The gold suite is two authors
 deep, not independent of the program. Nothing here measures whether any policy or fact is
 true, and nothing claims any JPS conformance.

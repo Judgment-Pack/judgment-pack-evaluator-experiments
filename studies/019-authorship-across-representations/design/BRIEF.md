@@ -75,7 +75,16 @@ side, feature by feature with §8.3 cited per row in the census document:
 | unresolved evidence (list) | ABSENT — spec permits ids outside the disposition; this runtime discards them |
 
 Scoring these cells head-to-head would make JPS fail **by construction** and call it author
-error. Design consequence — the benchmark splits:
+error. One row's status is time-qualified: **numeric outputs are a maintainer roadmap item
+(stated 2026-08-14) for a later JPS version** — the census records it as "not in 0.2.0-draft,
+planned", distinct from deliberate Core refusals, and each census row states which of the two
+it is. The study measures the *pinned* spec version regardless; and as a registered design
+rule, a spec change landing before the freeze does **not** silently expand the contest
+fragment — expanding it re-opens the design and its review (a fragment widened mid-design to
+meet a benchmark cell would read as the spec being tuned against the study). The enriched
+output side belongs to a follow-up against the version that ships it.
+
+Design consequence — the benchmark splits:
 
 - **The contest policy** (head-to-head fidelity): confined to the JPS-expressible fragment,
   sized to escape the ceiling that saturated 011 (49/49) and 012 (all arms HIGH). The fragment
@@ -443,5 +452,7 @@ Unless the prevalence gradient is measured (§6), no direction of the result sep
 representation from training familiarity. The joint-reading prohibition (§2.1): no tradeoff
 statement combining the census and the fidelity rates is licensed. An INDETERMINATE or
 unsupported contrast licenses no negation. The gold suite is two authors deep, not independent
-of the program. Nothing here measures whether any policy or fact is true — the standing ceiling
-— and nothing claims JPS conformance.
+of the program. The census describes spec 0.2.0-draft as pinned: gaps recorded as roadmap items
+(numeric outputs) are statements about the pinned version, not about JPS's future, and are not
+scored. Nothing here measures whether any policy or fact is true — the standing ceiling — and
+nothing claims JPS conformance.
