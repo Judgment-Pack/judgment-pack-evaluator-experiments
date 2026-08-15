@@ -19,6 +19,8 @@ WHAT THIS FILE DOES
   exits with a fixed status --- to pin the refusal rule and the audit trail on
   exit statuses a conformant runtime will not produce on demand: a non-zero exit
   alongside a valid envelope, and a success whose exit status is still recorded.
+  The same stub pins both sides of the retained-stderr bound --- kept whole at
+  the limit, truncated and marked above it.
 * Checks that resuming refuses to mix the two arm-B row vintages in one file, and
   that the model arms, whose rows did not change meaning, still resume across the
   same schema boundary.
@@ -255,6 +257,12 @@ def test_prompts_never_leak_gold(instance_dir, policy_file):
             assert '"gold"' not in user
             assert "illegal_operation" not in user
             assert "problematic_team" not in user
+            # The redaction record carries removed_value on a redacted twin,
+            # so rendering it hands that twin back the fact that was deleted.
+            # These fixtures declare no render_policy, so this also pins the
+            # DEFAULT_RENDER_POLICY fallback rather than the stamped policy.
+            assert '"redaction"' not in user
+            assert "removed_value" not in user
         # ...but the derived quantities the preprocessor computed are present.
         assert "team_salary_after" in user_a
 
@@ -797,6 +805,78 @@ def test_arm_b_success_still_records_returncode_and_stderr(tmp_path):
     # path carries the same two keys rather than omitting them.
     assert result["returncode"] == 0
     assert result["stderr"] == "note: 1 rule evaluated\n"
+
+
+def test_arm_b_never_hands_the_runtime_gold_or_the_redaction_record(instance_dir):
+    # Why retained stderr needs no scrubbing pass, stated as a check rather than
+    # as a promise: the child cannot echo a redacted value because it is never
+    # given one. Both facts_root modes go through the render policy or through
+    # the facts sub-object, and neither carries gold or the redaction record --
+    # which names the deleted pointer *and its value*.
+    instances = run_mod.load_instances(instance_dir)
+    assert instances, "fixture corpus is empty; this check would be vacuous"
+    for instance in instances:
+        for facts_root in ("instance", "facts"):
+            payload = arm_b._facts_payload(instance, facts_root)
+            assert '"gold"' not in payload
+            assert '"redaction"' not in payload
+            assert "illegal_operation" not in payload
+            assert "problematic_team" not in payload
+        # The control: the facts the runtime legitimately needs are still there,
+        # so the assertions above are not passing on an empty document.
+        assert "team_salary_after" in arm_b._facts_payload(instance, "instance")
+
+
+def test_arm_b_timeout_is_a_refusal_with_no_exit_status(tmp_path):
+    cli = tmp_path / "jp-hang"
+    cli.write_text("#!%s\nimport time\ntime.sleep(30)\n" % sys.executable,
+                   encoding="utf-8")
+    os.chmod(str(cli), 0o755)
+    pack = tmp_path / "pack.json"
+    pack.write_text(json.dumps(_tiny_pack()), encoding="utf-8")
+    config = arm_b.ArmBConfig(str(pack), cli=str(cli), timeout_s=0.5)
+
+    result = arm_b.evaluate_instance(_instance("x#0", True, []), config)
+    assert result["ok"] is False
+    assert result["prediction"] is None
+    assert result["error"].startswith("engine-refusal:timeout")
+    # Distinguishable from a real exit status, and from cli-not-found by the
+    # error prefix: no process completed, so none is invented.
+    assert result["returncode"] is None
+
+
+def test_arm_b_retains_stderr_up_to_the_bound_untouched(tmp_path):
+    # The "must not truncate at" side of the bound: a stderr exactly at the
+    # limit is kept whole and carries no marker, so the marker's presence is
+    # always evidence that something really was dropped.
+    exact = "e" * arm_b.MAX_RETAINED_STDERR
+    cli = _stub_cli(tmp_path, "jp-exact", exit_code=1,
+                    stdout="", stderr=exact)
+    result = arm_b.evaluate_instance(_instance("x#0", True, []),
+                                     _stub_config(tmp_path, cli))
+    assert result["stderr"] == exact
+    assert "truncated by harness" not in result["stderr"]
+
+
+def test_arm_b_bounds_a_runaway_stderr_and_marks_the_truncation(tmp_path):
+    # The "must truncate above" side. One pathological child must not be able to
+    # inflate the result file past the point where it can be read back.
+    flood = "x" * (arm_b.MAX_RETAINED_STDERR + 500)
+    cli = _stub_cli(tmp_path, "jp-flood", exit_code=1,
+                    stdout="", stderr=flood)
+    result = arm_b.evaluate_instance(_instance("x#0", True, []),
+                                     _stub_config(tmp_path, cli))
+
+    assert result["ok"] is False
+    kept = result["stderr"]
+    assert kept.startswith("x" * arm_b.MAX_RETAINED_STDERR)
+    # Truncation is marked, and the marker states how much is missing, so a
+    # short stderr elsewhere reads as the runtime's whole complaint.
+    assert kept.endswith("[truncated by harness: 500 further characters of stderr]")
+    assert len(kept) < len(flood)
+    # The error string keeps its own tighter bound; the row is what carries
+    # the fuller account.
+    assert len(result["error"]) < len(kept)
 
 
 def test_arm_b_unparseable_output_records_the_exit_status(tmp_path):

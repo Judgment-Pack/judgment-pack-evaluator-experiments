@@ -79,6 +79,30 @@ jobs:
       - name: Compare both evaluators over the frozen corpus
         run: python3 harness/class_agreement.py ./jpack python
 
+  study-001-harness:
+    name: Study 001 · deterministic harness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install pytest
+        # The study's harness is stdlib-only; pytest is a test-time tool.
+        run: python -m pip install --disable-pip-version-check pytest
+      - name: Run the harness, arm and scorer suite
+        # Fully offline: no model backend and no evaluator binary. Arm B is
+        # driven against a stub CLI, which is the only way to reach the exit
+        # statuses the fail-closed rule turns on --- a conformant runtime
+        # cannot be asked for "a valid envelope *and* exit 3". Also pins the
+        # render policy that keeps gold and the redaction record out of what
+        # any arm hands a model or the runtime. The graded batch itself is an
+        # attempt, not a test, and never runs here.
+        working-directory: studies/001-policy-representation
+        run: python -m pytest harness/tests -q
+
   study-005-harness:
     name: Study 005 · deterministic harness
     runs-on: ubuntu-latest

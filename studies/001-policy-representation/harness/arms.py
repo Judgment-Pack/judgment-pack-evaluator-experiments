@@ -143,10 +143,15 @@ policy interpretation, not arithmetic."""
 
 #: Applied when a document declares no ``render_policy`` of its own. It is the
 #: subset of ``redact.py``'s policy that is a leak under any circumstances: the
-#: answer itself, and the provenance block that carries RuleArena's original
-#: prose verbatim.
+#: answer itself, the provenance block that carries RuleArena's original prose
+#: verbatim, and the redaction record --- which on a redacted twin carries
+#: ``removed_value``, the deleted fact, so rendering it hands that twin back
+#: exactly what was taken away. Every twin ``redact.py`` emits stamps the fuller
+#: ``loadbearing_map.json`` policy and never reaches this fallback; the fallback
+#: is what protects a document that arrives without a stamp, and omitting
+#: ``/redaction`` from it left the most dangerous key to be rendered.
 DEFAULT_RENDER_POLICY: Dict[str, List[str]] = {
-    "excluded_pointer_prefixes": ["/gold", "/provenance"],
+    "excluded_pointer_prefixes": ["/gold", "/provenance", "/redaction"],
     "excluded_pointer_globs": [],
 }
 
