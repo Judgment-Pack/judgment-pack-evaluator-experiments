@@ -25,6 +25,13 @@ WHAT THIS FILE DOES
   conditions, two trials --- whose pass^k, accuracy and McNemar counts are worked
   out in comments beside the fixture, and drives the same corpus through
   ``main()`` so the CLI flags are exercised, not just the function keywords.
+* Checks the **registered analysis** surface: which backends count as model
+  families (``mock`` does not), that the pooled endpoint is not estimable from
+  one family and reports every reason rather than the first, that
+  ``--registered`` pins the population and the unit and refuses a command line
+  that contradicts it, that naming the configuration does not by itself make the
+  endpoint estimable, and that the all-twins run is marked secondary in both the
+  summary and the markdown.
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
@@ -440,7 +447,12 @@ def test_pair_and_twin_coincide_on_a_single_variant_population(corpus):
     by_pair = _score(corpus, population="answerable", bootstrap_unit="pair")
     by_twin = _score(corpus, population="answerable", bootstrap_unit="twin")
     assert by_pair["bootstrap_clusters"] == by_twin["bootstrap_clusters"] == 4
+    # The two runs differ in their standing even where they cannot differ in
+    # their numbers: `pair` is the registered configuration and `twin` is not.
+    assert by_pair["analysis_role"] == "registered-primary"
+    assert by_twin["analysis_role"] == "secondary"
     del by_pair["bootstrap_unit"], by_twin["bootstrap_unit"]
+    del by_pair["analysis_role"], by_twin["analysis_role"]
     assert json.dumps(by_pair, sort_keys=True) == json.dumps(by_twin, sort_keys=True)
 
 
@@ -452,8 +464,13 @@ def test_the_default_bootstrap_unit_is_twin(corpus):
     worse defect than the one the option answers, and one no verdict in
     RESULTS-FIRST-PROMPT-ARMS.md would have flagged.
     """
-    assert score_mod.build_parser().parse_args(
-        ["--instances", "x", "--results", "y"]).bootstrap_unit == "twin"
+    # The parser leaves both analysis flags unset so --registered can tell an
+    # explicit choice from an absent one; the *effective* default is what this
+    # test is about, and it is still twin.
+    args = score_mod.build_parser().parse_args(["--instances", "x", "--results", "y"])
+    assert args.bootstrap_unit is None and args.population is None
+    assert score_mod.resolve_analysis_flags(args) == {"population": "all",
+                                                      "bootstrap_unit": "twin"}
     default = _score(corpus)
     assert default["bootstrap_unit"] == "twin"
     explicit = _score(corpus, bootstrap_unit="twin")
@@ -563,7 +580,10 @@ def test_undefined_escalation_prints_n_a_and_never_a_zero(corpus):
 def test_estimable_escalation_keeps_its_heading_and_numbers(corpus):
     markdown = score_mod.render_markdown(_score(corpus, population="all"))
     assert "## Escalation on redacted twins (full 2x2)\n" in markdown
-    assert "NOT ESTIMABLE" not in markdown
+    # Scoped to the escalation suppression's own wording: the registered-endpoint
+    # block above it reports its own estimability, and on this all-mock corpus it
+    # is legitimately not estimable. This test is about the 2x2's heading.
+    assert "NOT ESTIMABLE on this analysis set" not in markdown
     assert "always-escalate agent" in markdown
 
 
@@ -576,7 +596,7 @@ def test_scoring_the_synthetic_corpus_is_deterministic(corpus):
     first = _score(corpus, population="answerable", bootstrap=64)
     second = _score(corpus, population="answerable", bootstrap=64)
     assert json.dumps(first, sort_keys=True) == json.dumps(second, sort_keys=True)
-    assert first["schema"] == "jps-study-001-score/2"
+    assert first["schema"] == "jps-study-001-score/3"
 
 
 def test_cli_carries_the_flags_into_the_summary(corpus, tmp_path, capsys):
@@ -594,7 +614,7 @@ def test_cli_carries_the_flags_into_the_summary(corpus, tmp_path, capsys):
     ])
     assert rc == 0
     summary = json.loads(out_json.read_text(encoding="utf-8"))
-    assert summary["schema"] == "jps-study-001-score/2"
+    assert summary["schema"] == "jps-study-001-score/3"
     assert summary["population"] == "answerable"
     assert summary["bootstrap_unit"] == "pair"
     assert summary["bootstrap_clusters"] == 4
@@ -621,3 +641,102 @@ def test_cli_defaults_are_all_and_twin(corpus, tmp_path):
     assert summary["bootstrap_unit"] == "twin"
     assert summary["bootstrap_clusters"] == 8
     assert summary["paired_instances"] == 8
+
+
+# --------------------------------------------------------------------------- #
+# The registered analysis: naming it, and refusing to fake it
+# --------------------------------------------------------------------------- #
+
+
+def test_model_families_are_read_off_the_conditions_and_exclude_mock():
+    """``mock`` is a stand-in, not a model family, and must not be counted.
+
+    Counting it would let an all-mock run --- the smoke corpus, or arm B alone
+    --- report the pooled endpoint as though two families had been compared.
+    """
+    assert score_mod.model_families_present(
+        ["A::codex::gpt-5.6-sol", "B::mock::judgment-pack-runtime"]) == ["codex"]
+    assert score_mod.model_families_present(
+        ["A::mock::m", "B::mock::jp"]) == []
+    assert score_mod.model_families_present(
+        ["A::codex::g", "Aprime::anthropic::c"]) == ["anthropic", "codex"]
+
+
+def test_registered_endpoint_is_not_estimable_from_one_family():
+    """The study's actual situation: Codex ran, Claude did not."""
+    status = score_mod.registered_primary_status(
+        ["A::codex::gpt-5.6-sol", "B::mock::judgment-pack-runtime"], "answerable")
+    assert status["estimable"] is False
+    assert status["families_present"] == ["codex"]
+    assert any("anthropic" in r for r in status["reasons"])
+
+
+def test_registered_endpoint_reports_every_reason_not_just_the_first():
+    """One fix per run is a slow way to discover a second problem."""
+    status = score_mod.registered_primary_status(["A::codex::g"], "all")
+    assert status["estimable"] is False
+    assert len(status["reasons"]) == 2
+
+
+def test_registered_endpoint_is_estimable_only_with_both_families():
+    status = score_mod.registered_primary_status(
+        ["A::codex::g", "Aprime::anthropic::c"], "answerable")
+    assert status["estimable"] is True
+    assert status["reasons"] == []
+
+
+def test_registered_flag_pins_the_population_and_the_unit(corpus, tmp_path):
+    inst_dir, results_path = corpus
+    out_json = tmp_path / "registered.json"
+    assert score_mod.main([
+        "--instances", inst_dir, "--results", results_path,
+        "--bootstrap", "8", "--registered", "--out-json", str(out_json),
+    ]) == 0
+    summary = json.loads(out_json.read_text(encoding="utf-8"))
+    assert summary["population"] == "answerable"
+    assert summary["bootstrap_unit"] == "pair"
+    assert summary["analysis_role"] == "registered-primary"
+    # Naming the configuration does not conjure the second model family: this
+    # corpus is all-mock, so the endpoint remains not estimable.
+    assert summary["registered_primary"]["estimable"] is False
+
+
+def test_registered_flag_refuses_a_contradicting_flag(corpus, tmp_path):
+    """A command line that says two different things does not get to pick one."""
+    inst_dir, results_path = corpus
+    with pytest.raises(SystemExit) as excinfo:
+        score_mod.main([
+            "--instances", inst_dir, "--results", results_path,
+            "--bootstrap", "8", "--registered", "--population", "all",
+        ])
+    assert "--population" in str(excinfo.value)
+
+
+def test_registered_flag_tolerates_a_redundant_matching_flag(corpus, tmp_path):
+    """Spelling out the same choice is agreement, not contradiction."""
+    inst_dir, results_path = corpus
+    out_json = tmp_path / "redundant.json"
+    assert score_mod.main([
+        "--instances", inst_dir, "--results", results_path,
+        "--bootstrap", "8", "--registered",
+        "--population", "answerable", "--bootstrap-unit", "pair",
+        "--out-json", str(out_json),
+    ]) == 0
+    assert json.loads(out_json.read_text(encoding="utf-8"))["analysis_role"] \
+        == "registered-primary"
+
+
+def test_the_all_twins_analysis_is_marked_secondary(corpus):
+    """The population the first draft reported as primary. It is not."""
+    summary = _score(corpus, population="all", bootstrap_unit="twin")
+    assert summary["analysis_role"] == "secondary"
+    markdown = score_mod.render_markdown(summary)
+    assert "Analysis role: SECONDARY" in markdown
+    assert "cannot stand in for the primary endpoint" in markdown
+
+
+def test_markdown_says_the_registered_endpoint_is_not_estimable(corpus):
+    markdown = score_mod.render_markdown(_score(corpus, population="answerable"))
+    assert "registered primary endpoint is NOT ESTIMABLE" in markdown
+    assert "pooled across both model families" in markdown
+    assert "No table below is that endpoint." in markdown
