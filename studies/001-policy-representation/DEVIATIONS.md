@@ -315,3 +315,43 @@ this entry**, and no published figure changes.
    even alongside a valid envelope had never been enforced on a pull request.
    A regression test that does not run does not catch regressions. The graded
    batch remains an attempt, not a test, and does not run there.
+
+## 8. The registered analysis is nameable in the scorer (2026-08-15)
+
+Follow-up to §2 and §4. **Nothing in `results/` was re-run or re-scored for
+this entry**, and no published figure changes: the new scorer was run against
+the previous one over every population and resampling unit, and the summaries
+are identical apart from the two added fields and the schema string.
+
+1. **`--registered` names the preregistered configuration.** §2 registers the
+   primary endpoint on the answerable population; §4 added `--population` and
+   `--bootstrap-unit` but left the defaults at the shipped behaviour, for the
+   good reason recorded there. The consequence was that the registered
+   configuration still had to be *assembled* by an operator who remembered two
+   flags — which is the shape of the mistake §2 records. It is now a name.
+   The defaults are unchanged, so every previously recorded command still means
+   what it meant.
+
+2. **A contradicting command line is refused, not resolved.** `--registered`
+   together with `--population all` exits rather than picking a winner; a
+   report stamped `registered-primary` whose command line says otherwise would
+   be worse than either reading.
+
+3. **`analysis_role` marks every non-registered run `secondary`**, in the JSON
+   and in the markdown header. That includes the default all-twins run — the
+   population the first draft reported as though it were the primary endpoint.
+
+4. **`registered_primary` records whether the endpoint is estimable at all**,
+   and if not, every reason rather than the first. On this study's corpus it is
+   not: the endpoint is pooled across both model families, only Codex ran, and
+   this scorer has no cross-backend pooling operation. That was already stated
+   in prose in `RESULTS-FIRST-PROMPT-ARMS.md`; it is now computed. `mock` is
+   not counted as a model family, so an all-mock run reports zero families
+   rather than one.
+
+   **Selecting `--registered` does not make the endpoint estimable** — the two
+   are independent, and the summary reports them separately, so a run cannot
+   acquire the endpoint's standing by naming it.
+
+The JSON summary is now `jps-study-001-score/3`; version 2's fields are all
+still written and still mean the same thing.

@@ -7,6 +7,7 @@ WHAT THIS FILE DOES
 
     python score.py --instances <dir-or-index.json> --results a.jsonl b.jsonl ... \\
                     [--baseline "A::mock::mock/deterministic-v1"] \\
+                    [--registered] \\
                     [--population all|answerable|redacted] \\
                     [--bootstrap-unit twin|pair] \\
                     [--out-md report.md] [--out-json report.json] \\
@@ -192,7 +193,7 @@ the escalation design.
 
 SUMMARY SCHEMA
 --------------
-The JSON summary is ``jps-study-001-score/2``. Version 2 adds five fields and
+The JSON summary is ``jps-study-001-score/3``. Version 2 added five fields and
 removes none: top-level ``population`` and ``bootstrap_unit`` (the two choices
 above, recorded so a report says on what it was computed), ``bootstrap_clusters``
 (how many resampling units the bootstrap drew from) and ``escalation_estimable``
@@ -211,6 +212,19 @@ variant, all paired), so on this corpus ``--population all --bootstrap-unit
 twin`` reproduces a version-1 report's numbers exactly --- checked field by field
 against ``results/k5-report.json``, which differs only in ``schema`` and in the
 added fields.
+
+Version 3 adds two more fields and removes none. ``analysis_role`` is
+``registered-primary`` when the run is on the configuration
+``REGISTERED_ANALYSIS`` names and ``secondary`` otherwise --- including on the
+defaults, which are the shipped behaviour rather than the registered one.
+``registered_primary`` records whether the registered endpoint is estimable at
+all from this analysis set and, when it is not, every reason why. The reason
+that matters here is not hypothetical: the endpoint is pooled across both model
+families, only Codex ran, and this scorer has no cross-backend pooling
+operation, so no invocation of it can produce that endpoint. Marking the
+all-twins run ``secondary`` is the same guard in the other direction --- that
+population is what the first draft reported as though it were primary. Every
+version-2 field is still written and still means the same thing.
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
@@ -260,6 +274,21 @@ _NORM_RE = re.compile(r"[^a-z0-9]+")
 _REDACTED_SUFFIXES = ("#redacted", "-redacted")
 POPULATIONS = ("all", "answerable", "redacted")
 BOOTSTRAP_UNITS = ("twin", "pair")
+
+#: The analysis PREREGISTRATION.md section 2 registers: H1 as pass^k on the
+#: **answerable** population, arm B against arm A, **pooled across both model
+#: families**. The scorer's defaults are deliberately *not* this --- they are
+#: the shipped behaviour every published interval was computed with --- so the
+#: registered configuration has to be nameable rather than assembled by an
+#: operator who remembers two flags. That is what ``--registered`` selects.
+REGISTERED_ANALYSIS = {"population": "answerable", "bootstrap_unit": "pair"}
+
+#: Section 3 registers three arms x **two model families**. ``mock`` is not one
+#: of them: ``backends.py`` says of it that it "never claims to be a real
+#: model", and arm B reaches the deterministic evaluator through it. Counting a
+#: mock backend as a family would let a run with no model in it at all report
+#: the pooled endpoint.
+REGISTERED_MODEL_FAMILIES = ("anthropic", "codex")
 # The three escalation numbers that are ratios rather than counts. They are the
 # ones a single-row 2x2 makes undefined, and the ones suppressed when it is.
 ESCALATION_RATE_METRICS = (
@@ -622,6 +651,59 @@ def bootstrap_clusters(instance_ids: Sequence[str],
     return [members[key] for key in order]
 
 
+def model_families_present(conditions: Sequence[str]) -> List[str]:
+    """Which preregistered model families this analysis set actually contains.
+
+    Read off the ``backend`` field of the condition keys, keeping only the
+    families section 3 registered. A backend outside that set --- ``mock``, or
+    anything added later --- is not counted, so an all-mock run reports zero
+    families rather than one.
+    """
+    present = set()
+    for cond in conditions:
+        parts = cond.split("::")
+        if len(parts) >= 2 and parts[1] in REGISTERED_MODEL_FAMILIES:
+            present.add(parts[1])
+    return sorted(present)
+
+
+def registered_primary_status(conditions: Sequence[str],
+                              population: str) -> Dict[str, Any]:
+    """Can the registered primary endpoint be estimated from this analysis set?
+
+    The endpoint is H1 as pass^k on the answerable population, B against A,
+    **pooled across both model families**. This scorer produces separate
+    ``arm::backend::model`` conditions and has no cross-backend pooling
+    operation, so with one family present the endpoint is not estimable --- and
+    saying so is the point. The failure this encodes is not hypothetical: the
+    study ran Codex only, and its first draft reported a Codex-only number as
+    though it were the registered endpoint.
+
+    Reports every reason it fails rather than the first, so an operator fixing
+    one does not rediscover the next on the following run.
+    """
+    families = model_families_present(conditions)
+    missing = [f for f in REGISTERED_MODEL_FAMILIES if f not in families]
+    reasons: List[str] = []
+    if missing:
+        reasons.append(
+            "only %d of the %d preregistered model families ran (%s); missing %s"
+            % (len(families), len(REGISTERED_MODEL_FAMILIES),
+               ", ".join(families) or "none", ", ".join(missing)))
+    if population != REGISTERED_ANALYSIS["population"]:
+        reasons.append(
+            "the registered endpoint is defined on the '%s' population, "
+            "not '%s'" % (REGISTERED_ANALYSIS["population"], population))
+    return {
+        "endpoint": ("H1 as pass^k on the answerable population, arm B against "
+                     "arm A, pooled across both model families"),
+        "estimable": not reasons,
+        "reasons": reasons,
+        "families_present": families,
+        "families_required": list(REGISTERED_MODEL_FAMILIES),
+    }
+
+
 def escalation_is_estimable(instance_ids: Sequence[str],
                             by_id: Mapping[str, Mapping[str, Any]]) -> bool:
     """Does this analysis set populate **both** rows of the escalation 2x2?
@@ -786,7 +868,7 @@ def score(instances: Sequence[Mapping[str, Any]],
                 delta_draws[cond][metric].append(agg[cond][metric] - base_agg[metric])
 
     summary: Dict[str, Any] = {
-        "schema": "jps-study-001-score/2",
+        "schema": "jps-study-001-score/3",
         "paired_instances": n,
         "instance_ids": paired,
         "population": population,
@@ -800,6 +882,12 @@ def score(instances: Sequence[Mapping[str, Any]],
         "bootstrap_unit": bootstrap_unit,
         "bootstrap_clusters": len(clusters),
         "escalation_estimable": escalation_is_estimable(paired, by_id),
+        "analysis_role": (
+            "registered-primary"
+            if (population == REGISTERED_ANALYSIS["population"]
+                and bootstrap_unit == REGISTERED_ANALYSIS["bootstrap_unit"])
+            else "secondary"),
+        "registered_primary": registered_primary_status(conditions, population),
         "baseline": baseline,
         "conditions": {},
     }
@@ -897,6 +985,28 @@ def render_markdown(summary: Mapping[str, Any]) -> str:
                     summary["bootstrap_replicates"],
                     summary["bootstrap_clusters"], summary["bootstrap_unit"],
                     summary["bootstrap_seed"], summary["baseline"]))
+    lines.append("")
+
+    # Stated before any number, because the number's standing is the first
+    # thing a reader needs and the last thing a reader checks.
+    reg = summary.get("registered_primary")
+    role = summary.get("analysis_role")
+    if role == "registered-primary":
+        lines.append("**Analysis role: the registered configuration.** "
+                     "Population and resampling unit are the ones "
+                     "PREREGISTRATION.md section 2 registers.")
+    elif role is not None:
+        lines.append("**Analysis role: SECONDARY.** This is not the registered "
+                     "configuration (registered: population `%s`, bootstrap "
+                     "unit `%s`); it cannot stand in for the primary endpoint."
+                     % (REGISTERED_ANALYSIS["population"],
+                        REGISTERED_ANALYSIS["bootstrap_unit"]))
+    if reg is not None and not reg["estimable"]:
+        lines.append("")
+        lines.append("**The registered primary endpoint is NOT ESTIMABLE from "
+                     "this analysis set.** It is %s. Reasons: %s. No table "
+                     "below is that endpoint."
+                     % (reg["endpoint"], "; ".join(reg["reasons"])))
     lines.append("")
 
     conds = list(summary["conditions"])
@@ -1033,11 +1143,19 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--results", required=True, nargs="+", help="result JSONL files")
     p.add_argument("--baseline", default=None,
                    help="condition key 'arm::backend::model' to difference against")
-    p.add_argument("--population", choices=POPULATIONS, default="all",
+    p.add_argument("--registered", action="store_true",
+                   help="run the configuration PREREGISTRATION.md section 2 "
+                        "registers: --population answerable --bootstrap-unit "
+                        "pair. Passing either of those explicitly with a "
+                        "different value is an error rather than a silent "
+                        "override. Selecting it does not make the registered "
+                        "endpoint estimable --- that also needs both model "
+                        "families, and the summary says so either way.")
+    p.add_argument("--population", choices=POPULATIONS, default=None,
                    help="restrict the paired set to one twin variant, by the "
                         "instance document's 'variant' field (default: all). The "
                         "registered primary endpoint lives on 'answerable'.")
-    p.add_argument("--bootstrap-unit", choices=BOOTSTRAP_UNITS, default="twin",
+    p.add_argument("--bootstrap-unit", choices=BOOTSTRAP_UNITS, default=None,
                    help="resample individual twins (default: twin, the shipped "
                         "behaviour every published interval was computed with) or "
                         "base-instance pair clusters. On this corpus clustering "
@@ -1051,8 +1169,34 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def resolve_analysis_flags(args: argparse.Namespace) -> Dict[str, str]:
+    """Settle ``--population`` / ``--bootstrap-unit`` against ``--registered``.
+
+    ``--registered`` is a name for a configuration, not an override of one: if
+    the operator also spelled out a *different* population or unit, that is a
+    contradiction in the command line and the run stops. Silently winning would
+    produce a report stamped ``registered-primary`` that the command line says
+    is something else.
+    """
+    chosen = {"population": args.population, "bootstrap_unit": args.bootstrap_unit}
+    if not args.registered:
+        return {"population": chosen["population"] or "all",
+                "bootstrap_unit": chosen["bootstrap_unit"] or "twin"}
+    for key, flag in (("population", "--population"),
+                      ("bootstrap_unit", "--bootstrap-unit")):
+        want = REGISTERED_ANALYSIS[key]
+        if chosen[key] is not None and chosen[key] != want:
+            raise SystemExit(
+                "--registered fixes %s %s; refusing to run it as %s. Drop one "
+                "of the two flags." % (flag, want, chosen[key]))
+    return dict(REGISTERED_ANALYSIS)
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = build_parser().parse_args(argv)
+    resolved = resolve_analysis_flags(args)
+    args.population = resolved["population"]
+    args.bootstrap_unit = resolved["bootstrap_unit"]
     instances = load_instances(args.instances)
     results = load_results(args.results)
     summary = score(instances, results, bootstrap=args.bootstrap, seed=args.seed,
