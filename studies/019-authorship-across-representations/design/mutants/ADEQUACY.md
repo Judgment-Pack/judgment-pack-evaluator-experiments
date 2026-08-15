@@ -476,3 +476,14 @@ up to 8 witnesses each), `adequacy_validation.json`, `adequacy_confirm.json`,
 `adequacy_crosscheck.json`,
 `adequacy_witnesses.json` (the recomputed witness sets), and the `adequacy` block now carried
 by every mutant in both MANIFESTs.
+
+---
+
+## A1 disposition (maintainer, 2026-08-15)
+
+**Confirmed: the risk-40 spend cliff is intended.** At risk exactly 40 in a LOW-risk
+country the approval ceiling drops from $500,000 (D6a; insured to $2,000,000 under D6b)
+to $100,000 (D6c) by design — realistic policies carry such cliffs, and the boundary
+sensitivity it creates is exactly what the mutant classes probe. The prose stands as
+written; the four dependent gold rows stand; A1 is closed and carried into the review
+record as confirmed intent, not an open question.
