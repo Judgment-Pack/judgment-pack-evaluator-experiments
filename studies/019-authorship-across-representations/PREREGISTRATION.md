@@ -1,5 +1,14 @@
 # Preregistration — Study 019: authorship across representations
 
+**DESIGN DECISION 2026-08-15 (maintainer, after calibration pilot 01): the primary endpoint
+pivots from E1 (per-run perfect gold agreement — measured at ceiling in all three arms in
+the non-citable pilot; it becomes a reported control) to E4 (mutation-kill rate of
+run-authored test suites — the dimension where pilot variance actually lives: 35–49
+authored matrix rows per arm-A run vs 1–4 test rules in B/C). R1, δ, and the contrast
+machinery in §1/§5 below still describe the pre-pivot design and are rewritten at prereg
+drafting time; the batch window must also be re-registered as multi-day (arm-A calls run
+26–40 minutes). See design/pilots/2026-08-15-calibration-pilot-01/NOTE.md.**
+
 **Status: DRAFT. Not frozen. Nothing has run. No pin is filled; every execution before the
 freeze is a PILOT and supports no claim. This draft carries the registered section structure
 and the design decisions already taken; every open item is marked `TODO(prereg)` and must be
