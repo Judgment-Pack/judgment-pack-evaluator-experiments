@@ -1,0 +1,5037 @@
+{
+  "manifestVersion": "1",
+  "study": "019-authorship-across-representations",
+  "set": "adequacy",
+  "arm": "B",
+  "language": "rego",
+  "generator": "gen_mutants.py",
+  "scoredSurface": "kind + outcomeId + reasons (alignment scope); the Rego entrypoint value {disposition, reasons} is entirely in scope",
+  "reference": {
+    "path": "reference/refB/policy.rego",
+    "sha256": "1f2e1ad1d423240dd262852f19057a8e906387d5a1b71db8b8a15bc010fc12e2"
+  },
+  "toolchain": {
+    "opa": "1.19.0",
+    "opaBin": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/e3978f36-2e67-46bb-868c-8df975356ef9/scratchpad/pins/opa/opa_linux_amd64_static",
+    "capabilities": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/e3978f36-2e67-46bb-868c-8df975356ef9/scratchpad/pins/opa/caps-filtered.json",
+    "checkFlags": [
+      "check",
+      "--strict",
+      "--capabilities",
+      "<caps>"
+    ],
+    "evalFlags": [
+      "eval",
+      "--format",
+      "json",
+      "--fail",
+      "--strict-builtin-errors",
+      "--capabilities",
+      "<caps>",
+      "--timeout",
+      "10s",
+      "--data",
+      "<policy>",
+      "--input",
+      "<row>",
+      "data.study.decision"
+    ],
+    "env": {
+      "TZ": "UTC"
+    }
+  },
+  "gold": {
+    "path": "gold/gold.json",
+    "goldVersion": "0-draft",
+    "rows": 76,
+    "sha256": "54c91a8be8f824cbd178763c97a1edeb41eeae5456a5f43c62fef68b75bdd5de",
+    "referenceReproducesGold": true,
+    "referenceGoldMismatches": []
+  },
+  "classes": {
+    "operator-flip": "each ordered comparison operator in a rung conjunct flipped (>= <-> >, <= <-> <), one occurrence per mutant",
+    "boundary-shift": "each threshold numeral in a rung conjunct shifted by one representable step (risk +/-1, spend +/-0.01), one per mutant",
+    "unknown-guard-flip": "each three-valued sentinel guard (null for the unreadable numerics/country; present/absent/OMITTED for the two evidence states; the omitted-key-treated-as-no yes/no guards) inverted or deleted, one per mutant",
+    "outcome-swap": "each disposition string literal in a rule head that names one of the four registered JPS outcome ids swapped for each of the other three",
+    "default-swap": "the registered `default decision` value edited: reasons no-match -> unknown; disposition unresolved -> review (two mutants)",
+    "guard-deletion": "each non-sentinel rung conjunct (the mutual-exclusion / scoping conjuncts: sanctions gate, country gate, numeric range bounds) deleted, one per mutant",
+    "rung-deletion": "each `else` rung of the `determine` ladder deleted, one per mutant"
+  },
+  "conventions": {
+    "oneEditPerMutant": true,
+    "emptyBodyRule": "deleting a rung's only conjunct is realized as `true`, recorded per mutant as emptyBodyReplacedWithTrue",
+    "outcomeSwapConvention": "every ordered pair over the registered JPS outcome id list [approve, review, enhanced-review, reject]",
+    "guardDeletionScope": "non-sentinel comparison conjuncts of both ladders (rungKind records head vs else); sentinel guards are class unknown-guard-flip so the two classes are disjoint",
+    "boundaryShiftScope": "threshold numerals in comparison conjuncts only; the U1 candidate representative lists are not thresholds and are not mutated",
+    "rungDeletionScope": "else rungs of the `determine` ladder only (the head rung is excluded by the class definition; its conjuncts are covered by guard-deletion)",
+    "emptyWitnessPolicy": "kept and flagged notAdequate; the gold adequacy gate needs a killing row or a registered drop at prereg time"
+  },
+  "counts": {
+    "generated": 185,
+    "valid": 184,
+    "dropped": 1,
+    "emptyWitness": 60,
+    "perClass": {
+      "operator-flip": {
+        "generated": 20,
+        "valid": 20,
+        "dropped": 0,
+        "emptyWitness": 8
+      },
+      "boundary-shift": {
+        "generated": 40,
+        "valid": 40,
+        "dropped": 0,
+        "emptyWitness": 18
+      },
+      "unknown-guard-flip": {
+        "generated": 30,
+        "valid": 30,
+        "dropped": 0,
+        "emptyWitness": 7
+      },
+      "outcome-swap": {
+        "generated": 33,
+        "valid": 33,
+        "dropped": 0,
+        "emptyWitness": 0
+      },
+      "default-swap": {
+        "generated": 2,
+        "valid": 2,
+        "dropped": 0,
+        "emptyWitness": 2
+      },
+      "guard-deletion": {
+        "generated": 46,
+        "valid": 45,
+        "dropped": 1,
+        "emptyWitness": 23
+      },
+      "rung-deletion": {
+        "generated": 14,
+        "valid": 14,
+        "dropped": 0,
+        "emptyWitness": 2
+      }
+    }
+  },
+  "duplicateTextGroups": [],
+  "mutants": [
+    {
+      "id": "m-b-001",
+      "mutationClass": "operator-flip",
+      "file": "m-b-001.rego",
+      "sha256": "6f62979062cd2f9d31dc2a0d0b305e922ad59f75ebc4d02076c1ffc12f0ce249",
+      "line": 71,
+      "rung": "determine[0]",
+      "clause": "O3",
+      "target": "spend > 2000000",
+      "edit": {
+        "from": ">",
+        "to": ">="
+      },
+      "description": "O3: `spend > 2000000` -> `spend >= 2000000`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-high-2m"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-002",
+      "mutationClass": "operator-flip",
+      "file": "m-b-002.rego",
+      "sha256": "785764a6efd8414a8b4b6bb97cf38d9cd3fe93a79b3670921143686529fbc82e",
+      "line": 95,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "target": "risk >= 90",
+      "edit": {
+        "from": ">=",
+        "to": ">"
+      },
+      "description": "D3: `risk >= 90` -> `risk > 90`",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d3-med-90"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-003",
+      "mutationClass": "operator-flip",
+      "file": "m-b-003.rego",
+      "sha256": "7626fbdef5ee751d0b85ad4bd475956248f3ef99191be0da87b6bf66eb1b6ec1",
+      "line": 102,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "target": "risk >= 70",
+      "edit": {
+        "from": ">=",
+        "to": ">"
+      },
+      "description": "D4: `risk >= 70` -> `risk > 70`",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-004",
+      "mutationClass": "operator-flip",
+      "file": "m-b-004.rego",
+      "sha256": "86d3dceab0431425c943def93ca5c9f1a25833b3e9d35868f99d5e767a541acc",
+      "line": 115,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "risk < 40",
+      "edit": {
+        "from": "<",
+        "to": "<="
+      },
+      "description": "D6a: `risk < 40` -> `risk <= 40`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-40-100k01",
+        "d8-40-500k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-005",
+      "mutationClass": "operator-flip",
+      "file": "m-b-005.rego",
+      "sha256": "5340686c7bc5197377bbfd0f9b26ae06128bf1143a80f50c6bc485fe722df4a2",
+      "line": 116,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "spend <= 500000",
+      "edit": {
+        "from": "<=",
+        "to": "<"
+      },
+      "description": "D6a: `spend <= 500000` -> `spend < 500000`",
+      "status": "valid",
+      "witnessSet": [
+        "d6a-500k"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-006",
+      "mutationClass": "operator-flip",
+      "file": "m-b-006.rego",
+      "sha256": "c20f95bd57d8cc3802a08d0c8e3d0cfbcc3e53e09dc263e0643cbaa4a49bd4c4",
+      "line": 126,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "edit": {
+        "from": "<",
+        "to": "<="
+      },
+      "description": "D6b: `risk < 40` -> `risk <= 40`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-007",
+      "mutationClass": "operator-flip",
+      "file": "m-b-007.rego",
+      "sha256": "daf88cf569d1fc787281a4b362d78a98ec941ffff0584ba42c9071905e849746",
+      "line": 127,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "edit": {
+        "from": ">",
+        "to": ">="
+      },
+      "description": "D6b: `spend > 500000` -> `spend >= 500000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-008",
+      "mutationClass": "operator-flip",
+      "file": "m-b-008.rego",
+      "sha256": "e37b91535a6352e0601dc35e056a39ec45b3b02637221de3459f05f7328ef2ee",
+      "line": 128,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "edit": {
+        "from": "<=",
+        "to": "<"
+      },
+      "description": "D6b: `spend <= 2000000` -> `spend < 2000000`",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-2m"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-009",
+      "mutationClass": "operator-flip",
+      "file": "m-b-009.rego",
+      "sha256": "a39cec69e62fcc9aa18aa8011666c8c0bde5faa625e63572d8840969312355e2",
+      "line": 135,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "edit": {
+        "from": "<",
+        "to": "<="
+      },
+      "description": "D6b: `risk < 40` -> `risk <= 40`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-010",
+      "mutationClass": "operator-flip",
+      "file": "m-b-010.rego",
+      "sha256": "617e0c6f7e8118597547ba7a84d474f37c7550e0206e47b0c4a5e238aa4922c8",
+      "line": 136,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "edit": {
+        "from": ">",
+        "to": ">="
+      },
+      "description": "D6b: `spend > 500000` -> `spend >= 500000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-011",
+      "mutationClass": "operator-flip",
+      "file": "m-b-011.rego",
+      "sha256": "46b3449401cdaa27d9eddb805c6c848f86d1e42ac15d03c535dcffe08f1e078f",
+      "line": 137,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "edit": {
+        "from": "<=",
+        "to": "<"
+      },
+      "description": "D6b: `spend <= 2000000` -> `spend < 2000000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-012",
+      "mutationClass": "operator-flip",
+      "file": "m-b-012.rego",
+      "sha256": "44e1ca0160bf6e12026d5e0ef6105b6ca8a008490c11b44ce038967895d47c77",
+      "line": 148,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "edit": {
+        "from": "<",
+        "to": "<="
+      },
+      "description": "D6b: `risk < 40` -> `risk <= 40`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-013",
+      "mutationClass": "operator-flip",
+      "file": "m-b-013.rego",
+      "sha256": "9827132ae1d74d438e6d7c5e50b8ef9b3c258fc887b4905d8cf4b0a8d153fb5b",
+      "line": 149,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "edit": {
+        "from": ">",
+        "to": ">="
+      },
+      "description": "D6b: `spend > 500000` -> `spend >= 500000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-014",
+      "mutationClass": "operator-flip",
+      "file": "m-b-014.rego",
+      "sha256": "4287022f3ae085cd100fd828a66c287ad27ba55463edafa2aecee58eb908417d",
+      "line": 150,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "edit": {
+        "from": "<=",
+        "to": "<"
+      },
+      "description": "D6b: `spend <= 2000000` -> `spend < 2000000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-015",
+      "mutationClass": "operator-flip",
+      "file": "m-b-015.rego",
+      "sha256": "4b0575ce7d3cfdb2b9bda61b01cd95b5069b462b180a49bc964b1d0f1141c13c",
+      "line": 159,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "risk >= 40",
+      "edit": {
+        "from": ">=",
+        "to": ">"
+      },
+      "description": "D6c: `risk >= 40` -> `risk > 40`",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-50k",
+        "d6c-40-100k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-016",
+      "mutationClass": "operator-flip",
+      "file": "m-b-016.rego",
+      "sha256": "5e17c413df6a68e4cefd0f3c3172c3d0604cf328681f1950fc8e0e3470097e3b",
+      "line": 160,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "risk < 70",
+      "edit": {
+        "from": "<",
+        "to": "<="
+      },
+      "description": "D6c: `risk < 70` -> `risk <= 70`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-70-low"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-017",
+      "mutationClass": "operator-flip",
+      "file": "m-b-017.rego",
+      "sha256": "b27e5585a8fb3c57a9f1534ee563d71a1c5f88415976e4c3d95c8e30da4ea58c",
+      "line": 161,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "spend <= 100000",
+      "edit": {
+        "from": "<=",
+        "to": "<"
+      },
+      "description": "D6c: `spend <= 100000` -> `spend < 100000`",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-100k",
+        "d6c-69-100k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-018",
+      "mutationClass": "operator-flip",
+      "file": "m-b-018.rego",
+      "sha256": "f37c1f3e08779dbf0a5e3447dbe35f5514dd15ce90e38861ec3971169542c957",
+      "line": 169,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "risk < 40",
+      "edit": {
+        "from": "<",
+        "to": "<="
+      },
+      "description": "D7: `risk < 40` -> `risk <= 40`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-40-med"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-019",
+      "mutationClass": "operator-flip",
+      "file": "m-b-019.rego",
+      "sha256": "bd5699c50b7ce786b78b5f7c2ea8e336679daf1f5034c3ee4a137278655d92d7",
+      "line": 170,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "spend <= 100000",
+      "edit": {
+        "from": "<=",
+        "to": "<"
+      },
+      "description": "D7: `spend <= 100000` -> `spend < 100000`",
+      "status": "valid",
+      "witnessSet": [
+        "d7-39-100k"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-020",
+      "mutationClass": "operator-flip",
+      "file": "m-b-020.rego",
+      "sha256": "6de3b0307173e207b43e3a026f0e49a505b16ca92bbcd26541c51fd5c3ae805a",
+      "line": 256,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "target": "v_spend > 2000000",
+      "edit": {
+        "from": ">",
+        "to": ">="
+      },
+      "description": "O3: `v_spend > 2000000` -> `v_spend >= 2000000`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-high-2m"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-021",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-021.rego",
+      "sha256": "cd9ec07f1bcde31020e534797b8cd48f672570926751df89c77a605a45935ecd",
+      "line": 71,
+      "rung": "determine[0]",
+      "clause": "O3",
+      "target": "spend > 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "1999999.99"
+      },
+      "description": "O3: spend threshold 2000000 -0.01 -> 1999999.99",
+      "status": "valid",
+      "witnessSet": [
+        "d8-high-2m"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-022",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-022.rego",
+      "sha256": "71d9bbf66978ee3541f80336ee2349942a39161f8d48cbe7c39060d3b935c57d",
+      "line": 71,
+      "rung": "determine[0]",
+      "clause": "O3",
+      "target": "spend > 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "2000000.01"
+      },
+      "description": "O3: spend threshold 2000000 +0.01 -> 2000000.01",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-023",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-023.rego",
+      "sha256": "103d80144cf57eb711cce9048688ac97ed8b70c067cf3aa4fb7f7519b7aa528e",
+      "line": 95,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "target": "risk >= 90",
+      "axis": "risk",
+      "edit": {
+        "from": "90",
+        "to": "89"
+      },
+      "description": "D3: risk threshold 90 -1 -> 89",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-024",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-024.rego",
+      "sha256": "ba2fac1c237d8869ceec40077e826b019e7065a2e30158551be27637955f55ac",
+      "line": 95,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "target": "risk >= 90",
+      "axis": "risk",
+      "edit": {
+        "from": "90",
+        "to": "91"
+      },
+      "description": "D3: risk threshold 90 +1 -> 91",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d3-med-90"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-025",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-025.rego",
+      "sha256": "3e825b32275cb4be62eeb28e32e11d385aec1af7f9530a800406fd00d8472b26",
+      "line": 102,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "target": "risk >= 70",
+      "axis": "risk",
+      "edit": {
+        "from": "70",
+        "to": "69"
+      },
+      "description": "D4: risk threshold 70 -1 -> 69",
+      "status": "valid",
+      "witnessSet": [
+        "d8-high-69"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-026",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-026.rego",
+      "sha256": "ca72b2e19401da2ef684c687d0a0140884202fe951bbe5ae064b3c1aa75f342f",
+      "line": 102,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "target": "risk >= 70",
+      "axis": "risk",
+      "edit": {
+        "from": "70",
+        "to": "71"
+      },
+      "description": "D4: risk threshold 70 +1 -> 71",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-027",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-027.rego",
+      "sha256": "931303d53d8ce02fe68accbd71913912f17be6fd606f6cf78810155091d82fae",
+      "line": 115,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "39"
+      },
+      "description": "D6a: risk threshold 40 -1 -> 39",
+      "status": "valid",
+      "witnessSet": [
+        "d6a-39-50k"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-028",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-028.rego",
+      "sha256": "6d43586aab8af6fc124c99629399b9c3f5d28e00bbd518b5f0eca14206fdc169",
+      "line": 115,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "41"
+      },
+      "description": "D6a: risk threshold 40 +1 -> 41",
+      "status": "valid",
+      "witnessSet": [
+        "d8-40-100k01",
+        "d8-40-500k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-029",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-029.rego",
+      "sha256": "a6c50df9bfeb2f1f78e8a47062d015cd553f85818490aea88b1e2305589b6e8b",
+      "line": 116,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "spend <= 500000",
+      "axis": "spend",
+      "edit": {
+        "from": "500000",
+        "to": "499999.99"
+      },
+      "description": "D6a: spend threshold 500000 -0.01 -> 499999.99",
+      "status": "valid",
+      "witnessSet": [
+        "d6a-500k"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-030",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-030.rego",
+      "sha256": "c19ca313e44962501ad3a111e3e950075aeeda8ef1d16643faaf0128cb4e67af",
+      "line": 116,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "spend <= 500000",
+      "axis": "spend",
+      "edit": {
+        "from": "500000",
+        "to": "500000.01"
+      },
+      "description": "D6a: spend threshold 500000 +0.01 -> 500000.01",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-031",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-031.rego",
+      "sha256": "b50af7ed218752ff5d139a6cc8dffd1654e7c29d0577fb4c3b2cc5d84d894ece",
+      "line": 126,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "39"
+      },
+      "description": "D6b: risk threshold 40 -1 -> 39",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-032",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-032.rego",
+      "sha256": "14760c54f5756b3bda02d28d97d3acea753eb1450ce683b20c974829a4f97734",
+      "line": 126,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "41"
+      },
+      "description": "D6b: risk threshold 40 +1 -> 41",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-033",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-033.rego",
+      "sha256": "88bc6c4e7e155871ce2f4f98356a03b8c34bab49011d11b0a8a7df760b9bfe01",
+      "line": 127,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "axis": "spend",
+      "edit": {
+        "from": "500000",
+        "to": "499999.99"
+      },
+      "description": "D6b: spend threshold 500000 -0.01 -> 499999.99",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-034",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-034.rego",
+      "sha256": "d0927ae9979be9d57fc5eca85b08a2ab669b17b248a1c81038de72f57c7dff88",
+      "line": 127,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "axis": "spend",
+      "edit": {
+        "from": "500000",
+        "to": "500000.01"
+      },
+      "description": "D6b: spend threshold 500000 +0.01 -> 500000.01",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-500k01"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-035",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-035.rego",
+      "sha256": "7332d2a8e18df0f3136e74bde855674c53adc3ad013cfdc86f0780d8aeb658ac",
+      "line": 128,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "1999999.99"
+      },
+      "description": "D6b: spend threshold 2000000 -0.01 -> 1999999.99",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-2m"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-036",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-036.rego",
+      "sha256": "68504c8f7f2eedf9c57736492ec6e5e11620314dcbe6b93880db78ade6f18ec0",
+      "line": 128,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "2000000.01"
+      },
+      "description": "D6b: spend threshold 2000000 +0.01 -> 2000000.01",
+      "status": "valid",
+      "witnessSet": [
+        "d8-2m01-low"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-037",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-037.rego",
+      "sha256": "a552b4b651963c3e823699a9e3b44cbae3dec5f450c9f0fdc4aabc3a3ee038b5",
+      "line": 135,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "39"
+      },
+      "description": "D6b: risk threshold 40 -1 -> 39",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-038",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-038.rego",
+      "sha256": "d8cd62ab7148da736c0a075c8a5c6ace99acf2b23a1aaafcbf448273933b8617",
+      "line": 135,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "41"
+      },
+      "description": "D6b: risk threshold 40 +1 -> 41",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-039",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-039.rego",
+      "sha256": "67afdc5e30b2cf8c8dd73dacbf21ff2e3b217e6abedeca9cb05b359c40c6ecd3",
+      "line": 136,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "axis": "spend",
+      "edit": {
+        "from": "500000",
+        "to": "499999.99"
+      },
+      "description": "D6b: spend threshold 500000 -0.01 -> 499999.99",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-040",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-040.rego",
+      "sha256": "867ebd36fef0b2c6ff27f234a155be1f0fbf56a779014df0f1eba00a39c13eac",
+      "line": 136,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "axis": "spend",
+      "edit": {
+        "from": "500000",
+        "to": "500000.01"
+      },
+      "description": "D6b: spend threshold 500000 +0.01 -> 500000.01",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-041",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-041.rego",
+      "sha256": "190feeb56fd06c3713e6dde7db2a40eda6ba794cdfc4b368c3b8d23120c6c52a",
+      "line": 137,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "1999999.99"
+      },
+      "description": "D6b: spend threshold 2000000 -0.01 -> 1999999.99",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-042",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-042.rego",
+      "sha256": "9a4137a8ca9a17fc2eadb9532b73dfde7ff16946432fbbe5dcaa6767ac867696",
+      "line": 137,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "2000000.01"
+      },
+      "description": "D6b: spend threshold 2000000 +0.01 -> 2000000.01",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-043",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-043.rego",
+      "sha256": "7c09fa6d516aae3fae4b001dca6d331a7011bc6eda514ff5355a2df850d8dd18",
+      "line": 148,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "39"
+      },
+      "description": "D6b: risk threshold 40 -1 -> 39",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-044",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-044.rego",
+      "sha256": "4223333682da494284608932c938918177c14b6b9a0d54c6e6ed5b25ffba43ad",
+      "line": 148,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "41"
+      },
+      "description": "D6b: risk threshold 40 +1 -> 41",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-045",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-045.rego",
+      "sha256": "89af6021812bf5d3fbe4d9c0b9193b0a423809cd1844d0b6fa86ef911d2cc1e4",
+      "line": 149,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "axis": "spend",
+      "edit": {
+        "from": "500000",
+        "to": "499999.99"
+      },
+      "description": "D6b: spend threshold 500000 -0.01 -> 499999.99",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-046",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-046.rego",
+      "sha256": "e7e2ab59c608e2dc080edb60f03ec7d662afa0cf456b355152967f87832cf2b1",
+      "line": 149,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "spend > 500000",
+      "axis": "spend",
+      "edit": {
+        "from": "500000",
+        "to": "500000.01"
+      },
+      "description": "D6b: spend threshold 500000 +0.01 -> 500000.01",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-047",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-047.rego",
+      "sha256": "948632684286e1a80f2684791eb24098001e16797c3625bf9d3c4ac89c32951a",
+      "line": 150,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "1999999.99"
+      },
+      "description": "D6b: spend threshold 2000000 -0.01 -> 1999999.99",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-048",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-048.rego",
+      "sha256": "31bfaa77617c5c40e55dc4563cbd4a2fcdec7a289c10247420dd30337539448b",
+      "line": 150,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "spend <= 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "2000000.01"
+      },
+      "description": "D6b: spend threshold 2000000 +0.01 -> 2000000.01",
+      "status": "valid",
+      "witnessSet": [
+        "d8-2m01-low"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-049",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-049.rego",
+      "sha256": "bd4ee395f9dfd482add7cd0a0d674bea761667c11139597a9686648e3c1452d7",
+      "line": 159,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "risk >= 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "39"
+      },
+      "description": "D6c: risk threshold 40 -1 -> 39",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-050",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-050.rego",
+      "sha256": "ad474ff2379724a4f90981b48c858d07063f07f0a7699c2f22505e9a927b97bb",
+      "line": 159,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "risk >= 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "41"
+      },
+      "description": "D6c: risk threshold 40 +1 -> 41",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-50k",
+        "d6c-40-100k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-051",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-051.rego",
+      "sha256": "aa4de36b9c787a552988e79dbb97b23e80ab5bf55fec4d927cfdce1a7673c8b2",
+      "line": 160,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "risk < 70",
+      "axis": "risk",
+      "edit": {
+        "from": "70",
+        "to": "69"
+      },
+      "description": "D6c: risk threshold 70 -1 -> 69",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-69-100k"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-052",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-052.rego",
+      "sha256": "f956eacfddfb33df89f89f53b1c3eaa8fc3ad81a1086ae10ee4a2a5ae00b56ab",
+      "line": 160,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "risk < 70",
+      "axis": "risk",
+      "edit": {
+        "from": "70",
+        "to": "71"
+      },
+      "description": "D6c: risk threshold 70 +1 -> 71",
+      "status": "valid",
+      "witnessSet": [
+        "d8-70-low"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-053",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-053.rego",
+      "sha256": "a262626e018ff6287fa2dffd76d65fe225c459b22201cc34034c61e2dcc8c789",
+      "line": 161,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "spend <= 100000",
+      "axis": "spend",
+      "edit": {
+        "from": "100000",
+        "to": "100000.01"
+      },
+      "description": "D6c: spend threshold 100000 +0.01 -> 100000.01",
+      "status": "valid",
+      "witnessSet": [
+        "d8-40-100k01"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-054",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-054.rego",
+      "sha256": "08481c948aa00ab802558e67305c85dcab3e0ab31db81cd649de84bfe31a98cb",
+      "line": 161,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "spend <= 100000",
+      "axis": "spend",
+      "edit": {
+        "from": "100000",
+        "to": "99999.99"
+      },
+      "description": "D6c: spend threshold 100000 -0.01 -> 99999.99",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-100k",
+        "d6c-69-100k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-055",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-055.rego",
+      "sha256": "d4382d60879b69bd5d174a4ea7a97328362e4891c434ceaa2964f2dd622c3754",
+      "line": 169,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "39"
+      },
+      "description": "D7: risk threshold 40 -1 -> 39",
+      "status": "valid",
+      "witnessSet": [
+        "d7-39-100k"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-056",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-056.rego",
+      "sha256": "3c0a0ebd5dc687c4278332ad61f3d7fb92cb0a8b386738141fa66d91d6f30f9e",
+      "line": 169,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "risk < 40",
+      "axis": "risk",
+      "edit": {
+        "from": "40",
+        "to": "41"
+      },
+      "description": "D7: risk threshold 40 +1 -> 41",
+      "status": "valid",
+      "witnessSet": [
+        "d8-40-med"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-057",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-057.rego",
+      "sha256": "15bdca56329e3673a83de05868b11e4c8ec4b2811a8a3b3987353b2d891407b9",
+      "line": 170,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "spend <= 100000",
+      "axis": "spend",
+      "edit": {
+        "from": "100000",
+        "to": "100000.01"
+      },
+      "description": "D7: spend threshold 100000 +0.01 -> 100000.01",
+      "status": "valid",
+      "witnessSet": [
+        "d8-39-100k01-med"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-058",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-058.rego",
+      "sha256": "eedea553968a435179a358b64c1872388cd5656d865430364d7e1864ef847d98",
+      "line": 170,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "spend <= 100000",
+      "axis": "spend",
+      "edit": {
+        "from": "100000",
+        "to": "99999.99"
+      },
+      "description": "D7: spend threshold 100000 -0.01 -> 99999.99",
+      "status": "valid",
+      "witnessSet": [
+        "d7-39-100k"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-059",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-059.rego",
+      "sha256": "92b4e272e1a66de061e96f6205f6ecddf7419900aed527e7ad7e2dffcbb7c726",
+      "line": 256,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "target": "v_spend > 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "1999999.99"
+      },
+      "description": "O3: spend threshold 2000000 -0.01 -> 1999999.99",
+      "status": "valid",
+      "witnessSet": [
+        "d8-high-2m"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-060",
+      "mutationClass": "boundary-shift",
+      "file": "m-b-060.rego",
+      "sha256": "f5464106d6b2287782085f26e712c4910726ec66364dfd97b9fea28839793958",
+      "line": 256,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "target": "v_spend > 2000000",
+      "axis": "spend",
+      "edit": {
+        "from": "2000000",
+        "to": "2000000.01"
+      },
+      "description": "O3: spend threshold 2000000 +0.01 -> 2000000.01",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-061",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-061.rego",
+      "sha256": "a8cea4abbd56211133e5e4f4539bb7b72215e1f1cb04b9787460a04fb0c7e931",
+      "line": 72,
+      "rung": "determine[0]",
+      "clause": "O3/P1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "invert",
+      "target": "fin_state == \"present\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "O3/P1 (evidence-availability tri-state): invert `fin_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [
+        "u1-ex2",
+        "u1-ex4",
+        "u1-country-95-3m",
+        "u1-spend-high-95"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-062",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-062.rego",
+      "sha256": "a0cdd5022ec5e56a4ea2c7c951e717b838aaf75d1db64051f2c2caf563ba2799",
+      "line": 72,
+      "rung": "determine[0]",
+      "clause": "O3/P1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "delete",
+      "target": "fin_state == \"present\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "fin_state == \"present\"",
+        "to": "<deleted>"
+      },
+      "description": "O3/P1 (evidence-availability tri-state): delete `fin_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-063",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-063.rego",
+      "sha256": "17edc903a00c97a120a3bdf997225689d32e0254974698175a9106fa5efc17d9",
+      "line": 79,
+      "rung": "determine[1]",
+      "clause": "O2",
+      "guardKind": "unreported-status-treated-as-no guard",
+      "variant": "invert",
+      "target": "v_critical == \"yes\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "O2 (unreported-status-treated-as-no guard): invert `v_critical == \"yes\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d3-med-90",
+        "d4-high-70",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d3-over-d5",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d6c-69-100k",
+        "d7-39-100k",
+        "d7-0-0",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-unreported",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "u1-ex1",
+        "u1-ex3",
+        "u1-risk-low-50k",
+        "u1-risk-prior",
+        "u1-country-20-50k",
+        "u1-spend-low-20",
+        "u1-spend-med-95",
+        "u1-risk-high-50k",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 42,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-064",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-064.rego",
+      "sha256": "8c317b89cf8b9763e8073aaaf254a3e737a2daffd178311b53d66ec88e6516cd",
+      "line": 79,
+      "rung": "determine[1]",
+      "clause": "O2",
+      "guardKind": "unreported-status-treated-as-no guard",
+      "variant": "delete",
+      "target": "v_critical == \"yes\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_critical == \"yes\"",
+        "to": "<deleted>"
+      },
+      "description": "O2 (unreported-status-treated-as-no guard): delete `v_critical == \"yes\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d3-med-90",
+        "d4-high-70",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d3-over-d5",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d6c-69-100k",
+        "d7-39-100k",
+        "d7-0-0",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "u1-ex1",
+        "u1-risk-low-50k",
+        "u1-risk-prior",
+        "u1-country-20-50k",
+        "u1-spend-low-20",
+        "u1-spend-med-95",
+        "u1-risk-high-50k",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 36,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-065",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-065.rego",
+      "sha256": "fd76ee99ea6823e3587235c29e08a22d037570034bb4f20ab3660564a22cfa4c",
+      "line": 108,
+      "rung": "determine[6]",
+      "clause": "D5",
+      "guardKind": "unreported-status-treated-as-no guard",
+      "variant": "invert",
+      "target": "v_prior == \"yes\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "D5 (unreported-status-treated-as-no guard): invert `v_prior == \"yes\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-high-69",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-risk-low-50k",
+        "u1-risk-prior",
+        "u1-country-20-50k",
+        "u1-spend-low-20",
+        "u1-risk-high-50k",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 40,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-066",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-066.rego",
+      "sha256": "fc0217e88367eff09335520d0dbdb2138c6d20d1b0b5d7aa2365f44cc904f11c",
+      "line": 108,
+      "rung": "determine[6]",
+      "clause": "D5",
+      "guardKind": "unreported-status-treated-as-no guard",
+      "variant": "delete",
+      "target": "v_prior == \"yes\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_prior == \"yes\"",
+        "to": "<deleted>"
+      },
+      "description": "D5 (unreported-status-treated-as-no guard): delete `v_prior == \"yes\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-high-69",
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-risk-low-50k",
+        "u1-country-20-50k",
+        "u1-spend-low-20",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 35,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-067",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-067.rego",
+      "sha256": "33980c325ac4b326a6957b267ae00bbfe77179d57bb39648ae0371a94eb9043b",
+      "line": 129,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "invert",
+      "target": "ins_state == \"present\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "D6b (evidence-availability tri-state): invert `ins_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-500k01",
+        "d6b-2m",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported"
+      ],
+      "witnessCount": 5,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-068",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-068.rego",
+      "sha256": "54e392ab0ec8412e20deb6a893d9e6040720665368b07f2543867762f6cf3540",
+      "line": 129,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "delete",
+      "target": "ins_state == \"present\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "ins_state == \"present\"",
+        "to": "<deleted>"
+      },
+      "description": "D6b (evidence-availability tri-state): delete `ins_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-1m-absent",
+        "d6b-1m-unreported"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-069",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-069.rego",
+      "sha256": "28a2f41bbcaf04aad51d0c2d04abc847736c1dada7776f98baf7ed3cfb21da04",
+      "line": 138,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "invert",
+      "target": "ins_state == \"absent\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "D6b (evidence-availability tri-state): invert `ins_state == \"absent\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-1m-absent",
+        "d6b-1m-unreported"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-070",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-070.rego",
+      "sha256": "47a82cdcbf705218831c04c57aa5abd4b810048002437aae9e23f2fc63861d35",
+      "line": 138,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "delete",
+      "target": "ins_state == \"absent\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "ins_state == \"absent\"",
+        "to": "<deleted>"
+      },
+      "description": "D6b (evidence-availability tri-state): delete `ins_state == \"absent\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-1m-unreported"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-071",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-071.rego",
+      "sha256": "d855a8c925939014c32e4a726d192e2a4cbc176f8b5b6fc5a5d81aa9af6499c0",
+      "line": 162,
+      "rung": "determine[11]",
+      "clause": "O1",
+      "guardKind": "unreported-status-treated-as-no guard",
+      "variant": "invert",
+      "target": "v_new != \"yes\"",
+      "edit": {
+        "from": "!=",
+        "to": "=="
+      },
+      "description": "O1 (unreported-status-treated-as-no guard): invert `v_new != \"yes\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d6c-69-100k",
+        "o1-nv-d6c",
+        "o1-nv-unreported"
+      ],
+      "witnessCount": 5,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-072",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-072.rego",
+      "sha256": "a86cee47ed19d827613b62538b4c79189dc18ada9cc814037021f2f83938e4e7",
+      "line": 162,
+      "rung": "determine[11]",
+      "clause": "O1",
+      "guardKind": "unreported-status-treated-as-no guard",
+      "variant": "delete",
+      "target": "v_new != \"yes\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_new != \"yes\"",
+        "to": "<deleted>"
+      },
+      "description": "O1 (unreported-status-treated-as-no guard): delete `v_new != \"yes\"`",
+      "status": "valid",
+      "witnessSet": [
+        "o1-nv-d6c"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-073",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-073.rego",
+      "sha256": "87ba104fe9c0f5bb2133ea961d6dfd0c3ce5e10b83b392d41c63bfe7e0862ebb",
+      "line": 213,
+      "rung": "risk_candidates[0]",
+      "clause": "U1",
+      "guardKind": "unreadable-input sentinel (omitted key)",
+      "variant": "invert",
+      "target": "v_risk != null",
+      "edit": {
+        "from": "!=",
+        "to": "=="
+      },
+      "description": "U1 (unreadable-input sentinel (omitted key)): invert `v_risk != null`",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d8-low-89",
+        "d3-med-90",
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-ex1",
+        "u1-risk-low-50k",
+        "u1-spend-med-95",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 39,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-074",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-074.rego",
+      "sha256": "6077c46f5f69999b5f9e1abd166bddbd02ee15cdbec81ab5ce50bf49fd8573eb",
+      "line": 213,
+      "rung": "risk_candidates[0]",
+      "clause": "U1",
+      "guardKind": "unreadable-input sentinel (omitted key)",
+      "variant": "delete",
+      "target": "v_risk != null",
+      "emptyBodyReplacedWithTrue": true,
+      "edit": {
+        "from": "v_risk != null",
+        "to": "true"
+      },
+      "description": "U1 (unreadable-input sentinel (omitted key)): delete `v_risk != null`",
+      "status": "valid",
+      "witnessSet": [
+        "u1-risk-low-50k",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-075",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-075.rego",
+      "sha256": "4b4d0a5eb108571bfe8492d254fc1bfd5a9889dbba89d8fd0835280beea365f7",
+      "line": 217,
+      "rung": "spend_candidates[0]",
+      "clause": "U1",
+      "guardKind": "unreadable-input sentinel (omitted key)",
+      "variant": "invert",
+      "target": "v_spend != null",
+      "edit": {
+        "from": "!=",
+        "to": "=="
+      },
+      "description": "U1 (unreadable-input sentinel (omitted key)): invert `v_spend != null`",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "o2-over-d4",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-ex1",
+        "u1-ex2",
+        "u1-ex4",
+        "u1-spend-low-20",
+        "u1-spend-high-95",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 36,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-076",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-076.rego",
+      "sha256": "9558dad64d05b48b0863c09ee6025939d7aec2a21faa57403fc1c20b2e6bdf9d",
+      "line": 217,
+      "rung": "spend_candidates[0]",
+      "clause": "U1",
+      "guardKind": "unreadable-input sentinel (omitted key)",
+      "variant": "delete",
+      "target": "v_spend != null",
+      "emptyBodyReplacedWithTrue": true,
+      "edit": {
+        "from": "v_spend != null",
+        "to": "true"
+      },
+      "description": "U1 (unreadable-input sentinel (omitted key)): delete `v_spend != null`",
+      "status": "valid",
+      "witnessSet": [
+        "u1-ex2",
+        "u1-ex4",
+        "u1-spend-low-20",
+        "u1-spend-high-95"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-077",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-077.rego",
+      "sha256": "fd9fc8c1d06ea911e98879f4640133d64ef626673a2d9eae3504cdd612fd3e30",
+      "line": 221,
+      "rung": "country_candidates[0]",
+      "clause": "U1",
+      "guardKind": "unreadable-input sentinel (omitted key)",
+      "variant": "invert",
+      "target": "v_country != null",
+      "edit": {
+        "from": "!=",
+        "to": "=="
+      },
+      "description": "U1 (unreadable-input sentinel (omitted key)): invert `v_country != null`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "d8-low-3m",
+        "u1-ex4",
+        "u1-country-20-50k",
+        "u1-country-95-3m",
+        "u1-spend-med-95"
+      ],
+      "witnessCount": 32,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-078",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-078.rego",
+      "sha256": "98adde589bb5cc36283aa0bf3628561ef720dd022d4a0eb035cadf2e2c5be4da",
+      "line": 221,
+      "rung": "country_candidates[0]",
+      "clause": "U1",
+      "guardKind": "unreadable-input sentinel (omitted key)",
+      "variant": "delete",
+      "target": "v_country != null",
+      "emptyBodyReplacedWithTrue": true,
+      "edit": {
+        "from": "v_country != null",
+        "to": "true"
+      },
+      "description": "U1 (unreadable-input sentinel (omitted key)): delete `v_country != null`",
+      "status": "valid",
+      "witnessSet": [
+        "u1-ex4",
+        "u1-country-20-50k",
+        "u1-country-95-3m"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-079",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-079.rego",
+      "sha256": "a77b0ea17fe65572aa03ab8513b44af061d0d9063d1ff9370963841c7b7d4ed7",
+      "line": 240,
+      "rung": "decision[0]",
+      "clause": "P1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "invert",
+      "target": "fin_state == \"absent\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "P1 (evidence-availability tri-state): invert `fin_state == \"absent\"`",
+      "status": "valid",
+      "witnessSet": [
+        "p1-absent",
+        "p1-unreported",
+        "p1-absent-match",
+        "p1-absent-escalation-region",
+        "p1-unreported-escalation-region",
+        "p1-unreported-d2",
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical",
+        "d2-unknown",
+        "d2-unknown-bare",
+        "d2-unknown-critical",
+        "d3-low-90",
+        "d8-low-89",
+        "d3-med-90",
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d3-over-d5",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-unreported",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "o3-2m01",
+        "o3-3m",
+        "d8-high-2m",
+        "o3-over-o2",
+        "o3-over-d3",
+        "o3-over-d5",
+        "o3-risk-unreadable",
+        "d8-low-3m",
+        "u1-ex1",
+        "u1-ex2",
+        "u1-ex3",
+        "u1-ex4",
+        "u1-risk-low-50k",
+        "u1-risk-prior",
+        "u1-country-20-50k",
+        "u1-country-95-3m",
+        "u1-spend-low-20",
+        "u1-spend-high-95",
+        "u1-spend-med-95",
+        "u1-risk-high-50k",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 76,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-080",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-080.rego",
+      "sha256": "9e781900bceeb2f74b77f34a24e39e92382a04d84e8103d719ed03fcd149fbf1",
+      "line": 240,
+      "rung": "decision[0]",
+      "clause": "P1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "delete",
+      "target": "fin_state == \"absent\"",
+      "emptyBodyReplacedWithTrue": true,
+      "edit": {
+        "from": "fin_state == \"absent\"",
+        "to": "true"
+      },
+      "description": "P1 (evidence-availability tri-state): delete `fin_state == \"absent\"`",
+      "status": "valid",
+      "witnessSet": [
+        "p1-unreported",
+        "p1-unreported-escalation-region",
+        "p1-unreported-d2",
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical",
+        "d2-unknown",
+        "d2-unknown-bare",
+        "d2-unknown-critical",
+        "d3-low-90",
+        "d8-low-89",
+        "d3-med-90",
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d3-over-d5",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-unreported",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "o3-2m01",
+        "o3-3m",
+        "d8-high-2m",
+        "o3-over-o2",
+        "o3-over-d3",
+        "o3-over-d5",
+        "o3-risk-unreadable",
+        "d8-low-3m",
+        "u1-ex1",
+        "u1-ex2",
+        "u1-ex3",
+        "u1-ex4",
+        "u1-risk-low-50k",
+        "u1-risk-prior",
+        "u1-country-20-50k",
+        "u1-country-95-3m",
+        "u1-spend-low-20",
+        "u1-spend-high-95",
+        "u1-spend-med-95",
+        "u1-risk-high-50k",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 73,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-081",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-081.rego",
+      "sha256": "a132623a5fc2dd84c90e934144de133207ce9b2efb1762ff6062e9a720c19c1f",
+      "line": 245,
+      "rung": "decision[1]",
+      "clause": "P1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "invert",
+      "target": "fin_state == \"OMITTED\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "P1 (evidence-availability tri-state): invert `fin_state == \"OMITTED\"`",
+      "status": "valid",
+      "witnessSet": [
+        "p1-unreported",
+        "p1-unreported-escalation-region",
+        "p1-unreported-d2",
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical",
+        "d2-unknown",
+        "d2-unknown-bare",
+        "d2-unknown-critical",
+        "d3-low-90",
+        "d8-low-89",
+        "d3-med-90",
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d3-over-d5",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-unreported",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "o3-2m01",
+        "o3-3m",
+        "d8-high-2m",
+        "o3-over-o2",
+        "o3-over-d3",
+        "o3-over-d5",
+        "o3-risk-unreadable",
+        "d8-low-3m",
+        "u1-ex1",
+        "u1-ex3",
+        "u1-risk-prior",
+        "u1-spend-med-95",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 64,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-082",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-082.rego",
+      "sha256": "0502e2d7e5a36f8dc6248c415cd84a19e07fba86e28be3aff8e4242749f75892",
+      "line": 245,
+      "rung": "decision[1]",
+      "clause": "P1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "delete",
+      "target": "fin_state == \"OMITTED\"",
+      "emptyBodyReplacedWithTrue": true,
+      "edit": {
+        "from": "fin_state == \"OMITTED\"",
+        "to": "true"
+      },
+      "description": "P1 (evidence-availability tri-state): delete `fin_state == \"OMITTED\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical",
+        "d2-unknown",
+        "d2-unknown-bare",
+        "d2-unknown-critical",
+        "d3-low-90",
+        "d8-low-89",
+        "d3-med-90",
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d3-over-d5",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-unreported",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "o3-2m01",
+        "o3-3m",
+        "d8-high-2m",
+        "o3-over-o2",
+        "o3-over-d3",
+        "o3-over-d5",
+        "o3-risk-unreadable",
+        "d8-low-3m",
+        "u1-ex1",
+        "u1-ex3",
+        "u1-risk-prior",
+        "u1-spend-med-95",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 61,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-083",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-083.rego",
+      "sha256": "73e4b4918f46bb9f20dda120b9d3a98b1d3f1075fd4f12dcda3cfe1229401677",
+      "line": 252,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "invert",
+      "target": "fin_state == \"present\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "O3 (evidence-availability tri-state): invert `fin_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-084",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-084.rego",
+      "sha256": "91380d8212c32152e8bda14058a3ead8c3edfaba169fcc2f1eb136e02513dba5",
+      "line": 252,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "delete",
+      "target": "fin_state == \"present\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "fin_state == \"present\"",
+        "to": "<deleted>"
+      },
+      "description": "O3 (evidence-availability tri-state): delete `fin_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-085",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-085.rego",
+      "sha256": "8bbc73977e219bcc6872598f18badf9dd50dbdafc5cfd523fa97bc0f66e6edb6",
+      "line": 255,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "guardKind": "unreadable-input sentinel (omitted key)",
+      "variant": "invert",
+      "target": "v_spend != null",
+      "edit": {
+        "from": "!=",
+        "to": "=="
+      },
+      "description": "O3 (unreadable-input sentinel (omitted key)): invert `v_spend != null`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-086",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-086.rego",
+      "sha256": "92c12de8b289251673cb4dd616b0afb2c439a94747a1ee236e0f5753d369b9fa",
+      "line": 255,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "guardKind": "unreadable-input sentinel (omitted key)",
+      "variant": "delete",
+      "target": "v_spend != null",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_spend != null",
+        "to": "<deleted>"
+      },
+      "description": "O3 (unreadable-input sentinel (omitted key)): delete `v_spend != null`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-087",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-087.rego",
+      "sha256": "576c6822cde9dcc3514d7c4fb95383719befa5d5a55d8a602b036c46cfed00f1",
+      "line": 269,
+      "rung": "decision[3]",
+      "clause": "U1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "invert",
+      "target": "fin_state == \"present\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "U1 (evidence-availability tri-state): invert `fin_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical",
+        "d3-low-90",
+        "d8-low-89",
+        "d3-med-90",
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d3-over-d5",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-unreported",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-ex1",
+        "u1-ex3",
+        "u1-risk-prior",
+        "u1-spend-med-95",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 53,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-088",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-088.rego",
+      "sha256": "3440a32e1526ff87cfd86c096466af4b362087f27b72b175bd9437296e6a704a",
+      "line": 269,
+      "rung": "decision[3]",
+      "clause": "U1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "delete",
+      "target": "fin_state == \"present\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "fin_state == \"present\"",
+        "to": "<deleted>"
+      },
+      "description": "U1 (evidence-availability tri-state): delete `fin_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-089",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-089.rego",
+      "sha256": "1a9c50278eea48c92db5b8b6d1745850f5c43fd685735b9b581b93e3e5668d33",
+      "line": 276,
+      "rung": "decision[4]",
+      "clause": "U1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "invert",
+      "target": "fin_state == \"present\"",
+      "edit": {
+        "from": "==",
+        "to": "!="
+      },
+      "description": "U1 (evidence-availability tri-state): invert `fin_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [
+        "u1-ex2",
+        "u1-ex4",
+        "u1-risk-low-50k",
+        "u1-country-20-50k",
+        "u1-country-95-3m",
+        "u1-spend-low-20",
+        "u1-spend-high-95",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 8,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-090",
+      "mutationClass": "unknown-guard-flip",
+      "file": "m-b-090.rego",
+      "sha256": "5605edbd156655cfabad9ea448b5c1c1944943a1d31149a65f59b503c864d9d4",
+      "line": 276,
+      "rung": "decision[4]",
+      "clause": "U1",
+      "guardKind": "evidence-availability tri-state",
+      "variant": "delete",
+      "target": "fin_state == \"present\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "fin_state == \"present\"",
+        "to": "<deleted>"
+      },
+      "description": "U1 (evidence-availability tri-state): delete `fin_state == \"present\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-091",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-091.rego",
+      "sha256": "b1b712319245316d8df32ec6fa2edc70bde1edf78c553ece6c824bf132f209e1",
+      "line": 77,
+      "rung": "determine[1]",
+      "clause": "O2",
+      "target": "{\"disposition\": \"review\", \"reasons\": []}",
+      "edit": {
+        "from": "review",
+        "to": "approve"
+      },
+      "description": "O2: rule-head outcome review -> approve",
+      "status": "valid",
+      "witnessSet": [
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "u1-ex3"
+      ],
+      "witnessCount": 6,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-092",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-092.rego",
+      "sha256": "e95bb4ecd4db57b798530b14d9b24e7e6f78264b9579a85a5ae289b48b2aacd9",
+      "line": 77,
+      "rung": "determine[1]",
+      "clause": "O2",
+      "target": "{\"disposition\": \"review\", \"reasons\": []}",
+      "edit": {
+        "from": "review",
+        "to": "enhanced-review"
+      },
+      "description": "O2: rule-head outcome review -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "u1-ex3"
+      ],
+      "witnessCount": 6,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-093",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-093.rego",
+      "sha256": "09441516c1bb147f47e4afb8093cca2c5df44d778855e48c6d30834ca161cb9b",
+      "line": 77,
+      "rung": "determine[1]",
+      "clause": "O2",
+      "target": "{\"disposition\": \"review\", \"reasons\": []}",
+      "edit": {
+        "from": "review",
+        "to": "reject"
+      },
+      "description": "O2: rule-head outcome review -> reject",
+      "status": "valid",
+      "witnessSet": [
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "u1-ex3"
+      ],
+      "witnessCount": 6,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-094",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-094.rego",
+      "sha256": "1b740567d9700735481f47f0db2434f4f5d9476f6409122f55f7edb8d7c701d9",
+      "line": 83,
+      "rung": "determine[2]",
+      "clause": "D1",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "approve"
+      },
+      "description": "D1: rule-head outcome reject -> approve",
+      "status": "valid",
+      "witnessSet": [
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-095",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-095.rego",
+      "sha256": "04c26a8504f353dfe2b539ce969a9d82638b7280605f73d21b2ae49128758e4f",
+      "line": 83,
+      "rung": "determine[2]",
+      "clause": "D1",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "enhanced-review"
+      },
+      "description": "D1: rule-head outcome reject -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-096",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-096.rego",
+      "sha256": "f7ef0a7dd75155b72a048615bbcfcedd8be89f4bd94cd7b0678b3671cc202602",
+      "line": 83,
+      "rung": "determine[2]",
+      "clause": "D1",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "review"
+      },
+      "description": "D1: rule-head outcome reject -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-097",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-097.rego",
+      "sha256": "1cc6280f1b2dbd41c7b346636951583e76ded8cf4adc1fb93efe06738c773fc7",
+      "line": 93,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "approve"
+      },
+      "description": "D3: rule-head outcome reject -> approve",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d3-med-90",
+        "d3-high-90",
+        "d3-over-d5",
+        "u1-ex1",
+        "u1-risk-prior",
+        "u1-spend-med-95",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 8,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-098",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-098.rego",
+      "sha256": "42e0c4b00672e62a5a977a952d1e71bf8715846d2e7b296ce1256c4bbcf33d8e",
+      "line": 93,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "enhanced-review"
+      },
+      "description": "D3: rule-head outcome reject -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d3-med-90",
+        "d3-high-90",
+        "d3-over-d5",
+        "u1-ex1",
+        "u1-risk-prior",
+        "u1-spend-med-95",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 8,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-099",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-099.rego",
+      "sha256": "50511f9698dec5297189b1524616a2b070b3e66f1ad6ac8d13193777312cb795",
+      "line": 93,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "review"
+      },
+      "description": "D3: rule-head outcome reject -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d3-med-90",
+        "d3-high-90",
+        "d3-over-d5",
+        "u1-ex1",
+        "u1-risk-prior",
+        "u1-spend-med-95",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 8,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-100",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-100.rego",
+      "sha256": "5b0a440a61c933699d43b6068b8a5a48e1f218a6e1ecb5e9dd086f61ad3738e0",
+      "line": 99,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "approve"
+      },
+      "description": "D4: rule-head outcome reject -> approve",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70",
+        "d4-high-89",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-101",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-101.rego",
+      "sha256": "aac36d0566d5b0c6eb1c4ad32f4ef3b8c729135be8c4ffc711eed2cbd3ffda7d",
+      "line": 99,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "enhanced-review"
+      },
+      "description": "D4: rule-head outcome reject -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70",
+        "d4-high-89",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-102",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-102.rego",
+      "sha256": "358809181900d9d9d80a74f91a47821d91266a7f600d8e50f03c9f2d6da41df0",
+      "line": 99,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "review"
+      },
+      "description": "D4: rule-head outcome reject -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70",
+        "d4-high-89",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-103",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-103.rego",
+      "sha256": "836e73017836c115b32009bfac77febb704442596280b110865bf8a5b3f7fbe9",
+      "line": 106,
+      "rung": "determine[6]",
+      "clause": "D5",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "approve"
+      },
+      "description": "D5: rule-head outcome reject -> approve",
+      "status": "valid",
+      "witnessSet": [
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-d6b-absent",
+        "u1-risk-prior",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 5,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-104",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-104.rego",
+      "sha256": "9559e0004f3bd2aa68fe2dc717f26cbf538ebd9c5857d51b06a2ae114d297f0b",
+      "line": 106,
+      "rung": "determine[6]",
+      "clause": "D5",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "enhanced-review"
+      },
+      "description": "D5: rule-head outcome reject -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-d6b-absent",
+        "u1-risk-prior",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 5,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-105",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-105.rego",
+      "sha256": "59d7a44f4f00bd4ec79c2bba0f029e98a77d141fbfa25cc9b02257da47be6d35",
+      "line": 106,
+      "rung": "determine[6]",
+      "clause": "D5",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "reject",
+        "to": "review"
+      },
+      "description": "D5: rule-head outcome reject -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-d6b-absent",
+        "u1-risk-prior",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 5,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-106",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-106.rego",
+      "sha256": "3e0dc44c1ade40a94aedc5ad7ab219e014a7b3bd48c945ec94ffdbc3f162cd11",
+      "line": 112,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "enhanced-review"
+      },
+      "description": "D6a: rule-head outcome approve -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "o1-nv-d6a",
+        "o2-unreported"
+      ],
+      "witnessCount": 7,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-107",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-107.rego",
+      "sha256": "748bd02f88be57e6aaae187a76cf8ba6d57bb6312a5b145739a2026da20e9390",
+      "line": 112,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "reject"
+      },
+      "description": "D6a: rule-head outcome approve -> reject",
+      "status": "valid",
+      "witnessSet": [
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "o1-nv-d6a",
+        "o2-unreported"
+      ],
+      "witnessCount": 7,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-108",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-108.rego",
+      "sha256": "bdeb17cd743415565e91aa1d80e162e515acad161fad5d8a5f64e79ce00c1981",
+      "line": 112,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "review"
+      },
+      "description": "D6a: rule-head outcome approve -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "o1-nv-d6a",
+        "o2-unreported"
+      ],
+      "witnessCount": 7,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-109",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-109.rego",
+      "sha256": "1e85cab4150169159072d848d8338cec88ad1cbd249edee0e42c3acfb4d2f932",
+      "line": 123,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "enhanced-review"
+      },
+      "description": "D6b: rule-head outcome approve -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-500k01",
+        "d6b-2m",
+        "d6b-1m-present"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-110",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-110.rego",
+      "sha256": "7de9581285c99993797bf8d1fa43b1a0a9d2c6470a437274cff71ab2f6dd8eeb",
+      "line": 123,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "reject"
+      },
+      "description": "D6b: rule-head outcome approve -> reject",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-500k01",
+        "d6b-2m",
+        "d6b-1m-present"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-111",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-111.rego",
+      "sha256": "f2d752efeccdcf61508b7c85163943402ed03f5a1950a4df121e783c03f6ca6c",
+      "line": 123,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "review"
+      },
+      "description": "D6b: rule-head outcome approve -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-500k01",
+        "d6b-2m",
+        "d6b-1m-present"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-112",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-112.rego",
+      "sha256": "c4411227bb6a651b966f060ea4bf3dbedfe2daf0574d5cd13868c3b8942a4adf",
+      "line": 132,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"enhanced-review\", \"reasons\": []}",
+      "edit": {
+        "from": "enhanced-review",
+        "to": "approve"
+      },
+      "description": "D6b: rule-head outcome enhanced-review -> approve",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-1m-absent"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-113",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-113.rego",
+      "sha256": "2c20d4a0cbed648cf6298aca0fb657d9ab7ef52c44ada821205a0eba0c4423fe",
+      "line": 132,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"enhanced-review\", \"reasons\": []}",
+      "edit": {
+        "from": "enhanced-review",
+        "to": "reject"
+      },
+      "description": "D6b: rule-head outcome enhanced-review -> reject",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-1m-absent"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-114",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-114.rego",
+      "sha256": "e7285d9aa7486829139494591c0e5b91142091de0079ef40fce96e31fc80ea4b",
+      "line": 132,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"enhanced-review\", \"reasons\": []}",
+      "edit": {
+        "from": "enhanced-review",
+        "to": "review"
+      },
+      "description": "D6b: rule-head outcome enhanced-review -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-1m-absent"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-115",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-115.rego",
+      "sha256": "689950873bb2282d410bf874dfaafc6cd2669ae460fdf7c637007bdd3937ef01",
+      "line": 156,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "enhanced-review"
+      },
+      "description": "D6c: rule-head outcome approve -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d6c-69-100k",
+        "o1-nv-unreported"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-116",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-116.rego",
+      "sha256": "205681c0d040c10129e30131ad0710c2d0e60014112e5a9ba8d71011f4506405",
+      "line": 156,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "reject"
+      },
+      "description": "D6c: rule-head outcome approve -> reject",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d6c-69-100k",
+        "o1-nv-unreported"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-117",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-117.rego",
+      "sha256": "c4bbebc2dbdf06c8a8d86d57682e62a0510a916eecb5c7b0575c3ad3a36b9d88",
+      "line": 156,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "review"
+      },
+      "description": "D6c: rule-head outcome approve -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d6c-69-100k",
+        "o1-nv-unreported"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-118",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-118.rego",
+      "sha256": "f27b467ea4a379326ac38ba400da14f69abeb1c4e1250e876a225bfd77593e9b",
+      "line": 166,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "enhanced-review"
+      },
+      "description": "D7: rule-head outcome approve -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d7-39-100k",
+        "d7-0-0",
+        "o1-nv-med"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-119",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-119.rego",
+      "sha256": "008acdd32093e2cdeb76ad8f38264ec290ba5b484c76eb512d2edb8aea3853a9",
+      "line": 166,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "reject"
+      },
+      "description": "D7: rule-head outcome approve -> reject",
+      "status": "valid",
+      "witnessSet": [
+        "d7-39-100k",
+        "d7-0-0",
+        "o1-nv-med"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-120",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-120.rego",
+      "sha256": "2842430ea46ca06dae156aad03be64daefeebe59cfaf40c3ab7cdb9702ebb811",
+      "line": 166,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "approve",
+        "to": "review"
+      },
+      "description": "D7: rule-head outcome approve -> review",
+      "status": "valid",
+      "witnessSet": [
+        "d7-39-100k",
+        "d7-0-0",
+        "o1-nv-med"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-121",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-121.rego",
+      "sha256": "8b71fec304404e8dd80ab424c67509b1497e32c9246d64925767ae6c1f175299",
+      "line": 175,
+      "rung": "determine[13]",
+      "clause": "D8",
+      "target": "{\"disposition\": \"review\", \"reasons\": []}",
+      "edit": {
+        "from": "review",
+        "to": "approve"
+      },
+      "description": "D8: rule-head outcome review -> approve",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-high-69",
+        "d8-2m01-low",
+        "d8-40-100k01",
+        "d8-70-low",
+        "d8-40-500k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-country-20-50k",
+        "u1-spend-low-20"
+      ],
+      "witnessCount": 14,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-122",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-122.rego",
+      "sha256": "c5fcf95c9f3b18915ba062426e461e093f29b74ef47db8d562ba7a38df279a08",
+      "line": 175,
+      "rung": "determine[13]",
+      "clause": "D8",
+      "target": "{\"disposition\": \"review\", \"reasons\": []}",
+      "edit": {
+        "from": "review",
+        "to": "enhanced-review"
+      },
+      "description": "D8: rule-head outcome review -> enhanced-review",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-high-69",
+        "d8-2m01-low",
+        "d8-40-100k01",
+        "d8-70-low",
+        "d8-40-500k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "d8-high-2m",
+        "d8-low-3m"
+      ],
+      "witnessCount": 12,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-123",
+      "mutationClass": "outcome-swap",
+      "file": "m-b-123.rego",
+      "sha256": "c52629e1ec0ffdf7312e1814ad08e398ebf4305ab1f306a2901e7a271f43e731",
+      "line": 175,
+      "rung": "determine[13]",
+      "clause": "D8",
+      "target": "{\"disposition\": \"review\", \"reasons\": []}",
+      "edit": {
+        "from": "review",
+        "to": "reject"
+      },
+      "description": "D8: rule-head outcome review -> reject",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-high-69",
+        "d8-2m01-low",
+        "d8-40-100k01",
+        "d8-70-low",
+        "d8-40-500k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 13,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-124",
+      "mutationClass": "default-swap",
+      "file": "m-b-124.rego",
+      "sha256": "2b7141f6e61394d88f19c8f3851a7ed25714611df86385001f4260a6adecf18d",
+      "line": 21,
+      "rung": "default",
+      "clause": "D2",
+      "target": "default decision := {\"disposition\": \"unresolved\", \"reasons\": [\"no-match\"]}",
+      "edit": {
+        "from": "no-match",
+        "to": "unknown"
+      },
+      "description": "registered default: reasons no-match -> unknown",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-125",
+      "mutationClass": "default-swap",
+      "file": "m-b-125.rego",
+      "sha256": "ca3d6355059904b32baad92ccf37cf72ba8cde384144e06f9634dd73a6fe6caf",
+      "line": 21,
+      "rung": "default",
+      "clause": "D2",
+      "target": "default decision := {\"disposition\": \"unresolved\", \"reasons\": [\"no-match\"]}",
+      "edit": {
+        "from": "unresolved",
+        "to": "review"
+      },
+      "description": "registered default: disposition unresolved -> review (reasons left as authored)",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-126",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-126.rego",
+      "sha256": "31021aa84a377add732288e5c9b630c88cc34abe8531e8e281b2799af0e71b5d",
+      "line": 69,
+      "rung": "determine[0]",
+      "clause": "O3",
+      "rungKind": "head",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "O3: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d1-match-bare",
+        "d2-unknown-bare"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-127",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-127.rego",
+      "sha256": "58723f6809bb8a50b3884331828353ffb682184376449b968ad05dd01b185237",
+      "line": 70,
+      "rung": "determine[0]",
+      "clause": "O3",
+      "rungKind": "head",
+      "target": "country == \"HIGH\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "country == \"HIGH\"",
+        "to": "<deleted>"
+      },
+      "description": "O3: delete scoping conjunct `country == \"HIGH\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-2m01-low",
+        "d8-low-3m",
+        "u1-country-95-3m",
+        "u1-spend-med-95"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-128",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-128.rego",
+      "sha256": "f0eb8013f68c218e878eb93a65c1d93e0fc44bbe3cd40031f7c007024712630a",
+      "line": 71,
+      "rung": "determine[0]",
+      "clause": "O3",
+      "rungKind": "head",
+      "target": "spend > 2000000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend > 2000000",
+        "to": "<deleted>"
+      },
+      "description": "O3: delete scoping conjunct `spend > 2000000`",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d8-high-mid",
+        "o2-over-d4",
+        "d8-high-2m",
+        "u1-ex1",
+        "u1-ex2",
+        "u1-spend-high-95",
+        "u1-risk-high-50k",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 12,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-129",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-129.rego",
+      "sha256": "e5e8f77275e80e2eac0d67027efe718e5f37e7b92b8981de3e7fce6207303e66",
+      "line": 78,
+      "rung": "determine[1]",
+      "clause": "O2",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "O2: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d1-match-critical",
+        "d2-unknown-critical"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-130",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-130.rego",
+      "sha256": "7b44ad62e70be9162b1f016bfeafc76c362b7aa4b2a60dc27015274f1beb71da",
+      "line": 84,
+      "rung": "determine[2]",
+      "clause": "D1",
+      "rungKind": "else",
+      "target": "v_sanctions == \"MATCH\"",
+      "emptyBodyReplacedWithTrue": true,
+      "edit": {
+        "from": "v_sanctions == \"MATCH\"",
+        "to": "true"
+      },
+      "description": "D1: delete scoping conjunct `v_sanctions == \"MATCH\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d2-unknown",
+        "d2-unknown-bare",
+        "d2-unknown-critical",
+        "d8-low-89",
+        "d8-high-69",
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-risk-low-50k",
+        "u1-country-20-50k",
+        "u1-spend-low-20",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 38,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-131",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-131.rego",
+      "sha256": "0f331c303100196a54f96eb0453b2d869835bb5cacae08f8599d06546b62022b",
+      "line": 89,
+      "rung": "determine[3]",
+      "clause": "D2",
+      "rungKind": "else",
+      "target": "v_sanctions == \"UNKNOWN\"",
+      "emptyBodyReplacedWithTrue": true,
+      "edit": {
+        "from": "v_sanctions == \"UNKNOWN\"",
+        "to": "true"
+      },
+      "description": "D2: delete scoping conjunct `v_sanctions == \"UNKNOWN\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d8-low-89",
+        "d3-med-90",
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-unreported",
+        "d3-over-d5",
+        "d5-d6b-absent",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-ex1",
+        "u1-risk-low-50k",
+        "u1-risk-prior",
+        "u1-country-20-50k",
+        "u1-spend-low-20",
+        "u1-spend-med-95",
+        "u1-risk-high-50k",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 48,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-132",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-132.rego",
+      "sha256": "d8241e808858b2ba1cb21eb215431834aa479ad641979d8dd4d7366642797060",
+      "line": 94,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D3: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-133",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-133.rego",
+      "sha256": "c24e140259ad311ceb501a0454e2a8abcf7281afce4613c6caf7572d93a1655a",
+      "line": 95,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "rungKind": "else",
+      "target": "risk >= 90",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk >= 90",
+        "to": "<deleted>"
+      },
+      "description": "D3: delete scoping conjunct `risk >= 90`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-high-69",
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "d6b-500k01",
+        "d6b-2m",
+        "d8-2m01-low",
+        "d6b-1m-present",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d8-40-100k01",
+        "d6c-69-100k",
+        "d8-70-low",
+        "d8-40-500k",
+        "d7-39-100k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d7-0-0",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "o1-nv-d6a",
+        "o1-nv-unreported",
+        "o1-nv-med",
+        "o2-unreported",
+        "d8-high-2m",
+        "d8-low-3m",
+        "u1-risk-low-50k",
+        "u1-country-20-50k",
+        "u1-spend-low-20",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 35,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-134",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-134.rego",
+      "sha256": "e34afbb2dbc549e7c07911a19e631e4499a3fc586d825bf32f9f758f38b45909",
+      "line": 100,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D4: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-135",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-135.rego",
+      "sha256": "4ba52802a795f006a86dc5456bce9fd83c911549a7cabd676536acea4385d22c",
+      "line": 101,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "rungKind": "else",
+      "target": "country == \"HIGH\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "country == \"HIGH\"",
+        "to": "<deleted>"
+      },
+      "description": "D4: delete scoping conjunct `country == \"HIGH\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-70-low"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-136",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-136.rego",
+      "sha256": "eb5eece9d8751482793d3616e8d41e23bad713e85414daf2d77b2951a6426a5f",
+      "line": 102,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "rungKind": "else",
+      "target": "risk >= 70",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk >= 70",
+        "to": "<deleted>"
+      },
+      "description": "D4: delete scoping conjunct `risk >= 70`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-high-69",
+        "d8-high-mid",
+        "d8-high-2m",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-137",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-137.rego",
+      "sha256": "f0c297cdd06144d26d6c0ab0a40b020a2ebff9733f730b00e79b5ff627eb7a53",
+      "line": 107,
+      "rung": "determine[6]",
+      "clause": "D5",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D5: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-138",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-138.rego",
+      "sha256": "ecd0fd4ca4583500ddc5374e9d7e11f4cb82693af7fa9c9692c8cad6246d748e",
+      "line": 113,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D6a: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-139",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-139.rego",
+      "sha256": "38449be4e3279dda8296ab62b3033934dcee800b5be3664a6f85c3b170b7fa61",
+      "line": 114,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "rungKind": "else",
+      "target": "country == \"LOW\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "country == \"LOW\"",
+        "to": "<deleted>"
+      },
+      "description": "D6a: delete scoping conjunct `country == \"LOW\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-39-100k01-med",
+        "u1-country-20-50k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-140",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-140.rego",
+      "sha256": "2dfe3775cf82617dbe0af3854e0e73dcff29aa5df1ed3b2412afc71dc4ef8172",
+      "line": 115,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "rungKind": "else",
+      "target": "risk < 40",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk < 40",
+        "to": "<deleted>"
+      },
+      "description": "D6a: delete scoping conjunct `risk < 40`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-40-100k01",
+        "d8-70-low",
+        "d8-40-500k",
+        "o1-nv-d6c"
+      ],
+      "witnessCount": 5,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-141",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-141.rego",
+      "sha256": "a0d077ac0f4ce74fc6e5dfe245a30b96af6a54b79ed52cc1fa44a7c1b9d20847",
+      "line": 116,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "rungKind": "else",
+      "target": "spend <= 500000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend <= 500000",
+        "to": "<deleted>"
+      },
+      "description": "D6a: delete scoping conjunct `spend <= 500000`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-2m01-low",
+        "d6b-1m-absent",
+        "d6b-1m-unreported",
+        "d8-low-3m",
+        "u1-spend-low-20"
+      ],
+      "witnessCount": 5,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-142",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-142.rego",
+      "sha256": "649669e7b2b63a683942e5df059c56b463d03a6e5f2984d3d2afcef256de80cd",
+      "line": 124,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-143",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-143.rego",
+      "sha256": "1af5ea440032a00366e23336f92046fe661e292fbc63a62a57ab450a724e349e",
+      "line": 125,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "country == \"LOW\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "country == \"LOW\"",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `country == \"LOW\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-144",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-144.rego",
+      "sha256": "d79e8c7025d3c22f61058326419b0cb5b071c9be7297163254fc4f2132b0ef89",
+      "line": 126,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "risk < 40",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk < 40",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `risk < 40`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-145",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-145.rego",
+      "sha256": "9c93933976ca7fc1481b92e62c23d0e48c07f961fa20d1c0516a32d48ac8f6eb",
+      "line": 127,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "spend > 500000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend > 500000",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `spend > 500000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-146",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-146.rego",
+      "sha256": "524114c5a054ec70a3bb2eab0c494d8050d8a675d4cb1fb769531bfdd7e4c924",
+      "line": 128,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "spend <= 2000000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend <= 2000000",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `spend <= 2000000`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-2m01-low",
+        "d8-low-3m",
+        "u1-spend-low-20"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-147",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-147.rego",
+      "sha256": "f26370479ec713819d1dae40643315a7eba97985f29ec6235fa8296324dd86eb",
+      "line": 133,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-148",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-148.rego",
+      "sha256": "a64b7e65804d6f8a40f7d366981ad0bf5f6ffd61e43a566fda6c0f675b6f0edb",
+      "line": 134,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "country == \"LOW\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "country == \"LOW\"",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `country == \"LOW\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-149",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-149.rego",
+      "sha256": "e0b2c8352808828b4ce962394d7b61579b5f4ee34f6b7cc661471faec5c8cf49",
+      "line": 135,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "risk < 40",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk < 40",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `risk < 40`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-150",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-150.rego",
+      "sha256": "8f89ee775373516a34932e2a31a7288988b7266af023d6a62009809f4427fa1e",
+      "line": 136,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "spend > 500000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend > 500000",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `spend > 500000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-151",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-151.rego",
+      "sha256": "df8fa40bb568889277b844270278a8bfb0a10d0b0bd60f7fdfa58fa150ac3581",
+      "line": 137,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "spend <= 2000000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend <= 2000000",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `spend <= 2000000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-152",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-152.rego",
+      "sha256": "822118877eb9b79a702d9b5b0e99d658f692b99d09e279c3b3eef2ff6edff499",
+      "line": 146,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-153",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-153.rego",
+      "sha256": "36dfb8e4835587fdd59d2d433f9989c3997558e4b02e54659035b26bf867c691",
+      "line": 147,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "country == \"LOW\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "country == \"LOW\"",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `country == \"LOW\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-154",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-154.rego",
+      "sha256": "837738bc52b40dfc8555b4125926265d2d030be826ac0dc1ab79bb2e9eb1d1ca",
+      "line": 148,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "risk < 40",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk < 40",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `risk < 40`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-155",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-155.rego",
+      "sha256": "5e2cff92e8df15608b21e6d6a6257ea33710eba43292d81f4c5df2b8b3ee811a",
+      "line": 149,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "spend > 500000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend > 500000",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `spend > 500000`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-156",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-156.rego",
+      "sha256": "a832e9a2b1b74b46beb1402baed7f4671016aba1c23244c4472dad87926377ac",
+      "line": 150,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "rungKind": "else",
+      "target": "spend <= 2000000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend <= 2000000",
+        "to": "<deleted>"
+      },
+      "description": "D6b: delete scoping conjunct `spend <= 2000000`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-2m01-low",
+        "d8-low-3m"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-157",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-157.rego",
+      "sha256": "9dd028aa75a326c904b5b7da99b2cc6c6791056f43fa137a004281bb7392e28b",
+      "line": 157,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D6c: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-158",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-158.rego",
+      "sha256": "98accbaad2097f44d4f038624b897f9f207fdd1037134c47ae88aba517a0a08d",
+      "line": 158,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "rungKind": "else",
+      "target": "country == \"LOW\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "country == \"LOW\"",
+        "to": "<deleted>"
+      },
+      "description": "D6c: delete scoping conjunct `country == \"LOW\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-high-69",
+        "d8-40-med",
+        "d8-high-mid"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-159",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-159.rego",
+      "sha256": "aa07e2e925811f0284b09b3f606e37231757f6005b28a09907f4d201b681e280",
+      "line": 159,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "rungKind": "else",
+      "target": "risk >= 40",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk >= 40",
+        "to": "<deleted>"
+      },
+      "description": "D6c: delete scoping conjunct `risk >= 40`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-160",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-160.rego",
+      "sha256": "8103fe39c0133ea62389e7ba45e79c62657dd6877803d1ccee1dd0d800e85c72",
+      "line": 160,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "rungKind": "else",
+      "target": "risk < 70",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk < 70",
+        "to": "<deleted>"
+      },
+      "description": "D6c: delete scoping conjunct `risk < 70`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-70-low"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-161",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-161.rego",
+      "sha256": "93af3ff0d3b5cca9a6b3643b55e1bd6d4f9a86b737d67b1abd9abd43d31fc987",
+      "line": 161,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "rungKind": "else",
+      "target": "spend <= 100000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend <= 100000",
+        "to": "<deleted>"
+      },
+      "description": "D6c: delete scoping conjunct `spend <= 100000`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-40-100k01",
+        "d8-40-500k"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-162",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-162.rego",
+      "sha256": "8a8fdc12393b2bd6b92c42ee5f91cc917b63f2cd14694769f2f6d637d6823e40",
+      "line": 167,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "D7: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-163",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-163.rego",
+      "sha256": "1e89b68f8d681e888e0d9c8cd29b1f5e03d86b9d0df3f28d321342d52e0b2e92",
+      "line": 168,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "rungKind": "else",
+      "target": "country == \"MEDIUM\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "country == \"MEDIUM\"",
+        "to": "<deleted>"
+      },
+      "description": "D7: delete scoping conjunct `country == \"MEDIUM\"`",
+      "status": "valid",
+      "witnessSet": [
+        "u1-country-20-50k"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-164",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-164.rego",
+      "sha256": "79a194a91219540989a8ed0724620a27b10b4eff82f6eca5256b1288cbfc97d7",
+      "line": 169,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "rungKind": "else",
+      "target": "risk < 40",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "risk < 40",
+        "to": "<deleted>"
+      },
+      "description": "D7: delete scoping conjunct `risk < 40`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-40-med"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-165",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-165.rego",
+      "sha256": "a5cfc9326305c1a00c0a694c74ef41c598a42b7d33c73a7c2c723f27cf1c1214",
+      "line": 170,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "rungKind": "else",
+      "target": "spend <= 100000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "spend <= 100000",
+        "to": "<deleted>"
+      },
+      "description": "D7: delete scoping conjunct `spend <= 100000`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-39-100k01-med"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-166",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-166.rego",
+      "sha256": "e0f15b4111dc3ae540109c19c043d0fe913343da3745ebb1570deec4578aeb0a",
+      "line": 176,
+      "rung": "determine[13]",
+      "clause": "D8",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": true,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "true"
+      },
+      "description": "D8: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-167",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-167.rego",
+      "sha256": "f5bf40a9405245baecc7440331d9597e0d0e4b2fe1e2546619fd3a68f0ae0eb4",
+      "line": 253,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "rungKind": "else",
+      "target": "v_sanctions == \"CLEAR\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_sanctions == \"CLEAR\"",
+        "to": "<deleted>"
+      },
+      "description": "O3: delete scoping conjunct `v_sanctions == \"CLEAR\"`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-168",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-168.rego",
+      "sha256": "3355954ea8ac2a4f5035f9d63e5c49223bd85b21b28b95684198eb895468241c",
+      "line": 254,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "rungKind": "else",
+      "target": "v_country == \"HIGH\"",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_country == \"HIGH\"",
+        "to": "<deleted>"
+      },
+      "description": "O3: delete scoping conjunct `v_country == \"HIGH\"`",
+      "status": "valid",
+      "witnessSet": [
+        "d8-2m01-low",
+        "d8-low-3m",
+        "u1-country-95-3m"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-169",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-169.rego",
+      "sha256": "56ba3a51a31a4d0010938f4a2702dac3987d77877af177af216381cc76a42436",
+      "line": 256,
+      "rung": "decision[2]",
+      "clause": "O3",
+      "rungKind": "else",
+      "target": "v_spend > 2000000",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "v_spend > 2000000",
+        "to": "<deleted>"
+      },
+      "description": "O3: delete scoping conjunct `v_spend > 2000000`",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70",
+        "d8-high-69",
+        "d4-high-89",
+        "d3-high-90",
+        "d8-high-mid",
+        "o2-over-d4",
+        "d8-high-2m",
+        "u1-risk-high-50k"
+      ],
+      "witnessCount": 8,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-170",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-170.rego",
+      "sha256": "589d9f9f1d90249dfd0ed62eac7f562974dedaa3ec457c67d3cdcafe803acf31",
+      "line": 270,
+      "rung": "decision[3]",
+      "clause": "U1",
+      "rungKind": "else",
+      "target": "count(u1_determinations) == 1",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "count(u1_determinations) == 1",
+        "to": "<deleted>"
+      },
+      "description": "U1: delete scoping conjunct `count(u1_determinations) == 1`",
+      "status": "dropped",
+      "dropCode": "EVAL_ERROR",
+      "dropDetail": "8 row(s) failed to evaluate; first: ('u1-ex2', 'opa eval rc=2: {\\n  \"errors\": [\\n    {\\n      \"message\": \"complete rules must not produce multiple outputs\",\\n      \"code\": \"eval_conflict_error\",\\n      \"location\": {\\n        \"file\": \"/tmp/claude-1000/-home-onword-repo- (\\'result\\')')"
+    },
+    {
+      "id": "m-b-171",
+      "mutationClass": "guard-deletion",
+      "file": "m-b-171.rego",
+      "sha256": "ff8c79b7fbccef86c81a2bdd71a7bb8ee95d85ae09e9359ba10ab2c1b7181120",
+      "line": 277,
+      "rung": "decision[4]",
+      "clause": "U1",
+      "rungKind": "else",
+      "target": "count(u1_determinations) != 1",
+      "emptyBodyReplacedWithTrue": false,
+      "edit": {
+        "from": "count(u1_determinations) != 1",
+        "to": "<deleted>"
+      },
+      "description": "U1: delete scoping conjunct `count(u1_determinations) != 1`",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-172",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-172.rego",
+      "sha256": "de4136ad82f1c64ca15d07efadd638680b69594b77bb9460e83cfee66170c014",
+      "line": 77,
+      "rung": "determine[1]",
+      "clause": "O2",
+      "target": "{\"disposition\": \"review\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[1] (O2)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 1 (O2)",
+      "status": "valid",
+      "witnessSet": [
+        "o2-reject-region",
+        "o2-approve-region",
+        "o2-over-d5",
+        "o2-over-d4",
+        "o2-d6b-absent",
+        "u1-ex3"
+      ],
+      "witnessCount": 6,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-173",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-173.rego",
+      "sha256": "45e6f95f60b12a6e9aa34610d9e1b0351b0d63a07a706378710e3dc970df7f22",
+      "line": 83,
+      "rung": "determine[2]",
+      "clause": "D1",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[2] (D1)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 2 (D1)",
+      "status": "valid",
+      "witnessSet": [
+        "d1-match",
+        "d1-match-bare",
+        "d1-match-critical"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-174",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-174.rego",
+      "sha256": "ec07701815cb40de15616f38b897553a86136a3c4a055d4dac825e75bd9b5e5c",
+      "line": 88,
+      "rung": "determine[3]",
+      "clause": "D2",
+      "target": "{\"disposition\": \"unresolved\", \"reasons\": [\"no-match\"]}",
+      "edit": {
+        "from": "rung determine[3] (D2)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 3 (D2)",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    },
+    {
+      "id": "m-b-175",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-175.rego",
+      "sha256": "4ae2490be073423a2df126c9a38e60c9698fcc47a46b4ecc3254dc429c53b136",
+      "line": 93,
+      "rung": "determine[4]",
+      "clause": "D3",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[4] (D3)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 4 (D3)",
+      "status": "valid",
+      "witnessSet": [
+        "d3-low-90",
+        "d3-med-90",
+        "u1-ex1",
+        "u1-spend-med-95"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-176",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-176.rego",
+      "sha256": "5f6249df7b92f934c2ac674d1331cc6640914b0b1667bfc7e793acc4cfa35000",
+      "line": 99,
+      "rung": "determine[5]",
+      "clause": "D4",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[5] (D4)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 5 (D4)",
+      "status": "valid",
+      "witnessSet": [
+        "d4-high-70",
+        "d4-high-89"
+      ],
+      "witnessCount": 2,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-177",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-177.rego",
+      "sha256": "2374ccee5fd22eac83c57474afa69e69ec6fd0a1fea4f904301bd21f691a594c",
+      "line": 106,
+      "rung": "determine[6]",
+      "clause": "D5",
+      "target": "{\"disposition\": \"reject\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[6] (D5)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 6 (D5)",
+      "status": "valid",
+      "witnessSet": [
+        "d5-low-approve-region",
+        "d5-med",
+        "d5-d6b-absent",
+        "u1-risk-prior",
+        "u1-two-unreadable-uniform"
+      ],
+      "witnessCount": 5,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-178",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-178.rego",
+      "sha256": "9a5344889e9664473f64f4df1a4c3cadbfde595c830dc45da726bbf1e3e99a54",
+      "line": 112,
+      "rung": "determine[7]",
+      "clause": "D6a",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[7] (D6a)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 7 (D6a)",
+      "status": "valid",
+      "witnessSet": [
+        "d5-unreported",
+        "d6a-39-50k",
+        "d6a-500k",
+        "d6a-ins-absent",
+        "d6a-0-0",
+        "o1-nv-d6a",
+        "o2-unreported"
+      ],
+      "witnessCount": 7,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-179",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-179.rego",
+      "sha256": "899d49449e31dfddf1d779bc89002a445c982e9c782e21f1372479ef302ba510",
+      "line": 123,
+      "rung": "determine[8]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[8] (D6b)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 8 (D6b)",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-500k01",
+        "d6b-2m",
+        "d6b-1m-present"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-180",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-180.rego",
+      "sha256": "267354a06aab846936381987f11c66d97d5b5a647a35c9cdd42678bac8a390be",
+      "line": 132,
+      "rung": "determine[9]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"enhanced-review\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[9] (D6b)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 9 (D6b)",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-1m-absent"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-181",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-181.rego",
+      "sha256": "71f500d82fb88288f2559e82dac3ce96f8606f6f6867fe9014d325487a85ba78",
+      "line": 145,
+      "rung": "determine[10]",
+      "clause": "D6b",
+      "target": "{\"disposition\": \"unresolved\", \"reasons\": [\"unknown\"]}",
+      "edit": {
+        "from": "rung determine[10] (D6b)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 10 (D6b)",
+      "status": "valid",
+      "witnessSet": [
+        "d6b-1m-unreported"
+      ],
+      "witnessCount": 1,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-182",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-182.rego",
+      "sha256": "080e47a1a80a3c4f2c5d9b10fd154cbfd597e4aba4f9c9efb2d77e9306ac431a",
+      "line": 156,
+      "rung": "determine[11]",
+      "clause": "D6c",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[11] (D6c)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 11 (D6c)",
+      "status": "valid",
+      "witnessSet": [
+        "d6c-40-50k",
+        "d6c-40-100k",
+        "d6c-69-100k",
+        "o1-nv-unreported"
+      ],
+      "witnessCount": 4,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-183",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-183.rego",
+      "sha256": "03ed73c3b8d821cb0b4c3bc4749757193afcb0b1c1a2b037c2f1a25935f3d328",
+      "line": 166,
+      "rung": "determine[12]",
+      "clause": "D7",
+      "target": "{\"disposition\": \"approve\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[12] (D7)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 12 (D7)",
+      "status": "valid",
+      "witnessSet": [
+        "d7-39-100k",
+        "d7-0-0",
+        "o1-nv-med"
+      ],
+      "witnessCount": 3,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-184",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-184.rego",
+      "sha256": "a78d1496862ba41ca40b2159979dabc774466ff85e33abd82fedad4e0efcff4e",
+      "line": 175,
+      "rung": "determine[13]",
+      "clause": "D8",
+      "target": "{\"disposition\": \"review\", \"reasons\": []}",
+      "edit": {
+        "from": "rung determine[13] (D8)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 13 (D8)",
+      "status": "valid",
+      "witnessSet": [
+        "d8-low-89",
+        "d8-high-69",
+        "d8-2m01-low",
+        "d8-40-100k01",
+        "d8-70-low",
+        "d8-40-500k",
+        "d8-40-med",
+        "d8-39-100k01-med",
+        "d8-high-mid",
+        "o1-nv-d6c",
+        "d8-high-2m",
+        "d8-low-3m"
+      ],
+      "witnessCount": 12,
+      "notAdequate": false
+    },
+    {
+      "id": "m-b-185",
+      "mutationClass": "rung-deletion",
+      "file": "m-b-185.rego",
+      "sha256": "b255c70b2960f46740b7f47986414b110f245f8afeb3109ac78987dccf6ea622",
+      "line": 182,
+      "rung": "determine[14]",
+      "clause": "D2",
+      "target": "{\"disposition\": \"unresolved\", \"reasons\": [\"no-match\"]}",
+      "edit": {
+        "from": "rung determine[14] (D2)",
+        "to": "<deleted>"
+      },
+      "description": "delete `determine` ladder rung 14 (D2)",
+      "status": "valid",
+      "witnessSet": [],
+      "witnessCount": 0,
+      "notAdequate": true
+    }
+  ]
+}
