@@ -27,7 +27,14 @@
 #   4. the wrapper lives in harness/ rather than transcription/ (this study's
 #      transcription/ tree does not exist yet). $STUDY is the parent of this
 #      script's own directory, which is the same expression at either location —
-#      the anchor and every guard built on it are unchanged.
+#      the anchor and every guard built on it are unchanged;
+#   5. the SCRATCH-PATH LEAK SCREEN reads harness/leak_tokens.py's
+#      SCRATCH_TOKENS instead of transcript_check.py's design-time tuple
+#      (SCAFFOLD item G3). The policy half of that list is DERIVED from the
+#      stimulus prose by three registered rules and is shown to have power on
+#      mutated inputs; the union with the design-time instrument vocabulary is
+#      what the screen takes, so the list can only grow. The screen's site,
+#      its refusal and its exit status are unchanged.
 #
 # The PROMPT-DIGEST GATE is carried, not new, and is per arm: the pinned digest
 # is read from the registry at arms.<ARM>.promptSha256, an unregistered arm id
@@ -264,12 +271,22 @@ esac
 if git -C "$SCRATCH" rev-parse --show-toplevel >/dev/null 2>&1; then
   echo "refused: the scratch dir is inside some git worktree" >&2; exit 1
 fi
+# The screen reads harness/leak_tokens.py's SCRATCH_TOKENS, not
+# transcript_check.py's design-time tuple (SCAFFOLD item G3, the fifth
+# registered difference): the policy half of that list is DERIVED from the
+# stimulus prose — bold and backticked terms, clause ids, threshold numerals and
+# their spellings — and `leak_tokens.check_power()` shows it has power on
+# mutated inputs. SCRATCH_TOKENS is the union of the derived policy vocabulary
+# and the design-time INSTRUMENT vocabulary (jpack, the preregistration, the
+# mutant machinery), because a scratch path naming either would blunt the
+# transcript screen. `leak_tokens.check_negative_corpus()` proves no derived
+# token fires on the names this file constructs below.
 "$PYTHON" - "$SCRATCH" "$STUDY" <<'PY' || exit 1
 import sys, os
 scratch, study = sys.argv[1], sys.argv[2]
 sys.path.insert(0, os.path.join(study, "harness"))
-import transcript_check
-bad = [t for t in transcript_check.LEAK_TOKENS if t in scratch.lower()]
+import leak_tokens
+bad = [t for t in leak_tokens.SCRATCH_TOKENS if t in scratch.lower()]
 if bad:
     print("refused: the scratch path carries leak tokens %r" % bad, file=sys.stderr)
     raise SystemExit(1)

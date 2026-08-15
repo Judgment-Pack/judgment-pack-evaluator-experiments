@@ -28,7 +28,7 @@ against the digest **012's own registry** records for it under `ownPorts`
 against the digest this study's `harness/PINS.json` records for it, so the file
 that says what each enumerated change *was* cannot be rewritten after the
 review; and then binds each row of the port table to the authority that row
-actually has — the four files taken from Study 012 to the DESTINATION cells of
+actually has — the six files taken from Study 012 to the DESTINATION cells of
 012's own `PORTS.md` on the source side, and `harness/make_manifest.py`, taken
 from Study 014, to 014's working file at the recorded commit, because Study 014
 pins none of its own harness sources and the recorded commit is the whole of
@@ -82,7 +82,7 @@ if HERE not in sys.path:
 # from 012's own registry, which is what "the digest 012 pins for it, not one
 # this study chooses" means in code.
 TWELVE_PINS_SHA256 = "cff265e75fc3f3be82fcbbb12527d14faa30935e6f804c3f02dd2fb22fcc64f4"
-# The commit the port was taken at. The four files taken from Study 012 are
+# The commit the port was taken at. The six files taken from Study 012 are
 # bound to 012's own PORTS.md digests, which are stronger than a commit; the one
 # file taken from Study 014 is bound to this commit and to nothing older,
 # because Study 014 pins none of its own harness sources.
@@ -91,23 +91,35 @@ PORT_COMMIT = "019c95be9e86c575878015954dfec17e4f84e683"
 ARMS = ("A", "B", "C")
 
 # The port table's registered destination set. A row deleted from PORTS.md is a
-# check silently dropped, so the set must be exact.
+# check silently dropped, so the set must be exact — and a row ADDED must be as
+# loud, which is why the scorer's two ported modules are registered here rather
+# than discovered from the table (`harness/SCAFFOLD.md` item M1, points 2 and 3).
 REQUIRED_PORTS = frozenset((
     "harness/authoring_call.sh",
     "harness/batch.py",
     "harness/integrity.py",
     "harness/transcript_check.py",
+    "harness/e4lib/stats.py",
+    "harness/e4lib/census.py",
     "harness/make_manifest.py",
 ))
 
 # Tier 1 (the source study): destination -> the path Study 012's own PORTS.md
 # records the file under. The source cell of each row must equal 012's
 # DESTINATION cell for that path, and 012's working file must hash to it.
+# `e4lib/stats.py` and `e4lib/census.py` are tier-1 rows for exactly that
+# reason: 012 publishes a destination cell for `harness/score_rates.py` and for
+# `harness/census.py`, and those cells are what this study's source side answers
+# to — 012's own SOURCE cell for its census (`analysis/diversity.py`, from Study
+# 011) is one level further back than this chain reaches and is deliberately not
+# read here.
 TIER1_TWELVE_PATHS = {
     "harness/authoring_call.sh": "transcription/authoring_call.sh",
     "harness/batch.py": "harness/batch.py",
     "harness/integrity.py": "harness/integrity.py",
     "harness/transcript_check.py": "harness/transcript_check.py",
+    "harness/e4lib/stats.py": "harness/score_rates.py",
+    "harness/e4lib/census.py": "harness/census.py",
 }
 # No tier: Study 014 pins none of its harness sources, so this row is bound to
 # the recorded commit's working file and to nothing older.

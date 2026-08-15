@@ -1,0 +1,393 @@
+"""The interval arithmetic — two ports, one file, both by digest.
+
+PORT 1 (the per-arm rates). Study 012's `harness/score_rates.py`
+(sha256 `f4d4463f081439f147a341bb38d8a6b709b3860f73f6f4e524234a180ec23336`, the
+digest Study 012's own `harness/PORTS.md` records for it): `ALPHA`,
+`BISECTIONS`, `_tail_ge`, `_tail_le`, `_bisect`, `clopper_pearson`,
+`lower_bound`, `upper_bound`, `rate_block`, `probability_at_least` and
+`REGISTERED_VECTORS` — carried byte-for-byte in their arithmetic. Ported rather
+than re-derived because a re-derived interval is a second implementation of a
+published number, and Study 012 published its n = 50 row, which is exactly this
+study's per-arm denominator (PREREGISTRATION.md section 2 "Batch shape": N = 50
+runs/arm). The enumerated changes are in `harness/PORTS.md`; they are: the
+module's docstring, the removal of `HIGH_CUT`/`LOW_CUT`/`high_threshold()`/
+`low_threshold()` (Study 012's section 5.1 review-depth cuts, which name nothing
+here), and everything below the PORT 2 banner.
+
+PORT 2 (the contrast). This study's `design/mutants/oc_table.py`
+(sha256 `4707e50cee46a1a922f4202911efbfae311c6a20ddae0c96d1d0846c549cd131`),
+whose header is the registered construction PREREGISTRATION.md section 5 adopts
+verbatim:
+
+    The A-C interval is the exact unconditional (Barnard-type) confidence
+    interval for the difference of independent binomial proportions obtained by
+    inverting the two-sided Farrington-Manning score test, with the nuisance
+    parameter eliminated by maximisation. Nominal coverage 1 - alpha with
+    alpha = 0.05, two-sided. The nuisance maximisation is taken over the
+    registered rational mesh M = {k/1000 : k = 0..1000} in exact integer
+    arithmetic.
+
+`z2_table()`, `tail_coefficients()`, `sup_tail_numerator()`, `sup_le_alpha()`
+and `critical_level()` are that file's, carried. What is added here is the
+single entry point the decision rule reads, `excludes_zero()`, and the
+memoisation that makes it cheap to call twice (A-C, then A-B) at one N.
+
+**Reading 1, and what it does NOT give you.** oc_table.py's own header states
+the reduction the registered decision rests on: the interval is
+{Delta : the FM test at Delta does not reject}, so it excludes zero exactly
+when the two-sided exact unconditional test of H0: p_A = p_C rejects at alpha,
+and at Delta0 = 0 the FM score reduces to the pooled-variance two-sample Z. So
+the DECISION needs only the Delta0 = 0 inversion, which is what
+`excludes_zero()` computes exactly. The reported interval ENDPOINTS need the
+same inversion swept over Delta0, which is not ported: `interval_endpoints()`
+refuses with a named code rather than returning a number nothing computed
+(harness/SCAFFOLD.md item S7).
+
+Arithmetic discipline, from both sources: every quantity a decision reads is an
+exact integer or `Fraction`. `float` appears in the Clopper-Pearson bounds
+(Study 012's registered 200-halving bisection, whose fixed iteration count and
+exact comparison give the same bits on any platform) and in formatting, and
+nowhere in the contrast.
+"""
+from __future__ import annotations
+
+import math
+from fractions import Fraction
+
+# --- PORT 1: Study 012's registered interval --------------------------------
+
+ALPHA = Fraction(1, 40)          # one tail of a two-sided 95% interval
+BISECTIONS = 200                 # fixed; no early exit, no tolerance
+
+# Study 012's section 4.3 registered test vectors, carried as DATA so a harness
+# test can diff them against a published table rather than against a
+# re-derivation of the code that produced them. The n = 50 row is this study's
+# own per-arm denominator; n = 30 and n = 25 are Study 012's, retained as port
+# controls against numbers a predecessor already published — if this port drifts
+# from 012's arithmetic, a number 012 printed stops reproducing here.
+REGISTERED_VECTORS = {
+    30: {0: (0.0000, 0.1157), 1: (0.0008, 0.1722), 2: (0.0082, 0.2207),
+         3: (0.0211, 0.2653), 4: (0.0376, 0.3072), 15: (0.3130, 0.6870),
+         26: (0.6928, 0.9624), 27: (0.7347, 0.9789), 28: (0.7793, 0.9918),
+         29: (0.8278, 0.9992), 30: (0.8843, 1.0000)},
+    25: {0: (0.0000, 0.1372), 1: (0.0010, 0.2035), 2: (0.0098, 0.2603),
+         3: (0.0255, 0.3122), 12: (0.2780, 0.6869), 22: (0.6878, 0.9745),
+         23: (0.7397, 0.9902), 24: (0.7965, 0.9990), 25: (0.8628, 1.0000)},
+    50: {0: (0.0000, 0.0711), 1: (0.0005, 0.1065), 25: (0.3553, 0.6447),
+         40: (0.6628, 0.8997), 45: (0.7819, 0.9667), 50: (0.9289, 1.0000)},
+}
+
+
+class StatsError(Exception):
+    """A refusal in the arithmetic itself, with a named code as its first word."""
+
+
+def _tail_ge(k: int, n: int, p: Fraction) -> Fraction:
+    """P(X >= k) for X ~ Binomial(n, p), summed in ascending j as exact
+    rationals: math.comb is exact, and a double is an exact binary rational,
+    so nothing here rounds."""
+    q = 1 - p
+    total = Fraction(0)
+    for j in range(k, n + 1):
+        total += math.comb(n, j) * p ** j * q ** (n - j)
+    return total
+
+
+def _tail_le(k: int, n: int, p: Fraction) -> Fraction:
+    """P(X <= k) for X ~ Binomial(n, p)."""
+    q = 1 - p
+    total = Fraction(0)
+    for j in range(0, k + 1):
+        total += math.comb(n, j) * p ** j * q ** (n - j)
+    return total
+
+
+def _bisect(predicate) -> float:
+    """The crossing point of a monotone predicate — true on [0, root), false
+    after — found by EXACTLY 200 halvings of [0, 1] in IEEE-754 doubles. A
+    fixed iteration count and an exact comparison mean the same inputs give
+    the same bits on any platform: no libm, no tolerance, no seed."""
+    low, high = 0.0, 1.0
+    for _ in range(BISECTIONS):
+        middle = (low + high) / 2.0
+        if predicate(middle):
+            low = middle
+        else:
+            high = middle
+    return low
+
+
+def clopper_pearson(k: int, n: int) -> tuple:
+    """The exact (Clopper-Pearson) 95% interval for k successes in n trials.
+
+    The bounds are the p values that make the observed count exactly as
+    extreme as alpha/2 allows: the lower bound solves P(X >= k | p) = alpha
+    (increasing in p), the upper solves P(X <= k | p) = alpha (decreasing in
+    p), with the degenerate ends pinned at 0 and 1.
+
+    "Exact" is doing more work than it can carry, and Study 012's section 4.3
+    said so; PREREGISTRATION.md section 8 says it again for this study. The
+    arithmetic is exact rationals with no libm, and the COVERAGE is exact only
+    conditional on the runs of an arm being independent Bernoulli trials with a
+    constant success probability. Section 8 records that this design cannot
+    rule out provider-side cross-session state, which would break both halves
+    of that model. Every interval this study publishes is an exact interval for
+    a model this design cannot verify."""
+    if n <= 0:
+        raise StatsError("CP-NO-TRIALS an interval needs at least one trial")
+    if not 0 <= k <= n:
+        raise StatsError("CP-NOT-A-COUNT k=%d is not a count out of n=%d" % (k, n))
+    return lower_bound(k, n), upper_bound(k, n)
+
+
+def lower_bound(k: int, n: int) -> float:
+    """The interval's lower bound alone, so a caller that needs one root does
+    not pay for the other."""
+    return 0.0 if k == 0 else _bisect(lambda p: _tail_ge(k, n, Fraction(p)) < ALPHA)
+
+
+def upper_bound(k: int, n: int) -> float:
+    return 1.0 if k == n else _bisect(lambda p: _tail_le(k, n, Fraction(p)) > ALPHA)
+
+
+def probability_at_least(k: int, n: int, p: Fraction) -> Fraction:
+    """P(X >= k) for X ~ Binomial(n, p), exactly. Same arithmetic as the
+    interval: math.comb and Fractions, no libm and no rounding."""
+    return _tail_ge(k, n, p)
+
+
+def rate_block(k: int, n: int, denominator: str) -> dict:
+    """The reported shape for one proportion: the integers, the point estimate,
+    the exact interval, and the NAME of the denominator it is over. Never a
+    rate without its denominator, and never a bound a reader cannot recompute
+    from the integers (Study 012 section 4.7; PREREGISTRATION.md section 10's
+    publication commitment repeats it for every rate this study publishes)."""
+    if n <= 0:
+        return {"count": k, "trials": n, "denominator": denominator,
+                "rate": None, "ci95": None}
+    low, high = clopper_pearson(k, n)
+    return {"count": k, "trials": n, "denominator": denominator,
+            "rate": k / n, "ci95": [low, high]}
+
+
+# --- PORT 2: the registered contrast (design/mutants/oc_table.py) -----------
+
+FM_ALPHA = Fraction(1, 20)       # two-sided; the 95% difference interval
+MESH_DEN = 1000                  # the registered nuisance mesh M = {k/1000}
+TAU = Fraction(19, 20)           # 0.95, the registered high-kill threshold
+DELTA = Fraction(1, 5)           # 0.20, the minimum meaningful difference
+
+# The three answers `excludes_zero()` distinguishes, named so a caller cannot
+# confuse "A above C" with "decided" (PREREGISTRATION.md section 5: an interval
+# straddling zero is INDETERMINATE and licenses nothing).
+DECIDED_LEFT = "left-above-right"
+DECIDED_RIGHT = "right-above-left"
+INDETERMINATE = "indeterminate"
+
+
+def z2_table(N: int) -> list:
+    """z^2(x, y) as exact Fractions; 0 on the degenerate diagonal ends.
+
+    At Delta0 = 0 the Farrington-Manning score statistic reduces to the
+    pooled-variance two-sample Z, whose square is the Pearson chi-square of the
+    2x2 table; with equal arm sizes N that is 2N(x-y)^2 / ((x+y)(2N-x-y)), an
+    exact rational. The ORDERING of tables is where a float could silently flip
+    a decision, so it is done here and only here."""
+    out = [[Fraction(0)] * (N + 1) for _ in range(N + 1)]
+    twoN = 2 * N
+    for x in range(N + 1):
+        for y in range(N + 1):
+            s = x + y
+            den = s * (twoN - s)
+            if den == 0:
+                # s = 0 or s = 2N forces x = y: no difference, no evidence.
+                out[x][y] = Fraction(0)
+            else:
+                out[x][y] = Fraction(twoN * (x - y) ** 2, den)
+    return out
+
+
+def tail_coefficients(N: int, z2: list, level: Fraction) -> list:
+    """A_s = sum over tables in the tail {z^2 >= level} with x + y = s of
+    C(N,x) C(N,y). The null probability of the tail at common rate p is then
+    f(p) = sum_s A_s p^s (1-p)^(2N-s)."""
+    A = [0] * (2 * N + 1)
+    cN = [math.comb(N, i) for i in range(N + 1)]
+    for x in range(N + 1):
+        row = z2[x]
+        cx = cN[x]
+        for y in range(N + 1):
+            if row[y] >= level:
+                A[x + y] += cx * cN[y]
+    return A
+
+
+def sup_tail_numerator(A: list, N: int, mesh_den: int = MESH_DEN,
+                       offset: bool = False) -> tuple:
+    """max over the registered mesh of f(p) * mesh_den^(2N), as an exact integer.
+
+    The tail set is symmetric under (x, y) -> (N-x, N-y), so A_s = A_{2N-s} and
+    f(p) = f(1-p); only k <= mesh_den/2 is scanned. `offset=True` scans the
+    interleaved mesh instead — the size check that says whether MESH_DEN is
+    fine enough."""
+    twoN = 2 * N
+    if offset:
+        den = 2 * mesh_den
+        ks = range(1, mesh_den + 1, 2)
+    else:
+        den = mesh_den
+        ks = range(0, mesh_den // 2 + 1)
+    best = 0
+    for k in ks:
+        q = den - k
+        qp = [1] * (twoN + 1)
+        for m in range(1, twoN + 1):
+            qp[m] = qp[m - 1] * q
+        # Horner: H_j = A_j q^(2N-j) + k H_{j+1}, H_2N = A_2N, H_0 = f * den^2N
+        H = A[twoN]
+        for j in range(twoN - 1, -1, -1):
+            H = A[j] * qp[twoN - j] + k * H
+        if H > best:
+            best = H
+    return best, den ** twoN
+
+
+def sup_le_alpha(A: list, N: int) -> tuple:
+    """Exact INTEGER test: is sup_M f(p) <= FM_ALPHA? No division, so no float
+    ever stands between the mesh and the decision."""
+    best, total = sup_tail_numerator(A, N)
+    return best * FM_ALPHA.denominator <= FM_ALPHA.numerator * total, \
+        Fraction(best, total)
+
+
+def critical_level(N: int, z2: list) -> tuple:
+    """Smallest attained z^2 level c* with sup_M P(z^2 >= c*) <= FM_ALPHA.
+
+    The tail sup is non-increasing in the level, so binary search is valid.
+    Returns (c*, the realised size at c*, the number of sup evaluations); c* is
+    None when no attainable rejection region exists at this alpha, in which
+    case the procedure can never decide and every table is INDETERMINATE."""
+    levels = sorted({z2[x][y] for x in range(N + 1) for y in range(N + 1)})
+    evals = 0
+    A_top = tail_coefficients(N, z2, levels[-1])
+    ok, size = sup_le_alpha(A_top, N)
+    evals += 1
+    if not ok:
+        return None, size, evals
+    lo, hi = 0, len(levels) - 1
+    best_size = size
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        A = tail_coefficients(N, z2, levels[mid])
+        ok, size = sup_le_alpha(A, N)
+        evals += 1
+        if ok:
+            hi, best_size = mid, size
+        else:
+            lo = mid
+    return levels[hi], best_size, evals
+
+
+_CRITICAL_CACHE = {}
+
+
+def critical_level_at(N: int) -> tuple:
+    """`critical_level()` memoised on N — (c*, realised size). New here, not in
+    the prototype: the registered contrasts are tested twice at one N (A-C
+    first, then A-B, PREREGISTRATION.md section 5's fixed-sequence
+    gatekeeping), and the second call must read the same c* as the first rather
+    than recompute a number that could differ if anything above ever became
+    non-deterministic."""
+    if N not in _CRITICAL_CACHE:
+        if N <= 0:
+            raise StatsError("FM-NO-TRIALS a contrast needs at least one trial per arm")
+        cstar, size, _evals = critical_level(N, z2_table(N))
+        _CRITICAL_CACHE[N] = (cstar, size)
+    return _CRITICAL_CACHE[N]
+
+
+def excludes_zero(x: int, y: int, N: int) -> dict:
+    """READING 1 of the registered contrast: does the exact unconditional
+    difference interval for p_left - p_right exclude zero, and in which
+    direction?
+
+    `x` and `y` are the two arms' high-kill counts out of the SAME N. The
+    returned `decision` is one of `DECIDED_LEFT`, `DECIDED_RIGHT`,
+    `INDETERMINATE`; `excludesZero` is the decision rule's own predicate, so a
+    caller never has to re-derive it from the direction.
+
+    The equal-N restriction is the registered design's, not a convenience:
+    section 2 registers N = 50 runs per arm, and `z2_table()`'s closed form is
+    the equal-size one. Unequal admitted counts are a real possibility (section
+    1a excludes apparatus failures from the denominator), and that case is
+    NOT silently approximated — it refuses, and `harness/SCAFFOLD.md` item S8
+    carries the unequal-N inversion as owed work."""
+    if x is None or y is None:
+        raise StatsError("FM-NO-COUNT a contrast needs two counts")
+    if not 0 <= x <= N or not 0 <= y <= N:
+        raise StatsError("FM-NOT-A-COUNT (%r, %r) are not two counts out of %r"
+                         % (x, y, N))
+    cstar, size = critical_level_at(N)
+    z2 = z2_table(N)[x][y]
+    decided = cstar is not None and z2 >= cstar and x != y
+    if not decided:
+        decision = INDETERMINATE
+    else:
+        decision = DECIDED_LEFT if x > y else DECIDED_RIGHT
+    return {
+        "n": N,
+        "left": x,
+        "right": y,
+        "difference": (x - y) / N,
+        "decision": decision,
+        "excludesZero": decided,
+        "criticalLevel": None if cstar is None else str(cstar),
+        "orderingStatistic": str(z2),
+        "realisedSize": None if cstar is None else float(size),
+        "alpha": str(FM_ALPHA),
+        "meshDenominator": MESH_DEN,
+        "construction": "exact unconditional (Barnard-type) interval by "
+                        "inversion of the two-sided Farrington-Manning score "
+                        "test, nuisance eliminated by maximisation over the "
+                        "registered rational mesh; Reading 1 (the Delta0 = 0 "
+                        "inversion, which is what the zero-exclusion decision "
+                        "reads)",
+    }
+
+
+def interval_endpoints(x: int, y: int, N: int):
+    """REFUSING STUB — `FM-ENDPOINTS-UNPORTED` (harness/SCAFFOLD.md item S7).
+
+    The DECISION needs only the Delta0 = 0 inversion and `excludes_zero()`
+    computes it exactly. Reporting the interval's endpoints needs the same
+    inversion swept over Delta0 with the Farrington-Manning constrained
+    maximum-likelihood estimates at each Delta0, and the convex hull taken
+    where the acceptance set is non-convex — none of which is in the design
+    prototype and none of which is written here. PREREGISTRATION.md section 10
+    commits to publishing every interval, so this is owed before the freeze and
+    refuses loudly until it lands rather than returning a plausible number that
+    nothing computed."""
+    raise StatsError(
+        "FM-ENDPOINTS-UNPORTED the Delta0 sweep that produces the reported "
+        "interval endpoints for (%r, %r) out of %r is not ported; the "
+        "zero-exclusion decision is complete and is what section 5 reads "
+        "(harness/SCAFFOLD.md item S7)" % (x, y, N))
+
+
+def tau_cut(paired: int, tau: Fraction = TAU) -> int:
+    """The OPERATIVE INTEGER CUT at a paired-mutant count.
+
+    PREREGISTRATION.md section 5: "A run is high-kill iff its paired kill rate
+    >= tau = 0.95 ... the operative integer cut at the frozen paired-mutant
+    count is stated in the OC table." A rate threshold over a finite
+    denominator is an integer threshold, and it is the integer that decides
+    runs — so it is DERIVED here from the count the attempt actually has, and
+    the scorer prints it. Smallest k with k/paired >= tau, i.e.
+    ceil(tau.numerator * paired / tau.denominator), in exact integer
+    arithmetic."""
+    if paired <= 0:
+        raise StatsError(
+            "TAU-NO-PAIRED-SUBSET the high-kill cut is over the paired adequate "
+            "mutant subset and that subset is empty; no run can be high-kill "
+            "and no rate is computed")
+    return -((-tau.numerator * paired) // tau.denominator)

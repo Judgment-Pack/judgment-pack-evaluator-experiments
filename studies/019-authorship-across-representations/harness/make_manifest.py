@@ -9,8 +9,9 @@ binding; `harness/PORTS.md` records it and `harness/integrity.py` binds it).
 One line per covered file, `sha256  <study-relative path>`, sorted by path. The
 covered set is exact and closed (`manifest_entries` below): the registered
 documents, the frozen policy prose and gold suite, the mutant manifests and
-reference implementations, and every harness source — including the tests,
-because a harness test that can be edited after the freeze is not a guard.
+reference implementations, and every harness source — including `harness/e4lib/`,
+the scorer's own modules, and including the tests, because a harness test that
+can be edited after the freeze is not a guard.
 `harness/score.py` will verify this file before it adjudicates anything, and a
 harness test verifies it too.
 
@@ -93,13 +94,21 @@ def manifest_entries():
 
     A registered document that does not exist yet is skipped rather than
     fabricated (`pending_documents()` names it, and `--freeze` refuses while any
-    is pending). Everything else is discovered by an exact glob over the two
+    is pending). Everything else is discovered by an exact glob over the three
     code directories, so a harness source added after the freeze fails the
-    exact-set comparison instead of entering it unnoticed."""
+    exact-set comparison instead of entering it unnoticed.
+
+    `harness/e4lib/` is globbed for the reason ADR 0004's manifest exists: the
+    scorer's ten modules are reviewed sources that decide every published rate,
+    and reviewed sources outside the exact-set manifest are exactly the hole the
+    manifest closes (`harness/SCAFFOLD.md` item M1, point 4). The glob is one
+    level and not recursive, matching the other three: a nested package added
+    later must be registered here rather than swept in."""
     paths = [STUDY / name for name in REGISTERED_DOCUMENTS
              if (STUDY / name).is_file()]
     paths.extend(sorted((STUDY / "harness").glob("*.py")))
     paths.extend(sorted((STUDY / "harness").glob("*.sh")))
+    paths.extend(sorted((STUDY / "harness" / "e4lib").glob("*.py")))
     paths.extend(sorted((STUDY / "harness" / "tests").glob("*.py")))
     seen = []
     for path in paths:

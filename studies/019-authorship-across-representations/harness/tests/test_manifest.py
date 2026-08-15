@@ -14,6 +14,7 @@ that pins the manifest, or the anchor cannot be initialized without a SHA-256
 fixed point.
 """
 import os
+import pathlib
 
 import make_manifest
 
@@ -53,8 +54,25 @@ def test_every_harness_source_and_the_ports_table_are_covered():
     for name in ("harness/batch.py", "harness/integrity.py",
                  "harness/make_manifest.py", "harness/transcript_check.py",
                  "harness/authoring_call.sh", "harness/PORTS.md",
-                 "harness/tests/test_manifest.py"):
+                 "harness/score.py", "harness/tests/test_manifest.py"):
         assert name in entries, name
+
+
+def test_the_scorers_own_package_is_covered_module_for_module(study):
+    """SCAFFOLD item M1, point 4: `harness/e4lib/` decides every published rate,
+    and reviewed sources outside the exact-set manifest are the hole ADR 0004's
+    manifest exists to close.
+
+    Asserted against the DIRECTORY rather than against a list, so a module added
+    to the package and not to the manifest fails here rather than entering the
+    covered set unnoticed."""
+    package = pathlib.Path(study) / "harness" / "e4lib"
+    on_disk = sorted("harness/e4lib/" + path.name
+                     for path in package.glob("*.py"))
+    assert on_disk, "the scorer package is empty; this assertion would be vacuous"
+    entries = make_manifest.manifest_entries()
+    assert [name for name in entries if name.startswith("harness/e4lib/")] \
+        == on_disk
 
 
 def test_pending_registered_documents_are_named_and_not_covered():
