@@ -29,6 +29,7 @@ and agreement tracks are kept separate and why.
 | [016](016-policy-currency-anchor/) | Can a signed pack-version currency registry detect a retired-version decision offline — and where must it fail? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
 | [017](017-witnessed-currency/) | What does a minimal witness/cross-view comparison step buy against the registry split view — and which contract clause does each remaining silence isolate? | Currency governance | — | Frozen + run — R1 holds (both strata) |
 | [018](018-transition-rules/) | What does a cited registry head buy a stated transition rule — and where does the evidence stop? | Currency governance | — | Frozen + run — R1 holds; reviewer holdout diverged on three preregistered cells |
+| [019](019-authorship-across-representations/) | Does a constrained judgment representation change how reliably a model authors an executable policy, compared with a general policy language? | Blinded authorship | Open Policy Agent; codex-cli (author) | **Design draft — not preregistered** |
 
 Study 012 is the only study here whose registered prediction **failed**. No longer
 printing the thresholds changed nothing: the same six semantic classes were covered, and
@@ -61,6 +62,7 @@ with Judgment Pack — that independence is the point of the studies that use th
 | τ²-bench | [002](002-qualitative-policy/), [003](003-escape-census/) | [sierra-research/tau2-bench](https://github.com/sierra-research/tau2-bench) | `1d244f5d` | MIT |
 | Agent Eval Forge | [013](013-agent-eval-forge-integration/) | [deghosal-2026/agent-eval-forge](https://github.com/deghosal-2026/agent-eval-forge) | `8925cacc` | MIT © Debashish Ghosal |
 | OpenWorkProof | [014](014-openworkproof-binding/), [016](016-policy-currency-anchor/) | [dengyier/OpenWorkProof](https://github.com/dengyier/OpenWorkProof) | `8eeca6ff` | Apache-2.0 (per `LICENSE`) |
+| Open Policy Agent | [019](019-authorship-across-representations/) | [open-policy-agent/opa](https://github.com/open-policy-agent/opa) | *(release pinned at 019's freeze — binary asset + published sha256, not a commit)* | Apache-2.0 *(to verify from `LICENSE` at pin time)* |
 | Cloudflare OS | [015](015-cloudflare-os-boundary/) | [cloudflare/cloudflare-os](https://github.com/cloudflare/cloudflare-os) | `b2a51b54` | Apache-2.0 (per `LICENSE`) |
 
 The evaluator under test is the [judgment-pack-runtime](https://github.com/Judgment-Pack/judgment-pack-runtime)
