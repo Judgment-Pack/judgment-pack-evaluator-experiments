@@ -269,3 +269,49 @@ merged, errors included.
    status those annotations carried lives in §§4–5, and the in-place
    edit remains visible in the branch history rather than being
    squashed away.
+
+## 7. Retained-evidence bound, render-policy fallback, and first CI (2026-08-15)
+
+Follow-up to §4 item 5 and §5, closing the remaining acceptance criteria on
+the fail-closed adapter. **Nothing in `results/` was re-run or re-scored for
+this entry**, and no published figure changes.
+
+1. **Retained stderr is bounded** (`arm_b.MAX_RETAINED_STDERR`, 8000
+   characters). §4 put the child's `returncode` and `stderr` on every return
+   path so the refusal count could be checked against the rows; unbounded,
+   one pathological child could inflate a result file past the point where it
+   can be read back. Truncation is *marked* in the retained text with the
+   count of dropped characters, so a short stderr still reads as the whole of
+   what the runtime said rather than as the harness having quietly dropped
+   the rest. Both sides are pinned: kept whole at the bound, truncated and
+   marked above it. The existing rows are unaffected, and not merely within
+   the bound: all 2160 rows of `k5-B-runtime-audited.jsonl` carry
+   `engine_stderr: ""` alongside `engine_returncode: 0`, which is what the
+   audited corpus's "0 engine refusals" claim looks like row by row.
+
+2. **The retained stderr is not scrubbed, and does not need to be.** It could
+   only echo a redacted fact if the child had been given one. It is not: the
+   runtime reads `_facts_payload`, which is either `apply_render_policy`
+   output or the bare `facts` sub-object. This is now asserted against the
+   payload the child receives, rather than left as a claim about stderr that
+   a stub could not falsify.
+
+3. **`DEFAULT_RENDER_POLICY` now excludes `/redaction`.** Writing check 2
+   surfaced this: the fallback applied to a document that declares no
+   `render_policy` excluded `/gold` and `/provenance` but not the redaction
+   record, which on a redacted twin carries `removed_value` — the deleted
+   fact itself. **No published number changes, and this is checked rather
+   than assumed**: `redact.py`'s `make_twins` puts `render_policy` in the
+   `common` block both twins are built from, so every corpus instance
+   carries the fuller `loadbearing_map.json` policy (which already excluded
+   `/redaction`) and never reaches the fallback. What was exposed was any
+   *unstamped* document — every test fixture in the suite, where the leak was
+   real and invisible, because the prompt-side leak check asserted on `gold`
+   keys only. That check now covers the redaction record too.
+
+4. **The suite runs in CI for the first time** (`study-001-harness`). Study
+   001's 99 harness tests were in no CI job, including the §4/§5 fail-closed
+   regression tests: the stub-CLI check that a non-zero exit is a refusal
+   even alongside a valid envelope had never been enforced on a pull request.
+   A regression test that does not run does not catch regressions. The graded
+   batch remains an attempt, not a test, and does not run there.
