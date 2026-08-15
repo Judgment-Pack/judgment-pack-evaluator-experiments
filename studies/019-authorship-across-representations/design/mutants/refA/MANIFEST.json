@@ -1,1460 +1,3271 @@
 [
-  {
-    "id": "m-a-001",
-    "class": "operator-flip",
-    "edit": "rules[1](r-d3).when.conditions[1].operator: greater-than-or-equal -> greater-than",
-    "validates": true,
-    "witnessSet": [
-      "d3-low-90",
-      "d3-med-90"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-002",
-    "class": "operator-flip",
-    "edit": "rules[2](r-d4).when.conditions[2].operator: greater-than-or-equal -> greater-than",
-    "validates": true,
-    "witnessSet": [
-      "d4-high-70"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-003",
-    "class": "operator-flip",
-    "edit": "rules[4](r-d6a).when.conditions[2].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-100k01",
-      "d8-40-500k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-004",
-    "class": "operator-flip",
-    "edit": "rules[4](r-d6a).when.conditions[3].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [
-      "d6a-500k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-005",
-    "class": "operator-flip",
-    "edit": "rules[5](r-d6b-insured).when.conditions[2].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-006",
-    "class": "operator-flip",
-    "edit": "rules[5](r-d6b-insured).when.conditions[3].operator: greater-than -> greater-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-007",
-    "class": "operator-flip",
-    "edit": "rules[5](r-d6b-insured).when.conditions[4].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [
-      "d6b-2m"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-008",
-    "class": "operator-flip",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[2].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-009",
-    "class": "operator-flip",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[3].operator: greater-than -> greater-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-010",
-    "class": "operator-flip",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[4].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-011",
-    "class": "operator-flip",
-    "edit": "rules[7](r-d6c).when.conditions[2].operator: greater-than-or-equal -> greater-than",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-50k",
-      "d6c-40-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-012",
-    "class": "operator-flip",
-    "edit": "rules[7](r-d6c).when.conditions[3].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [
-      "d8-70-low"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-013",
-    "class": "operator-flip",
-    "edit": "rules[7](r-d6c).when.conditions[4].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-100k",
-      "d6c-69-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-014",
-    "class": "operator-flip",
-    "edit": "rules[8](r-d7).when.conditions[2].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-med"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-015",
-    "class": "operator-flip",
-    "edit": "rules[8](r-d7).when.conditions[3].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [
-      "d7-39-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-016",
-    "class": "operator-flip",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].operator: greater-than-or-equal -> greater-than",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-017",
-    "class": "operator-flip",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-018",
-    "class": "operator-flip",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-019",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[0].conditions[1].operator: greater-than-or-equal -> greater-than",
-    "validates": true,
-    "witnessSet": [
-      "d3-low-90",
-      "d3-med-90"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-020",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[1].conditions[2].operator: greater-than-or-equal -> greater-than",
-    "validates": true,
-    "witnessSet": [
-      "d4-high-70"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-021",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[2].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-100k01",
-      "d8-40-500k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-022",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[3].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [
-      "d6a-500k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-023",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[2].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-024",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[3].operator: greater-than -> greater-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-025",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[4].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [
-      "d6b-2m"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-026",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[2].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-027",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[3].operator: greater-than -> greater-than-or-equal",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-028",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[4].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-029",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[2].operator: greater-than-or-equal -> greater-than",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-50k",
-      "d6c-40-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-030",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[3].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [
-      "d8-70-low"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-031",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[4].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-100k",
-      "d6c-69-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-032",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[2].operator: less-than -> less-than-or-equal",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-med"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-033",
-    "class": "operator-flip",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[3].operator: less-than-or-equal -> less-than",
-    "validates": true,
-    "witnessSet": [
-      "d7-39-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-034",
-    "class": "operator-flip",
-    "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].operator: greater-than -> greater-than-or-equal",
-    "validates": true,
-    "witnessSet": [
-      "d8-high-2m"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-035",
-    "class": "boundary-shift",
-    "edit": "rules[1](r-d3).when.conditions[1].value: 90 -> 91 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d3-low-90",
-      "d3-med-90"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-036",
-    "class": "boundary-shift",
-    "edit": "rules[1](r-d3).when.conditions[1].value: 90 -> 89 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-low-89"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-037",
-    "class": "boundary-shift",
-    "edit": "rules[2](r-d4).when.conditions[2].value: 70 -> 71 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d4-high-70"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-038",
-    "class": "boundary-shift",
-    "edit": "rules[2](r-d4).when.conditions[2].value: 70 -> 69 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-high-69"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-039",
-    "class": "boundary-shift",
-    "edit": "rules[4](r-d6a).when.conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-100k01",
-      "d8-40-500k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-040",
-    "class": "boundary-shift",
-    "edit": "rules[4](r-d6a).when.conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6a-39-50k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-041",
-    "class": "boundary-shift",
-    "edit": "rules[4](r-d6a).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-042",
-    "class": "boundary-shift",
-    "edit": "rules[4](r-d6a).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6a-500k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-043",
-    "class": "boundary-shift",
-    "edit": "rules[5](r-d6b-insured).when.conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-044",
-    "class": "boundary-shift",
-    "edit": "rules[5](r-d6b-insured).when.conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-045",
-    "class": "boundary-shift",
-    "edit": "rules[5](r-d6b-insured).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6b-500k01"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-046",
-    "class": "boundary-shift",
-    "edit": "rules[5](r-d6b-insured).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-047",
-    "class": "boundary-shift",
-    "edit": "rules[5](r-d6b-insured).when.conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-2m01-low"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-048",
-    "class": "boundary-shift",
-    "edit": "rules[5](r-d6b-insured).when.conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6b-2m"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-049",
-    "class": "boundary-shift",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-050",
-    "class": "boundary-shift",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-051",
-    "class": "boundary-shift",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-052",
-    "class": "boundary-shift",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-053",
-    "class": "boundary-shift",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-054",
-    "class": "boundary-shift",
-    "edit": "rules[6](r-d6b-uninsured).when.conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-055",
-    "class": "boundary-shift",
-    "edit": "rules[7](r-d6c).when.conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-50k",
-      "d6c-40-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-056",
-    "class": "boundary-shift",
-    "edit": "rules[7](r-d6c).when.conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-057",
-    "class": "boundary-shift",
-    "edit": "rules[7](r-d6c).when.conditions[3].value: 70 -> 71 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-70-low"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-058",
-    "class": "boundary-shift",
-    "edit": "rules[7](r-d6c).when.conditions[3].value: 70 -> 69 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6c-69-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-059",
-    "class": "boundary-shift",
-    "edit": "rules[7](r-d6c).when.conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-100k01"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-060",
-    "class": "boundary-shift",
-    "edit": "rules[7](r-d6c).when.conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-100k",
-      "d6c-69-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-061",
-    "class": "boundary-shift",
-    "edit": "rules[8](r-d7).when.conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-med"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-062",
-    "class": "boundary-shift",
-    "edit": "rules[8](r-d7).when.conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d7-39-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-063",
-    "class": "boundary-shift",
-    "edit": "rules[8](r-d7).when.conditions[3].value: 100000.00 -> 100000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-39-100k01-med"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-064",
-    "class": "boundary-shift",
-    "edit": "rules[8](r-d7).when.conditions[3].value: 100000.00 -> 99999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d7-39-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-065",
-    "class": "boundary-shift",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-066",
-    "class": "boundary-shift",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-067",
-    "class": "boundary-shift",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].value: 70 -> 71 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-068",
-    "class": "boundary-shift",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].value: 70 -> 69 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-069",
-    "class": "boundary-shift",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-070",
-    "class": "boundary-shift",
-    "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-071",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[0].conditions[1].value: 90 -> 91 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d3-low-90",
-      "d3-med-90"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-072",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[0].conditions[1].value: 90 -> 89 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-low-89"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-073",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[1].conditions[2].value: 70 -> 71 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d4-high-70"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-074",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[1].conditions[2].value: 70 -> 69 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-high-69"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-075",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-100k01",
-      "d8-40-500k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-076",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6a-39-50k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-077",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-078",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6a-500k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-079",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-080",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-081",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6b-500k01"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-082",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-083",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-2m01-low"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-084",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6b-2m"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-085",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-086",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-087",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-088",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-089",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-090",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-091",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-50k",
-      "d6c-40-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-092",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-093",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[3].value: 70 -> 71 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-70-low"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-094",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[3].value: 70 -> 69 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6c-69-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-095",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-100k01"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-096",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-100k",
-      "d6c-69-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-097",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[2].value: 40 -> 41 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-40-med"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-098",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[2].value: 40 -> 39 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d7-39-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-099",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[3].value: 100000.00 -> 100000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-39-100k01-med"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-100",
-    "class": "boundary-shift",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[3].value: 100000.00 -> 99999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d7-39-100k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-101",
-    "class": "boundary-shift",
-    "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].value: 2000000.00 -> 2000000.01 (+1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "o3-2m01"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-102",
-    "class": "boundary-shift",
-    "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].value: 2000000.00 -> 1999999.99 (-1 at scale)",
-    "validates": true,
-    "witnessSet": [
-      "d8-high-2m"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-103",
-    "class": "onUnknown-flip",
-    "edit": "rules[0](r-d1).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-104",
-    "class": "onUnknown-flip",
-    "edit": "rules[1](r-d3).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "u1-risk-prior",
-      "u1-two-unreadable-uniform"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-105",
-    "class": "onUnknown-flip",
-    "edit": "rules[2](r-d4).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "u1-ex1",
-      "u1-two-unreadable-uniform"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-106",
-    "class": "onUnknown-flip",
-    "edit": "rules[3](r-d5).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d5-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-107",
-    "class": "onUnknown-flip",
-    "edit": "rules[4](r-d6a).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-108",
-    "class": "onUnknown-flip",
-    "edit": "rules[5](r-d6b-insured).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-109",
-    "class": "onUnknown-flip",
-    "edit": "rules[6](r-d6b-uninsured).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-110",
-    "class": "onUnknown-flip",
-    "edit": "rules[7](r-d6c).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-111",
-    "class": "onUnknown-flip",
-    "edit": "rules[8](r-d7).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [],
-    "notAdequate": true
-  },
-  {
-    "id": "m-a-112",
-    "class": "onUnknown-flip",
-    "edit": "rules[9](r-o1-review).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "o1-nv-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-113",
-    "class": "onUnknown-flip",
-    "edit": "rules[10](r-d8).onUnknown: escalate -> ignore",
-    "validates": true,
-    "witnessSet": [
-      "d6b-1m-unreported",
-      "u1-risk-low-50k",
-      "u1-country-20-50k",
-      "u1-spend-low-20",
-      "u1-risk-high-50k"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-114",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[0](x-o1-first-engagement).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d1-match-bare",
-      "o1-nv-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-115",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[1](x-o2-critical-supplier).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "o2-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-116",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[2](x-o3-large-exposure).onUnknown: escalate -> ignore",
-    "validates": true,
-    "witnessSet": [
-      "u1-ex2",
-      "u1-ex4",
-      "u1-country-95-3m",
-      "u1-spend-high-95"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-117",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[3](x-d5-suppress-d6a).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d1-match-bare",
-      "d5-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-118",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[4](x-d5-suppress-d6b-insured).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d1-match-bare",
-      "d5-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-119",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[5](x-d5-suppress-d6b-uninsured).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d1-match-bare",
-      "d5-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-120",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[6](x-d5-suppress-d6c).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d1-match-bare",
-      "d5-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-121",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[7](x-d5-suppress-d7).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d1-match-bare",
-      "d5-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-122",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[8](x-d5-suppress-o1-review).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d1-match-bare",
-      "d5-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-123",
-    "class": "onUnknown-flip",
-    "edit": "exceptions[9](x-d5-suppress-d8).onUnknown: ignore -> escalate",
-    "validates": true,
-    "witnessSet": [
-      "d1-match-bare",
-      "d5-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-124",
-    "class": "outcome-swap",
-    "edit": "rules[0](r-d1).outcome: reject -> review",
-    "validates": true,
-    "witnessSet": [
-      "d1-match",
-      "d1-match-bare",
-      "d1-match-critical"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-125",
-    "class": "outcome-swap",
-    "edit": "rules[1](r-d3).outcome: reject -> review",
-    "validates": true,
-    "witnessSet": [
-      "d3-low-90",
-      "d3-med-90",
-      "d3-high-90",
-      "d3-over-d5",
-      "u1-ex1",
-      "u1-spend-med-95"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-126",
-    "class": "outcome-swap",
-    "edit": "rules[2](r-d4).outcome: reject -> review",
-    "validates": true,
-    "witnessSet": [
-      "d4-high-70",
-      "d4-high-89",
-      "d3-high-90"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-127",
-    "class": "outcome-swap",
-    "edit": "rules[3](r-d5).outcome: reject -> review",
-    "validates": true,
-    "witnessSet": [
-      "d5-low-approve-region",
-      "d5-med",
-      "d3-over-d5",
-      "d5-d6b-absent",
-      "u1-risk-prior",
-      "u1-two-unreadable-uniform"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-128",
-    "class": "outcome-swap",
-    "edit": "rules[4](r-d6a).outcome: approve -> review",
-    "validates": true,
-    "witnessSet": [
-      "d5-unreported",
-      "d6a-39-50k",
-      "d6a-500k",
-      "d6a-ins-absent",
-      "d6a-0-0",
-      "o1-nv-d6a",
-      "o2-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-129",
-    "class": "outcome-swap",
-    "edit": "rules[5](r-d6b-insured).outcome: approve -> review",
-    "validates": true,
-    "witnessSet": [
-      "d6b-500k01",
-      "d6b-2m",
-      "d6b-1m-present"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-130",
-    "class": "outcome-swap",
-    "edit": "rules[6](r-d6b-uninsured).outcome: enhanced-review -> review",
-    "validates": true,
-    "witnessSet": [
-      "d6b-1m-absent"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-131",
-    "class": "outcome-swap",
-    "edit": "rules[7](r-d6c).outcome: approve -> review",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-50k",
-      "d6c-40-100k",
-      "d6c-69-100k",
-      "o1-nv-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-132",
-    "class": "outcome-swap",
-    "edit": "rules[8](r-d7).outcome: approve -> review",
-    "validates": true,
-    "witnessSet": [
-      "d7-39-100k",
-      "d7-0-0",
-      "o1-nv-med"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-133",
-    "class": "outcome-swap",
-    "edit": "rules[9](r-o1-review).outcome: review -> approve",
-    "validates": true,
-    "witnessSet": [
-      "o1-nv-d6c"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-134",
-    "class": "outcome-swap",
-    "edit": "rules[10](r-d8).outcome: review -> approve",
-    "validates": true,
-    "witnessSet": [
-      "d8-low-89",
-      "d8-high-69",
-      "d8-2m01-low",
-      "d8-40-100k01",
-      "d8-70-low",
-      "d8-40-500k",
-      "d8-40-med",
-      "d8-39-100k01-med",
-      "d8-high-mid",
-      "d8-high-2m",
-      "d8-low-3m"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-135",
-    "class": "required-flip",
-    "edit": "evidenceRequirements[0](financial-evidence).required: true -> false",
-    "validates": true,
-    "witnessSet": [
-      "p1-absent",
-      "p1-unreported",
-      "p1-absent-match",
-      "p1-absent-escalation-region",
-      "p1-unreported-d2"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-136",
-    "class": "effect-swap",
-    "edit": "exceptions[1](x-o2-critical-supplier).effect: force-outcome -> escalate (the outcome member the discriminator governs is dropped)",
-    "validates": true,
-    "witnessSet": [
-      "o2-reject-region",
-      "o2-approve-region",
-      "o2-over-d5",
-      "o2-over-d4",
-      "o2-d6b-absent",
-      "u1-ex3",
-      "u1-ex4"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-137",
-    "class": "effect-swap",
-    "edit": "exceptions[2](x-o3-large-exposure).effect: escalate -> force-outcome (outcome review, the member the discriminator governs)",
-    "validates": true,
-    "witnessSet": [
-      "o3-2m01",
-      "o3-3m",
-      "o3-over-o2",
-      "o3-over-d3",
-      "o3-over-d5",
-      "o3-risk-unreadable"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-138",
-    "class": "cascade-deletion",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[0] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/riskScore greater-than-or-equal 90)",
-    "validates": true,
-    "witnessSet": [
-      "d3-low-90",
-      "d3-med-90",
-      "u1-ex1",
-      "u1-spend-med-95"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-139",
-    "class": "cascade-deletion",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[1] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals HIGH; /vendor/riskScore greater-than-or-equal 70)",
-    "validates": true,
-    "witnessSet": [
-      "d4-high-70",
-      "d4-high-89"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-140",
-    "class": "cascade-deletion",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend less-than-or-equal 500000.00)",
-    "validates": true,
-    "witnessSet": [
-      "d5-unreported",
-      "d6a-39-50k",
-      "d6a-500k",
-      "d6a-ins-absent",
-      "d6a-0-0",
-      "o1-nv-d6a",
-      "o2-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-141",
-    "class": "cascade-deletion",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend greater-than 500000.00; /vendor/requestedSpend less-than-or-equal 2000000.00; evidence-present insurance-certificate)",
-    "validates": true,
-    "witnessSet": [
-      "d6b-500k01",
-      "d6b-2m",
-      "d6b-1m-present"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-142",
-    "class": "cascade-deletion",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend greater-than 500000.00; /vendor/requestedSpend less-than-or-equal 2000000.00; evidence-present insurance-certificate)",
-    "validates": true,
-    "witnessSet": [
-      "d6b-1m-absent"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-143",
-    "class": "cascade-deletion",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore greater-than-or-equal 40; /vendor/riskScore less-than 70; /vendor/requestedSpend less-than-or-equal 100000.00)",
-    "validates": true,
-    "witnessSet": [
-      "d6c-40-50k",
-      "d6c-40-100k",
-      "d6c-69-100k",
-      "o1-nv-unreported"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-144",
-    "class": "cascade-deletion",
-    "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals MEDIUM; /vendor/riskScore less-than 40; /vendor/requestedSpend less-than-or-equal 100000.00)",
-    "validates": true,
-    "witnessSet": [
-      "d7-39-100k",
-      "d7-0-0",
-      "o1-nv-med"
-    ],
-    "notAdequate": false
-  },
-  {
-    "id": "m-a-145",
-    "class": "cascade-deletion",
-    "edit": "rules[9](r-o1-review) deleted (the O1 companion review rule; dangling targetRule references dropped with it: x-d5-suppress-o1-review)",
-    "validates": true,
-    "witnessSet": [
-      "o1-nv-d6c"
-    ],
-    "notAdequate": false
-  }
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[1](r-d3).when.conditions[1].operator: greater-than-or-equal -> greater-than",
+  "id": "m-a-001",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[2](r-d4).when.conditions[2].operator: greater-than-or-equal -> greater-than",
+  "id": "m-a-002",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d4-high-70"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01",
+    "o1-nv-40-0",
+    "o1-nv-40-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[4](r-d6a).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "id": "m-a-003",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-40-500k",
+   "d8-nv-40-100k01",
+   "o1-nv-40-0",
+   "o1-nv-40-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[4](r-d6a).when.conditions[3].operator: less-than-or-equal -> less-than",
+  "id": "m-a-004",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[5](r-d6b-insured).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "id": "m-a-005",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-d6b-insured's lower spend edge is relaxed onto $500,000.00. The only cells it newly admits (CLEAR, LOW, risk<40, spend exactly $500,000.00) are already r-d6a's, and both rules name `approve`, so the candidate set is unchanged (SS8 step 9: multiple true rules naming one outcome are compatible). The one exception that suppresses r-d6a (D5) suppresses r-d6b-insured too, so no cell suppresses one without the other.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[5](r-d6b-insured).when.conditions[3].operator: greater-than -> greater-than-or-equal",
+  "id": "m-a-006",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[5](r-d6b-insured).when.conditions[4].operator: less-than-or-equal -> less-than",
+  "id": "m-a-007",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "id": "m-a-008",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[3].operator: greater-than -> greater-than-or-equal",
+  "id": "m-a-009",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6a-500k-ins-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[4].operator: less-than-or-equal -> less-than",
+  "id": "m-a-010",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[7](r-d6c).when.conditions[2].operator: greater-than-or-equal -> greater-than",
+  "id": "m-a-011",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[7](r-d6c).when.conditions[3].operator: less-than -> less-than-or-equal",
+  "id": "m-a-012",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-70-low"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[7](r-d6c).when.conditions[4].operator: less-than-or-equal -> less-than",
+  "id": "m-a-013",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[8](r-d7).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "id": "m-a-014",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[8](r-d7).when.conditions[3].operator: less-than-or-equal -> less-than",
+  "id": "m-a-015",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "o1-nv-40-0",
+    "o1-nv-40-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].operator: greater-than-or-equal -> greater-than",
+  "id": "m-a-016",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "o1-nv-40-0",
+   "o1-nv-40-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-o1-review is widened to risk exactly 70. There r-d8 already fires, and r-o1-review also names `review`: same-outcome overlap, no conflict, same candidate set.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].operator: less-than -> less-than-or-equal",
+  "id": "m-a-017",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "o1-nv-40-100k",
+    "o1-nv-69-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].operator: less-than-or-equal -> less-than",
+  "id": "m-a-018",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "o1-nv-40-100k",
+   "o1-nv-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[0].conditions[1].operator: greater-than-or-equal -> greater-than",
+  "id": "m-a-019",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[1].conditions[2].operator: greater-than-or-equal -> greater-than",
+  "id": "m-a-020",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d4-high-70"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[2].operator: less-than -> less-than-or-equal",
+  "id": "m-a-021",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-40-500k",
+   "d8-nv-40-100k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[3].operator: less-than-or-equal -> less-than",
+  "id": "m-a-022",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-present",
+    "d8-low-40-500k01-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[2].operator: less-than -> less-than-or-equal",
+  "id": "m-a-023",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-present",
+   "d8-low-40-500k01-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "The edit relaxes the D6b-insured COPY inside r-d8's `not(any ...)` onto spend exactly $500,000.00. At every such cell the D6a copy in the same `any` is already true, so the disjunction is true either way (SS7.2), the negation is false either way, and r-d8's condition value is unchanged on all 419,904 cells (live-edit cells: 0).",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[3].operator: greater-than -> greater-than-or-equal",
+  "id": "m-a-024",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[4].operator: less-than-or-equal -> less-than",
+  "id": "m-a-025",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-absent",
+    "d8-low-40-500k01-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[2].operator: less-than -> less-than-or-equal",
+  "id": "m-a-026",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-absent",
+   "d8-low-40-500k01-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-024 for the D6b-uninsured copy; the D6a copy dominates the same cells (live-edit cells: 0).",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[3].operator: greater-than -> greater-than-or-equal",
+  "id": "m-a-027",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent",
+    "u1-country-2m-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[4].operator: less-than-or-equal -> less-than",
+  "id": "m-a-028",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-2m-absent",
+   "u1-country-2m-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[2].operator: greater-than-or-equal -> greater-than",
+  "id": "m-a-029",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[3].operator: less-than -> less-than-or-equal",
+  "id": "m-a-030",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-70-low",
+   "d8-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[4].operator: less-than-or-equal -> less-than",
+  "id": "m-a-031",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[2].operator: less-than -> less-than-or-equal",
+  "id": "m-a-032",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[3].operator: less-than-or-equal -> less-than",
+  "id": "m-a-033",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "u1-country-2m"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].operator: greater-than -> greater-than-or-equal",
+  "id": "m-a-034",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-high-2m",
+   "u1-country-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[1](r-d3).when.conditions[1].value: 90 -> 91 (+1 at scale)",
+  "id": "m-a-035",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[1](r-d3).when.conditions[1].value: 90 -> 89 (-1 at scale)",
+  "id": "m-a-036",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-89"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[2](r-d4).when.conditions[2].value: 70 -> 71 (+1 at scale)",
+  "id": "m-a-037",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d4-high-70"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[2](r-d4).when.conditions[2].value: 70 -> 69 (-1 at scale)",
+  "id": "m-a-038",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-high-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01",
+    "o1-nv-40-0",
+    "o1-nv-40-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[4](r-d6a).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-039",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-40-500k",
+   "d8-nv-40-100k01",
+   "o1-nv-40-0",
+   "o1-nv-40-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[4](r-d6a).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-040",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6a-39-50k",
+   "d6a-nv-39-0"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[4](r-d6a).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "id": "m-a-041",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[4](r-d6a).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "id": "m-a-042",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-043",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-044",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-39-500k01-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "id": "m-a-045",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-present",
+   "d6b-500k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Same cells as m-a-006 by the threshold form of the edit (500000.00 -> 499999.99): the newly admitted cell is r-d6a's and both rules name `approve`.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "id": "m-a-046",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "id": "m-a-047",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-2m01-low"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "id": "m-a-048",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-049",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-050",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-39-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "id": "m-a-051",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "id": "m-a-052",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6a-500k-ins-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-2m01-low-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "id": "m-a-053",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-2m01-low-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "id": "m-a-054",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-055",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-d6c is widened to risk exactly 39, where r-d6a already approves (D6c's spend ceiling $100,000.00 lies inside D6a's $500,000.00). Where O1 suppresses r-d6c the widened rule is suppressed with it; where D5 suppresses r-d6a it suppresses r-d6c too.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-056",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[3].value: 70 -> 71 (+1 at scale)",
+  "id": "m-a-057",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-70-low"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[3].value: 70 -> 69 (-1 at scale)",
+  "id": "m-a-058",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "id": "m-a-059",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-100k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "id": "m-a-060",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[8](r-d7).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-061",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[8](r-d7).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-062",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[8](r-d7).when.conditions[3].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "id": "m-a-063",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-39-100k01-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[8](r-d7).when.conditions[3].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "id": "m-a-064",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "o1-nv-40-0",
+    "o1-nv-40-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-065",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "o1-nv-40-0",
+   "o1-nv-40-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-066",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6a-nv-39-0"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Threshold form of m-a-017 (70 -> 71): the widened cells are r-d8's and both name `review`.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].value: 70 -> 71 (+1 at scale)",
+  "id": "m-a-067",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "o1-nv-69-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].value: 70 -> 69 (-1 at scale)",
+  "id": "m-a-068",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "o1-nv-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-o1-review is widened to spend exactly $100,000.01, where r-d8 fires and also names `review`.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "id": "m-a-069",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "o1-nv-40-100k",
+    "o1-nv-69-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "id": "m-a-070",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "o1-nv-40-100k",
+   "o1-nv-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[0].conditions[1].value: 90 -> 91 (+1 at scale)",
+  "id": "m-a-071",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[0].conditions[1].value: 90 -> 89 (-1 at scale)",
+  "id": "m-a-072",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-89"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[1].conditions[2].value: 70 -> 71 (+1 at scale)",
+  "id": "m-a-073",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d4-high-70"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[1].conditions[2].value: 70 -> 69 (-1 at scale)",
+  "id": "m-a-074",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-high-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-075",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-40-500k",
+   "d8-nv-40-100k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-076",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6a-39-50k",
+   "d6a-nv-39-0"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-unreported",
+    "d6b-500k01-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "id": "m-a-077",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-unreported",
+   "d6b-500k01-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "id": "m-a-078",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-present",
+    "d8-low-40-500k01-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-079",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-present",
+   "d8-low-40-500k01-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present",
+    "u1-country-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-080",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-present",
+   "u1-country-39-500k01-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present",
+    "u1-country-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "id": "m-a-081",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6b-39-500k01-present",
+   "d6b-500k01",
+   "u1-country-39-500k01-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-024 by the threshold form (500000.00 -> 499999.99); dominated by the D6a copy (live-edit cells: 0).",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "id": "m-a-082",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-2m01-low-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "id": "m-a-083",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-2m01-low",
+   "d8-2m01-low-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3].conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "id": "m-a-084",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-absent",
+    "d8-low-40-500k01-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-085",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-absent",
+   "d8-low-40-500k01-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent",
+    "u1-country-39-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-086",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-absent",
+   "u1-country-39-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent",
+    "u1-country-39-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "id": "m-a-087",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent",
+   "u1-country-39-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-027 by the threshold form; dominated by the D6a copy (live-edit cells: 0).",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "id": "m-a-088",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-2m01-low-absent",
+    "d8-2m01-low-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "id": "m-a-089",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-2m01-low-absent",
+   "d8-2m01-low-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent",
+    "u1-country-2m-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4].conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "id": "m-a-090",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-2m-absent",
+   "u1-country-2m-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-091",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "The D6c copy inside the cascade is widened to risk exactly 39, where the D6a copy is already true (D6c's spend ceiling lies inside D6a's) (live-edit cells: 0). The REGION is reachable and gold visits it (d6a-39-50k, d6a-500k*); what is unreachable is any effect of the edit.",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-092",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[3].value: 70 -> 71 (+1 at scale)",
+  "id": "m-a-093",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-70-low",
+   "d8-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[3].value: 70 -> 69 (-1 at scale)",
+  "id": "m-a-094",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "id": "m-a-095",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-nv-40-100k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5].conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "id": "m-a-096",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "id": "m-a-097",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "id": "m-a-098",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[3].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "id": "m-a-099",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-39-100k01-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6].conditions[3].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "id": "m-a-100",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "u1-country-2m01"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "id": "m-a-101",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "o3-2m01",
+   "u1-country-2m01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "u1-country-2m"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "id": "m-a-102",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-high-2m",
+   "u1-country-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Kleene-monotone onUnknown flip. r-d1's condition reads only /vendor/sanctionsStatus, which the registered projection always supplies as a present string (UNKNOWN is a value, not an omission), so the condition is never `unknown` and `onUnknown` is never consulted: 0 unknown cells of 419,904 (adequacy_mechanisms.json).",
+   "dropMechanismClass": "never-unknown-rule",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[0](r-d1).onUnknown: ignore -> escalate",
+  "id": "m-a-103",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[1](r-d3).onUnknown: ignore -> escalate",
+  "id": "m-a-104",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "u1-risk-prior",
+   "u1-two-unreadable-uniform"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[2](r-d4).onUnknown: ignore -> escalate",
+  "id": "m-a-105",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "u1-ex1",
+   "u1-two-unreadable-uniform"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[3](r-d5).onUnknown: ignore -> escalate",
+  "id": "m-a-106",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "onUnknown flip on r-d6a. Wherever r-d6a's condition is unknown AND the rule stage is reached at all (no evidence/exception block, no forced outcome, not suppressed), r-d8 is unknown and unsuppressed too, because its negation cascade carries a copy of the same conjuncts: 972 such cells, 0 uncovered. r-d8 already carries `onUnknown: escalate`, and SS8 keeps reasons as a de-duplicated set, so the flip can only re-record `unknown`.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[4](r-d6a).onUnknown: ignore -> escalate",
+  "id": "m-a-107",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-107 for r-d6b-insured: 432 unknown-and-evaluated cells, 0 uncovered by r-d8.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[5](r-d6b-insured).onUnknown: ignore -> escalate",
+  "id": "m-a-108",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-107 for r-d6b-uninsured: 432 unknown-and-evaluated cells, 0 uncovered by r-d8.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[6](r-d6b-uninsured).onUnknown: ignore -> escalate",
+  "id": "m-a-109",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-107 for r-d6c: 456 unknown-and-evaluated cells, 0 uncovered by r-d8.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[7](r-d6c).onUnknown: ignore -> escalate",
+  "id": "m-a-110",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-107 for r-d7: 540 unknown-and-evaluated cells, 0 uncovered by r-d8.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[8](r-d7).onUnknown: ignore -> escalate",
+  "id": "m-a-111",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[9](r-o1-review).onUnknown: ignore -> escalate",
+  "id": "m-a-112",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "o1-nv-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-unreported",
+    "d6b-39-500k01-unreported",
+    "d6b-500k01-unreported",
+    "u1-country-2m-absent",
+    "u1-country-39-500k01-absent",
+    "u1-country-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[10](r-d8).onUnknown: escalate -> ignore",
+  "id": "m-a-113",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 11,
+  "witnessSet": [
+   "d6b-1m-unreported",
+   "d6b-2m-unreported",
+   "d6b-39-500k01-unreported",
+   "d6b-500k01-unreported",
+   "u1-country-20-50k",
+   "u1-country-2m-absent",
+   "u1-country-39-500k01-absent",
+   "u1-country-39-500k01-present",
+   "u1-risk-high-50k",
+   "u1-risk-low-50k",
+   "u1-spend-low-20"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[0](x-o1-first-engagement).onUnknown: ignore -> escalate",
+  "id": "m-a-114",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "o1-nv-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[1](x-o2-critical-supplier).onUnknown: ignore -> escalate",
+  "id": "m-a-115",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "o2-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "u1-country-2m01"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[2](x-o3-large-exposure).onUnknown: escalate -> ignore",
+  "id": "m-a-116",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "u1-country-2m01",
+   "u1-country-95-3m",
+   "u1-ex2",
+   "u1-ex4",
+   "u1-spend-high-95"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[3](x-d5-suppress-d6a).onUnknown: ignore -> escalate",
+  "id": "m-a-117",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[4](x-d5-suppress-d6b-insured).onUnknown: ignore -> escalate",
+  "id": "m-a-118",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[5](x-d5-suppress-d6b-uninsured).onUnknown: ignore -> escalate",
+  "id": "m-a-119",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[6](x-d5-suppress-d6c).onUnknown: ignore -> escalate",
+  "id": "m-a-120",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[7](x-d5-suppress-d7).onUnknown: ignore -> escalate",
+  "id": "m-a-121",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[8](x-d5-suppress-o1-review).onUnknown: ignore -> escalate",
+  "id": "m-a-122",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[9](x-d5-suppress-d8).onUnknown: ignore -> escalate",
+  "id": "m-a-123",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d1-match-o3-region"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[0](r-d1).outcome: reject -> review",
+  "id": "m-a-124",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d1-match",
+   "d1-match-bare",
+   "d1-match-critical",
+   "d1-match-o3-region"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[1](r-d3).outcome: reject -> review",
+  "id": "m-a-125",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "d3-high-90",
+   "d3-low-90",
+   "d3-med-90",
+   "d3-over-d5",
+   "u1-ex1",
+   "u1-spend-med-95"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[2](r-d4).outcome: reject -> review",
+  "id": "m-a-126",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d3-high-90",
+   "d4-high-70",
+   "d4-high-89"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[3](r-d5).outcome: reject -> review",
+  "id": "m-a-127",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "d3-over-d5",
+   "d5-d6b-absent",
+   "d5-low-approve-region",
+   "d5-med",
+   "u1-risk-prior",
+   "u1-two-unreadable-uniform"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported",
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[4](r-d6a).outcome: approve -> review",
+  "id": "m-a-128",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 10,
+  "witnessSet": [
+   "d5-unreported",
+   "d6a-0-0",
+   "d6a-39-50k",
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported",
+   "d6a-ins-absent",
+   "d6a-nv-39-0",
+   "o1-nv-d6a",
+   "o2-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[5](r-d6b-insured).outcome: approve -> review",
+  "id": "m-a-129",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d6b-1m-present",
+   "d6b-2m",
+   "d6b-39-500k01-present",
+   "d6b-500k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent",
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[6](r-d6b-uninsured).outcome: enhanced-review -> review",
+  "id": "m-a-130",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d6b-1m-absent",
+   "d6b-2m-absent",
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[7](r-d6c).outcome: approve -> review",
+  "id": "m-a-131",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k",
+   "d6c-69-100k",
+   "o1-nv-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[8](r-d7).outcome: approve -> review",
+  "id": "m-a-132",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d7-0-0",
+   "d7-39-100k",
+   "o1-nv-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "o1-nv-40-0",
+    "o1-nv-40-100k",
+    "o1-nv-69-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[9](r-o1-review).outcome: review -> approve",
+  "id": "m-a-133",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "o1-nv-40-0",
+   "o1-nv-40-100k",
+   "o1-nv-69-100k",
+   "o1-nv-d6c"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-2m01-low-absent",
+    "d8-2m01-low-unreported",
+    "d8-low-40-500k01-ins-absent",
+    "d8-low-40-500k01-ins-present",
+    "d8-low-40-500k01-ins-unreported",
+    "d8-med-500k01-absent",
+    "d8-med-500k01-present",
+    "d8-med-500k01-unreported",
+    "d8-nv-40-100k01",
+    "d8-nv-70-100k",
+    "u1-country-2m"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[10](r-d8).outcome: review -> approve",
+  "id": "m-a-134",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 22,
+  "witnessSet": [
+   "d8-2m01-low",
+   "d8-2m01-low-absent",
+   "d8-2m01-low-unreported",
+   "d8-39-100k01-med",
+   "d8-40-100k01",
+   "d8-40-500k",
+   "d8-40-med",
+   "d8-70-low",
+   "d8-high-2m",
+   "d8-high-69",
+   "d8-high-mid",
+   "d8-low-3m",
+   "d8-low-40-500k01-ins-absent",
+   "d8-low-40-500k01-ins-present",
+   "d8-low-40-500k01-ins-unreported",
+   "d8-low-89",
+   "d8-med-500k01-absent",
+   "d8-med-500k01-present",
+   "d8-med-500k01-unreported",
+   "d8-nv-40-100k01",
+   "d8-nv-70-100k",
+   "u1-country-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "required-flip",
+  "edit": "evidenceRequirements[0](financial-evidence).required: true -> false",
+  "id": "m-a-135",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "p1-absent",
+   "p1-absent-escalation-region",
+   "p1-absent-match",
+   "p1-unreported",
+   "p1-unreported-d2"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "effect-swap",
+  "edit": "exceptions[1](x-o2-critical-supplier).effect: force-outcome -> escalate (the outcome member the discriminator governs is dropped)",
+  "id": "m-a-136",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 7,
+  "witnessSet": [
+   "o2-approve-region",
+   "o2-d6b-absent",
+   "o2-over-d4",
+   "o2-over-d5",
+   "o2-reject-region",
+   "u1-ex3",
+   "u1-ex4"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "effect-swap",
+  "edit": "exceptions[2](x-o3-large-exposure).effect: escalate -> force-outcome (outcome review, the member the discriminator governs)",
+  "id": "m-a-137",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "o3-2m01",
+   "o3-3m",
+   "o3-over-d3",
+   "o3-over-d5",
+   "o3-over-o2",
+   "o3-risk-unreadable"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[0] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/riskScore greater-than-or-equal 90)",
+  "id": "m-a-138",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90",
+   "u1-ex1",
+   "u1-spend-med-95"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[1] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals HIGH; /vendor/riskScore greater-than-or-equal 70)",
+  "id": "m-a-139",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d4-high-70",
+   "d4-high-89"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported",
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[2] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend less-than-or-equal 500000.00)",
+  "id": "m-a-140",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 10,
+  "witnessSet": [
+   "d5-unreported",
+   "d6a-0-0",
+   "d6a-39-50k",
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported",
+   "d6a-ins-absent",
+   "d6a-nv-39-0",
+   "o1-nv-d6a",
+   "o2-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present",
+    "u1-country-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[3] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend greater-than 500000.00; /vendor/requestedSpend less-than-or-equal 2000000.00; evidence-present insurance-certificate)",
+  "id": "m-a-141",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "d6b-1m-present",
+   "d6b-2m",
+   "d6b-39-500k01-present",
+   "d6b-500k01",
+   "u1-country-39-500k01-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent",
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent",
+    "u1-country-2m-absent",
+    "u1-country-39-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[4] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend greater-than 500000.00; /vendor/requestedSpend less-than-or-equal 2000000.00; evidence-present insurance-certificate)",
+  "id": "m-a-142",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "d6b-1m-absent",
+   "d6b-2m-absent",
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent",
+   "u1-country-2m-absent",
+   "u1-country-39-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[5] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore greater-than-or-equal 40; /vendor/riskScore less-than 70; /vendor/requestedSpend less-than-or-equal 100000.00)",
+  "id": "m-a-143",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k",
+   "d6c-69-100k",
+   "o1-nv-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[10](r-d8).when.conditions[1].condition.conditions[6] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals MEDIUM; /vendor/riskScore less-than 40; /vendor/requestedSpend less-than-or-equal 100000.00)",
+  "id": "m-a-144",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d7-0-0",
+   "d7-39-100k",
+   "o1-nv-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+   "goldRows": 105,
+   "goldSha256": "df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13",
+   "goldVersion": "0.1-draft",
+   "killingRowsAddedAtThisGate": [
+    "o1-nv-40-0",
+    "o1-nv-40-100k",
+    "o1-nv-69-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[9](r-o1-review) deleted (the O1 companion review rule; dangling targetRule references dropped with it: x-d5-suppress-o1-review)",
+  "id": "m-a-145",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "o1-nv-40-0",
+   "o1-nv-40-100k",
+   "o1-nv-69-100k",
+   "o1-nv-d6c"
+  ]
+ }
 ]

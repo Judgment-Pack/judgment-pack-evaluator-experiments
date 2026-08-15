@@ -1,0 +1,107 @@
+{
+ "liveCellSampleSize": 120,
+ "mutants": [
+  {
+   "engineCheckedCells": 120,
+   "engineDifferences": [],
+   "id": "m-a-006",
+   "liveCells": 972
+  },
+  {
+   "engineCheckedCells": 120,
+   "engineDifferences": [],
+   "id": "m-a-017",
+   "liveCells": 1296
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-024",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-027",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 120,
+   "engineDifferences": [],
+   "id": "m-a-046",
+   "liveCells": 972
+  },
+  {
+   "engineCheckedCells": 120,
+   "engineDifferences": [],
+   "id": "m-a-056",
+   "liveCells": 1944
+  },
+  {
+   "engineCheckedCells": 120,
+   "engineDifferences": [],
+   "id": "m-a-067",
+   "liveCells": 1296
+  },
+  {
+   "engineCheckedCells": 120,
+   "engineDifferences": [],
+   "id": "m-a-069",
+   "liveCells": 1296
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-082",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-088",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-092",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-103",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-107",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-108",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-109",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-110",
+   "liveCells": 0
+  },
+  {
+   "engineCheckedCells": 0,
+   "engineDifferences": [],
+   "id": "m-a-111",
+   "liveCells": 0
+  }
+ ]
+}

@@ -1,0 +1,222 @@
+[
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-005",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-008",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-009",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-010",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-016",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-018",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-023",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36,
+   "unresolved:unknown": 108
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-026",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36,
+   "unresolved:unknown": 108
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-028",
+  "mutantOutputsAtWitnessCells": {
+   "outcome:review": 24,
+   "unresolved:conflict": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-041",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-043",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-044",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-049",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-050",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-051",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-052",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-053",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-054",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-065",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": true,
+  "id": "m-a-066",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:conflict": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-068",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-070",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-077",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-079",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36,
+   "unresolved:unknown": 108
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-080",
+  "mutantOutputsAtWitnessCells": {
+   "outcome:review": 36,
+   "unresolved:conflict": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-085",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 36,
+   "unresolved:unknown": 108
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-086",
+  "mutantOutputsAtWitnessCells": {
+   "outcome:review": 36,
+   "unresolved:conflict": 36
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-087",
+  "mutantOutputsAtWitnessCells": {
+   "outcome:review": 24,
+   "unresolved:conflict": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-089",
+  "mutantOutputsAtWitnessCells": {
+   "unresolved:no-match": 24,
+   "unresolved:unknown": 24
+  }
+ },
+ {
+  "conflictOnlyByConstruction": false,
+  "id": "m-a-090",
+  "mutantOutputsAtWitnessCells": {
+   "outcome:review": 24,
+   "unresolved:conflict": 24
+  }
+ }
+]

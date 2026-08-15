@@ -186,12 +186,19 @@ Resolved values below were verified empirically on 2026-08-14/15
   re-runs against the frozen prose; divergences get written dispositions; unsettleable
   rows route to the ambiguity stratum mechanically.
 - **References**: one per language, in cell-for-cell agreement over the design grid.
-  `GATE(pre-freeze)`: **off-gold equivalence check** — the two references' agreement is
-  re-established over the full derived input space, with every divergence point required
-  to fall inside a registered exclusion class (currently exactly X1); any other divergence
-  blocks the freeze. (Design-phase lesson: the E4 identity control evaluates
-  author-written inputs that roam off-gold; a reference defect there voids an arm — this
-  gate is what makes the identity control safe.)
+  **Off-gold equivalence: SATISFIED at design time and re-issued at the freeze commit** —
+  the full 236,196-cell registered derived space evaluated on both references
+  (`design/reference/OFFGOLD-CERT.md`): exactly 72 divergences, 72/72 inside X1, zero
+  outside any registered class, independently reproducing the X1 class cell-for-cell;
+  method validations (simulator re-validated 0/2,000 vs the pinned engine on this space;
+  `opa exec`-vs-`opa eval` agreement 200/200) recorded in the certificate. (This gate is
+  what makes the identity control safe: author-written inputs roam off-gold.)
+  **Input-domain closure, registered**: the screening result is always reported — the
+  Inputs section admits no unreadable state for it, the canonical grid and the admission
+  layer assert it, and the certificate's labelled supplementary stratum shows why the
+  closure matters: on sanctions-absent inputs no clause governs, and three correct-on-gold
+  implementations give three different answers. Undefined behavior stays outside every
+  registered space by domain closure, not by luck.
 - **X1 (registered exclusion class and census row)**: {new vendor yes; risk in [40,70);
   LOW country with spend unreadable, or country unreadable with spend ≤ 100,000.00} — the
   prose-correct outcome (review) is inexpressible in the fragment (0 of 2,048 onUnknown
@@ -204,12 +211,17 @@ Resolved values below were verified empirically on 2026-08-14/15
   witness set is degenerate and never pairs. Cross-arm E4 runs over the paired adequate
   subset only; unpairable counts are published as a finding about the defect spaces.
   Kills achievable only through engine-supplied conflict detection (35 JPS mutants,
-  listed) are reported both included and excluded. `GATE(pre-freeze)`: the **adequacy
-  gate** — every mutant either killed by gold (witness set non-empty) or registered as
-  dropped with its mechanism (several are provably unkillable — Kleene-monotone onUnknown
-  flips on rules never unknown); the current work list is 47 JPS + 60 Rego empty-witness
-  mutants; resolving it may add gold rows, and any added row re-runs the full agreement
-  chain (engines, oracle).
+  listed in the registries, now 41 after the adequacy pass, 9 conflict-only by
+  construction) are reported both included and excluded. **Adequacy gate: SATISFIED**
+  (`design/mutants/ADEQUACY.md`) — all 107 empty-witness mutants disposed: 56 killed by 29
+  new prose-derived gold rows (gold now 105 rows; every new expectation reproduced by both
+  engines and the clean-room oracle on the first run), 51 registered drops with mechanisms;
+  zero empty witness sets remain; kill census 128/145 JPS, 150/184 Rego; 39 paired witness
+  groups. Dispositions carry scope caveats (C1–C5) and four review flags, of which **A1 is
+  live**: at risk exactly 40 in a LOW country the permitted spend ceiling drops twentyfold
+  across one point — the text is unambiguous and four rows depend on it, but whether the
+  drafter intends the cliff is a review-round question (amend prose pre-freeze or
+  confirm). Pilot-era `E4-PILOT.json` numbers predate this gate and are not current.
 - **Reviewer mutant set**: sealed, authored in review rounds, first executed at the
   primary attempt, scored "as authored", reported separately.
 
@@ -227,13 +239,22 @@ forbidden by the appendix and asserted at admission.
   reported per arm as a first-class rate; then the suite's **paired-subset kill rate** =
   killed / paired adequate mutants (kill = at least one non-X1 case disagrees on the
   mutant; for B/C, `opa test` nonzero with class recorded). A run is **high-kill** iff its
-  paired kill rate ≥ **τ = 0.95** (chosen from pilot; disclosed in Design provenance).
-  Per-arm high-kill rates carry exact Clopper–Pearson intervals; the registered contrasts
-  are exact two-proportion difference intervals, **A−C first, then A−B** (hierarchical:
-  A−B is confirmatory only if A−C is decided), each at **δ = 0.20** on the difference of
-  high-kill rates, with an explicit INDETERMINATE row (interval straddles zero) that
-  triggers nothing. Operating characteristics of (τ, δ, N=50) published in this document
-  before the freeze. `GATE(pre-freeze)`: the OC table.
+  paired kill rate ≥ **τ = 0.95** (chosen from pilot; disclosed in Design provenance; the
+  operative integer cut at the frozen paired-mutant count is stated in the OC table). Runs
+  carrying **authoring-outcome codes remain in the E4 denominator as not-high-kill**
+  (no-marker included); only apparatus codes leave it, and identity-control exclusions are
+  reported, never silently dropped. Per-arm high-kill rates carry exact Clopper–Pearson
+  intervals. The registered contrasts are **exact unconditional (FM-score) two-proportion
+  difference intervals at two-sided α = 0.05** — construction, rational-mesh nuisance
+  supremum, and calibration pinned in `design/mutants/OC-TABLE.md` — tested **A−C first,
+  then A−B** as fixed-sequence gatekeeping (FWER controlled at α, no further adjustment).
+  A contrast is **decided iff its interval excludes zero**; **δ = 0.20 is the registered
+  minimum meaningful difference — an interpretation and power quantity, not part of the
+  decision rule**. INDETERMINATE (interval straddles zero) triggers nothing. OC table:
+  **published** (`design/mutants/OC-TABLE.md`) — at N=50, power for a true 0.20 gap runs
+  0.49–0.82 by position and 1.00 at the pilot anchor (pilot high-kill fractions on the
+  paired subset: A 1/5, B 4/5, C 5/5); a true 0.25 gap can still return INDETERMINATE —
+  stated so no reader mistakes δ for a detectability promise.
 - **E1 (control, reported): per-run perfect gold agreement** on the policy artifact, ITT
   denominator. Expected at ceiling in every arm (pilot 15/15); reported with intervals; a
   per-arm E1 rate below the registered floor (0.60) is a **control-gate row** adjudicating
@@ -255,7 +276,7 @@ forbidden by the appendix and asserted at admission.
 2. Any control-gate failure (reference-vs-gold imperfect at attempt time; capabilities
    canary passes; golden-context gate; per-arm timeout rate > cap; E1 floor breached) →
    R1 inconclusive — control gate failed.
-3. A−C interval excludes zero at δ → R1 decided, direction as observed; then A−B likewise.
+3. A−C interval excludes zero → R1 decided, direction as observed; then A−B likewise.
 4. Otherwise → INDETERMINATE; no claim in any direction is licensed.
 
 ## 6. Validity channel (separate from detection)

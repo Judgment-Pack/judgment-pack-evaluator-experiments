@@ -2,7 +2,9 @@
 """Study 019 gold suite v0 — authoring transport (DESIGN DRAFT).
 
 The AUTHOR of every expectation is the maintainer side, deriving each row from the policy
-prose (POLICY-DRAFT.md v0.2) by hand; this script is transport, not derivation — it only
+prose by hand (v0 rows from POLICY-DRAFT.md v0.2; the v0.1 adequacy-gate section at the foot
+of this file from v0.3, whose three clarifying sentences change no cell's verdict — see
+cleanroom/DISPOSITION.md); this script is transport, not derivation — it only
 assembles hand-written rows into gold.json. Expectations were NOT copied from the reference
 implementations; the checker (check_gold.py) compares them against both engines afterward,
 and any discrepancy is adjudicated in writing in GOLD-NOTES.md, never silently edited.
@@ -201,7 +203,138 @@ row("u1-risk-high-50k", "HIGH with small spend: review below 70, reject above", 
 row("u1-two-unreadable-uniform", "prior action rejects under every completion", ["U1", "D5"],
     "reject", country=None, risk=None, prior="yes")
 
+# =========================================================================================
+# ==== gold v0.1 — ADEQUACY-GATE ADDITIONS (2026-08-15) ===================================
+# =========================================================================================
+# Why these rows exist: the pre-freeze adequacy gate (PREREGISTRATION.md §4) requires every
+# mutant to be killed by gold or registered as dropped. `mutants/adequacy_search.py` swept a
+# dense derived input space and reported, per empty-witness mutant, the inputs at which the
+# mutant's scored surface differs from its arm's reference. THAT SEARCH SAYS ONLY WHERE TO
+# LOOK. It never says what the policy requires there: every expectation below was derived by
+# hand from POLICY-DRAFT.md and carries its clause citation, exactly as the v0 rows were, and
+# no expectation was read off a mutant, a reference, or an engine. Where a derivation turned
+# on a sentence rather than a numeral, the sentence is quoted in the row note.
+#
+# Two regions dominate the additions, which is where the v0 grid was thin:
+#   (a) D6b's band ($500,000.01–$2,000,000.00) at its own edges and at the risk-40 edge,
+#       across all three insurance states — v0 probed D6b only at risk 20 and spend $1M;
+#   (b) the region O1 removes from D6c (new vendor, 40 ≤ risk < 70, LOW, spend ≤ $100,000.00)
+#       at its four edges — v0 probed it at one interior point.
+# Both are stated by the prose at clause granularity; neither needed a new reading of it.
+
+# ---- (a) D6b's band: the risk-40 edge, all three insurance states ------------------------
+# D6b's limbs open at "risk score below 40"; at risk exactly 40 no D6 limb applies (D6c needs
+# spend up to $100,000.00), so D8's catch-all governs: "Every request with a CLEAR screening
+# result that is not determined by D3–D7 ... is referred for review."
+row("d8-low-40-500k01-ins-present", "risk 40 is outside every D6 limb: D8 governs, and the "
+    "insurance state cannot change that (P1: the certificate 'is never required; it is "
+    "consulted only by D6b')", ["D8"], "review", risk="40", spend="500000.01")
+row("d8-low-40-500k01-ins-absent", "same cell, certificate absent: still D8, not D6b's "
+    "enhanced-review limb, because D6b needs risk below 40", ["D8"], "review",
+    risk="40", spend="500000.01", insurance="absent")
+row("d8-low-40-500k01-ins-unreported", "same cell, availability unreported: D6b's unresolved "
+    "limb is not reached either; D8 reviews", ["D8"], "review",
+    risk="40", spend="500000.01", insurance=None)
+
+# ---- (a) D6b's band at risk 39 (the band's upper risk edge), all three insurance states --
+row("d6b-39-500k01-present", "D6b's lower spend edge at the risk band's upper edge: "
+    "certificate available: approved", ["D6b"], "approve", risk="39", spend="500000.01")
+row("d6b-39-500k01-absent", "same cell, certificate absent: enhanced review (D6b decides "
+    "such requests; D8 does not reach them)", ["D6b"], "enhanced-review",
+    risk="39", spend="500000.01", insurance="absent")
+row("d6b-39-500k01-unreported", "same cell, availability unreported: unresolved as unknown",
+    ["D6b"], U, ["unknown"], risk="39", spend="500000.01", insurance=None)
+
+# ---- (a) D6a's spend edge under the two non-available insurance states -------------------
+# "Risk score below 40 and requested spend up to and including $500,000.00: approved" — D6a
+# reads no insurance state at all, so both cells approve.
+row("d6a-500k-ins-absent", "spend exactly $500,000.00 is D6a, whose text consults no "
+    "certificate: an absent certificate does not move it into D6b's enhanced-review limb",
+    ["D6a"], "approve", spend="500000.00", insurance="absent")
+row("d6a-500k-ins-unreported", "same edge with availability unreported: D6a still approves; "
+    "only D6b's limb is unresolved on an unreported certificate", ["D6a"], "approve",
+    spend="500000.00", insurance=None)
+
+# ---- (a) D6b's upper spend edge ($2,000,000.00 inclusive) and the cent above it ----------
+row("d6b-2m-absent", "spend exactly $2,000,000.00 is inside D6b (inclusive) with the "
+    "certificate absent: enhanced review", ["D6b"], "enhanced-review",
+    spend="2000000.00", insurance="absent")
+row("d6b-2m-unreported", "the same inclusive edge with availability unreported: unresolved "
+    "as unknown", ["D6b"], U, ["unknown"], spend="2000000.00", insurance=None)
+row("d8-2m01-low-absent", "one cent above D6b's band in a LOW country: no D6 limb applies "
+    "and O3 is HIGH-only, so D8 reviews whatever the certificate says", ["D8"], "review",
+    spend="2000000.01", insurance="absent")
+row("d8-2m01-low-unreported", "same cell with availability unreported: still D8", ["D8"],
+    "review", spend="2000000.01", insurance=None)
+
+# ---- (a) D6b's lower spend edge under the two non-available insurance states -------------
+row("d6b-500k01-absent", "one cent above $500,000.00 with the certificate absent: D6b's "
+    "enhanced-review limb", ["D6b"], "enhanced-review", spend="500000.01",
+    insurance="absent")
+row("d6b-500k01-unreported", "one cent above $500,000.00 with availability unreported: "
+    "D6b's unresolved limb", ["D6b"], U, ["unknown"], spend="500000.01", insurance=None)
+
+# ---- (a) D6b is LOW-only: the same band in a MEDIUM country ------------------------------
+# D7 is the only MEDIUM approval clause and stops at $100,000.00; D6b's band does not exist
+# in MEDIUM, so all three insurance states land on D8.
+row("d8-med-500k01-present", "D6b is a LOW-country clause: in MEDIUM the same band is D8, "
+    "certificate available", ["D8"], "review", country="MEDIUM", spend="500000.01")
+row("d8-med-500k01-absent", "same MEDIUM cell, certificate absent: D8, not enhanced review",
+    ["D8"], "review", country="MEDIUM", spend="500000.01", insurance="absent")
+row("d8-med-500k01-unreported", "same MEDIUM cell, availability unreported: D8, not "
+    "unresolved", ["D8"], "review", country="MEDIUM", spend="500000.01", insurance=None)
+
+# ---- (b) the region O1 removes from D6c, at its four edges -------------------------------
+# "For new vendors (yes), clause D6c does not apply; such requests fall to D8." The edges are
+# D6c's own: risk at least 40 and below 70, spend up to and including $100,000.00.
+row("o1-nv-40-0", "O1 at D6c's lower risk edge (risk exactly 40) and the spend floor",
+    ["O1", "D8"], "review", newVendor="yes", risk="40", spend="0.00")
+row("o1-nv-40-100k", "O1 at D6c's lower risk edge and its inclusive spend edge",
+    ["O1", "D8"], "review", newVendor="yes", risk="40", spend="100000.00")
+row("o1-nv-69-100k", "O1 at D6c's upper risk edge (69) and its inclusive spend edge",
+    ["O1", "D8"], "review", newVendor="yes", risk="69", spend="100000.00")
+row("d6a-nv-39-0", "risk 39 is D6a's band, which O1 does not touch: a new vendor is still "
+    "approved", ["D6a"], "approve", newVendor="yes", risk="39", spend="0.00")
+row("d8-nv-70-100k", "risk 70 is outside D6c's band before O1 is consulted: D8 governs",
+    ["D8"], "review", newVendor="yes", risk="70", spend="100000.00")
+row("d8-nv-40-100k01", "one cent above D6c's spend edge, so D6c never applied and O1 has "
+    "nothing to suspend: D8", ["D8"], "review", newVendor="yes", risk="40",
+    spend="100000.01")
+
+# ---- U1 at O3's exclusive $2,000,000.00 edge with the country unreadable -----------------
+# U1's test varies only the unreadable input. O3 begins ABOVE $2,000,000.00, so the same
+# numeral answers differently on the two sides of the edge.
+row("u1-country-2m01", "country unreadable one cent above O3's edge: HIGH escalates (O3) "
+    "while LOW and MEDIUM review (D8) — the determinations differ", ["U1"], U, ["unknown"],
+    country=None, risk="50", spend="2000000.01")
+row("u1-country-2m", "country unreadable at O3's edge exactly: O3 needs spend above "
+    "$2,000,000.00, so every readable country reviews under D8 — uniform, so U1 issues it",
+    ["U1", "D8"], "review", country=None, risk="50", spend="2000000.00")
+
+# ---- U1 against D6b's limbs (unreadable country, spend inside D6b's band) ----------------
+# U1 varies only the unreadable input; "the same determination" means the same outcome, and
+# an unresolved limb such as D6b's counts as an outcome for that test. D6b exists only in
+# LOW, so an unreadable country puts D6b's answer beside D8's review in every one of these.
+# (These three rows are also the adequacy gate's way of killing four cascade mutants by a
+# differing determination rather than through the engine's structural conflict detection.)
+row("u1-country-39-500k01-absent", "country unreadable in D6b's band with the certificate "
+    "absent: LOW gives enhanced review, MEDIUM and HIGH give review (D7 stops at "
+    "$100,000.00; risk 39 is below every rejection band) — the determinations differ",
+    ["U1"], U, ["unknown"], country=None, risk="39", spend="500000.01", insurance="absent")
+row("u1-country-39-500k01-present", "the same cell with the certificate available: LOW "
+    "approves under D6b while MEDIUM and HIGH review", ["U1"], U, ["unknown"],
+    country=None, risk="39", spend="500000.01")
+row("u1-country-2m-absent", "country unreadable at D6b's inclusive top with the certificate "
+    "absent: LOW gives enhanced review; HIGH does not escalate because O3 begins above "
+    "$2,000,000.00, so HIGH and MEDIUM review", ["U1"], U, ["unknown"],
+    country=None, spend="2000000.00", insurance="absent")
+
+# ---- D1 inside O3's region ---------------------------------------------------------------
+row("d1-match-o3-region", "O3 requires a CLEAR screening result; under MATCH the escalation "
+    "does not arise and D1 rejects", ["D1"], "reject", sanctions="MATCH", country="HIGH",
+    risk="50", spend="2000000.01")
+
 with open("gold.json", "w") as f:
-    json.dump({"goldVersion": "0-draft", "policy": "POLICY-DRAFT.md v0.2",
+    json.dump({"goldVersion": "0.1-draft", "policy": "POLICY-DRAFT.md v0.3",
                "rows": ROWS}, f, indent=1, sort_keys=True)
 print(f"{len(ROWS)} gold rows written")

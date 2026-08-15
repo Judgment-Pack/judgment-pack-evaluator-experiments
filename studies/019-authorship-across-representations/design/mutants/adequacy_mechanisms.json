@@ -1,0 +1,32 @@
+{
+ "r-d1": {
+  "notCoveredByD8": 0,
+  "unknownAndEvaluated": 0,
+  "unknownCells": 0
+ },
+ "r-d6a": {
+  "notCoveredByD8": 0,
+  "unknownAndEvaluated": 972,
+  "unknownCells": 7290
+ },
+ "r-d6b-insured": {
+  "notCoveredByD8": 0,
+  "unknownAndEvaluated": 432,
+  "unknownCells": 3402
+ },
+ "r-d6b-uninsured": {
+  "notCoveredByD8": 0,
+  "unknownAndEvaluated": 432,
+  "unknownCells": 3402
+ },
+ "r-d6c": {
+  "notCoveredByD8": 0,
+  "unknownAndEvaluated": 456,
+  "unknownCells": 5589
+ },
+ "r-d7": {
+  "notCoveredByD8": 0,
+  "unknownAndEvaluated": 540,
+  "unknownCells": 4374
+ }
+}
