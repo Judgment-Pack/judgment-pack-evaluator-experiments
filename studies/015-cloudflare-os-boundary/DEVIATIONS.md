@@ -1084,3 +1084,39 @@ the round-1 rebuild and are kept as the record of the apparatus round 1 reviewed
 apparatus. Exactly one registry expectation has been corrected against an observed run, named
 above (`neg-mcp-byo-autoapply`); every other change was driven by review or by source
 verification.
+
+## The DCO trailer rebase (post-round-12, pre-merge)
+
+The branch was rebased once to add the `Signed-off-by` trailers the repository requires;
+commit messages changed, trees did not — 21 commits, zero tree mismatches, verified
+mechanically before the force-push. Every commit hash cited in this file, in
+`PREREG-REVIEW.md`, in the review records under `reviews/`, and in
+`results/primary-attempt-001/ANALYSIS.md` names the pre-rebase identity; the map below
+governs those citations the way a correction here governs a stale frozen sentence — on
+the identity question and nothing else. The bytes each review read are byte-identical to
+the bytes that merge (the tree hash column is the proof; the freeze commit `968a9f8`
+became `7797a77` over an unchanged tree).
+
+| pre-rebase | post-rebase | tree |
+|---|---|---|
+| `d58934d` | `b76e685` | `96bcb07f7e7a` |
+| `4c79b28` | `ee47252` | `6b4f066bcabb` |
+| `159a129` | `59f9a3f` | `8c75e3ac3d6c` |
+| `5cb4c1e` | `09277b7` | `9bc743896919` |
+| `a7ac228` | `c45faa4` | `f87d3e1ec5c8` |
+| `3730d0b` | `b4bd94d` | `4b21ef8d96c0` |
+| `5695211` | `5faa4c7` | `c86c1dd71527` |
+| `97f550c` | `7a2204e` | `5f3cc64f1a92` |
+| `e78ff3e` | `75ddeee` | `2280f9e27b06` |
+| `99b5832` | `b31130d` | `cc6878fc488e` |
+| `6d0fdd5` | `303f305` | `18198d8ae551` |
+| `cb48421` | `5688f61` | `3191a5872af6` |
+| `1ee1ca1` | `de9a15b` | `5443e773b293` |
+| `b223a40` | `f6cf13c` | `2ff357bcdd79` |
+| `7bd0804` | `fbb21d7` | `661dcc797a78` |
+| `06e85f6` | `4b6e473` | `83ae8f7a98ae` |
+| `72346f9` | `5c526d5` | `b22fad391931` |
+| `968a9f8` | `7797a77` | `d12608bcae18` |
+| `19a5bb8` | `4ed9a86` | `50a5bd24f180` |
+| `610a5dd` | `2c9d90b` | `78f613ea91ef` |
+| `4c0c5a6` | `f1ddfe6` | `c3d736ab47f4` |

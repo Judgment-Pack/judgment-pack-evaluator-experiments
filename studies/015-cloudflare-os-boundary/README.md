@@ -1,6 +1,6 @@
 # Study 015 — the judgment/staged-action boundary under a governed-agent platform
 
-**Status: FROZEN at `968a9f8`, and the registered primary attempt has run.** Eleven rounds of
+**Status: FROZEN at `7797a77 (pre-DCO-rebase 968a9f8)`, and the registered primary attempt has run.** Eleven rounds of
 cross-vendor review preceded the freeze: rounds 1–10 returned **DO-NOT-FREEZE** and round 11
 returned **freezable after listed fixes**, with that fix landed. The freeze was taken on that
 verdict, and **round 12 ran only after it** — which supersedes the preregistration's own banner
@@ -155,7 +155,7 @@ does not show.
 
 | Path | What it is |
 |---|---|
-| [`PREREGISTRATION.md`](PREREGISTRATION.md) | The registered protocol — frozen and digest-pinned at `968a9f8`, never edited again; its own status line still says DRAFT and is corrected in [`DEVIATIONS.md`](DEVIATIONS.md) |
+| [`PREREGISTRATION.md`](PREREGISTRATION.md) | The registered protocol — frozen and digest-pinned at `7797a77 (pre-DCO-rebase 968a9f8)`, never edited again; its own status line still says DRAFT and is corrected in [`DEVIATIONS.md`](DEVIATIONS.md) |
 | [`adapter/SPEC.md`](adapter/SPEC.md) | Retained-record model, commitment schema, ceremony, verdict codes, disposition→action map — registered and digest-pinned at the same freeze, and likewise still self-labelled DRAFT |
 | [`adapter/commitment.py`](adapter/commitment.py) / [`adapter/verify.py`](adapter/verify.py) | Commitment construction; the three-layer ceremony |
 | [`harness/MATRIX.json`](harness/MATRIX.json) | 27 registered cells (locked-replication stratum) |
