@@ -22,3 +22,20 @@ appendix instances plus three probes). One shape divergence recorded, not
 counted as semantic: the disposition's handoff serialization
 (object-with-target-echo vs bare string enum) is underdetermined by the
 RFC -- see python/DECISIONS.md entry 3.
+
+## The runtime pin, and when to move it
+
+`class_agreement.py` takes a Go binary, so CI builds one from a **pinned, immutable
+runtime commit** rather than a branch. A moving ref would let a change in another
+repository decide, silently, whether this repository's cross-implementation evidence
+still holds — and the whole point of the comparison is that a divergence is
+adjudicated against the specification text, never by preferring whichever
+implementation moved last.
+
+To advance the pin: change the `ref` in the `evaluator-agreement` job to another
+reviewed runtime commit, run the harness locally against it, and say in the pull
+request what that commit changed about evaluation.
+
+**The shape to refuse is a pin advanced together with a row's expectation in one
+commit.** That is indistinguishable from making the evidence agree by moving the
+thing it was evidence about.
