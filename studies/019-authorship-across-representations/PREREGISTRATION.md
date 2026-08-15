@@ -1,249 +1,338 @@
 # Preregistration — Study 019: authorship across representations
 
-**DESIGN DECISION 2026-08-15 (maintainer, after calibration pilot 01): the primary endpoint
-pivots from E1 (per-run perfect gold agreement — measured at ceiling in all three arms in
-the non-citable pilot; it becomes a reported control) to E4 (mutation-kill rate of
-run-authored test suites — the dimension where pilot variance actually lives: 35–49
-authored matrix rows per arm-A run vs 1–4 test rules in B/C). R1, δ, and the contrast
-machinery in §1/§5 below still describe the pre-pivot design and are rewritten at prereg
-drafting time; the batch window must also be re-registered as multi-day (arm-A calls run
-26–40 minutes). See design/pilots/2026-08-15-calibration-pilot-01/NOTE.md.**
+**Status: DRAFT, second major revision (post-design-phase). Not frozen. Nothing citable has
+run. No review round has read this draft. Every freeze pin is null; every execution before
+the freeze is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are work that
+must land before any review round can return `freezable as written`.**
 
-**Status: DRAFT. Not frozen. Nothing has run. No pin is filled; every execution before the
-freeze is a PILOT and supports no claim. This draft carries the registered section structure
-and the design decisions already taken; every open item is marked `TODO(prereg)` and must be
-closed before any review round can return `freezable as written`.**
+## Design provenance (disclosed, because it shaped the registered claims)
+
+This draft was preceded by a design phase whose artifacts live under `design/` and whose
+non-citable calibration pilot (`design/pilots/2026-08-15-calibration-pilot-01/`) shaped two
+registered choices, disclosed here rather than discovered in review:
+
+1. **The primary endpoint pivoted from policy correctness to test-pinning power.** In the
+   pilot, every completed authoring run in every arm produced a policy artifact in perfect
+   agreement with all 76 gold rows (5/5 per arm): correctness is at ceiling for
+   well-specified prose at this scale, in all three representations. The dimension with
+   variance is what the run-authored test suites catch: pilot mean paired-mutant kill rates
+   of 0.90 (arm A, range 0.84–1.00) vs 0.97–0.98 (arms B/C). R1 is therefore registered
+   over E4 (kill rates), with E1 (gold agreement) as a reported control expected at
+   ceiling — the ceiling itself being a finding this study commits to publishing.
+2. **The high-kill threshold τ and the minimum meaningful difference δ (§5) were chosen
+   after seeing pilot data.** The mitigation is structural: pilot runs are non-citable, the
+   registered batch is 150 fresh runs, and the choice is disclosed here with the pilot
+   numbers that motivated it.
+
+The design phase also produced, and this preregistration inherits by reference: the contest
+policy (`design/POLICY-DRAFT.md` v0.3 — panel-reviewed, twice engine-verified, clean-room
+checked; frozen copy lands at `policy/POLICY.md` at freeze), two reference implementations
+in cell-for-cell agreement over a 2,540-cell grid, a 76-row gold suite with clause
+citations whose expectations both engines and a clean-room oracle reproduce exactly, two
+deterministic mutant generators with witness sets, prompt materials with full-verbatim
+language references, and two registered inexpressibility results (X1, and the census's
+output-side rows).
 
 ## The freeze and the primary attempt
 
-`TODO(prereg)`: this section is written in full before the freeze, in the 016/017 form —
-naming (a) the freeze commit by reference ("the squash-merge commit of PR #NN on `main`"),
-(b) the literal attempt root `results/primary-attempt-001`, which must not exist at the freeze
-and which the scorer refuses if it does, and (c) the exact governing invocation under the
-pinned interpreter, e.g.
-`<the CPython PINS.json pins> harness/score.py --attempt-root results/primary-attempt-001`.
-The first invocation of that command is the primary attempt, crash and all.
+The freeze commit is the squash-merge commit of the freeze PR on `main` — named by
+reference because a squash hash cannot exist before the merge. At the freeze, every pin in
+`harness/PINS.json` is filled; `results/primary-attempt-001` must not exist, and the scorer
+refuses if it does. The governing invocation, run once from the freeze commit under the
+pinned interpreter, is:
+
+    <the CPython PINS.json pins> harness/score.py --attempt-root results/primary-attempt-001
+
+The first invocation of that command is the primary attempt, crash and all. The scorer is
+the only publisher; its outputs embed no timestamp and no absolute path.
+`GATE(pre-freeze)`: `harness/` is the ported and extended Study 012 machinery (§7) — it
+does not exist yet; this section binds its shape.
 
 ## 1. Question
 
-Within the registered JPS-expressible policy fragment, does a constrained judgment
-representation (JPS) change how reliably a model authors an executable policy — compared with
-raw Rego and with Rego plus a prescribed judgment convention?
+Within the registered JPS-expressible policy fragment, under single-shot authorship, does
+the representation a model authors in change **what its accompanying test suite pins
+down** — compared across a Judgment Pack (arm A), raw Rego (arm B), and Rego under a
+prescribed judgment convention (arm C)?
 
-**R1 (primary, retractable), difference form, scope inside the claim:** within the registered
-JPS-expressible fragment, under single-shot authorship, arm A's per-run perfect-gold-agreement
-rate exceeds arm B's: the exact A−B difference interval lies strictly above 0 at the
-registered minimum meaningful difference δ (`TODO(prereg)`: fix δ and publish the
-operating-characteristic table for N=50/arm, the 012 §5.4 pattern). An INDETERMINATE or
-unsupported outcome licenses neither "constraint doesn't help" nor any A-vs-C conclusion.
+**R1 (primary, retractable), two-sided difference form:** in the registered batch, the
+per-arm **high-kill run rates** (§5, E4: fraction of admitted runs whose suite kills at
+least τ of the paired adequate mutant subset) differ between arm A and arm C: the exact
+two-proportion difference interval for A−C excludes zero, at the registered δ. The A−B
+contrast is tested second under the same machinery (hierarchical order registered in §5).
+An interval straddling zero is **INDETERMINATE** and licenses nothing — not equivalence,
+not either direction's negation. Direction is reported as observed; the design-phase pilot
+pointed B/C above A, and this registration deliberately does not presuppose it.
 
-**The A-vs-C contrast** is reported with the same machinery (difference interval, δ,
-INDETERMINATE row), interpreted confirmatorily only if R1 is decided (hierarchical
-multiplicity rule). No action table is registered: what each outcome would mean for the
-program lives in §11, which is explicitly not a registered commitment.
+**R2 (secondary, descriptive):** the failure map — where each representation's suites are
+blind (per-mutant-class kill profiles, engine-supplied vs assertion kills), the E1 ceiling
+report, authoring latency and validity profiles, and the interpretive-spread census. R2 is
+never adjudicated and never falsifies.
 
-**R2 (secondary, descriptive):** the failure map — where each representation's authoring
-attempts fail (E3 taxonomy), what each run-authored test suite pins (E4), and how far
-independent authors diverge from one another (E5). R2 is never adjudicated and never
-falsifies.
+**Why A−C is first:** C is the live alternative architecture (Rego plus a small prescribed
+judgment convention); A−C is the comparison the program would act on. B is the floor.
 
 ## 1a. Population and prospective content
 
-This study has **no locked-replication stratum and no reviewer-holdout stratum**; it uses the
-arm vocabulary of Studies 011/012, the program's authorship-rate precedents, not the
-two-strata shape of 013–018. The two-strata shape does not apply because nothing about the 150
-authoring runs has been observed at freeze time: the prospective content of an authorship-rate
-study is the post-freeze runs themselves. Reviewer-authored prospective content lives in the
-sealed reviewer mutant set (§4) — first executed at the primary attempt, scored "as authored",
-reported separately, moving nothing — and in reviewer-vs-maintainer gold disagreement,
-reported as an ambiguity diagnostic that can never move E1.
+No locked-replication stratum and no reviewer-holdout stratum: this is an authorship-rate
+study in the 011/012 line, and its prospective content is the 150 post-freeze runs — no
+authoring run exists at freeze time. Reviewer-authored prospective content lives in the
+**sealed reviewer mutant set** (§4): authored during review rounds, committed verbatim,
+first executed at the primary attempt, scored "as authored", reported separately, moving
+nothing. The calibration pilots are non-citable and outside every population.
 
-**Population rule (enforced in code, the Study 001/011 lesson).** The denominator of every
-per-arm rate is attempted runs whose apparatus succeeded. Apparatus/transport failures (slot
-shape, call exit, golden-context mismatch, binary digest mismatch, transcript refusal) are
-pipeline-invalid and excluded. Every failure attributable to what the author emitted —
-unparseable artifact, schema-invalid pack, `opa check` failure, v0 syntax, no extractable
-fenced block, unreadable output shape — is an authoring outcome: valid, counted, scoring zero
-gold agreement. E1 and E2 are computed on the same denominator. A harness test diffs the prose
-partition table against the scorer's code partition and against every code `admit()` can
-return.
+**Population rule, enforced in code (the Study 001/011 lesson).** The denominator of every
+per-arm rate is attempted runs whose **apparatus** succeeded. Apparatus failures — slot
+shape, call nonzero-exit, **call timeout at the registered ceiling**, golden-context
+mismatch, binary digest mismatch, transcript refusal — are pipeline-invalid, excluded, and
+reported with their own rate and interval. Every failure attributable to what the author
+emitted — no extractable marker block, unparseable artifact, schema-invalid pack,
+`opa check` failure, v0-syntax, unreadable output shape — is an **authoring outcome**:
+valid, counted, and scoring zero on every endpoint it reaches. The E4 population adds one
+further registered step: the **identity control** (§5), whose exclusions are reported, not
+silent. A harness test diffs the prose partition table against the scorer's code partition
+and against every code `admit()` can return. (Design-phase lesson, recorded: the pilot
+driver mis-filed timeouts as an authoring code; the registered table must make that
+impossible.)
 
 ## 2. Apparatus and pins
 
 All pins null until the freeze; the scorer labels any run PILOT while any pin is null.
+Resolved values below were verified empirically on 2026-08-14/15
+(`design/TOOLCHAIN-NOTES.md`) and are re-verified fail-closed at run time.
 
-- **jpack**: current release (v0.17.0 line at design time) pinned in the Study 013 shape —
-  releaseTag, releaseAsset, archiveSha256 verified against `checksums.txt`, binarySha256,
-  reproducible-build attestation. Verdicts and §8.4 error classes are read from the JSON
-  payload only; exit codes distinguish "invocation failed" (3/4/5 — harness-error terminal)
-  from "the evaluator answered" (0/1/2). The harness runs outside any `jpack.json` that
-  declares an `audit` member. `TODO(prereg)`: fill the pin block.
-- **OPA**: current stable 1.x pinned as `opa_linux_amd64_static` plus the published per-asset
-  sha256, version resolved from the release page at pin time — never from memory. No
-  reproducible-build claim is available (official builds embed timestamp and hostname); the
-  pin is against the published artifact only, stated here rather than left for review. Rego
-  dialect v1, pinned in prompt and command line; a v0 emission is an authoring outcome with
-  its own code. A capabilities file is generated from the pinned binary with a registered
-  denylist (clock, network, rand, uuid, `opa.runtime`, print/trace, timezone-taking time
-  forms, `net.cidr_expand`), and a canary negative control (a `time.now_ns` policy that must
-  be refused) demonstrates the gate has power. Scored invocations use `--strict`,
-  `--strict-builtin-errors`, `--fail`, `--timeout`, `env -i` with `TZ=UTC`, and per-run
-  exclusive directories; `opa test` JSON is normalized (strip `duration`, sort by
-  package/name) before hashing. `TODO(prereg)`: resolve version + digests; verify empirically
-  the exit-code behavior, whether `opa exec` accepts `--capabilities`, and the checksum
-  artifact shape; record the license from the repository `LICENSE` at pin time.
-- **Authoring toolchain**: the program's standing pinned stack (Study 012's codex pins),
-  re-pinned at design time; one model, single-model ceiling in §9. `TODO(prereg)`: re-pin.
-- **Interpreter and schedule**: CPython pinned by implementation/series/exact version; runs
-  sequential, never parallel; all slots within one UTC calendar day (crossing midnight is a
-  DEVIATIONS entry, not a stopping rule); arm-interleaved first-order carryover-balanced
-  schedule re-derived for three arms and asserted by a harness test. N = 50 runs/arm, 150
-  slots, fixed in the registry before the batch (decided 2026-08-14).
+- **jpack** v0.17.0: archive `judgment-pack_0.17.0_linux_amd64.tar.gz` sha256 `4046a101…`
+  verified against the release `checksums.txt`; binary sha256 `42f35f79…`;
+  reproducible-build attestation at freeze (jpack supports it). Verdicts and §8.4 error
+  classes read from the JSON payload only; exit codes distinguish invocation failure
+  (3/4/5 — apparatus) from an evaluator answer (0/1/2). Harness runs outside any
+  `jpack.json` declaring an `audit` member. The operator PATH binary is v0.10.0 and must
+  never be invoked.
+- **OPA** v1.19.0: asset `opa_linux_amd64_static` sha256 `1dd5c559…` verified against the
+  published per-asset checksum; **no reproducible-build claim exists** (official builds
+  embed timestamp/hostname) — the pin is against the published artifact, stated here.
+  License Apache-2.0 per `LICENSE` at the tag. Rego v1 pinned in prompt and invocation.
+  Capabilities file generated from the pinned binary with the registered denylist;
+  **the `time.now_ns` canary must be refused** (verified; re-verified at attempt time as a
+  control gate). `opa exec` does not accept `--capabilities` (verified): scored
+  invocations use per-row `opa eval --format json --fail --strict-builtin-errors
+  --capabilities … --timeout …` under `env -i` with `TZ=UTC`, per-run exclusive
+  directories. `opa test` failure exits 2; undefined-without-`--fail` prints `{}` exit 0
+  (both verified — the harness relies on neither exit-code family for verdicts).
+- **Authoring stack**: codex-cli 0.145.0, binary sha256 `a2a05daf…` — byte-identical to
+  the Study 012 pin (baseline continuity). Model named by explicit flag at batch time; a
+  model name is not a digest. Full 011/012 isolation discipline: fresh HOME/CODEX_HOME,
+  `env -i`, golden pre-prompt-context capture from two agreeing probes, isolation negative
+  control under recorded operator assent, credential copy deleted on seal and traps.
+- **Interpreter**: CPython, implementation and series pinned, exact version recorded;
+  runbooks name it by absolute path.
+- **Prompts**: assembled deterministically (`design/pilot/assemble_prompt.py` lineage) from
+  the frozen policy prose, the naming appendix, and the arm materials; each arm's
+  assembled prompt pinned by sha256 at freeze. The call wrapper refuses on prompt digest
+  mismatch. Byte sizes published (pilot values: A 84,289; B 204,333; C 206,686 — the
+  asymmetry is the registered cost of full-page parity, §3).
+- **Batch shape**: N = 50 runs/arm, 150 slots, sequential, never parallel; arm-interleaved
+  first-order carryover-balanced schedule for three arms, re-derived and asserted by a
+  harness test. **Registered batch window: three consecutive UTC calendar days** (pilot
+  call durations: arm A 26–40 min, B/C 10–18 min; a one-day window is arithmetically
+  impossible and is not registered). Crossing the window is a deviation. **Per-call
+  timeout ceiling: 2700 s**, an apparatus bound; timeouts are pipeline-invalid, and a
+  per-arm timeout rate above the registered cap (10% of slots) is a control-gate failure
+  adjudicating R1 in neither direction.
 
-## 3. The contest policy and its calibration
+## 3. Arms and prompt materials
 
-Vendor-approval domain, confined to the JPS-expressible fragment: three outcomes plus
-unresolved semantics; ~8–12 rules over risk score, requested spend, country risk, sanctions
-status (ordinary fact strings) and financial evidence (the §8.2 evidence document); 4–6
-numeric thresholds with mixed inclusive/exclusive boundaries; 2–3 exceptions exercising all
-three effects; precedence encoded as mutual exclusion (the hand-written negation count is a
-registered covariate); `fallbackOutcome` absent over part of the space so `no-match` is
-reachable; escalation present, its target scored descriptively only. Both tri-state
-mechanisms are present deliberately, their semantics stated exactly in prose. The
-expressiveness census (descriptive companion, never adjudicated) records per row whether a
-gap is a deliberate Core refusal or a maintainer roadmap item — numeric outputs are the
-latter (stated 2026-08-14, planned for a later JPS version). Registered design rule: a spec
-change landing before the freeze does not expand the contest fragment; widening the fragment
-re-opens the design and its review, and the enriched output side belongs to a follow-up
-against the version that ships it. The canonical
-facts grid is authored as decimal strings with a registered fixed scale per numeric field; the
-Rego projection is `to_number` over those exact bytes with a freeze-time round-trip assertion.
+| Arm | Artifact pair | Suffix materials |
+|-----|---------------|------------------|
+| A | Judgment Pack (specVersion 0.2.0-draft) + matrixVersion-2 test matrix | full spec + schema verbatim; task instructions |
+| B | Rego v1 policy + opa test file | full OPA doc pages verbatim; **informal contract** (mechanical de-formalization of C's schema); task instructions |
+| C | Rego v1 policy + opa test file | same doc pages; **prescribed judgment convention** (result JSON Schema + `default decision := {"disposition":"unresolved","reasons":["no-match"]}` + exclusion/precedence and unresolved-result conventions); task instructions |
 
-Ordering and contamination control: draft prose → ambiguity audit → gold v0 authored with
-per-row clause citations → ambiguity stratum frozen → only then calibration pilots (labelled,
-non-citable, all arms). Prose edits after pilots are allowed only where a mechanical check
-shows no unchanged gold row cites an edited clause. Every piloted-and-discarded candidate
-policy is published with its pilot rates; the frozen policy's own pilot rate is not an
-estimate of anything. The calibration target is the region where the difference endpoints are
-decidable (no arm saturated at 0 or 1); the stopping rule is registered.
-`TODO(prereg)`: the policy prose itself, the grid, and the calibration stopping rule.
+- Shared header, byte-identical: the policy prose and the naming appendix (registered
+  identifiers: outcome ids, ground tokens, pointer paths, evidence ids, Rego
+  package/entrypoint, tri-state encodings, wire forms, the arm-A escalation
+  trigger/target pin, the `applicability` prohibition).
+- **Excerpt parity is full-verbatim, not curated** (panel rule): arm A receives the entire
+  spec + schema (the prose spec alone was shown insufficient — it omits member names the
+  schema carries); arms B/C receive twelve named official OPA doc pages in full at the
+  pinned tag, fetched bytes retained under `design/prompts/upstream/` with per-source
+  digests, plus a builtin signature list generated from the pinned capabilities file. One
+  recorded derivation deviation: at v1.19.0 the docs live under `docs/docs/`, not
+  `docs/content/`. Sufficiency (every construct a reference uses is documented) and
+  policy-content prohibition (no clause names, thresholds, domain nouns in language
+  materials) are asserted by committed checkers, both shown to have power on mutated
+  inputs.
+- B and C differ in **formality only**: `deformalize.py` generates B's prose contract from
+  C's schema; byte-equality of the committed artifact with the generator's output is a
+  freeze test.
+- Authoring is **single-shot, no tools, no repair**. Artifact extraction is the registered
+  marker rule (`PACK:`/`MATRIX:` for A, `POLICY:`/`TESTS:` for B/C; fenced block
+  immediately following; last occurrence governs). Prompt iteration during design was
+  governed by a symmetric disclosed budget; the design-phase materials were built by
+  parallel builders under a shared fairness rule and are committed with their fairness
+  notes.
+- System boundary: in-system = what the pinned binary does at evaluation time;
+  out-of-system = anything requiring an authoring loop. No outcome of this study is
+  evidence about tooled authoring workflows (registered follow-up).
 
-## 4. Oracle, references, and mutants
+## 4. Oracle, references, mutants, and the X1 boundary
 
-- Gold suite authored by the maintainer from the prose alone, per §3's ordering; every row
-  cites its governing clause(s).
-- Clean-room second oracle bound to `CLEAN-ROOM-PROTOCOL.md` by name, implemented from the
-  POLICY.md bytes and nothing else by a **different vendor from the arms' authoring stack**
-  (hard requirement). Deliverables: room brief, numbered DECISIONS.md, transcript audit
-  recorded in the import commit, void-on-violation. Disagreement disposition, not a
-  zero-disagreement gate: every divergence retained verbatim, adjudicated in writing against
-  cited clauses, adjudication published; a divergence the prose cannot settle routes its rows
-  to the ambiguity stratum automatically.
-- Ambiguity stratum membership is mechanical: a row enters iff the two oracles disagree on it
-  or the clean-room DECISIONS.md flags its governing clause as undetermined. Frozen before any
-  pilot artifact is opened; E1 published both with and without the stratum.
-- One reference implementation per language (maintainer-authored, verified against gold and
-  both oracles, conforming to the shared naming appendix), frozen. Two disjoint mutant sets:
-  the **adequacy set** (maintainer-authored, executed pre-freeze; the gold suite must kill
-  100% of it or the freeze is blocked) and the **reviewer set** (cross-vendor
-  reviewer-authored, sealed, first executed at the primary attempt, scored "as authored").
-  Mutant pairing across languages is an observable criterion: paired iff the gold-grid
-  disagreement sets against their own references are identical under the alignment map;
-  witness sets computed and published at freeze; cross-arm E4 runs over the paired subset
-  only, and the per-language unpairable count is published as a finding.
-`TODO(prereg)`: gold suite, references, mutant sets, alignment map (two axes: run-level
-admission; row-level APPROVE/REVIEW/REJECT/UNRESOLVED(reason-set)/ROW-ERROR(class), with the
-worked conflict-row example in all three arms).
+- **Gold**: 76 rows, hand-authored from the prose with per-row clause citations under the
+  earliest-clause tie-break; structure, X1 exclusion, boundary witnesses, and clause
+  coverage asserted by `check_gold.py`; both engines reproduce every row (floor gate); the
+  clean-room oracle (different vendor from the arms' stack; process-isolated; six numbered
+  decisions dispositioned in `design/cleanroom/DISPOSITION.md`) agrees 76/76 and
+  2,540/2,540 on the design grid. `GATE(pre-freeze)`: the registered clean-room build
+  re-runs against the frozen prose; divergences get written dispositions; unsettleable
+  rows route to the ambiguity stratum mechanically.
+- **References**: one per language, in cell-for-cell agreement over the design grid.
+  `GATE(pre-freeze)`: **off-gold equivalence check** — the two references' agreement is
+  re-established over the full derived input space, with every divergence point required
+  to fall inside a registered exclusion class (currently exactly X1); any other divergence
+  blocks the freeze. (Design-phase lesson: the E4 identity control evaluates
+  author-written inputs that roam off-gold; a reference defect there voids an arm — this
+  gate is what makes the identity control safe.)
+- **X1 (registered exclusion class and census row)**: {new vendor yes; risk in [40,70);
+  LOW country with spend unreadable, or country unreadable with spend ≤ 100,000.00} — the
+  prose-correct outcome (review) is inexpressible in the fragment (0 of 2,048 onUnknown
+  assignments; irreducible). Gold contains no X1 row, and **every authored test case whose
+  inputs fall in X1 is excluded from identity and kill evaluation, with the per-run
+  excluded-case count published**.
+- **Mutants**: two deterministic generators (`design/mutants/*/gen_mutants.py`), 145 JPS /
+  184 valid Rego single-edit mutants over the registered classes, each with its witness
+  set over gold. **Pairing** is observable: identical sorted witness sets; the empty
+  witness set is degenerate and never pairs. Cross-arm E4 runs over the paired adequate
+  subset only; unpairable counts are published as a finding about the defect spaces.
+  Kills achievable only through engine-supplied conflict detection (35 JPS mutants,
+  listed) are reported both included and excluded. `GATE(pre-freeze)`: the **adequacy
+  gate** — every mutant either killed by gold (witness set non-empty) or registered as
+  dropped with its mechanism (several are provably unkillable — Kleene-monotone onUnknown
+  flips on rules never unknown); the current work list is 47 JPS + 60 Rego empty-witness
+  mutants; resolving it may add gold rows, and any added row re-runs the full agreement
+  chain (engines, oracle).
+- **Reviewer mutant set**: sealed, authored in review rounds, first executed at the
+  primary attempt, scored "as authored", reported separately.
 
-## 5. Arms, prompts, and endpoints
+## 5. Endpoints and decision rule
 
-Arms: **A** JPS pack + test matrix (matrixVersion 2); **B** Rego v1 + opa tests with an
-informal output contract; **C** Rego v1 + opa tests + the prescribed judgment convention —
-result contract (JSON Schema) **plus** conventions for mutual exclusion/precedence and an
-explicit unresolved/conflict result (decided 2026-08-14: full convention). Prompts are
-assembled mechanically from registered fenced blocks: a byte-identical shared header (contest
-prose + the naming appendix — outcome ids, fact pointer paths, evidence-requirement ids, Rego
-package path + entrypoint rule name) plus an arm suffix. Arm B's prose contract is a
-registered mechanical de-formalization of C's JSON Schema with its own digest, so B and C
-differ in formality only. Excerpt parity is a sufficiency criterion asserted by a freeze test
-(every construct the arm's reference uses appears in the arm's excerpt; the reference uses no
-construct absent from it); the Rego excerpt derives by a registered rule from the official OPA
-docs at a pinned commit; the cross-vendor reviewer holds a veto over both excerpts. Authoring
-is single-shot, no tools, no repair; artifact extraction is a registered deterministic
-fenced-block rule; prompt iteration during design is governed by a symmetric, disclosed
-budget. System boundary rule: in-system = anything the pinned binary does at evaluation time;
-out-of-system = anything requiring an authoring loop.
+Scored surface: **kind + outcomeId + reasons (as sorted sets)** under the registered
+alignment map (two axes: run-level admission; row-level
+APPROVE/REVIEW/ENHANCED-REVIEW/REJECT/UNRESOLVED(reason-set)/ROW-ERROR(class)). `handoff`
+(state, triggeredBy, target) and `trace[]` are outside every endpoint; `applicability` is
+forbidden by the appendix and asserted at admission.
 
-Endpoints (exact Clopper–Pearson intervals; scope = the §8.3 portable disposition under the
-alignment map, applied consistently — `trace[]` and escalation-target content are outside it):
-- **E1 (primary quantity)**: per-run perfect gold agreement, ITT denominator (§1a). Primary
-  contrasts: exact A−B and A−C difference intervals with δ and an explicit INDETERMINATE
-  verdict row that licenses nothing and triggers nothing.
-- **E2**: authoring-validity profile — the ordered code table over the run-level axis (four
-  Core §8.4 classes; `opa check` codes; v0-syntax; output-shape-unreadable), same denominator.
-- **E3**: row-level failure taxonomy (boundary off-by-one, unknown-handling,
-  evidence-mechanism confusion, precedence/exclusion, missing-rule, outcome-mapping,
-  contract-shape); arm-structural categories are within-arm-only, enforced in the scorer.
-- **E4**: run-authored test kill rate — a suite is admitted only if it passes its language's
-  unmutated reference (identity control, registered as a mutant-set member); a kill = passes
-  reference AND fails mutant; per-arm identity-failure rate is its own published quantity;
-  cross-arm comparison over the paired mutant subset only.
-- **E5**: interpretive-spread census (012's registered census machinery).
-- Non-endpoints, with registered reasons: coverage probes (carry no expectations and never
-  gate — verified against the runtime); `trace[]` and escalation-target content (outside the
-  portable disposition); repair count (no-repair discipline); LOC (census only).
+- **E4 (primary): high-kill run rate.** Per admitted run: the suite passes the **identity
+  control** (every non-X1 case agrees with the arm's unmutated reference on the scored
+  surface; for B/C, `opa test` against the reference exits 0) — identity failures are
+  reported per arm as a first-class rate; then the suite's **paired-subset kill rate** =
+  killed / paired adequate mutants (kill = at least one non-X1 case disagrees on the
+  mutant; for B/C, `opa test` nonzero with class recorded). A run is **high-kill** iff its
+  paired kill rate ≥ **τ = 0.95** (chosen from pilot; disclosed in Design provenance).
+  Per-arm high-kill rates carry exact Clopper–Pearson intervals; the registered contrasts
+  are exact two-proportion difference intervals, **A−C first, then A−B** (hierarchical:
+  A−B is confirmatory only if A−C is decided), each at **δ = 0.20** on the difference of
+  high-kill rates, with an explicit INDETERMINATE row (interval straddles zero) that
+  triggers nothing. Operating characteristics of (τ, δ, N=50) published in this document
+  before the freeze. `GATE(pre-freeze)`: the OC table.
+- **E1 (control, reported): per-run perfect gold agreement** on the policy artifact, ITT
+  denominator. Expected at ceiling in every arm (pilot 15/15); reported with intervals; a
+  per-arm E1 rate below the registered floor (0.60) is a **control-gate row** adjudicating
+  R1 in neither direction (it would mean the stimulus regressed, not that testing skill
+  differs).
+- **E2: authoring-validity profile** — the ordered code table (apparatus codes separated;
+  §1a), same denominator, headline not footnote.
+- **E3: row-level failure taxonomy** on E1 failures and identity failures (categories as
+  registered in the design brief; arm-structural categories within-arm-only, enforced in
+  the scorer).
+- **E5: interpretive-spread census** — per-arm distinct structural encodings and
+  pairwise-disagreement profiles (012's census machinery, ported).
+- Latency and artifact-size distributions per arm: descriptive, published (pilot showed a
+  2–3× authoring-time asymmetry; it is data, not noise).
+
+**Ordered, exhaustive decision rule** (first matching row; last row always matches):
+1. Any pin/schema/manifest failure, or apparatus failure making the batch non-terminal →
+   R1 inconclusive — pipeline-invalid.
+2. Any control-gate failure (reference-vs-gold imperfect at attempt time; capabilities
+   canary passes; golden-context gate; per-arm timeout rate > cap; E1 floor breached) →
+   R1 inconclusive — control gate failed.
+3. A−C interval excludes zero at δ → R1 decided, direction as observed; then A−B likewise.
+4. Otherwise → INDETERMINATE; no claim in any direction is licensed.
 
 ## 6. Validity channel (separate from detection)
 
-Control gates, above every substantive row of the decision rule, adjudicating the claim in
-neither direction when they fail: both references pass gold 100% at attempt time; the OPA
-capabilities canary is refused; the golden-context gate holds (two agreeing probe captures;
-isolation negative control under recorded operator assent); every binary digest matches its
-pin. Ordered, exhaustive decision rule with a last row that always matches, in the 012 form.
-`TODO(prereg)`: the full ordered table.
+Control gates, above every substantive row: both references reproduce gold 100% at attempt
+time; the off-gold equivalence certificate is current at the freeze commit; the OPA
+capabilities canary is refused; the golden-context gate holds with the isolation negative
+control on record; every binary digest matches its pin; the schedule matches the
+registered plan. Manifest failures, unregistered absences, and enforcement failures are
+NOT-ADJUDICATED — never detections.
 
-## 7–8. Controls, counting integrity, enforcement
+## 7. Harness, controls, and counting integrity — `GATE(pre-freeze)`
 
-Ported machinery (by digest, two-sided PORTS.md table): 012's call wrapper, batch driver
-(schedule re-derived for three arms), integrity/transcript/golden-context controls, census,
-scorer skeleton. New builds: per-language admission layer, two-engine execution layer,
-alignment map, mutant tooling with identity control, C's convention document, B's
-de-formalization, OPA capabilities tooling. The manifest is scoped per ADR 0004:
-`DEVIATIONS.md` and `README.md` excluded by named constant with an asserting harness test
-(the 014 `REGISTERED_DOCUMENTS`/`EXCLUDED_DOCUMENTS` shape). `TODO(prereg)`: the full §7/§8
-text in the 016/017 fully-spelled-out form.
+The harness is the Study 012 machinery ported by digest (two-sided `PORTS.md` table;
+`integrity.py` verifies the source study's lock first): call wrapper, batch driver
+(three-arm schedule re-derived + tested), golden-context capture, transcript binding,
+scorer skeleton (admit + ordered codes + exact rational Clopper–Pearson with registered
+test vectors + terminality). New builds, already prototyped in `design/`: the per-language
+admission layer, the two-engine execution layer, the alignment map, the mutant/kill
+machinery with identity control and X1 filter, the E4 scorer (`design/mutants/e4_score.py`
+lineage — deterministic, byte-identical reruns). The manifest is scoped per ADR 0004:
+`DEVIATIONS.md` and `README.md` excluded by named constant with an asserting test; the
+appendable-files rule is honored from day one. Pins registry: linear anchor order,
+REGISTERED-vs-PILOT label rule, `--include-reviewer-set` refusing while any pin is null.
+CI runs the deterministic controls only; the batch never runs in CI.
+
+## 8. What is enforced, what is recorded, what is not prevented
+
+Enforced: pins, digests, population membership, the X1 filter, the identity control, the
+extraction rule, the schedule. Recorded: durations, token counts if reported by the CLI,
+per-case diagnostics, every completion verbatim. Not prevented, stated plainly:
+provider-side cross-session state (the independence premise behind every interval is
+unclosable from retained bytes); an operator running and discarding an unrecorded batch;
+the model having seen public Rego corpora at pretraining (§9). Nothing in the retained
+artifacts proves the published slots are all the invocations that occurred; integrity
+rests on ledger discipline and re-runnability.
 
 ## 9. What this study cannot show
 
-Fidelity is measured within the JPS-expressible fragment, selected by arm A's expressive
-envelope and no other criterion; the program's own census (Study 003: 12/12 real decisions
-escape the pack) says this fragment does not cover real business decisions, and no result
-here generalizes beyond it. Single-shot authorship only — no outcome is evidence about tooled
-authoring workflows, which are the registered follow-up (as is the high-prevalence
-constrained fourth arm, JSON Logic/DMN, deferred 2026-08-14). One model, one day, one policy
-family, one prompt per arm. Unless the registered gradient measurement runs, no direction of
-the result separates representation from training familiarity, and both directions are
-reported as confounded. Joint-reading prohibition: the expressiveness census and the fidelity
-rates live on different stimuli; no tradeoff statement combining them is licensed. The census
-describes spec 0.2.0-draft as pinned; gaps recorded as roadmap items (numeric outputs) are
-statements about the pinned version, not about JPS's future, and are not scored. An
-INDETERMINATE or unsupported contrast licenses no negation. The gold suite is two authors
-deep, not independent of the program. Nothing here measures whether any policy or fact is
-true, and nothing claims any JPS conformance.
+Everything is measured **within the JPS-expressible fragment, selected by arm A's
+expressive envelope and no other criterion** (Study 003: 12/12 real decisions escape the
+pack); nothing generalizes to business judgments at large. Single-shot authorship only; no
+outcome speaks to tooled authoring workflows (`packs test`/`suggest`, `opa` iteration),
+the registered follow-up — nor to the fourth-arm prevalence control (JSON Logic/DMN),
+deferred by decision 2026-08-14. One model, one prompt per arm, one policy family, one
+batch window. **No direction of any result separates representation quality from training
+familiarity**: the public Rego corpus is vast, the JPS corpus is this program, and no
+gradient measurement is registered — both directions are reported as confounded. E1 at
+ceiling in all arms is an expected finding about well-specified prose at this scale, not
+evidence the representations are interchangeable. Kill rates measure agreement-anchored
+mutation detection over registered single-edit mutants — not test quality at large, not
+defect rates in production, and (for the 35 listed mutants) partly the engine's structural
+checks rather than authored assertions, reported both ways. The gold suite is two authors
+deep plus a clean-room check that shares the gold author's model lineage (registered;
+third vendor declined 2026-08-15). The census's expressiveness rows and these rates live
+on different stimuli: **no tradeoff statement combining them is licensed** (pinned as a
+CORRECTION.md target). An INDETERMINATE outcome licenses nothing. Numeric outputs are a
+JPS roadmap item (2026-08-14): census rows so marked describe the pinned spec version, not
+JPS's future, and a spec change landing pre-freeze does not widen the fragment. Nothing
+here measures whether any policy or fact is true, and nothing claims JPS conformance.
 
 ## 10. Publication commitment
 
-All rates, all arms, all intervals, the full decision table, every identity-failure and
-unpairable-mutant count, published whichever way they land, with a pass's prominence.
-CORRECTION.md targets (verbatim wording, venue, URL, retrieval date) are pinned before the
-freeze. `TODO(prereg)`: the pinned targets.
+All rates, all arms, all intervals, the full decision table, every identity-failure,
+X1-exclusion, timeout, and unpairable-mutant count, the E1 ceiling report, and the latency
+distributions are published whichever way they land, with a pass's prominence.
+`CORRECTION.md` targets (verbatim wording, venue, URL, retrieval date) are pinned before
+the freeze. A failed or INDETERMINATE R1 is reported with the same prominence as a decided
+one.
 
 ## 11. What we would do with each outcome (NOT a registered commitment)
 
-This section is discussion, deliberately outside the registered protocol; no observed result
-obligates any of it. If A−B and A−C both decide in A's favor, the evaluator/language line
-continues with the census as its honest boundary statement. If A and C cannot be separated at
-δ, or C decides above A, the natural next artifact is a runtime/spec ADR exploring a JPS
-semantic profile over OPA (spec + schemas + conformance + gateway retained), taking this
-study's census and asymmetry ledger as inputs. The gateway line is unaffected by every
-outcome — that independence is by design, and is part of why this study is safe to run.
+Discussion only; no observed result obligates any of it. If arm A's suites decisively
+out-pin C's, the pack-plus-matrix format has evidence behind its testing story and the
+evaluator line continues with the census as its boundary statement. If C (or B) decisively
+out-pins A — the direction the pilot hints at — the natural next artifact is the
+runtime/spec ADR exploring a JPS semantic profile over OPA, taking this study's census,
+asymmetry ledger, and X1 as inputs; the gateway line is untouched either way, by design.
+If INDETERMINATE, the result is a measured null at the registered δ and the program
+decides whether a larger batch is worth the spend — outside this document.
