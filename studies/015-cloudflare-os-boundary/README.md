@@ -2,25 +2,25 @@
 
 **Status: FROZEN at `968a9f8`, and the registered primary attempt has run.** Eleven rounds of
 cross-vendor review preceded the freeze: rounds 1–10 returned **DO-NOT-FREEZE** and round 11
-returned **freezable after listed fixes**, with that fix landed and recorded. The freeze was
-taken on that verdict and **round 12 did not run**, which supersedes the preregistration's own
-banner and is recorded in [`DEVIATIONS.md`](DEVIATIONS.md). Every finding of every round is
-dispositioned in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) and the apparatus was rebuilt around
-them — including withdrawing one of the study's own recorded findings that source verification
-refuted. [`PREREGISTRATION.md`](PREREGISTRATION.md) is never edited again.
+returned **freezable after listed fixes**, with that fix landed. The freeze was taken on that
+verdict, and **round 12 ran only after it** — which supersedes the preregistration's own banner
+and is recorded in [`DEVIATIONS.md`](DEVIATIONS.md) — returning *mergeable after listed fixes*,
+whose four fixes are landed and recorded here. The apparatus was rebuilt around every finding of
+every round, all dispositioned in [`PREREG-REVIEW.md`](PREREG-REVIEW.md) — including one of the
+study's own findings, refuted by source verification. The preregistration is never edited again.
 
 **R1 holds.** All 27 locked cells adjudicated, zero endpoint-divergent, zero validity records,
 `attemptLabel: REGISTERED`, both strata published. R1's standing is that of a locked regression
-suite over behaviour already observed before the freeze — falsifiable by regression, and never
-a prospective prediction.
+suite over behaviour observed before the freeze: falsifiable by regression, never a prediction.
 
-**The reviewer holdout diverges, 7 of 8 cells.** It carries the prospective content and is
-reported with equal prominence. Six divergences run one way — the reviewer predicted the
-reviewed apparatus would accept, and the repaired apparatus refuses, which is the intended
-primary result — and one runs the other way: `h06` predicted a refusal the frozen apparatus
-does not make, and that acceptance lands on the stage-time witness the round-1 finding-4 repair
-registered. Cell by cell, with citations, in
-[`results/primary-attempt-001/ANALYSIS.md`](results/primary-attempt-001/ANALYSIS.md).
+**The reviewer holdout diverges, 7 of 8 cells.** It carries the study's prospective content and
+is reported with equal prominence — prospective in one exact respect: its expectations were
+authored by another party against the reviewed apparatus, never revised, and adjudicated only
+after the freeze, while the outcomes themselves were computed pre-freeze by direct layer calls.
+Six divergences run one way — the reviewer predicted acceptance and the repaired apparatus
+refuses, the intended primary result — and one runs the other way: `h06` predicted a refusal
+the frozen apparatus does not make, on the stage-time witness the round-1 finding-4 repair
+registered. Cell by cell, in [`ANALYSIS.md`](results/primary-attempt-001/ANALYSIS.md).
 
 The rounds, one line each: round 5 rescoped the claims to what the apparatus is; round 6 found
 the rescope's surfaces lagging and its replacement claim outrunning the code; round 7 found four
@@ -29,8 +29,8 @@ the withdrawn-claim class back for a third time and made it a test rather than a
 round 9 walked around that test in four ways and caught the tree failing its own manifest gate;
 round 10 found the licences inside it counting occurrences rather than identifying them; round
 11 found the sentence about those fingerprints claiming more than they hold, and it was cut to
-the mechanism's own terms ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope" through
-"Round-11 fix"). Everything under `pilots/` remains harness validation and supports no claim.
+the mechanism's own terms ([`DEVIATIONS.md`](DEVIATIONS.md), "Round-5 rescope" through the
+round-12 corrections). `pilots/` remains harness validation and supports no claim.
 
 ## What it is
 
@@ -155,12 +155,12 @@ does not show.
 
 | Path | What it is |
 |---|---|
-| [`PREREGISTRATION.md`](PREREGISTRATION.md) | The registered protocol (DRAFT until frozen by merge) |
-| [`adapter/SPEC.md`](adapter/SPEC.md) | Retained-record model, commitment schema, ceremony, verdict codes, disposition→action map |
+| [`PREREGISTRATION.md`](PREREGISTRATION.md) | The registered protocol — frozen and digest-pinned at `968a9f8`, never edited again; its own status line still says DRAFT and is corrected in [`DEVIATIONS.md`](DEVIATIONS.md) |
+| [`adapter/SPEC.md`](adapter/SPEC.md) | Retained-record model, commitment schema, ceremony, verdict codes, disposition→action map — registered and digest-pinned at the same freeze, and likewise still self-labelled DRAFT |
 | [`adapter/commitment.py`](adapter/commitment.py) / [`adapter/verify.py`](adapter/verify.py) | Commitment construction; the three-layer ceremony |
 | [`harness/MATRIX.json`](harness/MATRIX.json) | 27 registered cells (locked-replication stratum) |
-| [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json) | 8 reviewer-authored holdout cells (constructed but never adjudicated pre-freeze; scorer refuses) |
-| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Dispositions for all eleven review rounds: what changed and why — the one living ledger |
+| [`harness/MATRIX-HOLDOUT.json`](harness/MATRIX-HOLDOUT.json) | 8 reviewer-authored holdout cells, constructed before the freeze and published by the scorer only after it: `--include-holdout` was refused while the preregistration digest was null and is required now that it is set |
+| [`PREREG-REVIEW.md`](PREREG-REVIEW.md) | Dispositions for all twelve review rounds — eleven pre-freeze, round 12 over the results package: what changed and why, the one living ledger |
 | [`harness/PINS.json`](harness/PINS.json) | Every pin, each classified SCORER (compared before adjudication), CI, or DESCRIPTIVE |
 | [`harness/score.py`](harness/score.py) | The only thing that publishes |
 | [`harness/build_fixtures.py`](harness/build_fixtures.py) | One-time fixture construction (real evaluator runs; upstream identity functions) |

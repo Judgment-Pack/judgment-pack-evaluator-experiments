@@ -9,9 +9,11 @@ declined with reasons.
 and are never edited; the dispositions here are brought current as work lands, by amending the
 status of a row rather than rewriting what it said. Where a later round superseded an earlier
 disposition, the earlier row keeps its words and gains a note saying so. Statuses below are
-current as of the round-11 fix (the round-5 rescope commits `d58934d`, `4c79b28`, `159a129`,
-`5cb4c1e`, `a7ac228`, and the round-6, round-7, round-8, round-9, round-10 and round-11 fix blocks
-that follow them).
+current as of the round-12 corrections (the round-5 rescope commits `d58934d`, `4c79b28`,
+`159a129`, `5cb4c1e`, `a7ac228`, the round-6 through round-11 fix blocks that follow them, and —
+after the freeze at `968a9f8` and the registered attempt at `19a5bb8` — the round-12 block, whose
+protocol-relevant corrections land in `DEVIATIONS.md` because the frozen documents are no longer
+editable).
 
 ## Round 1 — DO-NOT-FREEZE
 
@@ -485,3 +487,57 @@ sentence about the apparatus was larger than the apparatus. Round 11's verdict i
 the listed fixes* — but the listed fix is this block, and round 11 did not read it. **Round 12 has
 not run**, and the freeze waits on its confirmation that this block is the correction it asked for
 and that it introduces nothing else.
+
+*(Note, at the round-12 corrections: the freeze was taken on round 11's verdict without waiting
+for that confirmation, and round 12 ran afterwards — over the freeze commit, the registered
+attempt and the results package. This row keeps its words, as this ledger's rule requires; the
+supersession is recorded in `DEVIATIONS.md`, "Registered attempt (post-freeze)", and round 12's
+own record is the section below.)*
+
+
+## Round 12 — MERGEABLE AFTER LISTED FIXES
+
+Reviewer: same configuration, with the frozen suite, the pin comparison, a registered re-run of
+the attempt and both mechanical guards executed. Reviewed at commit `19a5bb8` — and, unlike every
+round before it, **after** the freeze: its scope was what was new since round 11, namely the
+freeze commit `968a9f8`, the attempt artifacts and the results package. Verdict: **mergeable
+after listed fixes**; no blocker, two majors and two minors, and no protocol change or re-run
+required.
+
+What round 12 confirmed is the mechanical half, by execution: all four protocol digests match the
+frozen files byte-for-byte, the study manifest is exact, the frozen suite passes, the registered
+re-run reproduces the attempt artifacts byte-for-byte, R1's arithmetic and the holdout's
+reconcile against `RESULTS.json`, `h04`'s gate-before-oracle reading and `h06`'s
+registered-acceptance tracing both survive code-level checking, and both guards hold — locator
+92's licensed passage in `README.md` byte-identical among them. What it returned instead are two
+overstatements and two residues, all of them in prose about the run rather than in the run.
+Because the preregistration and its three registered artifacts are frozen, every correction lands
+in `DEVIATIONS.md` (*Round-12 corrections*), which registers that such an entry governs the
+sentence it corrects and nothing else.
+
+| # | Finding | Disposition |
+|---|---|---|
+| R12-1 | **Major.** `h08`'s closure is attributed to R6-2 in `ANALYSIS.md`'s table and discussion and in `DEVIATIONS.md`, but the exact fixture was already divergent after round 1: finding 11 refused an `applied` report with no approved row, and finding 6 separately supplied the outcome-ambiguity rule. Round 6 recorded zero outcome drift and changed only the first diagnostic reached. | **Accepted and fixed exactly as proposed.** `h08` is attributed to **round 1, finding 11** — the `applied` predicate's approved-row conjunct (`verify.py:1731-1736`; the same branch at `dc4bc91:verify.py:1088-1094`), against a `ledger.json` whose one row is `pending` — with **finding 6** retained for the ambiguity rule and for the inverse endpoint this cell *is* (round-1 row 6 above), and **R6-2** described as diagnostic stabilization only: it moved the connector-outcome comparison ahead of the per-state branches (`verify.py:1688-1694`), which is why the printed sentence cites the compatibility matrix, and round 6's zero-drift snapshot over all 35 cells is the same fact from the other side. Corrected in `ANALYSIS.md`'s `h08` row, `h08` paragraph and `h05` contrast, and in `DEVIATIONS.md` — where the superseded bullet keeps its words and carries the correction inline. |
+| R12-2 | **Major.** `PINS.json` and the generated `DETECTION-MATRIX.md` say the holdout was "never executed" before the freeze, and `ANALYSIS.md` and `README.md` describe it too broadly as prospective; the recorded pre-freeze snapshots computed all 35 outcomes by direct layer calls. What remained prospective was scorer adjudication and publication, and the externally authored, unrevised expectations — not outcome knowledge. `ANALYSIS.md`'s candid limitation does not cure the absolute frozen wording under the registry-precedence rule. | **Accepted and fixed exactly as proposed.** The frozen and generated files are preserved untouched; `DEVIATIONS.md` records the correction — the absolutes hold of `score.py`'s publication route and not of the layer functions — and states, once and generally, that a correction there **governs the stale sentence it corrects**, on that point and nothing else, which is the preregistration's own instruction (`PREREGISTRATION.md:18`) made explicit. The prospective width is narrowed to its two true components (authorship never revised; adjudication and publication after the freeze) in `README.md`'s banner and in `ANALYSIS.md` at three places: where the holdout is introduced, in `h06`'s "what it adds", and in the limitation, which now points at the correction. `ANALYSIS.md`'s own precedence sentence is amended to carry the same ordering. |
+| R12-3 | **Minor.** Frozen §6 says exactly two paths produce no `RESULTS.json` — existing attempt root, pre-freeze holdout inclusion — but after the freeze a registered attempt *without* `--include-holdout` writes the marker and exits before producing results, so the exhaustive statement is stale and the holdout-mode refusal changes direction with freeze state. | **Accepted and fixed exactly as proposed.** `DEVIATIONS.md` states the whole rule and governs §6's sentence on this point: no `RESULTS.json` when the attempt root already exists, and when the holdout mode is wrong for the freeze state — `--include-holdout` before, its omission after (`score.py:686-693`, marker written, nothing published). Both remain usage refusals rather than attempts, which is the property §6 registers and which is unaffected. No code changed. |
+| R12-4 | **Minor.** The frozen `adapter/SPEC.md` still labels itself DRAFT; `README.md` says the protocol remains draft "until frozen by merge" and describes the scorer as refusing the holdout; the existing deviation records only part of this stale status text. Commit `968a9f8` froze and registered the protocol before merge, and the registered scorer now requires and separately scores the holdout. | **Accepted and fixed exactly as proposed.** `DEVIATIONS.md` registers both frozen status lines — `adapter/SPEC.md:3` and `PREREGISTRATION.md:3` — as superseded by the digest freeze that preceded the merge, and governs them; neither file is edited. `README.md`'s layout rows are rewritten to immutable registered status (preregistration and SPEC, each with its DRAFT residue named) and to the real holdout behaviour (refused while the digest was null, required now that it is set), and the ledger row counts twelve rounds. The phrase guard was rerun: no unlicensed occurrence, no dead fingerprint, locator 92's passage byte-identical, suite at 199. |
+
+The verbatim prompt and review are retained and are to be filed under `reviews/round-12/` as
+every earlier round's are; this commit touches nothing under `reviews/`.
+
+**No registered expectation changed in either stratum, no verdict code was added, no vocabulary
+member moved, and no adjudication path was touched.** This block edits no layer function, no
+fixture, no registry and no probe, so there is no before/after outcome snapshot to run and none
+is claimed — the frozen apparatus is exactly what `968a9f8` pinned, and the attempt artifacts are
+exactly what `19a5bb8` published. `PREREG-REVIEW.md` is manifest-covered, so
+`harness/STUDY-MANIFEST.sha256` is regenerated in the same commit (round 9's lesson), and the one
+consequence — a re-run's `studyManifestSha256` provenance line differing from the published
+attempt's — is recorded in `DEVIATIONS.md` rather than left to be found.
+
+**Standing after twelve rounds.** Every blocker from rounds 1–11 is closed, round 12 returned
+none, and its four listed fixes are closed here. The shape of this round is the loop's own
+recurring one, moved from the apparatus to the record: the run was sound and two sentences about
+the run were larger than it — one taking a diagnostic for a history, one taking the official route
+for the whole world. Both were refutable from this study's own written record, which is the
+argument for keeping it. The results package merges on this verdict with these four corrections
+applied; the frozen documents stay frozen and carry their corrections here and in `DEVIATIONS.md`.

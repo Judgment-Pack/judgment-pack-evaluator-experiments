@@ -5,7 +5,10 @@ Written after the scorer published, over the frozen tree at `968a9f8`. The publi
 [`DETECTION-MATRIX.md`](DETECTION-MATRIX.md) (every registered cell of both strata, nothing
 excluded) and [`ATTEMPT.json`](ATTEMPT.json) (written before the pin registry was parsed). This
 file recomputes nothing; where it and those disagree, those govern, and where it and
-[`../../PREREGISTRATION.md`](../../PREREGISTRATION.md) disagree, the preregistration governs.
+[`../../PREREGISTRATION.md`](../../PREREGISTRATION.md) disagree, the preregistration governs —
+except on the exact points [`../../DEVIATIONS.md`](../../DEVIATIONS.md) records as corrected,
+which is the only surface on which a post-freeze correction may land and is therefore the
+current statement of the point it corrects and of nothing else.
 
 The attempt carries `attemptLabel: "REGISTERED"` and `includeHoldout: true`, and neither is a
 choice made here: the label is `REGISTERED` only because `harness/PINS.json` carries a non-null
@@ -51,13 +54,27 @@ descriptive row makes the same point from the other side: `m02-ambiguous-commit`
 layers, and the registered reading of that row is "no offline layer can prove commit", never "an
 effect occurred" (§7; SPEC §5, report vocabulary).
 
-## The holdout — the only prospective content
+## The holdout — where the prospective content is, at its true width
 
 `RESULTS.json` reports the holdout as its own object with its own verdict: **`holdout
 divergent`**, 8 cells adjudicated, **7 divergent**, `h01` concordant, zero pipeline-invalid, zero
 validity records. Nothing in it enters R1's arithmetic — that guarantee is structural and a
 harness test asserts it — and it is stated at exactly the width §1a registers, which is not a
 claim that nothing in the holdout could have affected R1's publication.
+
+**What is prospective here, stated before the rows are read.** Two things and no more: the
+expectations were authored by another party against the round-1 apparatus and were never revised
+to follow a fix, and their adjudication and publication by the official scorer happened only
+after the freeze. What is **not** prospective is outcome knowledge. The rounds 5 through 11 fix
+blocks each recorded a before/after snapshot of all three layer outcomes over **all 35 cells**,
+the holdout's eight included, computed by calling the layers directly — so every per-layer
+outcome published below had been computed before the freeze. Nor were the expectations hidden:
+they have been in the tree since round 1 and are readable beside the outcomes. What they were
+never given is a revision, and that is the discipline this stratum rests on rather than on
+concealment. `harness/PINS.json` and `DETECTION-MATRIX.md` say the holdout was "never executed"
+before the freeze; that is true of `harness/score.py`'s publication route and false of the layer
+functions, and the correction is recorded in [`../../DEVIATIONS.md`](../../DEVIATIONS.md)
+(*Round-12 corrections*, R12-2), which governs those two sentences.
 
 The reviewer's own instruction governs the reading, and it is the reason seven divergences are not
 seven errors: these expectations predict the **round-1 reviewed** apparatus and were never revised
@@ -76,7 +93,7 @@ migration touched the authored file, which is preserved byte-for-byte at
 | `h05-phantom-staged-report` | `not-engaged` / `pass` / `pass` | `fail:report-state-unsupported` | blind spot closed | round 1, finding 11 — closed predicates for every report state |
 | `h06-autoapproval-rule-removed-after-apply` | `fail:drain-order-violation` / `pass` / `pass` | `pass` / `pass` / `pass` | **refusal withdrawn** | round 1, finding 4 — the stage-time witness (see below) |
 | `h07-drain-final-state-erases-manual-gate` | `pass` / `pass` / `pass` | `fail:drain-order-violation` | blind spot closed | round 1, finding 4 — the queue rebuilt from the ledger's own timestamps |
-| `h08-outcome-unknown-reported-applied` | `not-engaged` / `pass` / `pass` | `fail:report-state-unsupported` | blind spot closed | round 6, R6-2 — the retained-outcome compatibility matrix |
+| `h08-outcome-unknown-reported-applied` | `not-engaged` / `pass` / `pass` | `fail:report-state-unsupported` | blind spot closed | round 1, finding 11 — the closed `applied` predicate; finding 6 registered the ambiguity rule and named this cell; R6-2 changed only which diagnostic is reached first |
 
 ### Cell by cell
 
@@ -151,10 +168,11 @@ predicate exists because of round 1, finding 11 (major), which found four of fiv
 unchecked free text and gave every execution state a closed predicate over the retained store
 (`PREREG-REVIEW.md` round-1 rows 1 and 11; SPEC §5 report vocabulary, which records that round 1
 found only `effect-attested` correlated with anything). This is **not** the rounds 6–7
-compatibility matrix. That matrix correlates the flattened connector-outcome scalar with the outer
-lifecycle state and the report claim, and it is what refuses `h08`. Two cells return one verdict
-code through two different registered repairs and two different clauses, and collapsing them would
-overstate what the later work closed.
+compatibility matrix, which correlates the flattened connector-outcome scalar with the outer
+lifecycle state and the report claim. `h08` is closed by the same round-1 finding through a
+different conjunct of the same check (see below), so the two cells return one verdict code
+through two clauses of one round-1 repair; attributing either of them to the later work would
+overstate what the compatibility matrix closed.
 
 **`h06` — see below.**
 
@@ -181,16 +199,28 @@ list comparison), R8-3 (every identity a witness claims validated before anythin
 replays on it) — and each of those rounds recorded a before/after snapshot over all 35 cells
 showing zero drift.
 
-**`h08` — a blind spot closed by the rounds 6–7 compatibility matrix.** Observed
-`report-state-unsupported`, and the diagnostic names its own authority: "the report claims
-execution state 'applied' while the bound staged call retains connector outcome 'outcome-unknown';
-that state is supported only by committed (SPEC section 5, retained outcome compatibility)". The
-repair is round 6, R6-2: the flattened `connectorOutcome` scalar, the admissible outer lifecycle
-state and the admissible report claim are registered as one matrix derived from the pinned source
-and enforced under the existing `ledger-lifecycle-invalid` and `report-state-unsupported` codes,
-with no new verdict code (DEVIATIONS, "Round-6 fixes"; SPEC §5, *Retained outcome compatibility*).
-Round 7's R7-1 grew the same table by adding `rejected` to the report's execution vocabulary; that
-is not this cell's mechanism. Two procedural facts belong beside it: `h08`'s fixture was repaired
+**`h08` — a blind spot closed by round 1, with the rounds 6–7 matrix supplying today's
+diagnostic.** Observed `report-state-unsupported`, and the diagnostic names an authority that is
+not the whole story: "the report claims execution state 'applied' while the bound staged call
+retains connector outcome 'outcome-unknown'; that state is supported only by committed (SPEC
+section 5, retained outcome compatibility)". The closure is **round 1, finding 11**, the same
+repair that closes `h05`. That finding gave every execution state a closed predicate over the
+retained store, and the predicate for `applied` requires a single **approved** bound ledger row
+(`adapter/verify.py:1731-1736`) — a conjunct that has stood unchanged since the round-1 repairs
+landed, as the first branch of `if state == "applied"` (`dc4bc91:adapter/verify.py:1088-1094`).
+The frozen fixture's `ledger.json` holds exactly one row and its state is `pending`, so that
+conjunct refuses this cell, and refused it before the compatibility matrix existed. **Round 1,
+finding 6** supplied the outcome-ambiguity rule beside it: `applied-unproven` is the state an
+at-most-once dispatch whose result was never observed belongs in, and the reviewer's inverse
+overclaim was deliberately not duplicated in the locked stratum because *this cell is it*
+(`PREREG-REVIEW.md` round-1 row 6, in those words). That rule's clause sat behind the
+approved-row conjunct and would have fired had the row been `approved`. What **R6-2** changed is
+which diagnostic is reached first: the connector-outcome comparison moved ahead of the per-state
+branches (`verify.py:1688-1694`), so the sentence this cell now prints cites the compatibility
+matrix. Round 6's own before/after snapshot over all 35 cells, the holdout's eight included,
+recorded **zero drift** — which is this same fact from the other side, that no outcome moved.
+Round 7's R7-1 grew the same table by adding `rejected` to the report's execution vocabulary;
+that is not this cell's mechanism either. Two procedural facts belong beside it: `h08`'s fixture was repaired
 at the pre-freeze self-audit for a fidelity defect it shared with `m02` — it carried
 `autoApprovable: false` on a tool the pinned `classifyTool` makes `true` — a construction repair
 with the authored expectations untouched; and round 8 ruled that `h08`'s authored *note* must not
@@ -264,11 +294,13 @@ deployment could keep and stock Cloudflare OS does not (SPEC §0a), so `h06`'s a
 a modeled record. All of that was registered before the attempt ran; none of it is discovered
 here.
 
-*What `h06` therefore adds, stated exactly.* It is prospective evidence that the round-1 finding-4
-repair does what it was registered to do on the false-positive direction, adjudicated once against
-an expectation authored by another party against the apparatus before the repair. It is not
-evidence that the acceptance is safe, and the study's registered position is that a store writer
-with witness access is inside the ceiling either way.
+*What `h06` therefore adds, stated exactly.* It is evidence that the round-1 finding-4 repair does
+what it was registered to do on the false-positive direction, adjudicated once against an
+expectation authored by another party against the apparatus before the repair. Prospective in the
+two respects the section above registers — the expectation's authorship and its adjudication —
+and in neither more: this cell's three layer outcomes were among the 35 the pre-freeze snapshots
+computed by direct layer calls. It is not evidence that the acceptance is safe, and the study's
+registered position is that a store writer with witness access is inside the ceiling either way.
 
 ## What this attempt does not show
 
@@ -293,9 +325,12 @@ so a reader does not have to reconstruct them:
   maintainer.** The authored expectations are pre-freeze, reviewer-authored from static inspection,
   never revised, and asserted byte-equal to `reviews/round-1/MATRIX-HOLDOUT.authored.json` by a
   harness test; `--include-holdout` was refused mechanically while the preregistration digest was
-  null. But the rounds 5, 6, 7 and 8 fix blocks each recorded a before/after snapshot of all three
+  null. But the rounds 5 through 11 fix blocks each recorded a before/after snapshot of all three
   layer outcomes over **all 35 cells** — the holdout's eight included — by direct layer calls, to
-  show those repairs moved nothing. The study registered exactly this qualification in advance:
+  show those repairs moved nothing. So the absolutes in `harness/PINS.json` and
+  `DETECTION-MATRIX.md` — the holdout "never executed" pre-freeze — hold of the scorer's
+  publication route and not of the layer functions, and are corrected in `../../DEVIATIONS.md`
+  (*Round-12 corrections*, R12-2). The study registered exactly this qualification in advance:
   the pre-freeze refusal "guards the official publication route… it is not a claim that no one
   could invoke a layer function directly; it is a claim about what this study publishes" (§6).
   What the holdout buys is therefore stated narrowly: expectations authored by another party

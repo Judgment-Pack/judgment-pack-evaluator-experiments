@@ -902,6 +902,11 @@ them changes a registered expectation, and none is a correction to the preregist
   predicate's bound-call conjunct, which exists because of round 1, finding 11; `h08` fails the
   rounds 6–7 retained-outcome compatibility matrix (R6-2), which its own diagnostic cites.
   Attributing both to the later work would overstate what the compatibility matrix closed.
+  **Corrected at the round-12 corrections (R12-1):** the second half of that sentence made the
+  same error it warns about, one repair later. `h08` is closed by round 1, finding 11 as well —
+  through the `applied` predicate's approved-row conjunct — and what R6-2 changed is which
+  diagnostic the cell reaches first. See *Round-12 corrections* below; the two cells return one
+  code through two clauses of one round-1 repair.
 - **`results/` is outside both mechanical guards.** The whole-study manifest's candidate
   population and the phrase guard's derived population each reach top-level documents, the SPEC,
   the adapter, the harness, the probes and the locked registry, and neither recurses into an
@@ -919,6 +924,149 @@ fingerprint keeps its locator (`92`) and its byte-identical passage; the round-1
 records the same coupling from the other direction. `README.md` and this file are the two
 documents the manifest deliberately excludes, so `harness/STUDY-MANIFEST.sha256` is unchanged and
 `make_manifest.py --check` exits 0 against the frozen digests.
+
+## Round-12 corrections (post-freeze)
+
+Round 12 read only what was new since round 11: the freeze commit `968a9f8`, the registered
+attempt, and the results package at `19a5bb8`. It confirmed the mechanics — all four protocol
+digests and the exact manifest match the frozen files, the frozen suite passes, a registered
+re-run reproduces the attempt artifacts byte-for-byte, R1 and the holdout accounting reconcile,
+`h04` and `h06` withstand code-level tracing, and both mechanical guards hold, `README.md`'s
+licensed occurrence at locator 92 included. Its verdict is **mergeable after listed fixes**, and
+the four listed fixes are two attribution/qualification overstatements and two documentation
+residues. All four are dispositioned in `PREREG-REVIEW.md`; the corrections are recorded here.
+
+**No registered expectation changed in either stratum, no verdict code was added, no vocabulary
+member moved, and no adjudication path was touched.** This block is prose: this file,
+`README.md`, `PREREG-REVIEW.md`, the attempt's `ANALYSIS.md` and the manifest that covers the
+third of them. No layer function, no fixture, no registry and no probe is edited, so there is no
+before/after outcome snapshot to run and none is claimed — the run that stands is the registered
+attempt itself, which this block does not touch.
+
+**How a correction here relates to the frozen prose it corrects.** The preregistration's own
+instruction is that after the freeze it "is never edited; corrections go to `DEVIATIONS.md`"
+(`PREREGISTRATION.md:18`), and the same holds of the three artifacts registered with it and of
+the attempt's generated outputs. So where a sentence in `PREREGISTRATION.md`, `adapter/SPEC.md`,
+`harness/PINS.json`, either registry, or `results/primary-attempt-001/`'s generated files is
+stale or overstated, the entry below **governs that sentence** — on the exact point it corrects,
+in the words used here, and on nothing else. Everything else in the corrected document stands
+unchanged and its digest stays what the freeze pinned, which is the point of correcting rather
+than editing. The two appendable surfaces (`README.md` and this file) and the editable results
+narrative (`ANALYSIS.md`) are brought to the corrected wording in the same commit, so a reader
+who never opens this file is not left holding the stale statement.
+
+- **R12-1 — `h08`'s closure belongs to round 1, and R6-2 changed only which diagnostic it
+  prints.** The *Registered attempt* block above and `ANALYSIS.md` both attributed `h08` to the
+  rounds 6–7 retained-outcome compatibility matrix, taking the cell's own diagnostic for the
+  history of its closure. `h08`'s report claims execution state `applied`; the closed predicate
+  round 1's **finding 11** gave that state requires a single **approved** bound ledger row
+  (`adapter/verify.py:1731-1736`, the same conjunct that stands as the first branch of `if state
+  == "applied"` in the earliest committed tree carrying the round-1 repairs,
+  `dc4bc91:adapter/verify.py:1088-1094`), and the cell's `ledger.json` retains exactly one row,
+  `pending`. The cell was therefore already divergent on that conjunct, before the compatibility
+  matrix existed. Round 1's **finding 6** supplied the outcome-ambiguity rule beside it —
+  `applied-unproven` is where an at-most-once dispatch whose result was never observed belongs,
+  and the reviewer's inverse overclaim was deliberately left out of the locked stratum because
+  `h08` *is* it (`PREREG-REVIEW.md` round-1 row 6) — with its clause sitting behind the
+  approved-row conjunct. What **R6-2** did was move the connector-outcome comparison ahead of the
+  per-state branches (`verify.py:1688-1694`), so the sentence this cell prints today cites the
+  matrix; round 6's own zero-drift snapshot over all 35 cells is the same fact from the other
+  side, that no outcome moved. That is diagnostic stabilization, not closure. `ANALYSIS.md`'s
+  `h08` row, its `h08` paragraph and its `h05` contrast now say so, and the bullet above carries
+  the correction inline as this file's rule requires.
+- **R12-2 — "never executed before the freeze" is true of the publication route and false of the
+  layer functions.** `harness/PINS.json`'s `matrixHoldout.note` says the holdout was "never
+  executed pre-freeze" and the generated `DETECTION-MATRIX.md` says "never executed before the
+  freeze". Both are absolutes, and neither file is edited. What holds: `harness/score.py
+  --include-holdout` was refused mechanically while `preregistration.sha256` was null, so no
+  holdout outcome was ever *published*, and a harness test asserts that refusal. What does not
+  hold: the rounds 5 through 11 fix blocks each recorded a before/after snapshot of all three
+  layer outcomes over **all 35 cells** — the holdout's eight included — computed by calling the
+  layers directly, which is how each of those blocks showed zero drift. Every per-layer outcome
+  the attempt published had therefore been computed before the freeze. The holdout's prospective
+  width is exactly two things: expectations authored by another party against the round-1
+  apparatus and never revised, and their adjudication and publication by the official scorer
+  after the freeze. It is **not** outcome novelty, and no sentence of this study may be read as
+  claiming it is. PREREGISTRATION §6's own registered form of the distinction — the refusal
+  "guards the official publication route… it is not a claim that no one could invoke a layer
+  function directly; it is a claim about what this study publishes" — stands unchanged and is
+  what the two absolutes above should have said. `ANALYSIS.md` states the width where the holdout
+  is introduced, beside `h06`'s reading and in its limitations; `README.md`'s banner states it in
+  the same terms.
+- **R12-3 — §6's two paths that publish no `RESULTS.json` are two only at a fixed freeze state.**
+  PREREGISTRATION §6 names them exhaustively: an attempt root that already exists, and a
+  pre-freeze `--include-holdout`. The second is one direction of a rule that reverses at the
+  freeze. `harness/score.py:686-693` refuses a **post**-freeze attempt that *omits*
+  `--include-holdout`, after `ATTEMPT.json` has been written and before anything is adjudicated,
+  so the frozen tree has a no-results path of its own and it is the mirror image of the
+  registered one. Stated whole, and governing: the scorer publishes no `RESULTS.json` when the
+  attempt root already exists — it exits before creating anything, so no record is overwritten —
+  and when the holdout mode is wrong for the freeze state, `--include-holdout` before the freeze
+  or its omission after, in which case the attempt marker is written and nothing is published.
+  Both remain usage refusals rather than attempts, which is the property §6 registers and which
+  this correction does not disturb. No code changed: the registered sentence was written before
+  there was a freeze to reverse it.
+- **R12-4 — the frozen `adapter/SPEC.md` still labels itself DRAFT.** `adapter/SPEC.md:3` reads
+  "Status: DRAFT, registered by the Study 015 preregistration when frozen", and
+  `PREREGISTRATION.md:3` reads "DRAFT until frozen by merge after pre-freeze cross-vendor review;
+  governing thereafter". Commit `968a9f8` froze and registered both by digest —
+  `harness/PINS.json`'s `adapterSpec.sha256` and `preregistration.sha256`, both SCORER-enforced,
+  so a post-freeze edit to either is terminal pipeline-invalidity — and it did so *before* the
+  merge that the two status lines name as the trigger. The condition each line states has been
+  met; neither line may be edited to say so. Both documents are registered as **frozen and
+  immutable** here, and this entry governs their status sentences. The staleness reached
+  `README.md`'s layout table, which is appendable and is corrected in this commit: the
+  preregistration row now reads frozen, digest-pinned and never edited again, with the DRAFT
+  residue named and pointed here; the SPEC row reads registered and digest-pinned at the same
+  freeze and likewise self-labelled DRAFT; the holdout row no longer says the scorer refuses it
+  flatly, since `--include-holdout` was refused while the digest was null and is *required* now
+  that it is set; and the review-ledger row counts twelve rounds. The phrase guard was rerun over
+  the edited README: locator 92's licensed occurrence keeps a byte-identical passage, the
+  adjudicator returns no unlicensed occurrence and no dead fingerprint, and the suite stays at
+  199.
+
+**One consequence of filing this record, named rather than discovered later.**
+`PREREG-REVIEW.md` gains the round-12 section and that file is manifest-covered, so
+`harness/STUDY-MANIFEST.sha256` is regenerated in this commit — round 9's own lesson, that the
+record-filing commit is not exempt from the discipline it records. The consequence is that
+`RESULTS.json`'s provenance line `studyManifestSha256` (`b42d1486…`) is the digest of the
+manifest as the attempt read it, and a registered re-run against this commit will compute a
+different one. Nothing else in that provenance moves: the four protocol digests, the pack, the
+conformance cases, the `jpack` binary, the clone and the toolchain are untouched, no covered
+*protocol* file changed, and `make_manifest.py --check` exits 0 against the regenerated file. No
+adjudicated outcome depends on the manifest's own digest — the scorer enforces the manifest as an
+exact set over the files it lists, and `harness/PINS.json` records no digest for it precisely
+because it sits inside its own coverage. Measured rather than predicted: a registered re-run
+against this commit reproduces `DETECTION-MATRIX.md` byte-for-byte and `RESULTS.json` in every
+line but that one (`b42d1486…` → `a5542693…`), with both verdicts, all 35 cells and every other
+provenance member identical. The published attempt remains the record of the tree at `19a5bb8`,
+and this file records why a later re-run's one provenance line differs.
+
+**The lesson this round records: a diagnostic names the check that fired, not the repair that
+closed the cell.** Two of the four findings are the same shape. `h08`'s attribution followed the
+sentence the apparatus prints, and that sentence names the *first* clause reached under the
+current ordering, which a later round had changed for reasons that moved no outcome; "never
+executed before the freeze" followed the *official route*, which is the thing the study built a
+gate for, and read as a statement about knowledge. In both cases the true statement was available
+in this study's own record — round 6's zero-drift snapshot, and the same snapshots' existence at
+all — and the overstatement survived because the convenient authority was closer to hand than the
+history. The rule taken forward: when attributing a result to a repair, read the repair, not the
+message; and when writing an absolute about what was never done, name the route it holds of.
+
+### Fixture bytes changed at the round-12 corrections
+
+**None.** No commitment, no ledger, no platform store, no evaluation envelope, no report, no
+evidence artifact and no cell manifest changed in either stratum, and
+`reviews/round-1/MATRIX-HOLDOUT.authored.json` is byte-preserved. `MATRIX.json`,
+`MATRIX-HOLDOUT.json` and everything under `reviews/` and `pilots/` are untouched, and no
+adapter, harness or probe source is edited — the frozen apparatus is exactly what `968a9f8`
+pinned. The attempt's `RESULTS.json`, `DETECTION-MATRIX.md` and `ATTEMPT.json` are untouched too:
+they are one run's products, and this block corrects prose *about* them and never them. The block
+is this file, `README.md`, `PREREG-REVIEW.md`, `results/primary-attempt-001/ANALYSIS.md` and
+`harness/STUDY-MANIFEST.sha256`, whose path set is unchanged at 60 entries with exactly one
+digest line moving — `PREREG-REVIEW.md`, the one edited file the manifest covers. This file and
+`README.md` are the two documents it deliberately excludes, and `results/` is outside its
+candidate population altogether.
 
 ## Apparatus
 
