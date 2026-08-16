@@ -117,14 +117,41 @@ def test_the_rendered_table_is_deterministic():
     assert "Descriptive" in census.render_markdown(per_arm)
 
 
-# --- the stimulus that is not registered ------------------------------------
+# --- the registered stimulus (SCAFFOLD item S6) -----------------------------
 
-def test_the_stimulus_refuses_by_name(preregistration):
-    """SCAFFOLD item S6. Section 9 puts the census on a different stimulus from
-    the E4 rates; running it on the gold grid because that is the grid to hand
-    would manufacture exactly the combination section 9 forbids."""
+def test_the_registered_stimulus_is_the_gold_row_input_set(preregistration):
+    """SCAFFOLD item S6, closed. Section 5 registers the census stimulus and the
+    module reads it rather than refusing — as IDS and ORDER only, because a gold
+    row's expectation is an oracle and the census is not scored against one."""
+    flat = " ".join(preregistration.split())
+    assert "Registered census stimulus: the gold-row input set" in flat
+    rows = [{"id": "r-%02d" % index, "expect": {"disposition": "approve"}}
+            for index in range(105)]
+    stimulus = census.registered_stimulus(rows, "sha256:" + "a" * 64)
+    assert stimulus["count"] == 105
+    assert stimulus["points"] == [row["id"] for row in rows]
+    assert stimulus["goldSha256"] == "sha256:" + "a" * 64
+    assert stimulus["label"] == census.STIMULUS_LABEL
+
+
+def test_the_stimulus_carries_section_nines_reading_with_it(preregistration):
+    """Section 9 is unchanged and still governs: the census's rows and the E4
+    kill rates live on different stimuli, and the label travels inside the
+    record so a reader of one table cannot lose it."""
     flat = " ".join(preregistration.split())
     assert "no tradeoff statement combining them is licensed" in flat
+    stimulus = census.registered_stimulus([{"id": "r-01"}])
+    assert "no tradeoff statement" in stimulus["note"]
+    record = census.census("A", {"run-001": ["approve"]}, stimulus["label"])
+    assert record["stimulus"] == census.STIMULUS_LABEL
+
+
+def test_an_empty_or_duplicated_stimulus_refuses_by_name():
+    """The two ways a suite handed to the census is not a stimulus: no cells at
+    all, and two different cells that would become one census point."""
     with pytest.raises(census.CensusError) as raised:
-        census.registered_stimulus()
-    assert str(raised.value).startswith("E5-STIMULUS-UNREGISTERED")
+        census.registered_stimulus([])
+    assert str(raised.value).startswith("E5-STIMULUS-EMPTY")
+    with pytest.raises(census.CensusError) as raised:
+        census.registered_stimulus([{"id": "r-01"}, {"id": "r-01"}])
+    assert str(raised.value).startswith("E5-STIMULUS-DUPLICATE-CELLS")

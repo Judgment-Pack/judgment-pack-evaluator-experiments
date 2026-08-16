@@ -44,17 +44,17 @@ THE ENUMERATED CHANGE LIST
    Section 5 makes E5 descriptive and section 1's R2 "is never adjudicated and
    never falsifies".
 
-THE STIMULUS IS NOT REGISTERED YET — `E5-STIMULUS-UNREGISTERED`
----------------------------------------------------------------
-Section 9 states that "the census's expressiveness rows and these rates live on
-different stimuli: no tradeoff statement combining them is licensed". So the
-census's stimulus is by registration NOT the gold grid the E4 rates are computed
-over, and no other grid is registered yet. `registered_stimulus()` therefore
-REFUSES by name. The machinery below is complete and tested against synthetic
-vectors, so the freeze needs a registered grid and not a build; until it has
-one, `harness/score.py` publishes E5 as a refusal with this code rather than
-quietly running the census on the nearest grid to hand, which would produce
-exactly the tradeoff statement section 9 forbids (harness/SCAFFOLD.md item S6).
+THE STIMULUS IS REGISTERED (SCAFFOLD item S6, closed)
+-----------------------------------------------------
+`registered_stimulus()` was a refusing stub for as long as section 5 named no
+census grid. Section 5 names one now — "Registered census stimulus: the gold-row
+input set (the 105 gold inputs; disagreement profiles are computed over exactly
+these cells, closing the section 9 joint-reading concern about unstated
+stimuli)" — so the stimulus is READ from the frozen gold suite, as ids and order
+only. Section 9 is unchanged and still governs: E4's stimulus is the mutant set
+against each run's own authored suite, the census's is these cells, and no
+tradeoff statement combining the two is licensed. The label travels inside every
+record this module emits so that a reader of one table cannot lose it.
 """
 from __future__ import annotations
 
@@ -217,21 +217,47 @@ def census(arm: str, per_run: dict, stimulus_label: str) -> dict:
     }
 
 
-def registered_stimulus():
-    """REFUSING STUB — `E5-STIMULUS-UNREGISTERED` (harness/SCAFFOLD.md item S6).
+STIMULUS_LABEL = "the gold-row input set (105 gold inputs)"
 
-    Section 9: "The census's expressiveness rows and these rates live on
-    different stimuli: no tradeoff statement combining them is licensed." The
-    census's own stimulus is therefore registered to be something other than the
-    gold grid, and no such grid is registered yet. Running the census on the
-    gold grid because it is the grid to hand would manufacture exactly the
-    combination section 9 forbids, so this refuses by name until a grid is
-    registered and pinned."""
-    raise CensusError(
-        "E5-STIMULUS-UNREGISTERED no census stimulus is registered or pinned; "
-        "section 9 puts the census on a different stimulus from the E4 rates, so "
-        "the gold grid is not a substitute and E5 publishes this refusal instead "
-        "of a number (harness/SCAFFOLD.md item S6)")
+
+def registered_stimulus(gold_rows: list, gold_sha256: str = None) -> dict:
+    """Section 5's REGISTERED census stimulus: the gold-row input set.
+
+    This was a refusing stub (`E5-STIMULUS-UNREGISTERED`, SCAFFOLD item S6) for
+    as long as section 5 named no grid. It names one now — "Registered census
+    stimulus: the gold-row input set (the 105 gold inputs; disagreement profiles
+    are computed over exactly these cells, closing the section 9 joint-reading
+    concern about unstated stimuli)" — so the stimulus is READ from the frozen
+    gold suite rather than refused, and it is read as a stimulus and not as an
+    oracle: only the row IDS and their ORDER are taken, and no expectation of
+    theirs reaches any census number. What each arm's artifacts ANSWER on these
+    cells is the census's data.
+
+    Section 9 is unchanged and still governs the reading: the census's
+    expressiveness rows and the E4 kill rates live on different stimuli — E4's
+    is the mutant set against each run's own authored suite — and no tradeoff
+    statement combining them is licensed. That is why the label travels with
+    every census record this module emits.
+
+    Refuses rather than guessing when the suite it is handed is not a stimulus:
+    an empty suite has no cells, and duplicate ids would make two different
+    cells one census point."""
+    if not gold_rows:
+        raise CensusError(
+            "E5-STIMULUS-EMPTY the registered census stimulus is the gold-row "
+            "input set and the gold suite handed to it has no rows")
+    points = [row["id"] for row in gold_rows]
+    if len(set(points)) != len(points):
+        raise CensusError(
+            "E5-STIMULUS-DUPLICATE-CELLS the gold suite carries duplicate row "
+            "ids, so two different cells would be one census point")
+    return {"label": STIMULUS_LABEL, "count": len(points), "points": points,
+            "goldSha256": gold_sha256,
+            "registeredIn": "PREREGISTRATION.md section 5, E5",
+            "note": "section 9: the census's rows and the E4 kill rates live on "
+                    "different stimuli (E4's is the mutant set against each "
+                    "run's own authored suite) and no tradeoff statement "
+                    "combining them is licensed"}
 
 
 def render_markdown(per_arm: list) -> str:

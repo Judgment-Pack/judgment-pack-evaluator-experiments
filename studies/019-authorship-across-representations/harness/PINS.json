@@ -19,7 +19,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:ac30409813dde5918d127ccc163800c3a8a17cda9148f2922a9b83cdcd8ed5f8"
+    "sha256": "sha256:3a494a33fd2ca439f9efb4c04ce1b5cacfa9706cc46469a744ace4e626c78ad2"
   },
   "preregistration": {
     "path": "PREREGISTRATION.md",

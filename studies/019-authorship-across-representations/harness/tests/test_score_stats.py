@@ -211,12 +211,141 @@ def test_an_empty_paired_subset_refuses_rather_than_dividing_by_zero():
     assert str(raised.value).startswith("TAU-NO-PAIRED-SUBSET")
 
 
-# --- what is owed, refusing rather than guessing ----------------------------
+# --- S8: the general unequal-N inversion ------------------------------------
 
-def test_the_interval_endpoints_refuse_by_name():
-    """SCAFFOLD item S7. The DECISION is complete; the reported endpoints need
-    the Delta0 sweep, and a plausible number nothing computed would be worse
-    than a refusal."""
+def test_the_equal_arm_slice_reproduces_the_prototypes_constants_exactly():
+    """SCAFFOLD item S8's acceptance test, and the reason the general form is
+    safe to register: `design/mutants/oc_table.py` published c* and the realised
+    size at three N with the equal-arm closed form, and the general two-argument
+    inversion must reproduce every one of them EXACTLY — not to four decimals,
+    as the same rational."""
+    for n, cstar, size in ((30, Fraction(30, 7), 0.0469),
+                           (50, Fraction(625, 154), 0.0488),
+                           (100, Fraction(175, 44), 0.0496)):
+        general_star, general_size = stats.critical_level_at(n, n)
+        assert general_star == cstar
+        assert round(float(general_size), 4) == size
+        # …and the one-argument spelling IS the n_A = n_C slice, not a second
+        # implementation that agrees.
+        assert stats.critical_level_at(n) == (general_star, general_size)
+
+
+def test_the_general_z2_table_reduces_to_the_prototypes_closed_form():
+    """The equal-arm cell 2N(x-y)^2 / ((x+y)(2N-x-y)), against the general
+    N (x n_C - y n_A)^2 / (n_A n_C (x+y)(N-x-y)), over a whole small table."""
+    n = 7
+    general = stats.z2_table(n, n)
+    for x in range(n + 1):
+        for y in range(n + 1):
+            s = x + y
+            want = (Fraction(0) if s in (0, 2 * n)
+                    else Fraction(2 * n * (x - y) ** 2, s * (2 * n - s)))
+            assert general[x][y] == want, (x, y)
+
+
+def test_unequal_arms_are_scored_rather_than_refused():
+    """Section 5's registered construction, and what SCAFFOLD item S8 closed:
+    apparatus exclusions leave unequal denominators, and the contrast is the
+    general inversion rather than a refusal or an approximation."""
+    result = stats.excludes_zero(6, 0, 6, 5)
+    assert result["equalArms"] is False
+    assert result["nLeft"] == 6 and result["nRight"] == 5
+    assert result["excludesZero"] is True
+    assert result["decision"] == stats.DECIDED_LEFT
+
+
+def test_the_direction_at_unequal_arms_is_by_RATE_and_not_by_COUNT():
+    """Two equal counts are two different rates when the arms differ, and the
+    equal-N spelling `x != y` would have called this indeterminate for the wrong
+    reason. The rate comparison is what the difference of proportions means."""
+    result = stats.excludes_zero(5, 5, 50, 6)
+    assert result["difference"] == pytest.approx(5 / 50 - 5 / 6)
+    assert result["decision"] == stats.DECIDED_RIGHT
+
+
+def test_the_tail_coefficients_are_palindromic_at_unequal_arms():
+    """`sup_tail_numerator()` scans only half the mesh because the tail is
+    symmetric under (x, y) -> (n_A-x, n_C-y). That symmetry is what makes the
+    half scan sound at UNEQUAL arm sizes too, so it is asserted rather than
+    inherited from the equal-arm case."""
+    n_left, n_right = 6, 4
+    table = stats.z2_table(n_left, n_right)
+    cstar, _size, _evals = stats.critical_level(n_left, table, n_right)
+    coefficients = stats.tail_coefficients(n_left, table, cstar, n_right)
+    assert coefficients == coefficients[::-1]
+
+
+# --- S7: the Delta0 sweep and the reported endpoints ------------------------
+
+def test_the_sweep_and_the_decision_agree_at_the_one_delta_they_share():
+    """The reported interval and the registered decision must not be two
+    constructions: at Delta0 = 0 the sweep's statistic IS `z2_table()`'s cell,
+    and its p-value crosses alpha exactly where the critical level does."""
+    n_left, n_right = 6, 5
+    table = stats.z2_table(n_left, n_right)
+    for x, y in ((6, 0), (3, 3), (5, 1), (0, 5)):
+        assert stats.fm_z2(x, n_left, y, n_right, Fraction(0)) == table[x][y]
+        rejected = stats.fm_pvalue(x, y, n_left, n_right,
+                                   Fraction(0)) <= stats.FM_ALPHA
+        assert rejected is stats.excludes_zero(x, y, n_left,
+                                               n_right)["excludesZero"]
+
+
+def test_the_reported_endpoints_exist_and_are_exact_rationals():
+    """SCAFFOLD item S7: section 10 commits to publishing every interval, so the
+    endpoints are computed rather than refused — and they are mesh points of the
+    registered Delta0 mesh, published as exact rationals with the mesh that
+    produced them."""
+    result = stats.interval_endpoints(6, 0, 6, 5)
+    assert Fraction(result["lower"]) == Fraction(43, 100)
+    assert Fraction(result["upper"]) == Fraction(1)
+    assert result["deltaMeshDenominator"] == stats.FM_DELTA_MESH_DEN
+    assert result["nuisanceMeshDenominator"] == stats.MESH_DEN
+    assert result["mleBisections"] == stats.FM_MLE_BISECTIONS
+    assert result["acceptanceContiguous"] is True
+    assert result["reportedAsConvexHull"] is False
+
+
+def test_an_interval_that_excludes_zero_reports_endpoints_that_exclude_zero():
+    """The two readings are one construction, so they cannot disagree about the
+    only question the decision asks."""
+    n_left, n_right = 6, 5
+    decision = stats.excludes_zero(6, 0, n_left, n_right)
+    interval = stats.interval_endpoints(6, 0, n_left, n_right)
+    assert decision["excludesZero"] is True
+    assert Fraction(interval["lower"]) > 0
+
+
+def test_an_indeterminate_contrast_reports_an_interval_straddling_zero():
+    n_left, n_right = 6, 5
+    decision = stats.excludes_zero(3, 3, n_left, n_right)
+    interval = stats.interval_endpoints(3, 3, n_left, n_right)
+    assert decision["excludesZero"] is False
+    assert Fraction(interval["lower"]) <= 0 <= Fraction(interval["upper"])
+
+
+def test_the_constrained_mle_is_the_pooled_proportion_at_delta_zero():
+    """The closed form the decision uses, recovered by the sweep's own
+    root-finder: at Delta0 = 0 the FM constrained MLE is the pooled rate, so the
+    bisection must land on it to within its registered precision."""
+    x, n_left, y, n_right = 4, 6, 1, 5
+    left, right = stats.constrained_mle(x, n_left, y, n_right, Fraction(0))
+    pooled = Fraction(x + y, n_left + n_right)
+    assert left == right
+    assert abs(left - pooled) < Fraction(1, 2 ** (stats.FM_MLE_BISECTIONS - 4))
+
+
+def test_the_delta_mesh_divides_the_nuisance_mesh():
+    """The endpoints stay exact integer arithmetic only because p_C and
+    p_A = p_C + Delta0 are both points of the registered nuisance mesh."""
+    assert stats.MESH_DEN % stats.FM_DELTA_MESH_DEN == 0
     with pytest.raises(stats.StatsError) as raised:
-        stats.interval_endpoints(40, 20, 50)
-    assert str(raised.value).startswith("FM-ENDPOINTS-UNPORTED")
+        stats.delta_tail_sup(stats.z2_table(2, 2), Fraction(0), 2, 2,
+                             Fraction(1, 7))
+    assert str(raised.value).startswith("FM-MESH-INCOMMENSURATE")
+
+
+def test_a_count_out_of_range_refuses_before_the_sweep():
+    with pytest.raises(stats.StatsError) as raised:
+        stats.interval_endpoints(7, 0, 6, 5)
+    assert str(raised.value).startswith("FM-NOT-A-COUNT")

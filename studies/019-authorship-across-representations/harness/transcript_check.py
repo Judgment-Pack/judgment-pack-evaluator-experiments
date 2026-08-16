@@ -14,15 +14,16 @@ integer-exit-0 rule and duplicate-key rejection on every transcript line are
 Study 010's, through 011 and 012, unchanged. Two things change, and they are
 both SUBJECTS rather than rules:
 
-1. **`LEAK_TOKENS` is this study's vocabulary, not Study 012's.** Every token
-   below names something about THIS study — its representations, its scored
-   surface, its mutants, its policy domain — and Study 012's policy-family
-   vocabulary (`family.json`, `sanctionsHit`, the mirror's threshold names) is
-   gone because it names nothing here. The list is marked `GATE(pre-freeze)` in
-   `harness/SCAFFOLD.md`: it must be RE-DERIVED from the frozen policy prose and
-   the naming appendix before the freeze, with a committed checker showing it
-   has power on mutated inputs, exactly as the language-materials checkers do.
-   What is here now is the design-time list, and it is not yet that derivation.
+1. **`LEAK_TOKENS` is this study's vocabulary, not Study 012's, and it is
+   DERIVED.** Study 012's policy-family vocabulary (`family.json`,
+   `sanctionsHit`, the mirror's threshold names) is gone because it names
+   nothing here. What replaces it is not a second curated tuple: this module
+   READS `harness/leak_tokens.py`'s composed screen, whose policy half is
+   derived from the stimulus prose by three registered rules and whose
+   instrument half is named and separately power-checked (SCAFFOLD item G3,
+   closed — the residual was that this file still carried its own copy). The
+   wrapper's scratch-path screen reads the same constant, so the study has one
+   list and the freeze's re-derivation moves both screens together.
 2. **Three arms.** `check()`'s `arm` label is one of A, B, C; gate 2 is checked
    against THAT arm's assembled prompt bytes. A slot whose transcript carries
    another arm's prompt is refused here and scored `arm-mismatch` by the scorer,
@@ -73,28 +74,42 @@ another to a reader.
 from __future__ import annotations
 import hashlib
 import json
+import os
 import re
+import sys
+
+# Imported the way the ceremony runs it: the harness modules are invoked by
+# path, so this file's own directory is what makes `leak_tokens` importable when
+# the wrapper reaches it through a symlinked `harness/`.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+
+import leak_tokens  # noqa: E402
 
 # Vocabulary that cannot appear before the registered prompt. Lowercase;
 # matching is case-insensitive substring. These are the study's own terms:
 # an authoring turn that saw any of them was not answering the policy
 # alone. The prompt itself (and the policy it inlines) is exempt — it IS
 # the registered instruction, and it is the last user message.
-LEAK_TOKENS = (
-    # The study and its instruments
-    "judgment-pack", "jpack", "pack.json", "judgment pack", "matrixversion",
-    "specversion", "preregistration", "study-019", "study 019",
-    "authorship across representations",
-    # The scored surface and the naming appendix's registered identifiers
-    "outcomeid", "enhanced-review", "unresolved", "disposition", "onunknown",
-    "no-match", "applicability", "evidencerequirements", "sourcerefs",
-    # The mutation machinery and the endpoints
-    "mutant", "kill rate", "high-kill", "gold suite", "identity control",
-    "witness set", "paired adequate",
-    # The policy domain (design-time list; re-derived from the frozen prose
-    # before the freeze — see the module docstring)
-    "vendor approval", "newvendor", "riskscore", "risk score", "spend",
-)
+#
+# ONE SOURCE OF TRUTH (SCAFFOLD item G3's residual, closed). This was a
+# design-time tuple written out here; it is `harness/leak_tokens.py`'s composed
+# screen now — the policy vocabulary DERIVED from the stimulus prose by three
+# registered rules, unioned with that module's named instrument vocabulary. The
+# wrapper's scratch-path screen reads the same constant under its other name
+# (`leak_tokens.SCRATCH_TOKENS`), so the study has exactly one leak list, and
+# re-deriving it at the freeze — when `policy/POLICY.md` supersedes the frozen
+# candidate — moves both screens at once rather than leaving one behind.
+#
+# The power the list is required to have is demonstrated, not asserted:
+# `leak_tokens.check_power()` requires the derived half to catch every witness
+# sentence the SOURCE'S OWN MARKUP identifies while a scrambled list of the same
+# size catches strictly fewer, and `leak_tokens.check_instrument_power()`
+# requires the instrument half alone to catch strictly fewer than the derived
+# half and the union to lose none. `harness/tests/test_leak_tokens.py` runs both
+# against this constant.
+LEAK_TOKENS = leak_tokens.SCREEN_TOKENS
 
 ITEM_KIND = {"user": "input_text", "developer": "input_text", "assistant": "output_text"}
 MESSAGE_ROLES = tuple(ITEM_KIND)

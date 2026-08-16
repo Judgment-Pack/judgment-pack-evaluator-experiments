@@ -14,12 +14,25 @@ path through `main()` that can be driven before a batch exists.
 """
 import json
 import os
+import sys
+import unittest
 
 import pytest
 
 import batch
 import score
 from e4lib import decision
+
+# The scorer's slot cases run against the DRIVER's own fixtures (SCAFFOLD item
+# S11): `tests/test_batch.py` already builds a stand-in study, a stand-in
+# registry and slots through `batch.stamp_slot()`, `batch.refuse_slot()` and
+# `batch.seal_slot()`, and a slot the scorer reads has to be a slot the driver
+# could have written. Hand-rolled dictionaries were what let the scorer's reader
+# and the driver's writer disagree in the first place.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+import test_batch  # noqa: E402
 
 
 def read(path):
@@ -201,9 +214,9 @@ def test_scoring_the_same_tree_twice_is_byte_identical(tmp_path):
 
 # --- the population rule (section 1a) ---------------------------------------
 
-def slot(arm, index, code=None, duration=1.5):
+def slot(arm, index, code=None, duration=1.5, present=True):
     return {"arm": arm, "slotIndex": index, "globalIndex": index, "round": index,
-            "position": 1, "present": True, "code": code,
+            "position": 1, "present": present, "code": code,
             "durationSeconds": duration, "completion": ""}
 
 
@@ -239,83 +252,262 @@ def test_every_arm_is_counted_even_when_it_has_no_slots():
     assert counted["C"]["timeoutRate"]["rate"] is None
 
 
-# --- reading a slot ---------------------------------------------------------
-
-def make_slot(root, arm, index, call=None, refusal=False, completion=None):
-    path = os.path.join(root, arm, "authoring", "run-%03d" % index)
-    os.makedirs(path)
-    if refusal:
-        with open(os.path.join(path, "REFUSAL.json"), "w") as handle:
-            json.dump({"reason": "preflight"}, handle)
-        return path
-    if call is not None:
-        with open(os.path.join(path, "CALL.json"), "w") as handle:
-            json.dump(call, handle)
-    if completion is not None:
-        with open(os.path.join(path, "completion.txt"), "w") as handle:
-            handle.write(completion)
-    return path
-
-
-def entry(arm="A", index=1):
-    return {"arm": arm, "slotIndex": index, "globalIndex": index,
-            "round": index, "position": 1}
+def test_the_population_is_the_declared_prefix_and_not_the_registered_order():
+    """SCAFFOLD item S11 / the smoke's D-1, as an assertion. A registered slot
+    that is not on disk was never ATTEMPTED, and section 1a's denominator is
+    attempted runs. Partitioning on the code alone put every absent slot into
+    the denominator wearing an authoring code, because `None` is not an
+    apparatus code."""
+    slots = [slot("A", 1), slot("A", 2, "call-timeout")] + \
+        [slot("A", index, present=False) for index in range(3, 51)]
+    counted = score.population(slots)["A"]
+    assert counted["registered"] == 50
+    assert counted["absent"] == 48
+    assert counted["attempted"] == 2
+    assert counted["denominator"] == 1
+    # …and every RATE is over the prefix too, or the timeout cap is computed
+    # against a batch that was never run.
+    assert counted["timeoutRate"]["trials"] == 2
+    assert counted["apparatusRate"]["trials"] == 2
 
 
-def test_an_absent_slot_is_absent_rather_than_a_code(tmp_path):
-    record = score.read_slot(entry(), str(tmp_path))
-    assert record["present"] is False and record["code"] is None
+def test_an_absent_slot_reaches_no_endpoint_at_all():
+    """The consequence the smoke observed: an absent slot entered its arm's E1
+    denominator and scored `no-marker-block` over a completion that does not
+    exist."""
+    slots = [slot("B", index, present=False) for index in range(1, 51)]
+    counted = score.population(slots)["B"]
+    assert counted["denominator"] == 0
+    assert counted["slots"] == []
 
 
-def test_a_refusal_slot_is_the_apparatus_slot_shape_code(tmp_path):
-    make_slot(str(tmp_path), "A", 1, refusal=True)
-    record = score.read_slot(entry(), str(tmp_path))
-    assert record["code"] == "slot-shape"
-    assert batch.CODE_PARTITION[record["code"]][0] == "apparatus"
+# --- reading a slot, on the driver's own fixtures (SCAFFOLD item S11) -------
 
+class DriverBuiltSlots(test_batch.StandInStudy):
+    """Every slot here is built by the DRIVER — `batch.stamp_slot()`,
+    `batch.refuse_slot()`, `batch.seal_slot()` — and read by the SCORER.
 
-def test_a_timed_out_call_is_the_apparatus_timeout_code(tmp_path):
-    """The wrapper's status 12, and `timedOut: true`. Either alone is enough:
-    section 1a makes the SIDE of this code load-bearing."""
-    make_slot(str(tmp_path), "A", 1,
-              call={"exitCode": 12, "timedOut": True, "durationSeconds": 2700})
-    assert score.read_slot(entry(), str(tmp_path))["code"] == "call-timeout"
-    make_slot(str(tmp_path), "B", 1,
-              call={"exitCode": 0, "timedOut": True, "durationSeconds": 2700})
-    assert score.read_slot(entry("B"), str(tmp_path))["code"] == "call-timeout"
+    That is the whole of SCAFFOLD item S11. The scorer was assembled while
+    `harness/batch.py` was still the schedule core and grew a reduced reader of
+    its own: `REFUSAL.json` before `CALL.json`, the wrapper's exit status through
+    a second lookup, and `os.path.isdir()` for presence. The driver has since
+    landed `collect_slots()`, `slot_outcome()`, `verify_seal_of()` and
+    `session_identity()`, and holding two readings of a slot is what let a real
+    `call-timeout` be scored as `slot-shape` and a moved byte be scored at all.
+    """
 
+    def build(self, entry, *, refusal=None, completion="PACK:\n```json\n{}\n```\n",
+              golden=None, session=None, seal=True, timed_out=False):
+        slot = batch.slot_path(entry)
+        os.makedirs(slot)
+        call = {"slot": os.path.basename(slot), "slotIndex": entry["slotIndex"],
+                "arm": entry["arm"],
+                "armPromptSha256": batch.arm_prompt(self.pins, entry["arm"])[1],
+                "promptKind": "registered", "exitStatus": 0,
+                "durationSeconds": 12.5,
+                "timeoutSeconds": batch.CALL_TIMEOUT_SECONDS,
+                "timedOut": bool(timed_out),
+                "goldenSha256": (self.pins["golden"]["sha256"] if golden is None
+                                 else golden),
+                "cwd": os.path.join(self.scratch, "cwd"),
+                "home": os.path.join(self.scratch, "home")}
+        if refusal is None or timed_out:
+            with open(os.path.join(slot, "CALL.json"), "w") as handle:
+                json.dump(call, handle)
+            batch.stamp_slot(slot, entry, self.pins)
+        if completion is not None and refusal is None:
+            with open(os.path.join(slot, "completion.txt"), "w") as handle:
+                handle.write(completion)
+        if session is not None:
+            with open(os.path.join(slot, "session.jsonl"), "w") as handle:
+                handle.write(json.dumps({"type": "session_meta",
+                                         "payload": {"id": session}}) + "\n")
+        if refusal is not None:
+            status, code = refusal
+            batch.refuse_slot(slot, code, status, "stderr tail")
+        if seal:
+            batch.seal_slot(slot, entry)
+        return slot
 
-def test_a_nonzero_call_is_the_apparatus_nonzero_code(tmp_path):
-    make_slot(str(tmp_path), "A", 1,
-              call={"exitCode": 10, "timedOut": False, "durationSeconds": 3.0})
-    record = score.read_slot(entry(), str(tmp_path))
-    assert record["code"] == "call-nonzero-exit"
-    assert record["durationSeconds"] == 3.0
+    def read(self, entry):
+        return score.read_slot(entry, self.arms_root,
+                               score.slots_present(self.arms_root),
+                               self.pins["golden"]["sha256"])
 
+    def refusal(self, callable_, *args, **kwargs):
+        with self.assertRaises(score.ScoreError) as caught:
+            callable_(*args, **kwargs)
+        return str(caught.exception)
 
-def test_a_completed_call_with_no_completion_is_a_shape_failure(tmp_path):
-    make_slot(str(tmp_path), "A", 1,
-              call={"exitCode": 0, "timedOut": False, "durationSeconds": 3.0})
-    assert score.read_slot(entry(), str(tmp_path))["code"] == "slot-shape"
+    # -- presence ---------------------------------------------------------
 
+    def test_an_absent_slot_is_absent_rather_than_a_code(self):
+        self.write_golden()
+        record = self.read(test_batch.ENTRIES[0])
+        self.assertFalse(record["present"])
+        self.assertIsNone(record["code"])
 
-def test_a_completed_call_carries_its_completion(tmp_path):
-    make_slot(str(tmp_path), "A", 1,
-              call={"exitCode": 0, "timedOut": False, "durationSeconds": 3.0},
-              completion="PACK:\n```json\n{}\n```\n")
-    record = score.read_slot(entry(), str(tmp_path))
-    assert record["code"] is None
-    assert record["completion"].startswith("PACK:")
+    def test_presence_is_the_drivers_collector_and_a_name_claims_its_index(self):
+        """`collect_slots()` names an entry `run-NNN` a slot WHATEVER its type,
+        because the name is what claims the index. `os.path.isdir()` skipped a
+        regular file at that name and the scorer scored the batch as if the slot
+        had never been attempted."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        path = batch.slot_path(entry)
+        os.makedirs(os.path.dirname(path))
+        with open(path, "w") as handle:
+            handle.write("not a slot")
+        self.assertIn("is not sealed", self.refusal(self.read, entry))
 
+    def test_an_entry_the_registered_order_does_not_name_refuses(self):
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry)
+        with open(os.path.join(os.path.dirname(batch.slot_path(entry)),
+                               "scratch-notes.txt"), "w") as handle:
+            handle.write("left behind")
+        self.assertIn("the registered order does not name",
+                      self.refusal(score.slots_present, self.arms_root))
 
-def test_a_slot_with_neither_call_nor_refusal_refuses_the_whole_scoring(tmp_path):
-    """Study 012's C5 rule 1: no section 1a code describes a slot the driver
-    started and never finished, so no rate is computed over a population holding
-    one."""
-    os.makedirs(os.path.join(str(tmp_path), "A", "authoring", "run-001"))
-    with pytest.raises(score.ScoreError) as raised:
-        score.read_slot(entry(), str(tmp_path))
-    assert "neither CALL.json nor REFUSAL.json" in str(raised.value)
+    # -- the seal (section 2.9) -------------------------------------------
+
+    def test_a_sealed_slot_is_read_and_carries_its_completion(self):
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry)
+        record = self.read(entry)
+        self.assertTrue(record["present"])
+        self.assertIsNone(record["code"])
+        self.assertTrue(record["completion"].startswith("PACK:"))
+        self.assertEqual(record["durationSeconds"], 12.5)
+        self.assertTrue(record["sealSha256"].startswith("sha256:"))
+
+    def test_a_slot_whose_bytes_moved_after_the_seal_refuses_the_scoring(self):
+        """Section 2.9 seals every slot by a terminal manifest, and the scorer
+        never recomputed it: a slot edited after sealing was scored."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        slot = self.build(entry)
+        with open(os.path.join(slot, "completion.txt"), "a") as handle:
+            handle.write("appended after the seal\n")
+        self.assertIn("does not verify against the slot it seals",
+                      self.refusal(self.read, entry))
+
+    def test_an_unsealed_slot_refuses_the_scoring(self):
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, seal=False)
+        self.assertIn("is not sealed", self.refusal(self.read, entry))
+
+    def test_a_slot_with_neither_call_nor_refusal_refuses_the_scoring(self):
+        """Study 012's C5 rule 1, now the DRIVER's own sentence: no section 1a
+        code describes a slot that was started and never finished."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        slot = batch.slot_path(entry)
+        os.makedirs(slot)
+        batch.seal_slot(slot, entry)
+        self.assertIn("carries neither CALL.json nor REFUSAL.json",
+                      self.refusal(self.read, entry))
+
+    # -- the codes --------------------------------------------------------
+
+    def test_a_timeout_is_the_timeout_code_and_not_a_shape_failure(self):
+        """The smoke's D-2. The driver classified the slot `call-timeout` and
+        the scorer filed it `slot-shape`, because its reader tested for
+        `REFUSAL.json` before it read `CALL.json` and returned `slot-shape` for
+        anything carrying one. Both codes are apparatus so no denominator moves
+        — but `timeout-rate-within-cap` then held over a batch that contained a
+        timeout, which is the undercount the registered status 12 exists to
+        prevent."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, refusal=(12, "call-timeout"), timed_out=True)
+        record = self.read(entry)
+        self.assertEqual(record["code"], "call-timeout")
+        self.assertEqual(record["wrapperExit"], 12)
+        self.assertEqual(batch.CODE_PARTITION[record["code"]][0], "apparatus")
+
+    def test_a_nonzero_exit_is_the_nonzero_code(self):
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, refusal=(10, "call-nonzero-exit"))
+        self.assertEqual(self.read(entry)["code"], "call-nonzero-exit")
+
+    def test_a_slot_shape_refusal_is_the_shape_code(self):
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, refusal=(11, "slot-shape"))
+        self.assertEqual(self.read(entry)["code"], "slot-shape")
+
+    def test_a_refusal_record_this_driver_never_writes_refuses(self):
+        """`slot_outcome()` checks the code against `WRAPPER_CODES` rather than
+        taking it from the file, so a refusal naming a code no exit status of
+        this wrapper yields is not this driver's."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        slot = self.build(entry, refusal=(11, "slot-shape"), seal=False)
+        with open(os.path.join(slot, "REFUSAL.json"), "w") as handle:
+            json.dump({"code": "call-timeout", "wrapperExit": 11}, handle)
+        batch.seal_slot(slot, entry)
+        self.assertIn("is not one this batch produced",
+                      self.refusal(self.read, entry))
+
+    def test_a_completed_call_with_no_completion_is_a_shape_failure(self):
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, completion=None)
+        self.assertEqual(self.read(entry)["code"], "slot-shape")
+
+    def test_the_golden_context_mismatch_code_is_reachable(self):
+        """Section 1a names `golden-context-mismatch` as an apparatus code and
+        the scorer's own reduced reader could never return it, so a run that
+        failed the golden gate entered the denominator. The wrapper stamps the
+        capture it ran behind into every `CALL.json` (section 3.2), and that
+        stamp is what this reads."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, golden="sha256:" + "b" * 64)
+        record = self.read(entry)
+        self.assertEqual(record["code"], "golden-context-mismatch")
+        self.assertEqual(batch.CODE_PARTITION[record["code"]][0], "apparatus")
+
+    def test_a_run_made_behind_the_registered_golden_is_admitted(self):
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry)
+        self.assertIsNone(self.read(entry)["code"])
+
+    # -- the session identity ---------------------------------------------
+
+    def test_two_slots_naming_one_session_refuse_the_whole_scoring(self):
+        """`session_identity()` is the driver's, and two slots naming one
+        session are one call — which every interval in this study assumes they
+        are not."""
+        self.write_golden()
+        first, second = test_batch.ENTRIES[0], test_batch.ENTRIES[1]
+        self.build(first, session="s-0001")
+        self.build(second, session="s-0001")
+        present = score.slots_present(self.arms_root)
+        golden = self.pins["golden"]["sha256"]
+        slots = [score.read_slot(entry, self.arms_root, present, golden)
+                 for entry in test_batch.ENTRIES[:2]]
+        self.assertEqual([record["sessionId"] for record in slots],
+                         ["s-0001", "s-0001"])
+        self.assertIn("are one call",
+                      self.refusal(score.require_distinct_sessions, slots))
+
+    def test_distinct_sessions_pass(self):
+        self.write_golden()
+        first, second = test_batch.ENTRIES[0], test_batch.ENTRIES[1]
+        self.build(first, session="s-0001")
+        self.build(second, session="s-0002")
+        present = score.slots_present(self.arms_root)
+        golden = self.pins["golden"]["sha256"]
+        slots = [score.read_slot(entry, self.arms_root, present, golden)
+                 for entry in test_batch.ENTRIES[:2]]
+        score.require_distinct_sessions(slots)      # returns
 
 
 # --- terminality ------------------------------------------------------------
@@ -420,15 +612,32 @@ def test_e1_on_an_empty_arm_holds_rather_than_dividing_by_zero():
 
 
 def test_e2_publishes_the_ordered_code_table_with_both_sides_named():
-    slots = [slot("A", 1), slot("A", 2, "no-marker-block"),
-             slot("A", 3, "schema-invalid-pack")]
-    profile = score.e2_profile("A", slots)
+    """Over the RUN records (SCAFFOLD item S11 / the smoke's D-3): the authoring
+    codes are assigned by `score_run()` onto the run, and a table built from the
+    slot records — whose codes are the wrapper's exit statuses, every one of
+    them on the apparatus side — was structurally always zero."""
+    runs = [run("run-001"),
+            run("run-002", admitted=False, code="no-marker-block"),
+            run("run-003", admitted=True, code="schema-invalid-pack")]
+    profile = score.e2_profile("A", runs)
     assert [row["code"] for row in profile["orderedCodes"]] == \
         list(score.admit_lib.DROP_ORDER)
     assert all(row["side"] == "authoring" for row in profile["orderedCodes"])
     assert profile["admitted"] == 1
+    # …and the artifact-level count is published beside it rather than standing
+    # in for it: run-003's policy was admitted and its pack was schema-invalid.
+    assert profile["artifactAdmitted"] == 2
     counts = {row["code"]: row["count"] for row in profile["orderedCodes"]}
     assert counts["no-marker-block"] == 1 and counts["schema-invalid-pack"] == 1
+
+
+def test_e2_refuses_an_apparatus_code_on_a_run_record():
+    """Section 1a excludes apparatus failures from every per-arm rate, so a run
+    record carrying one is a population rule that did not run — refused here
+    rather than published as an E2 row."""
+    with pytest.raises(score.ScoreError) as raised:
+        score.e2_profile("A", [run("run-001", code="call-timeout")])
+    assert "cannot carry one" in str(raised.value)
 
 
 def test_e3_counts_within_arm_only():
@@ -439,23 +648,62 @@ def test_e3_counts_within_arm_only():
     assert taxonomy["identityFailureCategories"] == {"outcome:reject": 1}
 
 
-def test_the_contrast_refuses_on_unequal_denominators():
-    """`stats.z2_table()`'s closed form is the equal-size one; a contrast at two
-    different N computed with a formula for one N is a number nobody
-    registered."""
+def test_the_contrast_scores_unequal_denominators_rather_than_refusing():
+    """SCAFFOLD item S8, closed. Section 1a excludes apparatus failures from the
+    denominator, so unequal admitted counts are the registered case, and section
+    5 registers the general unequal-N FM-score inversion for it. The scorer used
+    to raise `FM-UNEQUAL-N` here."""
     e4_by_arm = {"A": {"highKill": 10, "denominator": 50},
                  "C": {"highKill": 40, "denominator": 49}}
-    with pytest.raises(score.stats.StatsError) as raised:
-        score.contrast("A", "C", e4_by_arm)
-    assert str(raised.value).startswith("FM-UNEQUAL-N")
+    result = score.contrast("A", "C", e4_by_arm, endpoints=False)
+    assert result["equalArms"] is False
+    assert result["nLeft"] == 50 and result["nRight"] == 49
+    assert result["excludesZero"] is True
+    assert decision.direction(result) == "C above A"
 
 
 def test_the_contrast_carries_the_arm_names_so_direction_is_readable():
     e4_by_arm = {"A": {"highKill": 10, "denominator": 50},
                  "C": {"highKill": 45, "denominator": 50}}
-    result = score.contrast("A", "C", e4_by_arm)
+    result = score.contrast("A", "C", e4_by_arm, endpoints=False)
     assert result["arms"] == ["A", "C"]
     assert decision.direction(result) == "C above A"
+
+
+def test_the_contrast_publishes_the_swept_interval_beside_the_decision():
+    """Section 10 commits to publishing every interval, and section 5 says the
+    reported endpoints come from the full Delta0 sweep of the same
+    construction. Small denominators here because the sweep's cost is the whole
+    Delta0 mesh; `tests/test_score_stats.py` holds the construction itself."""
+    e4_by_arm = {"A": {"highKill": 6, "denominator": 6},
+                 "C": {"highKill": 0, "denominator": 5}}
+    result = score.contrast("A", "C", e4_by_arm)
+    assert result["excludesZero"] is True
+    assert result["interval"]["lower"] == "43/100"
+    assert result["interval"]["upper"] == "1"
+    assert result["interval"]["deltaMeshDenominator"] == \
+        score.stats.FM_DELTA_MESH_DEN
+
+
+def test_an_endpoint_refusal_leaves_the_decision_intact():
+    """The endpoints are a REPORT; section 5's rule reads `excludesZero` and
+    nothing else, so a sweep that cannot report a hull must not take the verdict
+    down with it."""
+    e4_by_arm = {"A": {"highKill": 6, "denominator": 6},
+                 "C": {"highKill": 0, "denominator": 5}}
+
+    def refuse(*_args, **_kwargs):
+        raise score.stats.StatsError("FM-EMPTY-ACCEPTANCE synthetic")
+
+    saved = score.stats.interval_endpoints
+    score.stats.interval_endpoints = refuse
+    try:
+        result = score.contrast("A", "C", e4_by_arm)
+    finally:
+        score.stats.interval_endpoints = saved
+    assert result["excludesZero"] is True
+    assert result["interval"] is None
+    assert result["intervalRefusal"].startswith("FM-EMPTY-ACCEPTANCE")
 
 
 # --- the rendered report ----------------------------------------------------

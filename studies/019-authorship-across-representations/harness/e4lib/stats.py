@@ -185,52 +185,80 @@ DECIDED_RIGHT = "right-above-left"
 INDETERMINATE = "indeterminate"
 
 
-def z2_table(N: int) -> list:
-    """z^2(x, y) as exact Fractions; 0 on the degenerate diagonal ends.
+def z2_table(n_left: int, n_right: int = None) -> list:
+    """z^2(x, y) at Delta0 = 0 as exact Fractions; 0 on the degenerate ends.
 
     At Delta0 = 0 the Farrington-Manning score statistic reduces to the
     pooled-variance two-sample Z, whose square is the Pearson chi-square of the
-    2x2 table; with equal arm sizes N that is 2N(x-y)^2 / ((x+y)(2N-x-y)), an
-    exact rational. The ORDERING of tables is where a float could silently flip
-    a decision, so it is done here and only here."""
-    out = [[Fraction(0)] * (N + 1) for _ in range(N + 1)]
-    twoN = 2 * N
-    for x in range(N + 1):
-        for y in range(N + 1):
+    2x2 table. The constrained MLE under p_A = p_C is the POOLED proportion
+    (x + y) / (n_A + n_C) — a closed form, exactly rational — so at Delta0 = 0
+    the whole construction is exact with no root-finding anywhere:
+
+        z^2(x, y) = N (x n_C - y n_A)^2 / (n_A n_C (x + y) (N - x - y)),
+        N = n_A + n_C
+
+    SCAFFOLD item S8: the equal-N form 2N(x-y)^2 / ((x+y)(2N-x-y)) that the
+    design prototype `design/mutants/oc_table.py` carries is the n_A = n_C slice
+    of this, and `harness/tests/test_score_stats.py` asserts that the general
+    form reproduces the prototype's registered constants at n_A = n_C = 50
+    exactly. The general form is registered because section 1a excludes
+    apparatus failures from the denominator and unequal admitted counts are
+    therefore a real possibility; approximating that case with a formula for one
+    N would be a number nobody registered.
+
+    The ORDERING of tables is where a float could silently flip a decision, so
+    it is done here and only here."""
+    n_right = n_left if n_right is None else n_right
+    total = n_left + n_right
+    out = [[Fraction(0)] * (n_right + 1) for _ in range(n_left + 1)]
+    for x in range(n_left + 1):
+        for y in range(n_right + 1):
             s = x + y
-            den = s * (twoN - s)
+            den = n_left * n_right * s * (total - s)
             if den == 0:
-                # s = 0 or s = 2N forces x = y: no difference, no evidence.
+                # s = 0 or s = N forces both proportions equal (0 and 0, or 1
+                # and 1): no difference, no evidence.
                 out[x][y] = Fraction(0)
             else:
-                out[x][y] = Fraction(twoN * (x - y) ** 2, den)
+                out[x][y] = Fraction(total * (x * n_right - y * n_left) ** 2,
+                                     den)
     return out
 
 
-def tail_coefficients(N: int, z2: list, level: Fraction) -> list:
+def tail_coefficients(n_left: int, z2: list, level: Fraction,
+                      n_right: int = None) -> list:
     """A_s = sum over tables in the tail {z^2 >= level} with x + y = s of
-    C(N,x) C(N,y). The null probability of the tail at common rate p is then
-    f(p) = sum_s A_s p^s (1-p)^(2N-s)."""
-    A = [0] * (2 * N + 1)
-    cN = [math.comb(N, i) for i in range(N + 1)]
-    for x in range(N + 1):
+    C(n_A,x) C(n_C,y).
+
+    At Delta0 = 0 BOTH arms share the nuisance rate p, so the null probability
+    of the tail is f(p) = sum_s A_s p^s (1-p)^(N-s) with N = n_A + n_C — one
+    Bernstein polynomial in one variable, whatever the two arm sizes are. That
+    is what makes the unequal-N inversion as cheap and as exact as the equal-N
+    one."""
+    n_right = n_left if n_right is None else n_right
+    A = [0] * (n_left + n_right + 1)
+    c_left = [math.comb(n_left, i) for i in range(n_left + 1)]
+    c_right = [math.comb(n_right, i) for i in range(n_right + 1)]
+    for x in range(n_left + 1):
         row = z2[x]
-        cx = cN[x]
-        for y in range(N + 1):
+        cx = c_left[x]
+        for y in range(n_right + 1):
             if row[y] >= level:
-                A[x + y] += cx * cN[y]
+                A[x + y] += cx * c_right[y]
     return A
 
 
-def sup_tail_numerator(A: list, N: int, mesh_den: int = MESH_DEN,
-                       offset: bool = False) -> tuple:
-    """max over the registered mesh of f(p) * mesh_den^(2N), as an exact integer.
+def sup_tail_numerator(A: list, n_left: int, mesh_den: int = MESH_DEN,
+                       offset: bool = False, n_right: int = None) -> tuple:
+    """max over the registered mesh of f(p) * mesh_den^N, as an exact integer,
+    with N = n_A + n_C.
 
-    The tail set is symmetric under (x, y) -> (N-x, N-y), so A_s = A_{2N-s} and
-    f(p) = f(1-p); only k <= mesh_den/2 is scanned. `offset=True` scans the
-    interleaved mesh instead — the size check that says whether MESH_DEN is
-    fine enough."""
-    twoN = 2 * N
+    The tail set is symmetric under (x, y) -> (n_A-x, n_C-y) — that map negates
+    the difference of proportions and sends the pooled rate to its complement,
+    so z^2 is invariant — hence A_s = A_{N-s} and f(p) = f(1-p); only
+    k <= mesh_den/2 is scanned. `offset=True` scans the interleaved mesh
+    instead — the size check that says whether MESH_DEN is fine enough."""
+    twoN = n_left + (n_left if n_right is None else n_right)
     if offset:
         den = 2 * mesh_den
         ks = range(1, mesh_den + 1, 2)
@@ -252,25 +280,27 @@ def sup_tail_numerator(A: list, N: int, mesh_den: int = MESH_DEN,
     return best, den ** twoN
 
 
-def sup_le_alpha(A: list, N: int) -> tuple:
+def sup_le_alpha(A: list, n_left: int, n_right: int = None) -> tuple:
     """Exact INTEGER test: is sup_M f(p) <= FM_ALPHA? No division, so no float
     ever stands between the mesh and the decision."""
-    best, total = sup_tail_numerator(A, N)
+    best, total = sup_tail_numerator(A, n_left, n_right=n_right)
     return best * FM_ALPHA.denominator <= FM_ALPHA.numerator * total, \
         Fraction(best, total)
 
 
-def critical_level(N: int, z2: list) -> tuple:
+def critical_level(n_left: int, z2: list, n_right: int = None) -> tuple:
     """Smallest attained z^2 level c* with sup_M P(z^2 >= c*) <= FM_ALPHA.
 
     The tail sup is non-increasing in the level, so binary search is valid.
     Returns (c*, the realised size at c*, the number of sup evaluations); c* is
     None when no attainable rejection region exists at this alpha, in which
     case the procedure can never decide and every table is INDETERMINATE."""
-    levels = sorted({z2[x][y] for x in range(N + 1) for y in range(N + 1)})
+    n_right = n_left if n_right is None else n_right
+    levels = sorted({z2[x][y] for x in range(n_left + 1)
+                     for y in range(n_right + 1)})
     evals = 0
-    A_top = tail_coefficients(N, z2, levels[-1])
-    ok, size = sup_le_alpha(A_top, N)
+    A_top = tail_coefficients(n_left, z2, levels[-1], n_right)
+    ok, size = sup_le_alpha(A_top, n_left, n_right)
     evals += 1
     if not ok:
         return None, size, evals
@@ -278,8 +308,8 @@ def critical_level(N: int, z2: list) -> tuple:
     best_size = size
     while hi - lo > 1:
         mid = (lo + hi) // 2
-        A = tail_coefficients(N, z2, levels[mid])
-        ok, size = sup_le_alpha(A, N)
+        A = tail_coefficients(n_left, z2, levels[mid], n_right)
+        ok, size = sup_le_alpha(A, n_left, n_right)
         evals += 1
         if ok:
             hi, best_size = mid, size
@@ -291,54 +321,67 @@ def critical_level(N: int, z2: list) -> tuple:
 _CRITICAL_CACHE = {}
 
 
-def critical_level_at(N: int) -> tuple:
+def critical_level_at(n_left: int, n_right: int = None) -> tuple:
     """`critical_level()` memoised on N — (c*, realised size). New here, not in
     the prototype: the registered contrasts are tested twice at one N (A-C
     first, then A-B, PREREGISTRATION.md section 5's fixed-sequence
     gatekeeping), and the second call must read the same c* as the first rather
     than recompute a number that could differ if anything above ever became
     non-deterministic."""
-    if N not in _CRITICAL_CACHE:
-        if N <= 0:
+    n_right = n_left if n_right is None else n_right
+    key = (n_left, n_right)
+    if key not in _CRITICAL_CACHE:
+        if n_left <= 0 or n_right <= 0:
             raise StatsError("FM-NO-TRIALS a contrast needs at least one trial per arm")
-        cstar, size, _evals = critical_level(N, z2_table(N))
-        _CRITICAL_CACHE[N] = (cstar, size)
-    return _CRITICAL_CACHE[N]
+        cstar, size, _evals = critical_level(n_left, z2_table(n_left, n_right),
+                                             n_right)
+        _CRITICAL_CACHE[key] = (cstar, size)
+    return _CRITICAL_CACHE[key]
 
 
-def excludes_zero(x: int, y: int, N: int) -> dict:
+def excludes_zero(x: int, y: int, n_left: int, n_right: int = None) -> dict:
     """READING 1 of the registered contrast: does the exact unconditional
     difference interval for p_left - p_right exclude zero, and in which
     direction?
 
-    `x` and `y` are the two arms' high-kill counts out of the SAME N. The
-    returned `decision` is one of `DECIDED_LEFT`, `DECIDED_RIGHT`,
-    `INDETERMINATE`; `excludesZero` is the decision rule's own predicate, so a
-    caller never has to re-derive it from the direction.
+    `x` and `y` are the two arms' high-kill counts out of `n_left` and
+    `n_right`. The returned `decision` is one of `DECIDED_LEFT`,
+    `DECIDED_RIGHT`, `INDETERMINATE`; `excludesZero` is the decision rule's own
+    predicate, so a caller never has to re-derive it from the direction.
 
-    The equal-N restriction is the registered design's, not a convenience:
-    section 2 registers N = 50 runs per arm, and `z2_table()`'s closed form is
-    the equal-size one. Unequal admitted counts are a real possibility (section
-    1a excludes apparatus failures from the denominator), and that case is
-    NOT silently approximated — it refuses, and `harness/SCAFFOLD.md` item S8
-    carries the unequal-N inversion as owed work."""
+    UNEQUAL ARM SIZES ARE REGISTERED (SCAFFOLD item S8, closed). Section 5:
+    "Because apparatus exclusions can leave unequal per-arm denominators, the
+    registered construction is the general unequal-N FM-score inversion (the OC
+    table's equal-N closed form is its N_A = N_C slice)". `n_right` defaults to
+    `n_left`, which is that slice, and the design prototype's registered
+    constants are reproduced there exactly.
+
+    The zero-exclusion predicate is stated as `z^2 > 0` rather than as
+    `x != y`: at unequal arm sizes two EQUAL counts are two different rates, and
+    two different counts can be one rate. At n_left = n_right the two spellings
+    agree exactly, so the equal-N behaviour is unchanged."""
     if x is None or y is None:
         raise StatsError("FM-NO-COUNT a contrast needs two counts")
-    if not 0 <= x <= N or not 0 <= y <= N:
-        raise StatsError("FM-NOT-A-COUNT (%r, %r) are not two counts out of %r"
-                         % (x, y, N))
-    cstar, size = critical_level_at(N)
-    z2 = z2_table(N)[x][y]
-    decided = cstar is not None and z2 >= cstar and x != y
+    n_right = n_left if n_right is None else n_right
+    if not 0 <= x <= n_left or not 0 <= y <= n_right:
+        raise StatsError("FM-NOT-A-COUNT (%r, %r) are not two counts out of "
+                         "(%r, %r)" % (x, y, n_left, n_right))
+    cstar, size = critical_level_at(n_left, n_right)
+    z2 = z2_table(n_left, n_right)[x][y]
+    decided = cstar is not None and z2 >= cstar and z2 > 0
     if not decided:
         decision = INDETERMINATE
     else:
-        decision = DECIDED_LEFT if x > y else DECIDED_RIGHT
+        decision = (DECIDED_LEFT if Fraction(x, n_left) > Fraction(y, n_right)
+                    else DECIDED_RIGHT)
     return {
-        "n": N,
+        "n": n_left if n_left == n_right else None,
+        "nLeft": n_left,
+        "nRight": n_right,
+        "equalArms": n_left == n_right,
         "left": x,
         "right": y,
-        "difference": (x - y) / N,
+        "difference": float(Fraction(x, n_left) - Fraction(y, n_right)),
         "decision": decision,
         "excludesZero": decided,
         "criticalLevel": None if cstar is None else str(cstar),
@@ -355,23 +398,289 @@ def excludes_zero(x: int, y: int, N: int) -> dict:
     }
 
 
-def interval_endpoints(x: int, y: int, N: int):
-    """REFUSING STUB — `FM-ENDPOINTS-UNPORTED` (harness/SCAFFOLD.md item S7).
+# --- the Delta0 sweep: the REPORTED interval endpoints (SCAFFOLD item S7) ---
+#
+# The decision reads only the Delta0 = 0 inversion above, where the constrained
+# MLE is the pooled proportion and everything is closed-form rational. The
+# REPORTED endpoints need the same inversion at every Delta0, where the
+# constrained MLEs solve a cubic. Two things are registered here so that the
+# sweep is exactly reproducible rather than approximately right:
+#
+#   * the Delta0 MESH. The reported interval is the convex hull of the accepted
+#     set intersected with M_D = {j/FM_DELTA_MESH_DEN : j = -D..D}. At
+#     FM_DELTA_MESH_DEN = 100 every attainable per-arm rate difference at the
+#     registered N = 50 (a multiple of 1/50) is itself a mesh point, and
+#     MESH_DEN = 1000 is a multiple of it, so p_C and p_A = p_C + Delta0 are
+#     both points of the registered NUISANCE mesh and the tail probability stays
+#     exact integer arithmetic.
+#   * the constrained-MLE BISECTION. The log-likelihood restricted to
+#     p_A - p_C = Delta0 is concave, so its derivative's numerator (an integer
+#     cubic) changes sign at most once; the MLE is located by exactly
+#     FM_MLE_BISECTIONS halvings of the feasible interval with the sign taken in
+#     exact INTEGER arithmetic. A fixed iteration count and an exact comparison
+#     give the same bits on any platform — the same discipline Study 012
+#     registered for the Clopper-Pearson bisection (`_bisect` above), and for the
+#     same reason: no libm, no tolerance, no seed.
+FM_DELTA_MESH_DEN = 100
+FM_MLE_BISECTIONS = 48
 
-    The DECISION needs only the Delta0 = 0 inversion and `excludes_zero()`
-    computes it exactly. Reporting the interval's endpoints needs the same
-    inversion swept over Delta0 with the Farrington-Manning constrained
-    maximum-likelihood estimates at each Delta0, and the convex hull taken
-    where the acceptance set is non-convex — none of which is in the design
-    prototype and none of which is written here. PREREGISTRATION.md section 10
-    commits to publishing every interval, so this is owed before the freeze and
-    refuses loudly until it lands rather than returning a plausible number that
-    nothing computed."""
-    raise StatsError(
-        "FM-ENDPOINTS-UNPORTED the Delta0 sweep that produces the reported "
-        "interval endpoints for (%r, %r) out of %r is not ported; the "
-        "zero-exclusion decision is complete and is what section 5 reads "
-        "(harness/SCAFFOLD.md item S7)" % (x, y, N))
+
+def _poly_mul(left, right):
+    out = [Fraction(0)] * (len(left) + len(right) - 1)
+    for i, a in enumerate(left):
+        if a:
+            for j, b in enumerate(right):
+                out[i + j] += a * b
+    return out
+
+
+def _poly_add(left, right, scale=1):
+    size = max(len(left), len(right))
+    out = [Fraction(0)] * size
+    for i, a in enumerate(left):
+        out[i] += a
+    for i, b in enumerate(right):
+        out[i] += scale * b
+    return out
+
+
+def score_cubic(x: int, n_left: int, y: int, n_right: int,
+                delta: Fraction) -> list:
+    """Integer coefficients (ascending powers of p = p_A) of the cubic whose
+    root in the feasible interior is the Farrington-Manning constrained MLE.
+
+    With p_C = p_A - Delta0 the restricted log-likelihood is
+
+        x log p + (n_A - x) log(1-p) + y log(p-D) + (n_C - y) log(1-p+D)
+
+    and multiplying its derivative by the positive product
+    p (1-p) (p-D) (1-p+D) clears every denominator, leaving a cubic. It is built
+    by polynomial multiplication rather than by a transcribed expansion, and
+    then scaled to INTEGER coefficients so the sign at a dyadic rational is an
+    integer comparison."""
+    p1 = [Fraction(1), Fraction(-1)]              # 1 - p
+    p2 = [-delta, Fraction(1)]                    # p - D
+    p3 = [Fraction(1) + delta, Fraction(-1)]      # 1 - p + D
+    p4 = [Fraction(0), Fraction(1)]               # p
+    poly = _poly_mul(_poly_mul(p1, p2), p3)
+    poly = [x * c for c in poly]
+    poly = _poly_add(poly, _poly_mul(_poly_mul(p4, p2), p3), -(n_left - x))
+    poly = _poly_add(poly, _poly_mul(_poly_mul(p4, p1), p3), y)
+    poly = _poly_add(poly, _poly_mul(_poly_mul(p4, p1), p2), -(n_right - y))
+    scale = 1
+    for coefficient in poly:
+        scale = scale * coefficient.denominator // math.gcd(
+            scale, coefficient.denominator)
+    return [int(coefficient * scale) for coefficient in poly]
+
+
+def _feasible(delta: Fraction) -> tuple:
+    """The interval p_A may live in when p_C = p_A - Delta0 is also a
+    probability."""
+    return max(Fraction(0), delta), min(Fraction(1), Fraction(1) + delta)
+
+
+def constrained_mle(x: int, n_left: int, y: int, n_right: int,
+                    delta: Fraction) -> tuple:
+    """`(p_A, p_C)`, the Farrington-Manning constrained MLEs under
+    p_A - p_C = Delta0, as exact dyadic rationals.
+
+    Bisection, not a closed form: Farrington and Manning's trigonometric
+    solution of the cubic needs `cos`/`acos`, and a libm call in the ordering of
+    tables is exactly what this study's arithmetic discipline forbids. The
+    concavity of the restricted likelihood makes bisection valid, and the
+    boundary cases fall out of it without a special branch — a derivative that
+    never changes sign drives the bracket to the end it points at."""
+    lo, hi = _feasible(delta)
+    if lo == hi:
+        return lo, lo - delta
+    coefficients = score_cubic(x, n_left, y, n_right, delta)
+    span = hi - lo
+    den = span.denominator * lo.denominator
+    lo_num = int(lo * den)
+    step_num = int(span * den)          # hi = (lo_num + step_num) / den
+    low, high = 0, 1 << FM_MLE_BISECTIONS
+    scale = 1 << FM_MLE_BISECTIONS
+    for _ in range(FM_MLE_BISECTIONS):
+        middle = (low + high) // 2
+        numerator = lo_num * scale + step_num * middle
+        denominator = den * scale
+        value = 0
+        for power, coefficient in enumerate(coefficients):
+            value += coefficient * numerator ** power * \
+                denominator ** (len(coefficients) - 1 - power)
+        if value > 0:
+            low = middle
+        else:
+            high = middle
+    p_left = Fraction(lo_num * scale + step_num * low, den * scale)
+    return p_left, p_left - delta
+
+
+def fm_z2(x: int, n_left: int, y: int, n_right: int, delta: Fraction):
+    """The Farrington-Manning score statistic squared at Delta0, exactly.
+
+    `math.inf` for the degenerate case a constrained model on the boundary
+    produces — zero variance with a non-zero numerator, which arises only at
+    Delta0 = +-1 — so that the ordering of tables is total and the tail is
+    well-defined without a special case downstream."""
+    if delta == 0:
+        # The closed form, and the one the DECISION reads: `z2_table()`'s own
+        # cell arithmetic, so the sweep and the decision cannot disagree about
+        # the one Delta0 they share.
+        return _z2_pooled(x, n_left, y, n_right)
+    p_left, p_right = constrained_mle(x, n_left, y, n_right, delta)
+    numerator = (Fraction(x, n_left) - Fraction(y, n_right) - delta) ** 2
+    variance = (p_left * (1 - p_left) / n_left
+                + p_right * (1 - p_right) / n_right)
+    if variance == 0:
+        return Fraction(0) if numerator == 0 else math.inf
+    return numerator / variance
+
+
+def _z2_pooled(x: int, n_left: int, y: int, n_right: int) -> Fraction:
+    total = n_left + n_right
+    s = x + y
+    den = n_left * n_right * s * (total - s)
+    if den == 0:
+        return Fraction(0)
+    return Fraction(total * (x * n_right - y * n_left) ** 2, den)
+
+
+def fm_z2_table(n_left: int, n_right: int, delta: Fraction) -> list:
+    return [[fm_z2(x, n_left, y, n_right, delta) for y in range(n_right + 1)]
+            for x in range(n_left + 1)]
+
+
+def _tail_runs(table: list, level, n_left: int, n_right: int) -> list:
+    """Per x, the maximal runs of consecutive y in the tail {z^2 >= level}.
+
+    Runs rather than a membership test per mesh point: the tail is fixed once
+    per Delta0 and the nuisance sup then scans a thousand mesh points over it,
+    so summing a run through a prefix total is the difference between a
+    thousand row scans and a thousand additions."""
+    runs = []
+    for x in range(n_left + 1):
+        row, current, spans = table[x], None, []
+        for y in range(n_right + 1):
+            if row[y] >= level:
+                current = (current[0], y) if current else (y, y)
+            elif current:
+                spans.append(current)
+                current = None
+        if current:
+            spans.append(current)
+        runs.append(spans)
+    return runs
+
+
+def delta_tail_sup(table: list, level, n_left: int, n_right: int,
+                   delta: Fraction, mesh_den: int = MESH_DEN) -> Fraction:
+    """sup over the registered nuisance mesh of P(z^2 >= level | Delta0), exact.
+
+    The nuisance is p_C on the mesh M = {k/mesh_den}; p_A is p_C + Delta0, which
+    is a point of the same mesh because `FM_DELTA_MESH_DEN` divides `mesh_den`.
+    Every quantity below is an integer over the common denominator
+    mesh_den^(n_A + n_C), so the whole supremum is exact integer arithmetic and
+    no float stands between the mesh and the reported endpoint."""
+    if mesh_den % delta.denominator:
+        raise StatsError(
+            "FM-MESH-INCOMMENSURATE Delta0 %s is not a point of the registered "
+            "nuisance mesh with denominator %d" % (delta, mesh_den))
+    shift = delta.numerator * (mesh_den // delta.denominator)
+    runs = _tail_runs(table, level, n_left, n_right)
+    comb_left = [math.comb(n_left, i) for i in range(n_left + 1)]
+    comb_right = [math.comb(n_right, i) for i in range(n_right + 1)]
+    best = 0
+    for k in range(max(0, -shift), min(mesh_den, mesh_den - shift) + 1):
+        u = k + shift
+        left = [comb_left[i] * u ** i * (mesh_den - u) ** (n_left - i)
+                for i in range(n_left + 1)]
+        right = [comb_right[j] * k ** j * (mesh_den - k) ** (n_right - j)
+                 for j in range(n_right + 1)]
+        prefix = [0] * (n_right + 2)
+        for j in range(n_right + 1):
+            prefix[j + 1] = prefix[j] + right[j]
+        total = 0
+        for i in range(n_left + 1):
+            spans = runs[i]
+            if not spans or not left[i]:
+                continue
+            weight = 0
+            for start, stop in spans:
+                weight += prefix[stop + 1] - prefix[start]
+            total += left[i] * weight
+        if total > best:
+            best = total
+    return Fraction(best, mesh_den ** (n_left + n_right))
+
+
+def fm_pvalue(x: int, y: int, n_left: int, n_right: int,
+              delta: Fraction) -> Fraction:
+    """The exact unconditional p-value for H0: p_A - p_C = Delta0.
+
+    Equivalent to the critical-level construction the decision uses — the tail
+    sup is non-increasing in the level and the observed statistic is an attained
+    level, so `p <= alpha` and `z^2 >= c*` name the same rejection region — and
+    stated as a p-value here because a SWEEP wants one sup per Delta0 rather
+    than a binary search over levels at each."""
+    table = fm_z2_table(n_left, n_right, delta)
+    return delta_tail_sup(table, table[x][y], n_left, n_right, delta)
+
+
+def interval_endpoints(x: int, y: int, n_left: int, n_right: int = None,
+                       mesh_den: int = FM_DELTA_MESH_DEN) -> dict:
+    """The REPORTED interval endpoints, by sweeping Delta0 (SCAFFOLD item S7).
+
+    The registered construction is "the interval is {Delta : the FM test at
+    Delta does not reject}", reported as its CONVEX HULL where the acceptance
+    set is non-convex. This sweeps the registered Delta0 mesh, keeps the
+    accepted points, and reports the hull's endpoints as exact rationals with
+    the mesh that produced them and whether the accepted set was contiguous.
+
+    PREREGISTRATION.md section 10 commits to publishing every interval, and this
+    is that publication. It is a REPORT and not a decision: the zero-exclusion
+    verdict is `excludes_zero()`'s and reads the acceptance set at Delta0 = 0
+    itself, exactly, never the hull."""
+    n_right = n_left if n_right is None else n_right
+    if not 0 <= x <= n_left or not 0 <= y <= n_right:
+        raise StatsError("FM-NOT-A-COUNT (%r, %r) are not two counts out of "
+                         "(%r, %r)" % (x, y, n_left, n_right))
+    accepted = []
+    for j in range(-mesh_den, mesh_den + 1):
+        delta = Fraction(j, mesh_den)
+        if fm_pvalue(x, y, n_left, n_right, delta) > FM_ALPHA:
+            accepted.append(j)
+    if not accepted:
+        raise StatsError(
+            "FM-EMPTY-ACCEPTANCE no point of the registered Delta0 mesh "
+            "(denominator %d) is accepted for (%d/%d, %d/%d): the interval is "
+            "narrower than the mesh and no endpoint may be reported from it"
+            % (mesh_den, x, n_left, y, n_right))
+    lower, upper = Fraction(accepted[0], mesh_den), Fraction(accepted[-1],
+                                                             mesh_den)
+    contiguous = accepted == list(range(accepted[0], accepted[-1] + 1))
+    return {
+        "lower": str(lower),
+        "upper": str(upper),
+        "lowerFloat": float(lower),
+        "upperFloat": float(upper),
+        "acceptedPoints": len(accepted),
+        "acceptanceContiguous": contiguous,
+        "reportedAsConvexHull": not contiguous,
+        "deltaMeshDenominator": mesh_den,
+        "nuisanceMeshDenominator": MESH_DEN,
+        "mleBisections": FM_MLE_BISECTIONS,
+        "alpha": str(FM_ALPHA),
+        "construction": "the acceptance set {Delta0 in M_D : the two-sided "
+                        "Farrington-Manning score test at Delta0 does not "
+                        "reject at alpha}, nuisance eliminated by maximisation "
+                        "over the registered rational mesh; reported as the "
+                        "convex hull of that set. Endpoints are mesh points: "
+                        "the reported interval is the hull of the ACCEPTED MESH "
+                        "POINTS and is therefore an inner approximation to the "
+                        "continuum acceptance set, refined to 1/%d." % mesh_den,
+    }
 
 
 def tau_cut(paired: int, tau: Fraction = TAU) -> int:

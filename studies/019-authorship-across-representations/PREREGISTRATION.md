@@ -250,7 +250,13 @@ forbidden by the appendix and asserted at admission.
   then A−B** as fixed-sequence gatekeeping (FWER controlled at α, no further adjustment).
   A contrast is **decided iff its interval excludes zero**; **δ = 0.20 is the registered
   minimum meaningful difference — an interpretation and power quantity, not part of the
-  decision rule**. INDETERMINATE (interval straddles zero) triggers nothing. OC table:
+  decision rule**. Because apparatus exclusions can leave unequal per-arm denominators,
+  the registered construction is the **general unequal-N FM-score inversion** (the OC
+  table's equal-N closed form is its N_A = N_C slice); the reported interval endpoints
+  come from the full Δ₀ sweep of the same construction, on the registered meshes
+  **Δ₀ mesh denominator 100** (every attainable rate difference at N=50 is a mesh point)
+  and **48 exact-integer bisections** for the constrained MLE — the reported interval is
+  the hull of accepted mesh points, and the record says so. INDETERMINATE (interval straddles zero) triggers nothing. OC table:
   **published** (`design/mutants/OC-TABLE.md`) — at N=50, power for a true 0.20 gap runs
   0.49–0.82 by position and 1.00 at the pilot anchor (pilot high-kill fractions on the
   paired subset: A 1/5, B 4/5, C 5/5); a true 0.25 gap can still return INDETERMINATE —
@@ -266,7 +272,10 @@ forbidden by the appendix and asserted at admission.
   registered in the design brief; arm-structural categories within-arm-only, enforced in
   the scorer).
 - **E5: interpretive-spread census** — per-arm distinct structural encodings and
-  pairwise-disagreement profiles (012's census machinery, ported).
+  pairwise-disagreement profiles (012's census machinery, ported). **Registered census
+  stimulus: the gold-row input set** (the 105 gold inputs; disagreement profiles are
+  computed over exactly these cells, closing the §9 joint-reading concern about unstated
+  stimuli).
 - Latency and artifact-size distributions per arm: descriptive, published (pilot showed a
   2–3× authoring-time asymmetry; it is data, not noise).
 

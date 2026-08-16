@@ -291,22 +291,48 @@ def test_the_screened_list_is_the_union_and_can_only_grow():
     """The derivation covers the STIMULUS, which by construction says nothing
     about jpack, the preregistration or the mutant machinery — a scratch path
     naming those would blunt the transcript screen exactly as a policy term
-    would, so the wrapper takes the union and neither list alone."""
-    assert set(leak_tokens.SCRATCH_TOKENS) == \
-        set(leak_tokens.LEAK_TOKENS) | set(transcript_check.LEAK_TOKENS)
-    assert len(leak_tokens.SCRATCH_TOKENS) > len(leak_tokens.LEAK_TOKENS)
-    assert "jpack" in leak_tokens.SCRATCH_TOKENS
+    would, so the screen is the union and neither list alone."""
+    assert set(leak_tokens.SCREEN_TOKENS) == \
+        set(leak_tokens.LEAK_TOKENS) | set(leak_tokens.INSTRUMENT_TOKENS)
+    assert leak_tokens.SCRATCH_TOKENS is leak_tokens.SCREEN_TOKENS
+    assert len(leak_tokens.SCREEN_TOKENS) > len(leak_tokens.LEAK_TOKENS)
+    assert "jpack" in leak_tokens.SCREEN_TOKENS
+
+
+def test_the_transcript_gate_screens_with_this_modules_list(preregistration):
+    """SCAFFOLD item G3's RESIDUAL, closed: `transcript_check.LEAK_TOKENS` was a
+    second, design-time copy of the vocabulary, so the study screened its
+    transcripts with one list and its scratch paths with another. There is one
+    list now — the same object, not an equal one — so the freeze's re-derivation
+    moves both screens at once."""
+    assert transcript_check.LEAK_TOKENS is leak_tokens.SCREEN_TOKENS
+    assert set(leak_tokens.LEAK_TOKENS) <= set(transcript_check.LEAK_TOKENS)
+    with open(os.path.join(HARNESS, "transcript_check.py"), "rb") as handle:
+        body = handle.read().decode("utf-8")
+    assert "import leak_tokens" in body
+    assert "LEAK_TOKENS = leak_tokens.SCREEN_TOKENS" in body
+    # …and no second tuple survives anywhere in that file.
+    assert '"judgment-pack",' not in body
+
+
+def test_the_composed_screen_has_power_from_the_derivation_and_not_the_tuple():
+    """The power check the composition owes. The instrument half is design-time
+    and says so; what must be shown is that it is not what gives the screen its
+    policy power — so it must catch strictly FEWER stimulus witnesses than the
+    derived half, and the union must lose none."""
+    report = leak_tokens.check_instrument_power()
+    assert report["instrumentCaught"] < report["derivedCaught"]
+    assert report["screenCaught"] == report["witnesses"]
 
 
 def test_the_freeze_step_is_a_diff_and_not_a_memory():
-    """`transcript_check.LEAK_TOKENS` is still the design-time list, and the
-    freeze must replace it. What must move is computed, not remembered."""
+    """Now a STANDING check rather than a to-do list: every derived token is in
+    the screen, and everything the screen carries beyond the derivation is
+    exactly the named instrument vocabulary. A token added to the screen by hand
+    has nowhere to hide."""
     gap = leak_tokens.design_time_gap()
-    assert gap["missingFromDesignTime"], "the derivation adds nothing?"
-    assert set(gap["missingFromDesignTime"]) == \
-        set(leak_tokens.LEAK_TOKENS) - set(transcript_check.LEAK_TOKENS)
-    assert set(gap["designTimeOnly"]) == \
-        set(transcript_check.LEAK_TOKENS) - set(leak_tokens.LEAK_TOKENS)
+    assert gap["missingFromDesignTime"] == ()
+    assert set(gap["designTimeOnly"]) == set(leak_tokens.INSTRUMENT_TOKENS)
 
 
 def test_the_report_names_the_source_it_was_derived_from():

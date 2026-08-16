@@ -75,6 +75,12 @@ def gold():
 def context(gold):
     return {"gold": gold, "mutants": {"jps": [], "rego": []},
             "pairedIds": {"jps": set(), "rego": set()}, "pairedCount": 0,
+            # Section 4's engine-supplied-kill split, empty here because this
+            # fixture carries no mutants: the scorer takes the list from the
+            # frozen manifests and `kill_rates()` splits the paired subset on
+            # it, so the member is REQUIRED rather than defaulted — a context
+            # without it is a scorer that would silently publish one column.
+            "engineSupplied": {"jps": (), "rego": ()},
             "referenceA": os.path.join(DESIGN, "reference", "refA", "pack.json"),
             "referenceB": os.path.join(DESIGN, "reference", "refB",
                                        "policy.rego")}
@@ -226,3 +232,40 @@ def test_the_reference_policy_is_not_killed_by_its_own_suite(tools, tmp_path):
     killed, detail = e4.kill_arm_rego(tools, reference, PILOT_SUITE,
                                       str(tmp_path))
     assert killed is False and detail["exitCode"] == 0
+
+
+# --- the reference-vs-gold floor gate, RUN (SCAFFOLD item S10) ---------------
+
+def test_the_floor_gate_runs_over_both_references_and_holds(tools, gold,
+                                                            tmp_path):
+    """Section 4's floor gate and section 6's first control row, executed rather
+    than asserted. It was stamped `held: true` with a note while it was unwired,
+    and section 6 exists to prevent exactly that: a gate that reports its own
+    success is not a gate.
+
+    Both references, every gold row, through the same two invocations every
+    other number in an attempt is produced by."""
+    gate = score.references_reproduce_gold(
+        tools, gold,
+        os.path.join(DESIGN, "reference", "refA", "pack.json"),
+        os.path.join(DESIGN, "reference", "refB", "policy.rego"),
+        str(tmp_path))
+    assert gate["rows"] == len(gold)
+    assert gate["failureCount"] == 0, gate["failures"][:3]
+    assert gate["held"] is True
+
+
+def test_the_floor_gate_fails_closed_against_a_reference_that_disagrees(
+        tools, gold, tmp_path):
+    """The gate has power: a MUTANT standing in for the arm-B reference makes it
+    fail, and it names the rows and the reference rather than a boolean."""
+    mutant = os.path.join(DESIGN, "mutants", "refB", "m-b-001.rego")
+    if not os.path.isfile(mutant):
+        pytest.skip("design mutant m-b-001.rego is absent")
+    gate = score.references_reproduce_gold(
+        tools, gold,
+        os.path.join(DESIGN, "reference", "refA", "pack.json"),
+        mutant, str(tmp_path))
+    assert gate["held"] is False
+    assert gate["failureCount"] > 0
+    assert {failure["reference"] for failure in gate["failures"]} == {"B"}

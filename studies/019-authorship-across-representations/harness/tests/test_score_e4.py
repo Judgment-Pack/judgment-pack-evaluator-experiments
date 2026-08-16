@@ -221,11 +221,12 @@ def test_unpairable_adequate_mutants_are_published(mutant_tree):
                                               "rego": ["m-b-002"]}
 
 
-def test_the_engine_supplied_list_refuses_while_the_manifest_lacks_it(
+def test_the_engine_supplied_list_refuses_when_no_manifest_member_exists(
         mutant_tree):
-    """SCAFFOLD item S9. Section 4 says the list is "in the registries"; today
-    the marking is a glyph in ADEQUACY.md prose. Returning an empty list would
-    publish "0 engine-supplied kills" and satisfy section 4 in form only."""
+    """SCAFFOLD item S9's remaining guard. An EMPTY registered class and a
+    MISSING member are different facts: returning an empty list from a manifest
+    that says nothing would publish "0 engine-supplied kills" and satisfy
+    section 4 in form only."""
     mutants = e4.load_mutants(*mutant_tree)
     with pytest.raises(e4.E4Error) as raised:
         e4.engine_supplied_ids(mutants, "jps")
@@ -243,6 +244,46 @@ def test_the_engine_supplied_list_is_read_when_the_manifest_carries_it(
     assert e4.engine_supplied_ids(mutants, "jps") == ["m-a-001"]
 
 
+def test_an_all_false_marking_is_an_empty_registered_class_and_not_a_refusal(
+        mutant_tree, tmp_path):
+    """Arm B's case, and the reason the distinction is load-bearing: the Rego
+    ladder has no structural conflict detection, so its engine-supplied class is
+    EMPTY. A manifest that records `engineSuppliedKill: false` on every mutant
+    has stated that; one with no member has stated nothing."""
+    jps_manifest, rego_manifest, jps_dir, rego_dir = mutant_tree
+    document = json.loads(open(rego_manifest).read())
+    for mutant in document["mutants"]:
+        mutant["engineSuppliedKill"] = False
+    open(rego_manifest, "w").write(json.dumps(document))
+    mutants = e4.load_mutants(jps_manifest, rego_manifest, jps_dir, rego_dir)
+    assert e4.engine_supplied_ids(mutants, "rego") == []
+
+
+def test_the_committed_mutant_manifests_carry_the_registered_member(study):
+    """SCAFFOLD item S9, closed, against the DESIGN manifests the freeze copies
+    into `mutants/MANIFEST-*.json`: arm A's marking is
+    `design/mutants/refA/REGISTRY.json`'s conflict-only list, cell for cell, and
+    arm B carries the member with an empty class and its reason."""
+    import os
+    design = os.path.join(study, "design", "mutants")
+    registry = json.loads(open(os.path.join(design, "refA",
+                                            "REGISTRY.json")).read())
+    manifest = json.loads(open(os.path.join(design, "refA",
+                                            "MANIFEST.json")).read())
+    marked = sorted(m["id"] for m in manifest if m["engineSuppliedKill"])
+    assert marked == sorted(registry["conflictOnlyMutants"])
+    assert len(marked) == 41          # section 4's "now 41"
+    assert all("engineSuppliedKill" in m for m in manifest)
+    rego = json.loads(open(os.path.join(design, "refB",
+                                        "MANIFEST.json")).read())
+    assert all("engineSuppliedKill" in m for m in rego["mutants"])
+    assert not any(m["engineSuppliedKill"] for m in rego["mutants"])
+    assert rego["engineSuppliedKillClass"]["registered"] is True
+    assert rego["engineSuppliedKillClass"]["members"] == []
+    assert "no structural conflict detection" in \
+        rego["engineSuppliedKillClass"]["reason"]
+
+
 # --- the run-level endpoint -------------------------------------------------
 
 def test_kill_rates_carry_three_named_denominators(mutant_tree):
@@ -254,6 +295,27 @@ def test_kill_rates_carry_three_named_denominators(mutant_tree):
     assert rates["killedPaired"] == 1 and rates["paired"] == 1
     assert rates["killedNotAdequate"] == 1 and rates["notAdequate"] == 1
     assert rates["survivorsPaired"] == []
+
+
+def test_kill_rates_split_the_paired_subset_on_the_engine_supplied_list(
+        mutant_tree):
+    """Section 4: those kills are "reported both included and excluded". The
+    split happens once, where the kill of each mutant is known — reconstructing
+    it from an aggregate afterwards is not possible."""
+    mutants = e4.load_mutants(*mutant_tree)
+    _table, paired = e4.build_pairing(mutants)
+    rates = e4.kill_rates({"m-a-001": True, "m-a-002": False, "m-a-003": True},
+                          mutants["jps"], paired["jps"],
+                          engine_supplied=["m-a-001"])
+    assert rates["killedPaired"] == 1 and rates["paired"] == 1
+    assert rates["killedPairedExcludingEngineSupplied"] == 0
+    assert rates["pairedExcludingEngineSupplied"] == 0
+    assert rates["killedEngineSupplied"] == 1 and rates["engineSupplied"] == 1
+    # …and with no list the two columns are the same numbers, so a language
+    # with an empty registered class reports one honest column twice.
+    plain = e4.kill_rates({"m-a-001": True}, mutants["jps"], paired["jps"])
+    assert plain["killedPairedExcludingEngineSupplied"] == plain["killedPaired"]
+    assert plain["pairedExcludingEngineSupplied"] == plain["paired"]
 
 
 def test_the_high_kill_cut_is_stated_with_the_arithmetic_that_produced_it():

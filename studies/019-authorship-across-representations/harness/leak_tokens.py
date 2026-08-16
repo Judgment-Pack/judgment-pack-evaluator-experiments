@@ -375,30 +375,61 @@ def derived(study: str = STUDY) -> dict:
 
 LEAK_TOKENS = derived()["tokens"]
 
-# What the wrapper screens the scratch path with: the derived policy vocabulary
-# AND the instrument vocabulary the design-time list carries. The derivation
-# covers the STIMULUS, which by construction says nothing about jpack, the
-# preregistration or the mutant machinery — a scratch path naming those would
-# blunt the transcript screen exactly as a policy term would, so the wrapper
-# takes the union and neither list alone.
-def _scratch_tokens() -> tuple:
-    import transcript_check
-    return tuple(sorted(set(LEAK_TOKENS) | set(transcript_check.LEAK_TOKENS)))
+# The INSTRUMENT vocabulary — this study's own apparatus, which the derivation
+# cannot produce and which no rule here could.
+#
+# The three derivation rules read the STIMULUS, and the stimulus is a vendor
+# approval policy: by construction it says nothing about jpack, the
+# preregistration, the mutant machinery or the scored surface's member names. A
+# prior turn that had seen any of THOSE had seen this study, and a scratch path
+# naming one would blunt the transcript screen exactly as a policy term would.
+# So the screen is the UNION, and this half is a design-time list ON PURPOSE and
+# says so: it is not derived, it is not claimed to be derived, and
+# `report()["instrument"]` publishes it separately from the derived tokens so a
+# reader can always see which half of the screen answers to the prose.
+#
+# `check_instrument_power()` below is what keeps it from being decoration: the
+# instrument half alone must catch strictly FEWER stimulus witnesses than the
+# derived half, which is the mechanical statement that it is not doing the
+# policy half's job by accident.
+INSTRUMENT_TOKENS = (
+    # The study and its instruments
+    "judgment-pack", "jpack", "pack.json", "judgment pack", "matrixversion",
+    "specversion", "preregistration", "study-019", "study 019",
+    "authorship across representations",
+    # The scored surface's registered member names (the naming appendix's
+    # spellings, which are identifiers rather than policy prose)
+    "outcomeid", "onunknown", "applicability", "evidencerequirements",
+    "sourcerefs",
+    # The mutation machinery and the endpoints
+    "mutant", "kill rate", "high-kill", "gold suite", "identity control",
+    "witness set", "paired adequate",
+)
 
-
-SCRATCH_TOKENS = _scratch_tokens()
+# What BOTH screens read: the derived policy vocabulary and the instrument
+# vocabulary, in one place (SCAFFOLD item G3's residual). The wrapper screens
+# the scratch path with it and `transcript_check.LEAK_TOKENS` IS it — there is
+# no second list anywhere in the study, so the two screens cannot drift and the
+# freeze's re-derivation moves both at once.
+SCREEN_TOKENS = tuple(sorted(set(LEAK_TOKENS) | set(INSTRUMENT_TOKENS)))
+# The name the wrapper reads (harness/PORTS.md's fifth registered difference).
+SCRATCH_TOKENS = SCREEN_TOKENS
 
 
 def design_time_gap(study: str = STUDY) -> dict:
-    """What the freeze must copy across: the derived tokens
-    `transcript_check.LEAK_TOKENS` does not carry, and the design-time tokens
-    the derivation does not produce. Mechanical, so SCAFFOLD G3's step is a diff
-    and not a memory."""
-    import transcript_check
+    """The gap between the DERIVED list and the screen the study actually uses.
+
+    It was the freeze's to-do list while `transcript_check.LEAK_TOKENS` was a
+    separate design-time tuple: which derived tokens the screen did not carry,
+    and which screen tokens the derivation did not produce. It is a STANDING
+    check now that the screen is built from the derivation — the first list must
+    be empty, always, and the second must be exactly `INSTRUMENT_TOKENS` — and
+    `harness/tests/test_leak_tokens.py` asserts both, so a token added to the
+    screen by hand has nowhere to hide."""
     tokens = set(derived(study)["tokens"])
-    design = set(transcript_check.LEAK_TOKENS)
-    return {"missingFromDesignTime": tuple(sorted(tokens - design)),
-            "designTimeOnly": tuple(sorted(design - tokens))}
+    screen = set(SCREEN_TOKENS)
+    return {"missingFromDesignTime": tuple(sorted(tokens - screen)),
+            "designTimeOnly": tuple(sorted(screen - tokens))}
 
 
 # --- power ------------------------------------------------------------------
@@ -495,6 +526,45 @@ def check_power(study: str = STUDY) -> dict:
     return report
 
 
+def instrument_power_report(study: str = STUDY) -> dict:
+    """How many stimulus witnesses each half of the screen catches on its own."""
+    slice_text = stimulus(source_text(study))
+    sentences = witnesses(slice_text)
+    tokens = derive(slice_text)["tokens"]
+    return {
+        "witnesses": len(sentences),
+        "derivedCaught": len(sentences) - len(uncaught(tokens, sentences)),
+        "instrumentCaught": len(sentences) - len(uncaught(INSTRUMENT_TOKENS,
+                                                          sentences)),
+        "screenCaught": len(sentences) - len(uncaught(SCREEN_TOKENS, sentences)),
+    }
+
+
+def check_instrument_power(study: str = STUDY) -> dict:
+    """The power check the COMPOSED screen owes (SCAFFOLD item G3's residual).
+
+    `check_power()` demonstrates that the derived list is what catches the
+    stimulus's witnesses. This demonstrates the other half of the composition:
+    the instrument vocabulary alone catches strictly FEWER of them, so the
+    screen's policy power comes from the derivation and not from a design-time
+    tuple that happens to overlap it — and the union still catches every witness,
+    so adding the instrument half cannot have cost the screen anything."""
+    report = instrument_power_report(study)
+    if report["instrumentCaught"] >= report["derivedCaught"]:
+        raise LeakTokenError(
+            "the instrument vocabulary alone catches %d of %d witnesses and the "
+            "derived list catches %d: the screen's policy power is not coming "
+            "from the derivation"
+            % (report["instrumentCaught"], report["witnesses"],
+               report["derivedCaught"]))
+    if report["screenCaught"] != report["witnesses"]:
+        raise LeakTokenError(
+            "the composed screen catches %d of %d witnesses: composing the two "
+            "halves must not lose any"
+            % (report["screenCaught"], report["witnesses"]))
+    return report
+
+
 def check_rederivation(study: str = STUDY) -> dict:
     """The other direction: the list is a FUNCTION of the prose.
 
@@ -584,8 +654,11 @@ def report(study: str = STUDY) -> dict:
             "shortExempt": list(result["shortExempt"]),
             "dropped": [{"rule": rule, "candidate": candidate, "reason": reason}
                         for rule, candidate, reason in result["dropped"]],
+            "instrument": list(INSTRUMENT_TOKENS),
+            "screen": list(SCREEN_TOKENS),
             "power": {key: (list(value) if isinstance(value, tuple) else value)
                       for key, value in power_report(study).items()},
+            "instrumentPower": instrument_power_report(study),
             "designTimeGap": {key: list(value)
                               for key, value in design_time_gap(study).items()}}
 
@@ -596,12 +669,15 @@ def main(argv: list) -> int:
             print(json.dumps(report(), indent=2, sort_keys=True))
             return 0
         check_power()
+        check_instrument_power()
         check_rederivation()
         checked = check_negative_corpus()
-        print("%d leak tokens derived from %s"
-              % (len(LEAK_TOKENS), os.path.relpath(source_path(), STUDY)))
+        print("%d leak tokens derived from %s; %d in the composed screen "
+              "(+%d instrument)"
+              % (len(LEAK_TOKENS), os.path.relpath(source_path(), STUDY),
+                 len(SCREEN_TOKENS), len(INSTRUMENT_TOKENS)))
         print("power: every witness caught, a scrambled list catches fewer, "
-              "the empty list none")
+              "the empty list none, the instrument half alone fewer")
         print("negative corpus: %d wrapper-built names, none matched" % checked)
         return 0
     except LeakTokenError as error:

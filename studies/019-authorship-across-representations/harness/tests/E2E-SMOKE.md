@@ -10,8 +10,12 @@ This file is a work record like `harness/SCAFFOLD.md` and is deleted at the
 freeze; it carries **no timestamps**, so re-running the deterministic half
 reproduces it byte for byte.
 
-It found **three structural defects in `harness/score.py`**, all in section 8.
-Read that section before reading any number above it.
+It found **three structural defects in `harness/score.py`** on its first run.
+All three are FIXED, and section 8 is now the re-run that shows each one closed
+in the numbers rather than in a claim. Every scorer item `harness/SCAFFOLD.md`
+carried has landed with them (S6-S11), so this transcript is the second pass:
+same apparatus, same twelve slots, a scorer that reads a slot the way the driver
+writes one.
 
 ---
 
@@ -44,11 +48,12 @@ WT=<this worktree>/studies/019-authorship-across-representations
 R=<a smoke root whose path carries no leak token>
 ```
 
-The smoke root is drawn outside the worktree deliberately: the wrapper screens
-the scratch path it builds against `leak_tokens.SCRATCH_TOKENS`, and this
-checkout's own path contains `judgment-pack`, which is one of them. That is the
-screen working, not a defect — `tests/test_batch.py::throwaway_root()` re-rolls
-for the same reason.
+The smoke root is drawn outside the worktree AND outside the agent scratchpad,
+deliberately: the wrapper screens the scratch path it builds against
+`leak_tokens.SCRATCH_TOKENS`, and both of those paths contain `judgment-pack`,
+which is one of them. That is the screen working, not a defect —
+`tests/test_batch.py::throwaway_root()` re-rolls for the same reason. `$R` for
+this run is a plain `/tmp` directory whose name carries no token.
 
 ## 3. The harness suite
 
@@ -57,11 +62,22 @@ $ cd $WT/harness
 $ JPACK_BIN=$PINS/jpack/jpack OPA_BIN=$PINS/opa/opa_linux_amd64_static \
   OPA_CAPS=$PINS/opa/caps-filtered.json PYTHONDONTWRITEBYTECODE=1 \
   $PY -m pytest tests -q -p no:cacheprovider
-353 passed
+387 passed
 ```
 
-All ten `tests/test_score_pipeline.py` cases RAN (they skip by name when the
-engines are unpinned or absent); nothing was skipped.
+All **twelve** `tests/test_score_pipeline.py` cases RAN (they skip by name when
+the engines are unpinned or absent); nothing was skipped. The suite grew from
+353 to 387 with the six scorer items: the scorer's slot cases moved onto the
+DRIVER's fixtures as `tests/test_score_attempt.py::DriverBuiltSlots` (fourteen
+cases built by `batch.stamp_slot()`/`refuse_slot()`/`seal_slot()` and read by
+`score.read_slot()`), the Delta0 sweep and the unequal-N inversion took eleven
+cases in `tests/test_score_stats.py` (including the one that matters: the
+general form reproduces `OC-TABLE.md`'s c* and realised size at N = 30/50/100
+EXACTLY, as the same rationals), the registered census stimulus took three, the
+`engineSuppliedKill` member four, and the floor gate two — one that it holds
+against both references over all 105 gold rows, one that it FAILS against a real
+Rego mutant standing in for the arm-B reference, because a gate nothing can make
+fail is the thing section 6 exists to prevent.
 
 ## 4. The fixture
 
@@ -94,7 +110,7 @@ tests the harness, not authorship.
 
 | artifact | sha256 |
 |---|---|
-| `FIXTURE-PINS.json` | `ffef1ed0e4e15e2a0e4918cb44a1343257ff077f88d8bf095cff85fc66dfd29a` |
+| `FIXTURE-PINS.json` | `4177d510801ff8f7f675fa81d5611b5f165141b736de0f116fa4e9b0163521dd` |
 | derived `matrix.json` | `f90cf3b7c523ca6fd5c46bdcfe5e48716d9155859bf9609bbc046a754d2c258a` |
 | derived `suite.rego` | `f940c49cd41b7f33e66fdac84f3e228810a49f0eadf236faf8c7dc2e53aedd1b` |
 | stand-in CLI `plan.json` | `25fea31b135cbb69c14663f1bc7d9aa5cfbc250ac7d3966e860221a1704db2dc` |
@@ -172,12 +188,12 @@ R1 inconclusive - control gate failed (PILOT)
 
 | output | sha256 |
 |---|---|
-| `attempt-001/ATTEMPT.json` | `387bd84793cef54c15edcf102d6577d988dfce1b7512dd7d66831cd4beac002a` |
-| `attempt-001/RESULTS.json` | `484f37f6dad1b27ed9fe62d37b42ece1d8e956c73fdbd2ec4ed5d8d6a9efb552` |
-| `attempt-001/RESULTS.md` | `d8a63b10f5c0b8123f896c82bd7d5139be4006d82763995cada3422225322fc1` |
+| `attempt-001/ATTEMPT.json` | `4f31e43c15a40f0fdab5c0d20ccdcfc7b113721d840329893cb52282133add39` |
+| `attempt-001/RESULTS.json` | `8d0c0ce86571df22177362bfa67d2e14b7da70e91fa79cdc8679738d7913abeb` |
+| `attempt-001/RESULTS.md` | `9ef77dc63d0f267c98430c6cbe85edb7058a150fc104a798aecf36813d8c7445` |
 
 `ATTEMPT.json`'s `pinsRawSha256` is
-`sha256:1673a97c4cc339b70aa30f5398b40fe1b7e04f37440f7fae617a71e2f7ed76db` — the
+`sha256:dccdfe58c6de40cec1e8f1af7294c694e8f048be0d92220df23aecbf9a7773d7` — the
 **committed** registry, not the fixture. The fixture registry is the driver's;
 the scorer reads the study's own, which is why the label is PILOT with all
 eleven freeze pins named as unfilled.
@@ -203,22 +219,44 @@ What the run established, mechanically:
 * **pairing** 134 witness groups; 81 paired adequate JPS, 73 paired adequate
   Rego; **the τ cut derived at run time**: 77 of 81, `cutRate` 0.9506…;
 * **the identity control passed on the reference-derived suites in every arm** —
-  arm A through `jpack experimental evaluate` over three cases, arms B/C through
-  `opa test`; zero identity failures, zero X1-excluded cases;
-* **kill rates computed over the paired subset** — 18 of 81 paired adequate JPS
-  mutants from arm A's three-case matrix, 17 of 73 paired adequate Rego mutants
-  from the B/C suite (with `killedAdequate` 24/128 and 44/150 on the own-language
-  denominators, each carrying its denominator's name);
-* **E1 reported** — every admitted run reproduced all 105 gold rows in its own
-  language (`goldPerfect: true` for all ten real admitted runs);
-* **three refusals published rather than estimated**: `E5-STIMULUS-UNREGISTERED`,
-  `E4-ENGINE-SUPPLIED-UNREGISTERED`, and `FM-UNEQUAL-N` (arm A admitted a
-  different number of runs from arm C, and the registered contrast's closed form
-  is the equal-size one — SCAFFOLD item S8, reached for real);
+  arm A through `jpack experimental evaluate`, arms B/C through `opa test`; zero
+  identity failures, zero X1-excluded cases;
+* **the reference-vs-gold floor gate RAN** (S10): 105 rows against both
+  references, `failureCount: 0`, `held: true`. It was `held: false` with the
+  code `GATE-FLOOR-NOT-RUN` in the first pass, and it is a real evaluation now —
+  `tests/test_score_pipeline.py` also drives it against a mutant standing in for
+  the arm-B reference and gets `held: false` with the failing rows named, so the
+  gate is shown to have power rather than shown to pass;
+* **the registered census ran** (S6): stimulus `the gold-row input set (105 gold
+  inputs)`, three per-arm records with their encodings, covering sets and
+  pairwise-disagreement profiles, the §9 no-tradeoff note carried inside each
+  record;
+* **the engine-supplied split is published both ways** (S9): arm A's 41 listed
+  mutants read from the frozen manifest — `killsIncluded {killed: 54, paired:
+  243}` against `killsExcluded {killed: 27, paired: 129}` over its three runs —
+  and arms B/C reporting an EMPTY registered class, the two columns equal,
+  because the Rego ladder has no structural conflict detection;
+* **the contrast is scored at UNEQUAL denominators** (S8): arm A admitted 3 runs
+  and arm C 4, and the general unequal-N FM inversion returns `A-C: 0/3 vs 0/4,
+  excludesZero false, INDETERMINATE` where the first pass refused with
+  `FM-UNEQUAL-N`;
+* **the interval endpoints are reported** (S7): `[-13/25, 63/100]`, exact
+  rationals on the registered Δ₀ mesh (denominator 100), acceptance set
+  contiguous, so no convex hull was taken;
+* **E1 reported** — every admitted run but one reproduced all 105 gold rows in
+  its own language; arm B's fourth slot is the planned no-marker completion and
+  reaches no gold evaluation at all;
+* **no refusals**: `RESULTS.json`'s `refusals` object is empty. Every one of the
+  three the first pass published — `E5-STIMULUS-UNREGISTERED`,
+  `E4-ENGINE-SUPPLIED-UNREGISTERED`, `FM-UNEQUAL-N` — is a computation now;
 * **the decision table reached a terminal row**: row 2,
-  `R1 inconclusive - control gate failed`, causes
-  `references-reproduce-gold` (S10, fails closed), `golden-context` (null pin in
-  the committed registry) and `e1-floor`.
+  `R1 inconclusive - control gate failed`, causes `golden-context` and
+  `timeout-rate-within-cap`. Both causes are DIFFERENT from the first pass's and
+  both are the fixes showing: `references-reproduce-gold` and `e1-floor` now
+  hold on their own evidence, `golden-context` fails because the committed
+  registry pins neither the capture nor the isolation-negative assent, and
+  `timeout-rate-within-cap` fails because the batch's one real timeout is
+  finally counted.
 
 ## 7. Cross-checks
 
@@ -267,64 +305,118 @@ shared vector set: 840 points; agree 840; disagree 0
 gold rows: 105; rows where the two differ or either says X1: none
 ```
 
-## 8. What the smoke found — three structural defects in `harness/score.py`
+## 8. The three structural defects, and the numbers that show them fixed
 
-None of these is fixed here. Each changes what a published population IS, so
-each is a review decision and not an integration repair.
+The first pass of this smoke found three defects in `harness/score.py`, each of
+which changed what a published population IS. All three are fixed. What follows
+is the FIRST pass's number beside the SECOND's, from the two `RESULTS.json`
+files, because a fix nobody can see in a number is a claim.
 
-### D-1 — absent slots enter every population as admitted runs
+### D-1 — absent slots entered every population as admitted runs — FIXED
 
-`score.population()` partitions on `slot["code"]` alone and never on
-`slot["present"]`. `read_slot()` returns `present: False, code: None` for a slot
-that is not on disk, `None` is not an apparatus code, so **every one of the 138
-absent slots entered its arm's denominator**, and `score_run()` — reaching
-`extract_pair(slot["completion"] or "", arm)` with `completion` still `None` —
-gave each of them `no-marker-block`.
+`score.population()` partitioned on `slot["code"]` alone and never on
+`slot["present"]`. A slot not on disk carried `code: None`, `None` is not an
+apparatus code, so **every one of the 138 absent slots entered its arm's
+denominator** and `score_run()` — reaching `extract_pair(slot["completion"] or
+"", arm)` with `completion` still `None` — gave each of them `no-marker-block`.
 
-Observed: arm A `attempted: 50, denominator: 49`; arms B and C `50`. Twelve slots
-were on disk. E1 read 3/49, 3/50 and 4/50 and the registered floor "failed" as an
-artifact of the phantom runs.
+| arm | first pass | this pass |
+|---|---|---|
+| A | `attempted 50, denominator 49` | `registered 50, absent 46, attempted 4, denominator 3` |
+| B | `attempted 50, denominator 50` | `registered 50, absent 46, attempted 4, denominator 4` |
+| C | `attempted 50, denominator 50` | `registered 50, absent 46, attempted 4, denominator 4` |
 
-`terminality()` computes `present` correctly and declares the batch short —
-nothing downstream reads it. §2.8's rule is that a declared short batch is scored
-over the PREFIX; §1a's denominator is "attempted runs", and a slot that was never
-attempted is not one. The driver already knows this: `batch.collect_slots()`,
-`slots_on_disk()` and `reconcile_ledger()` are the readers SCAFFOLD item S11 says
-`read_slot()` must reduce to.
+Twelve slots were on disk in both passes. E1 read `3/49`, `3/50`, `4/50` and the
+registered floor "failed" as an artifact of the phantom runs; it reads `3/3`,
+`3/4`, `4/4` now and the `e1-floor` gate HOLDS on the runs that exist.
+`population()` also publishes `registered` and `absent` beside `attempted`, so
+the prefix is a published fact rather than a subtraction a reader has to do.
 
-### D-2 — a timeout is scored as `slot-shape`
+### D-2 — a timeout was scored as `slot-shape` — FIXED
 
-`read_slot()` tests for `REFUSAL.json` **before** it reads `CALL.json`, and
-returns `slot-shape` for any slot that carries one. Global index 8 was classified
-`call-timeout` by the driver (ledger record and `REFUSAL.json` `code`), and
-`CALL.json` carries `timedOut: true` — and the scorer filed it as `slot-shape`.
+`read_slot()` tested for `REFUSAL.json` before it read `CALL.json` and returned
+`slot-shape` for any slot carrying one. Global index 8 was classified
+`call-timeout` by the driver and the scorer filed it `slot-shape`. Both codes are
+on §1a's apparatus side, so no denominator moved — what moved was the CONTROL
+GATE.
 
-Both codes are on §1a's apparatus side, so no denominator moves. What moves is
-the **control gate**: `population()["timeouts"]` counted 0, and
-`timeout-rate-within-cap` reported `held: true` over a batch that contained a
-timeout. That is exactly the undercount `harness/PORTS.md`'s registered
-difference (2) says status 12 exists to prevent — "undercounting it would let a
-batch pass a cap it breached" — reintroduced one layer up, in the reader.
+| | first pass | this pass |
+|---|---|---|
+| arm A's apparatus codes | `{"slot-shape": 1}` | `{"call-timeout": 1}` |
+| `population.A.timeouts` | `0` | `1` |
+| `timeout-rate-within-cap` | `held: true` | **`held: false`** |
 
-`read_slot()` also cannot return `golden-context-mismatch`, which SCAFFOLD S11
-already records; this is the same gap with a second consequence.
+The gate held vacuously over a batch that contained a timeout — exactly the
+undercount `harness/PORTS.md`'s registered difference (2) says status 12 exists
+to prevent. It fails now, on a real timeout, and appears in the decision's
+`causes`. `read_slot()` reads the outcome through `batch.slot_outcome()`, which
+is the driver's own reader and checks the code against `WRAPPER_CODES` rather
+than taking it from the file.
 
-### D-3 — the E2 table cannot report a single authoring code
+### D-3 — the E2 table could not report a single authoring code — FIXED
 
-`e2_profile()` counts `slot["code"]`, which `read_slot()` populates from the
+`e2_profile()` counted `slot["code"]`, which `read_slot()` populated from the
 WRAPPER's exit status — and every code the wrapper can produce is on the
-apparatus side. The authoring codes are assigned later, by `score_run()`, onto
-the RUN record. So `orderedCodes` is a table of six authoring codes that is
-**structurally always zero**, and its `admitted` count is the number of slots
-that exited cleanly rather than the number of artifacts that were admitted.
+apparatus side. The six-code table §5 makes a headline was structurally always
+zero, and `admitted` counted clean EXITS rather than admitted ARTIFACTS.
 
-Independent of D-1 and demonstrated by a real slot: global index 11 (arm B
-run-004) carried a genuine no-marker completion, `perArmRuns` records it as
-`no-marker-block`, and arm B's E2 published `admitted 50/50` with every code at
-zero. §5 makes E2 a headline, not a footnote; two tables in one `RESULTS.json`
-describing the same runs differently is not a presentational problem.
+| | first pass | this pass |
+|---|---|---|
+| arm B's E2 | `admitted 50/50`, every code `0` | `denominator 4, admitted 3`, `no-marker-block: 1` |
+| the same run in `perArmRuns` | `no-marker-block` | `no-marker-block` |
 
----
+Global index 11 (arm B run-004) carries a genuine no-marker completion. The two
+tables in one `RESULTS.json` described the same run differently; they agree now,
+because E2 counts the RUN records — the ones `score_run()` assigns §1a's
+authoring codes to. `e2_profile()` also REFUSES an apparatus code on a run
+record, so the population rule failing to exclude one is a refusal rather than an
+E2 row, and it publishes `artifactAdmitted` beside `admitted` so neither count
+has to stand in for the other.
+
+### The two refusals D-1 and D-2 left unreachable, now reachable
+
+SCAFFOLD S11 recorded that `read_slot()` could return neither
+`golden-context-mismatch` nor a seal refusal. Both are reachable, and the seal
+one is demonstrated here on this batch's own bytes:
+
+```
+$ cp -a $R/studies/019-.../arms $R/tamper
+$ printf 'x' >> $R/tamper/C/authoring/run-002/completion.txt
+$ ... score.py --attempt-root $R/attempt-tamper --batch-root $R/tamper
+pipeline-invalid: pipeline-invalid before any run was scored
+```
+
+`RESULTS.json` is terminal at decision row 1, `R1 inconclusive - pipeline-invalid`,
+naming the problem:
+
+```
+terminality: arm C run-002: .../SLOT-MANIFEST.json does not verify against the
+slot it seals: the tree on disk is not the one the manifest lists.
+```
+
+One appended byte, in a slot the driver sealed, and the scoring refuses. Before
+the fix that slot was scored. §2.9 seals every slot by a terminal manifest and
+`read_slot()` never called `verify_seal_of()`.
+
+`golden-context-mismatch` cannot fire in THIS smoke and the reason is a property
+of the fixture, not a gap: the scorer reads the study's own registry, whose
+`golden.sha256` is null pre-freeze, so there is no pin to bind a run's stamp
+against. It is driven under a filled registry by
+`tests/test_score_attempt.py::DriverBuiltSlots::test_the_golden_context_mismatch_code_is_reachable`,
+which builds a slot through the driver with another capture's digest stamped
+into its `CALL.json` and gets the apparatus code back.
+
+### Rescoring is still byte-identical
+
+```
+$ $PY .../score.py --attempt-root $R/second/parent/attempt-001 --batch-root ...
+$ diff -r $R/attempt-001 $R/second/parent/attempt-001   # no output
+```
+
+Two roots with the same basename under different parents, no diff — so nothing
+the six items added is derived from a clock or from where the attempt lives. The
+Δ₀ sweep is the one that had to be checked: exact integer arithmetic over a
+registered mesh with a fixed bisection count, and it reproduces bit for bit.
 
 ## 9. Reproducing this
 
@@ -334,11 +426,17 @@ committed state this transcript was taken against:
 
 | file | sha256 |
 |---|---|
-| `harness/PINS.json` | `1673a97c4cc339b70aa30f5398b40fe1b7e04f37440f7fae617a71e2f7ed76db` |
-| `harness/PORTS.md` | `ac30409813dde5918d127ccc163800c3a8a17cda9148f2922a9b83cdcd8ed5f8` |
-| `harness/STUDY-MANIFEST.sha256` | `09f8c6e67de47d3a1864c1cbb2b786d5ee8b8e92581eb4fc02a33b83b8123c97` |
+| `harness/PINS.json` | `dccdfe58c6de40cec1e8f1af7294c694e8f048be0d92220df23aecbf9a7773d7` |
+| `harness/PORTS.md` | `3a494a33fd2ca439f9efb4c04ce1b5cacfa9706cc46469a744ace4e626c78ad2` |
+| `harness/STUDY-MANIFEST.sha256` | `9207f22b6a0e98fab9d9a5aac2ad8ab67c22726e57130ff83bd2d43e64b54960` |
 | `harness/integrity.py` | `d0dbca3a255a38fce383d5cd1bce8d85736d48da9d5e1a80f3f5740393dce3f8` |
 | `harness/make_manifest.py` | `40cf9b4c4756e105bd2a2515941c732c0e73784f036e00ce006b9ed21d221e02` |
+| `harness/score.py` | `0bae03a369296173ee12a0e0bcab2dba108ba13d558145e399a5ced1926d47ae` |
+| `harness/e4lib/stats.py` | `e045ed9171ed00658659f93ad9e98b16602471b36d898b43a536aa091f7b22ca` |
+| `harness/e4lib/census.py` | `e540d0ce171351c07899aa15204d7d5cc6a329df15c0662796aa627988913fda` |
+| `harness/transcript_check.py` | `5d1090f6c116c49aba755cb6b8648696d8a67d03fd424dbc918650f78f4bd2ad` |
+| `design/mutants/refA/MANIFEST.json` | `89e0bd7521f092095fef113922ea23c3ba859860581401ce6aa028c9a05aeb04` |
+| `design/mutants/refB/MANIFEST.json` | `6ed203f66383e0411fafc7f52534fee3dd2d947ef4a8ef1b7bbd0b8e8b73bd40` |
 
 `arms/BATCH.json` and `arms/SHORTFALL.json` carry the wrapper's own UTC stamps
 and are therefore not digest-stable across runs; their digests are deliberately

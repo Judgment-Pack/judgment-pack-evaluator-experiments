@@ -8,15 +8,18 @@ covers `harness/*.py`, `harness/*.sh` and the registered documents, not this
 file): it is a work record that will be appended to and then deleted at the
 freeze, and ADR 0004's argument about appendable files applies to it exactly.
 
-**Superseded by V1/V2 below: the harness can now run a batch end to end, and
-has.** The wrapper, the schedule, the driver's calling half, the isolation
-controls and the scorer all exist and are tested, and a twelve-slot PILOT smoke
-has been driven through all of them against the real pinned engines with the
-authoring CLI stood in (`harness/tests/E2E-SMOKE.md`). What that smoke found is
-V3: three structural defects in the scorer's population rule, none of them
-fixed. The state today, said plainly: every freeze pin in `harness/PINS.json` is
-null, `integrity.study_label()` returns `PILOT`, and **no authoring call has
-been made** — no model has been asked anything by this study.
+**Superseded by V1/V2/V4 below: the harness runs a batch end to end, and the
+three defects the first smoke found are fixed.** The wrapper, the schedule, the
+driver's calling half, the isolation controls and the scorer all exist and are
+tested, and the twelve-slot PILOT smoke has been driven through all of them
+twice against the real pinned engines with the authoring CLI stood in
+(`harness/tests/E2E-SMOKE.md`). **Every scorer item below — S6, S7, S8, S9, S10,
+S11 — and G3's residual has LANDED**; the scorer publishes no refusal at all on
+the smoke batch. What remains owed in this file is **T3 alone**, which is a
+commit and belongs to the maintainer. The state today, said plainly: every
+freeze pin in `harness/PINS.json` is null, `integrity.study_label()` returns
+`PILOT`, and **no authoring call has been made** — no model has been asked
+anything by this study.
 
 ## What exists and is tested
 
@@ -25,23 +28,23 @@ been made** — no model has been asked anything by this study.
 | `harness/authoring_call.sh` | complete port, five registered differences | `tests/test_batch.py` (T1 landed) |
 | `harness/batch.py` | schedule core, timeout constants, §1a code partition, and the whole calling half (D1–D8, G1–G2) | `tests/test_schedule.py` (13), `tests/test_partition.py` (6), `tests/test_batch.py` |
 | `harness/integrity.py` | partial: chain, interpreter, unreviewed-bytes gate, label rule, manifest check | `tests/test_pins.py` (8) |
-| `harness/transcript_check.py` | complete port; `LEAK_TOKENS` is design-time | none yet — **T2** below |
+| `harness/transcript_check.py` | complete port; `LEAK_TOKENS` **is** `leak_tokens.SCREEN_TOKENS` (G3 residual LANDED) | `tests/test_leak_tokens.py` (30) |
 | `harness/make_manifest.py` | complete port, ADR 0004 applied | `tests/test_manifest.py` (8) |
-| `harness/score.py` | **assembled** — the single publisher: attempt record, terminality, population rule, E1/E2/E3/E4, the decision table | `tests/test_score_attempt.py` (43) |
-| `harness/e4lib/stats.py` | ported by digest: Clopper–Pearson + the FM contrast (Reading 1) | `tests/test_score_stats.py` (22) |
+| `harness/score.py` | **assembled** — the single publisher: attempt record, terminality, the PREFIX population rule (S11), E1/E2/E3/E4/E5, the floor gate (S10), the decision table | `tests/test_score_attempt.py` (57) |
+| `harness/e4lib/stats.py` | ported by digest: Clopper–Pearson, the general unequal-N FM contrast (S8) and the Δ₀ sweep (S7) | `tests/test_score_stats.py` (34) |
 | `harness/e4lib/extract.py` | assembled: the registered marker rule | `tests/test_score_extract.py` (12) |
 | `harness/e4lib/admit.py` | assembled: §1a's SIX authoring codes, arm-structural enforced | `tests/test_score_admit.py` (22) |
 | `harness/e4lib/engines.py` | assembled: two-engine layer, binaries fail-closed, capabilities canary | `tests/test_score_engines.py` (15) |
-| `harness/e4lib/e4.py` | assembled: X1 filter, pairing, identity, kill, the τ cut | `tests/test_score_e4.py` (31) |
-| `harness/e4lib/census.py` | ported: 012's census machinery; stimulus refuses | `tests/test_score_census.py` (15) |
+| `harness/e4lib/e4.py` | assembled: X1 filter, pairing, identity, kill with the engine-supplied split (S9), the τ cut | `tests/test_score_e4.py` (34) |
+| `harness/e4lib/census.py` | ported: 012's census machinery; the §5 stimulus is registered and READ (S6) | `tests/test_score_census.py` (16) |
 | `harness/e4lib/decision.py` | assembled from the 015–018 shape as an ordered table | `tests/test_score_decision.py` (19) |
-| — | the assembled pipeline against the REAL pinned engines | `tests/test_score_pipeline.py` (10, skipped without the pins) |
+| — | the assembled pipeline against the REAL pinned engines | `tests/test_score_pipeline.py` (12, skipped without the pins) |
 | `harness/PINS.json` | every freeze pin null; toolchain blocks resolved and marked; `ownPorts` re-pinned (V1) | `tests/test_pins.py` (8) |
 | `harness/PORTS.md` | **seven** rows, two-sided, machine-read, plus the assembled-module lineage table | `tests/test_ports_chain.py` (7), `integrity.verify_chain()` |
 | — | the whole harness end to end, no codex call, real engines | `tests/E2E-SMOKE.md` (transcript, not a suite) |
 
-The scorer's own ten modules contribute 195 passing tests under CPython
-3.12.11 — 185 deterministic, plus the 10 in `tests/test_score_pipeline.py`,
+The scorer's own ten modules contribute 227 passing tests under CPython
+3.12.11 — 215 deterministic, plus the 12 in `tests/test_score_pipeline.py`,
 which run against the real pinned `jpack` and `opa` when
 `JPACK_BIN`/`OPA_BIN`/`OPA_CAPS` hash to the pins and SKIP by name otherwise
 (§7: the engines are never invoked in CI). `tests/test_partition.py`'s last
@@ -52,9 +55,10 @@ test, written skipping since the scaffold, is a live assertion now.
 reasons it failed, and M1 item 4 closed both), `integrity.verify_chain()` PASSES
 over all seven rows, and `verify_interpreter()`, `study_label()` and
 `unfilled_pins()` pass against the committed tree. `integrity.verify()` as a
-whole still refuses — for **T3** alone now. The whole suite is **353 passing**
-under CPython 3.12.11, and the ten `tests/test_score_pipeline.py` cases RUN
-rather than skip when `JPACK_BIN`/`OPA_BIN`/`OPA_CAPS` are the pinned binaries.
+whole still refuses — for **T3** alone now. The whole suite is **387 passing**
+under CPython 3.12.11 (353 at V1; the six scorer items added 34), and the twelve
+`tests/test_score_pipeline.py` cases RUN rather than skip when
+`JPACK_BIN`/`OPA_BIN`/`OPA_CAPS` are the pinned binaries.
 
 What the pipeline suite established against the pinned binaries, so that it is
 written down rather than remembered: the reference pack admits through the real
@@ -110,38 +114,44 @@ registered refusals (`E5-STIMULUS-UNREGISTERED`,
 real); the decision table reaching terminal row 2; and rescoring **byte-identical**
 under a different parent with the same attempt basename.
 
-**V3 — three STRUCTURAL defects in `harness/score.py`, none of them fixed.**
-Each changes what a published population is, so each is a review decision and not
-an integration repair. `E2E-SMOKE.md` section 8 has the evidence.
+**V3 — three STRUCTURAL defects in `harness/score.py`. ALL THREE ARE FIXED
+(V4).** Each changed what a published population is, so each was a review
+decision and not an integration repair. `E2E-SMOKE.md` section 8 now carries the
+first pass's number beside the second's for each one.
 
-* **V3a — absent slots enter every population as admitted runs.**
-  `population()` partitions on `slot["code"]` and never on `slot["present"]`; an
-  absent slot has `code: None`, which is not an apparatus code, so all 138 absent
-  slots entered their arms' denominators and `score_run()` gave each one
-  `no-marker-block` from a `None` completion. Observed denominators 49/50/50 over
-  a twelve-slot batch. `terminality()` computes `present` correctly and nothing
-  downstream reads it. §2.8 scores a declared short batch over the PREFIX.
-* **V3b — a timeout is scored as `slot-shape`.** `read_slot()` tests for
-  `REFUSAL.json` before it reads `CALL.json` and returns `slot-shape` for any
-  slot carrying one. The driver classified the slot `call-timeout`, `CALL.json`
-  carries `timedOut: true`, and the scorer disagreed. Both codes are apparatus so
-  no denominator moves — but `timeouts` counted 0 and the control gate
-  `timeout-rate-within-cap` held over a batch that contained a timeout, which is
-  the undercount `PORTS.md`'s registered difference (2) says status 12 exists to
-  prevent.
-* **V3c — the E2 table cannot report a single authoring code.** `e2_profile()`
-  counts `slot["code"]`, which `read_slot()` populates from the wrapper's exit
-  status, and every code the wrapper can produce is on the apparatus side; the
-  authoring codes are assigned later onto the RUN record. So the six-code table
-  §5 makes a headline is structurally always zero, and `admitted` counts clean
-  exits rather than admitted artifacts. Demonstrated on a real slot whose
-  completion genuinely carried no marker.
+* **V3a — absent slots entered every population as admitted runs.**
+  `population()` partitioned on `slot["code"]` and never on `slot["present"]`;
+  an absent slot has `code: None`, which is not an apparatus code, so all 138
+  absent slots entered their arms' denominators and `score_run()` gave each one
+  `no-marker-block` from a `None` completion. Observed denominators 49/50/50
+  over a twelve-slot batch. **Fixed:** `population()` takes the arm's slots that
+  are PRESENT and publishes `registered`, `absent` and `attempted` beside the
+  denominator. The smoke reads `registered 50, absent 46, attempted 4` in every
+  arm, and E1 reads 3/3, 3/4, 4/4 where it read 3/49, 3/50, 4/50.
+* **V3b — a timeout was scored as `slot-shape`.** `read_slot()` tested for
+  `REFUSAL.json` before it read `CALL.json`. Both codes are apparatus so no
+  denominator moved — but `timeouts` counted 0 and the control gate
+  `timeout-rate-within-cap` held over a batch that contained a timeout.
+  **Fixed:** the outcome comes from `batch.slot_outcome()`. The smoke reads
+  `apparatusCodes {"call-timeout": 1}`, `timeouts: 1`, and
+  `timeout-rate-within-cap held: false` as a decision cause.
+* **V3c — the E2 table could not report a single authoring code.**
+  `e2_profile()` counted `slot["code"]`, which is the wrapper's exit status, and
+  every code the wrapper can produce is on the apparatus side. **Fixed:** E2
+  counts the RUN records, refuses an apparatus code on one, and publishes
+  `artifactAdmitted` beside `admitted`. The smoke reads arm B
+  `no-marker-block: 1` where it read every code at zero.
 
-All three are S11's gap with consequences attached, and S11's remedy — reduce
-`read_slot()` to the driver's own readers (`collect_slots()`, `slot_outcome()`,
-`verify_seal_of()`, `session_identity()`, `C7_OUTCOMES`) and move the population
-onto the prefix — is what closes them. **S11 is now blocking rather than
-tidying**, and is promoted into step 1 of the freeze-fill procedure below.
+**V4 — the closeout pass: S6–S11 and G3's residual all LANDED.** In the
+registered order — S11 first, because it changes every published denominator —
+then S6, S7, S8, S9, S10, G3. Each landed as a COMPUTATION and not as the
+removal of a guard, and the smoke re-ran green through the whole apparatus with
+an EMPTY `refusals` object: `E5-STIMULUS-UNREGISTERED`,
+`E4-ENGINE-SUPPLIED-UNREGISTERED` and `FM-UNEQUAL-N` are all numbers now. The
+suite is 387 passing, all twelve pipeline cases running against the pinned
+binaries; rescoring is byte-identical under a different parent with the same
+attempt basename; and a slot with one byte appended after its seal takes the
+whole scoring to decision row 1, pipeline-invalid.
 
 ## M — what the new ports moved, and what has to move after them
 
@@ -238,63 +248,123 @@ interpretation and power quantity, not part of the decision rule".
 **S5 — the E1 gold control — DONE as the per-run endpoint.** `score_run()`
 evaluates every gold row against the admitted policy artifact in both languages
 and `e1_control()` publishes the rate, the registered 0.60 floor and whether it
-held. **Still owed:** the floor gate itself — that BOTH REFERENCES reproduce
-every gold row at attempt time — is registered as control gate
-`references-reproduce-gold` and is currently stamped `held: true` with a note.
-It must actually run `design/gold/check_gold.py`'s floor gate against the frozen
-`gold/GOLD.json` and the two frozen references before the freeze; a gate that
-reports its own success is not a gate. Tracked as **S10**.
+held. The floor gate itself — that BOTH REFERENCES reproduce every gold row at
+attempt time — was owed as **S10** and is **LANDED**.
 
-**S6 — E5, the census — PORTED, and its STIMULUS REFUSES.** Study 012's
+**S6 — E5, the census — LANDED.** Study 012's
 `harness/census.py` now has the sixth `PORTS.md` row, and the machinery
 (`cover_greedily`, the renderers, the distinct-whole-run grouping) is carried
-verbatim with the enumerated change list in that row. What is NOT available is
-the stimulus: §9 states that "the census's expressiveness rows and these rates
-live on different stimuli: no tradeoff statement combining them is licensed", so
-the census grid is registered to be something other than the gold grid and no
-such grid is registered yet. `census.registered_stimulus()` raises
-`E5-STIMULUS-UNREGISTERED`; `harness/score.py` publishes that refusal in its R2
-section rather than running the census on the nearest grid to hand, which would
-manufacture exactly the statement §9 forbids. **Owed before the freeze: register
-and pin a census stimulus.**
+verbatim with the enumerated change list in that row. The stimulus was the open half, and §5 now
+registers one: "Registered census stimulus: the gold-row input set (the 105 gold
+inputs; disagreement profiles are computed over exactly these cells, closing the
+§9 joint-reading concern about unstated stimuli)".
+`census.registered_stimulus(rows, digest)` reads it from the frozen gold suite
+as IDS AND ORDER ONLY — no gold expectation reaches a census number, because the
+census is not scored against an oracle — and refuses `E5-STIMULUS-EMPTY` or
+`E5-STIMULUS-DUPLICATE-CELLS` on a suite that is not a stimulus. §9 is
+unchanged and still governs: E4's stimulus is the mutant set against each run's
+own authored suite, and `STIMULUS_LABEL` plus the no-tradeoff note travel inside
+every record so a reader of one table cannot lose which grid it is over. The
+vectors `harness/score.py` hands it are the SAME evaluation E1 makes over the
+same cells, computed once in one pass, so the two endpoints cannot disagree
+about what a run answered. The smoke censused all three arms.
 
-**S7 — the FM interval ENDPOINTS are not ported.** `stats.excludes_zero()`
-computes Reading 1 — the Δ₀ = 0 inversion — exactly, and that is the whole of
-what §5's decision reads. Reporting the interval's endpoints needs the same
-inversion swept over Δ₀ with the Farrington–Manning constrained MLEs at each Δ₀
-and the convex hull taken where the acceptance set is non-convex, none of which
-is in `design/mutants/oc_table.py`. `stats.interval_endpoints()` raises
-`FM-ENDPOINTS-UNPORTED`. §10 commits to publishing every interval, so this is
-owed before the freeze.
+**S7 — the FM interval ENDPOINTS — LANDED.** `stats.excludes_zero()` computes
+Reading 1 — the Δ₀ = 0 inversion — exactly, and that is still the whole of what
+§5's decision reads. `stats.interval_endpoints()` now sweeps Δ₀ with the same
+construction and reports the acceptance set's convex hull, so §10's commitment
+to publish every interval is met. Two things are REGISTERED so the sweep is
+exactly reproducible rather than approximately right, and both are stated in the
+record the scorer publishes:
 
-**S8 — the contrast has no unequal-N inversion.** `stats.z2_table()`'s closed
-form is the equal-arm-size one, which is what §2's N = 50 per arm registers —
-but §1a excludes apparatus failures from the denominator, so unequal admitted
-counts are a real possibility. `score.contrast()` REFUSES with `FM-UNEQUAL-N`
-rather than approximating. Two ways to close it, and the choice is a
-registration decision rather than a coding one: register the unequal-N FM
-inversion, or register a rule that truncates both arms to a common denominator
-(which throws away runs and needs its own justification). Neither is registered
-today.
+* **the Δ₀ mesh**, `FM_DELTA_MESH_DEN = 100`. Every attainable per-arm rate
+  difference at N = 50 is a multiple of 1/50 and therefore a mesh point, and
+  `MESH_DEN = 1000` is a multiple of 100, so `p_C` and `p_A = p_C + Δ₀` are both
+  points of the registered NUISANCE mesh and the whole supremum stays exact
+  integer arithmetic. The reported endpoints are mesh points: the interval is the
+  hull of the ACCEPTED MESH POINTS, an inner approximation refined to 1/100, and
+  `interval_endpoints()["construction"]` says so.
+* **the constrained-MLE bisection**, `FM_MLE_BISECTIONS = 48`. The restricted
+  log-likelihood is concave, so its derivative's numerator — an integer cubic
+  built by polynomial multiplication rather than a transcribed expansion —
+  changes sign at most once, and the MLE is located by a FIXED number of
+  halvings with the sign taken in exact integer arithmetic. Study 012 registered
+  the same discipline for the Clopper–Pearson bisection, for the same reason: no
+  libm, no tolerance, no seed, the same bits on any platform. Farrington and
+  Manning's trigonometric closed form is deliberately not used — it needs
+  `cos`/`acos`, and a libm call in the ordering of tables is what this program's
+  arithmetic discipline forbids.
 
-**S9 — the engine-supplied-kill list is not in the registries.** §4 registers 35
-(now 41) arm-A mutants "listed in the registries" whose kills are achievable
-only through the engine's structural conflict detection, "reported both included
-and excluded". The marking exists only as a `⚠conflict-only` glyph in
-`design/mutants/ADEQUACY.md`'s prose table; neither `refA/MANIFEST.json` nor
-`refB/MANIFEST.json` carries a machine-readable member.
-`e4.engine_supplied_ids()` reads an `engineSuppliedKill` member and raises
-`E4-ENGINE-SUPPLIED-UNREGISTERED` when no mutant carries one — returning an
-empty list would publish "0 engine-supplied kills" and satisfy §4 in form only.
-**Owed before the freeze: the manifests grow the member.**
+`fm_z2()` at Δ₀ = 0 returns `z2_table()`'s own cell arithmetic, so the reported
+interval and the registered decision are one construction and cannot disagree at
+the Δ₀ they share; `tests/test_score_stats.py` asserts it. The smoke published
+`[-13/25, 63/100]`.
 
-**S10 — the reference-vs-gold floor gate does not run yet.** See S5. It is
-wired as control gate `references-reproduce-gold` with `held: false` and the
-code `GATE-FLOOR-NOT-RUN`, so a complete batch lands on §5's row 2 until the
-gate actually runs — a gate that reported its own success would be the failure
-§6 exists to prevent, so it fails closed rather than passing quietly.
+**S8 — the general unequal-N inversion — LANDED.** The choice was a
+registration decision and §5 made it: "Because apparatus exclusions can leave
+unequal per-arm denominators, the registered construction is the general
+unequal-N FM-score inversion (the OC table's equal-N closed form is its
+N_A = N_C slice)". The alternative — truncating both arms to a common
+denominator — throws away runs and is NOT registered.
 
-**S11 — the scorer and the landed driver hold two readings of a slot.** The
+`z2_table()`, `tail_coefficients()`, `sup_tail_numerator()`, `sup_le_alpha()`,
+`critical_level()`, `critical_level_at()` and `excludes_zero()` all take two arm
+sizes, `n_right` defaulting to `n_left`. At Δ₀ = 0 the constrained MLE is the
+pooled proportion in closed form whatever the arm sizes are, so the general
+statistic is the exact rational `N (x·n_C − y·n_A)² / (n_A·n_C·(x+y)·(N−x−y))`
+and both arms still share ONE nuisance rate — which is why the tail is still one
+Bernstein polynomial and the half-mesh scan is still sound (the tail is symmetric
+under (x,y) → (n_A−x, n_C−y); the suite asserts the palindrome at UNEQUAL sizes
+rather than inheriting it). The zero-exclusion predicate becomes `z² > 0` rather
+than `x != y`: the same set at equal arm sizes, the correct one at unequal ones,
+where two equal counts are two different rates.
+
+The acceptance test is the one that makes it safe to register: at
+N_A = N_C = 30, 50 and 100 the general form reproduces `OC-TABLE.md`'s published
+c* and realised size **exactly, as the same rationals** — 30/7, 625/154, 175/44 —
+not to the four decimals the document printed. `score.contrast()`'s
+`FM-UNEQUAL-N` refusal is gone; the smoke scored A−C at 3 versus 4.
+
+**S9 — the engine-supplied-kill list — LANDED.** §4 registers 35 (now 41) arm-A
+mutants "listed in the registries" whose kills are achievable only through the
+engine's structural conflict detection, "reported both included and excluded".
+The marking lived only as a `⚠conflict-only` glyph in
+`design/mutants/ADEQUACY.md`'s prose table; both manifests carry it as a
+machine-readable member now.
+
+* `design/mutants/refA/MANIFEST.json` — every mutant carries
+  `engineSuppliedKill`, true for exactly the 41 ids in
+  `design/mutants/refA/REGISTRY.json`'s `conflictOnlyMutants`, cell for cell.
+  The list is READ from the registry, never re-derived from prose.
+* `design/mutants/refB/MANIFEST.json` — the registry carries no Rego analog, and
+  that is recorded EXPLICITLY rather than left as silence: every mutant carries
+  `engineSuppliedKill: false` and a top-level `engineSuppliedKillClass` states
+  that arm B's engine-supplied class is EMPTY, with its reason (the Rego ladder
+  has no structural conflict detection, which is the same asymmetry
+  `refA/REGISTRY.json`'s `conflictNote` states from the other side).
+
+An EMPTY registered class and a MISSING member are different facts and the code
+keeps them apart: `e4.engine_supplied_ids()` returns `[]` for the first and still
+raises `E4-ENGINE-SUPPLIED-UNREGISTERED` for the second. `e4.kill_rates()` splits
+the paired subset once, where each mutant's kill is known, and
+`score.engine_supplied_block()` publishes both columns per arm with a reduced
+integer cut marked descriptive — the DECISION reads the included column, because
+§5 registers the endpoint over the paired adequate subset entire.
+
+**S10 — the reference-vs-gold floor gate — LANDED, and it RUNS.** It was wired
+as control gate `references-reproduce-gold` with `held: false` and the code
+`GATE-FLOOR-NOT-RUN`, failing closed rather than passing quietly.
+`score.references_reproduce_gold()` is `design/gold/check_gold.py`'s clause (5)
+executed at attempt time, through the same two invocations every other number in
+an attempt is produced by (`engines.eval_pack()` and `engines.eval_rego()` carry
+that file's flags verbatim — `harness/PORTS.md` records it as one of the three
+sources of `e4lib/engines.py`), and `held` is true only when both references
+reproduced every gold row. The gate is shown to have POWER as well as to pass:
+`tests/test_score_pipeline.py` drives it against a real Rego mutant standing in
+for the arm-B reference and requires `held: false` with the failing rows and the
+reference named. The smoke: 105 rows, 0 failures, `held: true`.
+
+**S11 — the scorer and the driver held two readings of a slot — LANDED.** The
 scorer was assembled while `harness/batch.py` was still the schedule core, so
 `score.read_slot()` reads a slot with its own reduced rule: `REFUSAL.json` or
 `CALL.json`, the wrapper's exit status through `batch.WRAPPER_EXIT_MEANINGS`,
@@ -312,19 +382,41 @@ reconciled, and two of the consequences are concrete rather than stylistic:
   an apparatus code in `CODE_PARTITION` and `read_slot()` can never return it,
   so a run that failed the golden gate would enter the denominator.
 
-Both are refusals the partition already names and the scorer cannot yet reach.
-Owed before the freeze: `score.read_slot()` reduces to the driver's readers,
-and `tests/test_score_attempt.py`'s slot cases move onto the driver's fixtures.
+**The remedy, in all three parts, has landed.**
 
-**Updated by the verification pass (V3): this item is BLOCKING, not tidying.**
-The end-to-end smoke reached all three consequences for real — an absent slot
-scored as an admitted no-marker run (V3a), a real timeout filed as `slot-shape`
-with the timeout control gate holding vacuously over it (V3b), and an E2 table
-that cannot report any authoring code at all (V3c). The remedy is unchanged and
-now has a third part: `read_slot()` reduces to the driver's readers, the
-population is taken over the declared PREFIX rather than over the registered
-order, and `e2_profile()` reads the RUN records that carry the authoring codes
-rather than the slot records that cannot.
+1. **`read_slot()` reduces to the driver's readers.** Presence comes from
+   `batch.collect_slots()` through `score.slots_present()` — so an entry named
+   `run-NNN` claims its index whatever its type, and an entry the registered
+   order does not name refuses by name rather than being ignored; the seal comes
+   from `batch.verify_seal_of()`, so a slot whose bytes moved after sealing takes
+   the whole scoring to decision row 1 (demonstrated on the smoke's own bytes
+   with one appended character); the outcome comes from `batch.slot_outcome()`,
+   which validates the refusal code against `WRAPPER_CODES` and is why a
+   `call-timeout` can no longer become a `slot-shape`; the session id comes from
+   `batch.session_identity()`, and `score.require_distinct_sessions()` refuses a
+   population in which two slots name one call. `golden-context-mismatch` is
+   REACHABLE: the wrapper stamps the capture it ran behind into every
+   `CALL.json` (§3.2) and the scorer compares that stamp with the registry's
+   `golden.sha256`. §6 C7's registered outcome set is read from
+   `batch.C7_OUTCOMES` and the control record's shape from
+   `batch.c7_record_shape_problems()` — the one function both gates read — so
+   `golden_context_gate()` requires the capture pinned, the assent recorded, and
+   the negative control on record with outcome `refused`, which is the only
+   outcome that shows the allowlist has power.
+2. **The population is the declared PREFIX.** `population()` counts the arm's
+   slots that are PRESENT and publishes `registered`, `absent` and `attempted`
+   beside the denominator, so the prefix is a published fact rather than a
+   subtraction.
+3. **`e2_profile()` reads the RUN records.** It refuses an apparatus code on a
+   run record — the population rule failing to exclude one is a refusal, not an
+   E2 row — and publishes `artifactAdmitted` beside `admitted`.
+
+`tests/test_score_attempt.py`'s slot cases have moved onto the DRIVER's
+fixtures: `DriverBuiltSlots` extends `tests/test_batch.py`'s `StandInStudy` and
+builds every slot through `batch.stamp_slot()`, `batch.refuse_slot()` and
+`batch.seal_slot()`, because a slot the scorer reads has to be a slot the driver
+could have written — hand-rolled dictionaries were what let the two readings
+diverge in the first place.
 
 ## G — the golden context and the isolation controls
 
@@ -346,12 +438,25 @@ redaction list `C7_REDACTED`. The control is a precondition of the **batch**,
 not of its own command: Study 012's round 9 found all 150 calls reachable with
 the assent still null.
 
-**G3 — `LEAK_TOKENS`, re-derived** (`GATE(pre-freeze)`). The list in
-`harness/transcript_check.py` is design-time. It must be derived from the
-frozen policy prose and the naming appendix, committed with a checker that
-shows it has power on mutated inputs — the same standard §3 already applies to
-the sufficiency and policy-content checkers — and the derivation itself
-committed so the list is reproducible rather than curated.
+**G3 — `LEAK_TOKENS`, re-derived — LANDED.** `harness/leak_tokens.py` derives
+the policy vocabulary from the stimulus slice the source marks off for itself by
+three registered rules, publishes every drop with its reason, and demonstrates
+power (`check_power()`, `check_rederivation()`, `check_negative_corpus()`). The
+RESIDUAL — that `harness/transcript_check.py` still carried its own design-time
+tuple, so the study screened transcripts with one list and scratch paths with
+another — is closed: `transcript_check.LEAK_TOKENS` **is**
+`leak_tokens.SCREEN_TOKENS`, the same object the wrapper reads under its other
+name `leak_tokens.SCRATCH_TOKENS`. The screen is the union of the derived policy
+half and `leak_tokens.INSTRUMENT_TOKENS`, which is named as design-time on
+purpose — the stimulus by construction says nothing about jpack, the
+preregistration or the mutant machinery — and is separately power-checked by the
+new `check_instrument_power()`: the instrument half ALONE must catch strictly
+fewer stimulus witnesses than the derived half, and the union must lose none, so
+the screen's policy power provably comes from the prose. `design_time_gap()`
+stops being a to-do list and becomes a standing assertion (nothing derived is
+missing from the screen; everything extra is exactly the instrument list), which
+`tests/test_leak_tokens.py` holds. The freeze's re-derivation against
+`policy/POLICY.md` now moves BOTH screens at once.
 
 ## D — the driver's calling half (deferred from `harness/batch.py`)
 
@@ -396,11 +501,16 @@ and a 2 s ceiling produced exit 12 with the ceiling and the grace stamped, and a
 nulled `codex.model` refused before anything was called — which is evidence and
 not a suite: nothing in the repository re-runs it.
 
-**T2 — `transcript_check` cases.** None of this study's own; 012's suite covers
-the check logic, and what is new here is the token list (G3) and the three-arm
-label.
+**T2 — `transcript_check` cases — COVERED.** None of the check logic's own;
+012's suite covers that and this port changes none of it. What is new here is the
+token list, and `tests/test_leak_tokens.py` (30 cases) holds it: the derivation,
+the admissibility drops, both power demonstrations, the negative corpus, and —
+since G3's residual landed — that `transcript_check.LEAK_TOKENS` IS
+`leak_tokens.SCREEN_TOKENS` and no second tuple survives in that file.
 
-**T3 — the tree must be clean before `integrity.verify()` can pass.**
+**T3 — the tree must be clean before `integrity.verify()` can pass. THIS IS THE
+ONLY ITEM LEFT IN THIS FILE, and it is a commit rather than a build: it belongs
+to whoever commits, not to the harness.**
 `verify_bytecode()` scans the WHOLE study tree and refuses (a) any untracked
 `.py` source and (b) any `.pyc` that the running interpreter did not produce
 from the source beside it. Today `design/` holds several untracked Python
@@ -440,18 +550,19 @@ Each step fills exactly one link, and every link is checkable before the next.
    manifest glob have caught up; `verify_chain()` passes over all seven rows and
    the exact-set manifest describes its tree, so every digest below now means
    something.
-0b. **Close S11** — the scorer's population rule. It is here, ahead of the
-   gates, because V3 established that it changes every published denominator and
-   two control gates: no number produced before it is closed describes the batch
-   it was computed from.
+0b. **Close S11** — **DONE** (V4). The scorer's population rule was here, ahead
+   of the gates, because V3 established that it changes every published
+   denominator and two control gates: no number produced before it was closed
+   described the batch it was computed from.
 1. **Close the pre-freeze gates** the preregistration marks `GATE(pre-freeze)`:
    the mutant adequacy gate, the off-gold equivalence certificate, the
-   clean-room re-run against the frozen prose, the OC table for (τ, δ, N = 50),
-   and this file's S, G and T items — S6 (register a census stimulus), S7 (the
-   Δ₀ sweep for the reported interval endpoints), S8 (the unequal-N inversion,
-   or a registered common-denominator rule), S9 (the `engineSuppliedKill`
-   manifest member) and S10 (make the reference-vs-gold floor gate actually
-   run) are the five the scorer refuses on today.
+   clean-room re-run against the frozen prose, and the OC table for
+   (τ, δ, N = 50). This file's S and G items are **DONE** (V4) — S6 the
+   registered census stimulus, S7 the Δ₀ sweep, S8 the general unequal-N
+   inversion, S9 the `engineSuppliedKill` manifest member, S10 the floor gate
+   actually running, G3's residual the single leak list — and the scorer
+   publishes no refusal on the smoke batch. **T3 remains**, and it is a commit:
+   see below.
 2. **Land the registered documents**: `policy/POLICY.md` (the frozen copy of
    the design draft), `gold/GOLD.json`, `mutants/MANIFEST-*.json`,
    `reference/REFERENCE-*.md`, `controls/off-gold-equivalence.json`,

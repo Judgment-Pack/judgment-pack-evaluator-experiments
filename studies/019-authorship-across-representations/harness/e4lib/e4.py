@@ -28,14 +28,18 @@ WHAT THE PROTOTYPE DID NOT HAVE, and section 5 registers
    at the frozen paired count is stated. `stats.tau_cut()` derives it and the
    scorer prints it, so the number a run is judged against is in the published
    record rather than in an analyst's head.
-4. **The engine-supplied-kill split.** Section 4 registers 35 (now 41) arm-A
-   mutants "listed in the registries" whose kills are achievable only through
-   the engine's structural conflict detection, "reported both included and
-   excluded". `engine_supplied_ids()` reads that list from the manifest and
-   REFUSES with a named code when the manifest does not carry it — which is the
-   state of the design-time manifests today (the marking lives in
-   `design/mutants/ADEQUACY.md` prose as a table glyph and in no machine-readable
-   member). See `harness/SCAFFOLD.md` item S9.
+4. **The engine-supplied-kill split** (SCAFFOLD item S9, closed). Section 4
+   registers 35 (now 41) arm-A mutants "listed in the registries" whose kills
+   are achievable only through the engine's structural conflict detection,
+   "reported both included and excluded". Both manifests now carry a
+   machine-readable `engineSuppliedKill` member — arm A's derived from
+   `design/mutants/refA/REGISTRY.json`'s `conflictOnlyMutants`, arm B's an
+   EMPTY registered class, because the Rego ladder has no structural conflict
+   detection and an empty class is a fact where a missing member would be a
+   silence. `engine_supplied_ids()` reads the member and `kill_rates()` splits
+   the paired subset on it; a manifest that carries no member at all still
+   REFUSES by name, because the alternative is publishing "0 engine-supplied
+   kills" from an absence.
 
 Determinism: fixed orderings everywhere (manifest order for mutants, sorted run
 ids, case order within a suite), no clock, no randomness, no environment lookup.
@@ -304,16 +308,20 @@ def unpairable(mutants: dict, paired_ids: dict) -> dict:
 def engine_supplied_ids(mutants: dict, language: str) -> list:
     """Section 4's engine-supplied-kill list, from the manifest.
 
-    REFUSING when the manifest does not carry it (harness/SCAFFOLD.md item S9).
     Section 4 says those mutants are "listed in the registries", and the
-    registered report is "both included and excluded" — but at design time the
-    marking exists only as a glyph in `design/mutants/ADEQUACY.md`'s prose
-    table, and a scorer that re-derived the list from a markdown table would be
-    publishing a registered number parsed out of prose. The manifests owe a
-    machine-readable `engineSuppliedKill` member before the freeze; until they
-    carry it this refuses by name rather than returning an empty list, which
-    would silently publish "0 engine-supplied kills" and satisfy section 4 in
-    form only."""
+    registered report is "both included and excluded". The marking used to exist
+    only as a `conflict-only` glyph in `design/mutants/ADEQUACY.md`'s prose
+    table; both manifests carry it as a member now (SCAFFOLD item S9), so this
+    reads frozen bytes rather than parsing a registered number out of prose.
+
+    A language whose manifest carries the member on NO mutant still refuses by
+    name. The distinction is the point: a manifest where every mutant records
+    `engineSuppliedKill: false` is the registered statement that the arm has an
+    EMPTY engine-supplied class — which is arm B's, and which
+    `design/mutants/refB/MANIFEST.json`'s `engineSuppliedKillClass` states with
+    its reason — while a manifest with no member at all says nothing, and
+    returning an empty list from it would publish "0 engine-supplied kills" and
+    satisfy section 4 in form only."""
     entries = mutants[language]
     marked = [record for record in entries
               if record.get("engineSuppliedKill") is not None]
@@ -394,17 +402,29 @@ def kill_arm_rego(tools: engines.Toolchain, mutant_path: str, suite_path: str,
 # --- the run-level endpoint -------------------------------------------------
 
 
-def kill_rates(kill_of: dict, mutants: list, paired_ids: set) -> dict:
-    """The three kill counts one suite produces, over three named denominators.
+def kill_rates(kill_of: dict, mutants: list, paired_ids: set,
+               engine_supplied=()) -> dict:
+    """The kill counts one suite produces, over named denominators.
 
-    `killRatePaired` is the ONLY one the endpoint reads (section 5: "the suite's
-    paired-subset kill rate = killed / paired adequate mutants"); the other two
-    are R2's failure map. Each carries its denominator's name, so no reader can
-    mistake the own-language rate for the cross-arm one."""
+    `killedPaired`/`paired` is the ONLY pair the endpoint reads (section 5: "the
+    suite's paired-subset kill rate = killed / paired adequate mutants"); the
+    others are R2's failure map. Each carries its denominator's name, so no
+    reader can mistake the own-language rate for the cross-arm one.
+
+    `engine_supplied` is section 4's registered list of mutants whose kills are
+    achievable only through the engine's structural conflict detection. Section 4
+    registers them "reported both included and excluded", so the paired subset is
+    split here — once, at the only place that knows which mutant each kill came
+    from — rather than reconstructed later from an aggregate."""
+    supplied = set(engine_supplied or ())
     adequate = [record for record in mutants if not record["notAdequate"]]
     not_adequate = [record for record in mutants if record["notAdequate"]]
     paired_adequate = [record for record in adequate
                        if record["id"] in paired_ids]
+    excluded = [record for record in paired_adequate
+                if record["id"] not in supplied]
+    listed = [record for record in paired_adequate
+              if record["id"] in supplied]
     def killed(subset):
         return sum(1 for record in subset if kill_of.get(record["id"]))
     return {
@@ -412,6 +432,13 @@ def kill_rates(kill_of: dict, mutants: list, paired_ids: set) -> dict:
         "adequate": len(adequate),
         "killedPaired": killed(paired_adequate),
         "paired": len(paired_adequate),
+        # Section 4, "reported both included and excluded": the same paired
+        # subset with the registered engine-supplied mutants taken out, and the
+        # engine-supplied members on their own.
+        "killedPairedExcludingEngineSupplied": killed(excluded),
+        "pairedExcludingEngineSupplied": len(excluded),
+        "killedEngineSupplied": killed(listed),
+        "engineSupplied": len(listed),
         "killedNotAdequate": killed(not_adequate),
         "notAdequate": len(not_adequate),
         "survivorsPaired": [record["id"] for record in paired_adequate
