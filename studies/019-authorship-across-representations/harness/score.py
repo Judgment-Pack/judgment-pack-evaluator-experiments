@@ -101,40 +101,95 @@ STUDY = os.path.dirname(HERE)
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-import batch          # noqa: E402  (this study's, imported the way the ceremony runs it)
+# THE ONLY STUDY-LOCAL IMPORT AT MODULE SCOPE, and it is deliberate (round-1
+# R1-9). The finding was that "the scorer imports local modules before
+# validation": `batch` and the whole of `e4lib` were bound at import, so the
+# untracked-source and unreviewed-bytecode gate in `integrity.verify()` ran — if
+# it ran at all — after the bytes it is about had already executed. `integrity`
+# itself imports nothing study-local at module scope, so importing it costs
+# nothing the gate could have caught, and `bind_study_modules()` below is what
+# binds the rest — called from `main()` only after `integrity.verify()` has
+# passed.
 import integrity      # noqa: E402
-from e4lib import census as census_lib   # noqa: E402
-from e4lib import decision               # noqa: E402
-from e4lib import e4 as e4lib            # noqa: E402
-from e4lib import engines                # noqa: E402
-from e4lib import extract                # noqa: E402
-from e4lib import stats                  # noqa: E402
-from e4lib import admit as admit_lib     # noqa: E402
 
 PINS_PATH = os.path.join(HERE, "PINS.json")
-# Read from the driver rather than spelled again: the file whose presence makes
-# a short batch terminal must have ONE name in the study, and a second copy of
-# a string is a second chance for the driver to declare a shortfall the scorer
-# never looks for. An `AttributeError` here is the loud failure that a renamed
-# constant deserves.
-SHORTFALL_FILE = batch.SHORTFALL_NAME
 
 STUDY_NAME = "019-authorship-across-representations"
 
-# Section 1a's partition, reached through `batch.py` so there is ONE copy of it
-# in the study. `tests/test_partition.py`'s last test — written skipping since
-# the scaffold, live the moment this module lands — asserts this equals
-# `batch.CODE_PARTITION`'s keys.
-ADMISSION_CODES = tuple(sorted(batch.CODE_PARTITION))
 # Which mutant language each arm's suite is scored against (section 3's arm
 # table): arm A emits a pack and a matrix, arms B and C emit Rego and an
-# `opa test` file. Written once here so the engine-supplied split and the kill
-# machinery cannot disagree about which manifest an arm answers to.
+# `opa test` file. Written once here so the engine-supplied split, the kill
+# machinery and the PER-LANGUAGE high-kill cut (round-1 R1-1) cannot disagree
+# about which manifest an arm answers to.
 LANGUAGE_OF_ARM = {"A": "jps", "B": "rego", "C": "rego"}
-APPARATUS_SIDE = frozenset(code for code, (side, _phrase)
-                           in batch.CODE_PARTITION.items() if side == "apparatus")
-AUTHORING_SIDE = frozenset(code for code, (side, _phrase)
-                           in batch.CODE_PARTITION.items() if side == "authoring")
+
+# Bound by `bind_study_modules()`, and DELIBERATELY NOT PREDEFINED: a module's
+# `__getattr__` fires only for names that are not already in its globals, so a
+# placeholder here would hand a reader an empty tuple instead of binding. Until
+# something calls `bind_study_modules()` these names do not exist, which is the
+# honest state of a module nobody has verified yet.
+_LAZY_NAMES = ("batch", "admit_lib", "census_lib", "decision", "domain_lib",
+               "e4lib", "engines", "extract", "reviewer_lib", "stats",
+               "SHORTFALL_FILE", "ADMISSION_CODES", "APPARATUS_SIDE",
+               "AUTHORING_SIDE")
+_BOUND = False
+
+
+def bind_study_modules():
+    """Import the study-local scoring modules and derive the constants from
+    them. Idempotent.
+
+    `main()` calls this AFTER `integrity.verify()` has established that no
+    untracked source can shadow a reviewed one and that no compiled byte the
+    reviewed sources did not produce sits in the tree. Everything below this
+    line therefore runs on bytes something checked.
+
+    Nothing is spelled twice: section 1a's partition is `batch.CODE_PARTITION`'s
+    and the shortfall file's name is `batch.SHORTFALL_NAME`'s, because a second
+    copy of a string is a second chance for the driver to declare a shortfall
+    the scorer never looks for."""
+    global batch, admit_lib, census_lib, decision, domain_lib, e4lib
+    global engines, extract, reviewer_lib, stats
+    global SHORTFALL_FILE, ADMISSION_CODES, APPARATUS_SIDE, AUTHORING_SIDE
+    global _BOUND
+    if _BOUND:
+        return
+    import batch as batch_module
+    from e4lib import admit as admit_module
+    from e4lib import census as census_module
+    from e4lib import decision as decision_module
+    from e4lib import domain as domain_module
+    from e4lib import e4 as e4_module
+    from e4lib import engines as engines_module
+    from e4lib import extract as extract_module
+    from e4lib import reviewer as reviewer_module
+    from e4lib import stats as stats_module
+    batch, admit_lib, census_lib = batch_module, admit_module, census_module
+    decision, domain_lib, e4lib = decision_module, domain_module, e4_module
+    engines, extract = engines_module, extract_module
+    reviewer_lib, stats = reviewer_module, stats_module
+    SHORTFALL_FILE = batch.SHORTFALL_NAME
+    ADMISSION_CODES = tuple(sorted(batch.CODE_PARTITION))
+    APPARATUS_SIDE = frozenset(code for code, (side, _phrase)
+                               in batch.CODE_PARTITION.items()
+                               if side == "apparatus")
+    AUTHORING_SIDE = frozenset(code for code, (side, _phrase)
+                               in batch.CODE_PARTITION.items()
+                               if side == "authoring")
+    _BOUND = True
+
+
+def __getattr__(name):
+    """PEP 562: reading one of the bound names binds them.
+
+    A reader of this module — a test, a REPL — gets the same objects `main()`
+    gets, and the PRODUCTION path still binds them explicitly after the
+    integrity gate. The lazy hook is a convenience for readers, never the thing
+    the attempt relies on."""
+    if name in _LAZY_NAMES:
+        bind_study_modules()
+        return globals()[name]
+    raise AttributeError("module %r has no attribute %r" % (__name__, name))
 
 # Section 5's registered E1 floor and section 2's registered timeout cap. Both
 # are control-gate rows: breaching either adjudicates R1 in NEITHER direction.
@@ -155,6 +210,13 @@ REFERENCE_B_RELATIVE = "reference/refB/policy.rego"
 # (`batch.DEFAULT_NEGATIVE`); the scorer reads it as a study-relative path
 # because no output of this scorer embeds an absolute one.
 C7_VERDICT_RELATIVE = "controls/isolation-negative/VERDICT.json"
+# The off-gold equivalence certificate — a freeze pin, a control artifact, and
+# (round-1 R1-9) one of the scorer inputs the manifest did not cover.
+OFFGOLD_RELATIVE = "controls/off-gold-equivalence.json"
+# The sealed reviewer mutant directory (§1a, §4; round-1 R1-10).
+REVIEWER_SET_RELATIVE = "controls/reviewer-mutants"
+
+MANIFEST_RELATIVE = "harness/STUDY-MANIFEST.sha256"
 
 
 class ScoreError(Exception):
@@ -246,6 +308,71 @@ def relative(path: str) -> str:
     return os.path.relpath(path, STUDY).replace(os.sep, "/")
 
 
+def _manifest_digests() -> dict:
+    """`{study-relative path: sha256}` from `harness/STUDY-MANIFEST.sha256`."""
+    path = os.path.join(STUDY, MANIFEST_RELATIVE)
+    covered = {}
+    if not os.path.isfile(path):
+        return covered
+    with open(path, "rb") as handle:
+        for line in handle.read().decode("utf-8").splitlines():
+            if not line.strip():
+                continue
+            digest, _, name = line.partition("  ")
+            covered[name] = digest
+    return covered
+
+
+def _registered_inputs_problems() -> list:
+    """Every registered scorer input, required to be present AND covered by the
+    exact-set manifest at the digest it hashes to.
+
+    ROUND-1 FINDING R1-9. The scorer used to check five artifacts for EXISTENCE,
+    and the manifest covered the two top-level mutant manifests and the reference
+    Markdown but none of `mutants/jps/*.json`, `mutants/rego/*.rego`,
+    `reference/refA/pack.json`, `reference/refB/policy.rego` or the off-gold
+    certificate — which are the bytes this scorer actually executes. Both halves
+    are closed here: the payload sets joined the manifest
+    (`harness/make_manifest.py`), and an input outside the covered set is a
+    pipeline problem naming itself rather than a file nobody checked.
+
+    The mutant PAYLOAD paths are read from the two frozen manifests rather than
+    globbed, so a manifest that names a mutant the directory does not carry
+    refuses here rather than at a subprocess."""
+    covered = _manifest_digests()
+    named = [GOLD_RELATIVE, MUTANT_JPS_RELATIVE, MUTANT_REGO_RELATIVE,
+             REFERENCE_A_RELATIVE, REFERENCE_B_RELATIVE, OFFGOLD_RELATIVE]
+    problems = []
+    for relative_path in named:
+        if not os.path.isfile(os.path.join(STUDY, relative_path)):
+            problems.append("registered artifact is absent: %s" % relative_path)
+    for directory in (MUTANT_JPS_DIR, MUTANT_REGO_DIR):
+        root = os.path.join(STUDY, directory)
+        if not os.path.isdir(root):
+            problems.append("registered mutant payload directory is absent: %s"
+                            % directory)
+            continue
+        for name in sorted(os.listdir(root)):
+            named.append("%s/%s" % (directory, name))
+    for relative_path in named:
+        absolute = os.path.join(STUDY, relative_path)
+        if not os.path.isfile(absolute):
+            continue
+        if relative_path not in covered:
+            problems.append(
+                "%s is a scorer input and the exact-set study manifest does not "
+                "cover it: an input nothing verified is an input this attempt "
+                "cannot adjudicate against" % relative_path)
+            continue
+        with open(absolute, "rb") as handle:
+            actual = hashlib.sha256(handle.read()).hexdigest()
+        if actual != covered[relative_path]:
+            problems.append("%s hashes to sha256:%s and the study manifest "
+                            "records sha256:%s"
+                            % (relative_path, actual, covered[relative_path]))
+    return sorted(problems)
+
+
 # --------------------------------------------------------------------------
 # the batch on disk
 # --------------------------------------------------------------------------
@@ -270,6 +397,7 @@ def slots_present(arms_root: str) -> dict:
     named `run-NNN` claims the index WHATEVER its type — a symlink, a FIFO, a
     regular file — so a hole cannot be punched in the indices, and an entry the
     driver does not recognise is reported by name rather than ignored."""
+    bind_study_modules()
     found, unexpected = {}, []
     for arm in batch.ARMS:
         root = os.path.join(arms_root, arm, "authoring")
@@ -309,6 +437,7 @@ def read_slot(entry: dict, arms_root: str, present: dict = None,
     made against another capture is the apparatus code
     `golden-context-mismatch` — which the partition has always named and the
     scorer's own reduced reader could never return."""
+    bind_study_modules()
     name = "run-%03d" % entry["slotIndex"]
     if present is None:
         present = slots_present(arms_root)
@@ -376,6 +505,184 @@ def require_distinct_sessions(slots: list) -> None:
         seen[session] = key
 
 
+def shortfall_members() -> frozenset:
+    """The exact member set `batch.declare_shortfall()` writes, DERIVED from the
+    driver's own `SHORTFALL_SCHEMA`.
+
+    It was transcribed here — eleven names, written while `declare_shortfall()`
+    was growing four more (`declarationVersion`, `ledgerSha256`,
+    `ledgerHeadSha256`, `slots`) for the same finding, in another lane's edit.
+    Both halves passed their own tests and neither test crossed the seam, so the
+    scorer refused every declaration the driver actually writes: fail-closed, but
+    it made R1-7's whole point — an incomplete batch branching to the registered
+    no-contrast outcome — unreachable. `harness/PORTS.md`'s batch row already
+    registers the rule this restores: the scorer runs the driver's own functions
+    on read "rather than spelling a member list of its own"."""
+    bind_study_modules()
+    return frozenset(batch.SHORTFALL_SCHEMA)
+
+
+def validate_shortfall(declaration: dict, slots: list, arms_root: str) -> dict:
+    """The declaration, the ledger and the slots on disk, checked against each
+    other and against the registered order.
+
+    ROUND-1 FINDING R1-7, whose whole force is that this function did not exist.
+    Any JSON object made an arbitrary incomplete set terminal — `{}` included —
+    and the scorer then computed ordinary endpoints and contrasts over whatever
+    prefix happened to be on disk. That is outcome-selective deletion with a
+    one-line file as its price, and it contradicts the driver's own registered
+    rule and the scaffold's.
+
+    Seven things are established here, and a failure of any of them refuses the
+    whole scoring rather than downgrading it:
+
+    0. the DRIVER's own `validate_shortfall()` passes on it — the schema, the
+       declaration version, the slot inventory as a prefix of §2's order, every
+       row's code inside §1a's partition, and every count derived from the
+       inventory rather than asserted beside it. One definition, two callers:
+       what follows is what the driver cannot check, because the driver validates
+       what it is about to write and this reads slots that are on disk now;
+    1. the declaration carries EXACTLY the members `declare_shortfall()` writes,
+       READ FROM `batch.SHORTFALL_SCHEMA` (see `shortfall_members()`);
+    2. its three `registered*` members are §2's registered constants;
+    3. `completedSlots` is the number of slots actually present, and
+       `completedThroughGlobalIndex` is that same number — a declared prefix is
+       a PREFIX, so its length and its last global index are one number;
+    4. `arms/BATCH.json` parses, its hash chain verifies, and its records are the
+       registered order's prefix of their own length, position by position;
+    5. the ledger's length equals the declared length equals the slots present,
+       and the ledger's slot paths are exactly the slots present — the
+       slot/seal bijection, computed rather than assumed;
+    6. every present slot's recomputed seal equals the `manifestSha256` its
+       ledger record carries.
+
+    The scorer then branches to the registered no-contrast outcome. It does not
+    score the prefix."""
+    bind_study_modules()
+    problems = []
+    registered_members = shortfall_members()
+    members = set(declaration)
+    if members != registered_members:
+        problems.append(
+            "the declaration's members are %s and %s writes exactly %s"
+            % (sorted(members) or "none", SHORTFALL_FILE,
+               sorted(registered_members)))
+        # Without the registered shape there is nothing to compare, and a
+        # partial comparison would be a partial guarantee.
+        raise ScoreError("; ".join(problems))
+    # The driver's own validation, on the bytes it wrote. It is run BEFORE the
+    # disk-side checks below because it is the one that establishes the
+    # declaration is internally honest, and comparing a dishonest declaration
+    # against the slots present would report the disagreement at the wrong end.
+    try:
+        batch.validate_shortfall(declaration)
+    except batch.BatchError as error:
+        raise ScoreError("%s does not validate against the driver that writes "
+                         "it: %s" % (SHORTFALL_FILE, error))
+    for member, registered in (("registeredSlots", batch.REGISTERED_SLOTS),
+                               ("registeredRounds", batch.ROUNDS),
+                               ("registeredRunsPerArm", batch.RUNS_PER_ARM)):
+        if declaration[member] != registered:
+            problems.append("%s declares %r and §2 registers %r"
+                            % (member, declaration[member], registered))
+    present = sorted((slot for slot in slots if slot["present"]),
+                     key=lambda slot: slot["globalIndex"])
+    count = len(present)
+    if declaration["completedSlots"] != count:
+        problems.append(
+            "the declaration says %r slots completed and %d are present"
+            % (declaration["completedSlots"], count))
+    if declaration["completedThroughGlobalIndex"] != count:
+        problems.append(
+            "the declaration completes through global index %r over %d slots: a "
+            "declared prefix is a prefix of §2's registered order, so those are "
+            "one number" % (declaration["completedThroughGlobalIndex"], count))
+    indices = [slot["globalIndex"] for slot in present]
+    if indices != list(range(1, count + 1)):
+        problems.append(
+            "the slots present are not the registered order's prefix: their "
+            "global indices are %s" % (indices[:10] + (["..."] if count > 10
+                                                       else [])))
+    ledger_path = os.path.join(arms_root, batch.LEDGER_NAME)
+    if not os.path.isfile(ledger_path):
+        problems.append("%s carries no %s, so the declaration's prefix answers "
+                        "to nothing" % (relative(arms_root), batch.LEDGER_NAME))
+        raise ScoreError("; ".join(problems))
+    try:
+        ledger = load_json(ledger_path)
+    except (ValueError, OSError) as error:
+        raise ScoreError("%s cannot be read as duplicate-free JSON (%s)"
+                         % (batch.LEDGER_NAME, error))
+    records = ledger.get("records") if isinstance(ledger, dict) else None
+    if not isinstance(records, list):
+        raise ScoreError(
+            "%s carries no records list: the declared prefix is the LEDGER's, "
+            "verified against the registered order, and there is no ledger"
+            % batch.LEDGER_NAME)
+    entries = batch.schedule_entries()
+    try:
+        batch.verify_ledger_chain(records)
+    except batch.BatchError as error:
+        problems.append("the ledger's hash chain: %s" % error)
+    # …and the driver's own comparison of the declaration against the ledger it
+    # claims to describe: the slot inventory row for row, the chain head, and the
+    # ledger FILE digest. The same "one definition, two callers" rule as above —
+    # the driver runs this before it writes and the scorer runs it on read.
+    try:
+        with open(ledger_path, "rb") as handle:
+            batch.verify_shortfall(
+                declaration, records,
+                "sha256:" + hashlib.sha256(handle.read()).hexdigest())
+    except batch.BatchError as error:
+        problems.append("the declaration against the ledger: %s" % error)
+    if len(records) != count:
+        problems.append(
+            "%s records %d slots and %d are present: a declaration is a "
+            "statement about the ledger AND about the slots present"
+            % (batch.LEDGER_NAME, len(records), count))
+    for offset, record in enumerate(records[:count]):
+        expected = {key: entries[offset][key] for key in batch.SCHEDULE_KEYS}
+        actual = {key: record.get(key) for key in batch.SCHEDULE_KEYS}
+        if actual != expected:
+            problems.append(
+                "the ledger diverges from §2's registered call order at position "
+                "%d: it records %r and the order assigns %r"
+                % (offset + 1, actual, expected))
+            break
+    by_index = {slot["globalIndex"]: slot for slot in present}
+    for record in records[:count]:
+        slot = by_index.get(record.get("globalIndex"))
+        if slot is None:
+            problems.append(
+                "the ledger records global index %r and no such slot is present: "
+                "the slot/seal correspondence is a bijection or it is nothing"
+                % record.get("globalIndex"))
+            continue
+        if _bare(record.get("manifestSha256")) != _bare(slot.get("sealSha256")):
+            problems.append(
+                "%s/run-%03d reseals to %s and its ledger record carries %s"
+                % (slot["arm"], slot["slotIndex"], slot.get("sealSha256"),
+                   record.get("manifestSha256")))
+    if declaration["lastSlot"] != (records[count - 1].get("path")
+                                   if count else None):
+        problems.append(
+            "the declaration names %r as its last slot and the ledger's prefix "
+            "ends at %r" % (declaration["lastSlot"],
+                            records[count - 1].get("path") if count else None))
+    if problems:
+        raise ScoreError(
+            "%s does not declare this batch: %s"
+            % (SHORTFALL_FILE, "; ".join(sorted(problems))))
+    return {"declaredSlots": count, "ledgerRecords": len(records),
+            "reason": declaration["reason"],
+            "completedRounds": declaration["completedRounds"],
+            "verified": ["member set (batch.SHORTFALL_SCHEMA)",
+                         "batch.validate_shortfall", "batch.verify_shortfall",
+                         "registered constants", "prefix length",
+                         "ledger chain", "registered call order",
+                         "slot/seal bijection", "last slot"]}
+
+
 def terminality(slots: list, arms_root: str) -> dict:
     """Study 012's section 2.8 rule, ported: exactly the registered number of
     slots XOR a shortfall declaration whose prefix is the slots present.
@@ -383,7 +690,9 @@ def terminality(slots: list, arms_root: str) -> dict:
     Both, or neither, refuses — a shortfall over a full batch is not a short
     batch, and an over-full batch is not a population this study contemplates.
     A declaration that cannot be read declares nothing and refuses the whole
-    scoring."""
+    scoring, and a declaration that can be read is VALIDATED rather than
+    believed (`validate_shortfall()`, round-1 R1-7)."""
+    bind_study_modules()
     path = os.path.join(arms_root, SHORTFALL_FILE)
     try:
         shortfall = load_json(path) if os.path.isfile(path) else None
@@ -408,8 +717,12 @@ def terminality(slots: list, arms_root: str) -> dict:
             "%d of %d registered slots are present and no %s declares why: the "
             "batch is not terminal"
             % (present, batch.REGISTERED_SLOTS, SHORTFALL_FILE))
-    return {"present": present, "registered": batch.REGISTERED_SLOTS,
-            "complete": complete, "declared": shortfall is not None}
+    shape = {"present": present, "registered": batch.REGISTERED_SLOTS,
+             "complete": complete, "declared": shortfall is not None,
+             "declaration": None}
+    if shortfall is not None:
+        shape["declaration"] = validate_shortfall(shortfall, slots, arms_root)
+    return shape
 
 
 # --------------------------------------------------------------------------
@@ -437,6 +750,7 @@ def population(slots: list) -> dict:
     alone put every ABSENT slot into its arm's denominator wearing
     `no-marker-block` — a phantom run scored zero on every endpoint it reached,
     over a completion that does not exist."""
+    bind_study_modules()
     per_arm = {}
     for arm in batch.ARMS:
         registered = [slot for slot in slots if slot["arm"] == arm]
@@ -491,6 +805,7 @@ def e2_profile(arm: str, runs: list) -> dict:
     The apparatus side is separated by construction rather than by filtering: an
     apparatus code on a run record would mean a run the population rule should
     have excluded reached an endpoint, so it refuses here."""
+    bind_study_modules()
     counts = {}
     for run in runs:
         code = run.get("code")
@@ -532,6 +847,7 @@ def golden_context_gate(pins: dict) -> dict:
     record is checked by `batch.c7_record_shape_problems()`, the one function
     both gates read, so the scorer and the driver cannot hold two readings of a
     verdict either."""
+    bind_study_modules()
     detail = {"registeredOutcomes": list(batch.C7_OUTCOMES),
               "goldenPinned": (pins.get("golden") or {}).get("sha256") is not None,
               "assent": (pins.get("isolationNegative") or {}).get("assent"),
@@ -582,6 +898,7 @@ def references_reproduce_gold(tools, gold: list, reference_a: str,
     own success is the failure section 6 exists to prevent; it is a real
     evaluation now, and `held` is true only when both references reproduced all
     of gold."""
+    bind_study_modules()
     failures = []
     for row in gold:
         want = (("unresolved", None, tuple(sorted(row["expect"]["reasons"])))
@@ -612,6 +929,7 @@ def e1_control(arm: str, runs: list) -> dict:
     ITSELF as a finding this study commits to publishing. A per-arm rate below
     the registered floor is a control-gate row, not a detection: it would mean
     the stimulus regressed, not that testing skill differs."""
+    bind_study_modules()
     perfect = sum(1 for run in runs if run.get("goldPerfect"))
     block = stats.rate_block(perfect, len(runs), "admitted runs (ITT)")
     return {"arm": arm, "perfect": perfect, "runs": len(runs),
@@ -651,6 +969,7 @@ def census_vectors(runs: list, stimulus: dict) -> dict:
     Refuses a vector of the wrong length rather than censusing it: the two
     registered E5 rows compare runs cell by cell, and a vector that is not the
     stimulus's length is an answer to a different question."""
+    bind_study_modules()
     vectors = {}
     for run in runs:
         vector = run.get("goldVector")
@@ -665,7 +984,8 @@ def census_vectors(runs: list, stimulus: dict) -> dict:
     return vectors
 
 
-def engine_supplied_block(arm: str, runs: list, listed) -> dict:
+def engine_supplied_block(arm: str, runs: list, listed,
+                          reduced_paired_count: int = 0) -> dict:
     """Section 4's "reported both included and excluded", per arm.
 
     The kills achievable only through the engine's structural conflict detection
@@ -674,6 +994,7 @@ def engine_supplied_block(arm: str, runs: list, listed) -> dict:
     under the reduced denominator with its own derived integer cut — the reduced
     cut is R2's and the DECISION reads only the included one, because section 5
     registers the endpoint over the paired adequate subset entire."""
+    bind_study_modules()
     if listed is None:
         return {"arm": arm, "registered": False,
                 "note": "the manifest carries no engineSuppliedKill member; the "
@@ -686,12 +1007,16 @@ def engine_supplied_block(arm: str, runs: list, listed) -> dict:
     killed_reduced = sum(
         run["kill"].get("killedPairedExcludingEngineSupplied", 0)
         for run in runs if run.get("kill"))
-    per_run_paired = [run["kill"].get("pairedExcludingEngineSupplied", 0)
-                      for run in runs if run.get("kill")]
+    # The reduced denominator is a property of the MUTANT SET, not of the runs:
+    # every run of an arm is scored against the same paired subset, so the
+    # reduced cut is derived once from that subset's size. (`max()` over the
+    # runs was the same number whenever any run existed and was undefined when
+    # none did, which is a second way to compute a constant.)
+    reduced_paired = reduced_paired_count
     reduced_cut = None
-    if per_run_paired and max(per_run_paired) > 0:
+    if reduced_paired > 0:
         try:
-            reduced_cut = stats.tau_cut(max(per_run_paired))
+            reduced_cut = stats.tau_cut(reduced_paired)
         except stats.StatsError:
             reduced_cut = None
     high_reduced = 0
@@ -716,7 +1041,8 @@ def engine_supplied_block(arm: str, runs: list, listed) -> dict:
     }
 
 
-def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None) -> dict:
+def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None,
+                reduced_paired_count: int = 0) -> dict:
     """E4 — the per-arm HIGH-KILL RUN RATE, the primary endpoint.
 
     Section 5's denominator rule, in code and stated in the record: "Runs
@@ -729,16 +1055,21 @@ def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None) -> dict:
     high-kill, and they stay in the denominator: an identity-failing suite is a
     suite that did not pin the reference down, which is an authoring outcome and
     not an apparatus failure."""
+    bind_study_modules()
     identity_pass = [run for run in runs if run.get("identityPass")]
     identity_fail = [run for run in runs if run.get("admitted")
                      and not run.get("identityPass")]
+    # ROUND-1 R1-1: `cut` is this arm's LANGUAGE's cut, and `is_high_kill()`
+    # refuses one the run's own denominator cannot reach.
     high = [run for run in runs
             if run.get("identityPass")
             and e4lib.is_high_kill(run["kill"]["killedPaired"],
                                    run["kill"]["paired"], cut["integerCut"])]
     excluded_cases = sum(len(run.get("x1Excluded") or []) for run in runs)
+    out_of_domain = sum(len(run.get("outOfDomainCases") or []) for run in runs)
     return {
         "arm": arm,
+        "language": cut.get("language"),
         "denominator": len(runs),
         "highKill": len(high),
         "highKillRate": stats.rate_block(
@@ -751,9 +1082,18 @@ def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None) -> dict:
                                          "admitted runs"),
         "identityFailedRuns": sorted(run["run"] for run in identity_fail),
         "x1ExcludedCases": excluded_cases,
+        "outOfDomainCases": out_of_domain,
+        "outOfDomainRuns": sorted(run["run"] for run in runs
+                                  if run.get("outOfDomainCases")),
+        "engineRefusedRuns": sorted(run["run"] for run in runs
+                                    if run.get("engineRefused")),
+        "mutantRefusals": sorted({mutant for run in runs
+                                  for mutant in (run.get("kill") or {})
+                                  .get("refusedAll", ())}),
         "cut": cut,
         "highKillRuns": sorted(run["run"] for run in high),
-        "engineSuppliedKill": engine_supplied_block(arm, runs, engine_supplied),
+        "engineSuppliedKill": engine_supplied_block(arm, runs, engine_supplied,
+                                                    reduced_paired_count),
     }
 
 
@@ -773,8 +1113,25 @@ def contrast(left_arm: str, right_arm: str, e4_by_arm: dict,
     construction" (section 5) — and are a report, never the decision: an
     endpoint that failed to compute leaves the zero-exclusion verdict intact and
     publishes its own refusal, because section 5's rule reads `excludesZero` and
-    nothing else."""
+    nothing else.
+
+    THE DENOMINATORS MUST BE POSITIVE (round-1 R1-14). An arm with zero admitted
+    runs passes E1's floor by definition — `perfect / 0` is not evaluated and the
+    gate reads `len(runs) == 0 or ...` — so the control rows let an empty arm
+    through, the contrast then became a refusal, and the last row published a
+    substantive `INDETERMINATE` over a comparison that could not be made. A
+    denominator below the registered minimum is a PIPELINE problem here, which is
+    row 1, which is above every substantive row."""
+    bind_study_modules()
     left, right = e4_by_arm[left_arm], e4_by_arm[right_arm]
+    for arm, entry in ((left_arm, left), (right_arm, right)):
+        if entry["denominator"] < decision.REGISTERED_MINIMUM_DENOMINATOR:
+            raise stats.StatsError(
+                "FM-EMPTY-ARM arm %s has %d admitted runs and the registered "
+                "minimum is %d: a contrast over an empty arm is not an interval "
+                "that straddles zero, it is no interval at all"
+                % (arm, entry["denominator"],
+                   decision.REGISTERED_MINIMUM_DENOMINATOR))
     result = stats.excludes_zero(left["highKill"], right["highKill"],
                                  left["denominator"], right["denominator"])
     result["arms"] = [left_arm, right_arm]
@@ -799,6 +1156,7 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     Never crashes the scoring: a row that makes an engine refuse is a ROW-ERROR
     with its class recorded, and an exception inside one run's evaluation is
     that run's problem and not the population's."""
+    bind_study_modules()
     run = {"run": "run-%03d" % slot["slotIndex"], "arm": arm,
            "code": slot["code"], "admitted": False, "goldPerfect": False,
            "identityPass": False, "durationSeconds": slot["durationSeconds"]}
@@ -841,45 +1199,120 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     run["goldPerfect"] = not failures
     run["goldVector"] = vector
 
-    # E4: the identity control, then the kill vector, over the X1-filtered
-    # case set. The suite is the SECONDARY artifact; a run that emitted no
-    # suite pins nothing and is not-high-kill, which section 5 makes an
-    # authoring outcome rather than an exclusion.
+    # E4: the case enumeration, the registered-domain validation, the registered
+    # exclusion filter, the identity control, then the kill vector. The suite is
+    # the SECONDARY artifact; a run that emitted no suite pins nothing and is
+    # not-high-kill, which section 5 makes an authoring outcome rather than an
+    # exclusion.
+    language = LANGUAGE_OF_ARM[arm]
+    paired_count = len(context["pairedIds"][language])
     if pair["suite"] is None:
         run["code"] = "no-marker-block"
-        run["kill"] = {"killedPaired": 0, "paired": context["pairedCount"]}
+        run["kill"] = {"killedPaired": 0, "paired": paired_count}
         return run
     suite_path = os.path.join(workdir, "suite.%s" % pair["suiteLanguage"])
     with open(suite_path, "w", encoding="utf-8") as handle:
         handle.write(pair["suite"])
-    if arm == "A":
-        try:
+    run["suitePath"] = suite_path
+
+    # ROUND-1 R1-3 AND R1-6, and the order is the registration's: enumerate,
+    # validate the domain, exclude, and only then run identity or a mutant. Arm
+    # A's cases come from the matrix and arms B/C's from the suite's own syntax
+    # tree, so the same check reaches all three; a document neither can be read
+    # out of is the registered authoring code and never an exception out of the
+    # scorer.
+    try:
+        if arm == "A":
             cases, note = e4lib.load_matrix(suite_path)
-        except ValueError:
-            run["code"] = "unparseable-artifact"
-            run["kill"] = {"killedPaired": 0, "paired": context["pairedCount"]}
-            return run
-        run.update(note)
-        scored_cases, excluded = e4lib.partition_x1(cases)
+            run.update(note)
+            named = [(case[0], e4lib.matrix_domain_signature(case[1], case[2]))
+                     for case in cases]
+            wire = "string"
+        else:
+            cases = None
+            named = e4lib.rego_case_signatures(tools, suite_path, workdir,
+                                               context["referenceB"])
+            run["caseCount"] = len(named)
+            wire = "number"
+    except e4lib.MatrixError as error:
+        run["code"] = "unparseable-artifact"
+        run["suiteRefusal"] = str(error)
+        run["kill"] = {"killedPaired": 0, "paired": paired_count}
+        return run
+
+    domain_failures = e4lib.domain_failures(named, wire)
+    run["outOfDomainCases"] = [failure["case"] for failure in domain_failures]
+
+    if arm == "A":
+        scored_cases, excluded = e4lib.partition_excluded(cases)
+        run["excludedCases"] = excluded
+        # The registered exclusion registry is empty (X1 retired, R1-2), so this
+        # is a measured zero rather than an unapplied filter. The member keeps
+        # its published name.
         run["x1Excluded"] = excluded
+        run["scoredCases"] = scored_cases
+    else:
+        run["excludedCases"] = []
+        run["x1Excluded"] = []
+
+    if domain_failures:
+        # Identical treatment in all three arms: the run stays in the E4
+        # denominator, the identity control records why, and nothing is
+        # executed against a point on which the two references are not known to
+        # agree.
+        run["identityPass"] = False
+        run["identityFailures"] = domain_failures[:20]
+        run["identityFailureCount"] = len(domain_failures)
+        run["kill"] = e4lib.kill_rates({}, context["mutants"][language],
+                                       context["pairedIds"][language],
+                                       context["engineSupplied"][language])
+        return run
+
+    try:
+        return _identity_and_kill(tools, arm, run, suite_path, context, workdir)
+    except e4lib.ExecutionRefusal as error:
+        # ROUND-1 R1-8. A pinned engine refused on a FROZEN artifact. That is
+        # not a suite that failed to pin its reference down, so the run is not
+        # scored zero and no number derived from it is published as if it were
+        # valid: the refusal is recorded here and the `engine-execution-clean`
+        # control gate reads it, which adjudicates R1 in neither direction.
+        run["engineRefused"] = True
+        run["engineRefusal"] = str(error)
+        run["identityPass"] = False
+        run["identityFailures"] = [{"case": "<engine>",
+                                    "expected": "<an answer from the pinned "
+                                                "engine>",
+                                    "got": "engine-refused"}]
+        run["identityFailureCount"] = 1
+        run["kill"] = e4lib.kill_rates({}, context["mutants"][language],
+                                       context["pairedIds"][language],
+                                       context["engineSupplied"][language])
+        return run
+
+
+def _identity_and_kill(tools, arm: str, run: dict, suite_path: str,
+                       context: dict, workdir: str) -> dict:
+    """The identity control and the kill vector for one run whose cases are
+    enumerated, in-domain and filtered."""
+    if arm == "A":
         ok, identity_failures = e4lib.identity_arm_a(
-            tools, context["referenceA"], scored_cases, workdir)
+            tools, context["referenceA"], run["scoredCases"], workdir)
         run["identityPass"] = ok
         run["identityFailures"] = identity_failures[:20]
         run["identityFailureCount"] = len(identity_failures)
         kill_of = {}
         if ok:
             for mutant in context["mutants"]["jps"]:
-                killed, case_id = e4lib.kill_arm_a(tools, mutant["path"],
-                                                  scored_cases, workdir)
-                kill_of[mutant["id"]] = killed
-                if killed:
-                    run.setdefault("killingCase", {})[mutant["id"]] = case_id
+                outcome, detail = e4lib.kill_arm_a(tools, mutant["path"],
+                                                   run["scoredCases"], workdir)
+                kill_of[mutant["id"]] = outcome
+                if outcome == e4lib.KILLED:
+                    run.setdefault("killingCase", {})[mutant["id"]] = \
+                        detail.get("case")
         run["kill"] = e4lib.kill_rates(kill_of, context["mutants"]["jps"],
                                        context["pairedIds"]["jps"],
                                        context["engineSupplied"]["jps"])
     else:
-        run["x1Excluded"] = []
         ok, detail = e4lib.identity_arm_rego(tools, context["referenceB"],
                                              suite_path, workdir)
         run["identityPass"] = ok
@@ -888,9 +1321,9 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
         kill_of = {}
         if ok:
             for mutant in context["mutants"]["rego"]:
-                killed, _detail = e4lib.kill_arm_rego(tools, mutant["path"],
-                                                     suite_path, workdir)
-                kill_of[mutant["id"]] = killed
+                outcome, _detail = e4lib.kill_arm_rego(tools, mutant["path"],
+                                                       suite_path, workdir)
+                kill_of[mutant["id"]] = outcome
         run["kill"] = e4lib.kill_rates(kill_of, context["mutants"]["rego"],
                                        context["pairedIds"]["rego"],
                                        context["engineSupplied"]["rego"])
@@ -903,7 +1336,14 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
 
 def results_markdown(results: dict) -> str:
     """The published table. Every rate with its denominator, every count that
-    section 10 commits to, and the verdict last."""
+    section 10 commits to, and the verdict last.
+
+    NOTHING INFERENTIAL IS PRINTED BELOW A FAILED GATE (round-1 R1-14). The
+    contrast section used to print "Decided **yes**" and a direction out of a
+    contrast the decision rule had already discarded on row 2. It now prints the
+    gate causes in that section's place, because a direction a reader can see is
+    a direction the study published whatever the verdict line says."""
+    bind_study_modules()
     lines = ["# Study 019 — %s" % results["label"], "",
              "R1: %s" % results["decision"]["verdict"], ""]
     if results["label"] == "PILOT":
@@ -919,18 +1359,37 @@ def results_markdown(results: dict) -> str:
     if results["decision"].get("causes"):
         lines += ["", "Causes: " + ", ".join(results["decision"]["causes"])]
     lines += ["", "## E4 — high-kill run rate (primary)", "",
-              "| Arm | High-kill | Denominator | Rate | 95% CI | Identity pass | X1-excluded cases |",
-              "|---|---|---|---|---|---|---|"]
+              "The high-kill cut is PER LANGUAGE, each from its own paired "
+              "adequate denominator: " + "; ".join(
+                  "%s %s" % (language, block["statement"])
+                  for language, block in sorted(
+                      (results.get("cuts") or {}).items())), "",
+              # R1-19: both group counts, in one sentence, so neither can be
+              # read as the other.
+              "Pairing: %d witness groups in total, of which %d are shared and "
+              "non-degenerate (%d degenerate), covering %d paired adequate JPS "
+              "and %d paired adequate Rego mutants."
+              % ((results.get("pairing") or {}).get("groups", 0),
+                 (results.get("pairing") or {}).get("sharedGroups", 0),
+                 (results.get("pairing") or {}).get("degenerateGroups", 0),
+                 (results.get("pairing") or {}).get("pairedAdequateJps", 0),
+                 (results.get("pairing") or {}).get("pairedAdequateRego", 0)),
+              "",
+              "| Arm | Language | Cut | High-kill | Denominator | Rate | "
+              "95% CI | Identity pass | Excluded cases | Out-of-domain cases |",
+              "|---|---|---|---|---|---|---|---|---|---|"]
     for arm in batch.ARMS:
         entry = (results.get("e4") or {}).get(arm)
         if entry is None:
-            lines.append("| %s | — | — | — | — | — | — |" % arm)
+            lines.append("| %s | — | — | — | — | — | — | — | — | — |" % arm)
             continue
         block = entry["highKillRate"]
-        lines.append("| %s | %d | %d | %s | %s | %d | %d |"
-                     % (arm, entry["highKill"], entry["denominator"],
+        lines.append("| %s | %s | %d | %d | %d | %s | %s | %d | %d | %d |"
+                     % (arm, entry.get("language"), entry["cut"]["integerCut"],
+                        entry["highKill"], entry["denominator"],
                         _fmt(block["rate"]), _fmt_ci(block["ci95"]),
-                        entry["identityPass"], entry["x1ExcludedCases"]))
+                        entry["identityPass"], entry["x1ExcludedCases"],
+                        entry.get("outOfDomainCases", 0)))
     lines += ["", "## E1 — gold agreement (control, expected at ceiling)", "",
               "| Arm | Perfect | Runs | Rate | Floor held |", "|---|---|---|---|---|"]
     for arm in batch.ARMS:
@@ -943,21 +1402,32 @@ def results_markdown(results: dict) -> str:
                         _fmt(entry["rate"]["rate"]),
                         "yes" if entry["floorHeld"] else "**no**"))
     lines += ["", "## The registered contrasts (fixed-sequence: A−C, then A−B)",
-              "", "| Contrast | Counts | Denominators | Decided | Direction | "
-              "Interval |", "|---|---|---|---|---|---|"]
-    for name in (decision.CONTRAST_PRIMARY, decision.CONTRAST_SECONDARY):
-        entry = (results.get("contrasts") or {}).get(name)
-        if entry is None:
-            lines.append("| %s | — | — | — | — | — |" % name)
-            continue
-        interval = entry.get("interval")
-        lines.append(
-            "| %s | %d vs %d | %d, %d | %s | %s | %s |"
-            % (name, entry["left"], entry["right"], entry["nLeft"],
-               entry["nRight"], "**yes**" if entry["excludesZero"] else "no",
-               decision.direction(entry),
-               "—" if interval is None
-               else "[%s, %s]" % (interval["lower"], interval["upper"])))
+              ""]
+    gated_by = results.get("contrastsGatedBy") or []
+    if gated_by:
+        lines += ["**Not computed and not published.** %d gating row(s) matched "
+                  "above §5's substantive rows, and each adjudicates R1 in "
+                  "NEITHER direction — so no contrast, no interval and no "
+                  "direction exists for this attempt:" % len(gated_by), ""]
+        lines += ["- %s" % cause for cause in gated_by]
+    else:
+        lines += ["| Contrast | Counts | Denominators | Decided | Direction | "
+                  "Interval | Construction |", "|---|---|---|---|---|---|---|"]
+        for name in (decision.CONTRAST_PRIMARY, decision.CONTRAST_SECONDARY):
+            entry = (results.get("contrasts") or {}).get(name)
+            if entry is None:
+                lines.append("| %s | — | — | — | — | — | — |" % name)
+                continue
+            interval = entry.get("interval")
+            lines.append(
+                "| %s | %d vs %d | %d, %d | %s | %s | %s | %s |"
+                % (name, entry["left"], entry["right"], entry["nLeft"],
+                   entry["nRight"],
+                   "**yes**" if entry["excludesZero"] else "no",
+                   decision.direction(entry),
+                   "—" if interval is None
+                   else "[%s, %s]" % (interval["lower"], interval["upper"]),
+                   entry.get("constructionName", "—")))
     lines += ["", "## E2 — authoring-validity profile", "",
               "| Arm | Code | Side | Count |", "|---|---|---|---|"]
     for arm in batch.ARMS:
@@ -980,6 +1450,22 @@ def results_markdown(results: dict) -> str:
                          % (entry["arm"], entry["runs"],
                             entry["distinctEncodings"],
                             entry["minimalCoveringSet"]))
+    reviewer = results.get("reviewerSet")
+    if reviewer:
+        lines += ["", "## The sealed reviewer mutant set (§1a, reported "
+                  "separately)", "",
+                  "Manifest %s; %d reviewer mutants. %s"
+                  % (reviewer["manifestSha256"], reviewer["reviewerMutants"],
+                     reviewer["movesNothing"]), "",
+                  "| Arm | Language | Reviewer mutants | Scored runs |",
+                  "|---|---|---|---|"]
+        for arm in batch.ARMS:
+            entry = (reviewer.get("perArm") or {}).get(arm)
+            if entry is None:
+                continue
+            lines.append("| %s | %s | %d | %d |"
+                         % (arm, entry["language"], entry["reviewerMutants"],
+                            entry["scoredRuns"]))
     lines += ["", "## R2 — refusals published rather than estimated", ""]
     for name, refusal in sorted((results.get("refusals") or {}).items()):
         lines.append("- **%s** — %s" % (name, refusal))
@@ -997,6 +1483,75 @@ def _fmt_ci(bounds):
 # --------------------------------------------------------------------------
 # the attempt
 # --------------------------------------------------------------------------
+
+def _engine_execution_gate(per_arm_runs: dict) -> dict:
+    """Section 6's gate for round-1 R1-8: every scored invocation of this
+    attempt returned an answer.
+
+    Two kinds of refusal reach it, and both are about FROZEN bytes rather than
+    about an author's: a reference the engine refused on during the identity
+    control (`e4.ExecutionRefusal`, recorded on the run) and a manifest mutant
+    the engine refused on during mutation execution (`kill_rates()`'s
+    `refusedAll`). A gate that tolerated either would be a gate that let an
+    apparatus failure decide a rate."""
+    bind_study_modules()
+    identity, mutant = [], []
+    for arm in sorted(per_arm_runs):
+        for run in per_arm_runs[arm]:
+            if run.get("engineRefused"):
+                identity.append("%s/%s: %s" % (arm, run["run"],
+                                               run.get("engineRefusal")))
+            for mutant_id in (run.get("kill") or {}).get("refusedAll", ()):
+                mutant.append("%s/%s: %s" % (arm, run["run"], mutant_id))
+    return {"held": not identity and not mutant,
+            "identityRefusals": sorted(identity)[:20],
+            "identityRefusalCount": len(identity),
+            "mutantRefusals": sorted(mutant)[:20],
+            "mutantRefusalCount": len(mutant),
+            "gate": "every scored invocation of the pinned engines on a frozen "
+                    "artifact returned an answer; a refusal is an apparatus "
+                    "failure and is never a kill and never a suite scoring zero"}
+
+
+def _declare_unresolved(attempt_root: str, label: str, unfilled: list,
+                        pins_raw_sha256, shape: dict) -> int:
+    """Publish the registered no-contrast outcome for a DECLARED short batch.
+
+    Round-1 R1-7. Nothing here computes an endpoint, a rate or a contrast: the
+    registered price of a shortfall is UNRESOLVED-BY-DESIGN on every level
+    verdict and no contrast at all, and the declaration has already been
+    validated against the ledger, the registered order and the seals."""
+    bind_study_modules()
+    declaration = shape["declaration"] or {}
+    verdict = decision.decide({
+        "pipelineProblems": [],
+        "shortfallDeclared": ["%d of %d registered slots, declared: %s"
+                              % (shape["present"], shape["registered"],
+                                 declaration.get("reason"))],
+        "controlGates": {}, "contrasts": {}})
+    results = {
+        "study": STUDY_NAME,
+        "attemptRoot": os.path.basename(os.path.normpath(attempt_root)),
+        "label": label,
+        "unfilledPins": unfilled,
+        "pipelineInvalid": False,
+        "pinsRawSha256": pins_raw_sha256,
+        "batchShape": shape,
+        "e1": None, "e2": None, "e3": None, "e4": None, "e5": None,
+        "contrasts": {},
+        "contrastsGatedBy": verdict["causes"],
+        "controlGates": {},
+        "refusals": {"scoring": "the batch was declared short and is DECLARED "
+                                "rather than scored; no endpoint, no rate and no "
+                                "contrast is computed from a prefix"},
+        "decision": verdict,
+    }
+    write_json(os.path.join(attempt_root, "RESULTS.json"), results)
+    write_text(os.path.join(attempt_root, "RESULTS.md"),
+               results_markdown(results))
+    print("%s (%s)" % (verdict["verdict"], label))
+    return 0
+
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -1031,6 +1586,20 @@ def main(argv=None) -> int:
     })
 
     def terminal(problem, problems=None):
+        # `decision` may still be unbound: this path is reachable before the
+        # integrity gate has let anything study-local be imported, which is the
+        # whole point of the restructure. The verdict is the registered row-1
+        # text either way, and it is spelled from the table when the table is
+        # available and from the registration's own words when it is not.
+        try:
+            bind_study_modules()
+            verdict = decision.decide({"pipelineProblems": [problem]})
+        except BaseException:                       # noqa: BLE001
+            verdict = {"row": "pipeline-invalid", "rowIndex": 1,
+                       "verdict": "R1 inconclusive - pipeline-invalid",
+                       "causes": [problem],
+                       "note": "the decision table could not be imported; the "
+                               "verdict is §5 row 1's registered text"}
         write_json(os.path.join(attempt_root, "RESULTS.json"), {
             "study": STUDY_NAME,
             "attemptRoot": os.path.basename(os.path.normpath(attempt_root)),
@@ -1038,7 +1607,7 @@ def main(argv=None) -> int:
             "pinsRawSha256": pins_raw_sha256,
             "problem": problem,
             "problems": sorted(problems or []),
-            "decision": decision.decide({"pipelineProblems": [problem]}),
+            "decision": verdict,
         })
         print("pipeline-invalid: %s" % problem, file=sys.stderr)
         return 2
@@ -1059,29 +1628,53 @@ def main(argv=None) -> int:
             return terminal(
                 "--include-reviewer-set is refused while any freeze pin is null: "
                 + ", ".join(unfilled))
+        # ROUND-1 R1-10, the other half of the same rule. The flag was optional
+        # and the governing invocation omitted it, so the promised "first
+        # executed at the primary attempt" could not happen at all. A REGISTERED
+        # attempt executes the sealed set; a PILOT may not, because
+        # `reviewerMutantSet` is a freeze pin and the flag refuses above while it
+        # is null. OWED TO THE PROSE LANE: the §"freeze and the primary attempt"
+        # invocation must carry the flag.
+        if label == "REGISTERED" and not arguments.include_reviewer_set:
+            return terminal(
+                "a REGISTERED attempt runs the sealed reviewer mutant set: "
+                "--include-reviewer-set is required, because §1a registers the "
+                "set as first executed at the primary attempt and there is only "
+                "one primary attempt")
 
         problems, refusals = [], {}
+
+        # ROUND-1 R1-9, and the ORDER is the finding. `verify()` runs the
+        # untracked-source and unreviewed-bytecode scan, the port chain, the
+        # interpreter and the exact-set manifest — and it runs BEFORE
+        # `bind_study_modules()` imports a single scoring module, so no byte of
+        # `batch.py` or `e4lib/` executes until something has established that
+        # the tree holds no untracked Python source shadowing a reviewed one and
+        # no compiled cache the reviewed sources did not produce.
+        #
+        # A refusal here is fatal and terminal: there is nothing to score
+        # against unverified bytes, and continuing in order to collect more
+        # problems would mean importing the modules the gate just refused.
         try:
-            integrity.verify_interpreter(pins)
+            integrity.verify(STUDY)
         except integrity.IntegrityError as error:
-            problems.append("interpreter: %s" % error)
-        try:
-            integrity.verify_chain()
-        except integrity.IntegrityError as error:
-            problems.append("port chain: %s" % error)
+            return terminal("integrity: %s" % error)
+        bind_study_modules()
 
         tools = engines.Toolchain(pins)
         problems.extend(tools.problems)
 
-        # The frozen artifacts. Absent ones are PIPELINE problems and never
-        # substituted from design/: a scorer that fell back to the design tree
-        # would adjudicate against unfrozen bytes.
-        for relative_path in (GOLD_RELATIVE, MUTANT_JPS_RELATIVE,
-                              MUTANT_REGO_RELATIVE, REFERENCE_A_RELATIVE,
-                              REFERENCE_B_RELATIVE):
-            if not os.path.isfile(os.path.join(STUDY, relative_path)):
-                problems.append("registered artifact is absent: %s"
-                                % relative_path)
+        # The frozen artifacts, VERIFIED and not merely counted (round-1 R1-9:
+        # "it then checks five artifacts only for existence"). `verify()` above
+        # has already established that `harness/STUDY-MANIFEST.sha256` describes
+        # the tree it covers exactly and — once the freeze fills the pin — that
+        # the manifest is the one the registry pins. Every scorer input is inside
+        # that covered set now (`harness/make_manifest.py`: the mutant payloads,
+        # both reference implementations and the off-gold certificate joined the
+        # registered documents), so what remains here is to require each one to
+        # be PRESENT and to be a member of the covered set — an input the
+        # manifest does not name is an input nothing verified.
+        problems.extend(_registered_inputs_problems())
 
         entries = batch.schedule_entries()
         try:
@@ -1095,11 +1688,25 @@ def main(argv=None) -> int:
             problems.append("terminality: %s" % error)
             slots, shape = [], {"present": 0,
                                "registered": batch.REGISTERED_SLOTS,
-                               "complete": False, "declared": False}
+                               "complete": False, "declared": False,
+                               "declaration": None}
 
         if problems:
             return terminal("pipeline-invalid before any run was scored",
                             problems)
+
+        # ROUND-1 R1-7: a DECLARED short batch is not scored. `terminality()`
+        # has just established that the declaration describes this batch — its
+        # exact member set, §2's registered constants, the prefix's length and
+        # last index, the ledger's chain and its agreement with the registered
+        # call order, the slot/seal bijection and the last slot. Having
+        # established it, the scorer stops: the registered price of a shortfall
+        # is UNRESOLVED-BY-DESIGN on every level verdict and no contrast at all,
+        # and computing the endpoints anyway is how an incomplete batch becomes
+        # a result with a caveat.
+        if shape["declared"]:
+            return _declare_unresolved(attempt_root, label, unfilled,
+                                       pins_raw_sha256, shape)
 
         tools.require()
         workspace = tempfile.mkdtemp(prefix="study019-attempt-")
@@ -1114,9 +1721,14 @@ def main(argv=None) -> int:
             os.path.join(STUDY, MUTANT_JPS_DIR),
             os.path.join(STUDY, MUTANT_REGO_DIR))
         pairing, paired_ids = e4lib.build_pairing(mutants)
-        paired_count = len(paired_ids["jps"])
-        cut = e4lib.high_kill_cut(paired_count)
-        print("tau cut: %s" % cut["statement"])
+        # ROUND-1 R1-1: ONE CUT PER LANGUAGE, each from its own paired-adequate
+        # denominator, each asserted reachable. The single JPS-derived cut this
+        # replaces was handed to every arm while each arm's kill denominator
+        # stayed language-specific, so a PERFECT Rego suite could not reach it
+        # and the primary endpoint was impossible for arms B and C.
+        cuts = e4lib.high_kill_cuts(paired_ids)
+        for language in ("jps", "rego"):
+            print("tau cut (%s): %s" % (language, cuts[language]["statement"]))
         # Section 4's engine-supplied-kill list, from the FROZEN manifests
         # (SCAFFOLD item S9). A language whose manifest carries no
         # `engineSuppliedKill` member refuses by name and its arm reports the
@@ -1132,8 +1744,14 @@ def main(argv=None) -> int:
             except e4lib.E4Error as error:
                 engine_supplied[language] = None
                 refusals["engineSuppliedKills.%s" % language] = str(error)
+        reduced_paired = {
+            language: len([record for record in mutants[language]
+                           if not record["notAdequate"]
+                           and record["id"] in paired_ids[language]
+                           and record["id"] not in set(engine_supplied[language]
+                                                       or ())])
+            for language in ("jps", "rego")}
         context = {"gold": gold, "mutants": mutants, "pairedIds": paired_ids,
-                   "pairedCount": paired_count,
                    "engineSupplied": {language: (ids or ())
                                       for language, ids
                                       in engine_supplied.items()},
@@ -1152,9 +1770,10 @@ def main(argv=None) -> int:
             e1[arm] = e1_control(arm, runs)
             e2[arm] = e2_profile(arm, runs)
             e3[arm] = e3_taxonomy(runs)
+            language = LANGUAGE_OF_ARM[arm]
             e4_by_arm[arm] = e4_endpoint(
-                arm, runs, cut,
-                engine_supplied[LANGUAGE_OF_ARM[arm]])
+                arm, runs, cuts[language], engine_supplied[language],
+                reduced_paired[language])
 
         try:
             stimulus = census_lib.registered_stimulus(gold, gold_sha256)
@@ -1183,19 +1802,66 @@ def main(argv=None) -> int:
                             <= (pins.get("batch") or {}).get("timeoutRateCap", 0)
                             for arm in batch.ARMS)},
             "e1-floor": {"held": all(e1[arm]["floorHeld"] for arm in batch.ARMS)},
+            # ROUND-1 R1-8: every scored invocation of this attempt returned an
+            # answer. A pinned engine refusing on a frozen reference or a frozen
+            # mutant is an apparatus failure, and neither counting it as a kill
+            # nor scoring the suite zero for it is honest — so it adjudicates R1
+            # in neither direction, above every substantive row.
+            "engine-execution-clean": _engine_execution_gate(per_arm_runs),
         }
-        contrasts = {}
-        try:
-            contrasts[decision.CONTRAST_PRIMARY] = contrast("A", "C", e4_by_arm)
-            if contrasts[decision.CONTRAST_PRIMARY]["excludesZero"]:
-                contrasts[decision.CONTRAST_SECONDARY] = contrast("A", "B",
-                                                                  e4_by_arm)
-        except stats.StatsError as error:
-            refusals["contrast"] = str(error)
 
-        verdict = decision.decide({"pipelineProblems": [],
-                                   "controlGates": gates,
-                                   "contrasts": contrasts})
+        # ROUND-1 R1-14: NOTHING INFERENTIAL IS COMPUTED BELOW A FAILED GATE.
+        # The abstract table is ordered and its rows are exhaustive, but the
+        # publisher used to compute A-C and A-B, print "Decided yes" and print a
+        # direction while `decide()` correctly selected the control-gate row —
+        # which is not what "adjudicates R1 in neither direction" means. The
+        # gating predicate is derived from the table itself
+        # (`decision.gate_causes()`), so a row added there cannot be a row this
+        # forgets.
+        outcome = {"pipelineProblems": [], "shortfallDeclared": [],
+                   "controlGates": gates, "contrasts": {}}
+        gate_causes = decision.gate_causes(outcome)
+        contrasts = {}
+        if gate_causes:
+            refusals["contrast"] = (
+                "not computed: %d gating row(s) matched above the substantive "
+                "rows (%s). §5's row 2 adjudicates R1 in neither direction, and "
+                "a direction computed and then withheld is a direction "
+                "published" % (len(gate_causes), "; ".join(gate_causes)))
+        else:
+            try:
+                contrasts[decision.CONTRAST_PRIMARY] = contrast("A", "C",
+                                                               e4_by_arm)
+                if contrasts[decision.CONTRAST_PRIMARY]["excludesZero"]:
+                    contrasts[decision.CONTRAST_SECONDARY] = contrast(
+                        "A", "B", e4_by_arm)
+            except stats.StatsError as error:
+                # A contrast that could not be computed is a PIPELINE problem,
+                # not a straddling interval: the last row's INDETERMINATE says an
+                # interval exists and contains zero.
+                contrasts = {}
+                refusals["contrast"] = str(error)
+                outcome["pipelineProblems"] = [
+                    "the registered primary contrast could not be computed: %s"
+                    % error]
+        outcome["contrasts"] = contrasts
+        verdict = decision.decide(outcome)
+
+        # ROUND-1 R1-10. Executed exactly once, here, at the primary attempt —
+        # after every registered number is already fixed, so nothing it produces
+        # can reach one. `outcome` above is the whole of the decision's input and
+        # carries no member this block writes.
+        reviewer_set = None
+        if arguments.include_reviewer_set:
+            try:
+                sealed = reviewer_lib.load(
+                    os.path.join(STUDY, REVIEWER_SET_RELATIVE),
+                    (pins.get("reviewerMutantSet") or {}).get("sha256"))
+                reviewer_set = reviewer_lib.execute(
+                    tools, sealed, per_arm_runs, context, batch.ARMS,
+                    LANGUAGE_OF_ARM, workspace)
+            except reviewer_lib.ReviewerSetError as error:
+                refusals["reviewerMutantSet"] = str(error)
         results = {
             "study": STUDY_NAME,
             "attemptRoot": os.path.basename(os.path.normpath(attempt_root)),
@@ -1209,16 +1875,33 @@ def main(argv=None) -> int:
                                  for key, value in counted[arm].items()
                                  if key != "slots"}
                            for arm in batch.ARMS},
+            # ROUND-1 R1-19. `groups` is EVERY witness-key group, shared or not;
+            # section 4 registers the SHARED, non-degenerate groups as the thing
+            # the paired subset comes from, and one number published under one
+            # name was read as either. Both are published, with the degenerate
+            # group counted out loud rather than subtracted silently.
             "pairing": {"groups": len(pairing),
+                        "sharedGroups": sum(1 for row in pairing
+                                            if row["countedInPairedSubset"]),
+                        "degenerateGroups": sum(1 for row in pairing
+                                                if row["degenerate"]),
                         "pairedAdequateJps": len(paired_ids["jps"]),
                         "pairedAdequateRego": len(paired_ids["rego"]),
                         "unpairable": e4lib.unpairable(mutants, paired_ids)},
-            "cut": cut,
+            "cuts": cuts,
             "e1": e1, "e2": e2, "e3": e3, "e4": e4_by_arm, "e5": e5,
             "contrasts": contrasts,
+            "contrastsGatedBy": gate_causes,
             "controlGates": gates,
             "refusals": refusals,
-            "perArmRuns": per_arm_runs,
+            "perArmRuns": [
+                {key: value for key, value in run.items()
+                 # Two members are working state, not published bytes: a
+                 # workspace path is an absolute path and a scored case list is
+                 # the author's own input document repeated per mutant.
+                 if key not in ("suitePath", "scoredCases")}
+                for arm in batch.ARMS for run in per_arm_runs[arm]],
+            "reviewerSet": reviewer_set,
             "decision": verdict,
         }
         write_json(os.path.join(attempt_root, "RESULTS.json"), results)

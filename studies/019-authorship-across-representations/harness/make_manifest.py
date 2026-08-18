@@ -64,7 +64,33 @@ REGISTERED_DOCUMENTS = (
     "mutants/MANIFEST-rego.json",
     "reference/REFERENCE-A.md",
     "reference/REFERENCE-B.md",
+    # ROUND-1 FINDING R1-9. The manifest covered the two top-level mutant
+    # manifests and the reference PROSE, and none of the bytes the scorer
+    # actually executes. These three are executable/control payloads that decide
+    # published rates, so they are registered documents like any other and
+    # `--freeze` refuses while any is absent.
+    "reference/refA/pack.json",
+    "reference/refB/policy.rego",
+    "controls/off-gold-equivalence.json",
     "harness/PORTS.md",
+)
+
+# The registered payload SETS, each an exact one-level glob. Same finding: every
+# scorer input carries a per-file hash, so a single mutant payload edited after
+# the freeze fails the exact-set comparison rather than being covered only by a
+# manifest that names its directory.
+#
+# `mutants/jps` and `mutants/rego` are the mutant payloads `e4lib/e4.py` loads by
+# path out of the two MANIFESTs; `controls/reviewer-mutants` is the sealed set
+# `e4lib/reviewer.py` executes at the attempt (round-1 R1-10), whose bytes are
+# committed verbatim during the review rounds and must not move afterwards.
+# A directory that does not exist yet contributes nothing and is not fabricated;
+# once it exists, the glob is exact and an added file is as loud as a deleted one.
+REGISTERED_PAYLOAD_SETS = (
+    ("mutants/jps", "*.json"),
+    ("mutants/rego", "*.rego"),
+    ("controls/reviewer-mutants", "*.json"),
+    ("controls/reviewer-mutants", "*.rego"),
 )
 
 # Excluded from the covered set by construction, not by omission. All three are
@@ -106,6 +132,8 @@ def manifest_entries():
     later must be registered here rather than swept in."""
     paths = [STUDY / name for name in REGISTERED_DOCUMENTS
              if (STUDY / name).is_file()]
+    for directory, pattern in REGISTERED_PAYLOAD_SETS:
+        paths.extend(sorted((STUDY / directory).glob(pattern)))
     paths.extend(sorted((STUDY / "harness").glob("*.py")))
     paths.extend(sorted((STUDY / "harness").glob("*.sh")))
     paths.extend(sorted((STUDY / "harness" / "e4lib").glob("*.py")))

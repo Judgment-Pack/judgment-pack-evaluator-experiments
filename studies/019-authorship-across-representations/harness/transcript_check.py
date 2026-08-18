@@ -35,9 +35,23 @@ allowlist by leaving a default in place. One recapture serves all three arms:
 the pre-prompt context precedes the prompt and does not depend on it, and that
 does not become three properties because there are three prompts.
 
+Round-1 finding R1-5 adds a third change, and it is a rule rather than a
+subject: **every refusal names its CAUSE.** `check()` still says admissible or
+raises, and its checks are untouched; what is new is that each raise site carries
+a reason tag, `REASON_CAUSE` maps every tag to one side of §1a's partition, and
+`classify()` turns the exception into a structured verdict every scored slot goes
+through. The distinction is the one the review names: a transcript carrying a
+tool call or a turn after the registered prompt is the AUTHOR breaking §3's
+single-shot, no-tools instruction — an authoring outcome, retained in the
+denominator and scoring zero — while a mismatched prompt, a drifted golden
+context, a mangled log or a completion the wrapper mis-extracted is the
+APPARATUS, which §1a excludes. Wiring the gate in without that map would have
+filed every tool call as pipeline-invalid and quietly deleted the runs the
+no-tools instruction exists to catch.
+
 What this file deliberately does NOT do: judge a record, count a class, extract
 the registered marker block, or decide whether a run enters a rate denominator;
-it says admissible or raises, and the scorer owns the population.
+it says admissible, or names a side and a code and lets the scorer place the run.
 
 Built against a captured no-tool session from the pinned CLI, not against
 an assumed schema. Real sessions carry, besides conversation messages:
@@ -116,7 +130,25 @@ MESSAGE_ROLES = tuple(ITEM_KIND)
 
 
 class TranscriptError(Exception):
-    pass
+    """A refusal by this gate, carrying the REASON TAG that attributes it.
+
+    Round-1 finding R1-5: wiring `check()` into per-slot scoring wholesale would
+    have made one attribution error out of two different facts. This gate refuses
+    a transcript that carries a tool call and a transcript whose pre-prompt
+    context was corrupted with the same exception, and those are not the same
+    event: the model using a tool is the AUTHOR violating §3's single-shot,
+    no-tools instruction — an authoring outcome, retained in the denominator and
+    scoring zero — while a mismatched prompt, a drifted golden context or a
+    mangled log is the APPARATUS failing, which §1a excludes.
+
+    So every raise site names its reason, `REASON_CAUSE` maps the reason to a
+    side and a §1a code, and `classify()` refuses outright on a reason the map
+    does not name. There is no default: a refusal nobody classified is
+    pipeline-invalid, never a silently counted run."""
+
+    def __init__(self, message, reason=None):
+        super().__init__(message)
+        self.reason = reason
 
 
 class CompletionUndecodable(ValueError):
@@ -139,6 +171,106 @@ class CompletionUndecodable(ValueError):
     class first) sees it.
     """
 
+    reason = "completion-undecodable"
+
+
+# --------------------------------------------------------------------------
+# the cause map (R1-5)
+# --------------------------------------------------------------------------
+#
+# Left: the reason tag a raise site names. Right: the SIDE of §1a's partition
+# the refusal belongs to, and the code the scorer files it under. The two
+# authoring reasons are the two the round-1 review names — the author using a
+# tool, and the author taking a turn after the registered prompt — and both are
+# facts about what the MODEL emitted into a transcript the wrapper retained
+# whole. Everything else is a fact about the apparatus: the bytes the prompt was
+# assembled from, the pre-prompt context the golden capture pins, the log the CLI
+# wrote, the exit status the wrapper recorded, or the completion file the wrapper
+# extracted. Nothing in this map is a judgement about the artifact; that is
+# `admit()`'s, on the other side of the population rule.
+AUTHOR_PROTOCOL_CODE = "author-protocol-violation"
+APPARATUS_TRANSCRIPT_CODE = "transcript-refused"
+
+REASON_CAUSE = {
+    # the author's own protocol violations — retained, counted, scoring zero
+    "tool-use": ("authoring", AUTHOR_PROTOCOL_CODE),
+    "extra-turn": ("authoring", AUTHOR_PROTOCOL_CODE),
+    # apparatus integrity — pipeline-invalid, excluded from every denominator
+    "log-corrupt": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "unreadable": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "prompt-mismatch": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "context-mismatch": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "leak": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "no-answer": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "completion-mismatch": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "completion-undecodable": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "turn-context-mismatch": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+    "exit-status": ("apparatus", APPARATUS_TRANSCRIPT_CODE),
+}
+
+AUTHOR_REASONS = tuple(sorted(reason for reason, (side, _code)
+                              in REASON_CAUSE.items() if side == "authoring"))
+APPARATUS_REASONS = tuple(sorted(reason for reason, (side, _code)
+                                 in REASON_CAUSE.items() if side == "apparatus"))
+
+
+class UnclassifiedRefusal(Exception):
+    """A refusal reached `classify()` carrying a reason `REASON_CAUSE` does not
+    name. It is deliberately NOT a `TranscriptError`: a transcript that this
+    module refused for a cause nobody registered is a defect in this module, and
+    the fail-closed answer is to invalidate the attempt rather than to guess a
+    side and move a run between denominators. Callers let it propagate."""
+
+
+def classify(session_path: str, prompt_path: str, completion_path: str,
+             call_path: str, golden_path: str, model: str = None,
+             arm: str = None) -> dict:
+    """The full binding of `check()`, as a STRUCTURED verdict rather than as an
+    exception — the entry point every scored slot goes through (R1-5).
+
+    Returns `{"admissible", "reason", "side", "code", "message"}`. An admissible
+    transcript answers `{"admissible": True, "reason": None, "side": None,
+    "code": None}`; a refused one carries the reason tag, the §1a side that
+    reason is attributed to, and the code the scorer files the run under.
+
+    Fail-closed in three places, each of them a way this could have leaked:
+    a `TranscriptError` with no reason, a reason the map does not name, and a
+    read error on any of the five paths all raise instead of answering. The
+    caller may not treat "I could not tell" as "admissible", and may not treat it
+    as an authoring outcome either."""
+    try:
+        check(session_path, prompt_path, completion_path, call_path,
+              golden_path, model=model, arm=arm)
+    except (TranscriptError, CompletionUndecodable) as error:
+        reason = getattr(error, "reason", None)
+        if reason not in REASON_CAUSE:
+            raise UnclassifiedRefusal(
+                "the transcript gate refused with the unregistered reason %r "
+                "(%s): every refusal is attributed to the author or to the "
+                "apparatus before any run moves between denominators"
+                % (reason, error))
+        side, code = REASON_CAUSE[reason]
+        return {"admissible": False, "reason": reason, "side": side,
+                "code": code, "message": str(error)}
+    except ValueError as error:
+        # A JSON document this gate reads but does not parse line by line —
+        # CALL.json, the golden capture — that will not decode. The bytes are the
+        # apparatus's, so the refusal is too, and it is named rather than
+        # collapsed into `log-corrupt`'s message.
+        side, code = REASON_CAUSE["log-corrupt"]
+        return {"admissible": False, "reason": "log-corrupt", "side": side,
+                "code": code,
+                "message": "a document this gate reads is not readable JSON: %s"
+                           % error}
+    except OSError as error:
+        side, code = REASON_CAUSE["unreadable"]
+        return {"admissible": False, "reason": "unreadable", "side": side,
+                "code": code,
+                "message": "a byte this gate binds is not readable: %s" % error}
+    return {"admissible": True, "reason": None, "side": None, "code": None,
+            "message": "the transcript binds to the registered prompt, the "
+                       "golden context and the retained completion"}
+
 
 def _refuse_duplicate_keys(pairs):
     keys = [key for key, _ in pairs]
@@ -151,7 +283,8 @@ def _load(line: bytes, number: int) -> dict:
     try:
         return json.loads(line.decode("utf-8"), object_pairs_hook=_refuse_duplicate_keys)
     except ValueError as error:
-        raise TranscriptError("line %d is not duplicate-free JSON: %s" % (number, error))
+        raise TranscriptError("line %d is not duplicate-free JSON: %s" % (number, error),
+                              reason="log-corrupt")
 
 
 def _reasoning_is_inert(payload: dict, number: int) -> None:
@@ -163,10 +296,12 @@ def _reasoning_is_inert(payload: dict, number: int) -> None:
     present = forbidden & set(payload)
     if present:
         raise TranscriptError(
-            "line %d: reasoning item carries call-like members %s" % (number, sorted(present)))
+            "line %d: reasoning item carries call-like members %s"
+            % (number, sorted(present)), reason="tool-use")
     summary = payload.get("summary", [])
     if not isinstance(summary, list):
-        raise TranscriptError("line %d: reasoning summary is not a list" % number)
+        raise TranscriptError("line %d: reasoning summary is not a list" % number,
+                              reason="log-corrupt")
 
 
 NORMALIZERS = (
@@ -239,7 +374,8 @@ def _events(session_path: str) -> tuple[list, list]:
                 continue
             entry = _load(raw, number)
             if not isinstance(entry, dict):
-                raise TranscriptError("line %d is not a JSON object" % number)
+                raise TranscriptError("line %d is not a JSON object" % number,
+                                      reason="log-corrupt")
             kind = entry.get("type")
             if kind == "turn_context":
                 context = entry.get("payload")
@@ -252,28 +388,35 @@ def _events(session_path: str) -> tuple[list, list]:
                 continue
             payload = entry.get("payload")
             if not isinstance(payload, dict):
-                raise TranscriptError("line %d: response_item without an object payload" % number)
+                raise TranscriptError(
+                    "line %d: response_item without an object payload" % number,
+                    reason="log-corrupt")
             item = payload.get("type")
             if item == "reasoning":
                 _reasoning_is_inert(payload, number)
                 continue
             if item != "message":
                 raise TranscriptError(
-                    "line %d: off-whitelist response_item payload type %r" % (number, item))
+                    "line %d: off-whitelist response_item payload type %r"
+                    % (number, item), reason="tool-use")
             role = payload.get("role")
             if role not in MESSAGE_ROLES:
-                raise TranscriptError("line %d: off-whitelist message role %r" % (number, role))
+                raise TranscriptError(
+                    "line %d: off-whitelist message role %r" % (number, role),
+                    reason="tool-use")
             expected_item = ITEM_KIND[role]
             content = payload.get("content")
             if not isinstance(content, list) or not content:
-                raise TranscriptError("line %d: message without a content list" % number)
+                raise TranscriptError(
+                    "line %d: message without a content list" % number,
+                    reason="log-corrupt")
             texts = []
             for entry_item in content:
                 if not isinstance(entry_item, dict) or entry_item.get("type") != expected_item \
                         or not isinstance(entry_item.get("text"), str):
                     raise TranscriptError(
                         "line %d: %s message carries a non-%s content item"
-                        % (number, role, expected_item))
+                        % (number, role, expected_item), reason="log-corrupt")
                 texts.append(entry_item["text"])
             events.append((role, "".join(texts)))
     return events, contexts
@@ -284,7 +427,8 @@ def extract_completion(session_path: str) -> str:
     events, _ = _events(session_path)
     assistants = [text for role, text in events if role == "assistant"]
     if not assistants:
-        raise TranscriptError("the transcript holds no assistant message")
+        raise TranscriptError("the transcript holds no assistant message",
+                              reason="no-answer")
     return assistants[-1]
 
 
@@ -307,7 +451,7 @@ def screen_prior_context(events: list, position: int, paths: list = ()) -> None:
             if token in lowered:
                 raise TranscriptError(
                     "prior %s message (item %d) contains the leak token %r"
-                    % (role, index, token))
+                    % (role, index, token), reason="leak")
 
 
 def check_golden(session_path: str, call: dict, golden_path: str) -> None:
@@ -324,18 +468,19 @@ def check_golden(session_path: str, call: dict, golden_path: str) -> None:
     golden = json.load(open(golden_path))
     actual = context_digests(session_path, call)
     if golden.get("contextVersion") != actual["contextVersion"]:
-        raise TranscriptError("the golden capture is a different context version")
+        raise TranscriptError("the golden capture is a different context version",
+                              reason="context-mismatch")
     expected, seen = golden.get("entries", []), actual["entries"]
     if len(expected) != len(seen):
         raise TranscriptError(
             "the session carries %d pre-prompt context items, the golden capture %d"
-            % (len(seen), len(expected)))
+            % (len(seen), len(expected)), reason="context-mismatch")
     for index, (want, got) in enumerate(zip(expected, seen)):
         if want.get("role") != got["role"] or want.get("sha256") != got["sha256"] \
                 or want.get("length") != got["length"]:
             raise TranscriptError(
                 "pre-prompt context item %d (%s) is not the locked golden context"
-                % (index, got["role"]))
+                % (index, got["role"]), reason="context-mismatch")
 
 
 def check(session_path: str, prompt_path: str, completion_path: str,
@@ -358,16 +503,19 @@ def check(session_path: str, prompt_path: str, completion_path: str,
     if len(positions) != 1:
         raise TranscriptError(
             "expected exactly one user message with the bytes of %s, found %d"
-            % (named, len(positions)))
+            % (named, len(positions)), reason="prompt-mismatch")
     position = positions[0]
     for index, (role, _) in enumerate(events):
         if role in ("user", "developer") and index > position:
-            raise TranscriptError("a user/developer message follows %s" % named)
+            raise TranscriptError("a user/developer message follows %s" % named,
+                                  reason="extra-turn")
     call = json.load(open(call_path))
     scratch = call.get("cwd", "")
     for token in LEAK_TOKENS:
         if token in scratch.lower():
-            raise TranscriptError("the call's working directory contains the leak token %r" % token)
+            raise TranscriptError(
+                "the call's working directory contains the leak token %r" % token,
+                reason="leak")
     # Defence in depth: the golden allowlist is the real gate, the
     # denylist catches an obviously planted turn with a clearer message.
     screen_prior_context(events, position, environment_paths(contexts, call))
@@ -378,7 +526,8 @@ def check(session_path: str, prompt_path: str, completion_path: str,
     assistants_after = [text for index, (role, text) in enumerate(events)
                         if role == "assistant" and index > position]
     if not assistants_after:
-        raise TranscriptError("no assistant message answers the registered prompt")
+        raise TranscriptError("no assistant message answers the registered prompt",
+                              reason="no-answer")
     # The read and the decode are two steps, and the binding is a third (round
     # 5, finding 7): whether the file decodes is a question about the file, and
     # only a file that decoded can be compared to the transcript's own text.
@@ -389,15 +538,20 @@ def check(session_path: str, prompt_path: str, completion_path: str,
         raise CompletionUndecodable(
             "completion.txt is not decodable UTF-8: %s" % error)
     if completion != assistants_after[-1]:
-        raise TranscriptError("completion.txt is not the transcript's last assistant message")
+        raise TranscriptError(
+            "completion.txt is not the transcript's last assistant message",
+            reason="completion-mismatch")
     status = call.get("exitStatus")
     if not isinstance(status, int) or isinstance(status, bool) or status != 0:
-        raise TranscriptError("the call did not exit with integer status 0: %r" % status)
+        raise TranscriptError(
+            "the call did not exit with integer status 0: %r" % status,
+            reason="exit-status")
     if model is not None:
         named = {context.get("model") for context in contexts if "model" in context}
         if named and named != {model}:
-            raise TranscriptError("the transcript's turn context names %r, not the locked model %r"
-                                  % (sorted(named), model))
+            raise TranscriptError(
+                "the transcript's turn context names %r, not the locked model %r"
+                % (sorted(named), model), reason="turn-context-mismatch")
         # EVERY named cwd, not merely one of them — symmetrical with the model
         # clause above, and what §3.1 gate 5 registers: `turn_context`, where
         # present, names the call's own working directory. Membership admitted a
@@ -410,4 +564,4 @@ def check(session_path: str, prompt_path: str, completion_path: str,
                 "the transcript's turn context names the working directories %r, not "
                 "the call's own %r alone"
                 % (sorted(value for value in cwds if isinstance(value, str)),
-                   call.get("cwd")))
+                   call.get("cwd")), reason="turn-context-mismatch")

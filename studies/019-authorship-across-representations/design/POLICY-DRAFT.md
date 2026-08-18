@@ -231,7 +231,17 @@ counterfactual test (v0's "needed by" admitted two readings — three findings).
   D8's `onUnknown` is entailed by D8's *structure*, and the negation-cascade shape (S1)
   strictly beats the positive-union shape (S2, 24 grid mismatches). D8 is the single place
   U1's "otherwise" is realized.
-- **Registered exclusion X1 (arm-A inexpressibility, census row).** In the class
+- **~~Registered exclusion X1~~ — RETIRED 2026-08-18 (round-1 R1-2).** The paragraph below
+  is left verbatim as the record of what was registered, and it is **withdrawn**: the
+  "no `onUnknown` assignment can make a pack say it" half is true and unchallenged, but the
+  inexpressibility conclusion drawn from it is false. A pack in the same fragment says
+  `review` on all 72 cells — two region-scoped rules plus two region-scoped suppressions of
+  D8, adopted into the arm-A reference (`reference/refA/PACK-CHANGE-001.md`). The registered
+  exclusion set is now empty, gold **does** carry rows in this class (three, plus an
+  adjacency control), and the census row is not a fragment boundary but an asymmetry-ledger
+  row: expressing it costs a derived region lemma the prose never states.
+- **Registered exclusion X1 (arm-A inexpressibility, census row) — WITHDRAWN, see above.**
+  In the class
   {newVendor = yes, 40 ≤ risk < 70, and either country LOW with spend unreadable, or
   country unreadable with spend ≤ $100,000.00}, the prose (via U1) says review but no
   `onUnknown` assignment can make a pack say it (72/236,196 derived cells, 0 rescued by any

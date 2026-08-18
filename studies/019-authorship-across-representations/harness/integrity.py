@@ -130,6 +130,26 @@ UNPINNED_SOURCES = {
 # The freeze pins §2 and §7 register, in the order PINS.json carries them. A
 # null anywhere here makes the run a PILOT (`study_label()`); REGISTERED
 # requires every one of them.
+#
+# ROUND-1 FINDING R1-9, and it was the reachability that made it a blocker: the
+# set stopped at eleven members, so `REGISTERED` was reachable while the
+# capabilities file, the model, the golden capture, the probe prompt, the
+# isolation assent, the jpack build attestation and the sealed reviewer set were
+# all still null — every one of them a value the attempt depends on, and the
+# capabilities pin in particular merely RECORDED as "unenforced" by the
+# toolchain rather than blocking anything. Seven members are added below, each
+# named by the registration that owes it:
+#
+#   opa.capabilitiesSha256              §2, and the canary control gate
+#   codex.model                         §2 "Model named by explicit flag"
+#   golden.sha256 / probePrompt.sha256  §2, §6's golden-context gate
+#   isolationNegative.assent            §6, and the driver's own precondition
+#   jpack.reproducibleBuildAttestation  §2 "reproducible-build attestation at
+#                                       freeze (jpack supports it)"
+#   reviewerMutantSet.sha256            §1a/§4, and round-1 R1-10
+#
+# `tests/test_pins.py` drives the label rule pin by pin: each one, nulled alone
+# on an otherwise-full registry, must produce PILOT.
 FREEZE_PINS = (
     ("preregistration", ("preregistration", "sha256")),
     ("policyProse", ("policyProse", "sha256")),
@@ -142,6 +162,13 @@ FREEZE_PINS = (
     ("referenceB", ("references", "B", "sha256")),
     ("offGoldCertificate", ("offGoldCertificate", "sha256")),
     ("studyManifest", ("studyManifest", "sha256")),
+    ("opaCapabilities", ("opa", "capabilitiesSha256")),
+    ("jpackBuildAttestation", ("jpack", "reproducibleBuildAttestation")),
+    ("model", ("codex", "model")),
+    ("probePrompt", ("probePrompt", "sha256")),
+    ("goldenContext", ("golden", "sha256")),
+    ("isolationAssent", ("isolationNegative", "assent")),
+    ("reviewerMutantSet", ("reviewerMutantSet", "sha256")),
 )
 
 
@@ -353,6 +380,28 @@ def freeze_pin_state(pins: dict) -> dict:
                 break
         state[name] = node is not None
     return state
+
+
+# The two freeze pins the PRE-FREEZE CEREMONY fills, and the reason they need a
+# name of their own (round-1 R1-9's consequence, stated rather than worked
+# around). `golden.sha256` is written by the golden-context capture and
+# `isolationNegative.assent` by the isolation negative control — both of which
+# are commands that run BEFORE the freeze and are what PRODUCE those values. A
+# gate on the whole freeze set is therefore circular for exactly those two
+# commands and for nothing else: they cannot require a value they exist to
+# create.
+#
+# They ARE freeze pins: `study_label()` reads the whole set, so a REGISTERED
+# attempt is unreachable while either is null, and the scorer's golden-context
+# gate reads them again at attempt time. This tuple exempts them at ONE place —
+# the driver's pre-ceremony gate — and nowhere else.
+CEREMONY_LIFECYCLE_PINS = ("goldenContext", "isolationAssent")
+
+
+def ceremony_unfilled_pins(pins: dict) -> list:
+    """`unfilled_pins()` minus the two the ceremony has not reached yet."""
+    return [name for name in unfilled_pins(pins)
+            if name not in CEREMONY_LIFECYCLE_PINS]
 
 
 def study_label(pins: dict) -> str:

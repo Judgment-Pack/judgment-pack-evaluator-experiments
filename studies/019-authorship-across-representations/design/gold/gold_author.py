@@ -334,6 +334,39 @@ row("d1-match-o3-region", "O3 requires a CLEAR screening result; under MATCH the
     "does not arise and D1 rejects", ["D1"], "reject", sanctions="MATCH", country="HIGH",
     risk="50", spend="2000000.01")
 
+# ---- the former X1 region, opened by the 2026-08-18 reference repair --------------------
+# Until the repair (reference/refA/PACK-CHANGE-001.md, round-1 finding R1-2) this region was
+# a registered exclusion class and gold was FORBIDDEN to carry a row in it. The repair made
+# the arm-A reference answer the prose here, the exclusion registry is now empty, and these
+# rows are the region's first gold coverage. Every expectation below is derived from the
+# prose the same way as every other row — O1 removes D6c for a new vendor, no other
+# determination clause reaches the 40-69 band, so D8 governs and U1's counterfactual is
+# uniform over the unreadable member — and each was then reproduced, on the first run, by
+# both pinned engines AND by the clean-room oracle.
+row("x1r-low-spend-unreadable-40", "new vendor, LOW, risk at D6c's lower edge with the "
+    "requested spend unreadable: O1 removes D6c and no other clause reaches the band, so "
+    "every spend lands on D8 review and U1 issues it", ["O1", "D8", "U1"], "review",
+    newVendor="yes", risk="40", spend=None)
+row("x1r-low-spend-unreadable-69", "the same at D6c's upper edge with the insurance "
+    "certificate absent: D6b needs risk below 40, so the certificate cannot change the "
+    "determination either", ["O1", "D8", "U1"], "review",
+    newVendor="yes", risk="69", spend=None, insurance="absent")
+row("x1r-country-unreadable-100k", "new vendor at D6c's inclusive spend edge with the "
+    "country risk unreadable: LOW is D6c removed by O1, MEDIUM is out of D7's reach at risk "
+    "55, HIGH is out of D4's reach below 70 and O3 begins above $2,000,000.00 - every "
+    "country reviews under D8", ["O1", "D8", "U1"], "review",
+    newVendor="yes", risk="55", country=None, spend="100000.00")
+# The adjacency control for the two rows above: it is NOT in the former X1 region, and it is
+# what stops the repair's two region rules from being written any wider. With BOTH the
+# country and the spend unreadable, HIGH x above $2,000,000.00 reaches O3's escalation while
+# LOW x below $100,000.00 reaches D8's review, so the determinations differ and U1 says
+# unknown. A repair that scoped its region on the risk band alone would answer review here
+# and this row would fail.
+row("x1r-adjacent-both-unreadable", "country AND spend unreadable for a new vendor in "
+    "D6c's band: O3 escalates a HIGH country above $2,000,000.00 while a LOW country "
+    "reviews, so the determinations differ and U1 leaves it unknown", ["U1", "O3"],
+    U, ["unknown"], newVendor="yes", risk="55", country=None, spend=None)
+
 with open("gold.json", "w") as f:
     json.dump({"goldVersion": "0.1-draft", "policy": "POLICY-DRAFT.md v0.3",
                "rows": ROWS}, f, indent=1, sort_keys=True)

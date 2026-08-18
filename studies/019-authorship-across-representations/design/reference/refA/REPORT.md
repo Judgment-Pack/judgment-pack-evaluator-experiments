@@ -1,5 +1,31 @@
 # Arm A reference build report (from builder final output)
 
+> **CORRECTION, 2026-08-18 — one claim in this report is false, and the pack it describes
+> is no longer the committed one.** Round-1 finding R1-2 challenged the inexpressibility
+> claim; it was tested and it did not survive. The committed `pack.json` has been repaired
+> (`PACK-CHANGE-001.md`, new sha256 `db977607…`; the pack this report describes is
+> `956ceebb…`), it answers the prose-correct `review` on all 72 off-grid cells below, and
+> the registered exclusion class X1 is **retired**.
+>
+> Specifically, in "Mismatches" below: *"Irreducible under every onUnknown assignment"* is
+> **true and unchallenged** — the 2,048-assignment enumeration stands. *"Structurally
+> reducible only by an encoding no author would write: a probe rule carrying two
+> contradictory ordered comparisons…"* is **false twice over**. The probe cannot work at
+> all (every JPS connective is monotone in the information order, `not(unknown) = unknown`
+> included, so a contradictory pair is FALSE when the fact is readable and UNKNOWN when it
+> is not — *never TRUE* — and a rule that is never true can neither fire nor suppress;
+> measured on the full space, the probe variant changes 0 cells with `onUnknown: ignore`
+> and makes things worse with `escalate`). And a repair that *does* work exists inside the
+> fragment: two region-scoped `review` rules plus two region-scoped suppressions of
+> `r-d8`, which move exactly these 72 cells and nothing else in 236,196.
+>
+> Everything else below — the V6 answer, the per-assignment mismatch counts, the encoding
+> decisions, the result-surface facts, the grid coverage gap — is unaffected and is left
+> verbatim. The corrected general statement is: *the natural encoding cannot express this
+> region under any `onUnknown` assignment, and expressing it costs a derived region lemma
+> the prose never states* — which is an asymmetry-ledger row, not an inexpressibility
+> result.
+
 ## V6 answer
 
 SETTLED: r-d8 (the D8 negation-cascade catch-all) = escalate; EVERY other rule = ignore (r-d1, r-d3, r-d4, r-d5, r-d6a, r-d6b-insured, r-d6b-uninsured, r-d6c, r-d7, r-o1-review). Exceptions: x-o3-large-exposure = escalate; x-o1-first-engagement, x-o2-critical-supplier and the seven x-d5-suppress-* = ignore. Evidence (full grid, 2540 cells, prose_model as target; the 2^11=2048 rule assignments enumerated with a simulator that agrees cell-for-cell with the pinned engine on 15,240 checked evaluations): reference 0 mismatches; 128 assignments score 0 (all agree d4/d5/o1-review=ignore, d8=escalate, differing only on the 7 grid-unobservable rules); best with d8=ignore 12; all-ignore 79; all-escalate 103; worst 163. Single-flip costs off the reference, each re-verified on the pinned engine: d8->ignore 79, d5->escalate 84, d4->escalate 13, o1-review->escalate 12. Reasons per element: d8=escalate because D8's unknown is exactly "the ladder cannot say which clause governs" = U1's "otherwise ... unresolved as unknown"; d4=ignore because U1 worked example 1 (D3 rejects at risk 95 while country is unreadable) requires an undetermined clause not to block a clause that decides without the unreadable input; d5=ignore and o1-review=ignore because an unreported prior-enforcement / new-vendor status is "treated as no" and must not block; d3=ignore is derived off-grid (flipping it costs 540 extra mismatches on a 236,196-cell derived space; engine-verified witness {CLEAR, LOW, spend 50000.00, prior yes, risk unreadable, evidence present}: prose reject, reference reject, d3=escalate gives unresolved[unknown]); the remaining six rules are observationally free on both the grid and the derived space and are set to ignore for the uniform reading "a determination clause's own unknown never blocks by itself; D8 is the single place U1's otherwise is realized". WHY THE PANEL SPLIT: onUnknown is not a free parameter -- D8's value is entailed by D8's structure. Tested head to head: S1 (negation cascade + region-scoped O1 review rule) best = 0 grid / 72 derived with d8=escalate; S2 (positive union of review regions, the shape jpsExpr's "C8 ignore, region rules escalate" implies) best = 24 grid / 240 derived, still with d8=escalate. S1 adopted.

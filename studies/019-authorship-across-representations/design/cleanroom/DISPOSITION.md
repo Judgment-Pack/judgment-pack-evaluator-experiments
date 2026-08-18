@@ -2,10 +2,17 @@
 
 ## Runs of record
 
-- Oracle vs gold suite: **76/76 agree**.
+- Oracle vs gold suite: **76/76 agree** (2026-08-15); re-run **105/105** after the adequacy
+  gate and **109/109** on 2026-08-18 after the X1 repair added four rows.
 - Oracle vs the reference implementations over the full 2,540-cell design grid:
-  **2,540/2,540 agree** (the grid contains no cell of the registered X1 class, so no
-  X1-expected divergence arises). Script: `check_oracle.py`.
+  **2,540/2,540 agree**. Script: `check_oracle.py`.
+- **Update 2026-08-18 (round-1 R1-2).** X1 is retired
+  (`reference/refA/PACK-CHANGE-001.md`); `check_oracle.py` now carries an **empty**
+  registered-exclusion registry and exits nonzero on *any* divergence — no class of cell is
+  excused. Re-run of record: **109 gold rows, 2,540 grid cells, 0 excused divergences, 0
+  unexpected divergences.** Three of the four new gold rows live in the region the retired
+  class forbade, and the oracle reproduced all four expectations on the first run, with the
+  two pinned engines, without adjudication.
 - **Zero divergences to dispose.** The disposition below therefore covers only the
   oracle's six numbered decisions, per the registered rule that a decision flagging a
   governing clause as underdetermined routes dependent rows to the ambiguity stratum

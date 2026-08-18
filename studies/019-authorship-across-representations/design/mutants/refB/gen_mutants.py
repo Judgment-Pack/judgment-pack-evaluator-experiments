@@ -465,8 +465,20 @@ def eval_row(policy_path, doc):
         try:
             v = json.loads(p.stdout)["result"][0]["expressions"][0]["value"]
         except Exception as ex:
-            raise RuntimeError(f"opa eval rc={p.returncode}: "
-                               f"{(p.stderr or p.stdout).strip()[:200]} ({ex})")
+            # PATH-SCRUBBED. The OPA error payload carries the ABSOLUTE path of the
+            # policy file it was handed, and a diagnostic that embeds an absolute path
+            # makes this manifest reproducible only from the directory it was first
+            # generated in -- which the R1-12 byte-comparison test caught (three runs,
+            # three digests, differing in exactly this string). Every directory this
+            # program knows about is replaced by a stable token before the text is
+            # recorded; the diagnostic keeps its meaning and loses its address.
+            diag = (p.stderr or p.stdout).strip()
+            for real, token in ((os.path.dirname(policy_path), "<mutant-dir>"),
+                                (td, "<work-dir>"), (HERE, "<mutants-refB>"),
+                                (DESIGN, "<design>"), (SCRATCH, "<scratch>")):
+                if real:
+                    diag = diag.replace(real, token)
+            raise RuntimeError(f"opa eval rc={p.returncode}: {diag[:200]} ({ex})")
     return [v["disposition"], sorted(v["reasons"])]
 
 

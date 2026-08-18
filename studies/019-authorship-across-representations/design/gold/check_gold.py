@@ -46,16 +46,30 @@ for r in rows:
     if not set(r["cite"]) <= CLAUSES or not r["cite"]:
         errors.append(f"{r['id']}: bad cite {r['cite']}")
 
-# (2) X1 exclusion: newVendor=yes AND 40<=risk<70 AND (LOW with spend unreadable
-#     OR country unreadable with spend <= 100000.00)
+# (2) registered exclusion classes: THE SET IS EMPTY. X1 was retired on 2026-08-18
+#     (round-1 finding R1-2; reference/refA/PACK-CHANGE-001.md) because the repaired arm-A
+#     reference answers the prose over the whole space, so no gold row is forbidden any
+#     more. The machinery is kept with an empty registry: adding a class back is a data
+#     edit with a written reason, and until one exists this loop excludes nothing.
+#     The retired predicate is kept below as a NON-GATING census so that "gold now covers
+#     the region the retired class used to forbid" is measured rather than asserted.
+REGISTERED_EXCLUSIONS = {}    # name -> predicate(inputs) -> bool
+
+def retired_x1(i):
+    if i["newVendor"] != "yes" or i["risk"] is None or not 40 <= int(i["risk"]) < 70:
+        return False
+    return ((i["country"] == "LOW" and i["spend"] is None)
+            or (i["country"] is None and i["spend"] is not None
+                and Decimal(i["spend"]) <= Decimal("100000.00")))
+
 for r in rows:
-    i = r["inputs"]
-    if i["newVendor"] == "yes" and i["risk"] is not None and 40 <= int(i["risk"]) < 70:
-        low_unread = i["country"] == "LOW" and i["spend"] is None
-        cn_small = (i["country"] is None and i["spend"] is not None
-                    and Decimal(i["spend"]) <= Decimal("100000.00"))
-        if low_unread or cn_small:
-            errors.append(f"{r['id']}: row is inside the registered X1 exclusion")
+    for name, predicate in REGISTERED_EXCLUSIONS.items():
+        if predicate(r["inputs"]):
+            errors.append(f"{r['id']}: row is inside the registered exclusion {name}")
+retired_x1_rows = [r["id"] for r in rows if retired_x1(r["inputs"])]
+if not retired_x1_rows:
+    errors.append("no gold row covers the region the retired X1 class used to forbid; "
+                  "the repair (reference/refA/PACK-CHANGE-001.md) is unwitnessed")
 
 # (3) clause coverage
 cited = {c for r in rows for c in r["cite"]}
@@ -146,7 +160,10 @@ for r in rows:
             errors.append(f"{r['id']}: {name} gives {got}, gold expects {want}")
             floor_fail += 1
 
-print(f"{len(rows)} rows; {len(errors)} failures ({floor_fail} floor-gate)")
+print(f"{len(rows)} rows; {len(errors)} failures ({floor_fail} floor-gate); "
+      f"registered exclusion classes {len(REGISTERED_EXCLUSIONS)}; "
+      f"rows inside the retired X1 region {len(retired_x1_rows)} "
+      f"({', '.join(retired_x1_rows)})")
 for e in errors:
     print(" *", e)
 sys.exit(1 if errors else 0)

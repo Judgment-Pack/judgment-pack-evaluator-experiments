@@ -7,6 +7,7 @@ filter that disagrees with `design/gold/check_gold.py` means gold contains a row
 the scorer would have excluded.
 """
 import json
+import os
 
 import pytest
 
@@ -85,12 +86,33 @@ def test_a_json_number_reaches_the_predicate_without_a_float_round_trip():
     assert e4.in_x1(signature(risk=55, country=None, spend=100000.01)) is False
 
 
-def test_partition_x1_applies_the_filter_once_for_identity_and_kill():
-    inside = ("c1", {}, {}, ("outcome", "review", ()), True,
+def test_the_registered_exclusion_registry_is_empty_and_excludes_nothing():
+    """ROUND-1 R1-2's consequence in this module. X1 was retired when the arm-A
+    reference was repaired, and `cert_offgold.py`'s own registry is empty — so
+    the exclusion machinery is kept, the registry is data, and the per-run
+    excluded count §4 publishes is a MEASURED ZERO rather than a filter nobody
+    applied. `in_x1()` survives as the retired predicate and gates nothing."""
+    assert e4.REGISTERED_EXCLUSION_CLASSES == {}
+    was_x1 = ("c1", {}, {}, ("outcome", "review", ()), True,
               signature(risk="55", country="LOW", spend=None))
-    outside = ("c2", {}, {}, ("outcome", "approve", ()), True,
-               signature(risk="10", country="LOW", spend="1.00"))
-    scored, excluded = e4.partition_x1([inside, outside])
+    ordinary = ("c2", {}, {}, ("outcome", "approve", ()), True,
+                signature(risk="10", country="LOW", spend="1.00"))
+    scored, excluded = e4.partition_excluded([was_x1, ordinary])
+    assert [case[0] for case in scored] == ["c1", "c2"]
+    assert excluded == []
+    # The predicate still answers, so "the repair moved exactly these cells"
+    # stays re-measurable.
+    assert e4.in_x1(was_x1[5]) is True
+
+
+def test_partition_excluded_applies_a_registered_class_once(monkeypatch):
+    """And when a class IS registered, it is applied in one place, so identity
+    and kill see the same case set by construction."""
+    monkeypatch.setattr(e4, "REGISTERED_EXCLUSION_CLASSES",
+                        {"X9": lambda sig: sig.get("country") == "LOW"})
+    inside = ("c1", {}, {}, None, True, signature(country="LOW"))
+    outside = ("c2", {}, {}, None, True, signature(country="HIGH"))
+    scored, excluded = e4.partition_excluded([inside, outside])
     assert [case[0] for case in scored] == ["c2"]
     assert excluded == ["c1"]
 
@@ -264,24 +286,32 @@ def test_the_committed_mutant_manifests_carry_the_registered_member(study):
     into `mutants/MANIFEST-*.json`: arm A's marking is
     `design/mutants/refA/REGISTRY.json`'s conflict-only list, cell for cell, and
     arm B carries the member with an empty class and its reason."""
-    import os
     design = os.path.join(study, "design", "mutants")
     registry = json.loads(open(os.path.join(design, "refA",
                                             "REGISTRY.json")).read())
     manifest = json.loads(open(os.path.join(design, "refA",
                                             "MANIFEST.json")).read())
     marked = sorted(m["id"] for m in manifest if m["engineSuppliedKill"])
-    assert marked == sorted(registry["conflictOnlyMutants"])
-    assert len(marked) == 41          # section 4's "now 41"
+    # ROUND-1 R1-11's consequence, and the binding MOVED with it. The marking
+    # used to be `REGISTRY.json`'s `conflictOnlyMutants`, which is computed over
+    # each mutant's GOLD WITNESSES; the round-1 dense census over the whole
+    # registered domain is the authority now, and it is what the manifest
+    # carries. `REGISTRY.json`'s list is the pre-census artifact and is not what
+    # the scorer reads.
+    census = json.loads(open(os.path.join(design,
+                                          "adequacy_engine_supplied.json")).read())
+    assert marked == sorted(census["engineSuppliedKillTrue"])
+    assert isinstance(registry["conflictOnlyMutants"], list)
     assert all("engineSuppliedKill" in m for m in manifest)
     rego = json.loads(open(os.path.join(design, "refB",
                                         "MANIFEST.json")).read())
     assert all("engineSuppliedKill" in m for m in rego["mutants"])
     assert not any(m["engineSuppliedKill"] for m in rego["mutants"])
-    assert rego["engineSuppliedKillClass"]["registered"] is True
-    assert rego["engineSuppliedKillClass"]["members"] == []
-    assert "no structural conflict detection" in \
-        rego["engineSuppliedKillClass"]["reason"]
+    # Arm B's class is EMPTY and the manifest SAYS so: the member is on every
+    # mutant and the note gives the construction reason. An empty registered
+    # class and a missing member are different facts, which is the whole of
+    # what `engine_supplied_ids()` refuses on.
+    assert "no structural conflict detection" in rego["engineSuppliedKillNote"]
 
 
 # --- the run-level endpoint -------------------------------------------------
@@ -289,12 +319,32 @@ def test_the_committed_mutant_manifests_carry_the_registered_member(study):
 def test_kill_rates_carry_three_named_denominators(mutant_tree):
     mutants = e4.load_mutants(*mutant_tree)
     _table, paired = e4.build_pairing(mutants)
-    rates = e4.kill_rates({"m-a-001": True, "m-a-002": False, "m-a-003": True},
+    rates = e4.kill_rates({"m-a-001": e4.KILLED, "m-a-002": e4.SURVIVED,
+                           "m-a-003": e4.KILLED},
                           mutants["jps"], paired["jps"])
     assert rates["killedAdequate"] == 1 and rates["adequate"] == 2
     assert rates["killedPaired"] == 1 and rates["paired"] == 1
     assert rates["killedNotAdequate"] == 1 and rates["notAdequate"] == 1
     assert rates["survivorsPaired"] == []
+
+
+def test_a_refused_mutant_is_scored_neither_way_and_stays_in_the_denominator(
+        mutant_tree):
+    """ROUND-1 R1-8's enforcing test at the rate layer. An engine refusal on a
+    frozen mutant is not the suite distinguishing it (that would let a transient
+    apparatus failure make a weak suite high-kill) and not a survivor either
+    (nothing was asked). It stays in the denominator — so a refusal can never
+    inflate a rate by shrinking it — and it is published by id."""
+    mutants = e4.load_mutants(*mutant_tree)
+    _table, paired = e4.build_pairing(mutants)
+    rates = e4.kill_rates({"m-a-001": e4.REFUSED, "m-a-002": e4.SURVIVED,
+                           "m-a-003": e4.SURVIVED},
+                          mutants["jps"], paired["jps"])
+    assert rates["killedPaired"] == 0
+    assert rates["paired"] == 1                      # the denominator is intact
+    assert rates["survivorsPaired"] == []            # and it is not a survivor
+    assert rates["refusedPaired"] == ["m-a-001"]
+    assert rates["refusedAll"] == ["m-a-001"]
 
 
 def test_kill_rates_split_the_paired_subset_on_the_engine_supplied_list(
@@ -304,7 +354,8 @@ def test_kill_rates_split_the_paired_subset_on_the_engine_supplied_list(
     it from an aggregate afterwards is not possible."""
     mutants = e4.load_mutants(*mutant_tree)
     _table, paired = e4.build_pairing(mutants)
-    rates = e4.kill_rates({"m-a-001": True, "m-a-002": False, "m-a-003": True},
+    rates = e4.kill_rates({"m-a-001": e4.KILLED, "m-a-002": e4.SURVIVED,
+                           "m-a-003": e4.KILLED},
                           mutants["jps"], paired["jps"],
                           engine_supplied=["m-a-001"])
     assert rates["killedPaired"] == 1 and rates["paired"] == 1
@@ -313,7 +364,7 @@ def test_kill_rates_split_the_paired_subset_on_the_engine_supplied_list(
     assert rates["killedEngineSupplied"] == 1 and rates["engineSupplied"] == 1
     # …and with no list the two columns are the same numbers, so a language
     # with an empty registered class reports one honest column twice.
-    plain = e4.kill_rates({"m-a-001": True}, mutants["jps"], paired["jps"])
+    plain = e4.kill_rates({"m-a-001": e4.KILLED}, mutants["jps"], paired["jps"])
     assert plain["killedPairedExcludingEngineSupplied"] == plain["killedPaired"]
     assert plain["pairedExcludingEngineSupplied"] == plain["paired"]
 
@@ -322,12 +373,103 @@ def test_the_high_kill_cut_is_stated_with_the_arithmetic_that_produced_it():
     cut = e4.high_kill_cut(39)
     assert cut["integerCut"] == 38
     assert cut["tau"] == "19/20"
+    assert cut["cutReachable"] is True
     assert "38 of the 39" in cut["statement"]
 
 
 def test_is_high_kill_reads_the_integer_cut():
     assert e4.is_high_kill(38, 39, 38) is True
     assert e4.is_high_kill(37, 39, 38) is False
+
+
+# --- R1-1: one cut per language, from its own denominator -------------------
+
+def test_the_cut_is_derived_per_language_at_the_real_current_counts():
+    """ROUND-1 R1-1's enforcing test, on the counts the repaired corpus actually
+    has (`design/mutants/E4-PILOT-v2.json`: 75 paired adequate JPS mutants and
+    65 paired adequate Rego ones).
+
+    The blocker was that ONE cut was derived from the JPS count and handed to
+    every arm while each arm's kill denominator stayed language-specific. At
+    these counts the single-cut scorer would have judged a Rego suite against 72
+    out of a possible 65 — so a PERFECT B/C suite could never be high-kill and
+    the primary endpoint was impossible for two of the three arms."""
+    paired = {"jps": set("j%d" % i for i in range(75)),
+              "rego": set("r%d" % i for i in range(65))}
+    cuts = e4.high_kill_cuts(paired)
+    assert cuts["jps"]["pairedAdequateMutants"] == 75
+    assert cuts["jps"]["integerCut"] == 72               # ceil(0.95 * 75)
+    assert cuts["rego"]["pairedAdequateMutants"] == 65
+    assert cuts["rego"]["integerCut"] == 62              # ceil(0.95 * 65)
+    assert cuts["jps"]["language"] == "jps"
+    assert cuts["rego"]["language"] == "rego"
+    # Each cut is reachable by a perfect suite of its OWN language...
+    assert e4.is_high_kill(65, 65, cuts["rego"]["integerCut"]) is True
+    assert e4.is_high_kill(75, 75, cuts["jps"]["integerCut"]) is True
+    # ...and the JPS cut is not reachable at the Rego denominator at all, which
+    # is the defect stated as an assertion rather than as a comment.
+    with pytest.raises(e4.E4Error) as raised:
+        e4.is_high_kill(65, 65, cuts["jps"]["integerCut"])
+    assert str(raised.value).startswith("E4-CUT-UNREACHABLE")
+
+
+def test_a_cut_above_its_own_denominator_refuses_at_derivation(monkeypatch):
+    """The assertion the reviewer asked for, at the place the cut is made: no
+    cut is published that its run's denominator cannot reach."""
+    from fractions import Fraction
+    from e4lib import stats
+    monkeypatch.setattr(stats, "TAU", Fraction(21, 20))
+    with pytest.raises(e4.E4Error) as raised:
+        e4.high_kill_cut(65)
+    assert str(raised.value).startswith("E4-CUT-UNREACHABLE")
+
+
+# --- R1-6: total matrixVersion-2 schema validation --------------------------
+
+@pytest.mark.parametrize("payload,why", [
+    ("[]", "the document is a list"),
+    ('{"matrixVersion": 2, "cases": [null]}', "a case is null"),
+    ('{"matrixVersion": 2, "cases": [{"facts": {"vendor": "LOW"}}]}',
+     "facts.vendor is a string"),
+    ('{"cases": []}', "matrixVersion is absent"),
+    ('{"matrixVersion": 1, "cases": []}', "matrixVersion is not 2"),
+    ('{"matrixVersion": 2, "cases": {}}', "cases is not a list"),
+    ('{"matrixVersion": 2, "cases": [{"evidenceAvailability": 3}]}',
+     "evidenceAvailability is a number"),
+    ('{"matrixVersion": 2, "cases": [{"expectedDisposition": []}]}',
+     "expectedDisposition is a list"),
+    ("not json at all", "the block is not JSON"),
+])
+def test_every_author_controlled_shape_failure_is_a_matrix_error(tmp_path,
+                                                                 payload, why):
+    """ROUND-1 R1-6's enforcing test, on the reviewer's own three payloads and
+    six more.
+
+    Each of these used to raise `AttributeError`/`TypeError` out of
+    `load_matrix()`, past a caller that caught only `ValueError`, into the outer
+    handler that publishes pipeline-invalid and re-raises — so ONE author's
+    malformed matrix invalidated the entire primary attempt. §1a registers the
+    opposite: unparseable or schema-invalid author output stays in the
+    denominator as a counted authoring outcome."""
+    path = tmp_path / "matrix.json"
+    path.write_text(payload)
+    with pytest.raises(e4.MatrixError) as raised:
+        e4.load_matrix(str(path))
+    assert str(raised.value).startswith("E4-MATRIX-SCHEMA"), why
+    assert isinstance(raised.value, e4.E4Error)
+
+
+def test_a_matrix_error_is_not_the_outer_exception_path(tmp_path):
+    """The distinction the finding turns on: `MatrixError` is about the AUTHOR
+    and every other exception out of this module is about the apparatus."""
+    path = tmp_path / "matrix.json"
+    path.write_text("[]")
+    try:
+        e4.load_matrix(str(path))
+    except e4.MatrixError:
+        pass
+    except Exception:                                    # pragma: no cover
+        raise AssertionError("an author-controlled shape raised something else")
 
 
 def test_load_matrix_marks_unreadable_cases_rather_than_dropping_them(tmp_path):
@@ -365,8 +507,34 @@ def test_identity_and_kill_agree_about_unreadable_cases(monkeypatch):
              ("good", {}, {}, ("outcome", "approve", ()), True, {})]
     ok, failures = e4.identity_arm_a(None, "ref", cases, "/tmp")
     assert ok is False and [entry["case"] for entry in failures] == ["bad"]
-    killed, case_id = e4.kill_arm_a(None, "mutant", cases, "/tmp")
-    assert killed is False and case_id is None
+    outcome, detail = e4.kill_arm_a(None, "mutant", cases, "/tmp")
+    assert outcome == e4.SURVIVED and detail == {}
+
+
+def test_a_reference_that_refuses_is_an_apparatus_refusal_not_a_zero(monkeypatch):
+    """ROUND-1 R1-8, the reference side. An engine refusal on the FROZEN
+    reference used to fail the identity control, which scores a correct suite
+    zero for an apparatus failure."""
+    from e4lib import engines
+    monkeypatch.setattr(engines, "eval_pack",
+                        lambda *a, **k: ("ROW-ERROR", "engine-timeout", ()))
+    cases = [("c1", {}, {}, ("outcome", "approve", ()), True, {})]
+    with pytest.raises(e4.ExecutionRefusal) as raised:
+        e4.identity_arm_a(None, "ref", cases, "/tmp")
+    assert str(raised.value).startswith("E4-IDENTITY-ENGINE-REFUSED")
+
+
+def test_a_mutant_that_refuses_is_not_a_kill(monkeypatch):
+    """ROUND-1 R1-8, the mutant side. "A refusal on a mutant counts as
+    disagreement" is what let a transient apparatus failure make a weak suite
+    high-kill."""
+    from e4lib import engines
+    monkeypatch.setattr(engines, "eval_pack",
+                        lambda *a, **k: ("ROW-ERROR", "non-json-payload", ()))
+    cases = [("c1", {}, {}, ("outcome", "approve", ()), True, {})]
+    outcome, detail = e4.kill_arm_a(None, "mutant", cases, "/tmp")
+    assert outcome == e4.REFUSED
+    assert detail["got"] == "ROW-ERROR:non-json-payload"
 
 
 def test_kill_short_circuits_at_the_first_disagreement(monkeypatch):
@@ -379,17 +547,43 @@ def test_kill_short_circuits_at_the_first_disagreement(monkeypatch):
     monkeypatch.setattr(engines, "eval_pack", evaluate)
     cases = [("c1", {"id": "c1"}, {}, ("outcome", "approve", ()), True, {}),
              ("c2", {"id": "c2"}, {}, ("outcome", "approve", ()), True, {})]
-    killed, case_id = e4.kill_arm_a(None, "mutant", cases, "/tmp")
-    assert killed is True and case_id == "c1"
+    outcome, detail = e4.kill_arm_a(None, "mutant", cases, "/tmp")
+    assert outcome == e4.KILLED and detail["case"] == "c1"
     assert seen == ["c1"]
 
 
-def test_the_rego_identity_and_kill_read_the_exit_code(monkeypatch):
+def _test_record(status, code=0):
+    return {"status": status, "exitCode": code, "tests": 1,
+            "failed": [], "errored": []}
+
+
+def test_the_rego_identity_and_kill_read_the_result_document(monkeypatch):
+    """ROUND-1 R1-8, arms B/C. The old rule was "nonzero kills", and at
+    v1.19.0 a compile failure, a load failure and the harness's own timeout are
+    all nonzero — so every one of them killed every mutant it touched, and every
+    one of them failed identity for a correct suite."""
     from e4lib import engines
-    monkeypatch.setattr(engines, "opa_test", lambda *a, **k: (0, "pass"))
+    monkeypatch.setattr(engines, "opa_test",
+                        lambda *a, **k: _test_record(engines.TEST_PASS))
     assert e4.identity_arm_rego(None, "ref", "suite", "/tmp")[0] is True
-    assert e4.kill_arm_rego(None, "mutant", "suite", "/tmp")[0] is False
-    monkeypatch.setattr(engines, "opa_test", lambda *a, **k: (1, "test-failure"))
+    assert e4.kill_arm_rego(None, "mutant", "suite", "/tmp")[0] == e4.SURVIVED
+
+    monkeypatch.setattr(engines, "opa_test",
+                        lambda *a, **k: _test_record(engines.TEST_FAILED, 2))
     assert e4.identity_arm_rego(None, "ref", "suite", "/tmp")[0] is False
-    killed, detail = e4.kill_arm_rego(None, "mutant", "suite", "/tmp")
-    assert killed is True and detail["class"] == "test-failure"
+    outcome, record = e4.kill_arm_rego(None, "mutant", "suite", "/tmp")
+    assert outcome == e4.KILLED and record["exitCode"] == 2
+
+
+def test_every_non_assertion_outcome_is_a_refusal_in_both_roles(monkeypatch):
+    from e4lib import engines
+    for status in (engines.TEST_ERRORED, engines.TEST_INVOCATION_REFUSED,
+                   engines.TEST_TIMEOUT, engines.TEST_UNREADABLE):
+        monkeypatch.setattr(engines, "opa_test",
+                            lambda *a, _s=status, **k: _test_record(_s, 1))
+        # Against the reference: an identity control that cannot be decided.
+        with pytest.raises(e4.ExecutionRefusal) as raised:
+            e4.identity_arm_rego(None, "ref", "suite", "/tmp")
+        assert str(raised.value).startswith("E4-IDENTITY-ENGINE-REFUSED")
+        # Against a mutant: neither killed nor survived.
+        assert e4.kill_arm_rego(None, "m", "suite", "/tmp")[0] == e4.REFUSED

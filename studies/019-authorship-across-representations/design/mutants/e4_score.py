@@ -84,6 +84,7 @@ arm's SCORE.json) whose secondary artifact file is absent is reported under
 Stdlib only. Python 3.8+.
 """
 
+import argparse
 import concurrent.futures
 import json
 import os
@@ -652,7 +653,67 @@ def score_arm(arm, lang, filename, mutants, paired_ids, root, pool):
 # --------------------------------------------------------------------------- main
 
 
+def high_kill_layer(doc, tau):
+    """E4's decision layer, added 2026-08-18 for round-1 findings R1-1 and R1-18.
+
+    R1-1, verbatim: *"The scorer derives one cutoff -- 77 -- from the JPS count and passes
+    it to all arms, while each arm's kill denominator remains language-specific ... A
+    perfect B/C suite therefore kills at most 73 and can never be high-kill. Fix: derive
+    and publish language-specific cuts ... with an assertion that each cut is no larger
+    than its run's denominator."*
+
+    So the cut is computed PER LANGUAGE from that language's own paired-adequate
+    denominator, published as an integer next to the denominator it came from, and
+    asserted to be reachable. `high-kill` is `killedPaired >= cut` for the arm's own
+    language; a suite that failed the identity control has no kill vector and is recorded
+    as null, never as False.[0m""".replace("\033[0m", "")
+    lang_of = {"A": "jps", "B": "rego", "C": "rego"}
+    cuts = {}
+    for lang, arm in (("jps", "A"), ("rego", "B")):
+        n = doc["perArm"][arm]["mutantsPairedAdequate"]
+        cut = -(-int(round(tau * 1000000)) * n // 1000000)   # exact ceil(tau*n), no floats
+        assert cut <= n, ("cut %d exceeds the paired denominator %d for %s: no suite could "
+                          "ever be high-kill" % (cut, n, lang))
+        cuts[lang] = {"pairedAdequateMutants": n, "tau": tau, "integerCut": cut,
+                      "cutAsFraction": round(cut / n, 6) if n else None,
+                      "assertionCutReachable": cut <= n}
+    for arm in ("A", "B", "C"):
+        a = doc["perArm"][arm]
+        cut = cuts[lang_of[arm]]["integerCut"]
+        high = 0
+        for e in a["perRun"]:
+            if not e.get("identityPass"):
+                e["highKill"] = None
+                continue
+            e["highKill"] = e["killedPaired"] >= cut
+            high += 1 if e["highKill"] else 0
+        admitted = sum(1 for e in a["perRun"] if e.get("identityPass"))
+        a["highKill"] = {
+            "language": lang_of[arm],
+            "integerCut": cut,
+            "pairedAdequateMutants": cuts[lang_of[arm]]["pairedAdequateMutants"],
+            "admittedRuns": admitted,
+            "highKillRuns": high,
+            "highKillRate": round(high / admitted, 6) if admitted else None,
+            "note": "denominator is the arm's ADMITTED runs (identity-passing); suites "
+                    "failing identity carry highKill: null and are reported separately",
+        }
+    return {"tau": tau,
+            "rule": "high-kill iff the suite kills at least ceil(tau * N) of ITS OWN "
+                    "language's paired adequate mutant subset",
+            "perLanguage": cuts,
+            "finding": "round-1 R1-1 (one cut derived from the JPS count was applied to "
+                       "every arm, making a perfect Rego suite unable to be high-kill)"}
+
+
 def main():
+    global OUT
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", default=OUT,
+                    help="output path (E4-PILOT-v2.json for the rescored issue)")
+    ap.add_argument("--tau", type=float, default=0.95)
+    args = ap.parse_args()
+    OUT = args.out
     mutants = load_mutants()
     pairing, paired_ids = build_pairing(mutants)
 
@@ -718,6 +779,7 @@ def main():
         "adequacy": adequacy,
         "diagnostics": diagnostics,
     }
+    doc["highKillCuts"] = high_kill_layer(doc, args.tau)
     with open(OUT, "w") as fh:
         json.dump(doc, fh, indent=2, sort_keys=True)
         fh.write("\n")
@@ -792,6 +854,18 @@ def print_summary(doc):
                  doc["perArm"]["A"]["mutantsAdequate"], e["killRate"],
                  e["killedPaired"], e["killRatePaired"]))
     print()
+    hk = doc.get("highKillCuts")
+    if hk:
+        print("HIGH-KILL CUTS (per language, tau = %s)" % hk["tau"])
+        for lang, c in sorted(hk["perLanguage"].items()):
+            print("  %-5s paired adequate %3d -> integer cut %3d (%.4f of the denominator)"
+                  % (lang, c["pairedAdequateMutants"], c["integerCut"], c["cutAsFraction"]))
+        for arm in ("A", "B", "C"):
+            a = doc["perArm"][arm]["highKill"]
+            print("  arm %s: high-kill %d/%d admitted runs (cut %d, %s) = %s"
+                  % (arm, a["highKillRuns"], a["admittedRuns"], a["integerCut"],
+                     a["language"], a["highKillRate"]))
+        print()
     print("wrote %s  [%s]" % (OUT, LABEL))
 
 

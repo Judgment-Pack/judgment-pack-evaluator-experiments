@@ -135,6 +135,32 @@ def entries(prompt, answer, cwd, home, model, session_id):
     return rows
 
 
+def drop_assistant(rows):
+    """A session the CLI wrote with no assistant message in it. Retained
+    transcripts like this exist — the process exits 0 after writing a rollout it
+    never finished — and `transcript_check.extract_completion()` raises on one,
+    which is the POST-CALL helper failure R1-4 is about."""
+    return [row for row in rows
+            if not (row.get("type") == "response_item"
+                    and row["payload"].get("role") == "assistant")]
+
+
+def poison_prior(rows, needle):
+    """A lone surrogate planted in a PRE-prompt developer message. It survives
+    `json.dumps` (escaped), it survives `_events` (decoded back to a lone
+    surrogate), the last assistant message is untouched so the completion
+    extraction succeeds — and `context_digests()` fails on it, because a lone
+    surrogate has no UTF-8 encoding. That is a DIFFERENT post-call stage from the
+    completion extraction, which is why it is here: the trap has to cover the
+    stage nobody thought of, not only the one the review constructed."""
+    for row in rows:
+        if row.get("type") == "response_item" \
+                and row["payload"].get("role") == "developer":
+            row["payload"]["content"][0]["text"] += needle
+            break
+    return rows
+
+
 def main(argv):
     if "--version" in argv:
         marker = os.path.join(HERE, "version.txt")
@@ -166,6 +192,17 @@ def main(argv):
     os.makedirs(sessions, exist_ok=True)
     rows = entries(prompt, step["completion"], os.getcwd(), home, model,
                    "00000000-0000-4000-8000-%012d" % (index + 1))
+    if step.get("no_assistant"):
+        rows = drop_assistant(rows)
+    if step.get("poison_prior"):
+        rows = poison_prior(rows, step["poison_prior"])
+    if step.get("tool_call"):
+        rows.insert(-1, {"type": "response_item",
+                         "payload": {"type": "function_call", "name": "shell",
+                                     "arguments": "{}", "call_id": "c1"}})
+    if step.get("extra_turn"):
+        rows.append(message("user", "and now revise it"))
+        rows.append(message("assistant", step["completion"]))
     path = os.path.join(sessions, "rollout-%d.jsonl" % index)
     with open(path, "wb") as handle:
         for row in rows:
@@ -620,6 +657,14 @@ class PreflightGates(StandInStudy):
         preregistration digest filled."""
         self.ready()
         for name, path in integrity.FREEZE_PINS:
+            if name in integrity.CEREMONY_LIFECYCLE_PINS:
+                # `golden.sha256` and `isolationNegative.assent` are freeze pins
+                # (round-1 R1-9) that the PRE-FREEZE ceremony writes, so this
+                # gate cannot demand them without demanding the values the
+                # capture and the control exist to create. Their own gates
+                # refuse them at this stage — `Controls` below drives both — and
+                # `test_pins.py` asserts the exemption is exactly these two.
+                continue
             pins = json.loads(json.dumps(self.pins))
             node = pins
             for key in path[:-1]:
@@ -1342,6 +1387,128 @@ class WrapperDriven(StandInStudy):
         self.assertEqual(declared["completedRounds"], 1)
         self.assertTrue(declared["lastSlotEndedAt"].endswith("Z"))
 
+    # -- R1-7: the declaration schema ---------------------------------------
+
+    def declared_shortfall(self, runs=ROUND):
+        """A real batch, a real declaration, and the declaration read back."""
+        self.ready()
+        self.run_command("--runs", str(runs))
+        self.assertEqual(batch.declare_shortfall("the window closed",
+                                                 self.pins_path), 0)
+        path = os.path.join(self.arms_root, batch.SHORTFALL_NAME)
+        with open(path) as handle:
+            return json.load(handle), path
+
+    def test_the_declaration_carries_the_ledger_head_and_the_seal_inventory(self):
+        """R1-7. The declaration used to be a bag of counts over which `{}` was
+        accepted; it carries the evidence now — the ledger's file digest, the
+        chain head the records compute to, and one row per slot with its place
+        in §2's order, its path, its SEAL and its §1a code."""
+        declared, _path = self.declared_shortfall()
+        ledger_path = os.path.join(self.arms_root, batch.LEDGER_NAME)
+        ledger = json.load(open(ledger_path))
+        self.assertEqual(declared["declarationVersion"], batch.SHORTFALL_VERSION)
+        self.assertEqual(declared["ledgerSha256"], _digest(ledger_path))
+        self.assertEqual(declared["ledgerHeadSha256"],
+                         batch.record_digest(ledger["records"][-1]))
+        self.assertEqual(len(declared["slots"]), ROUND)
+        for row, record, entry in zip(declared["slots"], ledger["records"],
+                                      ENTRIES):
+            self.assertEqual(sorted(row), sorted(batch.SHORTFALL_SLOT_SCHEMA))
+            self.assertEqual(row["globalIndex"], entry["globalIndex"])
+            self.assertEqual(row["path"], record["path"])
+            self.assertEqual(row["manifestSha256"], record["manifestSha256"])
+            # …and the seal the row names recomputes from the slot on disk
+            self.assertEqual(
+                batch.verify_seal_of(os.path.join(self.study, row["path"]),
+                                     entry),
+                row["manifestSha256"])
+
+    def test_the_driver_validates_its_own_declaration_on_write(self):
+        """The declaration goes through the SAME two functions the scorer runs
+        on read, before it is written. A declaration the driver cannot validate
+        is one the driver does not write — the alternative is a file that
+        unblocks scoring and describes nothing."""
+        declared, _path = self.declared_shortfall()
+        batch.validate_shortfall(declared)
+        records = json.load(open(os.path.join(self.arms_root,
+                                              batch.LEDGER_NAME)))["records"]
+        batch.verify_shortfall(declared, records, declared["ledgerSha256"])
+
+    def test_an_empty_object_is_not_a_declaration(self):
+        """The exact fail-open R1-7 names: `{}` made an arbitrary incomplete set
+        terminal and the scorer went on to compute ordinary endpoints over it."""
+        self.assertIn("carries no completedRounds member",
+                      self.refusal(batch.validate_shortfall, {}))
+
+    def test_a_declaration_over_a_non_prefix_refuses(self):
+        """Outcome-selective deletion, which counts alone can never see: keep
+        the slots you liked, declare the rest short. A set chosen by what its
+        slots CONTAINED is not a prefix of the registered order."""
+        declared, _path = self.declared_shortfall()
+        declared["slots"] = [declared["slots"][0], declared["slots"][2]]
+        declared["completedSlots"] = 2
+        declared["completedRounds"] = 0
+        declared["completedThroughGlobalIndex"] = declared["slots"][-1]["globalIndex"]
+        declared["lastSlot"] = declared["slots"][-1]["path"]
+        self.assertIn("A declaration is a PREFIX of the registered order",
+                      self.refusal(batch.validate_shortfall, declared))
+
+    def test_a_count_that_outruns_the_inventory_refuses(self):
+        """Every count is DERIVED from the inventory under it, so a declaration
+        cannot claim more slots than it can name."""
+        declared, _path = self.declared_shortfall()
+        declared["completedSlots"] = ROUND + 1
+        self.assertIn("no count can outlive the evidence",
+                      self.refusal(batch.validate_shortfall, declared))
+
+    def test_a_declaration_naming_another_ledger_refuses(self):
+        """Both bindings, because they fail differently: the chain head moves if
+        a record's content changed, and the file digest moves if the file was
+        rewritten around the same records."""
+        declared, _path = self.declared_shortfall()
+        records = json.load(open(os.path.join(self.arms_root,
+                                              batch.LEDGER_NAME)))["records"]
+        moved = json.loads(json.dumps(declared))
+        moved["ledgerHeadSha256"] = "sha256:" + "0" * 64
+        self.assertIn("names a ledger this one is not",
+                      self.refusal(batch.verify_shortfall, moved, records,
+                                   declared["ledgerSha256"]))
+        moved = json.loads(json.dumps(declared))
+        moved["ledgerSha256"] = "sha256:" + "0" * 64
+        self.assertIn("declares the ledger file digest",
+                      self.refusal(batch.verify_shortfall, moved, records,
+                                   declared["ledgerSha256"]))
+
+    def test_a_declaration_whose_seal_is_not_the_ledgers_refuses(self):
+        declared, _path = self.declared_shortfall()
+        records = json.load(open(os.path.join(self.arms_root,
+                                              batch.LEDGER_NAME)))["records"]
+        declared["slots"][1]["manifestSha256"] = "sha256:" + "0" * 64
+        self.assertIn("is not the ledger's record",
+                      self.refusal(batch.verify_shortfall, declared, records,
+                                   declared["ledgerSha256"]))
+
+    def test_a_declaration_carrying_an_unpartitioned_code_refuses(self):
+        """R1-4 and R1-7 meet here: the sentinel that used to reach every
+        denominator cannot reach a declaration either."""
+        declared, _path = self.declared_shortfall()
+        declared["slots"][0]["code"] = "wrapper-error"
+        self.assertIn("on neither side of §1a's partition",
+                      self.refusal(batch.validate_shortfall, declared))
+
+    def test_a_declaration_carrying_an_unregistered_member_refuses(self):
+        declared, _path = self.declared_shortfall()
+        declared["scoreThisAnyway"] = True
+        self.assertIn("members the declaration schema does not name",
+                      self.refusal(batch.validate_shortfall, declared))
+
+    def test_a_declaration_over_a_full_batch_is_not_short(self):
+        declared, _path = self.declared_shortfall()
+        declared["slots"] = declared["slots"] * 60
+        self.assertIn("a shortfall declares a SHORT batch",
+                      self.refusal(batch.validate_shortfall, declared))
+
 
 @unittest.skipUnless(RUNNING_REGISTERED and HAVE_TOOLS,
                      "the wrapper refuses an interpreter harness/PINS.json does "
@@ -1391,6 +1558,297 @@ class TimeoutCeiling(StandInStudy):
                 batch.PROBE_ARM, self.probe_prompt)
             self.assertEqual((status, code), (1, "preflight-refused"), stderr)
             self.assertFalse(os.path.exists(slot))
+
+
+@unittest.skipUnless(RUNNING_REGISTERED and HAVE_TOOLS,
+                     "the wrapper refuses an interpreter harness/PINS.json does "
+                     "not register, and needs bash, git and timeout(1)")
+class WrapperExitPaths(StandInStudy):
+    """R1-4: EVERY exit path of the real wrapper, end to end through the real
+    bash, and the code each one lands on.
+
+    The finding this class exists for: the wrapper runs under `set -euo
+    pipefail`, and its three POST-CALL stages — the completion extraction, the
+    CALL.json write, the context digests — are plain commands under it. A helper
+    that raised killed the shell with status 1, the driver's table read status 1
+    as "a pre-call refusal; nothing was called", and `preflight-refused` was in
+    neither side of §1a's partition — so `population()`, which excludes only the
+    codes it recognises as apparatus, put a slot whose call HAD been made and
+    whose completion was MISSING into the arm's denominator as an ordinary
+    authoring run scoring zero. Two statuses, one partition, no sentinel.
+
+    Every case here runs the committed `authoring_call.sh` through
+    `batch.invoke()` or through the driver's own `run` command; nothing is
+    stubbed but the CLI, whose digest the stand-in registry pins."""
+
+    #: index 0 exits 0; the plan is rewritten per case by `plan()`
+    PLAN = [{"completion": "ready"}] * 6
+
+    def plan(self, *steps):
+        """Rewrite the stand-in CLI's plan without touching the binary, so the
+        wrapper's digest gate still runs for real, and reset the counter so the
+        next call is step 0."""
+        write_plan(self.cli_dir, list(steps))
+        counter = os.path.join(self.cli_dir, "counter")
+        if os.path.exists(counter):
+            os.unlink(counter)
+
+    def probe(self, name):
+        slot = os.path.join(self.root, name, "capture-001")
+        return batch.invoke(slot, self.scratch, self.pins_path, self.cli,
+                            "probe", batch.PROBE_ARM, self.probe_prompt), slot
+
+    # -- one case per registered status ------------------------------------
+
+    def test_status_zero_is_a_complete_slot(self):
+        self.plan({"completion": "an answer"})
+        (status, code, stderr), slot = self.probe("complete")
+        self.assertEqual((status, code), (0, None), stderr)
+        self.assertTrue(os.path.isfile(os.path.join(slot, "completion.txt")))
+        self.assertTrue(os.path.isfile(os.path.join(slot, "context.json")))
+
+    def test_status_one_is_the_pre_call_refusal_and_nothing_was_called(self):
+        """The wrapper's own pre-call guard, reached before any plan step: the
+        slot path already exists."""
+        slot = os.path.join(self.root, "taken", "capture-001")
+        os.makedirs(slot)
+        status, code, stderr = batch.invoke(slot, self.scratch, self.pins_path,
+                                            self.cli, "probe", batch.PROBE_ARM,
+                                            self.probe_prompt)
+        self.assertEqual((status, code), (1, "preflight-refused"), stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.cli_dir, "counter")))
+
+    def test_status_ten_is_the_nonzero_call(self):
+        self.plan({"completion": "partial", "exit": 3})
+        (status, code, stderr), slot = self.probe("nonzero")
+        self.assertEqual((status, code), (10, "call-nonzero-exit"), stderr)
+        self.assertFalse(os.path.exists(os.path.join(slot, "completion.txt")))
+
+    def test_status_eleven_is_the_slot_shape(self):
+        self.plan({"completion": "no rollout", "no_session": True})
+        (status, code, stderr), _slot = self.probe("shape")
+        self.assertEqual((status, code), (11, "slot-shape"), stderr)
+
+    def test_status_thirteen_is_the_post_call_helper_the_review_constructed(self):
+        """THE regression. The call succeeds, the transcript is retained, and
+        `extract_completion()` raises on a session that holds no assistant
+        message — the first post-call stage. Before R1-4 this exited 1 and the
+        slot was filed as a pre-call refusal that had spent nothing."""
+        self.plan({"completion": "written nowhere", "no_assistant": True})
+        (status, code, stderr), slot = self.probe("post-call-extract")
+        self.assertEqual((status, code), (13, "post-call-failure"), stderr)
+        self.assertIn("a post-call wrapper stage failed", stderr)
+        # the call HAPPENED and the slot IS retained: the two facts status 1
+        # asserted the opposite of
+        self.assertTrue(os.path.isfile(os.path.join(slot, "session.jsonl")))
+        self.assertFalse(os.path.exists(os.path.join(slot, "completion.txt")))
+
+    def test_status_thirteen_covers_a_later_post_call_stage_too(self):
+        """The trap is a PHASE, not a wrapper around one helper: a lone
+        surrogate in the pre-prompt context leaves the completion extraction and
+        the CALL.json write intact and fails `context_digests()`, the last stage.
+        It lands on the same status and the same code."""
+        self.plan({"completion": "an answer", "poison_prior": "\ud800"})
+        (status, code, stderr), slot = self.probe("post-call-context")
+        self.assertEqual((status, code), (13, "post-call-failure"), stderr)
+        self.assertTrue(os.path.isfile(os.path.join(slot, "completion.txt")))
+        self.assertTrue(os.path.isfile(os.path.join(slot, "CALL.json")))
+        self.assertFalse(os.path.exists(os.path.join(slot, "context.json")))
+
+    # -- and what the driver then does with them ----------------------------
+
+    def test_every_wrapper_status_this_suite_reaches_is_in_the_partition(self):
+        """The three diffs §1a registers, closed over the statuses the cases
+        above actually produced rather than over the table alone."""
+        for status in (0, 1, 10, 11, 12, 13):
+            code = batch.wrapper_code(status)
+            if code is None:
+                continue
+            self.assertIn(code, batch.CODE_PARTITION, status)
+            self.assertEqual(batch.CODE_PARTITION[code][0], "apparatus", status)
+
+    def test_a_post_call_failure_is_sealed_ledgered_and_excluded(self):
+        """End to end through `batch.py run`: the failing slot is retained,
+        refused, sealed and ledgered under a code the partition names on the
+        APPARATUS side — the denominator it used to enter as an authoring run."""
+        self.ready()
+        self.plan({"completion": "first", },
+                  {"completion": "second", "no_assistant": True},
+                  {"completion": "third"})
+        self.assertEqual(self.run_command("--runs", str(ROUND)), 0)
+        ledger = json.load(open(os.path.join(self.arms_root, batch.LEDGER_NAME)))
+        codes = [row["code"] for row in ledger["records"]]
+        self.assertEqual(codes, [None, "post-call-failure", None])
+        record = ledger["records"][1]
+        self.assertEqual(record["wrapperExit"], 13)
+        self.assertEqual(batch.CODE_PARTITION[record["code"]][0], "apparatus")
+        slot = os.path.join(self.study, record["path"])
+        refusal = json.load(open(os.path.join(slot, "REFUSAL.json")))
+        self.assertEqual(refusal["code"], "post-call-failure")
+        # the seal covers it, and the driver's own reader agrees with the record
+        self.assertEqual(batch.verify_seal_of(slot, ENTRIES[1]),
+                         record["manifestSha256"])
+        self.assertEqual(batch.slot_outcome(slot), (13, "post-call-failure"))
+
+    def test_no_slot_is_ever_written_under_a_code_outside_the_partition(self):
+        """The fail-closed half, at the three writers: the refusal record, the
+        ledger record, and the slot reader. `wrapper-error` was the sentinel that
+        reached all three."""
+        slot = os.path.join(self.root, "unpartitioned", "run-001")
+        self.assertIn("§1a's partition does not name it",
+                      self.refusal(batch.refuse_slot, slot, "wrapper-error", 7, ""))
+        self.assertFalse(os.path.exists(slot))
+        self.assertIn("§1a's partition does not name it",
+                      self.refusal(batch.ledger_record, ENTRIES[0], slot, 7,
+                                   "wrapper-error", "sha256:0", None))
+        # and a REFUSAL.json planted with the sentinel refuses on the way back in
+        os.makedirs(slot)
+        with open(os.path.join(slot, "REFUSAL.json"), "w") as handle:
+            json.dump({"code": "wrapper-error", "wrapperExit": 7}, handle)
+        self.assertIn("unregistered status is not a refusal code",
+                      self.refusal(batch.slot_outcome, slot))
+
+
+@unittest.skipUnless(RUNNING_REGISTERED and HAVE_TOOLS,
+                     "the wrapper refuses an interpreter harness/PINS.json does "
+                     "not register, and needs bash, git and timeout(1)")
+class TranscriptBindingAtTheSeal(StandInStudy):
+    """R1-5, driver side: the full binding runs on every completed slot, its
+    verdict is retained INSIDE the seal, and each refusal names the side §1a
+    puts the run on.
+
+    `harness/tests/test_transcript_binding.py` holds the adversarial cases over
+    synthetic transcripts. What is here is the WIRING: that the driver reaches
+    `transcript_check.classify()` at all (the finding was that no scored slot
+    ever did), that the verdict is sealed with the slot, and that the two sides
+    reach the two codes end to end through the real wrapper and the real bash."""
+
+    PLAN = [{"completion": "an artifact"}] * 8
+
+    def plan(self, *steps):
+        write_plan(self.cli_dir, list(steps))
+        counter = os.path.join(self.cli_dir, "counter")
+        if os.path.exists(counter):
+            os.unlink(counter)
+
+    def golden_from_a_real_call(self) -> None:
+        """The stand-in fixture's `write_golden()` writes an EMPTY entry list,
+        which no real session reproduces; every case here needs a golden the
+        apparatus actually produces. So one probe call is made and its own
+        `context.json` becomes the golden — the derivation the recapture command
+        performs, reduced to the one capture these cases need."""
+        slot = os.path.join(self.root, "seed", "capture-001")
+        status, code, stderr = batch.invoke(slot, self.scratch, self.pins_path,
+                                            self.cli, "probe", batch.PROBE_ARM,
+                                            self.probe_prompt)
+        self.assertEqual((status, code), (0, None), stderr)
+        with open(os.path.join(slot, "context.json")) as handle:
+            self.write_golden(json.load(handle)["entries"])
+        self.record_negative_control()
+
+    def bound(self, index=0):
+        ledger = json.load(open(os.path.join(self.arms_root, batch.LEDGER_NAME)))
+        record = ledger["records"][index]
+        slot = os.path.join(self.study, record["path"])
+        with open(os.path.join(slot, batch.TRANSCRIPT_NAME)) as handle:
+            return json.load(handle), slot, record
+
+    def test_a_clean_slot_binds_and_the_verdict_is_inside_the_seal(self):
+        """The prompt bytes, the golden context, the completion, the model, the
+        cwd and the exit status — all six gates, on a slot the batch produced,
+        which is the invocation R1-5 says never happened."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "an artifact"})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        verdict, slot, record = self.bound()
+        self.assertTrue(verdict["admissible"], verdict)
+        self.assertIsNone(verdict["reason"])
+        self.assertIsNone(verdict["code"])
+        # inside the seal: the manifest lists it, and the seal recomputes
+        manifest = json.load(open(os.path.join(slot, batch.MANIFEST_NAME)))
+        self.assertIn(batch.TRANSCRIPT_NAME,
+                      [row[0] for row in manifest["files"]])
+        self.assertEqual(batch.verify_seal_of(slot, ENTRIES[0]),
+                         record["manifestSha256"])
+
+    def test_the_prompt_reaches_the_transcript_byte_exact(self):
+        """The trailing newline. `$(cat FILE)` strips it, so the argv the model
+        received was not the bytes the wrapper's own digest gate had just pinned,
+        and gate 2 could never have passed for a prompt file ending in one —
+        which every arm prompt here does. Unreachable while the gate was
+        unwired, and load-bearing the moment it is."""
+        self.golden_from_a_real_call()
+        prompt_path = os.path.join(self.study, "arms", "A", "PROMPT.txt")
+        with open(prompt_path, "rb") as handle:
+            self.assertTrue(handle.read().endswith(b"\n"))
+        self.plan({"completion": "an artifact"})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        self.assertTrue(self.bound()[0]["admissible"])
+
+    def test_a_tool_call_in_the_transcript_is_an_authoring_outcome(self):
+        """The attribution R1-5 turns on: the author disobeyed §3's no-tools
+        instruction, so the run STAYS in the denominator wearing an authoring
+        code and scoring zero. Excluding it as apparatus would delete exactly
+        the runs the instruction exists to catch."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "an artifact", "tool_call": True})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        verdict, _slot, _record = self.bound()
+        self.assertFalse(verdict["admissible"])
+        self.assertEqual(verdict["reason"], "tool-use")
+        self.assertEqual(verdict["side"], "authoring")
+        self.assertEqual(verdict["code"], "author-protocol-violation")
+        self.assertEqual(batch.CODE_PARTITION[verdict["code"]][0], "authoring")
+
+    def test_an_extra_turn_after_the_prompt_is_an_authoring_outcome(self):
+        self.golden_from_a_real_call()
+        self.plan({"completion": "an artifact", "extra_turn": True})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        verdict, _slot, _record = self.bound()
+        self.assertEqual((verdict["reason"], verdict["side"]),
+                         ("extra-turn", "authoring"))
+
+    def test_a_drifted_golden_context_is_apparatus(self):
+        """The other side of the same wire. The pre-prompt context is not what
+        the pinned capture says, so the run leaves every denominator — and the
+        code is the one §1a already registered for it."""
+        self.golden_from_a_real_call()
+        drifted = json.load(open(self.golden))["entries"]
+        drifted[0]["sha256"] = "0" * 64
+        self.write_golden(drifted)
+        # …and the negative control is re-recorded against the capture THIS
+        # batch runs behind, which §6 requires and the driver enforces.
+        self.record_negative_control()
+        self.plan({"completion": "an artifact"})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        verdict, _slot, _record = self.bound()
+        self.assertEqual((verdict["reason"], verdict["side"], verdict["code"]),
+                         ("context-mismatch", "apparatus", "transcript-refused"))
+        self.assertEqual(batch.CODE_PARTITION[verdict["code"]][0], "apparatus")
+
+    def test_a_refused_slot_is_not_bound(self):
+        """A slot the wrapper refused already carries an apparatus code naming
+        the cause, and half its bytes are missing by construction; binding it
+        would answer 'unreadable' over a fact REFUSAL.json states precisely."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "no rollout", "no_session": True})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        ledger = json.load(open(os.path.join(self.arms_root, batch.LEDGER_NAME)))
+        slot = os.path.join(self.study, ledger["records"][0]["path"])
+        self.assertEqual(ledger["records"][0]["code"], "slot-shape")
+        self.assertFalse(os.path.exists(os.path.join(slot,
+                                                     batch.TRANSCRIPT_NAME)))
+
+    def test_the_binding_never_stops_the_batch(self):
+        """A per-slot verdict is a per-slot outcome. The driver records it and
+        keeps going; the population rule — not D3 — decides what it costs."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "one", "tool_call": True},
+                  {"completion": "two"},
+                  {"completion": "three", "extra_turn": True})
+        self.assertEqual(self.run_command("--runs", str(ROUND)), 0)
+        sides = [self.bound(index)[0]["side"] for index in range(ROUND)]
+        self.assertEqual(sides, ["authoring", None, "authoring"])
 
 
 @unittest.skipUnless(RUNNING_REGISTERED and HAVE_TOOLS,

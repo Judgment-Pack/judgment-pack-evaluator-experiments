@@ -12,6 +12,8 @@ therefore pipeline-invalid. That is not a limitation of the test — it is the
 state the registration says the scorer must publish honestly, and it is the only
 path through `main()` that can be driven before a batch exists.
 """
+import hashlib
+import hashlib
 import json
 import os
 import sys
@@ -139,10 +141,18 @@ def test_a_pre_freeze_attempt_is_pipeline_invalid_and_says_which_row(tmp_path):
 def test_the_terminal_record_names_every_problem_it_found(tmp_path):
     root = tmp_path / "primary-attempt-001"
     score.main(["--attempt-root", str(root)])
-    problems = json.loads(read(root / "RESULTS.json"))["problems"]
-    assert any("registered artifact is absent: gold/GOLD.json" in problem
-               for problem in problems)
+    results = json.loads(read(root / "RESULTS.json"))
+    problems = results["problems"]
+    # ROUND-1 R1-9 moved the FIRST refusal earlier: `integrity.verify()` now
+    # runs before any study-local scoring module is imported, and the tree is
+    # pre-freeze, so the attempt is terminal at the integrity gate rather than
+    # at the artifact census. Either way the record names what it found, and
+    # nothing was scored.
+    assert results["pipelineInvalid"] is True
     assert problems == sorted(problems)
+    assert (results["problem"].startswith("integrity: ")
+            or any("registered artifact is absent: gold/GOLD.json" in problem
+                   for problem in problems))
 
 
 def test_no_published_byte_is_an_absolute_path(tmp_path):
@@ -516,6 +526,151 @@ def present(count):
     return [{"present": index < count} for index in range(batch.REGISTERED_SLOTS)]
 
 
+# --- ROUND-1 R1-7: a declaration is VALIDATED, then the batch is DECLARED ----
+
+def declared_batch(root, slots_present, *, edits=None, break_chain=False,
+                   break_seal=False):
+    """A short batch on disk: a ledger that is the registered order's prefix
+    with a verifying chain, slot records with their seals, and the declaration
+    `batch.declare_shortfall()` would have written for it."""
+    entries = batch.schedule_entries()[:slots_present]
+    records, previous = [], None
+    slots = []
+    for entry in entries:
+        seal = "sha256:" + hashlib.sha256(
+            ("seal-%d" % entry["globalIndex"]).encode()).hexdigest()
+        record = {key: entry[key] for key in batch.SCHEDULE_KEYS}
+        record["path"] = os.path.relpath(batch.slot_path(entry), score.STUDY)
+        record["manifestSha256"] = seal
+        # The two outcome members the inventory rows carry (R1-4's partition is
+        # checked over them): a completed slot, so exit 0 and no code.
+        record["wrapperExit"] = 0
+        record["code"] = None
+        record["previousSha256"] = previous
+        previous = batch.record_digest(record)
+        records.append(record)
+        slots.append({"present": True, "globalIndex": entry["globalIndex"],
+                      "arm": entry["arm"], "slotIndex": entry["slotIndex"],
+                      "sealSha256": ("sha256:deadbeef" if break_seal
+                                     else seal)})
+    if break_chain and records:
+        records[-1]["previousSha256"] = "sha256:" + "0" * 64
+    slots += [{"present": False, "globalIndex": entry["globalIndex"],
+               "arm": entry["arm"], "slotIndex": entry["slotIndex"],
+               "sealSha256": None}
+              for entry in batch.schedule_entries()[slots_present:]]
+    ledger_path = root / batch.LEDGER_NAME
+    ledger_path.write_text(json.dumps({"records": records}))
+    # The declaration is built to the DRIVER's shape — `batch.SHORTFALL_SCHEMA`
+    # and `batch.SHORTFALL_SLOT_SCHEMA`, and the ledger bindings
+    # `declare_shortfall()` computes — and not to a member list written here.
+    # This fixture carried eleven transcribed members while the driver grew four
+    # more for the same finding, and because no case crossed the seam the suite
+    # stayed green while the scorer refused every declaration the driver writes.
+    declaration = {
+        "declarationVersion": batch.SHORTFALL_VERSION,
+        "registeredRounds": batch.ROUNDS,
+        "registeredRunsPerArm": batch.RUNS_PER_ARM,
+        "registeredSlots": batch.REGISTERED_SLOTS,
+        "completedRounds": slots_present // len(batch.ARMS),
+        "completedThroughGlobalIndex": slots_present,
+        "completedSlots": slots_present,
+        "ledgerSha256": "sha256:" + hashlib.sha256(
+            ledger_path.read_bytes()).hexdigest(),
+        "ledgerHeadSha256": batch.record_digest(records[-1]) if records else None,
+        "slots": [{member: record.get(member)
+                   for member in batch.SHORTFALL_SLOT_SCHEMA}
+                  for record in records],
+        "lastSlot": records[-1]["path"] if records else None,
+        "lastSlotEndedAt": "2026-08-18T00:00:00Z",
+        "lastSlotEndedAtFrom": records[-1]["path"] if records else None,
+        "reason": "operator stopped the batch",
+        "note": "declared before scoring",
+    }
+    assert set(declaration) == set(batch.SHORTFALL_SCHEMA), (
+        "the fixture writes the driver's member set or it is testing a shape "
+        "nothing produces")
+    declaration.update(edits or {})
+    (root / score.SHORTFALL_FILE).write_text(json.dumps(declaration))
+    return slots
+
+
+def test_a_valid_declaration_is_accepted_and_says_what_it_verified(tmp_path):
+    slots = declared_batch(tmp_path, 9)
+    shape = score.terminality(slots, str(tmp_path))
+    assert shape["declared"] is True and shape["complete"] is False
+    assert shape["declaration"]["declaredSlots"] == 9
+    assert shape["declaration"]["ledgerRecords"] == 9
+    assert "slot/seal bijection" in shape["declaration"]["verified"]
+
+
+@pytest.mark.parametrize("edits,fragment", [
+    # Fragments assert on the scorer's actual refusal wording (integration slip found at
+    # the round-1 verify pass: both lanes implemented the refusal; the fragments here had
+    # been written against an earlier draft's message text).
+    ({"registeredSlots": 9}, "records registeredSlots 9"),
+    ({"completedSlots": 8}, "declares completedSlots 8"),
+    ({"completedThroughGlobalIndex": 8}, "declares completedThroughGlobalInd"),
+    ({"lastSlot": "arms/A/authoring/run-001"}, "SHORTFALL.json does not validate"),
+])
+def test_a_declaration_that_does_not_describe_this_batch_refuses(tmp_path,
+                                                                 edits,
+                                                                 fragment):
+    """ROUND-1 R1-7. `SHORTFALL.json` was fail-open: ANY JSON object made an
+    arbitrary incomplete set terminal, so an operator could delete the slots
+    whose outcomes they disliked and unblock the scoring with a one-line file.
+    Every member is compared against the batch now."""
+    slots = declared_batch(tmp_path, 9, edits=edits)
+    with pytest.raises(score.ScoreError) as raised:
+        score.terminality(slots, str(tmp_path))
+    assert fragment in str(raised.value)
+
+
+def test_an_empty_object_no_longer_declares_anything(tmp_path):
+    """The reviewer's own example: `{}` used to be a terminal declaration."""
+    slots = declared_batch(tmp_path, 9)
+    (tmp_path / score.SHORTFALL_FILE).write_text("{}")
+    with pytest.raises(score.ScoreError) as raised:
+        score.terminality(slots, str(tmp_path))
+    assert "writes exactly" in str(raised.value)
+
+
+def test_a_declaration_with_no_ledger_behind_it_refuses(tmp_path):
+    slots = declared_batch(tmp_path, 9)
+    os.remove(str(tmp_path / batch.LEDGER_NAME))
+    with pytest.raises(score.ScoreError) as raised:
+        score.terminality(slots, str(tmp_path))
+    assert "answers to nothing" in str(raised.value)
+
+
+def test_a_broken_ledger_chain_refuses(tmp_path):
+    slots = declared_batch(tmp_path, 9, break_chain=True)
+    with pytest.raises(score.ScoreError) as raised:
+        score.terminality(slots, str(tmp_path))
+    assert "hash chain" in str(raised.value)
+
+
+def test_a_slot_whose_seal_moved_refuses(tmp_path):
+    """The slot/seal bijection, computed rather than assumed."""
+    slots = declared_batch(tmp_path, 9, break_seal=True)
+    with pytest.raises(score.ScoreError) as raised:
+        score.terminality(slots, str(tmp_path))
+    assert "reseals to" in str(raised.value)
+
+
+def test_a_declared_short_batch_publishes_the_no_contrast_outcome(tmp_path):
+    """The other half of R1-7: having validated the declaration, the scorer
+    STOPS. No endpoint, no rate, no contrast — the registered price of a
+    shortfall, which `batch.declare_shortfall()` states in advance."""
+    verdict = decision.decide({
+        "pipelineProblems": [],
+        "shortfallDeclared": ["9 of 150 registered slots, declared: stopped"],
+        "controlGates": {}, "contrasts": {}})
+    assert verdict["row"] == decision.ROW_SHORTFALL_DECLARED.name
+    assert verdict["verdict"].startswith("UNRESOLVED-BY-DESIGN")
+    assert "secondary" not in verdict
+
+
 def test_a_short_batch_with_no_declaration_is_not_terminal(tmp_path):
     with pytest.raises(score.ScoreError) as raised:
         score.terminality(present(10), str(tmp_path))
@@ -533,12 +688,13 @@ def test_a_full_batch_with_no_declaration_is_terminal(tmp_path):
     shape = score.terminality(present(batch.REGISTERED_SLOTS), str(tmp_path))
     assert shape == {"present": batch.REGISTERED_SLOTS,
                      "registered": batch.REGISTERED_SLOTS,
-                     "complete": True, "declared": False}
+                     "complete": True, "declared": False,
+                     "declaration": None}
 
 
-def test_a_short_batch_with_a_declaration_is_terminal(tmp_path):
-    (tmp_path / score.SHORTFALL_FILE).write_text(json.dumps({"completed": 10}))
-    shape = score.terminality(present(10), str(tmp_path))
+def test_a_short_batch_with_a_valid_declaration_is_terminal(tmp_path):
+    slots = declared_batch(tmp_path, 10)
+    shape = score.terminality(slots, str(tmp_path))
     assert shape["complete"] is False and shape["declared"] is True
 
 
@@ -728,3 +884,76 @@ def test_the_report_renders_an_absent_endpoint_as_a_dash():
                "refusals": {}}
     body = score.results_markdown(results)
     assert "| A | — | — | — | — | — | — |" in body
+
+
+# --- ROUND-1 FINDING R1-9: verification precedes the study-local imports -----
+
+def test_the_scorer_imports_nothing_study_local_but_integrity_at_module_scope():
+    """The finding, verbatim: "The scorer imports local modules before
+    validation". `batch` and the whole of `e4lib` were bound at import, so
+    `integrity.verify()`'s untracked-source and unreviewed-bytecode scan — if it
+    ran at all — ran after the bytes it is about had already executed.
+
+    Asserted on the SOURCE's own import statements rather than on behaviour,
+    because the property is about what happens before any of this module's code
+    runs. `integrity` is the one exception and it earns it: it imports nothing
+    study-local at module scope itself."""
+    import ast
+    source = ast.parse(open(os.path.join(os.path.dirname(_HERE),
+                                         "score.py")).read())
+    study_local = {"batch", "integrity", "transcript_check", "leak_tokens",
+                   "make_manifest", "e4lib"}
+    at_module_scope = set()
+    for node in source.body:
+        if isinstance(node, ast.Import):
+            at_module_scope.update(alias.name.split(".")[0]
+                                   for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            at_module_scope.add(node.module.split(".")[0])
+    assert at_module_scope & study_local == {"integrity"}
+    # …and `integrity` itself has no study-local import at module scope, so the
+    # exception costs nothing the scan could have caught.
+    integrity_source = ast.parse(
+        open(os.path.join(os.path.dirname(_HERE), "integrity.py")).read())
+    integrity_scope = set()
+    for node in integrity_source.body:
+        if isinstance(node, ast.Import):
+            integrity_scope.update(alias.name.split(".")[0]
+                                   for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            integrity_scope.add(node.module.split(".")[0])
+    assert integrity_scope & study_local == set()
+
+
+def test_the_full_verification_runs_and_is_terminal_when_it_refuses(tmp_path,
+                                                                    monkeypatch):
+    """`verify()` — not only the interpreter and the port chain — and a refusal
+    stops the attempt before `bind_study_modules()` imports anything."""
+    calls = []
+
+    def refuse(study):
+        calls.append(study)
+        raise integrity_module.IntegrityError("an untracked Python source")
+
+    import integrity as integrity_module
+    monkeypatch.setattr(integrity_module, "verify", refuse)
+    root = tmp_path / "primary-attempt-001"
+    assert score.main(["--attempt-root", str(root)]) == 2
+    assert calls == [score.STUDY]
+    results = json.loads(read(root / "RESULTS.json"))
+    assert results["pipelineInvalid"] is True
+    assert results["problem"].startswith("integrity: ")
+
+
+def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem():
+    """The other half of R1-9: an input the exact-set manifest does not name is
+    an input nothing verified, and it is named rather than counted."""
+    problems = score._registered_inputs_problems()
+    # Pre-freeze the frozen inputs do not exist yet, so what this asserts is
+    # that their ABSENCE is reported by name — the same predicate that reports
+    # an uncovered one once they do.
+    assert any("registered artifact is absent: gold/GOLD.json" in problem
+               for problem in problems)
+    assert any("controls/off-gold-equivalence.json" in problem
+               for problem in problems)
+    assert problems == sorted(problems)

@@ -43,25 +43,42 @@ def test_row_1_pipeline_invalid():
     assert verdict["verdict"] == "R1 inconclusive - pipeline-invalid"
 
 
-def test_row_2_control_gate_failed():
+def test_row_2_shortfall_declared_is_unresolved_by_design():
+    """ROUND-1 R1-7's enforcing test. A declared short batch is DECLARED rather
+    than scored, above every substantive row and above the gates: the driver
+    registers that price in `declare_shortfall()` and the scaffold repeats it,
+    and the scorer used to compute ordinary endpoints and contrasts over the
+    prefix anyway."""
+    verdict = decision.decide({
+        "pipelineProblems": [],
+        "shortfallDeclared": ["87 of 150 registered slots, declared: power cut"],
+        "controlGates": gates(e1_floor=False),
+        "contrasts": {"A-C": contrast(50, 0)}})
+    assert verdict["row"] == "shortfall-declared"
+    assert verdict["rowIndex"] == 2
+    assert verdict["verdict"] == \
+        "UNRESOLVED-BY-DESIGN - the batch was declared short"
+
+
+def test_row_3_control_gate_failed():
     verdict = decision.decide({"pipelineProblems": [],
                                "controlGates": gates(e1_floor=False),
                                "contrasts": {"A-C": contrast(50, 0)}})
     assert verdict["row"] == "control-gate-failed"
-    assert verdict["rowIndex"] == 2
+    assert verdict["rowIndex"] == 3
     assert verdict["causes"] == ["e1-floor"]
 
 
-def test_row_3_decided():
+def test_row_4_decided():
     verdict = decision.decide({"pipelineProblems": [],
                                "controlGates": gates(),
                                "contrasts": {"A-C": contrast(50, 0)}})
     assert verdict["row"] == "decided"
-    assert verdict["rowIndex"] == 3
+    assert verdict["rowIndex"] == 4
     assert verdict["verdict"] == "R1 decided - A above C"
 
 
-def test_row_4_indeterminate_is_the_last_row_and_always_matches():
+def test_row_5_indeterminate_is_the_last_row_and_always_matches():
     verdict = decision.decide({"pipelineProblems": [],
                                "controlGates": gates(),
                                "contrasts": {"A-C": contrast(25, 25)}})
@@ -80,7 +97,8 @@ def test_every_row_is_reachable():
         decision.decide({"pipelineProblems": [], "controlGates": gates(),
                          "contrasts": {"A-C": contrast(50, 0)}})["row"],
         decision.decide({"pipelineProblems": [], "controlGates": gates(),
-                         "contrasts": {}})["row"],
+                         "contrasts": {"A-C": contrast(25, 25)}})["row"],
+        decision.decide({"shortfallDeclared": ["short"]})["row"],
     }
     assert reached == {row.name for row in decision.ROWS}
 
@@ -123,6 +141,77 @@ def test_no_control_gates_at_all_fails_every_gate():
     verdict = decision.decide({"pipelineProblems": []})
     assert verdict["row"] == "control-gate-failed"
     assert len(verdict["causes"]) == len(decision.CONTROL_GATES)
+
+
+def test_the_engine_execution_gate_is_a_registered_control_row():
+    """ROUND-1 R1-8's enforcing test at the decision layer. A pinned engine that
+    refused on a frozen artifact adjudicates R1 in NEITHER direction, so it is a
+    control gate and not a number."""
+    assert "engine-execution-clean" in decision.CONTROL_GATES
+    verdict = decision.decide({
+        "pipelineProblems": [],
+        "controlGates": gates(engine_execution_clean=False),
+        "contrasts": {"A-C": contrast(50, 0)}})
+    assert verdict["row"] == "control-gate-failed"
+    assert verdict["causes"] == ["engine-execution-clean"]
+
+
+# --- R1-14: nothing inferential below a gating row --------------------------
+
+def test_gate_causes_is_empty_exactly_when_a_contrast_may_be_computed():
+    """The predicate `harness/score.py` asks before it computes anything
+    inferential, derived from the table rather than written out."""
+    clean = {"pipelineProblems": [], "shortfallDeclared": [],
+             "controlGates": gates()}
+    assert decision.gate_causes(clean) == []
+    for outcome in ({"pipelineProblems": ["x"], "controlGates": gates()},
+                    {"pipelineProblems": [], "shortfallDeclared": ["short"],
+                     "controlGates": gates()},
+                    {"pipelineProblems": [], "controlGates": gates(e1_floor=False)}):
+        assert decision.gate_causes(outcome), outcome
+
+
+def test_every_gating_row_is_a_row_of_the_table_and_precedes_every_other():
+    assert decision.GATING_ROWS == decision.ROWS[:len(decision.GATING_ROWS)]
+    assert decision.ROW_PRIMARY_DECIDED not in decision.GATING_ROWS
+
+
+def test_the_last_row_refuses_when_no_primary_contrast_was_ever_computed():
+    """ROUND-1 R1-14, second scenario: an arm with zero admitted runs passed
+    E1's floor by definition, the contrast became a refusal, and the last row
+    then published a substantive INDETERMINATE — "the interval straddles zero" —
+    over an attempt in which no interval existed."""
+    with pytest.raises(decision.DecisionError) as raised:
+        decision.decide({"pipelineProblems": [], "shortfallDeclared": [],
+                         "controlGates": gates(), "contrasts": {}})
+    assert str(raised.value).startswith("DECISION-NO-PRIMARY-CONTRAST")
+
+
+# --- R1-13: the direction is the RATES', not the counts' --------------------
+
+def test_direction_reads_the_statistical_functions_decision_field():
+    """ROUND-1 R1-13's enforcing test, on the reviewer's own tuple.
+
+    At 6/50 versus 5/6 the exact inversion reports a difference of -0.7133 with
+    the RIGHT arm far above the left and excludes zero; comparing the raw counts
+    reports 6 > 5 and therefore "A above C" — the study's conclusion, reversed,
+    on the registered decision's own numbers. §1a makes unequal denominators the
+    expected case, so this is not a corner."""
+    result = stats.excludes_zero(6, 5, 50, 6)
+    result["arms"] = ["A", "C"]
+    assert result["excludesZero"] is True
+    assert result["left"] > result["right"]          # the counts say A
+    assert result["difference"] < 0                  # the rates say C
+    assert round(result["difference"], 4) == -0.7133
+    assert decision.direction(result) == "C above A"
+
+
+def test_direction_refuses_a_decided_contrast_with_no_decision_field():
+    broken = {"excludesZero": True, "arms": ["A", "C"], "left": 6, "right": 5,
+              "decision": None}
+    with pytest.raises(decision.DecisionError) as raised:
+        decision.direction(broken)
+    assert str(raised.value).startswith("DECISION-DIRECTION-UNREADABLE")
 
 
 # --- direction, and the fixed sequence --------------------------------------
@@ -175,7 +264,58 @@ def test_the_table_has_one_row_per_registered_numbered_row(preregistration):
     found = SECTION.findall("\n" + preregistration)
     assert len(found) == 1, "section 5 holds %d ordered decision rules" % len(found)
     numbered = re.findall(r"^\d+\. ", found[0], re.MULTILINE)
+    # ROUND-1 R1-7/R1-14, CLOSED by the prose lane: §5's numbered rule now
+    # carries all FIVE rows the table carries, the shortfall row in the position
+    # `harness/batch.py`'s `declare_shortfall()` and `harness/SCAFFOLD.md`
+    # register for it. The assertion is exact in both directions: a row added to
+    # the table without a numbered row in §5 fails here, and so does a numbered
+    # row in §5 with no row behind it.
     assert len(numbered) == len(decision.ROWS)
+    assert decision.ROWS[1] is decision.ROW_SHORTFALL_DECLARED
+    flat = " ".join(found[0].split())
+    assert "2. A validated shortfall declaration (§1a) → UNRESOLVED-BY-DESIGN" in flat
+    assert "no contrast is computed" in flat
+
+
+def test_every_registered_control_gate_is_named_in_the_registration(
+        preregistration):
+    """ROUND-1 R1-8's prose half. `engine-execution-clean` joined the gates in
+    code; §5 row 3's parenthetical and §6's list have to name it, or the scorer
+    fails an attempt on a gate the registration never registered. The mapping is
+    from the code's own tuple, so a gate added later without a prose edit fails
+    here rather than at the attempt."""
+    flat = " ".join(preregistration.split())
+    registered_in_prose = {
+        "references-reproduce-gold": "reference-vs-gold imperfect at attempt time",
+        "capabilities-canary-refused": "capabilities canary passes",
+        "golden-context": "golden-context gate",
+        "timeout-rate-within-cap": "per-arm timeout rate > cap",
+        "e1-floor": "E1 floor breached",
+        "engine-execution-clean": "engine-execution-clean",
+    }
+    assert set(registered_in_prose) == set(decision.CONTROL_GATES)
+    for gate, phrase in registered_in_prose.items():
+        assert phrase in flat, "§5 row 3 does not name the gate %s" % gate
+    assert "every scored engine invocation of the attempt returned an answer" in flat
+    assert "A gate the scorer did not evaluate fails" in flat
+
+
+def test_the_registration_forbids_computing_a_contrast_above_the_gates(
+        preregistration):
+    """ROUND-1 R1-14's prose half, and it is the ORDER that is registered: the
+    scorer may not compute an inferential quantity at or above the gate rows,
+    because "adjudicates R1 in neither direction" is not satisfied by computing
+    a direction and then declining to act on it."""
+    # Emphasis is not a difference, the treatment `tests/test_partition.py`
+    # gives §1a: the marks are stripped before the prose is read.
+    flat = " ".join(preregistration.replace("*", "").replace("`", "").split())
+    assert ("No inferential quantity is computed, let alone published, at or "
+            "above row 3" in flat)
+    assert "An absent primary contrast is not a straddling one and never reaches row 5" \
+        in flat
+    assert decision.REGISTERED_MINIMUM_DENOMINATOR >= 1
+    assert ("The E4 denominator of each arm in a computed contrast must be "
+            "positive" in flat)
 
 
 def test_the_last_registered_row_is_the_one_that_always_matches(preregistration):

@@ -4,6 +4,22 @@
 
 **This document does not change the registered design. It reports what the registered design can and cannot decide, and it names three defects in the preregistration that a review round must close before the freeze (Sec. 9 below).**
 
+> **CURRENCY, 2026-08-18.** Sec. 7 (the pilot anchor) has been **regenerated** from
+> `E4-PILOT-v2.json` after the arm-A reference repair and the mutant-corpus rebuild
+> (round-1 R1-1, R1-2, R1-18). The anchor moved hard: **p_A ~ 0.20, p_B ~ 0.00,
+> p_C ~ 0.00**, where the previous issue read 0.20 / 0.80 / 1.00, and there are now **two
+> integer cuts** (JPS 72/75, Rego 62/65) instead of one.
+>
+> The **power tables (Secs. 3-6) are unaffected** — they are exact enumerations over a grid
+> of (p_A, p_C, N) and depend on nothing that changed; `oc_table.py` regenerates them
+> byte-identically. What *is* stale is every sentence elsewhere in this file that locates
+> the study at the old anchor: Sec. 2's "the pilot puts arm C at 5/5", Sec. 5's
+> "pilot-anchored band", Sec. 8's "the gap the pilot points at", and Sec. 9's
+> identity-control arithmetic. Those readings are suspended, not re-derived: choosing a new
+> operating point (or re-anchoring tau, or re-running the pilot) is a preregistration
+> decision and this table must not make it. Read Sec. 7 first, then treat Secs. 5, 8 and 9
+> as covering the whole grid rather than a located point.
+
 ## 1. The pinned interval construction
 
 The preregistration says "exact two-proportion difference interval". That names a family. The OC of a family is undefined, so this gate pins one member, and prereg §5 must adopt this wording verbatim at the freeze:
@@ -379,59 +395,115 @@ For each `p_C`, the largest `p_A` on the grid at which `P(decide) >= 0.80`, and 
 
 ## 7. Pilot anchor: what fraction of pilot runs are high-kill at tau = 0.95
 
-Read from `E4-PILOT.json`. **NON-CITABLE**: five runs per arm, pilot suites, 0-draft gold. This is the empirical anchor for `p_A` / `p_C` and nothing else.
+**REGENERATED 2026-08-18 from `E4-PILOT-v2.json`** (round-1 findings R1-1 and R1-18). The
+previous issue of this section read `E4-PILOT.json`, which is now bannered SUPERSEDED: its
+numbers came from a 145-mutant arm-A corpus built on the pre-repair reference and a 105-row
+gold suite, and its arm-A row was an off-protocol diagnostic. Both are gone. **NON-CITABLE**:
+five scored runs per arm, pilot suites, design-time gold.
 
-**Arm A** -- 5 scored runs, paired adequate subset = 76 mutants; at `tau = 0.95` a run must kill **73/76 = 0.9605**.
+**Two cuts, not one** (R1-1). The cut is derived per language from that language's own
+paired-adequate denominator and asserted reachable, `cut = ceil(0.95 * N)`:
 
-| run | paired kill rate | high-kill at tau=0.95 |
-|---|---|---|
-| run-006 | 0.9211 | no |
-| run-007 | 0.9211 | no |
-| run-008 | 0.8684 | no |
-| run-009 | 0.8026 | no |
-| run-010 | 1.0000 | YES |
+| language | paired adequate mutants | integer cut at tau = 0.95 | cut as a fraction |
+|---|---|---|---|
+| JPS (arm A) | 75 | **72** | 0.9600 |
+| Rego (arms B, C) | 65 | **62** | 0.9538 |
+
+Pairing behind those denominators: 145 witness-set groups, **35 paired non-degenerate**
+groups, 1 degenerate (empty-witness) group excluded, covering **75 JPS and 65 Rego** mutants.
+
+**Arm A** -- 5 scored runs, identity control **passed 5/5**, paired adequate subset 75; a run
+is high-kill iff it kills at least **72/75 = 0.9600**.
+
+| run | paired kills | paired kill rate | high-kill |
+|---|---|---|---|
+| run-006 | 68 | 0.9067 | no |
+| run-007 | 68 | 0.9067 | no |
+| run-008 | 64 | 0.8533 | no |
+| run-009 | 61 | 0.8133 | no |
+| run-010 | 72 | 0.9600 | YES |
 
 - **high-kill fraction: 1/5 = 0.200**
-- source: diagnostics.armAOffProtocol (DIAGNOSTIC; registered rule excluded all five arm-A suites)
-- attempted pilot slots for this arm: 10; runs dropped before scoring: run-001 (filed `no-marker`; exit 124, 0-byte completion), run-002 (filed `no-marker`; exit 124, 0-byte completion), run-003 (filed `no-marker`; exit 124, 0-byte completion), run-004 (filed `no-marker`; exit 124, 0-byte completion), run-005 (filed `no-marker`; exit 124, 0-byte completion)
-- identity-control failures in the pilot: 5
+- source: `perArm.A` under the **registered rule** -- no longer a diagnostic. With the
+  repaired arm-A reference every scored arm-A suite passes the identity control, and
+  `diagnostics.armAOffProtocol` now covers **zero** suites.
+- attempted pilot slots for this arm: 10; runs dropped before scoring: run-001 … run-005 (all
+  filed `no-marker`; exit 124, 0-byte completion)
+- identity-control failures in the pilot: **0** (was 5)
 
-**Arm B** -- 5 scored runs, paired adequate subset = 65 mutants; at `tau = 0.95` a run must kill **62/65 = 0.9538**.
+**Arm B** -- 5 scored runs, identity control passed 5/5, paired adequate subset 65; high-kill
+at **62/65 = 0.9538**.
 
-| run | paired kill rate | high-kill at tau=0.95 |
-|---|---|---|
-| run-001 | 0.9385 | no |
-| run-002 | 1.0000 | YES |
-| run-004 | 1.0000 | YES |
-| run-005 | 0.9692 | YES |
-| run-006 | 0.9692 | YES |
+| run | paired kills | paired kill rate | high-kill |
+|---|---|---|---|
+| run-001 | 55 | 0.8462 | no |
+| run-002 | 59 | 0.9077 | no |
+| run-004 | 61 | 0.9385 | no |
+| run-005 | 59 | 0.9077 | no |
+| run-006 | 59 | 0.9077 | no |
 
-- **high-kill fraction: 4/5 = 0.800**
-- source: perArm (registered rule, identity control passed)
-- attempted pilot slots for this arm: 6; runs dropped before scoring: run-003 (filed `no-marker`; exit 124, 0-byte completion)
+- **high-kill fraction: 0/5 = 0.000**
+- attempted pilot slots: 6; dropped before scoring: run-003 (`no-marker`; exit 124)
 - identity-control failures in the pilot: 0
 
-**Arm C** -- 5 scored runs, paired adequate subset = 65 mutants; at `tau = 0.95` a run must kill **62/65 = 0.9538**.
+**Arm C** -- 5 scored runs, identity control passed 5/5, paired adequate subset 65; high-kill
+at **62/65 = 0.9538**.
 
-| run | paired kill rate | high-kill at tau=0.95 |
-|---|---|---|
-| run-001 | 0.9692 | YES |
-| run-002 | 0.9692 | YES |
-| run-003 | 0.9692 | YES |
-| run-005 | 0.9538 | YES |
-| run-006 | 1.0000 | YES |
+| run | paired kills | paired kill rate | high-kill |
+|---|---|---|---|
+| run-001 | 59 | 0.9077 | no |
+| run-002 | 53 | 0.8154 | no |
+| run-003 | 54 | 0.8308 | no |
+| run-005 | 54 | 0.8308 | no |
+| run-006 | 58 | 0.8923 | no |
 
-- **high-kill fraction: 5/5 = 1.000**
-- source: perArm (registered rule, identity control passed)
-- attempted pilot slots for this arm: 6; runs dropped before scoring: run-004 (filed `no-marker`; exit 124, 0-byte completion)
+- **high-kill fraction: 0/5 = 0.000**
+- attempted pilot slots: 6; dropped before scoring: run-004 (`no-marker`; exit 124)
 - identity-control failures in the pilot: 0
 
-**Anchor summary: p_A ~ 0.20, p_B ~ 0.80, p_C ~ 1.00**, each on five runs. Two qualifications carry more weight than the numbers:
+**Anchor summary: p_A ~ 0.20, p_B ~ 0.00, p_C ~ 0.00**, each on five runs. The previous
+issue read `p_A ~ 0.20, p_B ~ 0.80, p_C ~ 1.00`. Three things must be said plainly, because
+the change is not a refinement:
 
-1. **Under the registered rule arm A has no `p_A` at all.** All five scored arm-A suites failed the identity control, so the registered E4 denominator for arm A in the pilot is zero. The 1/5 above is read from `diagnostics.armAOffProtocol`, i.e. from what the proposed X1-exclusion amendment (E4-NOTES.md) would make the protocol number. If that amendment does not land, this gate has no empirical anchor for `p_A` and the OC must be read as covering the whole grid rather than a located operating point.
-2. **The gate brief guessed `p_A ~ 0.4-0.6`; the pilot says ~0.2.** The guess came from arm A's *unpaired* kill-rate range 0.84-1.00. On the paired subset the rates are 0.80, 0.87, 0.92, 0.92, 1.00 against a threshold of 73/76 = 0.9605, and only one clears it. `tau = 0.95` bites arm A much harder than the unpaired range suggests, which is the whole reason the threshold discriminates.
+1. **The empirical anchor for the registered direction is gone.** On current artifacts the
+   pilot does not put B/C above A at the high-kill endpoint; it puts A (weakly) above both.
+   The preregistration's design-provenance paragraph -- "pilot mean paired-mutant kill rates
+   of 0.90 (arm A) vs 0.97-0.98 (arms B/C)" -- describes artifacts that no longer exist. The
+   current means are **A 0.888, B 0.902, C 0.855**, and no arm's mean clears its own cut.
+   `tau = 0.95` is now an openly pilot-chosen threshold with no reproducible anchor behind
+   it, and §5's power tables should be read as covering the whole grid rather than a located
+   operating point. Whether to keep tau, move it, or re-anchor it on a fresh pilot is a
+   preregistration decision, not a table's.
+2. **Arm A's five identity failures were the reference's fault, not the authors'.** Under the
+   old reference all five scored arm-A suites failed the identity control because they
+   asserted the prose-correct answer on inputs where the reference could not give it -- the
+   X1 region. The repair (`reference/refA/PACK-CHANGE-001.md`) removes the cause: the same
+   five suites, unchanged, now pass 5/5, and refA/refB divergence over the 135 distinct input
+   points those matrices touch is **0**. The exclusion filter X1 was standing in for a
+   reference defect, which is exactly what round-1 R1-2 and R1-3 said.
+3. **The high-kill rate is a harsh, quantised endpoint and small denominators move it.**
+   Arm B's run-004 kills 61 of 65 and is not high-kill; one more kill would make it so. A
+   0/5 and a 2/5 are one mutant apart on this scale. Nothing about the collapse from 4/5 to
+   0/5 should be read as arms B/C getting worse -- the suites are byte-identical. What
+   changed is the paired subset they are scored against, because gold grew and the arm-A
+   corpus was rebuilt, so pairing regrouped.
 
-Note the **denominator asymmetry**, which is a design fact and not noise. Pairing is at the level of witness-equivalence groups, not 1:1 mutants: the 29 paired adequate groups contain 76 JPS mutants and 65 Rego mutants. So `tau = 0.95` bites arm A at 73/76 = 0.9605 and arms B/C at 62/65 = 0.9538 -- the threshold is 0.0067 stricter for arm A, and the two arms' kill rates are also quantised on different lattices (1/76 vs 1/65). The effect is small relative to the pilot gap, but it is a real asymmetry in the endpoint definition and belongs in prereg §5 rather than being discovered at analysis time. Prereg §4 already commits to publishing the unpairable counts; this asks for one more sentence saying that a group-level pairing does not equalise the per-arm denominators.
+Note the **denominator asymmetry**, which is a design fact and not noise. Pairing is at the
+level of witness-equivalence groups, not 1:1 mutants: the 35 paired adequate groups contain
+75 JPS mutants and 65 Rego mutants. So `tau = 0.95` bites arm A at 72/75 = 0.9600 and arms
+B/C at 62/65 = 0.9538 -- the threshold is 0.0062 stricter for arm A, and the two arms' kill
+rates are also quantised on different lattices (1/75 vs 1/65). It is a real asymmetry in the
+endpoint definition and belongs in prereg §5 rather than being discovered at analysis time.
+Prereg §4 already commits to publishing the unpairable counts; this asks for one more
+sentence saying that a group-level pairing does not equalise the per-arm denominators, and
+that the two integer cuts are published side by side.
+
+**Currency.** Every count in this section is derived from `E4-PILOT-v2.json`, which is
+derived from the mutant manifests as they stand on 2026-08-18: 183 valid JPS mutants (146
+killed by gold, 37 empty-witness and **undispositioned** -- the adequacy gate is open, see
+`ADEQUACY.md`'s banner) and 184 valid Rego mutants (150 killed, 34 empty-witness and
+undispositioned). Re-closing the adequacy gate will change the pairing again, and therefore
+this section again.
 
 ## 8. Plain-language summary: what this design can and cannot decide
 

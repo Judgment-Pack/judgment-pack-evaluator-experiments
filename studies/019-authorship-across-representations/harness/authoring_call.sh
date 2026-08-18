@@ -116,13 +116,51 @@
 #
 # Exit status (batch.py maps these to refusal codes):
 #   0  the call exited 0 and the slot is complete
-#   1  pre-flight refusal — nothing was called, no slot was left behind
+#   1  pre-flight refusal — the model was never invoked. Usually no slot is
+#      left behind; a refusal after the slot directory is made leaves an empty
+#      one, which the driver seals and files under the same APPARATUS code
 #   10 the call exited non-zero; the slot is retained without completion.txt
 #   11 the run produced other than exactly one new session; slot retained
 #   12 the call reached the registered per-call timeout ceiling and was
 #      terminated; the slot is retained without completion.txt and the
 #      outcome is APPARATUS (pipeline-invalid), never an authoring outcome
+#   13 a POST-CALL stage of this wrapper failed after the call returned: the
+#      completion extraction, the CALL.json write, or the context digests. The
+#      slot is retained with whatever the stage had written, and the outcome is
+#      APPARATUS — round 1's R1-4. Before this status existed, `set -e` killed
+#      the shell with the failing helper's own status 1, and the driver read
+#      that as status 1's meaning: "a pre-call refusal; nothing was called".
+#      The call HAD been made and the slot HAD been left behind, and the two
+#      events wore one status, so this file now sets a phase flag before the
+#      call and traps every unexpected post-call failure to 13.
+#
+# THE STATUS SET IS CLOSED: {0, 1, 10, 11, 12, 13} on every path this process
+# can take by itself, because the ERR trap below converts any unexpected failure
+# to 1 (before the call) or 13 (after it). The three signal traps exit 129/130/
+# 143, which the driver does NOT register — a signalled wrapper is an operator
+# event, and the driver refuses the batch rather than filing a slot under a code
+# no partition names.
 set -euo pipefail
+# errtrace, so the ERR trap below fires inside functions and command
+# substitutions too and not only for top-level simple commands.
+set -E
+
+# false until the model call has returned; true from then on. Nothing else
+# writes it, and it is what makes the two failure phases two statuses.
+POST_CALL=false
+
+on_unexpected_error() {
+  # $1 the failing command's status, $2 the line it was on. Both are recorded
+  # rather than swallowed: a wrapper that died somewhere unplanned is a fact the
+  # driver retains in REFUSAL.json's stderr tail.
+  if [ "$POST_CALL" = "true" ]; then
+    echo "refused: a post-call wrapper stage failed at line $2 with status $1; the call had already returned and the slot is retained with whatever that stage had written" >&2
+    exit 13
+  fi
+  echo "refused: the wrapper failed at line $2 with status $1 before the call; the model was never invoked" >&2
+  exit 1
+}
+trap 'on_unexpected_error "$?" "$LINENO"' ERR
 
 if [ "$#" -lt 5 ] || [ "$#" -gt 6 ]; then
   echo "usage: authoring_call.sh <scratch-parent> <slot-dir> <pins-json> <arm-id> <arm-prompt-path> [codex-binary]" >&2
@@ -254,7 +292,17 @@ if [ "$PINNED_PROMPT" != "$PROMPT_DIGEST" ]; then
   echo "refused: $PROMPT_FILE is $PROMPT_DIGEST, not the pinned $PINNED_PROMPT" >&2
   exit 1
 fi
-PROMPT="$(cat "$PROMPT_FILE")"
+# BYTE-EXACT, including the trailing newline. `$(cat FILE)` strips every trailing
+# newline, so the argv the model received was not the bytes the digest above
+# pinned — and §3.1 gate 2, which requires the transcript's user message to EQUAL
+# the arm's prompt bytes, could never pass for a prompt file that ends in a
+# newline. Nothing noticed, because round 1 found that gate was never invoked for
+# a scored slot (R1-5); wiring it in is what makes this reachable, and the
+# wrapper's own header has claimed "the prompt passed byte-exact" all along. The
+# `printf x` idiom is the standard one: append a byte the substitution cannot
+# strip, then remove exactly that byte.
+PROMPT="$(cat "$PROMPT_FILE"; printf x)"
+PROMPT="${PROMPT%x}"
 [ -n "$PROMPT" ] || { echo "refused: empty prompt" >&2; exit 1; }
 
 # The scratch: an exclusively created directory whose resolved path is
@@ -471,6 +519,13 @@ SESSIONS_BEFORE="$(find "$CODEX_HOME_DIR" -name '*.jsonl' -type f 2>/dev/null | 
 # Wall clock, recorded per slot (§2.9). It is retained here and nowhere
 # else: the scorer never reads it, so RESULTS.json stays byte-stable.
 STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+# The ERR trap comes OFF for the call and only for the call. bash runs an ERR
+# trap on any failed command whether or not errexit is set — verified, not
+# assumed — so leaving it installed would turn every ordinary nonzero call (the
+# registered status 10) and every ceiling hit (status 12) into a wrapper error
+# before the branches below could read `$EXIT`. The call's status is READ, and
+# the three branches at the bottom of this file are what classify it.
+trap - ERR
 set +e
 # The call under the registered ceiling. `timeout` is the outermost thing the
 # scrubbed environment runs, so the bound holds over the whole call and not over
@@ -486,6 +541,13 @@ set +e
     "$PROMPT" < /dev/null > "$OUT/stdout.raw" 2> "$OUT/stderr.raw" )
 EXIT=$?
 set -e
+# THE PHASE BOUNDARY (R1-4). Everything below this line runs after the model
+# call returned, so an unexpected failure below is status 13 and not status 1.
+# It is set here — immediately after `set -e` is restored and before any other
+# post-call command — because the first thing that can fail below is the `date`
+# on the next line, and the trap is re-installed on the same line as the flag so
+# no command can run in the window between them.
+POST_CALL=true; trap 'on_unexpected_error "$?" "$LINENO"' ERR
 ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 # 124 is timeout(1)'s own status when TERM sufficed; 137 is 128+9, which it
 # returns when the KILL was needed. A 137 that some other agent produced would
@@ -514,9 +576,27 @@ import sys, os
 out, study = sys.argv[1], sys.argv[2]
 sys.path.insert(0, os.path.join(study, "harness"))
 import transcript_check
-completion = transcript_check.extract_completion(os.path.join(out, "session.jsonl"))
-with open(os.path.join(out, "completion.txt"), "wb") as handle:
-    handle.write(completion.encode("utf-8"))
+try:
+    completion = transcript_check.extract_completion(
+        os.path.join(out, "session.jsonl"))
+except transcript_check.TranscriptError as error:
+    # THE AUTHOR'S OWN PROTOCOL VIOLATION IS NOT THIS STAGE'S FAILURE (R1-5).
+    # `extract_completion()` parses the transcript with the same whitelist the
+    # full binding uses, so a run in which the model used a TOOL refuses here —
+    # and refusing here would exit this wrapper non-zero, which is an APPARATUS
+    # code, which would quietly delete from every denominator exactly the runs
+    # §3's no-tools instruction exists to catch. So an author-side refusal
+    # leaves this stage with nothing written and the slot otherwise whole: the
+    # driver's binding files it as `author-protocol-violation`, an AUTHORING
+    # outcome, counted and scoring zero. No completion is written, because
+    # nothing is compiled from a transcript that broke the protocol.
+    side = transcript_check.REASON_CAUSE.get(
+        getattr(error, "reason", None), ("apparatus", None))[0]
+    if side != "authoring":
+        raise
+else:
+    with open(os.path.join(out, "completion.txt"), "wb") as handle:
+        handle.write(completion.encode("utf-8"))
 PY
 fi
 
@@ -599,10 +679,23 @@ out, study = sys.argv[1], sys.argv[2]
 sys.path.insert(0, os.path.join(study, "harness"))
 import transcript_check
 call = json.load(open(os.path.join(out, "CALL.json")))
-context = transcript_check.context_digests(os.path.join(out, "session.jsonl"), call)
-with open(os.path.join(out, "context.json"), "w") as handle:
-    json.dump(context, handle, indent=2)
-    handle.write("\n")
+try:
+    context = transcript_check.context_digests(
+        os.path.join(out, "session.jsonl"), call)
+except transcript_check.TranscriptError as error:
+    # Same rule as the completion stage above, for the same reason: this stage
+    # parses with the same whitelist, so an author who used a tool refuses it,
+    # and an apparatus exit here would file the author's failure as the
+    # apparatus's. Author-side refusals leave no context.json and the slot is
+    # otherwise whole; everything else is a real post-call failure and exits 13.
+    side = transcript_check.REASON_CAUSE.get(
+        getattr(error, "reason", None), ("apparatus", None))[0]
+    if side != "authoring":
+        raise
+else:
+    with open(os.path.join(out, "context.json"), "w") as handle:
+        json.dump(context, handle, indent=2)
+        handle.write("\n")
 PY
 fi
 

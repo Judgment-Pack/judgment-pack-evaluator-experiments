@@ -114,33 +114,30 @@ representatives the grid does not. The grid's agreement record (`AGREEMENT.md`,
 (validation record `grid-regression`), and the certificate is over the derived space.
 
 =============================================================================
-§X1 — the registered exclusion class
+§EXCLUSION CLASSES — the registered set is EMPTY (X1 retired 2026-08-18)
 =============================================================================
-PREREGISTRATION §4, verbatim:
+X1 used to be registered here as {new vendor yes; risk in [40,70); LOW country with
+spend unreadable, or country unreadable with spend <= 100,000.00}, on the strength of
+an inexpressibility claim that round-1 finding R1-2 rejected as unproved. The claim
+was tested rather than argued: the arm-A reference was REPAIRED
+(`refA/PACK-CHANGE-001.md`), it now answers the prose-correct `review` on all 72 cells
+that used to diverge, it changes nothing else anywhere in this 236,196-cell space, and
+the divergence count against the Rego reference is now ZERO. There is nothing left for
+an exclusion class to name, so the registry below is empty and this program gates on
+"no divergence at all".
 
-    **X1 (registered exclusion class and census row)**: {new vendor yes; risk in
-    [40,70); LOW country with spend unreadable, or country unreadable with spend
-    <= 100,000.00} — the prose-correct outcome (review) is inexpressible in the
-    fragment (0 of 2,048 onUnknown assignments; irreducible).
+The machinery is kept, not deleted: `REGISTERED_EXCLUSION_CLASSES` is an empty dict,
+`classify()` returns OTHER for every cell, and an OTHER divergence blocks the freeze.
+Registering a class in some later round is then a data edit with a written reason,
+which is the only way one should ever be added.
 
-`in_x1()` below is the mechanical reading of exactly that sentence, transcribed from
-the committed `cleanroom/check_oracle.py` predicate so that the two instruments
-cannot drift apart. Two readings are pinned because the sentence does not fix them:
-
-  * "risk in [40,70)" requires a READABLE risk in that band. An unreadable risk score
-    is not a value in an interval, and the arm-A builder's 72-cell class is a
-    readable-risk class.
-  * "spend <= 100,000.00" requires a READABLE spend. An unreadable spend on the
-    country-unreadable branch is not in X1 (that branch's X1 arm is the LOW-country
-    one).
-
-X1 as registered is a COARSE predicate. `reference/refA/REPORT.md` characterises the
-class the arm-A builder actually measured more tightly (sanctions CLEAR, financial
-evidence present, prior != yes, critical != yes, on top of the registered conjuncts).
-Every divergence is classified against the REGISTERED predicate — that is the gate —
-and the refined predicate is additionally reported per divergence, because "the
-divergences also satisfy the tighter description the builder published" is the
-stronger statement and the one a reviewer can falsify.
+The retired predicate stays in the file as `in_retired_x1()` (plus the tighter
+description the builder published, `in_retired_x1_refined()`). It gates nothing; it is
+evaluated on the repaired cells so that "the repair moved exactly the 72 cells the
+retired class named, and no others" is re-measured on every run instead of being
+remembered. Two readings stay pinned with it, because the retired sentence never fixed
+them: "risk in [40,70)" required a READABLE risk in that band, and "spend <=
+100,000.00" required a READABLE spend.
 
 =============================================================================
 §METHOD — measured, then chosen (the choice is recorded, not assumed)
@@ -210,8 +207,9 @@ EXPECTED_DIGESTS = {
     # TOOLCHAIN-NOTES.md, verified 2026-08-14
     "jpack": "42f35f7900bea6dfce215631b50729ab22dd347289e1bde3412604fb043a22e9",
     "opa": "1dd5c5591ff856f5e20a1d66bafae9511ddf3c5552ed3b5070c70b2b6580ee3f",
-    # reference/AGREEMENT.md, 2026-08-15
-    "refA/pack.json": "956ceebbc08886acdc3973b43112e9896f2853b3895243b3b97ff33a910453ee",
+    # reference/AGREEMENT.md, 2026-08-18 (refA/pack.json repaired: refA/PACK-CHANGE-001.md;
+    # the pre-repair pack was 956ceebbc08886acdc3973b43112e9896f2853b3895243b3b97ff33a910453ee)
+    "refA/pack.json": "db9776070fbf5e193443ffb1f371b2524b4662f0877868306323b5c9e3701853",
     "refB/policy.rego": "1f2e1ad1d423240dd262852f19057a8e906387d5a1b71db8b8a15bc010fc12e2",
     "cells.json": "da4ee85c9d8b9f37ef523058144c163e80da50e485e2a148ea7d655253114618",
     "refA/results.jsonl": "d2cbfed239f4151a767d22f09a01f1a1bd161e54ebbc99c546ebc33b9aee03e3",
@@ -275,13 +273,35 @@ def cell_id(cell):
 
 
 # =============================================================================
-# §X1
+# §EXCLUSION CLASSES — the registered set is EMPTY
 # =============================================================================
-def in_x1(cell):
-    """The registered X1 predicate, transcribed from cleanroom/check_oracle.py.
+# X1 was RETIRED on 2026-08-18 (round-1 finding R1-2). The repaired arm-A reference
+# (`refA/PACK-CHANGE-001.md`) answers `review` on all 72 cells that used to diverge,
+# so there is no divergence left for an exclusion class to name. The machinery below
+# is kept, with an EMPTY registry, so that registering a class later is a data edit
+# rather than a code rewrite — and so that an empty registry means what it says: ANY
+# divergence over the registered space blocks the freeze.
+REGISTERED_EXCLUSION_CLASSES = {}     # name -> predicate(cell) -> bool
+
+
+def classify(cell):
+    """The first registered class the cell falls in, or OTHER. With an empty registry
+    this is OTHER for every cell, which is the point: nothing is excused."""
+    for name, predicate in REGISTERED_EXCLUSION_CLASSES.items():
+        if predicate(cell):
+            return name
+    return "OTHER"
+
+
+def in_retired_x1(cell):
+    """The RETIRED X1 predicate, kept verbatim for regression reporting only.
 
     {new vendor yes; risk in [40,70); LOW country with spend unreadable,
-     or country unreadable with spend <= 100,000.00}"""
+     or country unreadable with spend <= 100,000.00}
+
+    It gates nothing. It is still evaluated on every divergence and on the repaired
+    cells so that "the 72 cells the retired class named are exactly the cells the
+    repair moved" stays a measured statement rather than a remembered one."""
     risk = cell["risk"]
     return (
         cell["newVendor"] == "yes"
@@ -294,12 +314,10 @@ def in_x1(cell):
     )
 
 
-def in_x1_refined(cell):
-    """The tighter class reference/refA/REPORT.md publishes for the same 72 cells.
-
-    Reported alongside the registered predicate; never the gate."""
+def in_retired_x1_refined(cell):
+    """The tighter class reference/refA/REPORT.md published for the same 72 cells."""
     return (
-        in_x1(cell)
+        in_retired_x1(cell)
         and cell["sanctions"] == "CLEAR"
         and cell["finEvidence"] == "present"
         and cell["prior"] != "yes"
@@ -701,8 +719,9 @@ def stage_run(work, jobs=12, cell_list=None, results_path=None, coverage=True):
             "refASimulator": verdict_str(*sim[i]),
             "refASimulatorConfirmedByEngine": confirm[k] == sim[i],
             "refB": verdict_str(*rego[i]),
-            "class": "X1" if in_x1(cell_list[i]) else "OTHER",
-            "matchesRefinedX1Description": in_x1_refined(cell_list[i]),
+            "class": classify(cell_list[i]),
+            "matchesRetiredX1Description": in_retired_x1(cell_list[i]),
+            "matchesRetiredX1RefinedDescription": in_retired_x1_refined(cell_list[i]),
         }
         oracle_v = _oracle.verdict(dict(cell_list[i]))
         rec["cleanroomOracle"] = verdict_str(oracle_v["disposition"], oracle_v["reasons"])
@@ -734,6 +753,32 @@ def stage_run(work, jobs=12, cell_list=None, results_path=None, coverage=True):
     cover_bad = [{"cellId": ids[cover_idx[k]], "cell": cover_cells[k],
                   "sim": verdict_str(*sim[cover_idx[k]]), "engine": verdict_str(*cover_eng[k])}
                  for k in range(len(cover_idx)) if sim[cover_idx[k]] != cover_eng[k]]
+
+    # retired-X1 regression: the repair's own enforcing measurement. Every cell the
+    # retired class named is re-checked for agreement, and the 72 cells the class was
+    # registered on are engine-confirmed to answer the prose-correct `review`.
+    retired_coarse = [i for i in range(len(cell_list)) if in_retired_x1(cell_list[i])]
+    retired_refined = [i for i in retired_coarse if in_retired_x1_refined(cell_list[i])]
+    retired_eng = engineA_many([cell_list[i] for i in retired_refined], work, jobs=jobs)
+    retired_bad = [i for i in retired_coarse if sim[i] != rego[i]]
+    retired_not_review = [
+        {"cellId": ids[retired_refined[k]], "cell": cell_list[retired_refined[k]],
+         "engine": verdict_str(*retired_eng[k]), "refB": verdict_str(*rego[retired_refined[k]])}
+        for k in range(len(retired_refined))
+        if retired_eng[k] != ("review", ()) or rego[retired_refined[k]] != ("review", ())]
+    retired_record = {
+        "record": "retired-x1-regression",
+        "what": "every cell the RETIRED X1 predicate named is re-checked for refA/refB "
+                "agreement, and the 72 cells the retired class was registered on are "
+                "re-evaluated ON THE PINNED ENGINE and required to answer the "
+                "prose-correct `review` in both references",
+        "coarseRetiredPredicateCells": len(retired_coarse),
+        "refinedRetiredPredicateCells": len(retired_refined),
+        "disagreementsInsideRetiredPredicate": len(retired_bad),
+        "engineConfirmedReviewOnRefinedCells": len(retired_refined) - len(retired_not_review),
+        "examples": retired_not_review[:5],
+        "pass": not retired_bad and not retired_not_review,
+    }
 
     results_digest = None
     if results_path:
@@ -768,6 +813,7 @@ def stage_run(work, jobs=12, cell_list=None, results_path=None, coverage=True):
             "examples": cover_bad[:10],
             "pass": not cover_bad,
         },
+        "retiredX1Regression": retired_record,
         "timing": {"refASimulatorSeconds": round(t_sim, 1),
                    "refBOpaExecSeconds": round(t_rego, 1),
                    "divergenceEngineConfirmationSeconds": round(t_confirm, 1)},
@@ -853,22 +899,30 @@ def main():
         "interim": False,
         "space": dict(SPACE_DEF, digest=space_digest()),
         "reproduce": "reference/cert_offgold.py --stage all [--with-sanctions-omitted]",
-        "registeredExclusionClasses": {
+        "registeredExclusionClasses": {},
+        "retiredExclusionClasses": {
             "X1": {
-                "registeredText": "{new vendor yes; risk in [40,70); LOW country with spend "
-                                  "unreadable, or country unreadable with spend <= 100,000.00}",
-                "source": "PREREGISTRATION.md §4",
+                "retiredOn": "2026-08-18",
+                "retiredBecause": "round-1 finding R1-2. The inexpressibility claim behind "
+                                  "X1 was tested rather than argued: the arm-A reference was "
+                                  "repaired (reference/refA/PACK-CHANGE-001.md) and now "
+                                  "answers the prose-correct `review` on all 72 cells, "
+                                  "changing nothing else in the registered space. With zero "
+                                  "divergences there is nothing for an exclusion class to "
+                                  "name.",
+                "retiredText": "{new vendor yes; risk in [40,70); LOW country with spend "
+                               "unreadable, or country unreadable with spend <= 100,000.00}",
+                "source": "PREREGISTRATION.md §4 (pre-repair)",
                 "predicateReadings": [
-                    "'risk in [40,70)' requires a READABLE risk in that band; an unreadable "
+                    "'risk in [40,70)' required a READABLE risk in that band; an unreadable "
                     "risk score is not a value in an interval",
-                    "'spend <= 100,000.00' requires a READABLE spend",
+                    "'spend <= 100,000.00' required a READABLE spend",
                 ],
-                "implementation": "cert_offgold.py in_x1(), transcribed from "
-                                  "cleanroom/check_oracle.py so the two cannot drift",
-                "refinedDescription": "reference/refA/REPORT.md additionally reports "
+                "implementation": "cert_offgold.py in_retired_x1(); gates nothing, and is "
+                                  "re-measured every run as the retired-x1-regression record",
+                "refinedDescription": "reference/refA/REPORT.md additionally reported "
                                       "sanctions CLEAR, financial evidence present, "
-                                      "prior != yes, critical != yes for the 72-cell class; "
-                                      "reported per divergence, never the gate",
+                                      "prior != yes, critical != yes for the 72-cell class",
             }
         },
         "toolchain": digest_records(),
@@ -891,6 +945,7 @@ def main():
         results_path = os.path.join(args.work, "offgold-results.jsonl.gz")
         run = stage_run(args.work, jobs=args.jobs, results_path=results_path)
         cert["validationRecords"].append(run.pop("coverageCheck"))
+        cert["validationRecords"].append(run.pop("retiredX1Regression"))
         cert["cells"] = run["cells"]
         cert["divergences"] = run["divergences"]
         cert["simulatorArtefactsRetracted"] = run["simulatorArtefacts"]
@@ -908,7 +963,8 @@ def main():
         }
 
         classes = set(d["class"] for d in cert["divergences"])
-        cert["allDivergencesInRegisteredClasses"] = classes <= {"X1"}
+        # the registry is empty, so this is true iff there is no divergence at all
+        cert["allDivergencesInRegisteredClasses"] = classes <= set(REGISTERED_EXCLUSION_CLASSES)
         cert["divergenceCountsByClass"] = {
             c: sum(1 for d in cert["divergences"] if d["class"] == c) for c in sorted(classes)
         }

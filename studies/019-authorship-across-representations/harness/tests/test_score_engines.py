@@ -164,13 +164,91 @@ def test_the_registered_flags_are_carried_verbatim(monkeypatch, tmp_path):
     assert "exec" not in argv, "opa exec does not accept --capabilities at v1.19.0"
 
 
-def test_opa_test_labels_every_registered_exit_status(monkeypatch, tmp_path):
-    for code, label in ((0, "pass"), (1, "test-failure"), (2, "error"),
-                        (124, "timeout"), (77, "other")):
-        monkeypatch.setattr(engines, "_run",
-                            lambda *a, _code=code, **k: (_code, "", ""))
-        assert engines.opa_test(StubTools(), "p.rego", "s.rego",
-                                str(tmp_path)) == (code, label)
+def _opa_test(monkeypatch, tmp_path, code, out="", err=""):
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (code, out, err))
+    return engines.opa_test(StubTools(), "p.rego", "s.rego", str(tmp_path))
+
+
+def test_opa_test_reads_the_result_document_and_not_the_exit_status(monkeypatch,
+                                                                    tmp_path):
+    """ROUND-1 R1-8's enforcing test at the engine layer.
+
+    The old table said exit 1 was a test failure and exit 2 an error; measured
+    on the pinned OPA v1.19.0 it is the other way round, and
+    `design/TOOLCHAIN-NOTES.md` ("a failing test exits **2**") and §2 were right
+    all along. Nothing is keyed on the status now regardless: the result
+    document is what says whether a test FAILED, and the exit status is carried
+    only as a record."""
+    passing = json.dumps([{"package": "data.s_test", "name": "test_ok"}])
+    failing = json.dumps([{"package": "data.s_test", "name": "test_ok",
+                           "fail": True}])
+    errored = json.dumps([{"package": "data.s_test", "name": "test_ok",
+                           "error": {"code": "eval_conflict_error"}}])
+    # The same document under BOTH exit statuses gives the same answer: the
+    # status is not consulted.
+    for code in (0, 1, 2, 77):
+        assert _opa_test(monkeypatch, tmp_path, code,
+                         passing)["status"] == engines.TEST_PASS
+        assert _opa_test(monkeypatch, tmp_path, code,
+                         failing)["status"] == engines.TEST_FAILED
+        assert _opa_test(monkeypatch, tmp_path, code,
+                         errored)["status"] == engines.TEST_ERRORED
+
+
+def test_opa_test_routes_every_non_suite_outcome_away_from_the_suite(monkeypatch,
+                                                                     tmp_path):
+    """A load/parse/compile failure emits no result list, a harness timeout
+    emits nothing at all, and unreadable stdout is neither. None of the three is
+    evidence about a suite, and `TEST_SUITE_STATUSES` is the two that are."""
+    assert _opa_test(monkeypatch, tmp_path, 1, "", "1 error occurred")["status"] \
+        == engines.TEST_INVOCATION_REFUSED
+    assert _opa_test(monkeypatch, tmp_path, 124)["status"] == engines.TEST_TIMEOUT
+    assert _opa_test(monkeypatch, tmp_path, 0, "{not a list}")["status"] \
+        == engines.TEST_UNREADABLE
+    assert engines.TEST_SUITE_STATUSES == (engines.TEST_PASS,
+                                           engines.TEST_FAILED)
+
+
+def test_opa_test_names_the_failing_tests_and_counts_them(monkeypatch, tmp_path):
+    document = json.dumps([
+        {"package": "data.s_test", "name": "a"},
+        {"package": "data.s_test", "name": "b", "fail": True},
+        {"package": "data.s_test", "name": "c", "fail": True}])
+    record = _opa_test(monkeypatch, tmp_path, 2, document)
+    assert record["tests"] == 3
+    assert record["failed"] == ["data.s_test.b", "data.s_test.c"]
+    assert record["errored"] == []
+    assert record["exitCode"] == 2
+
+
+def test_opa_test_asks_for_the_machine_readable_format(monkeypatch, tmp_path):
+    seen = {}
+
+    def capture(argv, cwd, timeout=None):
+        seen["argv"] = argv
+        return 0, "[]", ""
+
+    monkeypatch.setattr(engines, "_run", capture)
+    engines.opa_test(StubTools(), "p.rego", "s.rego", str(tmp_path))
+    assert "--format" in seen["argv"]
+    assert seen["argv"][seen["argv"].index("--format") + 1] == "json"
+
+
+def test_opa_parse_asks_the_pinned_binary_for_the_syntax_tree(monkeypatch,
+                                                              tmp_path):
+    """Round-1 R1-3: arms B/C's case inputs are enumerated from the parser's own
+    tree, and parsing is a syntax operation that takes no capabilities file."""
+    seen = {}
+
+    def capture(argv, cwd, timeout=None):
+        seen["argv"] = argv
+        return 0, "{}", ""
+
+    monkeypatch.setattr(engines, "_run", capture)
+    code, raw = engines.opa_parse(StubTools(), "s.rego", str(tmp_path))
+    assert code == 0 and raw == b"{}"
+    assert seen["argv"][1:] == ["parse", "--format", "json", "s.rego"]
+    assert "--capabilities" not in seen["argv"]
 
 
 def test_the_canary_gate_passes_only_when_the_canary_is_refused(monkeypatch,

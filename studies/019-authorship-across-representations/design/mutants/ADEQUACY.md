@@ -1,5 +1,41 @@
 # Adequacy gate — the 47 JPS + 60 Rego empty-witness mutants
 
+> ## SUPERSEDED IN PART, 2026-08-18 — the gate is OPEN again, and this document's counts are the pre-repair ones
+>
+> The arm-A reference was repaired (`reference/refA/PACK-CHANGE-001.md`, round-1 finding
+> R1-2): X1 is retired and `refA/pack.json` gained two rules and four exceptions. **A mutant
+> corpus is a function of its reference**, so the JPS corpus was regenerated from the
+> repaired pack and the Rego corpus was re-witnessed against the grown gold suite. What
+> that changed, measured:
+>
+> | | this document (2026-08-15) | after the repair (2026-08-18) |
+> |---|---|---|
+> | gold rows | 105 | **109** |
+> | JPS mutants generated / valid | 145 / 145 | **183 / 183** |
+> | JPS killed by gold | 128 | **146** |
+> | JPS empty-witness, **undispositioned** | 0 | **37** |
+> | Rego mutants generated / valid | 185 / 184 | 185 / 184 (reference unchanged) |
+> | Rego killed by gold | 150 | **150** |
+> | Rego empty-witness, **undispositioned** | 0 | **34** |
+>
+> **The adequacy gate is therefore NOT satisfied at this moment**, and nothing downstream
+> may say it is. Mutant **ids do not carry across the repair**: the two new rules insert
+> ordered comparisons in the middle of the deterministic enumeration, so `m-a-NNN` in this
+> document and `m-a-NNN` in the current manifest are different edits. Every drop mechanism
+> recorded below was written against the pre-repair ids and must be re-derived, not
+> re-keyed; `adequacy_search.py`'s `DROPS` table is pre-repair data and the manifest-stamp
+> step (`--manifests`, `--registry`) is fail-closed until it is rewritten.
+>
+> What survives the repair unchanged: the method (dense 419,904-cell search, engine
+> confirmation of every witness, two independent transcriptions for the negative verdicts),
+> the drop-mechanism taxonomy, and the finding that the arm-A corpus contains kills only the
+> engine's structural conflict detection can supply — that last one now measured properly
+> over the whole domain rather than over gold witnesses (round-1 R1-11; see
+> `adequacy_engine_supplied.json`, and note the exclusion registry is empty, so "outside X1"
+> now means "anywhere").
+>
+> Everything below is left verbatim as the record of the 2026-08-15 gate run.
+
 **Status: design-time gate run, 2026-08-15. Not a freeze artifact yet; every number here is
 reproducible from `mutants/adequacy_search.py` and the two MANIFESTs it writes.**
 

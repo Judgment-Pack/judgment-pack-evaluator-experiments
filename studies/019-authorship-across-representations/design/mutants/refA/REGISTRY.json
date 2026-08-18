@@ -1,139 +1,133 @@
 {
- "adequacyGate": {
-  "dropMechanismClasses": [
-   "never-unknown-rule",
-   "reason-set-idempotence",
-   "same-outcome-overlap",
-   "shadowed-cascade-branch"
+  "arm": "A (JPS pack)",
+  "reference": "../../reference/refA/pack.json",
+  "goldRows": 109,
+  "scoredSurface": "kind + outcomeId + reasons (alignment scope); handoff excluded",
+  "witnessBaseline": "the unmutated reference pack's alignment-scope output per gold row",
+  "referenceReproducesGold": true,
+  "referenceMismatchRows": [],
+  "classCounts": {
+    "operator-flip": {
+      "generated": 44,
+      "valid": 44,
+      "dropped": 0,
+      "emptyWitness": 10
+    },
+    "boundary-shift": {
+      "generated": 88,
+      "valid": 88,
+      "dropped": 0,
+      "emptyWitness": 20
+    },
+    "onUnknown-flip": {
+      "generated": 27,
+      "valid": 27,
+      "dropped": 0,
+      "emptyWitness": 6
+    },
+    "outcome-swap": {
+      "generated": 13,
+      "valid": 13,
+      "dropped": 0,
+      "emptyWitness": 0
+    },
+    "required-flip": {
+      "generated": 1,
+      "valid": 1,
+      "dropped": 0,
+      "emptyWitness": 0
+    },
+    "effect-swap": {
+      "generated": 2,
+      "valid": 2,
+      "dropped": 0,
+      "emptyWitness": 0
+    },
+    "cascade-deletion": {
+      "generated": 8,
+      "valid": 8,
+      "dropped": 0,
+      "emptyWitness": 1
+    }
+  },
+  "totals": {
+    "generated": 183,
+    "valid": 183,
+    "dropped": 0,
+    "emptyWitness": 37
+  },
+  "witnessCellCensus": {
+    "unresolved:conflict": 113,
+    "unresolved:no-match": 81,
+    "outcome:review": 61,
+    "unresolved:unknown": 54,
+    "outcome:approve": 27,
+    "unresolved:exception-escalation": 8,
+    "outcome:reject": 3,
+    "unresolved:exception-escalation+unknown": 1
+  },
+  "conflictOnlyMutants": [
+    "m-a-003",
+    "m-a-005",
+    "m-a-008",
+    "m-a-009",
+    "m-a-012",
+    "m-a-014",
+    "m-a-024",
+    "m-a-025",
+    "m-a-027",
+    "m-a-030",
+    "m-a-034",
+    "m-a-036",
+    "m-a-038",
+    "m-a-046",
+    "m-a-048",
+    "m-a-049",
+    "m-a-051",
+    "m-a-053",
+    "m-a-057",
+    "m-a-059",
+    "m-a-062",
+    "m-a-063",
+    "m-a-067",
+    "m-a-069",
+    "m-a-071",
+    "m-a-073",
+    "m-a-076",
+    "m-a-082",
+    "m-a-086",
+    "m-a-091",
+    "m-a-093",
+    "m-a-096",
+    "m-a-098",
+    "m-a-104",
+    "m-a-111",
+    "m-a-114",
+    "m-a-116",
+    "m-a-118",
+    "m-a-120",
+    "m-a-169",
+    "m-a-177",
+    "m-a-178",
+    "m-a-181",
+    "m-a-182"
   ],
-  "dropped": 17,
-  "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
-  "goldVersion": "0.1-draft",
-  "killed": 128,
-  "note": "witness sets recomputed on the pinned engine over gold 0.1-draft; every drop carries its mechanism in MANIFEST.json and mutants/ADEQUACY.md"
- },
- "arm": "A (JPS pack)",
- "classCounts": {
-  "boundary-shift": {
-   "dropped": 0,
-   "emptyWitness": 7,
-   "generated": 68,
-   "valid": 68
-  },
-  "cascade-deletion": {
-   "dropped": 0,
-   "emptyWitness": 0,
-   "generated": 8,
-   "valid": 8
-  },
-  "effect-swap": {
-   "dropped": 0,
-   "emptyWitness": 0,
-   "generated": 2,
-   "valid": 2
-  },
-  "onUnknown-flip": {
-   "dropped": 0,
-   "emptyWitness": 6,
-   "generated": 21,
-   "valid": 21
-  },
-  "operator-flip": {
-   "dropped": 0,
-   "emptyWitness": 4,
-   "generated": 34,
-   "valid": 34
-  },
-  "outcome-swap": {
-   "dropped": 0,
-   "emptyWitness": 0,
-   "generated": 11,
-   "valid": 11
-  },
-  "required-flip": {
-   "dropped": 0,
-   "emptyWitness": 0,
-   "generated": 1,
-   "valid": 1
+  "conflictNote": "`conflict` is a fifth unresolved reason token, unreachable in the unmutated reference and absent from gold/check_gold.py's registered reason set. A witness cell carrying it kills structurally (two rules of different outcome now both fire) rather than by a differing determination. Arm B (Rego ladder) has no conflict detection, so these cells are the likeliest source of §4.4 unpairable mutants; the count is published rather than smoothed.",
+  "effectSwapNonMembers": {
+    "exceptionIds": [
+      "x-o1-first-engagement",
+      "x-d5-suppress-d6a",
+      "x-d5-suppress-d6b-insured",
+      "x-d5-suppress-d6b-uninsured",
+      "x-d5-suppress-d6c",
+      "x-d5-suppress-d7",
+      "x-d5-suppress-o1-review",
+      "x-d5-suppress-d8",
+      "x-o1-suppress-d8-low",
+      "x-o1-suppress-d8-spend",
+      "x-d5-suppress-o1-wide-low",
+      "x-d5-suppress-o1-wide-spend"
+    ],
+    "reason": "suppress-rule cannot be swapped in one semantic edit: every target effect requires adding or dropping the sibling member the effect governs (targetRule vs outcome), which is a second edit. Registered non-member of class effect-swap."
   }
- },
- "conflictNote": "`conflict` is a fifth unresolved reason token, unreachable in the unmutated reference and absent from gold/check_gold.py's registered reason set. A witness cell carrying it kills structurally (two rules of different outcome now both fire) rather than by a differing determination. Arm B (Rego ladder) has no conflict detection, so these cells are the likeliest source of \u00a74.4 unpairable mutants; the count is published rather than smoothed.",
- "conflictOnlyMutants": [
-  "m-a-003",
-  "m-a-005",
-  "m-a-008",
-  "m-a-009",
-  "m-a-012",
-  "m-a-014",
-  "m-a-019",
-  "m-a-020",
-  "m-a-022",
-  "m-a-025",
-  "m-a-029",
-  "m-a-031",
-  "m-a-033",
-  "m-a-036",
-  "m-a-038",
-  "m-a-039",
-  "m-a-041",
-  "m-a-043",
-  "m-a-047",
-  "m-a-049",
-  "m-a-052",
-  "m-a-053",
-  "m-a-057",
-  "m-a-059",
-  "m-a-061",
-  "m-a-063",
-  "m-a-066",
-  "m-a-071",
-  "m-a-073",
-  "m-a-076",
-  "m-a-078",
-  "m-a-084",
-  "m-a-091",
-  "m-a-094",
-  "m-a-096",
-  "m-a-098",
-  "m-a-100",
-  "m-a-139",
-  "m-a-140",
-  "m-a-143",
-  "m-a-144"
- ],
- "effectSwapNonMembers": {
-  "exceptionIds": [
-   "x-o1-first-engagement",
-   "x-d5-suppress-d6a",
-   "x-d5-suppress-d6b-insured",
-   "x-d5-suppress-d6b-uninsured",
-   "x-d5-suppress-d6c",
-   "x-d5-suppress-d7",
-   "x-d5-suppress-o1-review",
-   "x-d5-suppress-d8"
-  ],
-  "reason": "suppress-rule cannot be swapped in one semantic edit: every target effect requires adding or dropping the sibling member the effect governs (targetRule vs outcome), which is a second edit. Registered non-member of class effect-swap."
- },
- "goldRows": 105,
- "reference": "../../reference/refA/pack.json",
- "referenceMismatchRows": [],
- "referenceReproducesGold": true,
- "scoredSurface": "kind + outcomeId + reasons (alignment scope); handoff excluded",
- "totals": {
-  "dropped": 0,
-  "emptyWitness": 17,
-  "generated": 145,
-  "valid": 145
- },
- "witnessBaseline": "the unmutated reference pack's alignment-scope output per gold row",
- "witnessCellCensus": {
-  "outcome:approve": 28,
-  "outcome:reject": 3,
-  "outcome:review": 61,
-  "unresolved:conflict": 99,
-  "unresolved:exception-escalation": 8,
-  "unresolved:exception-escalation+unknown": 1,
-  "unresolved:no-match": 86,
-  "unresolved:unknown": 32
- }
 }

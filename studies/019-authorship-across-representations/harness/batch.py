@@ -217,6 +217,13 @@ LEDGER_NAME = "BATCH.json"
 LEDGER_TEMP_NAME = "BATCH.json.partial"
 SHORTFALL_NAME = "SHORTFALL.json"
 MANIFEST_NAME = "SLOT-MANIFEST.json"
+# R1-5: the full transcript binding's verdict for one slot, written INSIDE the
+# seal — after the wrapper's bytes and before `seal_slot()`, so it is covered by
+# the manifest and the ledger chain like every other byte of the slot. It is
+# evidence and not authority: the scorer recomputes the verdict from the same
+# retained bytes and does not read this file for its answer, exactly as it does
+# not read `REFUSAL.json` for its answer.
+TRANSCRIPT_NAME = "TRANSCRIPT.json"
 
 # The seal records EVERY entry in the slot tree. A regular file is
 # `[path, byte length, sha256]`; every other entry — a symlink, a directory, a
@@ -318,17 +325,30 @@ CALL_TIMEOUT_SECONDS = 2700
 TIMEOUT_KILL_AFTER_SECONDS = 60
 
 # The wrapper's exit statuses, and what each one is. Status 12 is this study's
-# addition (change 3 above); 0, 1, 10 and 11 are Study 012's, unchanged.
+# addition (change 3 above); 0, 1, 10 and 11 are Study 012's, unchanged. Status
+# 13 is round 1's (R1-4).
+#
+# **1 and 13 are two statuses because they are two events** (R1-4). The wrapper
+# runs under `set -euo pipefail`, and a failure in any of its three POST-CALL
+# stages — the completion extraction, the CALL.json write, the context digests —
+# used to kill the shell with the helper's own status 1, which this table read as
+# "a pre-call refusal; nothing was called". The call HAD been made, the slot HAD
+# been left behind, and the code the driver wrote onto it said the opposite. The
+# wrapper now sets a phase flag before the call and traps every unexpected
+# post-call failure to status 13, so the two events cannot wear one status again.
 WRAPPER_EXIT_MEANINGS = {
     0: ("complete", "the call exited 0 and the slot is complete"),
-    1: ("preflight-refused", "a pre-call refusal; nothing was called and no "
-                             "slot was left behind"),
+    1: ("preflight-refused", "a pre-call refusal; the model was never invoked, "
+                             "and any slot left behind is empty"),
     10: ("call-nonzero-exit", "the call exited non-zero; the slot is retained "
                               "without completion.txt"),
     11: ("slot-shape", "the run produced other than exactly one new session; "
                        "slot retained"),
     12: ("call-timeout", "the call reached the registered %d s ceiling and was "
                          "terminated; slot retained" % CALL_TIMEOUT_SECONDS),
+    13: ("post-call-failure", "a post-call wrapper stage failed after the call "
+                              "returned; slot retained, and whatever the stage "
+                              "had not written is missing"),
 }
 
 # Change 8: the driver's status -> refusal-code map, DERIVED from the table
@@ -351,10 +371,20 @@ APPARATUS_CODES = (
     ("slot-shape", "slot shape"),
     ("call-nonzero-exit", "call nonzero-exit"),
     ("call-timeout", "call timeout at the registered ceiling"),
+    # R1-4: both wrapper statuses that used to fall OUTSIDE this partition and
+    # therefore into every rate's denominator. A pre-call refusal spent nothing
+    # and a post-call stage failure lost a byte the slot needed; neither is
+    # anything the author emitted.
+    ("preflight-refused", "pre-call refusal"),
+    ("post-call-failure", "post-call wrapper failure"),
     ("golden-context-mismatch", "golden-context mismatch"),
     ("binary-digest-mismatch", "binary digest mismatch"),
     ("transcript-refused", "transcript refusal"),
 )
+# The six ADMISSION codes: what `admit()` reads off the retained artifact.
+# `e4lib/admit.py`'s DROP_ORDER is this list in the registered publication order,
+# and a test diffs the two — so this tuple stays the admission surface and does
+# not grow a member no `admit()` branch can return.
 AUTHORING_CODES = (
     ("no-marker-block", "no extractable marker block"),
     ("unparseable-artifact", "unparseable artifact"),
@@ -363,16 +393,26 @@ AUTHORING_CODES = (
     ("v0-syntax", "v0-syntax"),
     ("unreadable-output-shape", "unreadable output shape"),
 )
+# R1-5's authoring outcome, which is NOT an admission code: it is read off the
+# retained TRANSCRIPT rather than off the artifact, by
+# `transcript_check.classify()`, and it is what an author using a tool or taking
+# a turn after the registered prompt scores. §1a registers it in its own
+# sentence for exactly that reason, and `harness/tests/test_partition.py` diffs
+# that sentence against this tuple.
+AUTHORING_PROTOCOL_CODES = (
+    ("author-protocol-violation", "author protocol violation"),
+)
 
 
 def _partition() -> dict:
     """{code: ("apparatus"|"authoring", the phrase §1a registers)}.
 
-    Built rather than written out, so the two tuples above are the only place a
-    code is named and a code that drifted into both sides refuses at import."""
+    Built rather than written out, so the tuples above are the only place a code
+    is named and a code that drifted into two sides refuses at import."""
     table = {}
     for side, rows in (("apparatus", APPARATUS_CODES),
-                       ("authoring", AUTHORING_CODES)):
+                       ("authoring", AUTHORING_CODES),
+                       ("authoring", AUTHORING_PROTOCOL_CODES)):
         for code, phrase in rows:
             if code in table:
                 raise BatchError(
@@ -384,6 +424,44 @@ def _partition() -> dict:
 
 
 CODE_PARTITION = _partition()
+
+# EXHAUSTIVE, checked at import (R1-4). The partition used to be exhaustive over
+# the codes §1a's prose names and silent about the two the driver could actually
+# emit; `population()` then excluded only codes it recognised, so an unnamed code
+# was not an error but a DENOMINATOR MEMBER. Every value this table can yield is
+# now a key of the partition, at import, before any batch can run.
+for _status, _code in WRAPPER_CODES.items():
+    if _code is not None and _code not in CODE_PARTITION:
+        raise BatchError(
+            "wrapper exit %d maps to the code %r and §1a's partition does not "
+            "name it: a code outside the partition is a run outside both sides "
+            "of the population rule, which is a silent denominator change"
+            % (_status, _code))
+del _status, _code
+
+
+def wrapper_code(status: int):
+    """The refusal code for a wrapper exit status, or None for a complete slot —
+    **fail-closed on anything else** (R1-4).
+
+    `WRAPPER_CODES.get(status, "wrapper-error")` was the old reading, and
+    `wrapper-error` was in no partition and in no registered table: the driver
+    materialized, sealed and ledgered such a slot, and the scorer — which
+    excludes only codes it recognises as apparatus — put it in the denominator as
+    an ordinary authoring run. A status this wrapper does not register is
+    evidence that the process at the end of `SCRIPT` is not the wrapper this
+    study registered, so the batch stops rather than filing one more slot under a
+    code nobody defined. Every remaining slot would carry the same defect, and
+    the operator adjudicates it in DEVIATIONS.md."""
+    if not isinstance(status, int) or isinstance(status, bool) \
+            or status not in WRAPPER_CODES:
+        raise BatchError(
+            "the wrapper exited with the status %r and §2 registers %s: an "
+            "unregistered status is not a refusal code, and a slot cannot be "
+            "filed under a code no partition names. The batch stops here; record "
+            "the cause in DEVIATIONS.md"
+            % (status, ", ".join(str(known) for known in sorted(WRAPPER_CODES))))
+    return WRAPPER_CODES[status]
 
 
 # --- bytes in, bytes out ----------------------------------------------------
@@ -1029,13 +1107,24 @@ def require_freeze(pins: dict) -> str:
     Registering this as a precondition of the CALLS as well as of the scoring is
     what makes it more than an intention: a registry merged with its nulls
     intact spends no quota."""
-    label = integrity.study_label(pins)
-    if label != "REGISTERED":
+    # ROUND-1 R1-9 grew the freeze set from eleven pins to eighteen, and two of
+    # the new members are values the PRE-FREEZE CEREMONY writes: `golden.sha256`
+    # comes from the golden-context capture and `isolationNegative.assent` from
+    # the isolation negative control, both of which reach this gate. Requiring
+    # them here would make each command require the value it exists to create.
+    # They are freeze pins regardless — `integrity.study_label()` reads the whole
+    # set, so no REGISTERED attempt is reachable while either is null, and the
+    # scorer's golden-context gate reads them again at attempt time — and
+    # `integrity.CEREMONY_LIFECYCLE_PINS` exempts them at this one gate and
+    # nowhere else. The specific golden and assent gates below and in
+    # `record_negative_control()` are what refuse them at this stage.
+    unfilled = integrity.ceremony_unfilled_pins(pins)
+    if unfilled:
         raise BatchError(
             "harness/PINS.json labels this study %s: the batch runs under the "
             "registered label only, and these freeze pins are still null: %s. A "
             "PILOT supports no claim, so no PILOT spends the registered quota"
-            % (label, ", ".join(integrity.unfilled_pins(pins)) or "(none)"))
+            % (integrity.study_label(pins), ", ".join(unfilled)))
     pinned = (pins.get("preregistration") or {}).get("sha256")
     path = os.path.join(STUDY, "PREREGISTRATION.md")
     if not os.path.isfile(path):
@@ -1290,9 +1379,15 @@ def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
     # verification gate refuses on one.
     environment["PYTHONDONTWRITEBYTECODE"] = "1"
     completed = subprocess.run(argv, env=environment, capture_output=True, text=True)
-    return (completed.returncode,
-            WRAPPER_CODES.get(completed.returncode, "wrapper-error"),
-            completed.stderr)
+    try:
+        code = wrapper_code(completed.returncode)
+    except BatchError as error:
+        # The stderr tail travels with the refusal: an unregistered status is
+        # the one case where the wrapper's own message is the only evidence of
+        # what happened, and it would otherwise be discarded with the process.
+        raise BatchError("%s\nwrapper stderr tail: %s"
+                         % (error, (completed.stderr or "")[-STDERR_TAIL:]))
+    return completed.returncode, code, completed.stderr
 
 
 def stamp_slot(slot: str, entry: dict, pins: dict) -> None:
@@ -1371,6 +1466,11 @@ def refuse_slot(slot: str, code: str, status: int, stderr: str) -> None:
     bare traceback. Preflight already refuses those, so reaching this is a bug;
     it refuses as a BatchError rather than as a traceback so that the driver's
     failure is one of its own registered refusals either way."""
+    if code not in CODE_PARTITION:
+        raise BatchError(
+            "no refusal record is written under the code %r: §1a's partition "
+            "does not name it, and a slot on disk wearing an unnamed code is a "
+            "run that no rule counts and no rule excludes (R1-4)" % code)
     if os.path.lexists(slot) and not os.path.isdir(slot):
         raise BatchError(
             "%s exists and is not a directory, so no refusal record can be "
@@ -1385,6 +1485,86 @@ def refuse_slot(slot: str, code: str, status: int, stderr: str) -> None:
         "note": "Recorded by batch.py. harness/score.py recomputes admission "
                 "from the retained bytes and does not trust this record.",
     })
+
+
+# --- D3b: the transcript binding (R1-5) --------------------------------------
+
+def transcript_verdict(slot: str, arm: str, pins: dict,
+                       golden_path: str) -> dict:
+    """The FULL transcript binding for one slot, as a structured verdict.
+
+    **The one entry point.** Round 1's R1-5: the wrapper called only
+    `extract_completion()` and `context_digests()`, and the only non-test caller
+    of `check_golden()` was the golden capture itself — so no scored slot ever
+    went through the gate that binds the transcript to the arm's prompt bytes, to
+    the golden pre-prompt context, and to the retained completion. A transcript
+    carrying the wrong prompt, an extra pre-prompt turn, or a completion that is
+    not its last assistant message stayed in the population. This function is
+    what both the driver (below, at the seal) and the scorer (per scored slot)
+    call, so there is one binding and not two readings of one.
+
+    The verdict is `transcript_check.classify()`'s: `admissible`, and when it is
+    not, the `reason` tag, the §1a `side` that reason is attributed to, and the
+    `code` the run is filed under. Attribution is the whole point of the
+    structure — an author who used a tool or took a turn after the registered
+    prompt is an AUTHORING outcome, retained in the denominator and scoring zero,
+    while a mismatched prompt, a drifted golden context, a mangled log or a
+    mis-extracted completion is APPARATUS and leaves it. `classify()` refuses
+    outright on a reason nobody registered, and that refusal propagates: a
+    transcript this study cannot attribute does not get a denominator by
+    default."""
+    prompt_path, _pinned = arm_prompt(pins, arm)
+    return transcript_check.classify(
+        os.path.join(slot, "session.jsonl"),
+        prompt_path,
+        os.path.join(slot, "completion.txt"),
+        os.path.join(slot, "CALL.json"),
+        golden_path,
+        model=(pins.get("codex") or {}).get("model"),
+        arm=arm)
+
+
+def bind_transcript(slot: str, entry: dict, pins: dict,
+                    golden_path: str) -> dict:
+    """Run the binding and retain its verdict in the slot, before the seal.
+
+    The driver runs it as well as the scorer for one reason worth the bytes: a
+    systematic apparatus break — a golden capture that drifted, a prompt file
+    swapped under the batch — is visible at slot 2 instead of after a hundred and
+    fifty calls have been spent on a batch that will score none of them. It does
+    NOT refuse: a per-slot verdict is a per-slot outcome, the population rule
+    owns what happens to it, and a driver that stopped the batch on one refused
+    transcript would be adjudicating §1a from inside D3.
+
+    An `UnclassifiedRefusal` is the exception, and it propagates: a refusal this
+    study has no cause for is a defect in the gate, every remaining slot would
+    meet it, and the fail-closed answer is to stop rather than to seal a verdict
+    that says nothing."""
+    verdict = transcript_verdict(slot, entry["arm"], pins, golden_path)
+    _write_json(os.path.join(slot, TRANSCRIPT_NAME), {
+        "slot": os.path.basename(slot),
+        "arm": entry["arm"],
+        "globalIndex": entry["globalIndex"],
+        "admissible": verdict["admissible"],
+        "reason": verdict["reason"],
+        "side": verdict["side"],
+        "code": verdict["code"],
+        "message": verdict["message"],
+        "goldenSha256": (pins.get("golden") or {}).get("sha256"),
+        "armPromptSha256": arm_prompt(pins, entry["arm"])[1],
+        "note": "The full transcript binding for this slot: the arm's prompt "
+                "bytes, the golden pre-prompt context, the retained completion, "
+                "the turn-context model and cwd, and the recorded exit status. "
+                "Written by batch.py before the seal, so it is inside the "
+                "manifest and the ledger chain. Recorded by batch.py; "
+                "harness/score.py recomputes this verdict from the same retained "
+                "bytes and does not trust this record. `side` is what §1a does "
+                "with the run: an author protocol violation (a tool call, a turn "
+                "after the registered prompt) is an AUTHORING outcome, retained "
+                "in the denominator and scoring zero; every other refusal is "
+                "APPARATUS and leaves it.",
+    })
+    return verdict
 
 
 # --- D4: the seal ------------------------------------------------------------
@@ -1527,7 +1707,22 @@ def ledger_record(entry: dict, slot: str, status: int, code: str,
                   manifest_sha256: str, previous: str) -> dict:
     """The per-slot record: where the slot sits in the registered order, where it
     sits on disk, what the wrapper's exit status was, its seal, and the digest of
-    the record before it."""
+    the record before it.
+
+    The code is checked against §1a's partition on the way in (R1-4). The ledger
+    is the population's index, and a record carrying a code the partition does
+    not name puts a run into the study that neither the excluded set nor the
+    denominator has a rule for — which is how `preflight-refused` and the
+    `wrapper-error` sentinel used to reach every per-arm rate."""
+    if code is not None and code not in CODE_PARTITION:
+        raise BatchError(
+            "no ledger record is written for global index %s under the code %r: "
+            "§1a's partition does not name it" % (entry.get("globalIndex"), code))
+    if wrapper_code(status) != code:
+        raise BatchError(
+            "no ledger record is written for global index %s: the wrapper exited "
+            "%r, which this driver files as %r, and the record would carry %r"
+            % (entry.get("globalIndex"), status, wrapper_code(status), code))
     record = {key: entry[key] for key in SCHEDULE_KEYS}
     record.update({
         "slot": os.path.basename(slot),
@@ -1788,12 +1983,21 @@ def slot_outcome(slot: str) -> tuple:
             raise BatchError("%s/REFUSAL.json records wrapperExit %r, and the "
                              "registration registers an integer exit status"
                              % (relative, status))
-        if code != WRAPPER_CODES.get(status, "wrapper-error"):
+        # `wrapper_code()` and not `WRAPPER_CODES.get(..., "wrapper-error")`:
+        # a record naming a status this wrapper never returns refuses the whole
+        # scoring (R1-4), instead of being compared against a sentinel that is in
+        # no partition and would then travel into a denominator.
+        expected = wrapper_code(status)
+        if code != expected:
             raise BatchError(
                 "%s/REFUSAL.json records code %r for wrapper exit %d, and this "
                 "driver writes %r for that status: the refusal record is not one "
-                "this batch produced"
-                % (relative, code, status, WRAPPER_CODES.get(status, "wrapper-error")))
+                "this batch produced" % (relative, code, status, expected))
+        if code is not None and code not in CODE_PARTITION:
+            raise BatchError(
+                "%s/REFUSAL.json records the code %r, which is on neither side "
+                "of §1a's partition: a slot wearing a code no partition names is "
+                "counted by no rule and excluded by none" % (relative, code))
         return status, code
     if not os.path.islink(call_path) and os.path.isfile(call_path):
         return 0, None
@@ -1997,28 +2201,42 @@ def run_batch(runs: int, resume: bool, scratch_parent: str, pins_path: str,
     # makes: a golden swapped after the batch changes the pin, and every slot
     # then names a digest that is not the pin it is being scored under.
     golden_pin = (pins.get("golden") or {}).get("sha256")
+    # …and the capture itself, which `preflight()` has already verified against
+    # that pin. The per-slot transcript binding needs the BYTES, not the digest.
+    golden_file = golden_path_for(pins, golden_override)
     previous = record_digest(records[-1]) if records else None
     for entry, slot in zip(remaining, slots):
         status, code, stderr = invoke(slot, scratch_parent, pins_path, cli_override,
                                       "registered", entry["arm"],
                                       arm_prompt(pins, entry["arm"])[0],
                                       golden_sha256=golden_pin)
-        # Refusal record, then the schedule stamps, then the seal, then the
-        # ledger. The order is the registered one and each step is a reason for
-        # the next: the refusal record is part of the slot and the schedule
-        # stamps are part of CALL.json, so both must be written before the
-        # manifest that seals them; and the ledger record carries the manifest's
-        # digest, so it is appended after the seal exists.
+        # Refusal record, then the schedule stamps, then the transcript binding,
+        # then the seal, then the ledger. The order is the registered one and
+        # each step is a reason for the next: the refusal record is part of the
+        # slot and the schedule stamps are part of CALL.json, so both must be
+        # written before the manifest that seals them; the binding reads the
+        # stamped CALL.json and writes its verdict into the slot, so it comes
+        # after the stamps and before the seal; and the ledger record carries the
+        # manifest's digest, so it is appended after the seal exists.
         if code is not None:
             refuse_slot(slot, code, status, stderr)
         stamp_slot(slot, entry, pins)
+        # R1-5: only a slot the wrapper completed. A refused slot already carries
+        # an apparatus code that says why, and half its bytes are missing by
+        # construction — binding it would say "unreadable" over a fact the
+        # refusal record already states more precisely.
+        bound = None
+        if code is None:
+            bound = bind_transcript(slot, entry, pins, golden_file)
         manifest = seal_slot(slot, entry)
         records.append(ledger_record(entry, slot, status, code, manifest, previous))
         previous = record_digest(records[-1])
         write_ledger(records, pins, cli_override)
-        print("%03d %s %s: exit %d%s"
+        print("%03d %s %s: exit %d%s%s"
               % (entry["globalIndex"], entry["arm"], os.path.basename(slot), status,
-                 "" if code is None else " (%s)" % code))
+                 "" if code is None else " (%s)" % code,
+                 "" if bound is None or bound["admissible"]
+                 else " [transcript %s: %s]" % (bound["side"], bound["reason"])))
     made = records[done:]
     refused = [row for row in made if row["code"] is not None]
     print("batch: %d slots this invocation (%d refused), %d of %d in the ledger"
@@ -2425,6 +2643,207 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
 
 # --- D8: the shortfall -------------------------------------------------------
 
+# R1-7. The declaration used to be a bag of counts, and the scorer accepted ANY
+# JSON object — `{}` included — as the thing that makes an incomplete batch
+# terminal. Nothing tied the file to the ledger, to the seals, or to the
+# registered order, so an operator could delete slots by outcome, declare the
+# remainder short, and be scored on it.
+#
+# The declaration is a SCHEMA now, and the schema carries evidence rather than
+# summary: the ledger's file digest and chain head, the full slot/seal inventory,
+# and the declared prefix, each of which the scorer recomputes against the bytes
+# on disk. `validate_shortfall()` is the schema and the internal consistency;
+# `verify_shortfall()` is the comparison against the ledger. The driver runs both
+# ON WRITE — a declaration it could not validate is not written — and the scorer
+# runs both on read. One definition, two callers.
+SHORTFALL_VERSION = "1"
+
+# member -> the type(s) it must have. `None` in a tuple means the member may be
+# null, and only where a null is a fact (an empty prefix has no last slot).
+SHORTFALL_SCHEMA = {
+    "declarationVersion": (str,),
+    "registeredRounds": (int,),
+    "registeredRunsPerArm": (int,),
+    "registeredSlots": (int,),
+    "completedRounds": (int,),
+    "completedThroughGlobalIndex": (int,),
+    "completedSlots": (int,),
+    "ledgerSha256": (str, type(None)),
+    "ledgerHeadSha256": (str, type(None)),
+    "slots": (list,),
+    "lastSlot": (str, type(None)),
+    "lastSlotEndedAt": (str, type(None)),
+    "lastSlotEndedAtFrom": (str, type(None)),
+    "reason": (str,),
+    "note": (str,),
+}
+
+# …and the members of one row of the inventory. Every one of them is READ from
+# the slot's own ledger record, and every one is checkable against the retained
+# bytes: the schedule keys against §2's expansion, the path against `slot_path()`,
+# the seal against a recomputed `SLOT-MANIFEST.json`, the code against §1a.
+SHORTFALL_SLOT_SCHEMA = {
+    "globalIndex": (int,),
+    "round": (int,),
+    "position": (int,),
+    "arm": (str,),
+    "slotIndex": (int,),
+    "path": (str,),
+    "manifestSha256": (str,),
+    "wrapperExit": (int,),
+    "code": (str, type(None)),
+}
+
+
+def _typed(where: str, body: dict, schema: dict) -> None:
+    """Every member of `schema` present in `body` at one of its types, and no
+    member of `body` the schema does not name. Both directions: a missing member
+    is a declaration that says less than the registration requires, and an extra
+    one is a declaration carrying something nobody checks."""
+    if not isinstance(body, dict):
+        raise BatchError("%s is a JSON %s and the declaration schema registers "
+                         "an object" % (where, type(body).__name__))
+    for member, types in sorted(schema.items()):
+        if member not in body:
+            raise BatchError(
+                "%s carries no %s member: the declaration is what makes an "
+                "incomplete batch terminal, and one that omits a registered "
+                "member declares less than the registration requires (R1-7)"
+                % (where, member))
+        if isinstance(body[member], bool) or not isinstance(body[member], types):
+            raise BatchError(
+                "%s records %s as a JSON %s and the schema registers %s"
+                % (where, member, type(body[member]).__name__,
+                   " or ".join(kind.__name__ for kind in types)))
+    extra = sorted(set(body) - set(schema))
+    if extra:
+        raise BatchError(
+            "%s carries members the declaration schema does not name (%s): a "
+            "member nobody checks is a member nobody can rely on"
+            % (where, ", ".join(extra)))
+
+
+def validate_shortfall(declaration, entries: list = None) -> None:
+    """The declaration's SCHEMA and its internal consistency — no ledger needed.
+
+    What it establishes, and why each one is here rather than left to a reader:
+
+    * every registered member is present, at its registered type, and no
+      unregistered member is;
+    * the registered constants in it are §2's, so a declaration written by
+      another study's driver or another batch shape refuses;
+    * `slots` is a PREFIX of §2's registered order: global indexes 1..n with no
+      gap and no repeat, each row's schedule keys equal to the order's at that
+      position, and each row's path the one `slot_path()` assigns it. This is
+      what makes outcome-selective deletion visible — a set of slots chosen by
+      what they contained is not a prefix;
+    * every row's code is on one side of §1a's partition (R1-4);
+    * the counts are DERIVED from `slots` rather than asserted beside it:
+      `completedSlots`, `completedThroughGlobalIndex`, `completedRounds` and
+      `lastSlot` all have to equal what the inventory says, so no count can
+      disagree with the evidence under it."""
+    _typed(SHORTFALL_NAME, declaration, SHORTFALL_SCHEMA)
+    if declaration["declarationVersion"] != SHORTFALL_VERSION:
+        raise BatchError(
+            "%s declares version %r and this driver writes version %r: a "
+            "declaration of another shape is not read as this one"
+            % (SHORTFALL_NAME, declaration["declarationVersion"],
+               SHORTFALL_VERSION))
+    for member, registered in (("registeredRounds", ROUNDS),
+                               ("registeredRunsPerArm", RUNS_PER_ARM),
+                               ("registeredSlots", REGISTERED_SLOTS)):
+        if declaration[member] != registered:
+            raise BatchError(
+                "%s records %s %r and §2 registers %d: the declaration is about "
+                "THIS registered order"
+                % (SHORTFALL_NAME, member, declaration[member], registered))
+    if not declaration["reason"].strip():
+        raise BatchError("%s declares an empty reason: a shortfall without a "
+                         "reason is a gap" % SHORTFALL_NAME)
+    slots = declaration["slots"]
+    if len(slots) >= REGISTERED_SLOTS:
+        raise BatchError(
+            "%s inventories %d slots and §2 registers %d: a shortfall declares a "
+            "SHORT batch" % (SHORTFALL_NAME, len(slots), REGISTERED_SLOTS))
+    entries = schedule_entries() if entries is None else entries
+    for offset, row in enumerate(slots):
+        where = "%s slot %d" % (SHORTFALL_NAME, offset + 1)
+        _typed(where, row, SHORTFALL_SLOT_SCHEMA)
+        expected = {key: entries[offset][key] for key in SCHEDULE_KEYS}
+        expected["path"] = os.path.relpath(slot_path(entries[offset]), STUDY)
+        actual = {key: row[key] for key in SCHEDULE_KEYS}
+        actual["path"] = row["path"]
+        if actual != expected:
+            raise BatchError(
+                "%s diverges from §2's registered call order at position %d: it "
+                "declares %r and the order assigns %r. A declaration is a PREFIX "
+                "of the registered order — a set of slots chosen by what they "
+                "contained is not one, and that is the deletion this refuses"
+                % (SHORTFALL_NAME, offset + 1, actual, expected))
+        if row["code"] is not None and row["code"] not in CODE_PARTITION:
+            raise BatchError(
+                "%s declares the code %r, which is on neither side of §1a's "
+                "partition" % (where, row["code"]))
+        if wrapper_code(row["wrapperExit"]) != row["code"]:
+            raise BatchError(
+                "%s declares wrapper exit %r with the code %r, and this driver "
+                "files that status as %r"
+                % (where, row["wrapperExit"], row["code"],
+                   wrapper_code(row["wrapperExit"])))
+    last = slots[-1] if slots else None
+    for member, derived in (
+            ("completedSlots", len(slots)),
+            ("completedThroughGlobalIndex", last["globalIndex"] if last else 0),
+            ("completedRounds", completed_rounds(slots)),
+            ("lastSlot", last["path"] if last else None)):
+        if declaration[member] != derived:
+            raise BatchError(
+                "%s declares %s %r and its own slot inventory says %r: every "
+                "count in a declaration is derived from the inventory under it, "
+                "so no count can outlive the evidence"
+                % (SHORTFALL_NAME, member, declaration[member], derived))
+    if (declaration["ledgerHeadSha256"] is None) != (not slots):
+        raise BatchError(
+            "%s declares the ledger head %r over %d slots: a non-empty prefix "
+            "has a chain head and an empty one has none"
+            % (SHORTFALL_NAME, declaration["ledgerHeadSha256"], len(slots)))
+
+
+def verify_shortfall(declaration, records: list, ledger_sha256: str) -> None:
+    """The declaration against the LEDGER it claims to describe.
+
+    `validate_shortfall()` establishes that the declaration is internally
+    honest; this establishes that it is honest about something else. The ledger's
+    file digest and its chain head are both compared, because they fail in
+    different ways: the head moves if any record's content changed, and the file
+    digest moves if the file was rewritten around the same records."""
+    slots = declaration["slots"]
+    if len(records) != len(slots):
+        raise BatchError(
+            "%s inventories %d slots and the ledger records %d: the declaration "
+            "and the ledger are compared slot for slot"
+            % (SHORTFALL_NAME, len(slots), len(records)))
+    for offset, (row, record) in enumerate(zip(slots, records)):
+        declared = {member: row[member] for member in SHORTFALL_SLOT_SCHEMA}
+        actual = {member: record.get(member) for member in SHORTFALL_SLOT_SCHEMA}
+        if declared != actual:
+            raise BatchError(
+                "%s's slot %d is not the ledger's record %d: it declares %r and "
+                "the ledger holds %r"
+                % (SHORTFALL_NAME, offset + 1, offset + 1, declared, actual))
+    head = record_digest(records[-1]) if records else None
+    if declaration["ledgerHeadSha256"] != head:
+        raise BatchError(
+            "%s declares the ledger head %r and the chain's last record digests "
+            "to %r: the declaration names a ledger this one is not"
+            % (SHORTFALL_NAME, declaration["ledgerHeadSha256"], head))
+    if declaration["ledgerSha256"] != ledger_sha256:
+        raise BatchError(
+            "%s declares the ledger file digest %r and %s is %r"
+            % (SHORTFALL_NAME, declaration["ledgerSha256"], LEDGER_NAME,
+               ledger_sha256))
+
+
 def completed_rounds(records: list) -> int:
     """The last round every one of whose THREE slots the ledger holds, and
     **zero** when no round is whole.
@@ -2471,12 +2890,24 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
     unblock scoring of a full or over-full one. **A terminal batch is therefore
     exactly 150 slots or a SHORTFALL.json, never both and never neither.**
 
-    What it declares: the reason, the last completed round R, the exact completed
-    prefix of the registered order — the global index of the last completed slot
-    — and the UTC wall clock of that slot. The prefix is the ledger's, verified
-    against the registered order first, because the scorer requires the declared
-    prefix to equal the ledger's slot for slot, and per-arm counts follow from a
-    prefix where they do not follow from a round number.
+    What it declares (R1-7's schema, `SHORTFALL_SCHEMA`): the reason, the last
+    completed round R, the exact completed prefix of the registered order — the
+    global index of the last completed slot — the UTC wall clock of that slot,
+    **the ledger's file digest and chain head**, and **the full slot/seal
+    inventory**: one row per slot carrying its place in §2's order, its path, its
+    `SLOT-MANIFEST.json` digest, its wrapper exit and its §1a code. The prefix is
+    the ledger's, verified against the registered order first, because the scorer
+    requires the declared prefix to equal the ledger's slot for slot, and per-arm
+    counts follow from a prefix where they do not follow from a round number.
+
+    **The inventory is the point, and the counts are the summary.** Round 1
+    (R1-7) found the scorer accepting any JSON object — `{}` included — as the
+    thing that makes an incomplete batch terminal: nothing bound the file to the
+    ledger, the seals, or the registered order, so an arbitrary set of slots
+    could be declared short and scored. A set chosen by what its slots CONTAINED
+    is not a prefix of the registered order and does not carry the ledger's
+    chain head, and both are checked — by this function before it writes, and by
+    the scorer before it reads.
 
     The clock is READ, not taken: the driver holds no clock, and the timestamp is
     the one the wrapper stamped into that slot's CALL.json when it ran.
@@ -2532,13 +2963,27 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
     last = records[-1] if records else None
     whole_rounds = completed_rounds(records)
     stopped_at, clock_record = last_slot_clock(records)
-    _write_json(out_path, {
+    ledger_file = os.path.join(ARMS_ROOT, LEDGER_NAME)
+    declaration = {
+        "declarationVersion": SHORTFALL_VERSION,
         "registeredRounds": ROUNDS,
         "registeredRunsPerArm": RUNS_PER_ARM,
         "registeredSlots": REGISTERED_SLOTS,
         "completedRounds": whole_rounds,
         "completedThroughGlobalIndex": last["globalIndex"] if last else 0,
         "completedSlots": present,
+        # The ledger's identity, both ways (R1-7): the digest of the FILE, and
+        # the chain head the records themselves compute to. A declaration that
+        # names neither can be written over any ledger at all.
+        "ledgerSha256": _digest(ledger_file) if os.path.isfile(ledger_file)
+                        else None,
+        "ledgerHeadSha256": record_digest(records[-1]) if records else None,
+        # The inventory: one row per slot of the declared prefix, each carrying
+        # its place in the registered order, its path, its SEAL and its outcome.
+        # This is the member that makes outcome-selective deletion visible —
+        # counts alone never could.
+        "slots": [{member: record.get(member)
+                   for member in SHORTFALL_SLOT_SCHEMA} for record in records],
         "lastSlot": last["path"] if last else None,
         "lastSlotEndedAt": stopped_at,
         # Which slot that clock is the clock OF. It is the last slot of the
@@ -2562,8 +3007,22 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
                 "carries a timestamp at all. The headline reports 'R of %d rounds "
                 "completed', and an incomplete batch returns no verdict of any "
                 "kind: every level verdict is UNRESOLVED-BY-DESIGN and no "
-                "contrast is computed." % (REGISTERED_SLOTS, ROUNDS),
-    })
+                "contrast is computed. The slots member is the INVENTORY: one "
+                "row per slot of the declared prefix, carrying its place in the "
+                "registered order, its path, its SLOT-MANIFEST.json digest and "
+                "its outcome, beside the ledger's own file digest and chain "
+                "head. Counts summarize; the inventory is what a reader "
+                "recomputes, and what makes a prefix distinguishable from a set "
+                "of slots chosen by what they contained."
+                % (REGISTERED_SLOTS, ROUNDS),
+    }
+    # R1-7: the driver validates its OWN declaration before writing it, through
+    # the same two functions the scorer runs on read. A declaration this driver
+    # cannot validate is a declaration this driver does not write — the
+    # alternative is a file that unblocks scoring and describes nothing.
+    validate_shortfall(declaration, entries)
+    verify_shortfall(declaration, records, declaration["ledgerSha256"])
+    _write_json(out_path, declaration)
     print("shortfall declared: %d of %d rounds, %d of %d slots completed"
           % (whole_rounds, ROUNDS, present, REGISTERED_SLOTS))
     return 0

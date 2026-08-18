@@ -51,9 +51,30 @@ exclusive directory.
 
 **Verdicts are read from the payload, never from the exit code.** Section 2:
 jpack exit codes distinguish invocation failure (3/4/5) from an evaluator
-answer (0/1/2), and `opa test` exits 2 on error while an undefined result
-without `--fail` prints `{}` and exits 0. Every function below reads the JSON
-document and treats the status as evidence only about the invocation.
+answer (0/1/2), and an undefined `opa eval` result without `--fail` prints `{}`
+and exits 0. Every function below reads the JSON document and treats the status
+as evidence only about the invocation.
+
+**The `opa test` exit taxonomy, settled empirically at v1.19.0 (round-1 R1-8).**
+The review found this module's own table reversed. It was, and the correction is
+in the direction the pinned binary says rather than the direction the review's
+summary suggested — measured on `design/reference/refB/policy.rego` with a pilot
+suite, a paired mutant, a deliberate parse error, a deliberate runtime error, a
+missing file, an empty suite and `--strict`:
+
+    exit 0   every test passed (and an empty suite, which passes vacuously)
+    exit 2   at least one test FAILED — an assertion, or a runtime error that
+             made the assertion undefined
+    exit 1   the invocation never got as far as running tests: a load, parse or
+             compile error, or a file that is not there
+
+`design/TOOLCHAIN-NOTES.md` ("`opa test` with a failing test exits **2**") and
+PREREGISTRATION.md §2 were therefore already RIGHT, and this file's
+`{1: "test-failure", 2: "error"}` was the wrong document. Nothing is keyed on the
+exit code any more regardless: `opa_test()` consumes `--format json`, and the
+status it returns is derived from the RESULT DOCUMENT — which is what makes an
+assertion failure (a kill) distinguishable from a compile failure (an apparatus
+refusal) rather than both being "nonzero".
 """
 from __future__ import annotations
 
@@ -389,19 +410,117 @@ def eval_rego(tools: Toolchain, policy_path: str, inputs: dict,
     return ("outcome", disposition, tuple(sorted(reasons)))
 
 
-def opa_test(tools: Toolchain, policy_path: str, suite_path: str,
-             workdir: str) -> tuple:
-    """`opa test <policy> <suite>` — arm B/C's identity control and kill probe.
+# --- arms B/C: the machine-readable test result, and the syntax tree -------
+#
+# ROUND-1 FINDING R1-8. `opa test`'s exit status was the whole of what arms B/C
+# read: identity passed on 0 and every mutant was killed on "nonzero". A compile
+# failure, a load failure and a harness timeout are all nonzero, so a transient
+# apparatus failure in the mutant phase made a weak suite high-kill, and the same
+# failure against the reference made a correct suite fail identity and score
+# zero. Both directions are closed by reading the RESULT DOCUMENT: an assertion
+# failure is a kill, and everything else is a refusal that never enters a rate.
 
-    Returns `(exit_code, class_label)`. Exit 1 is a test failure, 2 an error,
-    124 the harness's own bound; anything else is `other` and is recorded rather
-    than collapsed, because an unclassified status is evidence that the
-    invocation contract moved."""
-    code, _out, _err = _run(
+TEST_PASS = "pass"
+TEST_FAILED = "failed"
+TEST_ERRORED = "errored"
+TEST_INVOCATION_REFUSED = "invocation-refused"
+TEST_TIMEOUT = "timeout"
+TEST_UNREADABLE = "unreadable-result-document"
+
+# The two statuses that are EVIDENCE ABOUT THE SUITE. Every other status is
+# evidence about the apparatus, and `e4.py` routes it accordingly.
+TEST_SUITE_STATUSES = (TEST_PASS, TEST_FAILED)
+
+
+def opa_test(tools: Toolchain, policy_path: str, suite_path: str,
+             workdir: str) -> dict:
+    """`opa test <policy> <suite> --format json` — arm B/C's identity control
+    and kill probe, read from the result document.
+
+    Returns a record whose `status` is one of the constants above:
+
+        pass                 the document lists tests and none failed or errored
+        failed               at least one test FAILED — the only kill signal
+        errored              a test ERRORED; the assertion never decided
+        invocation-refused   `opa test` never ran the tests (load/parse/compile)
+        timeout              the harness's own bound
+        unreadable-result-document   a nonempty stdout that is not a result list
+
+    The exit status is RECORDED and read by nothing. At v1.19.0 it is 0/2/1 for
+    pass/failure/invocation-error (module docstring), but a status is a contract
+    that can move between versions and a result document is data."""
+    code, out, err = _run(
         [tools.opa, "test", policy_path, suite_path,
-         "--capabilities", tools.caps, "--timeout", OPA_EVAL_TIMEOUT], workdir)
-    return code, {0: "pass", 1: "test-failure", 2: "error",
-                  124: "timeout"}.get(code, "other")
+         "--capabilities", tools.caps, "--timeout", OPA_EVAL_TIMEOUT,
+         "--format", "json"], workdir)
+    record = {"exitCode": code, "tests": 0, "failed": [], "errored": [],
+              "status": None}
+    if code == 124:
+        record["status"] = TEST_TIMEOUT
+        return record
+    try:
+        document = json.loads(out)
+    except ValueError:
+        document = None
+    if not isinstance(document, list):
+        # An invocation that never got as far as running tests emits no result
+        # list at all. Its diagnostics are upstream's prose, so only the
+        # presence of a message is recorded, never its wording.
+        record["status"] = (TEST_INVOCATION_REFUSED if not out.strip()
+                            else TEST_UNREADABLE)
+        record["diagnosticBytes"] = len(err.encode("utf-8"))
+        return record
+    for entry in document:
+        if not isinstance(entry, dict):
+            record["status"] = TEST_UNREADABLE
+            return record
+        record["tests"] += 1
+        name = "%s.%s" % (entry.get("package"), entry.get("name"))
+        if entry.get("error") is not None:
+            record["errored"].append(name)
+        elif entry.get("fail"):
+            record["failed"].append(name)
+    if record["errored"]:
+        record["status"] = TEST_ERRORED
+    elif record["failed"]:
+        record["status"] = TEST_FAILED
+    else:
+        record["status"] = TEST_PASS
+    return record
+
+
+def opa_eval_document(tools: Toolchain, data_paths, query: str,
+                      workdir: str) -> tuple:
+    """`opa eval <query>` over a set of data files — the RESOLVED document.
+
+    Used by `e4lib/domain.py` to recover the case inputs of a table-driven
+    `opa test` file (round-1 R1-3): real authored suites build their input points
+    out of named constants and helper functions, so the syntax tree carries a ref
+    where the point is, and only evaluation resolves it. This is the pinned
+    binary's own reading, under the pinned capabilities and the registered flags
+    — the same invocation `eval_rego()` uses, at a different query.
+
+    Returns `(exit code, stdout bytes)`; the caller decodes."""
+    argv = [tools.opa, "eval", "--format", "json",
+            "--strict-builtin-errors", "--capabilities", tools.caps,
+            "--timeout", OPA_EVAL_TIMEOUT]
+    for path in data_paths:
+        argv += ["--data", path]
+    argv.append(query)
+    code, out, _err = _run(argv, workdir)
+    return code, out.encode("utf-8")
+
+
+def opa_parse(tools: Toolchain, path: str, workdir: str) -> tuple:
+    """`opa parse --format json <path>` — the syntax tree, for enumerating the
+    case inputs of an `opa test` file (`e4lib/domain.py`, round-1 R1-3).
+
+    Returns `(exit code, stdout bytes)`. Parsing is a SYNTAX operation and takes
+    no capabilities file: the builtin set constrains evaluation, and a file that
+    parses under one capabilities set parses under any."""
+    code, out, _err = _run([tools.opa, "parse", "--format", "json", path],
+                           workdir)
+    return code, out.encode("utf-8")
 
 
 def scope_str(scored) -> str:

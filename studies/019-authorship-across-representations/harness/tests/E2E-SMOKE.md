@@ -441,3 +441,34 @@ committed state this transcript was taken against:
 `arms/BATCH.json` and `arms/SHORTFALL.json` carry the wrapper's own UTC stamps
 and are therefore not digest-stable across runs; their digests are deliberately
 not recorded here. Every scorer output above is.
+
+---
+
+## 9. Third pass — after the round-1 response (supersedes sections 6–8's numbers)
+
+Sections 1–5 reproduce unchanged (same fixture builder path, same twelve slots, same four
+planned outcomes: slot 8 `call-timeout`, slot 11 no-marker; pre-batch identity 3/3). The
+scorer's behaviour from section 6 onward is superseded by the round-1 fixes, and the
+re-run shows them:
+
+- **R1-7 visible.** The declared-short batch no longer computes endpoints: the terminal
+  line is `UNRESOLVED-BY-DESIGN - the batch was declared short (PILOT)`, with **no cuts
+  printed, no contrast, no direction** — which is also R1-14's no-publication-below-a-gate
+  rule doing its work. Section 6's `tau cut: … 77 of the 81` line cannot recur: the single
+  cross-language cut was R1-1's defect, the cut layer is per-language now (JPS 72/75,
+  Rego 62/65 at the current manifests), and it is exercised by the suite
+  (`tests/test_score_e4.py`) rather than by a short-batch smoke, which by design never
+  reaches it.
+- **Fail-closed guards visible in this very replay.** The shortfall invocation without
+  `PYTHONSAFEPATH=1` was refused with the untracked-source-scan message (operator slip,
+  kept in the record); an attempt scored before the shortfall declaration existed
+  published `pipeline-invalid before any run was scored`.
+- **Rescoring is byte-identical** into a second root (`diff -r`, empty), and no output
+  file contains an absolute path.
+- Suite of record for this pass: **575 passed, 0 failed** with the pinned engines
+  (five declaration-refusal tests had asserted an earlier draft's message wording — the
+  refusals themselves fired; fragments realigned to the scorer's actual messages, recorded
+  as an integration slip).
+- Output digests this pass: `RESULTS.json 4d9188e0cbecff2f…`, `ATTEMPT.json
+  4b759749e947bbd0…` (differ from section 6's because the terminal row differs — that is
+  the fix, not drift).

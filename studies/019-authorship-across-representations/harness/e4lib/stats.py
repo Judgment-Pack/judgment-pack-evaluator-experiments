@@ -48,6 +48,48 @@ exact integer or `Fraction`. `float` appears in the Clopper-Pearson bounds
 (Study 012's registered 200-halving bisection, whose fixed iteration count and
 exact comparison give the same bits on any platform) and in formatting, and
 nowhere in the contrast.
+
+WHAT THE CONTRAST IS, AND WHAT IT IS NOT — ROUND-1 FINDING R1-16
+----------------------------------------------------------------
+The reviewer's finding was that the reported interval "is not established as an
+exact 95% confidence interval over the continuous binomial parameter space", and
+offered two remedies: certify the continuum, or relabel. **This study relabels,
+and states the direction of the approximation.** Certification was costed and
+rejected on the arithmetic: the Bernstein bound below makes the mesh error
+`N / (2 * mesh_den)`, so a certified continuum supremum at N = 100 needs a mesh
+of denominator ~50,000 to leave a thousandth of slack under `alpha = 0.05` — and
+that is 25,000 exact evaluations of a degree-100 Bernstein polynomial per level,
+inside a binary search, inside a 201-point `Delta0` sweep. The honest artifact is
+the one that says what it computed.
+
+The name of the object this module returns is therefore the
+
+    **exact-arithmetic mesh-inversion hull**
+
+and never "the exact 95% confidence interval". Two approximations, each named,
+each with its direction stated:
+
+1. **The nuisance supremum is taken over the mesh M = {k/MESH_DEN}, not over
+   [0, 1].** A mesh maximum is a LOWER bound on the continuum maximum, so the
+   realised size this module reports is a lower bound on the procedure's true
+   size: the test may be ANTI-CONSERVATIVE — its true size can exceed
+   `FM_ALPHA`, and the hull can under-cover — by at most the slack
+   `mesh_slack_bound()` computes. That function is not a fudge factor and
+   nothing is adjusted by it; it is a published bound on how wrong the label
+   could be, and it is reported inside every contrast record.
+2. **The `Delta0` inversion is over the mesh M_D = {j/FM_DELTA_MESH_DEN}.** The
+   reported endpoints are the hull of the ACCEPTED MESH POINTS, an INNER
+   approximation to the continuum acceptance set: the reported hull can be
+   NARROWER than the continuum interval, never wider. This one does not touch
+   the decision, which reads the `Delta0 = 0` inversion — an exact mesh point —
+   and nothing else.
+
+Neither approximation is new here; both were in the code and the second was
+already labelled. What changes is that the artifact no longer calls the result an
+exact confidence interval, and that the first approximation is quantified.
+OWED TO THE PROSE LANE: §5's "exact unconditional (FM-score) two-proportion
+difference intervals" and §10's "all intervals" must adopt this name and carry
+the direction with it.
 """
 from __future__ import annotations
 
@@ -183,6 +225,30 @@ DELTA = Fraction(1, 5)           # 0.20, the minimum meaningful difference
 DECIDED_LEFT = "left-above-right"
 DECIDED_RIGHT = "right-above-left"
 INDETERMINATE = "indeterminate"
+
+# The one name this study publishes for the object below (round-1 R1-16).
+CONSTRUCTION_NAME = "exact-arithmetic mesh-inversion hull"
+
+
+def mesh_slack_bound(n_left: int, n_right: int,
+                     mesh_den: int = MESH_DEN) -> Fraction:
+    """A bound on how far the MESH supremum can fall below the CONTINUUM one.
+
+    The null tail probability at Delta0 = 0 is one Bernstein polynomial in the
+    shared nuisance rate, `f(p) = sum_s a_s C(N,s) p^s (1-p)^(N-s)` with
+    `N = n_A + n_C` and every `a_s` in [0, 1] (it is the fraction of tables at
+    that margin that lie in the tail). Bernstein's derivative identity gives
+    `f'(p) = N sum_s (a_{s+1} - a_s) B_{s,N-1}(p)`, and a convex combination of
+    numbers of modulus at most one has modulus at most one, so `|f'| <= N`
+    everywhere. A grid of spacing `1/mesh_den` therefore misses the continuum
+    maximum by at most `N / (2 * mesh_den)`.
+
+    Exact, and deliberately crude: it is a HONEST CEILING on the label's error,
+    not an estimate of it. Nothing is corrected by it — the value is published
+    beside the realised size so a reader can see how far "alpha = 0.05" could be
+    from the truth, which is the whole of what round-1 R1-16 asks for once
+    certification has been declined."""
+    return Fraction(n_left + n_right, 2 * mesh_den)
 
 
 def z2_table(n_left: int, n_right: int = None) -> list:
@@ -387,14 +453,28 @@ def excludes_zero(x: int, y: int, n_left: int, n_right: int = None) -> dict:
         "criticalLevel": None if cstar is None else str(cstar),
         "orderingStatistic": str(z2),
         "realisedSize": None if cstar is None else float(size),
+        "realisedSizeExact": None if cstar is None else str(size),
         "alpha": str(FM_ALPHA),
         "meshDenominator": MESH_DEN,
-        "construction": "exact unconditional (Barnard-type) interval by "
-                        "inversion of the two-sided Farrington-Manning score "
-                        "test, nuisance eliminated by maximisation over the "
-                        "registered rational mesh; Reading 1 (the Delta0 = 0 "
-                        "inversion, which is what the zero-exclusion decision "
-                        "reads)",
+        # Round-1 R1-16, published with every contrast rather than in a note.
+        "constructionName": CONSTRUCTION_NAME,
+        "levelCertifiedOverContinuum": False,
+        "nuisanceMeshSlackBound": str(mesh_slack_bound(n_left, n_right)),
+        "approximationDirection":
+            "the nuisance supremum is over the mesh M = {k/%d} and is therefore "
+            "a LOWER bound on the continuum supremum: the realised size reported "
+            "here is a lower bound on the procedure's true size, so the "
+            "procedure may be anti-conservative (true size above alpha, "
+            "under-coverage) by at most nuisanceMeshSlackBound. Nothing is "
+            "adjusted by that bound; it is published so the label's error is "
+            "visible" % MESH_DEN,
+        "construction": "%s: the two-sided Farrington-Manning score test "
+                        "inverted in exact integer arithmetic with the nuisance "
+                        "eliminated by maximisation over the registered rational "
+                        "mesh; Reading 1 (the Delta0 = 0 inversion, which is what "
+                        "the zero-exclusion decision reads). NOT an exact 95%% "
+                        "confidence interval over the continuous parameter space "
+                        "— see approximationDirection" % CONSTRUCTION_NAME,
     }
 
 
@@ -672,18 +752,30 @@ def interval_endpoints(x: int, y: int, n_left: int, n_right: int = None,
         "nuisanceMeshDenominator": MESH_DEN,
         "mleBisections": FM_MLE_BISECTIONS,
         "alpha": str(FM_ALPHA),
-        "construction": "the acceptance set {Delta0 in M_D : the two-sided "
+        "constructionName": CONSTRUCTION_NAME,
+        "levelCertifiedOverContinuum": False,
+        "nuisanceMeshSlackBound": str(mesh_slack_bound(n_left, n_right)),
+        "approximationDirection":
+            "TWO approximations, both one-directional. (1) The Delta0 inversion "
+            "is over M_D = {j/%d}, so these endpoints are the hull of the "
+            "ACCEPTED MESH POINTS — an INNER approximation: the reported hull "
+            "can be narrower than the continuum acceptance set, never wider. "
+            "(2) The nuisance supremum is over M = {k/%d} and is a LOWER bound "
+            "on the continuum supremum, so the nominal level may be "
+            "anti-conservative by at most nuisanceMeshSlackBound. Neither "
+            "affects the zero-exclusion decision, which reads the exact "
+            "Delta0 = 0 inversion" % (mesh_den, MESH_DEN),
+        "construction": "%s: the acceptance set {Delta0 in M_D : the two-sided "
                         "Farrington-Manning score test at Delta0 does not "
                         "reject at alpha}, nuisance eliminated by maximisation "
-                        "over the registered rational mesh; reported as the "
-                        "convex hull of that set. Endpoints are mesh points: "
-                        "the reported interval is the hull of the ACCEPTED MESH "
-                        "POINTS and is therefore an inner approximation to the "
-                        "continuum acceptance set, refined to 1/%d." % mesh_den,
+                        "over the registered rational mesh, reported as the "
+                        "convex hull of that set. NOT an exact 95%% confidence "
+                        "interval over the continuous parameter space — see "
+                        "approximationDirection" % CONSTRUCTION_NAME,
     }
 
 
-def tau_cut(paired: int, tau: Fraction = TAU) -> int:
+def tau_cut(paired: int, tau: Fraction = None) -> int:
     """The OPERATIVE INTEGER CUT at a paired-mutant count.
 
     PREREGISTRATION.md section 5: "A run is high-kill iff its paired kill rate
@@ -693,7 +785,12 @@ def tau_cut(paired: int, tau: Fraction = TAU) -> int:
     runs — so it is DERIVED here from the count the attempt actually has, and
     the scorer prints it. Smallest k with k/paired >= tau, i.e.
     ceil(tau.numerator * paired / tau.denominator), in exact integer
-    arithmetic."""
+    arithmetic.
+
+    `tau` defaults to `TAU` at CALL time rather than at definition time, so a
+    test that moves the registered threshold moves what this function computes —
+    a default bound at definition is a constant a test cannot reach."""
+    tau = TAU if tau is None else tau
     if paired <= 0:
         raise StatsError(
             "TAU-NO-PAIRED-SUBSET the high-kill cut is over the paired adequate "

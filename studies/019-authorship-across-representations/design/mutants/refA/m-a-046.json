@@ -69,7 +69,7 @@
             "op": "fact",
             "path": "/vendor/riskScore",
             "operator": "greater-than-or-equal",
-            "value": "90"
+            "value": "89"
           }
         ]
       },
@@ -191,7 +191,7 @@
             "op": "fact",
             "path": "/vendor/requestedSpend",
             "operator": "greater-than",
-            "value": "499999.99"
+            "value": "500000.00"
           },
           {
             "op": "fact",
@@ -372,6 +372,88 @@
                 "value": "100000.00"
               }
             ]
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/newVendor",
+            "operator": "equals",
+            "value": "yes"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "r-o1-wide-low",
+      "description": "O1 + D8 - a new vendor in D6c's LOW-country risk band is referred for review whatever the requested spend is (D6c is removed by O1 and no other determination clause reaches this band).",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/newVendor",
+            "operator": "equals",
+            "value": "yes"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "r-o1-wide-spend",
+      "description": "O1 + D8 - a new vendor in D6c's risk band with spend up to $100,000.00 is referred for review whatever the country risk is (LOW is D6c removed by O1; MEDIUM and HIGH are out of D7's and D4's reach in this band).",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "100000.00"
           },
           {
             "op": "fact",
@@ -784,6 +866,116 @@
       },
       "effect": "suppress-rule",
       "targetRule": "r-d8",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "x-o1-suppress-d8-low",
+      "description": "O1 - inside the LOW-country D6c risk band a new vendor's determination is review on every spend, so D8's own catch-all must not re-read the requested spend there.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/newVendor",
+            "operator": "equals",
+            "value": "yes"
+          }
+        ]
+      },
+      "effect": "suppress-rule",
+      "targetRule": "r-d8",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "x-o1-suppress-d8-spend",
+      "description": "O1 - inside D6c's risk band at spend up to $100,000.00 a new vendor's determination is review on every country risk, so D8's own catch-all must not re-read the country risk there.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "100000.00"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/newVendor",
+            "operator": "equals",
+            "value": "yes"
+          }
+        ]
+      },
+      "effect": "suppress-rule",
+      "targetRule": "r-d8",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "x-d5-suppress-o1-wide-low",
+      "description": "D5 - a recorded prior enforcement action displaces clause o1-wide-low; an unreported status is treated as no and suppresses nothing.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "r-o1-wide-low",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "x-d5-suppress-o1-wide-spend",
+      "description": "D5 - a recorded prior enforcement action displaces clause o1-wide-spend; an unreported status is treated as no and suppresses nothing.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "r-o1-wide-spend",
       "onUnknown": "ignore"
     }
   ],

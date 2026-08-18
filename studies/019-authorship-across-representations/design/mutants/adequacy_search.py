@@ -41,16 +41,22 @@ Dense derived space (419,904 cells), per the adequacy work list:
 The space carries no malformed or out-of-range values: the registered projection
 (POLICY-DRAFT.md, "Scored surface") admits exactly these states.
 
-Registered exclusion X1 is applied to CANDIDACY: a cell in the X1 class can never be
-a gold row (check_gold.py asserts this), so it cannot be a killing witness. X1 cells
-are still evaluated and counted, so a mutant distinguishable ONLY inside X1 is
-reported as such rather than silently dropped.
+Registered exclusion classes are applied to CANDIDACY: a cell inside one can never be a
+gold row, so it cannot be a killing witness. **The registry is now EMPTY** — X1 was
+retired on 2026-08-18 with the arm-A reference repair (round-1 finding R1-2;
+reference/refA/PACK-CHANGE-001.md), so `excluded()` is false everywhere and every cell
+of the dense space is candidate ground. The `diffCellsInX1` / `diffCellsOutsideX1`
+counters are kept (they now read 0 and `diffCells`) so the shape of this report does not
+change when a class is registered again.
 
 Usage:
   python3 adequacy_search.py --validate      # transcription vs pinned jpack
   python3 adequacy_search.py --search        # both arms -> adequacy_search.json
   python3 adequacy_search.py --confirm       # re-run pinned binaries on the witnesses
   python3 adequacy_search.py --witnesses     # recompute witness sets over gold.json
+  python3 adequacy_search.py --engine-supplied-census
+                                             # dense engineSuppliedKill census over EVERY
+                                             # valid arm-A mutant (round-1 finding R1-11)
 """
 import argparse
 import json
@@ -106,9 +112,21 @@ def space():
                                                "insurance": ins}
 
 
+REGISTERED_EXCLUSIONS = {}     # name -> predicate(inputs); EMPTY since 2026-08-18
+
+
+def excluded(i):
+    """True iff the cell falls in a REGISTERED exclusion class. The registry is empty
+    (X1 was retired with the arm-A reference repair, round-1 finding R1-2 —
+    reference/refA/PACK-CHANGE-001.md), so no cell is excluded from candidacy and no
+    mutant can be 'distinguishable only inside an excluded region' any more."""
+    return any(p(i) for p in REGISTERED_EXCLUSIONS.values())
+
+
 def in_x1(i):
-    """Registered arm-A inexpressibility class X1 (POLICY-DRAFT.md reference-build results;
-    the same predicate check_gold.py asserts over gold.json)."""
+    """RETIRED. Kept only so a reader diffing this file against the pre-repair version
+    can see where the class used to bite; it is not consulted anywhere (`excluded()` is).
+    check_gold.py no longer forbids these rows — three gold rows now live here."""
     if i["newVendor"] != "yes" or i["risk"] is None:
         return False
     if not (40 <= int(i["risk"]) < 70):
@@ -417,7 +435,7 @@ def _search_a(mid):
         if got == REFOUT[k]:
             continue
         ndiff += 1
-        if in_x1(c):
+        if excluded(c):
             nx1 += 1
             continue
         if len(wit) < MAXW:
@@ -444,7 +462,7 @@ def _search_b(mid):
     wit, nx1 = [], 0
     for idx, a, b in diffs:
         c = cells[idx]
-        if in_x1(c):
+        if excluded(c):
             nx1 += 1
             continue
         if len(wit) < MAXW:
@@ -928,7 +946,7 @@ def _killcensus_a(mid):
     seen = {}
     for k, c in enumerate(CELLS):
         got = scored(sim_a(pack, c))
-        if got == REFOUT[k] or in_x1(c):
+        if got == REFOUT[k] or excluded(c):
             continue
         key = f"outcome:{got[1]}" if got[0] == "outcome" else f"{got[0]}:{'+'.join(got[2])}"
         seen[key] = seen.get(key, 0) + 1
@@ -948,6 +966,185 @@ def killcensus():
     print(f"killcensus: {len(res)} newly killable arm-A mutants; "
           f"{len(co)} distinguishable ONLY as unresolved{{conflict}} anywhere: {co}")
 
+
+
+# --------------------------------------------------------------------------------------
+# engineSuppliedKill — the DENSE census (round-1 finding R1-11)
+# --------------------------------------------------------------------------------------
+# R1-11, verbatim: "`update_registry()` calls a mutant conflict-only when its outputs are
+# conflicts only on its CURRENT GOLD WITNESSES, not over the registered non-X1 domain; the
+# dense routine is run only for the newly killable worklist and does not update the
+# registry." That is a semantic misclassification: a mutant can produce nothing but
+# `unresolved{conflict}` on the handful of gold rows that happen to kill it and still be an
+# ordinary assertion kill at some other permitted input — which is exactly what the
+# reviewer demonstrated on the pre-repair m-a-139.
+#
+# The census below is the corrected definition, and it is the ONLY thing allowed to write
+# the `engineSuppliedKill` member:
+#
+#   engineSuppliedKill(m) == m differs from the reference SOMEWHERE in the registered
+#                           domain, AND every scored output it produces at every such cell
+#                           is `unresolved{conflict}`.
+#
+# It runs over EVERY valid mutant (not a worklist), over the full 419,904-cell dense space
+# (no exclusions — the registry is empty), and every record gets the Boolean, so a consumer
+# can never see a partially-marked manifest and infer from one entry.
+CONFLICT = "unresolved:conflict"
+
+
+def _esk_a(mid):
+    pack = json.load(open(os.path.join(HERE, "refA", mid + ".json")))
+    outputs, exemplar, ndiff = {}, {}, 0
+    for k, c in enumerate(CELLS):
+        got = scored(sim_a(pack, c))
+        if got == REFOUT[k] or excluded(c):
+            continue
+        ndiff += 1
+        key = f"outcome:{got[1]}" if got[0] == "outcome" else f"{got[0]}:{'+'.join(got[2])}"
+        outputs[key] = outputs.get(key, 0) + 1
+        exemplar.setdefault(key, k)          # first cell in canonical order: deterministic
+    return {"id": mid,
+            "differingCells": ndiff,
+            "mutantOutputsOverDomain": dict(sorted(outputs.items())),
+            "exemplarCellIndexPerOutput": dict(sorted(exemplar.items())),
+            "engineSuppliedKill": bool(outputs) and list(outputs) == [CONFLICT],
+            "equivalentOverDomain": ndiff == 0}
+
+
+def engine_supplied_census(sample_per_stratum=3):
+    """Dense census + manifest stamp + a stratified engine confirmation of the result."""
+    mana = json.load(open(os.path.join(HERE, "refA", "MANIFEST.json")))
+    valid = [m for m in mana if m["validates"]]
+    _init_a()
+    with Pool(int(os.environ.get("ADQ_JOBS", "12")), initializer=_init_a) as pool:
+        res = pool.map(_esk_a, [m["id"] for m in valid])
+    by_id = {r["id"]: r for r in res}
+
+    # ---- stratified engine confirmation, deterministic (no RNG) ------------------------
+    # Strata: (mutation class, engineSuppliedKill). Up to `sample_per_stratum` mutants per
+    # stratum in id order, PLUS every mutant whose classification the census CHANGED
+    # relative to the pre-repair manifest is eligible, PLUS the D4-cascade-deletion mutant
+    # the reviewer used as the worked counter-example, which is pinned in by edit text.
+    cls = {m["id"]: m["class"] for m in valid}
+    strata = {}
+    for r in res:
+        strata.setdefault((cls[r["id"]], r["engineSuppliedKill"]), []).append(r["id"])
+    picked = []
+    for key in sorted(strata, key=lambda k: (k[0], k[1])):
+        picked += sorted(strata[key])[:sample_per_stratum]
+    pinned = [m["id"] for m in valid
+              if m["class"] == "cascade-deletion" and "countryRisk equals HIGH" in m["edit"]]
+    for mid in pinned:
+        if mid not in picked:
+            picked.append(mid)
+    picked = sorted(set(picked))
+
+    cells = list(space())
+    confirmations = []
+    for mid in picked:
+        rec = by_id[mid]
+        mpath = os.path.join(HERE, "refA", mid + ".json")
+        rpath = os.path.join(REF, "refA", "pack.json")
+        for out_key, idx in sorted(rec["exemplarCellIndexPerOutput"].items()):
+            c = cells[idx]
+            mk, mo, mrs = scored(jpack_eval(mpath, c))
+            rk, ro, rrs = scored(jpack_eval(rpath, c))
+            engine_key = f"outcome:{mo}" if mk == "outcome" else f"{mk}:{'+'.join(mrs)}"
+            confirmations.append({
+                "id": mid, "class": cls[mid], "cellIndex": idx, "inputs": c,
+                "simulatorMutantOutput": out_key,
+                "engineMutantOutput": engine_key,
+                "engineReferenceOutput": (f"outcome:{ro}" if rk == "outcome"
+                                          else f"{rk}:{'+'.join(rrs)}"),
+                "engineConfirmsSimulator": engine_key == out_key,
+                "engineConfirmsDistinguished": (mk, mo, mrs) != (rk, ro, rrs),
+            })
+    bad = [c for c in confirmations
+           if not (c["engineConfirmsSimulator"] and c["engineConfirmsDistinguished"])]
+
+    report = {
+        "record": "engine-supplied-kill dense census",
+        "finding": "round-1 R1-11",
+        "definition": ("engineSuppliedKill = the mutant differs from its reference somewhere "
+                       "in the registered domain AND every scored output it produces at every "
+                       "differing cell is unresolved{conflict}. Computed over the FULL dense "
+                       "derived space, not over gold witnesses."),
+        "domain": {"cells": len(CELLS),
+                   "registeredExclusionClasses": sorted(REGISTERED_EXCLUSIONS),
+                   "note": "the exclusion registry is empty since 2026-08-18, so the census "
+                           "domain is the whole dense space"},
+        "mutantsCensused": len(res),
+        "engineSuppliedKillTrue": sorted(r["id"] for r in res if r["engineSuppliedKill"]),
+        "equivalentOverDomain": sorted(r["id"] for r in res if r["equivalentOverDomain"]),
+        "engineConfirmation": {
+            "rule": "strata = (mutation class x engineSuppliedKill), up to %d mutants per "
+                    "stratum in id order, plus the D4-cascade-deletion mutant pinned by edit "
+                    "text (the reviewer's worked counter-example); every distinct output the "
+                    "census recorded for a sampled mutant is confirmed at its exemplar cell, "
+                    "on the mutant AND on the reference" % sample_per_stratum,
+            "mutantsSampled": picked,
+            "evaluations": len(confirmations),
+            "unconfirmed": bad,
+            "pass": not bad,
+            "detail": confirmations,
+        },
+        "perMutant": sorted(res, key=lambda r: r["id"]),
+    }
+    json.dump(report, open(os.path.join(HERE, "adequacy_engine_supplied.json"), "w"),
+              indent=1, sort_keys=True)
+
+    for m in mana:
+        if m["validates"]:
+            m["engineSuppliedKill"] = by_id[m["id"]]["engineSuppliedKill"]
+        else:
+            m["engineSuppliedKill"] = None      # never absent: an invalid mutant is not scored
+    json.dump(mana, open(os.path.join(HERE, "refA", "MANIFEST.json"), "w"),
+              indent=1, sort_keys=True)
+
+    n_true = len(report["engineSuppliedKillTrue"])
+    print(f"engine-supplied census: {len(res)} valid mutants over {len(CELLS)} cells; "
+          f"{n_true} engineSuppliedKill=true; "
+          f"{len(report['equivalentOverDomain'])} equivalent over the domain; "
+          f"engine confirmation {len(confirmations)} evaluations, {len(bad)} unconfirmed")
+    for b in bad[:10]:
+        print("  UNCONFIRMED", json.dumps(b, sort_keys=True))
+    return 1 if bad else 0
+
+
+def rego_engine_supplied_stamp():
+    """Stamp `engineSuppliedKill` on every arm-B record so the consumer never sees a
+    partially marked manifest (round-1 R1-11's second half).
+
+    For the Rego set the value is FALSE by construction, and the construction is worth
+    stating rather than assuming: `engineSuppliedKill` names a kill the ENGINE supplies
+    through JPS §8's structural conflict detection (two unsuppressed rules of different
+    outcome both firing -> unresolved{conflict}), which no author assertion had to catch.
+    The Rego reference is a single decision ladder evaluated as a total function: there is
+    no conflict detection to supply anything, every kill is an assertion in the suite
+    failing, and `opa test`'s exit status is the only channel. The member is therefore
+    false on every valid Rego mutant and null on the dropped one — recorded, not omitted,
+    because "absent" and "false" are different claims and the scorer must not have to
+    guess which one it is looking at."""
+    path = os.path.join(HERE, "refB", "MANIFEST.json")
+    man = json.load(open(path))
+    n = 0
+    for m in man["mutants"]:
+        if m.get("status") == "valid":
+            m["engineSuppliedKill"] = False
+            n += 1
+        else:
+            m["engineSuppliedKill"] = None
+    man["engineSuppliedKillNote"] = (
+        "false on every valid Rego mutant BY CONSTRUCTION: the reference is a total "
+        "decision ladder with no structural conflict detection, so no kill is supplied by "
+        "the engine rather than by an authored assertion. Stamped by "
+        "adequacy_search.py --rego-engine-supplied-stamp; see round-1 finding R1-11.")
+    with open(path, "w") as fh:
+        json.dump(man, fh, indent=2, sort_keys=False)
+        fh.write("\n")
+    print(f"rego engineSuppliedKill stamp: {n} valid records set false, "
+          f"{len(man['mutants']) - n} non-valid records set null")
+    return 0
 
 
 def _sim2(mid):
@@ -1001,6 +1198,10 @@ def main():
     ap.add_argument("--registry", action="store_true")
     ap.add_argument("--killcensus", action="store_true")
     ap.add_argument("--crosscheck", action="store_true")
+    ap.add_argument("--engine-supplied-census", action="store_true",
+                    dest="engine_supplied_census")
+    ap.add_argument("--rego-engine-supplied-stamp", action="store_true",
+                    dest="rego_engine_supplied_stamp")
     ap.add_argument("--witnesses", action="store_true")
     a = ap.parse_args()
     rc = 0
@@ -1042,6 +1243,10 @@ def main():
         killcensus()
     if a.crosscheck:
         rc |= crosscheck()
+    if a.engine_supplied_census:
+        rc |= engine_supplied_census()
+    if a.rego_engine_supplied_stamp:
+        rc |= rego_engine_supplied_stamp()
     sys.exit(rc)
 
 

@@ -22,6 +22,16 @@ PREREGISTRATION.md section 5, verbatim:
        likewise.
     4. Otherwise -> INDETERMINATE; no claim in any direction is licensed.
 
+TWO ROWS ARE AHEAD OF THAT TEXT, and the prose lane owes them (round 1). The
+table below carries FIVE rows: a declared short batch is `UNRESOLVED-BY-DESIGN`
+above every substantive row (R1-7 — the driver and the scaffold already register
+that price, and the scorer was scoring the prefix anyway), and
+`engine-execution-clean` joins the control gates (R1-8 — a pinned engine that
+refused on a frozen artifact adjudicates R1 in no direction). Until §5's own
+bytes carry both, `tests/test_score_decision.py` reads the four rows the
+registration does name and asserts the two new ones by their own registrations
+(`harness/batch.py`'s `declare_shortfall()` and `harness/SCAFFOLD.md`).
+
 Three properties this module is built to make checkable rather than believed:
 
 * **Exhaustive.** `ROW_INDETERMINATE`'s predicate is the constant true, and
@@ -61,7 +71,21 @@ CONTROL_GATES = (
     "golden-context",
     "timeout-rate-within-cap",
     "e1-floor",
+    # ROUND-1 R1-8. A pinned engine that refused on a FROZEN study artifact —
+    # a reference during the identity control, a manifest mutant during
+    # mutation execution — is an apparatus failure, and the old code counted it
+    # as a kill in one direction and as an identity failure in the other. It is
+    # neither, so it adjudicates R1 in no direction: the gate holds only when
+    # every scored invocation of this attempt returned an answer. OWED TO THE
+    # PROSE LANE: §5 row 2's parenthetical and §6's gate list must name it.
+    "engine-execution-clean",
 )
+
+# The E4 denominators §5's contrast is computed over must be POSITIVE for the
+# contrast to be a statement about anything (round-1 R1-14: an arm with zero
+# admitted runs passes E1's floor by definition, and the substantive row then
+# reported INDETERMINATE with no interval in existence).
+REGISTERED_MINIMUM_DENOMINATOR = 1
 
 Row = collections.namedtuple("Row", "name verdict registered predicate")
 
@@ -70,6 +94,25 @@ def _pipeline_invalid(outcome):
     """Row 1. Any pin, schema or manifest failure, or an apparatus failure that
     makes the batch non-terminal."""
     return sorted(outcome.get("pipelineProblems") or [])
+
+
+def _shortfall_declared(outcome):
+    """Row 2. The batch was DECLARED short.
+
+    `harness/batch.py`'s `declare_shortfall()` registers the price in advance —
+    "under the stopping rule an incomplete batch, at any round and for any
+    reason, yields `UNRESOLVED-BY-DESIGN` on every level verdict and no contrast
+    at all" — and `harness/SCAFFOLD.md` says a shortfall declares rather than
+    scores. Round-1 R1-7 found the scorer computing ordinary endpoints and
+    contrasts over an arbitrary incomplete prefix on the strength of any JSON
+    object at all, `{}` included, which is outcome-selective deletion with a
+    declaration file as its only cost. The branch is a ROW now, above every
+    substantive one and above the gates, because a prefix is not the registered
+    population and no gate over it means anything.
+
+    OWED TO THE PROSE LANE: §5's ordered rule must carry this row, in this
+    position, with this verdict."""
+    return list(outcome.get("shortfallDeclared") or [])
 
 
 def _control_gate(outcome):
@@ -92,7 +135,13 @@ def _control_gate(outcome):
 
 
 def _primary_decided(outcome):
-    """Row 3. The A-C interval excludes zero."""
+    """Row 4. The A-C interval excludes zero.
+
+    A MISSING primary contrast decides nothing (round-1 R1-14). It used to fall
+    through to the last row, which publishes a substantive `INDETERMINATE` —
+    "the interval straddles zero" — over an attempt in which no interval was ever
+    computed. An absent contrast is not a straddling one; the scorer is required
+    to have refused above this row, and `decide()` asserts it."""
     contrast = (outcome.get("contrasts") or {}).get(CONTRAST_PRIMARY)
     if contrast is None:
         return []
@@ -111,6 +160,13 @@ ROW_PIPELINE_INVALID = Row(
     registered="Any pin/schema/manifest failure, or apparatus failure making "
                "the batch non-terminal",
     predicate=_pipeline_invalid)
+
+ROW_SHORTFALL_DECLARED = Row(
+    name="shortfall-declared",
+    verdict="UNRESOLVED-BY-DESIGN - the batch was declared short",
+    registered="A declared short batch: every level verdict is "
+               "UNRESOLVED-BY-DESIGN and no contrast is computed",
+    predicate=_shortfall_declared)
 
 ROW_CONTROL_GATE = Row(
     name="control-gate-failed",
@@ -135,12 +191,34 @@ ROW_INDETERMINATE = Row(
     predicate=_always)
 
 # The table. Order IS the rule.
-ROWS = (ROW_PIPELINE_INVALID, ROW_CONTROL_GATE, ROW_PRIMARY_DECIDED,
-        ROW_INDETERMINATE)
+ROWS = (ROW_PIPELINE_INVALID, ROW_SHORTFALL_DECLARED, ROW_CONTROL_GATE,
+        ROW_PRIMARY_DECIDED, ROW_INDETERMINATE)
+
+# The rows at or above which NO inferential quantity may be computed, let alone
+# published (round-1 R1-14). `harness/score.py` evaluates the gate rows FIRST,
+# and computes a contrast only when the outcome would reach `ROW_PRIMARY_DECIDED`
+# — because "adjudicates R1 in neither direction" is not satisfied by computing a
+# direction and then declining to act on it.
+GATING_ROWS = (ROW_PIPELINE_INVALID, ROW_SHORTFALL_DECLARED, ROW_CONTROL_GATE)
 
 
 class DecisionError(Exception):
     """A refusal about the decision rule itself."""
+
+
+def gate_causes(outcome: dict) -> list:
+    """Every cause on a gating row, in registered row order — empty exactly when
+    the outcome is allowed to have a contrast computed for it at all.
+
+    This is the ONE predicate `harness/score.py` asks before it computes
+    anything inferential. It is derived from `GATING_ROWS` rather than written
+    out, so a row added to the table above cannot be a row the scorer forgets to
+    gate on."""
+    causes = []
+    for row in GATING_ROWS:
+        causes.extend("%s: %s" % (row.name, cause)
+                      for cause in row.predicate(outcome))
+    return causes
 
 
 def direction(contrast: dict) -> str:
@@ -149,12 +227,30 @@ def direction(contrast: dict) -> str:
 
     Section 1: "Direction is reported as observed; the design-phase pilot
     pointed B/C above A, and this registration deliberately does not presuppose
-    it." So the direction is read off the counts and never assumed."""
+    it." So the direction is read off the observation and never assumed.
+
+    IT IS READ OFF THE RATES, THROUGH THE STATISTICAL FUNCTION'S OWN `decision`
+    FIELD (round-1 R1-13). It used to compare the raw COUNTS, which is the same
+    thing only at equal denominators — and §1a makes unequal denominators the
+    expected case, because apparatus exclusions leave them. The reviewer's
+    permitted contrast is the whole of the argument: at 6/50 versus 5/6,
+    `excludes_zero()` reports a difference of -0.7133 with the right arm far
+    above the left, and comparing 6 > 5 reported "A above C" — the study's
+    conclusion, reversed, on the registered decision's own numbers.
+    `stats.excludes_zero()` already computes the comparison in exact
+    `Fraction`s; this reads that answer instead of recomputing a worse one."""
     if not contrast.get("excludesZero"):
         return "none - INDETERMINATE"
     left, right = contrast["arms"]
-    return "%s above %s" % ((left, right) if contrast["left"] > contrast["right"]
-                            else (right, left))
+    verdict = contrast.get("decision")
+    if verdict == "left-above-right":
+        return "%s above %s" % (left, right)
+    if verdict == "right-above-left":
+        return "%s above %s" % (right, left)
+    raise DecisionError(
+        "DECISION-DIRECTION-UNREADABLE a contrast that excludes zero carries "
+        "the decision field %r, and the direction of a decided contrast is that "
+        "field and nothing else" % (verdict,))
 
 
 def decide(outcome: dict) -> dict:
@@ -167,6 +263,19 @@ def decide(outcome: dict) -> dict:
         causes = row.predicate(outcome)
         if not causes:
             continue
+        if row is ROW_INDETERMINATE \
+                and (outcome.get("contrasts") or {}).get(CONTRAST_PRIMARY) is None:
+            # Round-1 R1-14, the second scenario. The last row's verdict is a
+            # SUBSTANTIVE one — the interval straddles zero — and reaching it
+            # with no interval in existence publishes a measured null that
+            # nothing measured. The scorer is required to have filed the
+            # missing contrast as a pipeline problem above; if it did not, this
+            # refuses rather than substituting the substantive row.
+            raise DecisionError(
+                "DECISION-NO-PRIMARY-CONTRAST no gating row matched and the "
+                "registered primary contrast %s was never computed: the last "
+                "row's INDETERMINATE is the statement that an interval straddles "
+                "zero, and there is no interval" % CONTRAST_PRIMARY)
         record = {
             "row": row.name,
             "rowIndex": ROWS.index(row) + 1,

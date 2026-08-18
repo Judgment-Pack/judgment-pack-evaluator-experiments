@@ -2383,6 +2383,103 @@
     "spend": "2000000.01"
    },
    "note": "O3 requires a CLEAR screening result; under MATCH the escalation does not arise and D1 rejects"
+  },
+  {
+   "cite": [
+    "O1",
+    "D8",
+    "U1"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "x1r-low-spend-unreadable-40",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": null
+   },
+   "note": "new vendor, LOW, risk at D6c's lower edge with the requested spend unreadable: O1 removes D6c and no other clause reaches the band, so every spend lands on D8 review and U1 issues it"
+  },
+  {
+   "cite": [
+    "O1",
+    "D8",
+    "U1"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "x1r-low-spend-unreadable-69",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "absent",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "69",
+    "sanctions": "CLEAR",
+    "spend": null
+   },
+   "note": "the same at D6c's upper edge with the insurance certificate absent: D6b needs risk below 40, so the certificate cannot change the determination either"
+  },
+  {
+   "cite": [
+    "O1",
+    "D8",
+    "U1"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "x1r-country-unreadable-100k",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "55",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "new vendor at D6c's inclusive spend edge with the country risk unreadable: LOW is D6c removed by O1, MEDIUM is out of D7's reach at risk 55, HIGH is out of D4's reach below 70 and O3 begins above $2,000,000.00 - every country reviews under D8"
+  },
+  {
+   "cite": [
+    "U1",
+    "O3"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "x1r-adjacent-both-unreadable",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "55",
+    "sanctions": "CLEAR",
+    "spend": null
+   },
+   "note": "country AND spend unreadable for a new vendor in D6c's band: O3 escalates a HIGH country above $2,000,000.00 while a LOW country reviews, so the determinations differ and U1 leaves it unknown"
   }
  ]
 }

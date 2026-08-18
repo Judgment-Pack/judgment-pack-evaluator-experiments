@@ -57,12 +57,70 @@ def test_a_missing_parent_object_counts_as_null_rather_than_raising(pins):
 
 def test_the_freeze_pin_set_is_the_registered_one():
     """The registry's own label rule names the pins in prose; the code names
-    them in a tuple. A one-sided edit names its own drift site."""
+    them in a tuple. A one-sided edit names its own drift site.
+
+    ROUND-1 FINDING R1-9's enforcing test. The set stopped at eleven, so
+    REGISTERED was reachable while the capabilities digest, the model, the
+    golden capture, the probe prompt, the isolation assent, the jpack build
+    attestation and the sealed reviewer set were all null. Seven members are
+    added, and this list is what makes a silent re-shrinking impossible."""
     assert [name for name, _path in integrity.FREEZE_PINS] == [
         "preregistration", "policyProse", "goldSuite",
         "matrixA", "matrixB", "matrixC",
         "mutantManifests", "referenceA", "referenceB",
-        "offGoldCertificate", "studyManifest"]
+        "offGoldCertificate", "studyManifest",
+        "opaCapabilities", "jpackBuildAttestation", "model",
+        "probePrompt", "goldenContext", "isolationAssent",
+        "reviewerMutantSet"]
+
+
+def test_every_pin_r1_9_added_is_reachable_from_the_committed_registry(pins):
+    """Each new pin's PATH resolves in the committed registry and is null there.
+
+    A freeze pin whose path does not exist would read as null forever and could
+    never be filled — a member that makes REGISTERED unreachable is as wrong as
+    one that makes it too easy."""
+    added = ("opaCapabilities", "jpackBuildAttestation", "model",
+             "probePrompt", "goldenContext", "isolationAssent",
+             "reviewerMutantSet")
+    paths = dict(integrity.FREEZE_PINS)
+    for name in added:
+        node = pins
+        for key in paths[name][:-1]:
+            assert isinstance(node, dict) and key in node, (name, key)
+            node = node[key]
+        assert paths[name][-1] in node, name
+        assert node[paths[name][-1]] is None, name
+
+
+def test_the_two_ceremony_pins_are_freeze_pins_and_are_named_as_exempt():
+    """The golden capture and the isolation control WRITE two of the freeze
+    pins, so the driver's pre-ceremony gate cannot demand them — and nothing
+    else may exempt them.
+
+    Both halves are asserted: they are in the freeze set (so no REGISTERED
+    attempt is reachable while either is null) and they are exactly the exempt
+    tuple (so the exemption cannot quietly widen)."""
+    names = [name for name, _path in integrity.FREEZE_PINS]
+    assert set(integrity.CEREMONY_LIFECYCLE_PINS) <= set(names)
+    assert integrity.CEREMONY_LIFECYCLE_PINS == ("goldenContext",
+                                                 "isolationAssent")
+
+
+def test_the_ceremony_exemption_removes_those_two_and_nothing_else(pins):
+    filled = _fill(pins)
+    for path in (("golden", "sha256"), ("isolationNegative", "assent")):
+        node = filled
+        for key in path[:-1]:
+            node = node[key]
+        node[path[-1]] = None
+    assert integrity.study_label(filled) == "PILOT"
+    assert integrity.unfilled_pins(filled) == ["goldenContext",
+                                               "isolationAssent"]
+    assert integrity.ceremony_unfilled_pins(filled) == []
+    # One more null, and the exemption does not cover it.
+    filled["studyManifest"]["sha256"] = None
+    assert integrity.ceremony_unfilled_pins(filled) == ["studyManifest"]
 
 
 def test_the_registry_states_the_rule_the_code_implements(pins):

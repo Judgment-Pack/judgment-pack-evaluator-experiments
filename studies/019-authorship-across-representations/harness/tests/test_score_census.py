@@ -7,6 +7,8 @@ licensed" is exactly the claim a census quietly run on the gold grid would
 manufacture.
 """
 import collections
+import json
+import os
 
 import pytest
 
@@ -131,7 +133,23 @@ def test_the_registered_stimulus_is_the_gold_row_input_set(preregistration):
     assert stimulus["count"] == 105
     assert stimulus["points"] == [row["id"] for row in rows]
     assert stimulus["goldSha256"] == "sha256:" + "a" * 64
-    assert stimulus["label"] == census.STIMULUS_LABEL
+    assert stimulus["label"] == census.stimulus_label(105)
+
+
+def test_the_stimulus_label_is_derived_from_the_suite_it_was_read_over(study):
+    """ROUND-1 R1-19's enforcing test. The label was the constant string
+    "the gold-row input set (105 gold inputs)" while the committed suite had
+    grown past 105, so a published census table would have named a count its own
+    data does not have. The label is computed from the stimulus now, and this
+    drives it at the COMMITTED suite's real size rather than at a literal."""
+    with open(os.path.join(study, "design/gold/gold.json"), "rb") as handle:
+        gold = json.loads(handle.read().decode("utf-8"))
+    rows = gold["rows"]
+    stimulus = census.registered_stimulus(rows)
+    assert stimulus["count"] == len(rows)
+    assert stimulus["label"] == "the gold-row input set (%d gold inputs)" % len(rows)
+    # and the label moves with the suite rather than with an edit here
+    assert census.stimulus_label(len(rows) + 1) != stimulus["label"]
 
 
 def test_the_stimulus_carries_section_nines_reading_with_it(preregistration):
@@ -143,7 +161,7 @@ def test_the_stimulus_carries_section_nines_reading_with_it(preregistration):
     stimulus = census.registered_stimulus([{"id": "r-01"}])
     assert "no tradeoff statement" in stimulus["note"]
     record = census.census("A", {"run-001": ["approve"]}, stimulus["label"])
-    assert record["stimulus"] == census.STIMULUS_LABEL
+    assert record["stimulus"] == census.stimulus_label(1)
 
 
 def test_an_empty_or_duplicated_stimulus_refuses_by_name():

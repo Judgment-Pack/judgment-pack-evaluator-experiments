@@ -216,22 +216,107 @@ def test_a_type_error_is_the_opa_check_code_not_the_v0_one(tools, context,
 # --- the kill machinery, against a real mutant -------------------------------
 
 def test_a_real_rego_mutant_is_killed_by_the_reference_suite(tools, tmp_path):
-    """`opa test <mutant> <suite>` exits nonzero and the class is recorded."""
+    """ROUND-1 R1-8, against the real pinned binary: the KILL is an assertion
+    failure in the result document, not a nonzero exit."""
     mutant = os.path.join(DESIGN, "mutants", "refB", "m-b-001.rego")
     if not os.path.isfile(mutant):
         pytest.skip("design mutant m-b-001.rego is absent")
-    killed, detail = e4.kill_arm_rego(tools, mutant, PILOT_SUITE, str(tmp_path))
-    assert detail["class"] in ("pass", "test-failure", "error")
-    assert killed == (detail["exitCode"] != 0)
+    outcome, record = e4.kill_arm_rego(tools, mutant, PILOT_SUITE,
+                                       str(tmp_path))
+    assert outcome == e4.KILLED
+    assert record["status"] == engines.TEST_FAILED
+    assert record["failed"]
+    # And the measured taxonomy: an ordinary test failure exits 2 on this
+    # binary, which is what `design/TOOLCHAIN-NOTES.md` and §2 always said.
+    assert record["exitCode"] == 2
+
+
+def test_the_measured_opa_test_exit_taxonomy_is_the_registered_one(tools,
+                                                                   tmp_path):
+    """The empirical half of R1-8, settled on the pinned binary rather than
+    argued: 0 = every test passed, 2 = at least one FAILED, 1 = the invocation
+    never ran the tests. The code's old `{1: test-failure, 2: error}` table was
+    the document that was wrong."""
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    broken = tmp_path / "broken_test.rego"
+    broken.write_text("package broken_test\n{{{\n")
+    assert e4.kill_arm_rego(tools, reference, PILOT_SUITE,
+                            str(tmp_path))[1]["exitCode"] == 0
+    refused = engines.opa_test(tools, reference, str(broken), str(tmp_path))
+    assert refused["exitCode"] == 1
+    assert refused["status"] == engines.TEST_INVOCATION_REFUSED
+    # …and a compile failure is a REFUSAL, never a kill: under the old rule
+    # "nonzero kills" this mutant would have been killed by a suite that never
+    # ran a single assertion against it.
+    assert e4.kill_arm_rego(tools, reference, str(broken),
+                            str(tmp_path))[0] == e4.REFUSED
 
 
 def test_the_reference_policy_is_not_killed_by_its_own_suite(tools, tmp_path):
     """The identity control's other side: a suite that killed the unmutated
     reference would be pinning something the reference does not do."""
     reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
-    killed, detail = e4.kill_arm_rego(tools, reference, PILOT_SUITE,
-                                      str(tmp_path))
-    assert killed is False and detail["exitCode"] == 0
+    outcome, record = e4.kill_arm_rego(tools, reference, PILOT_SUITE,
+                                       str(tmp_path))
+    assert outcome == e4.SURVIVED and record["exitCode"] == 0
+
+
+def test_the_rego_case_inputs_are_enumerated_and_domain_checked(tools,
+                                                                tmp_path):
+    """ROUND-1 R1-3, against the REAL pilot suites: arms B/C used to receive no
+    case-level validation at all, and the certificate's supplementary stratum
+    measured 18,954 reference divergences outside the registered domain.
+
+    The pilot's own suites are table-driven — `with input as tc.given` over a
+    table whose evidence members are named constants — so both enumeration modes
+    are exercised here, and both answers come from the pinned binary."""
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    named = e4.rego_case_signatures(tools, PILOT_SUITE, str(tmp_path),
+                                    reference)
+    assert len(named) > 20
+    assert all(isinstance(signature, dict) for _name, signature in named)
+    assert e4.domain_failures(named, "number") == []
+
+
+def test_an_out_of_domain_rego_case_is_caught_and_named(tools, tmp_path):
+    """A suite asserting about `sanctionsStatus` physically absent is asserting
+    about the labelled supplementary stratum — the space where the two
+    references stop agreeing."""
+    suite = tmp_path / "off_domain_test.rego"
+    suite.write_text(
+        "package off_domain_test\n"
+        "import rego.v1\n"
+        "test_off if {\n"
+        '  data.study.decision.disposition == "review" '
+        'with input as {"vendor": {"riskScore": 50}}\n'
+        "}\n")
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    named = e4.rego_case_signatures(tools, str(suite), str(tmp_path), reference)
+    failures = e4.domain_failures(named, "number")
+    assert len(failures) == 1
+    assert failures[0]["got"] == e4.OUT_OF_DOMAIN
+    assert any("sanctions is omitted" in problem
+               for problem in failures[0]["problems"])
+
+
+def test_a_suite_whose_points_cannot_be_recovered_is_the_authoring_code(
+        tools, tmp_path):
+    """Never a silent pass: a suite that computes its inputs and leaves no
+    literal and no resolvable rule behind is the registered authoring
+    outcome."""
+    suite = tmp_path / "opaque_test.rego"
+    suite.write_text(
+        "package opaque_test\n"
+        "import rego.v1\n"
+        "test_opaque if {\n"
+        "  some k in numbers.range(1, 2)\n"
+        "  built := {\"vendor\": {\"riskScore\": k}}\n"
+        "  data.study.decision with input as built\n"
+        "}\n")
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    with pytest.raises(e4.MatrixError) as raised:
+        e4.rego_case_signatures(tools, str(suite), str(tmp_path), reference)
+    assert str(raised.value).startswith("E4-MATRIX-SCHEMA")
 
 
 # --- the reference-vs-gold floor gate, RUN (SCAFFOLD item S10) ---------------

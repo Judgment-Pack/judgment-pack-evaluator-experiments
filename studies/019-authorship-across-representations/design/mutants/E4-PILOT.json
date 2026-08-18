@@ -1,4 +1,15 @@
 {
+  "SUPERSEDED": true,
+  "supersededOn": "2026-08-18",
+  "supersededBy": "E4-PILOT-v2.json",
+  "supersededBecause": "Every number in this file was computed against artifacts that no longer exist. (1) The arm-A reference was repaired and X1 retired (reference/refA/PACK-CHANGE-001.md, round-1 R1-2), so the JPS mutant corpus was regenerated from the repaired pack: 145 mutants became 183 and the ids DO NOT carry across. (2) Gold grew 105 -> 109 rows, so every witness set and therefore the whole pairing changed. (3) The high-kill decision layer this file never carried is now computed with PER-LANGUAGE integer cuts (round-1 R1-1). Read E4-PILOT-v2.json. Nothing in this file may be quoted as current, including by OC-TABLE.md, E4-NOTES.md or the preregistration.",
+  "retainedBecause": "kept, not deleted: it is the record of what the pilot-informed choices in the preregistration's design-provenance section were actually chosen from.",
+  "headlineChanges": {
+    "armAIdentityFailures": "5 of 5 scored suites -> 0 of 5. The pilot's arm-A identity failures were caused by the reference defect X1 named, not by the authors: with the repaired reference every arm-A suite passes the registered identity control, and the off-protocol 'identity-failing cases dropped' diagnostic now covers zero suites.",
+    "referenceDivergenceOnArmAMatrixPoints": "was non-zero -> 0 of 135 points",
+    "pairing": "29 groups / 76 JPS / 65 Rego (this file) -> 35 non-degenerate groups / 75 JPS / 65 Rego (v2)",
+    "highKillFractions": "the anchor that motivated tau and the endpoint pivot does not reproduce: A 1/5, B 0/5, C 0/5 in v2 under per-language cuts 72/75 and 62/65."
+  },
   "adequacy": {
     "A": {
       "goldKills": 98,
