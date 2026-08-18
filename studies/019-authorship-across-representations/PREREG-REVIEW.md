@@ -61,3 +61,45 @@ two server-error deaths mean its peripheral sweep (SCAFFOLD status lines, study 
 wording) was finished inline by the maintainer and has had no independent read; the
 E4-PILOT-v2 anchor rests on five suites per arm; and the OC table's power grid is now
 deliberately unanchored to any operating point. Round 2 should read all three with intent.
+
+## Round 2 — 2026-08-18
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox, same invocation shape as round 1.
+- Clean HEAD read: `2c5f706` (the round-2 prompt commit; working tree clean).
+- Verbatim record: [`reviews/round-2/PROMPT.md`](reviews/round-2/PROMPT.md),
+  [`reviews/round-2/REVIEW.md`](reviews/round-2/REVIEW.md).
+- Verdict: **DO NOT FREEZE** — 7 BLOCKER, 7 MAJOR (R2-1 … R2-14).
+- Disposition verification, the round's first job: **4 of 20 round-1 dispositions HOLD
+  outright** (R1-4, R1-13, R1-15, R1-20, each verified against its cited test); the other
+  16 spawned the R2 findings — in the pattern the program's history predicts: the fix
+  holds where round 1 pointed, the generalization does not. Representative: the manifest
+  was stale on the tree the round read (R2-1 — the maintainer's own post-verification
+  commits re-staled it, which is precisely the defect class R1-9's fix exists to catch at
+  attempt time, and precisely why `test_prereg_currency.py`-style enforcement must extend
+  to the manifest); real OPA evaluation faults still enter kills on one path (R2-3);
+  transcript verdicts are sealed but not consumed by population scoring (R2-5).
+
+### The sealed reviewer mutant set — authored this round
+
+Committed byte-for-byte as emitted, with attribution, under
+[`controls/reviewer-mutants/`](controls/reviewer-mutants/): six single-edit mutants
+(3 JPS, 3 Rego) plus the reviewer's `MANIFEST.json`, with its predictions registered in
+the review prose (REVIEW.md, dated this round). **Two defects in the set as authored,
+recorded rather than repaired, per the neither-side-edits rule:**
+
+1. `rm-jps-03.json` does not hash to its manifest digest AND is refused by the pinned
+   validator (`JPS-STRUCTURE-DECIMAL-OPERAND` at
+   `/rules/12/…/conditions/1/value`) — the emitted bytes are evidently a pre-final draft
+   of a payload the reviewer validated and hashed in its final form.
+2. `rm-rego-01.rego` is valid but does not hash to its manifest digest (attestation
+   error only; all four other payloads match their digests exactly and validate).
+
+Neither payload nor manifest was edited by the maintainer. The set as it stands would be
+refused by the loader (`e4lib/reviewer.py`) — correctly. **Round 3 asks the reviewer to
+re-issue its own `rm-jps-03` payload and re-attest both digests**; the maintainer touches
+nothing in the set.
+
+### Dispositions
+
+**Pending — no R2 finding has been dispositioned yet.**
