@@ -250,3 +250,27 @@ so its determinism is a measured fact from this response's two runs and not a st
 assertion; and `adequacy_region_lemma_price.json`'s pre-repair half is derived from a
 markdown table in `ADEQUACY.md`, which is a committed record but not a machine artifact —
 the parse is strict and fails loudly, and that is the whole of its protection.
+
+## Round 5 — 2026-08-19
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox, same invocation shape as rounds 1–4.
+- Clean HEAD read: the round-5 prompt commit.
+- Verbatim record: [`reviews/round-5/PROMPT.md`](reviews/round-5/PROMPT.md),
+  [`reviews/round-5/REVIEW.md`](reviews/round-5/REVIEW.md).
+- Verdict: **DO NOT FREEZE** — 1 BLOCKER, 5 MAJOR, 1 MINOR (R5-1 … R5-7). The verdict
+  regressed from round 4's `freezable after listed fixes`, and the blocker is the
+  maintainer's own commit hygiene: a bytecode file (`harness/__pycache__/…pyc`) was
+  committed with the round-4 response — written by a post-suite `manifest_problems()`
+  import that ran without the no-bytecode flag, after the tree-condition test had already
+  passed — so `integrity.py` refuses committed HEAD and the 723/723 claim does not
+  describe it. The remaining findings are residuals of the round-4 fixes: guards binding
+  one claim but not its sibling (R5-2), header enforcement not per-round (R5-3), one
+  internally false generator sentence (R5-4), CI enforcement not robust to the scaffold's
+  registered deletion (R5-5), `--freeze` not walking the payload-set globs (R5-6), and
+  the POLICY-DRAFT lifecycle prose round 4 explicitly ordered reconciled (R5-7).
+- Round-4 disposition verification: 1 holds (R4-5), 4 partial, 1 fails (R4-6).
+
+### Dispositions
+
+**Pending — no R5 finding has been dispositioned yet.**
