@@ -9,15 +9,19 @@ inexpressibility class, **X1, which review round 1 retired: the exclusion set is
 the arm-A reference was repaired, and the gold grid now carries rows in the former X1
 region rather than excluding them** (see the retirement note below). v0, v0.1's panel
 findings, and the reference artifacts are retained beside this file. Through since v0.2:
-the clean-room second oracle, the calibration pilots, and **six** RFC 0009 review rounds
-(`../PREREG-REVIEW.md`). Rounds 1–3, 5 and 6 returned DO NOT FREEZE, and round 4 returned
-FREEZABLE AFTER LISTED FIXES. This file is not frozen. (Round-5 finding **R5-7**: this
-paragraph said two rounds and one verdict for three rounds after it stopped being true, so
-the count and the per-round verdicts are now read out of the rounds that have returned one
-and out of `../PREREG-REVIEW.md`, by `harness/tests/test_prereg_currency.py`, under the
-same machinery as the two front doors — which round-6 finding **R6-6** made read this
-whole file rather than its first section, and round-6 finding **R6-3** made reject a
-negated attribution.) The frozen version will live at `policy/POLICY.md`.**
+the clean-room second oracle, the calibration pilots, and the RFC 0009 review rounds
+(`../PREREG-REVIEW.md`). This file is not frozen. (Round-5 finding **R5-7**: this paragraph
+said two rounds and one verdict for three rounds after it stopped being true, so the count
+and the per-round verdicts stopped being a sentence anyone has to remember — they are
+rendered from the record's round-state block by `harness/render_round_status.py` into the
+sentence below, which `harness/tests/test_prereg_currency.py` requires here verbatim.
+Round-6 finding **R6-6** made the guard read this whole file rather than its first section;
+round-7 findings **R7-2 … R7-4** and **R7-7** ended the attempt to parse the claim out of
+English at all.) The frozen version will live at `policy/POLICY.md`.**
+
+<!-- round-status:begin -->
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 7 review rounds are on the record, 7 have returned a verdict — rounds 1-3 and 5-7 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES — and no round is open.
+<!-- round-status:end -->
 
 Three panel discoveries reshaped v0, all verified against a built runtime: (1) "unreported
 insurance → review" was inexpressible in Core's three-valued logic (a condition true on
@@ -278,6 +282,15 @@ Gold IS authored: the suite is committed at `design/gold/gold.json` and both eng
 the clean-room oracle reproduce it. What these two rows name is the verification work that
 was scoped to the gold-authoring step and has not landed; the heading said "open for gold
 authoring" after the authoring closed, which is round-5 finding **R5-7**'s class.
+
+**Both rows are now inside the freeze gate** (round-7 finding **R7-9**). Until this
+revision the freeze ceremony could copy and anchor this policy with V7 and V8 exactly as
+open as they are here, because nothing checked them: they are declared open in prose and
+were named by no pin, no registered document and no runbook step. V7 lands as
+`verification/V7-COMPLETENESS.md` and V8 as `verification/V8-ASYMMETRY-LEDGER.md`; both are
+registered documents in `harness/make_manifest.py`, which names each while it is absent and
+refuses `--freeze` on it. Deferring either is a decision that deletes its row from this
+section and its entry from the registered set in the same commit.
 
 - **V7**: re-derive the completeness argument mechanically over the gold grid (the
   reference build's 236,196-cell derived-space sweep is evidence, not the registered

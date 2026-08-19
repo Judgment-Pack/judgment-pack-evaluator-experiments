@@ -97,6 +97,7 @@ Run: <the pinned interpreter> harness/make_manifest.py [--check | --freeze]
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -123,6 +124,29 @@ REGISTERED_DOCUMENTS = (
     "reference/refB/policy.rego",
     "controls/off-gold-equivalence.json",
     "harness/PORTS.md",
+    # ROUND-7 FINDING R7-9: declared pre-freeze obligations that sat OUTSIDE the
+    # freeze gate. Each of the three is required before the freeze by a document
+    # in this tree, none of them was pinned, manifest-covered or named by the
+    # runbook, and the ceremony could therefore complete without any of them.
+    #
+    #   CORRECTION-TARGETS.md            §10 pins the CORRECTION.md targets —
+    #                                    verbatim wording, venue, URL and
+    #                                    retrieval date — before the freeze
+    #   verification/V7-COMPLETENESS.md  design/POLICY-DRAFT.md's V7: one
+    #                                    governing clause per gold-grid cell,
+    #                                    re-derived mechanically, with the
+    #                                    former X1 region asserted COVERED
+    #   verification/V8-ASYMMETRY-LEDGER.md
+    #                                    the same document's V8: the asymmetry
+    #                                    ledger re-derived from the two
+    #                                    references, with its final balance
+    #
+    # Registering them here is what makes the freeze refuse while any is absent.
+    # Withdrawing one is a decision that must delete its obligation from the
+    # document that declares it, in the same commit — not a quiet omission here.
+    "CORRECTION-TARGETS.md",
+    "verification/V7-COMPLETENESS.md",
+    "verification/V8-ASYMMETRY-LEDGER.md",
 )
 
 # The registered payload SETS, each an exact one-level glob. Same finding: every
@@ -260,17 +284,68 @@ PAYLOAD_MANIFESTS = (
 )
 
 
-def _manifest_records(data):
-    if isinstance(data, list):
-        return data
-    if isinstance(data, dict) and isinstance(data.get("mutants"), list):
-        return data["mutants"]
-    return None
+# ROUND-7 FINDING R7-6: EXACTLY the scorer's shape, per arm, or a refusal that
+# names itself.
+#
+# `_manifest_records()` accepted a bare LIST or `{"mutants": [...]}` for EITHER
+# arm and then derived the filename from whichever member the arm's tuple named.
+# `e4lib/e4.py`'s `load_mutants()` does neither of those things: it iterates the
+# JPS manifest DIRECTLY, which makes a top-level JSON list the only shape it can
+# read, and it reads the Rego manifest's `["mutants"]`, which makes a top-level
+# object the only shape it can read. So two manifests with their shapes SWAPPED
+# and payload filenames that happen to match closed the freeze here and raised
+# `E4-MISSING-MUTANT` at the attempt — after the anchor this gate exists to
+# hold. A numeric JPS id was the same defect one level down: `1` renders a
+# plausible `1.json` in closure and fails `mutant["id"] + ".json"` in the
+# scorer, which concatenates a string.
+#
+# The shape is therefore arm-specific and strict, the id/file member must be a
+# plain filename component, and the alternative shape is a named refusal rather
+# than an accepted variant.
+_PAYLOAD_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+
+def _manifest_records(data, key):
+    """`(records, refusal)` for one arm, in exactly the shape the scorer reads."""
+    if key == "id":
+        if not isinstance(data, list):
+            return None, ("arm A's manifest is a JSON %s and e4lib/e4.py "
+                          "iterates a top-level LIST"
+                          % type(data).__name__)
+        return data, None
+    if not isinstance(data, dict):
+        return None, ("arm B's manifest is a JSON %s and e4lib/e4.py reads a "
+                      "top-level OBJECT's `mutants`" % type(data).__name__)
+    records = data.get("mutants")
+    if not isinstance(records, list):
+        return None, "arm B's manifest carries no top-level `mutants` list"
+    return records, None
+
+
+def _payload_names(records, key):
+    """`(sorted filenames, refusal)` by the same rule `load_mutants()` uses:
+    `<id>.json` for arm A, the record's own `file` for arm B. EVERY record
+    counts, not only the valid ones — arm B's dropped mutant has a payload on
+    disk, and a file the manifest does not name is as loud as one it names and
+    cannot find."""
+    names = []
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            return None, "record %d is a JSON %s and a record is an object" \
+                % (index, type(record).__name__)
+        value = record.get(key)
+        if not isinstance(value, str) or not _PAYLOAD_NAME.match(value):
+            return None, (
+                "record %d's `%s` is %r; the scorer builds the payload path "
+                "from it, so it must be a plain filename component"
+                % (index, key, value))
+        names.append("%s.json" % value if key == "id" else value)
+    return sorted(names), None
 
 
 def expected_payloads(study=None, directory=None):
-    """`{directory: sorted expected filenames}` derived from the frozen mutant
-    manifests, or an entry of None where the manifest cannot be read."""
+    """`{directory: (sorted expected filenames, refusal)}` derived from the
+    frozen mutant manifests. Exactly one of the pair is None."""
     root = Path(study) if study is not None else STUDY
     out = {}
     for where, _pattern, manifest, key in PAYLOAD_MANIFESTS:
@@ -278,27 +353,105 @@ def expected_payloads(study=None, directory=None):
             continue
         path = root / manifest
         if not path.is_file():
-            out[where] = None
+            out[where] = (None, "the payload manifest %s does not exist" % manifest)
             continue
         try:
-            records = _manifest_records(json.loads(path.read_text(encoding="utf-8")))
-        except (ValueError, UnicodeDecodeError):
-            records = None
-        if records is None:
-            out[where] = None
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (ValueError, UnicodeDecodeError) as error:
+            out[where] = (None, "%s is not readable JSON (%s)"
+                          % (manifest, type(error).__name__))
             continue
-        names = []
-        for record in records:
-            if not isinstance(record, dict):
-                names = None
-                break
-            if key == "id":
-                value = record.get("id")
-                names.append("%s.json" % value if value else None)
-            else:
-                names.append(record.get("file"))
-        out[where] = None if names is None or None in names else sorted(names)
+        records, refusal = _manifest_records(data, key)
+        if refusal is not None:
+            out[where] = (None, "%s: %s" % (manifest, refusal))
+            continue
+        names, refusal = _payload_names(records, key)
+        out[where] = ((None, "%s: %s" % (manifest, refusal))
+                      if refusal is not None else (names, None))
     return out
+
+
+# ROUND-7 FINDING R7-8: the sealed reviewer set is a REGISTERED set and its
+# closure was never checked.
+#
+# `controls/reviewer-mutants` is one of the registered payload sets and its
+# bytes are what a REGISTERED attempt executes (§1a/§4, round-1 R1-10), yet
+# exact manifest ↔ payload closure was implemented only for the two primary
+# mutant manifests. The set's manifest is the shape `e4lib/reviewer.py` loads —
+# a top-level object with a `mutants` list whose records carry `file` — and its
+# own bytes are what `reviewerMutantSet.sha256` pins, so the manifest is part of
+# the covered set alongside the payloads it names.
+REVIEWER_SET_DIR = "controls/reviewer-mutants"
+REVIEWER_SET_MANIFEST = "MANIFEST.json"
+
+
+def reviewer_set_expected(study=None):
+    """`(sorted expected filenames, refusal)` for the sealed set — its manifest
+    plus every payload the manifest names."""
+    root = Path(study) if study is not None else STUDY
+    path = root / REVIEWER_SET_DIR / REVIEWER_SET_MANIFEST
+    if not path.is_file():
+        return None, ("%s/%s does not exist; the sealed set is a registered set "
+                      "and its manifest is what `reviewerMutantSet.sha256` pins"
+                      % (REVIEWER_SET_DIR, REVIEWER_SET_MANIFEST))
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, UnicodeDecodeError) as error:
+        return None, "%s/%s is not readable JSON (%s)" \
+            % (REVIEWER_SET_DIR, REVIEWER_SET_MANIFEST, type(error).__name__)
+    records, refusal = _manifest_records(data, "file")
+    if refusal is not None:
+        return None, "%s/%s: %s" % (REVIEWER_SET_DIR, REVIEWER_SET_MANIFEST,
+                                    refusal.replace("arm B's manifest",
+                                                    "the sealed manifest"))
+    names, refusal = _payload_names(records, "file")
+    if refusal is not None:
+        return None, "%s/%s: %s" % (REVIEWER_SET_DIR, REVIEWER_SET_MANIFEST,
+                                    refusal)
+    return sorted(names + [REVIEWER_SET_MANIFEST]), None
+
+
+def reviewer_set_digest(study=None):
+    """The digest `reviewerMutantSet.sha256` is filled from, or None while the
+    manifest is absent. Named here so the freeze runbook has one place to point
+    at and `harness/integrity.py`'s pin-source table can name it."""
+    root = Path(study) if study is not None else STUDY
+    path = root / REVIEWER_SET_DIR / REVIEWER_SET_MANIFEST
+    if not path.is_file():
+        return None
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def reviewer_set_closure_problems(study=None):
+    """R7-8. The same exact closure the two mutant corpora get: every payload
+    the sealed manifest names exists, no other file sits beside it, and the
+    study manifest covers exactly that set plus the manifest itself."""
+    root = Path(study) if study is not None else STUDY
+    here = root / REVIEWER_SET_DIR
+    if not here.is_dir():
+        return []                        # pending, not unclosed
+    names, refusal = reviewer_set_expected(study)
+    if refusal is not None:
+        return [refusal]
+    on_disk = sorted(path.name for path in here.iterdir()
+                     if path.is_file() and path.name.endswith((".json", ".rego")))
+    problems = []
+    for name in names:
+        if name not in on_disk:
+            problems.append("%s/%s names %s and it does not exist"
+                            % (REVIEWER_SET_DIR, REVIEWER_SET_MANIFEST, name))
+    for name in on_disk:
+        if name not in names:
+            problems.append("%s/%s is not named by %s"
+                            % (REVIEWER_SET_DIR, name, REVIEWER_SET_MANIFEST))
+    if study is None or Path(study) == STUDY:
+        covered = sorted(entry.split("/")[-1] for entry in manifest_entries()
+                         if entry.startswith(REVIEWER_SET_DIR + "/"))
+        if covered != sorted(names):
+            problems.append(
+                "the study manifest covers %d file(s) under %s and the sealed "
+                "set is %d" % (len(covered), REVIEWER_SET_DIR, len(names)))
+    return problems
 
 
 def payload_closure_problems(study=None):
@@ -308,6 +461,12 @@ def payload_closure_problems(study=None):
     directory, and the study manifest must cover exactly that set. A manifest
     that cannot be read is a problem in itself — the whole point is that the
     freeze may not anchor a payload tree nobody has counted.
+
+    ROUND-7 FINDING R7-6: the refusal now NAMES itself, because "absent or
+    unreadable" was true of a manifest in the other arm's shape and told the
+    operator nothing about which of the two mistakes they had made. ROUND-7
+    FINDING R7-8 adds the sealed reviewer set, which was a registered set with
+    no closure at all.
     """
     root = Path(study) if study is not None else STUDY
     problems = []
@@ -317,10 +476,9 @@ def payload_closure_problems(study=None):
         here = root / where
         if not (root / manifest).is_file() and not here.is_dir():
             continue                     # both absent: pending, not unclosed
-        names = expected.get(where)
+        names, refusal = expected.get(where, (None, "unregistered payload set"))
         if names is None:
-            problems.append(
-                "payload manifest is absent or unreadable: " + manifest)
+            problems.append("payload closure refused: " + refusal)
             continue
         on_disk = sorted(path.name for path in here.glob(pattern)) \
             if here.is_dir() else []
@@ -341,6 +499,7 @@ def payload_closure_problems(study=None):
                 problems.append(
                     "the study manifest covers %d file(s) under %s and the "
                     "payload set is %d" % (len(mine), where, len(names)))
+    problems.extend(reviewer_set_closure_problems(study))
     return problems
 
 
@@ -356,7 +515,52 @@ def pending_documents(study=None):
     pending = [name for name in REGISTERED_DOCUMENTS if not (root / name).is_file()]
     pending.extend("%s (%s)" % (glob, why)
                    for glob, why in pending_payload_sets(study))
+    pending.extend(pending_pins(study))
     return pending
+
+
+# ROUND-7 FINDING R7-8: the registered freeze procedure had NO step that filled
+# the mandatory reviewer-set pin.
+#
+# `reviewerMutantSet.sha256` is one of the eighteen pins `integrity.study_label()`
+# requires for `REGISTERED`, it is null, and `SCAFFOLD.md`'s exhaustive
+# freeze-fill filled the other pins and then claimed the label. A pin whose
+# SOURCE nobody names is a pin nobody fills, so the source is named here — the
+# digest of the sealed manifest — and the gate reports it beside the pending
+# documents. The ceremony cannot complete without it.
+PENDING_PIN_SOURCES = (
+    ("reviewerMutantSet.sha256", REVIEWER_SET_DIR + "/" + REVIEWER_SET_MANIFEST,
+     reviewer_set_digest),
+)
+
+
+def pending_pins(study=None):
+    """Freeze pins this module can compute the source of and that the registry
+    has not been given, each named WITH that source."""
+    root = Path(study) if study is not None else STUDY
+    registry = root / "harness" / "PINS.json"
+    if not registry.is_file():
+        return []
+    try:
+        pins = json.loads(registry.read_text(encoding="utf-8"))
+    except (ValueError, UnicodeDecodeError):
+        return ["harness/PINS.json is not readable JSON"]
+    out = []
+    for dotted, source, compute in PENDING_PIN_SOURCES:
+        node = pins
+        for key in dotted.split(".")[:-1]:
+            node = node.get(key) if isinstance(node, dict) else None
+        recorded = node.get(dotted.split(".")[-1]) if isinstance(node, dict) else None
+        actual = compute(study)
+        if actual is None:
+            continue                     # the source itself is not here yet
+        if recorded is None:
+            out.append("%s (fill from the sha256 of %s: %s)"
+                       % (dotted, source, actual))
+        elif str(recorded).split(":")[-1].strip() != actual:
+            out.append("%s records %r and %s hashes to %s"
+                       % (dotted, recorded, source, actual))
+    return out
 
 
 def manifest_entries():
@@ -454,7 +658,7 @@ def main(argv=None):
         for problem in problems:
             print(problem)
         for name in pending:
-            print("pending registered document (not covered yet): " + name)
+            print("pending pre-freeze obligation (not satisfied yet): " + name)
         return 1 if problems else 0
     if arguments.freeze and bytecode:
         # ROUND-5 FINDING R5-1: the freeze must not anchor a tree that carries
@@ -463,8 +667,14 @@ def main(argv=None):
             print("refused: compiled bytecode is tracked in the study: " + name)
         return 1
     if arguments.freeze and pending:
+        # ROUND-7 FINDINGS R7-8 AND R7-9: `pending` is every declared pre-freeze
+        # obligation this module can check, not only the documents — the
+        # registered payload sets, the CORRECTION.md target register, the two
+        # verification artifacts, and the reviewer-set pin with the source it is
+        # filled from. A ceremony that can complete while one of them is missing
+        # is a ceremony that never enforced it.
         for name in pending:
-            print("refused: registered document is absent: " + name)
+            print("refused: pre-freeze obligation not satisfied: " + name)
         return 1
     if arguments.freeze:
         # ROUND-6 FINDING R6-5: the payload sets must CLOSE against the manifests

@@ -1,28 +1,32 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, eighth major revision (post-round-6). Not frozen. Nothing citable has
-run. Six cross-vendor review rounds have read this study: rounds 1–3, 5 and 6 returned
-DO NOT FREEZE, and round 4 returned FREEZABLE AFTER LISTED FIXES. Round 4's six findings
-are dispositioned and closed. This revision is the response to round 6, whose findings
-are recorded verbatim in [`reviews/round-6/`](reviews/round-6/) and dispositioned in
-[`PREREG-REVIEW.md`](PREREG-REVIEW.md) — which is where the per-round detail lives, so
-this covered header restates as little of it as the record allows; a round's findings are **open** only until the
-maintainer's written disposition per finding lands there, and a round whose prompt is
-committed while its review has not landed is open in the other direction — the round
-lifecycle is a state read from the round's own artifacts (round-6 findings R6-1 and R6-3).
-Every freeze pin is null; every execution before
-the freeze is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are work that
-must land before any review round can return `freezable as written` — which no round has
-returned, so this header does not describe a freezable study. (The revision ordinal is
-stated honestly rather than continuously: the fourth revision — the round-2 response — left
-this header naming the third revision and the first review round, which is the drift
-round-3 finding R3-10 caught; round 4 then found the repaired headers stale again in a way
-R3-10's tests could not see, and round 5 found R4-3's repair positive but not per-round —
-so both front doors are now under tests that read the record's own tables and require every
-round to be NAMED with the verdict it returned, with a round counting as closed only when
-every one of its findings carries a WRITTEN disposition, an empty or `PENDING` cell being
-the absence of one, and with a negated attribution attributing nothing at all — round 6
-defeated both of those readings.)**
+**Status: DRAFT, eighth major revision (post-round-7). Not frozen. Nothing citable has
+run. The cross-vendor review rounds are recorded in [`PREREG-REVIEW.md`](PREREG-REVIEW.md),
+each verbatim under [`reviews/`](reviews/), and that record's round-state block is the
+single machine-readable source for round counts, verdicts and open state. The rendered
+sentence below is this header's ONLY statement of them — produced from the block by
+`harness/render_round_status.py` and required here verbatim by the currency suite — so the
+per-round detail lives in the record rather than being restated in a covered document. A
+round is CLOSED when a written maintainer disposition per finding lands there, and a round
+whose prompt is committed while its review has not landed is open in the other direction:
+the lifecycle is a state read from the round's own artifacts (round-6 findings R6-1 and
+R6-3; round-7 findings R7-3 and R7-4 moved the declaration of that state into the block and
+the cross-check onto the tree). Every freeze pin is null; every execution before the freeze
+is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are work that must land
+before any review round can return `freezable as written` — which no round has returned, so
+this header does not describe a freezable study. (The revision ordinal is stated honestly
+rather than continuously: the fourth revision — the round-2 response — left this header
+naming the third revision and the first review round, which is the drift round-3 finding
+R3-10 caught. Rounds 4, 5 and 6 each found the repaired headers stale again in a way the
+previous round's tests could not see, and round 7 defeated the header parser for the fourth
+consecutive round. The maintainer decision registered on 2026-08-19 is that a status header
+states nothing a test parses out of English: it carries a rendered sentence, the data behind
+it is the record's block, and the truth of the surrounding prose rests on review.)**
+
+<!-- round-status:begin -->
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 7 review rounds are on the record, 7 have returned a verdict — rounds 1-3 and 5-7 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES — and no round is open.
+<!-- round-status:end -->
+
 
 ## Design provenance (disclosed, because it shaped the registered claims)
 
@@ -761,8 +765,12 @@ actually reached and no partially computed secondary quantity is emitted. Publis
 number the registered rule says must not be computed is not a stronger publication
 commitment; it is a violation of §5 wearing one.
 `CORRECTION.md` targets (verbatim wording, venue, URL, retrieval date) are pinned before
-the freeze. A failed or INDETERMINATE R1 is reported with the same prominence as a decided
-one.
+the freeze, in the registered document **`CORRECTION-TARGETS.md`** — round-7 finding
+**R7-9**: this obligation was declared here and enforced nowhere, so the ceremony could
+complete without it. It is a registered document in `harness/make_manifest.py`, which names
+it while it is absent and refuses `--freeze` on it, and the freeze runbook carries the step
+that lands it. A failed or INDETERMINATE R1 is reported with the same prominence as a
+decided one.
 
 ## 11. What we would do with each outcome (NOT a registered commitment)
 

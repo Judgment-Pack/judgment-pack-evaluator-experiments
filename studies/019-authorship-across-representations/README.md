@@ -1,20 +1,26 @@
 # Study 019 — authorship across representations
 
 **Status: PREREGISTRATION DRAFT, eighth major revision. Not frozen, and nothing citable has
-run — every freeze pin is null and every execution so far is a non-citable pilot. Six
-cross-vendor review rounds have read this study under the RFC 0009 interim review regime.
-Rounds 1–3, 5 and 6 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES.
-Round 4's was the first verdict of the regime that was not a refusal, and round 5 took it
-back on a blocker that was the maintainer's own commit hygiene: a bytecode cache committed
-with the round-4 response, which made `integrity.py` refuse the committed tree and the
-round-4 suite claim describe a tree that HEAD was not. Round 6 found the same class one
-level up — the suite of record still did not describe committed HEAD — and found that the
-currency guards remained defeasible wherever they parsed free prose. This revision is the
-response to round 6, and all six of its findings are dispositioned; every earlier round is
-dispositioned and closed. That is not the freeze condition: the freeze requires a round
-verdict of exactly `freezable as written`, which no round has returned, so the next round
-reads this response. The record is [`PREREG-REVIEW.md`](PREREG-REVIEW.md), with each round
-verbatim under [`reviews/`](reviews/).**
+run — every freeze pin is null and every execution so far is a non-citable pilot. The
+cross-vendor review rounds under the RFC 0009 interim review regime are recorded in
+[`PREREG-REVIEW.md`](PREREG-REVIEW.md), with each round verbatim under
+[`reviews/`](reviews/). The rendered sentence below is this file's ONLY statement of how
+many rounds have run, what each returned, and which round is open: it comes from that
+record's round-state block through `harness/render_round_status.py`, and the currency suite
+requires it here verbatim. Round 4's verdict was the first of the regime that was not a
+refusal, and round 5 took it back on a blocker that was the maintainer's own commit hygiene:
+a bytecode cache committed with the round-4 response, which made `integrity.py` refuse the
+committed tree and the round-4 suite claim describe a tree that HEAD was not. Round 6 found
+that class one level up, and round 7 found it a third time — the round-opening commit itself
+was red — beside a fourth consecutive round of currency-guard bypasses, which the registered
+maintainer decision of 2026-08-19 answers by DESCOPING the English-semantics guard layer
+back to this program's baseline rather than escalating it again. The freeze requires a round
+verdict of exactly `freezable as written`, which no round has returned.**
+
+<!-- round-status:begin -->
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 7 review rounds are on the record, 7 have returned a verdict — rounds 1-3 and 5-7 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES — and no round is open.
+<!-- round-status:end -->
+
 
 ## The question
 

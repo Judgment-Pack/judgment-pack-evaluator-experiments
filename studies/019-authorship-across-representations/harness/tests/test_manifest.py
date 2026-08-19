@@ -24,6 +24,7 @@ and it is asserted with the same idiom: the manifest must not cover the registry
 that pins the manifest, or the anchor cannot be initialized without a SHA-256
 fixed point.
 """
+import json
 import os
 import pathlib
 
@@ -131,14 +132,22 @@ def test_pending_registered_documents_are_named_and_not_covered():
 
     ROUND-5 FINDING R5-6 widens the list from documents to registered payload
     SETS, so the membership check is two-sided: every pending name is either a
-    registered document or a registered set's glob, and nothing else."""
+    registered document or a registered set's glob, and nothing else. ROUND-7
+    FINDING R7-8 widens it once more, to the freeze PINS whose source this
+    module can compute — the reviewer-set digest — because a ceremony that can
+    complete with that pin null is the gap the finding names."""
     pending = make_manifest.pending_documents()
     globs = {"%s/%s" % (directory, pattern)
              for directory, pattern in make_manifest.REGISTERED_PAYLOAD_SETS}
+    pins = {dotted for dotted, _source, _compute
+            in make_manifest.PENDING_PIN_SOURCES}
     entries = make_manifest.manifest_entries()
     for name in pending:
         if name in make_manifest.REGISTERED_DOCUMENTS:
             assert name not in entries
+            continue
+        if name.split(" (")[0].split(" records")[0] in pins:
+            assert name in make_manifest.pending_pins(), name
             continue
         glob, _, reason = name.partition(" (")
         assert glob in globs, name
@@ -246,14 +255,22 @@ def _scratch_study(root):
 
 
 def _fill_payloads(root):
-    """Exactly the payloads the scratch manifests name, plus one sealed reviewer
-    file per registered control glob."""
+    """Exactly the payloads the scratch manifests name — including the SEALED
+    REVIEWER SET, which ROUND-7 FINDING R7-8 brought inside the closure: its
+    manifest is the shape `e4lib/reviewer.py` loads, and the files beside it are
+    exactly the ones it names."""
+    import json
     for name in _SCRATCH_JPS:
         _fill(root, "mutants/jps", "*.json", name + ".json")
     for name in _SCRATCH_REGO:
         _fill(root, "mutants/rego", "*.rego", name)
     _fill(root, "controls/reviewer-mutants", "*.json", "rm-jps-01.json")
     _fill(root, "controls/reviewer-mutants", "*.rego", "rm-rego-01.rego")
+    (root / "controls" / "reviewer-mutants" / "MANIFEST.json").write_text(
+        json.dumps({"reviewerSetVersion": 1,
+                    "mutants": [{"id": "rm-jps-01", "file": "rm-jps-01.json"},
+                                {"id": "rm-rego-01", "file": "rm-rego-01.rego"}]}),
+        encoding="utf-8")
 
 
 def _fill(root, directory, pattern, name):
@@ -372,6 +389,145 @@ def test_the_expected_payload_names_are_the_ones_the_scorer_opens(study):
         "arm B's design payloads are exactly the manifest's `file` members — "
         "including the dropped mutant's, which is why closure counts every "
         "record and not only the valid ones")
+
+
+# --- ROUND-7 FINDING R7-6: exactly the scorer's shape, per arm ---------------
+
+def test_the_alternative_manifest_shape_is_a_named_refusal(tmp_path, monkeypatch):
+    """R7-6, run as the reviewer described it. `_manifest_records()` accepted a
+    bare LIST or `{"mutants": [...]}` for EITHER arm, so two manifests with
+    their shapes SWAPPED — and payload filenames that happen to match — closed
+    the freeze here and raised `E4-MISSING-MUTANT` at the attempt, which is
+    after the anchor the gate exists to hold.
+
+    Each arm's alternative shape is now a refusal that names itself, and the
+    real shapes still close, so the refusal is strictness and not obstruction."""
+    import json
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    assert make_manifest.payload_closure_problems(root) == []
+
+    jps = root / "mutants" / "MANIFEST-jps.json"
+    rego = root / "mutants" / "MANIFEST-rego.json"
+    original_jps = jps.read_text(encoding="utf-8")
+    original_rego = rego.read_text(encoding="utf-8")
+
+    # arm A given arm B's shape: the payload names are still derivable, and the
+    # scorer cannot read it, so the freeze must refuse rather than close.
+    jps.write_text(json.dumps({"mutants": json.loads(original_jps)}),
+                   encoding="utf-8")
+    problems = make_manifest.payload_closure_problems(root)
+    assert any("iterates a top-level LIST" in problem for problem in problems), \
+        problems
+    assert make_manifest.main(["--freeze"]) == 1
+    jps.write_text(original_jps, encoding="utf-8")
+
+    # arm B given arm A's shape
+    rego.write_text(json.dumps(json.loads(original_rego)["mutants"]),
+                    encoding="utf-8")
+    problems = make_manifest.payload_closure_problems(root)
+    assert any("top-level OBJECT's `mutants`" in problem
+               for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+    rego.write_text(original_rego, encoding="utf-8")
+
+    assert make_manifest.payload_closure_problems(root) == []
+
+
+def test_a_non_string_payload_id_is_a_refusal_and_not_a_filename(
+        tmp_path, monkeypatch):
+    """R7-6's second half. A numeric JPS id renders a plausible `1.json` in
+    closure and fails in the scorer, which concatenates `mutant["id"] + ".json"`.
+    A path separator in the member is the same defect pointing somewhere else."""
+    import json
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    jps = root / "mutants" / "MANIFEST-jps.json"
+    records = json.loads(jps.read_text(encoding="utf-8"))
+    for bad in (1, None, "../escape", "sub/dir.json"):
+        records[0]["id"] = bad
+        jps.write_text(json.dumps(records), encoding="utf-8")
+        problems = make_manifest.payload_closure_problems(root)
+        assert any("plain filename component" in problem
+                   for problem in problems), (bad, problems)
+        assert make_manifest.main(["--freeze"]) == 1
+
+
+# --- ROUND-7 FINDING R7-8: the sealed reviewer set is inside the gate --------
+
+def test_the_sealed_reviewer_set_closes_like_every_other_payload_set(
+        tmp_path, monkeypatch):
+    """R7-8. `controls/reviewer-mutants` is a registered payload set whose bytes
+    a REGISTERED attempt executes, and exact closure was implemented only for
+    the two primary mutant manifests: one arbitrary file per glob satisfied the
+    gate. Three directions, each of which must refuse the freeze — a payload the
+    sealed manifest names and cannot find, a file beside it the manifest does
+    not name, and an absent manifest — then the repair, which must close."""
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    sealed = root / "controls" / "reviewer-mutants"
+    assert make_manifest.reviewer_set_closure_problems(root) == []
+
+    (sealed / "rm-jps-01.json").unlink()
+    assert any("does not exist" in problem for problem in
+               make_manifest.reviewer_set_closure_problems(root))
+    assert make_manifest.main(["--freeze"]) == 1
+    (sealed / "rm-jps-01.json").write_text("{}\n", encoding="utf-8")
+
+    (sealed / "rm-extra-99.json").write_text("{}\n", encoding="utf-8")
+    assert any("is not named by" in problem for problem in
+               make_manifest.reviewer_set_closure_problems(root))
+    assert make_manifest.main(["--freeze"]) == 1
+    (sealed / "rm-extra-99.json").unlink()
+
+    manifest = sealed / "MANIFEST.json"
+    body = manifest.read_text(encoding="utf-8")
+    manifest.unlink()
+    assert any("does not exist" in problem for problem in
+               make_manifest.reviewer_set_closure_problems(root))
+    assert make_manifest.main(["--freeze"]) == 1
+    manifest.write_text(body, encoding="utf-8")
+
+    assert make_manifest.reviewer_set_closure_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+
+
+def test_the_reviewer_set_pin_is_reported_by_the_gate_with_its_source(study):
+    """R7-8's other half, over the REAL tree: the freeze runbook filled the
+    other seventeen pins and claimed `REGISTERED`, because nothing said where
+    this one's value comes from. The gate must name the pin AND the artifact its
+    digest is taken over, and it must refuse the freeze while the two disagree."""
+    import hashlib
+    digest = make_manifest.reviewer_set_digest(study)
+    if digest is None:
+        pytest.skip("the sealed reviewer set has not landed yet")
+    manifest = (pathlib.Path(study) / make_manifest.REVIEWER_SET_DIR
+                / make_manifest.REVIEWER_SET_MANIFEST)
+    assert digest == hashlib.sha256(manifest.read_bytes()).hexdigest()
+    pending = make_manifest.pending_pins(study)
+    registry = json.loads((pathlib.Path(study) / "harness" / "PINS.json")
+                          .read_text(encoding="utf-8"))
+    recorded = registry["reviewerMutantSet"]["sha256"]
+    if recorded is None:
+        assert any("reviewerMutantSet.sha256" in name and digest in name
+                   and make_manifest.REVIEWER_SET_MANIFEST in name
+                   for name in pending), pending
+        assert all(name in make_manifest.pending_documents(study)
+                   for name in pending), (
+            "a pending pin must reach the freeze gate, not only this function")
+    else:
+        assert str(recorded).split(":")[-1] == digest
+        assert not [name for name in pending
+                    if "reviewerMutantSet" in name]
 
 
 # --- ROUND-5 FINDING R5-1: tracked bytecode is refused, from the INDEX -------

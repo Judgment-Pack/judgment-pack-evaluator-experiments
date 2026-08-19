@@ -615,6 +615,26 @@ Each step fills exactly one link, and every link is checkable before the next.
    roots absent returned success and wrote a manifest with zero mutant payload
    entries — the scorer refuses that tree, but only at attempt time, which is
    after the anchor it was supposed to gate.
+2b. **Land the pre-freeze obligations other documents declare** — round-7
+   finding **R7-9**. Three artifacts were required before the freeze by documents
+   in this tree and were named by no pin, no registered-document entry and no
+   step here, so the ceremony could complete without any of them:
+   - **`CORRECTION-TARGETS.md`** — §10 of the preregistration pins the
+     `CORRECTION.md` targets (verbatim wording, venue, URL and retrieval date)
+     before the freeze. One target per claim this study may have to correct, each
+     with all four fields.
+   - **`verification/V7-COMPLETENESS.md`** — `design/POLICY-DRAFT.md`'s V7: the
+     completeness argument re-derived mechanically over the gold grid, asserting
+     exactly one governing clause per cell under the earliest-clause tie-break,
+     with the former X1 region asserted **covered** rather than excluded.
+   - **`verification/V8-ASYMMETRY-LEDGER.md`** — the same document's V8: the
+     asymmetry ledger re-derived from the two reference implementations, with its
+     final balance stated.
+
+   All three are `REGISTERED_DOCUMENTS` in `harness/make_manifest.py`, so
+   `--check` names each while it is absent and `--freeze` refuses. Withdrawing
+   one is a decision that deletes the obligation from the document declaring it,
+   in the same commit — not a quiet omission from the registered set.
 3. **Assemble the arm prompts deterministically** and fill
    `arms.<ARM>.promptSha256` (the `matrixA/B/C` freeze pins) and
    `promptBytes`. The wrapper's prompt-digest gate reads exactly these members.
@@ -625,6 +645,27 @@ Each step fills exactly one link, and every link is checkable before the next.
    `references.A/B`, `offGoldCertificate`, and the toolchain members that are
    still null (`opa.capabilitiesSha256`, `jpack.reproducibleBuildAttestation`,
    `codex.model`).
+5b. **Validate and pin the SEALED REVIEWER SET** — round-7 finding **R7-8**, and
+   it is a real gate gap rather than a wording one. `reviewerMutantSet.sha256` is
+   one of the eighteen pins `integrity.study_label()` requires for `REGISTERED`;
+   it is null; and every step above filled a different pin and then this list
+   claimed the label. The step, in order:
+   1. run the non-executing loader over the set —
+      `e4lib/reviewer.py`'s `load(root)` — which validates
+      `reviewerSetVersion`, the registered manifest members, the cardinality,
+      every record's members and every payload's own digest, and executes
+      nothing;
+   2. take the digest of the sealed manifest:
+      `sha256(controls/reviewer-mutants/MANIFEST.json)`, which
+      `harness/make_manifest.py` prints as a pending pin with exactly that
+      source, and `harness/integrity.py` names in `PIN_SOURCES`;
+   3. write it to `reviewerMutantSet.sha256` in `harness/PINS.json`.
+
+   `make_manifest.py --check` reports the pin while it is null or disagrees with
+   the manifest on disk, and `--freeze` refuses on it, so the ceremony cannot
+   complete without this step. The set's payload closure — every file the sealed
+   manifest names present, no unnamed file beside it, and the study manifest
+   covering exactly that set — is checked with the two mutant corpora's.
 6. **Regenerate `harness/PORTS.md`'s destination digests** for every file the
    remaining ports touched, then re-pin `ownPorts.sha256`. `PORTS.md` before
    `PINS.json`, always: the registry pins the ports table and never the reverse.

@@ -74,6 +74,32 @@ def test_the_freeze_pin_set_is_the_registered_one():
         "reviewerMutantSet"]
 
 
+def test_every_freeze_pin_names_the_artifact_it_is_filled_from(pins):
+    """ROUND-7 FINDING R7-8. `reviewerMutantSet.sha256` has been a mandatory
+    freeze pin since round 1, and the exhaustive freeze-fill procedure filled
+    the other seventeen and then claimed `REGISTERED` — because nothing in the
+    tree said what this pin's value is or where it comes from. A null pin was
+    reported by name; what was missing is the rest of the sentence.
+
+    The two tables must have exactly the same members, so a pin added without a
+    source, or a source orphaned by a deleted pin, fails here. And the sealed
+    set's source is asserted by name, because that is the one the ceremony could
+    complete without."""
+    assert sorted(integrity.PIN_SOURCES) == sorted(
+        name for name, _path in integrity.FREEZE_PINS), (
+        "every freeze pin names the artifact its value is computed from")
+    for name, source in sorted(integrity.PIN_SOURCES.items()):
+        assert isinstance(source, str) and source.strip(), name
+    assert "controls/reviewer-mutants/MANIFEST.json" in \
+        integrity.PIN_SOURCES["reviewerMutantSet"], (
+        "the reviewer-set pin must name the manifest its digest is taken over")
+    unfilled = dict(integrity.unfilled_pin_sources(pins))
+    assert set(unfilled) == set(integrity.unfilled_pins(pins))
+    if "reviewerMutantSet" in unfilled:
+        assert "controls/reviewer-mutants/MANIFEST.json" in \
+            unfilled["reviewerMutantSet"]
+
+
 def test_every_pin_r1_9_added_is_reachable_from_the_committed_registry(pins):
     """Each new pin's PATH resolves in the committed registry and is null there.
 

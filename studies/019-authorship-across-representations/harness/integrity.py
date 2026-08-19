@@ -171,6 +171,47 @@ FREEZE_PINS = (
     ("reviewerMutantSet", ("reviewerMutantSet", "sha256")),
 )
 
+# ROUND-7 FINDING R7-8: a pin whose SOURCE nobody names is a pin nobody fills.
+#
+# `reviewerMutantSet.sha256` has been one of the eighteen pins `study_label()`
+# requires for `REGISTERED` since round 1, and the exhaustive freeze-fill
+# procedure in `harness/SCAFFOLD.md` filled the other seventeen and then claimed
+# the label — because nothing anywhere said what value this one takes or where
+# it comes from. A null pin is reported by `unfilled_pins()` either way; what
+# was missing is the second half of the sentence, so every freeze pin now names
+# the artifact its value is computed from. `tests/test_pins.py` asserts the two
+# tables have exactly the same members, so a pin added without a source, or a
+# source left behind by a deleted pin, fails the suite.
+PIN_SOURCES = {
+    "preregistration": "sha256 of the reviewed PREREGISTRATION.md (filled LAST)",
+    "policyProse": "sha256 of policy/POLICY.md, the frozen copy of "
+                   "design/POLICY-DRAFT.md",
+    "goldSuite": "sha256 of gold/GOLD.json",
+    "matrixA": "sha256 of arms/A/PROMPT.txt, assembled deterministically",
+    "matrixB": "sha256 of arms/B/PROMPT.txt, assembled deterministically",
+    "matrixC": "sha256 of arms/C/PROMPT.txt, assembled deterministically",
+    "mutantManifests": "sha256 over mutants/MANIFEST-jps.json and "
+                       "mutants/MANIFEST-rego.json",
+    "referenceA": "sha256 of reference/refA/pack.json",
+    "referenceB": "sha256 of reference/refB/policy.rego",
+    "offGoldCertificate": "sha256 of controls/off-gold-equivalence.json",
+    "studyManifest": "sha256 of harness/STUDY-MANIFEST.sha256, written by "
+                     "harness/make_manifest.py --freeze",
+    "opaCapabilities": "sha256 of the pinned OPA capabilities file",
+    "jpackBuildAttestation": "the pinned jpack build's reproducible-build "
+                             "attestation",
+    "model": "the model id the authoring wrapper is invoked with, by explicit flag",
+    "probePrompt": "sha256 of the golden-context probe prompt (SCAFFOLD G1)",
+    "goldenContext": "sha256 of the golden-context capture, WRITTEN by the "
+                     "capture command (SCAFFOLD G1)",
+    "isolationAssent": "the recorded assent from the isolation negative control, "
+                       "WRITTEN by that control (SCAFFOLD G2)",
+    "reviewerMutantSet": "sha256 of controls/reviewer-mutants/MANIFEST.json, "
+                         "after harness/e4lib/reviewer.py validates the set "
+                         "without executing it; harness/make_manifest.py "
+                         "reports the value and refuses the freeze without it",
+}
+
 
 # | `source` | `sha` | `destination` | `sha` | changed |
 ROW = re.compile(
@@ -420,6 +461,12 @@ def unfilled_pins(pins: dict) -> list:
     owes the reader."""
     state = freeze_pin_state(pins)
     return [name for name, _path in FREEZE_PINS if not state[name]]
+
+
+def unfilled_pin_sources(pins: dict) -> list:
+    """ROUND-7 FINDING R7-8: every null pin WITH the artifact it is filled from,
+    so the ceremony's remaining work is readable rather than remembered."""
+    return [(name, PIN_SOURCES[name]) for name in unfilled_pins(pins)]
 
 
 # --- the interpreter, carried verbatim --------------------------------------
@@ -705,6 +752,7 @@ def verify(study: str = STUDY, twelve: str = TWELVE) -> dict:
             "studyManifest": manifest,
             "label": label,
             "unfilledPins": unfilled_pins(chain["pins"]),
+            "unfilledPinSources": unfilled_pin_sources(chain["pins"]),
             "interpreter": interpreter}
 
 
@@ -720,7 +768,11 @@ def main(argv: list) -> int:
     print("label: %s%s"
           % (summary["label"],
              "" if not summary["unfilledPins"]
-             else " (null freeze pins: %s)" % ", ".join(summary["unfilledPins"])))
+             else " (%d null freeze pin(s))" % len(summary["unfilledPins"])))
+    # ROUND-7 FINDING R7-8: each with the artifact it is filled from, because a
+    # list of names is a list of things somebody has to already know.
+    for name, source in summary["unfilledPinSources"]:
+        print("  null freeze pin: %s — %s" % (name, source))
     return 0
 
 

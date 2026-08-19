@@ -61,6 +61,7 @@ import pytest
 import batch
 import integrity
 import make_manifest
+import render_round_status
 
 
 # --- helpers ---------------------------------------------------------------
@@ -1074,12 +1075,50 @@ def test_the_scorer_publishes_no_x1_member_under_any_spelling():
     assert "Excluded cases" not in source
 
 
-# --- ROUND-3 FINDING R3-10: the reader-facing status headers ---------------
+# --- ROUND-7 FINDINGS R7-2, R7-3, R7-4 and R7-7: the lifecycle is DATA ------
+#
+# R3-10 caught a status header that contradicted the record, and every round
+# since widened a parser over the same English. Round 4 required the verdicts to
+# appear; round 5 required them per round; round 6 added enclosing-negation
+# rejection and a disposition-cell reading. Each was defeated by the next round:
+# a negated attribution read as an assertion, a denial of the open-state
+# sentence satisfied the open-state regex, a TRUE sentence was rejected for its
+# polarity, `round-7` and `round-07` collapsed into one key, and a Setext
+# heading walked past a heading guard.
+#
+# The maintainer decision registered in `PREREG-REVIEW.md`'s round-7 section is
+# that this layer is DESCOPED rather than escalated a fifth time. What replaces
+# it is this program's own baseline (ADR 0004: navigation is not where claims
+# live), in three parts:
+#
+#   1. the lifecycle is DATA — one HTML-comment-fenced JSON block in the record,
+#      carrying per round its number, its state, the verdict it returned, its
+#      severity counts and its finding-id range;
+#   2. the three front doors carry ONE sentence RENDERED from that block by
+#      `harness/render_round_status.py`, and this module requires the rendered
+#      string of each of them VERBATIM — exact equality on the
+#      whitespace-collapsed text, with no parsing and no polarity analysis. A
+#      document that quotes its own attestation and then denies it is REVIEW's
+#      problem, which is where the truth of free prose rests in every
+#      predecessor study;
+#   3. the block is cross-checked STRUCTURALLY against the tree: the
+#      `reviews/round-N/` directories with duplicate identities REFUSED rather
+#      than normalised away, each verbatim review's finding ids, and the
+#      record's own disposition rows and severity column.
+#
+# Deleted with the decision, and named here so a later reader knows they were
+# removed on purpose rather than lost: the negation cue list and `_negated()`,
+# the verdict-attribution sentence parser (`_header_verdict_map()`,
+# `_expand_round_list()`), the role-claim clause reader (`_role_claims()` and
+# its two role vocabularies), the open-state and any-open-claim sentence
+# regexes, the ordinal round-count sentence, and the 24-character disposition
+# heuristic. Window sweeps survive ONLY as banned-claim detection for specific
+# false numbers and spellings already caught historically (`_ZERO_LIVE`,
+# `_STATED_DIFFERENCES`, the stale gold heading, the X1 sweeps, the patch-pin
+# sweep), where a false negative costs a missed offender rather than a false
+# attestation.
 
 _ROUND = re.compile(r"^## Round (\d+) — ", re.MULTILINE)
-_ORDINALS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
-             7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven",
-             12: "twelve"}
 _REVISIONS = ("first", "second", "third", "fourth", "fifth", "sixth",
               "seventh", "eighth", "ninth", "tenth")
 
@@ -1089,56 +1128,33 @@ def _review_record():
         return handle.read().decode("utf-8")
 
 
-_VERDICT = re.compile(r"^- Verdict: \*\*(.+?)\*\*", re.MULTILINE)
-
-
-_SEVERITY_COUNTS = re.compile(r"(\d+)\s+(BLOCKER|MAJOR|MINOR)")
-_ID_RANGE = re.compile(r"\(R(\d+)-(\d+)\s*(?:…|\.\.\.)\s*R(\d+)-(\d+)\)")
-
-# ROUND-6 FINDINGS R6-1 AND R6-3: a round's STATE is read from its artifacts.
-#
-# The round-5 model asked one question — does this round's section carry a
-# disposition row? — and answered it by looking for an id. Three things went
-# wrong with that at once. A row whose disposition CELL is blank or says
-# `PENDING` carries an id, so it counted (R6-3). And "completed" was decided by
-# raw directory equality against `reviews/`, so the regime's own opening move —
-# commit round N's PROMPT, then let the reviewer read committed HEAD — made HEAD
-# red by construction (R6-1): a round that has a prompt and nothing else is not a
-# broken tree, it is an OPEN round, and the model had no way to say so.
-#
-# So a round is now a small state machine over four artifacts — the prompt, the
-# verbatim review, the record's section, and the per-finding disposition cells:
-#
-#   complete            prompt + review + section with a verdict + a non-empty,
-#                       non-pending disposition cell for EVERY finding the
-#                       verdict line registers
-#   awaiting-review     prompt only: the round is open and the reviewer has not
-#                       answered yet
-#   awaiting-response   prompt + review + section, dispositions incomplete: the
-#                       round is open and the maintainer has not answered yet
-#   malformed           any other combination (a review with no section, a
-#                       section with no review, a round with no prompt)
-#
-# The lifecycle rule is then one sentence: the rounds are 1..N contiguous, every
-# round below N is complete, and N is complete or in exactly one of the two open
-# states. Nothing about the completed rounds is weakened — the requirements on
-# them are strictly stronger than round 5's, because a pending cell no longer
-# counts as a disposition.
-COMPLETE = "complete"
-AWAITING_REVIEW = "awaiting-review"
-AWAITING_RESPONSE = "awaiting-response"
+COMPLETE = render_round_status.COMPLETE
+AWAITING_REVIEW = render_round_status.AWAITING_REVIEW
+AWAITING_RESPONSE = render_round_status.AWAITING_RESPONSE
+OPEN_STATES = render_round_status.OPEN_STATES
 MALFORMED = "malformed"
-OPEN_STATES = (AWAITING_REVIEW, AWAITING_RESPONSE)
 
-# A disposition cell that is not a disposition. `-`, `—` and an empty cell are
-# the table's own ways of writing nothing; the words are the ways a response in
-# progress writes it. Anything shorter than this is a placeholder, not a written
-# maintainer disposition — the regime's requirement is a paragraph that cites
-# the enforcement, and no such paragraph is 24 characters long.
-_NON_DISPOSITION = re.compile(
-    r"^(?:[\s\-—–*_.]*|pending|tbd|todo|to be written|open|none|n/?a|\?+)$",
-    re.IGNORECASE)
-_MIN_DISPOSITION = 24
+# ROUND-7 FINDING R7-3. A disposition cell is a disposition iff it is non-empty
+# after stripping and is not one of these LITERAL placeholders — the table's own
+# ways of writing nothing, and the words a response in progress writes. Round 6
+# added a 24-character minimum on top of the list, on the reasoning that no
+# written disposition is shorter than a sentence; the reviewer wrote
+# `PENDING — maintainer response to follow`, which is thirty-nine characters,
+# and the heuristic counted it. Length is not a property of a disposition, so
+# the rule is DELETED rather than tuned. Whether written words dispose of a
+# finding is review's question.
+_PLACEHOLDER_CELLS = frozenset((
+    "", "-", "--", "---", "—", "–", "*", "_", ".", "...", "…",
+    "pending", "tbd", "todo", "to be written", "open", "none", "n/a", "na",
+    "?", "??", "???"))
+
+
+def _is_disposition(cell):
+    return cell.strip().lower() not in _PLACEHOLDER_CELLS
+
+
+def _finding_order(name):
+    return int(name.split("-")[1])
 
 
 def _reviews_dir(study=None):
@@ -1146,42 +1162,96 @@ def _reviews_dir(study=None):
 
 
 def _rounds_on_disk(reviews=None):
-    """`{number: {'prompt': bool, 'review': bool}}` from `reviews/round-N/`."""
+    """`({number: {'prompt': bool, 'review': bool}}, problems)`.
+
+    ROUND-7 FINDING R7-4: a directory NAME is an identity. The round-6 reading
+    turned every name into `int(name.split("-")[1])`, so `round-7` and
+    `round-07` produced the same dictionary key and one silently overwrote the
+    other — the reviewer added a second round-5 section and the whole reading
+    returned `problems=[]`. The canonical name is the only accepted one, a
+    non-canonical spelling is REPORTED rather than normalised away, and a
+    numeric collision is refused rather than resolved."""
     reviews = reviews or _reviews_dir()
-    out = {}
+    problems, canonical, others = [], {}, []
     if not os.path.isdir(reviews):
-        return out
-    for name in os.listdir(reviews):
-        if not re.fullmatch(r"round-\d+", name):
+        return {}, ["there is no reviews/ directory at %s" % reviews]
+    for name in sorted(os.listdir(reviews)):
+        if not name.startswith("round-"):
             continue
-        number = int(name.split("-")[1])
+        if not os.path.isdir(os.path.join(reviews, name)):
+            problems.append("reviews/%s is not a directory" % name)
+            continue
+        loose = re.fullmatch(r"round-(\d+)", name)
+        if not loose:
+            problems.append(
+                "reviews/%s is not a round directory; the registered name is "
+                "`round-<n>`" % name)
+            continue
+        number = int(loose.group(1))
+        if name == "round-%d" % number:
+            canonical[number] = name
+        else:
+            others.append((number, name))
+    # The canonical directories are the rounds. A non-canonical spelling is
+    # never adopted as one — it is reported, and reported AGAIN as a collision
+    # when a round of that number also exists, which is the whole of R7-4.
+    for number, name in others:
+        problems.append(
+            "reviews/%s is a non-canonical spelling of round %d (round-%d); two "
+            "spellings are two identities to a reader and one to a parser that "
+            "normalises them" % (name, number, number))
+        if number in canonical:
+            problems.append("reviews/%s and reviews/%s are both round %d"
+                            % (canonical[number], name, number))
+    out = {}
+    for number, name in sorted(canonical.items()):
         out[number] = {
             "prompt": os.path.isfile(os.path.join(reviews, name, "PROMPT.md")),
             "review": os.path.isfile(os.path.join(reviews, name, "REVIEW.md")),
         }
-    return out
+    return out, problems
+
+
+def _record_sections(text):
+    """`({number: body}, problems)` — the record's own `## Round N` sections.
+
+    R7-4's other half: the round-6 reading checked that the heading numbers were
+    ASCENDING and then stored them in a dictionary, so two adjacent `## Round 5`
+    headings passed the ordering check and one section overwrote the other."""
+    numbers = [int(match.group(1)) for match in _ROUND.finditer(text)]
+    problems = []
+    if numbers != sorted(numbers):
+        problems.append("the record's round sections are out of order: %s"
+                        % numbers)
+    seen = set()
+    for number in numbers:
+        if number in seen:
+            problems.append("the record carries more than one `## Round %d` "
+                            "section" % number)
+        seen.add(number)
+    sections = {}
+    pieces = _ROUND.split(text)[1:]
+    for index in range(0, len(pieces), 2):
+        sections.setdefault(int(pieces[index]), pieces[index + 1])
+    return sections, problems
 
 
 def _disposition_rows(number, body):
-    """`({id: cell}, [ids whose cell is not a disposition], {id: severity})`.
+    """`({id: cell}, [ids whose cell is a placeholder], {id: severity})`.
 
-    The table is a STRUCTURED surface and is parsed as one: a row is a leading
-    pipe, three cells — id, severity, disposition — and a closing pipe, and a row
-    of any other shape is not read as a row at all, so its finding stays
-    undispositioned and its round stays open. ROUND-6 FINDING R6-3: the round-5
-    reading collected ids with `re.findall` and never looked at the cell beside
-    them, so `| R6-1 | BLOCKER |  |` and `| R6-2 | MAJOR | PENDING |` both closed
-    a finding.
-    """
+    The table is a STRUCTURED surface and is parsed as one: a leading pipe,
+    three cells — id, severity, disposition — and a closing pipe. A row of any
+    other shape is not read as a row at all, so its finding stays
+    undispositioned and its round stays open, which is the fail-closed
+    direction. `strip("|")` is the reading this cannot use: it eats BOTH
+    trailing pipes of `| R6-1 | BLOCKER ||` and turns an empty disposition cell
+    into a two-cell line."""
     written, pending, severities = {}, [], {}
     for line in body.split("\n"):
         stripped = line.strip()
         if not stripped.startswith("|"):
             continue
         parts = stripped.split("|")
-        # `strip("|")` is the reading this cannot use: it eats BOTH trailing
-        # pipes of `| R6-1 | BLOCKER ||` and turns an empty disposition cell into
-        # a two-cell row that is not a row at all.
         if len(parts) != 5 or parts[0].strip() or parts[-1].strip():
             continue
         cells = [cell.strip() for cell in parts[1:4]]
@@ -1190,36 +1260,53 @@ def _disposition_rows(number, body):
             continue
         name = "R%d-%d" % (number, int(match.group(2)))
         severities[name] = cells[1]
-        if _NON_DISPOSITION.match(cells[2]) or len(cells[2]) < _MIN_DISPOSITION:
-            pending.append(name)
-        else:
+        if _is_disposition(cells[2]):
             written[name] = cells[2]
-    return written, sorted(pending, key=lambda n: int(n.split("-")[1])), severities
+        else:
+            pending.append(name)
+    return written, sorted(pending, key=_finding_order), severities
 
 
-def _round_states(record_text=None, reviews=None):
-    """`{round number: facts}` — the state machine above, over BOTH surfaces.
+def _review_finding_ids(number, reviews=None):
+    """The finding ids the round's VERBATIM review carries, or None when no
+    review has landed. Rounds 1, 3 and 4 head their findings with bold runs
+    rather than markdown headings, so the ids are collected from the whole file
+    and filtered to the round's own."""
+    path = os.path.join(reviews or _reviews_dir(), "round-%d" % number,
+                        "REVIEW.md")
+    if not os.path.isfile(path):
+        return None
+    with open(path, "rb") as handle:
+        text = handle.read().decode("utf-8")
+    found = {name for name in re.findall(r"\bR%d-(\d+)\b" % number, text)}
+    return sorted(("R%d-%d" % (number, int(name)) for name in found),
+                  key=_finding_order)
 
-    Takes the record text and the reviews directory as arguments so a
-    constructed record (a pending cell, a prompt-only round, a negated verdict
-    sentence) can be run through exactly the reading the real one gets. Every
-    malformation is reported in `problems` rather than raised, because the tests
-    below assert the whole shape at once and a raise names only the first."""
+
+def _tree_states(record_text=None, reviews=None):
+    """`({number: facts}, problems)` — the state each round's ARTIFACTS show.
+
+    This is the structural half of the cross-check and it is derived
+    INDEPENDENTLY of the block: the prompt file, the verbatim review, the
+    record's section, the finding ids the review itself carries, and the
+    disposition cells beside them. Nothing here reads a sentence for its
+    meaning. `_block_states()` below declares the same thing, and
+    `test_the_state_the_block_declares_is_the_state_the_artifacts_show` is where
+    the two must agree.
+
+        complete            prompt + review + section + a written disposition
+                            cell for every finding the review carries
+        awaiting-review     prompt only
+        awaiting-response   prompt + review + section, dispositions incomplete
+        malformed           anything else
+    """
     text = _review_record() if record_text is None else record_text
     reviews = reviews or _reviews_dir()
-    on_disk = _rounds_on_disk(reviews)
-
-    numbers = [int(match.group(1)) for match in _ROUND.finditer(text)]
-    sections = {}
-    order_problem = None
-    if numbers != sorted(numbers):
-        order_problem = "the record's round sections are out of order: %s" % numbers
-    pieces = _ROUND.split(text)[1:]
-    for index in range(0, len(pieces), 2):
-        sections[int(pieces[index])] = pieces[index + 1]
+    on_disk, problems = _rounds_on_disk(reviews)
+    sections, section_problems = _record_sections(text)
+    problems = list(problems) + section_problems
 
     states = {}
-    problems = [] if order_problem is None else [order_problem]
     for number in sorted(set(sections) | set(on_disk)):
         artifacts = on_disk.get(number, {"prompt": False, "review": False})
         body = sections.get(number)
@@ -1227,42 +1314,12 @@ def _round_states(record_text=None, reviews=None):
             "prompt": artifacts["prompt"],
             "review": artifacts["review"],
             "section": body is not None,
-            "verdict": None,
-            "severities": {},
-            "findings": [],
+            "findings": _review_finding_ids(number, reviews) or [],
             "dispositions": {},
             "pendingRows": [],
             "rowSeverities": {},
         }
         if body is not None:
-            verdicts = _VERDICT.findall(body)
-            if len(verdicts) != 1:
-                problems.append(
-                    "round %d's section must record exactly one verdict line, "
-                    "found %s" % (number, verdicts))
-            else:
-                bullet = re.search(r"^- Verdict:.*?(?=\n- |\n\n|\n#)", body,
-                                   re.MULTILINE | re.DOTALL)
-                line = " ".join(bullet.group(0).split()) if bullet else ""
-                facts["verdict"] = (verdicts[0].split(" —")[0]
-                                    .split(" --")[0].strip())
-                facts["severities"] = {
-                    name: int(count)
-                    for count, name in _SEVERITY_COUNTS.findall(line)}
-                span = _ID_RANGE.search(line)
-                if not span:
-                    problems.append(
-                        "round %d's verdict line must name its finding-id range "
-                        "as `(R%d-1 … R%d-N)`: %r"
-                        % (number, number, number, line))
-                elif not (int(span.group(1)) == int(span.group(3)) == number
-                          and int(span.group(2)) == 1):
-                    problems.append(
-                        "round %d's verdict line names the id range %r"
-                        % (number, span.group(0)))
-                else:
-                    facts["findings"] = ["R%d-%d" % (number, n) for n in
-                                         range(1, int(span.group(4)) + 1)]
             written, pending, row_severities = _disposition_rows(number, body)
             facts["dispositions"] = written
             facts["pendingRows"] = pending
@@ -1286,7 +1343,10 @@ def _round_states(record_text=None, reviews=None):
             facts["state"] = AWAITING_REVIEW
         elif not facts["findings"]:
             facts["state"] = MALFORMED
-        elif sorted(facts["dispositions"], key=_finding_order) == facts["findings"]:
+            problems.append("round %d's verbatim review carries no finding ids"
+                            % number)
+        elif (sorted(facts["dispositions"], key=_finding_order) == facts["findings"]
+              and not facts["pendingRows"]):
             facts["state"] = COMPLETE
         else:
             facts["state"] = AWAITING_RESPONSE
@@ -1294,119 +1354,337 @@ def _round_states(record_text=None, reviews=None):
     return states, problems
 
 
-def _finding_order(name):
-    return int(name.split("-")[1])
+def _block(record_text=None):
+    """The record's round-state block, parsed and validated by the renderer's
+    own loader — one implementation, so the sentence the documents carry and the
+    data this module checks can never be read two different ways."""
+    return render_round_status.parse_block(
+        _review_record() if record_text is None else record_text)
 
 
-def _round_records(record_text=None, reviews=None):
-    """The completed-and-open rounds, with the shape the tests below read. A
-    round with no verdict yet (prompt-only) carries `verdict: None` and is
-    excluded from every verdict comparison, because it has not returned one."""
-    states, problems = _round_states(record_text, reviews)
-    assert problems == [], "\n  ".join([""] + problems)
-    return states
+def _block_states(record_text=None):
+    return {entry["number"]: entry for entry in _block(record_text)["rounds"]}
 
 
-def _review_finding_ids(number, reviews=None):
-    """The finding ids the round's verbatim review actually carries, or None
-    when the review states them in a form this cannot read. Rounds 1, 3 and 4
-    head their findings with bold runs rather than markdown headings, so the ids
-    are collected from the whole file and filtered to the round's own."""
-    path = os.path.join(reviews or _reviews_dir(), "round-%d" % number,
-                        "REVIEW.md")
-    if not os.path.isfile(path):
-        return None
-    with open(path, "rb") as handle:
-        text = handle.read().decode("utf-8")
-    found = {name for name in re.findall(r"\bR%d-(\d+)\b" % number, text)}
-    return sorted(("R%d-%d" % (number, int(name)) for name in found),
-                  key=_finding_order)
+# --- the block, and the tree it describes -----------------------------------
 
-
-def _rounds():
-    """`{round number: complete?}` — the shape the R3-10 tests read."""
-    return {number: record["state"] == COMPLETE
-            for number, record in _round_records().items()}
-
-
-# The two OPEN states, and the sentence each requires of both front doors.
-# ROUND-6 FINDING R6-1: an open round must be VISIBLE to a reader of either
-# front door, and which kind of open it is decides what the reader is waiting
-# for — the reviewer's answer, or the maintainer's. The round-opening commit
-# therefore carries three things: `reviews/round-N/PROMPT.md`, and the
-# awaiting-review sentence in each header. That is the whole of what makes a
-# round-opening commit green, and it takes nothing away from the completed
-# rounds, whose requirements this round made stricter.
-_OPEN_STATE_SENTENCES = {
-    AWAITING_REVIEW:
-        r"round %d is open[^.]{0,80}?review has not landed",
-    AWAITING_RESPONSE:
-        r"round %d's [a-z]+ (?:findings )?are open",
-}
-# Any claim of openness about a round, in either spelling, for the negative
-# direction: a COMPLETE round may not be called open in either of them.
-_ANY_OPEN_CLAIM = (r"round %d's [a-z]+ (?:findings )?are open",
-                   r"round %d is open")
-
-
-def _open_claim(text, number):
-    """The openness claim a text makes about round N, or None."""
-    for pattern in _ANY_OPEN_CLAIM:
-        found = re.search(pattern % number, text)
-        if found:
-            return found.group(0)
-    return None
-
-
-def test_the_readme_status_header_names_the_latest_round_and_its_state():
-    """ROUND-3 FINDING R3-10, and this is the test the README did not have.
-
-    The README said "Round 1's twenty findings are dispositioned and round 2's
-    fourteen are open" after every one of round 2's fourteen had been
-    dispositioned in the record beside it, and counted "Two cross-vendor review
-    rounds" while three had run. The existing README test searches for the words
-    "review rounds" and "DO NOT FREEZE" and passes on both errors, because a
-    marker word cannot carry a number.
-
-    This reads the state out of `PREREG-REVIEW.md` — the record is the
-    authority — and requires the banner to agree with it: the round COUNT, and
-    no claim that a dispositioned round is still open.
-
-    ROUND-6 FINDING R6-1: the count is the number of rounds that have RETURNED a
-    verdict, not the number of directories under `reviews/`. A round whose prompt
-    is committed and whose review has not landed has not read anything yet."""
-    records = _round_records()
-    reviewed = [number for number, record in records.items() if record["verdict"]]
-    with open(os.path.join(_study(), "README.md"), "rb") as handle:
-        readme = flatten(handle.read().decode("utf-8"))
-    assert "%s cross-vendor review rounds" % _ORDINALS[len(reviewed)] in \
-        readme.lower(), (
-        "the record carries %d returned review rounds and the README's status "
-        "banner must say so: expected the words \"%s cross-vendor review rounds\""
-        % (len(reviewed), _ORDINALS[len(reviewed)]))
-    for number, record in sorted(records.items()):
-        if record["state"] != COMPLETE:
+def test_the_round_state_block_is_the_registered_shape():
+    """The block is the single machine-readable source, so its own shape is
+    asserted before anything reads it: exactly one fenced block, rounds 1..N
+    contiguous and ascending, no repeated number, at most one open round and it
+    the highest, and every round that has returned a verdict carrying severity
+    counts that sum to its finding range."""
+    block = _block()
+    numbers = [entry["number"] for entry in block["rounds"]]
+    assert numbers == list(range(1, len(numbers) + 1)), numbers
+    for entry in block["rounds"]:
+        if entry["state"] == AWAITING_REVIEW:
             continue
-        stale = _open_claim(readme.lower(), number)
-        assert stale is None, (
-            "round %d is complete in PREREG-REVIEW.md and the README still "
-            "calls it open: %r" % (number, stale))
+        assert sum(entry["severities"].values()) == entry["findings"]["last"]
+
+
+def test_the_blocks_own_refusals_bite():
+    """The shape rules have power in the other direction, run as mutations of
+    the real block: a repeated round number, a section out of order, two open
+    rounds, and a severity total that disagrees with the finding range must each
+    be REFUSED rather than resolved. A validator nobody has seen refuse is a
+    validator nobody has tested."""
+    text = _review_record()
+    block = _block(text)
+    rounds = block["rounds"]
+    highest = rounds[-1]
+
+    def _record_with(new_rounds):
+        body = json.dumps({"blockVersion": 1, "rounds": new_rounds}, indent=2)
+        head, _, rest = text.partition(render_round_status.BLOCK_OPEN)
+        _, _, tail = rest.partition(render_round_status.BLOCK_CLOSE)
+        return "%s%s\n%s\n%s%s" % (head, render_round_status.BLOCK_OPEN, body,
+                                   render_round_status.BLOCK_CLOSE, tail)
+
+    duplicate = rounds + [dict(highest)]
+    out_of_order = rounds[:-2] + [rounds[-1], rounds[-2]]
+    second_open = [dict(entry) for entry in rounds]
+    second_open[0]["state"] = AWAITING_RESPONSE
+    miscounted = [dict(entry) for entry in rounds]
+    miscounted[-1] = dict(miscounted[-1],
+                          findings={"first": 1,
+                                    "last": miscounted[-1]["findings"]["last"] + 1})
+    for label, mutated in (("a repeated round number", duplicate),
+                           ("two sections out of order", out_of_order),
+                           ("a second open round", second_open),
+                           ("a severity total that disagrees", miscounted)):
+        with pytest.raises(render_round_status.BlockError):
+            render_round_status.parse_block(_record_with(mutated))
+    # and the real block still parses, so the refusals are not simply wide
+    assert render_round_status.parse_block(_record_with(rounds))
+
+
+def test_the_block_and_the_reviews_directory_carry_the_same_rounds():
+    """The round set derived from the TREE rather than from a sentence, with
+    ROUND-7 FINDING R7-4's duplicate-identity refusal asserted in both
+    directions: the real tree is clean, and a `round-07` beside `round-7` is
+    reported rather than collapsed onto it."""
+    on_disk, problems = _rounds_on_disk()
+    assert problems == [], "\n  ".join([""] + problems)
+    assert sorted(on_disk) == sorted(_block_states()), (
+        "reviews/ carries rounds %s and the block declares %s"
+        % (sorted(on_disk), sorted(_block_states())))
+
+
+def test_a_duplicate_round_identity_is_refused_and_not_normalised(tmp_path):
+    """R7-4, run as the reviewer ran it. `round-7` and `round-07` are two
+    directories and one integer; the round-6 reading kept whichever `os.listdir`
+    returned last and reported no problem at all."""
+    reviews = tmp_path / "reviews"
+    for name in ("round-1", "round-2"):
+        (reviews / name).mkdir(parents=True)
+        (reviews / name / "PROMPT.md").write_text("p\n")
+        (reviews / name / "REVIEW.md").write_text("r\n")
+    clean, problems = _rounds_on_disk(str(reviews))
+    assert problems == [] and sorted(clean) == [1, 2]
+
+    (reviews / "round-02").mkdir()
+    (reviews / "round-02" / "PROMPT.md").write_text("p\n")
+    collided, problems = _rounds_on_disk(str(reviews))
+    assert any("non-canonical" in problem for problem in problems), problems
+    assert any("both round 2" in problem for problem in problems), problems
+    assert collided[2]["review"] is True, (
+        "the canonical round-2 must not be overwritten by the collision")
+
+    (reviews / "round-three").mkdir()
+    _ignored, problems = _rounds_on_disk(str(reviews))
+    assert any("round-three" in problem for problem in problems), problems
+
+
+def test_a_duplicate_record_section_is_refused_and_not_collapsed():
+    """R7-4 on the record's own headings: the reviewer inserted a second
+    adjacent `## Round 5` section and the reading returned `problems=[]` with an
+    unchanged state map, because ascending order was the only thing checked
+    before the sections went into a dictionary."""
+    text = _review_record()
+    sections, problems = _record_sections(text)
+    assert problems == [], problems
+    highest = max(sections)
+    heading = "## Round %d — " % highest
+    assert text.count(heading) == 1
+    mutated = text.replace(heading, heading + "\n\n" + heading, 1)
+    _sections, problems = _record_sections(mutated)
+    assert any("more than one `## Round %d` section" % highest in problem
+               for problem in problems), problems
+
+
+def test_every_rounds_finding_range_is_the_one_its_verbatim_review_carries():
+    """The block's finding range against the reviewer's own text: the ids the
+    review names ARE `R<n>-1 … R<n>-<last>`, contiguous, with nothing missing
+    and nothing invented. The severity counts sum to the same number
+    (`parse_block()`), so a round states its size three ways — the block's
+    range, the block's severities, and the review — and they must agree."""
+    for number, entry in sorted(_block_states().items()):
+        ids = _review_finding_ids(number)
+        if entry["state"] == AWAITING_REVIEW:
+            assert ids is None, (
+                "round %d is awaiting review and a verbatim review has landed"
+                % number)
+            continue
+        assert ids is not None, (
+            "round %d has returned a verdict and carries no verbatim review"
+            % number)
+        expected = ["R%d-%d" % (number, index)
+                    for index in range(1, entry["findings"]["last"] + 1)]
+        assert ids == expected, (
+            "round %d's verbatim review names %s and the block registers %s"
+            % (number, ids, expected))
+
+
+def test_every_rounds_disposition_table_agrees_with_the_block():
+    """The record's own table against the block: a complete round carries a
+    written disposition cell for every finding, and its severity COLUMN counts
+    what the block's severity map counts. A round whose table calls a MAJOR
+    finding a MINOR one is a table that no longer describes the review it
+    answers."""
+    sections, problems = _record_sections(_review_record())
+    assert problems == [], problems
+    for number, entry in sorted(_block_states().items()):
+        if entry["state"] == AWAITING_REVIEW:
+            continue
+        written, pending, severities = _disposition_rows(number,
+                                                         sections[number])
+        expected = ["R%d-%d" % (number, index)
+                    for index in range(1, entry["findings"]["last"] + 1)]
+        if entry["state"] == COMPLETE:
+            assert sorted(written, key=_finding_order) == expected, (
+                "round %d is complete and its table disposes of %s"
+                % (number, sorted(written, key=_finding_order)))
+            assert pending == [], (
+                "round %d is complete and carries placeholder cells %s"
+                % (number, pending))
+        if sorted(severities, key=_finding_order) == expected:
+            counted = {}
+            for name in expected:
+                counted[severities[name]] = counted.get(severities[name], 0) + 1
+            stated = {name: count
+                      for name, count in entry["severities"].items() if count}
+            assert counted == stated, (
+                "round %d's block counts %s and its table's severity column "
+                "counts %s" % (number, stated, counted))
+
+
+def test_the_state_the_block_declares_is_the_state_the_artifacts_show():
+    """The two halves, compared. The block DECLARES a state; `_tree_states()`
+    DERIVES one from the prompt, the review, the section and the cells. A
+    declaration nothing checks is the failure mode this whole round is about, so
+    the declaration is checked against the tree and not the other way round."""
+    states, problems = _tree_states()
+    assert problems == [], "\n  ".join([""] + problems)
+    declared = _block_states()
+    assert sorted(states) == sorted(declared), (
+        "the tree shows rounds %s and the block declares %s"
+        % (sorted(states), sorted(declared)))
+    for number in sorted(states):
+        assert states[number]["state"] == declared[number]["state"], (
+            "round %d's artifacts show %s and the block declares %s"
+            % (number, states[number]["state"], declared[number]["state"]))
+
+
+def test_a_placeholder_disposition_cell_reopens_its_round():
+    """R6-3's construction, kept, with ROUND-7 FINDING R7-3's length heuristic
+    removed from underneath it. Each mutation of a real disposition cell must
+    move the round the artifacts show from `complete` to `awaiting-response`."""
+    text = _review_record()
+    states, _problems = _tree_states(text)
+    complete = [number for number, facts in states.items()
+                if facts["state"] == COMPLETE]
+    assert complete, "no complete round to mutate"
+    number = max(complete)
+    name = states[number]["findings"][0]
+    row = re.search(r"^\|\s*%s\s*\|([^|]*)\|(.*)\|\s*$" % name, text,
+                    re.MULTILINE)
+    assert row, name
+    for replacement in ("", " ", " PENDING ", " — ", " pending ", " TBD ",
+                        " n/a "):
+        mutated = text.replace(
+            row.group(0), "| %s |%s|%s|" % (name, row.group(1), replacement), 1)
+        assert mutated != text
+        after, problems = _tree_states(mutated)
+        assert problems == [], problems
+        assert name in after[number]["pendingRows"], (
+            "%r read as a written disposition for %s" % (replacement, name))
+        assert after[number]["state"] == AWAITING_RESPONSE, (
+            "round %d stayed closed with %s's cell %r"
+            % (number, name, replacement))
+
+
+def test_a_prompt_only_round_reads_as_open_and_not_as_a_broken_tree(tmp_path):
+    """R6-1's construction, kept: the round-opening commit, where
+    `reviews/round-N/PROMPT.md` is committed and nothing else exists yet. That
+    tree is the regime working correctly and the model must say so.
+
+    ROUND-7 FINDING R7-1 is what happens when the model says so and the
+    maintainer's ceremony does not: the round-7 prompt-only commit did not carry
+    the rendered sentence, so the lifecycle tests were red on the commit whose
+    greenness the prompt asserted. `harness/render_round_status.py --write` is
+    the answer to that half, and this is the answer to this one."""
+    text = _review_record()
+    states, _problems = _tree_states(text)
+    highest = max(states)
+    reviews = tmp_path / "reviews"
+    for number in states:
+        (reviews / ("round-%d" % number)).mkdir(parents=True)
+        (reviews / ("round-%d" % number) / "PROMPT.md").write_text("p\n")
+        (reviews / ("round-%d" % number) / "REVIEW.md").write_text(
+            "R%d-1\n" % number)
+    opened = highest + 1
+    (reviews / ("round-%d" % opened)).mkdir()
+    (reviews / ("round-%d" % opened) / "PROMPT.md").write_text("prompt\n")
+
+    after, problems = _tree_states(text, str(reviews))
+    assert problems == [], "\n  ".join([""] + problems)
+    assert after[opened]["state"] == AWAITING_REVIEW, after[opened]
+
+    # and a review landing WITHOUT a record section is still malformed
+    (reviews / ("round-%d" % opened) / "REVIEW.md").write_text("review\n")
+    _after, problems = _tree_states(text, str(reviews))
+    assert problems, (
+        "a landed review with no section in the record must be reported")
+
+
+# --- the rendered sentence, required verbatim -------------------------------
+
+def test_the_three_front_doors_carry_the_rendered_sentence_verbatim():
+    """The whole positive attestation, and it is an EXACT COMPARISON rather than
+    a search: the sentence is rendered from the block here, at test time, and
+    each front door must carry that string exactly once.
+
+    Nothing about its surroundings is examined. A header that reproduces the
+    sentence and then denies it in the next paragraph passes this test and fails
+    review — which is the registered decision, and the same place the truth of
+    every other paragraph in these documents rests."""
+    wanted = render_round_status.flat(render_round_status.sentence(_study()))
+    for relative in render_round_status.SURFACES:
+        with open(os.path.join(_study(), relative), "rb") as handle:
+            text = handle.read().decode("utf-8")
+        assert render_round_status.flat(text).count(wanted) == 1, (
+            "%s must carry the rendered round-status sentence exactly once, "
+            "verbatim; run `python harness/render_round_status.py --write`:\n"
+            "  %s" % (relative, wanted))
+    assert render_round_status.surface_problems(_study()) == [], (
+        "the renderer's own --check disagrees with this test")
+
+
+def test_the_rendered_sentence_moves_when_the_block_moves():
+    """The property a remembered sentence can never have. Four mutations of the
+    real block — a verdict changed, a round's state opened, a round added, the
+    open round closed — must each change the rendered string, and the documents
+    carry only the unmutated one."""
+    block = _block()
+    rendered = render_round_status.render(block)
+    mutations = {}
+
+    changed_verdict = json.loads(json.dumps(block))
+    changed_verdict["rounds"][0]["verdict"] = "FREEZABLE AS WRITTEN"
+    mutations["a changed verdict"] = changed_verdict
+
+    closed = json.loads(json.dumps(block))
+    for entry in closed["rounds"]:
+        entry["state"] = COMPLETE
+    if closed != block:
+        # Between rounds every state is already complete, and closing nothing
+        # is not a mutation — the round-close commit is exactly that state.
+        mutations["the open round closed"] = closed
+
+    opened = json.loads(json.dumps(block))
+    opened["rounds"][-1]["state"] = AWAITING_RESPONSE
+    opened["rounds"][-1]["verdict"] = block["rounds"][-1]["verdict"]
+    if opened["rounds"][-1]["state"] == block["rounds"][-1]["state"]:
+        opened["rounds"][-1]["state"] = COMPLETE
+    mutations["the open round's state"] = opened
+
+    added = json.loads(json.dumps(block))
+    added["rounds"].append({"number": len(added["rounds"]) + 1,
+                            "state": AWAITING_REVIEW, "verdict": None,
+                            "severities": None, "findings": None})
+    mutations["a round added"] = added
+
+    texts = {}
+    for relative in render_round_status.SURFACES:
+        with open(os.path.join(_study(), relative), "rb") as handle:
+            texts[relative] = render_round_status.flat(
+                handle.read().decode("utf-8"))
+    for label, mutated in sorted(mutations.items()):
+        moved = render_round_status.render(mutated)
+        assert moved != rendered, label
+        for relative, text in texts.items():
+            assert render_round_status.flat(moved) not in text, (
+                "%s carries the sentence %s would render" % (relative, label))
 
 
 def test_the_registration_header_names_the_round_it_responds_to():
-    """The same contradiction in the other header: the preregistration still
-    described itself as "(post-round-1)" with three rounds on the record. The
-    revision a reader is holding is only meaningful against the round it
-    answers.
-
-    ROUND-6 FINDING R6-1: the round a revision RESPONDS to is the highest round
-    whose findings this revision has dispositioned — the highest COMPLETE round.
-    An open round is one this revision has not answered yet, by definition, so it
-    does not move this number and the header does not have to lie while it is
-    open."""
-    records = _round_records()
-    complete = [number for number, record in records.items()
-                if record["state"] == COMPLETE]
+    """The revision a reader is holding is only meaningful against the round it
+    answers: the highest COMPLETE round in the block. An open round is one this
+    revision has not answered yet, by definition, so it does not move this
+    number and the header does not have to lie while the round is open."""
+    complete = [number for number, entry in _block_states().items()
+                if entry["state"] == COMPLETE]
     assert complete, "no round is complete; the header names no response"
     answered = max(complete)
     with open(os.path.join(_study(), "PREREGISTRATION.md"), "rb") as handle:
@@ -1435,493 +1713,93 @@ def test_the_two_headers_agree_on_the_revision_ordinal():
     assert len(set(seen.values())) == 1, seen
 
 
-# --- ROUND-4 FINDING R4-3: the headers state the round STATE, both of them ---
-
-def _status_headers():
-    """Both front doors' status headers, flattened and lowercased."""
-    out = {}
-    for relative in ("README.md", "PREREGISTRATION.md"):
-        with open(os.path.join(_study(), relative), "rb") as handle:
-            text = handle.read().decode("utf-8")
-        out[relative] = flatten(text.split("\n## ")[0]).lower()
-    return out
-
-
-def test_both_headers_state_every_verdict_on_the_record():
-    """R4-3. The R3-10 tests asserted the round COUNT and the ABSENCE of a stale
-    "round N's findings are open"; they did not assert that the headers describe
-    the verdicts, so "all three returned DO NOT FREEZE" survived a fourth round
-    that returned something else. Every DISTINCT verdict on the record must
-    appear in both headers, so a new kind of verdict cannot land unmentioned."""
-    records = _round_records()
-    verdicts = {record["verdict"].lower() for record in records.values()
-                if record["verdict"]}
-    reviewed = [number for number, record in records.items() if record["verdict"]]
-    latest = max(records)
-    for relative, header in _status_headers().items():
-        for verdict in sorted(verdicts):
-            assert verdict in header, (
-                "%s's status header does not state the verdict %r, which is on "
-                "the record" % (relative, verdict))
-        assert "round %d" % latest in header, (
-            "%s's status header must name the latest round (%d)"
-            % (relative, latest))
-        if len(verdicts) > 1:
-            assert "all %s returned" % _ORDINALS[len(reviewed)] not in header, (
-                "%s's header says every round returned one verdict and the "
-                "record carries %s" % (relative, sorted(verdicts)))
-
-
-def test_both_headers_state_the_open_or_closed_state_of_every_round():
-    """R4-3, the half R3-10's tests only did negatively and only for the README,
-    rebuilt on ROUND-6 FINDING R6-1's state model.
-
-    A COMPLETE round may not be called open in EITHER header. An OPEN round must
-    be called open in BOTH, in the sentence its own state requires — awaiting the
-    reviewer's answer, or awaiting the maintainer's. Which kind of open it is
-    tells the reader who owes the next move; silence read as "closed" is the
-    failure R3-10 was raised for, and a committed prompt no header mentions is
-    the same failure at the other end of the round."""
-    records = _round_records()
-    for relative, header in _status_headers().items():
-        for number, record in sorted(records.items()):
-            claim = _open_claim(header, number)
-            if record["state"] == COMPLETE:
-                assert claim is None, (
-                    "%s: round %d is complete in PREREG-REVIEW.md and the "
-                    "header still calls it open: %r" % (relative, number, claim))
-                continue
-            wanted = _OPEN_STATE_SENTENCES[record["state"]] % number
-            assert re.search(wanted, header), (
-                "%s: round %d is %s and the header must say so, in the form %r"
-                % (relative, number, record["state"], wanted))
-
-
-# --- ROUND-5 FINDING R5-3: per ROUND and per FINDING, not per round ---------
-
-def test_every_rounds_finding_count_is_stated_three_ways_and_they_agree():
-    """R5-3's first half. The record's verdict line states each round's findings
-    twice over — as severity counts and as an id range — and the round's verbatim
-    review states them a third time by naming them. All three must agree, or the
-    count every other test derives is a number somebody typed.
-
-    ROUND-6 FINDING R6-3 adds a FOURTH statement of the same number, from the
-    only surface that had not been read: the disposition table's own severity
-    column. A round whose table calls a MAJOR finding a MINOR one is a table that
-    no longer describes the review it answers."""
-    for number, record in sorted(_round_records().items()):
-        if record["state"] == AWAITING_REVIEW:
-            assert not record["severities"] and not record["findings"], (
-                "round %d has no landed review and the record registers "
-                "findings for it" % number)
-            continue
-        total = sum(record["severities"].values())
-        assert record["severities"], (
-            "round %d's verdict line must state its severity counts" % number)
-        assert total == len(record["findings"]), (
-            "round %d's verdict line says %d findings by severity (%s) and "
-            "%d by id range" % (number, total, record["severities"],
-                                len(record["findings"])))
-        from_review = _review_finding_ids(number)
-        if from_review is not None:
-            assert from_review == record["findings"], (
-                "round %d's verbatim review names %s and the record registers %s"
-                % (number, from_review, record["findings"]))
-        if not record["rowSeverities"]:
-            continue
-        by_severity = {}
-        for name, severity in record["rowSeverities"].items():
-            by_severity[severity] = by_severity.get(severity, 0) + 1
-        stated = {name: count for name, count in record["severities"].items()
-                  if count}          # round 4's line says "0 BLOCKER" in words
-        if sorted(record["rowSeverities"], key=_finding_order) == record["findings"]:
-            assert by_severity == stated, (
-                "round %d's verdict line counts %s and its disposition table's "
-                "severity column counts %s" % (number, stated, by_severity))
-
-
-def test_a_round_is_closed_only_when_every_one_of_its_findings_is_dispositioned():
-    """R5-3's second half, and the property the regime states in this record's
-    own opening paragraph: a written maintainer disposition PER FINDING. The R4-3
-    reading marked a round closed on finding any one `R<n>-<m>` row, so a
-    two-finding round with only `R5-1` dispositioned passed as closed and its
-    second finding vanished between the tables.
-
-    ROUND-6 FINDING R6-3: an id is not a disposition either. The row must carry
-    WRITTEN disposition content — `_disposition_rows()` reads the cell, not just
-    the id beside it — so a blank cell and a `PENDING` cell are both what they
-    look like, and a round carrying them is OPEN."""
-    for number, record in sorted(_round_records().items()):
-        if record["state"] == COMPLETE:
-            assert sorted(record["dispositions"], key=_finding_order) == \
-                record["findings"], (number, sorted(record["dispositions"]))
-            assert record["pendingRows"] == [], (
-                "round %d is complete and carries pending rows %s"
-                % (number, record["pendingRows"]))
-            continue
-        if record["state"] != AWAITING_RESPONSE:
-            continue
-        missing = [name for name in record["findings"]
-                   if name not in record["dispositions"]]
-        assert missing, (
-            "round %d is open and every finding carries a written disposition"
-            % number)
-
-
-_HEADER_ATTRIBUTION = r"\brounds?\s+([0-9][0-9\s,–—\-]*(?:and\s+[0-9]+\s*)?)returned\s+"
-
-# ROUND-6 FINDING R6-3: enclosing negation. The round-5 parser read
-# "it is false that rounds 1–3 and 5 returned DO NOT FREEZE" as the required
-# affirmative mapping, because it looked only at the words between the round list
-# and the verdict. A verdict attribution is a POSITIVE attestation, so it is
-# accepted only from a sentence that asserts it — and a sentence is examined for
-# negation with the verdict PHRASES removed first, because `DO NOT FREEZE`
-# carries a "not" of its own that means the opposite of a denial.
-_NEGATION_CUES = (
-    r"\bnot\b", r"\bno\b", r"\bnone\b", r"\bnever\b", r"\bnothing\b",
-    r"\bneither\b", r"\bnor\b", r"\bfalse\b", r"\buntrue\b", r"\bincorrect\b",
-    r"\bwrong\b", r"\bden(?:y|ies|ied)\b", r"\bcannot\b", r"\bcan't\b",
-    r"\bisn't\b", r"\baren't\b", r"\bdidn't\b", r"\bdoesn't\b", r"\bwasn't\b",
-    r"\bweren't\b", r"\bfails? to\b", r"\bfailed to\b", r"\brather than\b",
-    r"\bcontrary\b", r"\bwithout\b", r"\bmisread\b", r"\bwould have\b",
-)
-_NEGATION = re.compile("|".join(_NEGATION_CUES), re.IGNORECASE)
-_SENTENCES = re.compile(r"(?<=[.!?])\s+")
-
-
-def _negated(sentence, verdicts):
-    """Does this sentence carry a negation, once the verdict phrases — whose own
-    words include `NOT` — are taken out of it?"""
-    probe = sentence
-    for verdict in sorted(verdicts, key=len, reverse=True):
-        probe = probe.replace(verdict, " ")
-    found = _NEGATION.search(probe)
-    return found.group(0) if found else None
-
-
-def _header_verdict_map(header, verdicts):
-    """`{round number: verdict}` as a HEADER states it, parsed from affirmative
-    "round(s) N … returned <verdict>" clauses. A verdict that merely occurs in
-    the header attributes itself to nothing, which is how a synthetic round 5
-    repeating an earlier verdict passed R4-3's test while the header never said
-    round 5 returned anything — and a NEGATED clause attributes nothing either
-    (R6-3), so the sentence it sits in must assert it."""
-    mapping = {}
-    for sentence in _SENTENCES.split(header):
-        negation = _negated(sentence, verdicts)
-        for verdict in verdicts:
-            for match in re.finditer(_HEADER_ATTRIBUTION + re.escape(verdict),
-                                     sentence):
-                if negation is not None:
-                    continue
-                for number in _expand_round_list(match.group(1)):
-                    assert number not in mapping or mapping[number] == verdict, (
-                        "the header attributes two verdicts to round %d" % number)
-                    mapping[number] = verdict
-    return mapping
-
-
-def _expand_round_list(text):
-    """"1-3", "1–3 and 5", "4" → the round numbers they name."""
-    numbers = set()
-    for part in re.split(r",|\band\b", text):
-        part = part.strip()
-        if not part:
-            continue
-        span = re.match(r"^(\d+)\s*[–—\-]\s*(\d+)$", part)
-        if span:
-            numbers.update(range(int(span.group(1)), int(span.group(2)) + 1))
-        elif part.isdigit():
-            numbers.add(int(part))
-    return numbers
-
-
-def test_both_headers_attribute_every_round_to_the_verdict_it_returned():
-    """R5-3's third half. R4-3 required every DISTINCT verdict to appear in both
-    headers, which a header satisfies without saying which round returned which —
-    a synthetic round 5 repeating round 1's verdict passed it while the header
-    attributed nothing to round 5. This parses the header's own attribution
-    clauses and requires the mapping to be the record's, round by round."""
-    records = _round_records()
-    expected = {number: record["verdict"].lower()
-                for number, record in records.items() if record["verdict"]}
-    verdicts = sorted(set(expected.values()))
-    for relative, header in _status_headers().items():
-        mapping = _header_verdict_map(header, verdicts)
-        assert mapping == expected, (
-            "%s's status header attributes %s and the record says %s — every "
-            "round must be named with the verdict it returned, in the form "
-            "\"round(s) N returned <verdict>\"" % (relative, mapping, expected))
-
-
-def test_a_negated_verdict_sentence_is_not_an_attribution():
-    """ROUND-6 FINDING R6-3, run as the reviewer ran it. The round-5 parser
-    accepted "it is false that rounds 1–3 and 5 returned DO NOT FREEZE" as the
-    required affirmative mapping — a false POSITIVE, not a narrow clause shape:
-    a header that denies the record's own verdicts satisfied the test that exists
-    to make the header state them.
-
-    Both directions are asserted here. The real header's attribution survives —
-    `DO NOT FREEZE` contains a `not` and must not read as a denial — and each of
-    three negations of it attributes nothing."""
-    records = _round_records()
-    expected = {number: record["verdict"].lower()
-                for number, record in records.items() if record["verdict"]}
-    verdicts = sorted(set(expected.values()))
-    header = _status_headers()["README.md"]
-    assert _header_verdict_map(header, verdicts) == expected, (
-        "the real header must still parse; if this fails the negation cues are "
-        "too wide and the answer is to narrow them, not to drop the check")
-
-    pattern = _HEADER_ATTRIBUTION + "(?:%s)" % "|".join(
-        re.escape(verdict) for verdict in verdicts)
-    found = re.search(pattern, header)
-    assert found, "the header states no attribution clause to negate"
-    clause, attributed = found.group(0), _expand_round_list(found.group(1))
-    assert attributed, found.group(1)
-    for prefix in ("it is false that ", "the record does not say that ",
-                   "no reader should believe "):
-        mutated = header.replace(clause, prefix + clause, 1)
-        assert mutated != header
-        mapping = _header_verdict_map(mutated, verdicts)
-        for number in attributed:
-            assert number not in mapping, (
-                "%r still attributes a verdict to round %d" % (prefix, number))
-        assert mapping != expected
-
-
-def test_the_policy_drafts_lifecycle_paragraph_is_the_records_lifecycle():
-    """ROUND-5 FINDING R5-7, under the same machinery as the two front doors.
-
-    `POLICY-DRAFT.md` is a frozen reader's document — the freeze procedure copies
-    it wholesale to `policy/POLICY.md` — and its status paragraph said two review
-    rounds had run and both had returned DO NOT FREEZE, through rounds 3, 4 and 5.
-    Round 4 explicitly ordered it reconciled and it was not. The class has
-    recurred, so the sentence stops being a sentence somebody remembers: the round
-    COUNT is derived from the reviews that landed, and the per-round verdicts are
-    parsed by the header parser and compared to the record.
-
-    ROUND-6 FINDING R6-6: the document is read WHOLE. This guard used to truncate
-    the policy at its first `---`, three hundred lines above the heading it was
-    protecting, so restoring the stale "still open for gold authoring" heading
-    passed it. The status paragraph is still where the count and the verdicts
-    must be, and the banned heading is now searched for everywhere."""
-    records = _round_records()
-    expected = {number: record["verdict"].lower()
-                for number, record in records.items() if record["verdict"]}
-    with open(os.path.join(_study(), "design", "POLICY-DRAFT.md"), "rb") as handle:
-        whole = handle.read().decode("utf-8")
-    status = flatten(whole.split("\n---", 1)[0]).lower()
-
-    count = len(expected)
-    assert ("%s rfc 0009 review rounds" % _ORDINALS[count] in status
-            or "%d rfc 0009 review rounds" % count in status), (
-        "%d review rounds have returned a verdict and the policy draft's status "
-        "paragraph must say so" % count)
-    mapping = _header_verdict_map(status, sorted(set(expected.values())))
-    assert mapping == expected, (
-        "POLICY-DRAFT.md attributes %s and the record says %s" % (mapping, expected))
-    assert _stale_gold_heading(whole) is None, (
-        "POLICY-DRAFT.md still calls its verification section open for gold "
-        "authoring; gold IS authored (design/gold/gold.json) and V7/V8 are "
-        "verification items: %r" % _stale_gold_heading(whole))
-    assert _GOLD_SECTION_HEADING in whole, (
-        "POLICY-DRAFT.md must carry the corrected heading %r"
-        % _GOLD_SECTION_HEADING)
-
-
-# R5-7's heading, and the banned form of it. The correct heading is required
-# VERBATIM, and the stale one is forbidden on any HEADING LINE of the document —
-# a structural surface rather than a window, so the recorded sentence that says
-# what the heading used to say is a sentence and the heading is a heading. R6-6
-# is what happens when the ban is done over a truncated read instead.
+# --- R5-7 / R6-6 / R7-7: the policy draft's verification heading ------------
+#
+# This survives the descope as BANNED-CLAIM detection for one specific stale
+# spelling already caught historically, plus one structural requirement. It
+# adjudicates no English: the stale words are forbidden on a heading, the
+# corrected heading is required AS A HEADING, and ROUND-7 FINDING R7-7's Setext
+# construction is closed by reading Setext underlines rather than by parsing
+# Markdown.
 _GOLD_SECTION_HEADING = ("### Still open at this revision — verification items, "
                          "not authoring")
 _STALE_GOLD_HEADING = re.compile(r"open for gold authoring", re.IGNORECASE)
 
 
+def _heading_lines(text):
+    """Every line this document presents as a heading: ATX (`#`-prefixed) and
+    Setext (a line underlined by `=` or `-`).
+
+    R7-7: the round-6 guard recognised ATX only, so a Setext
+    `Still open for gold authoring` heading was invisible to the ban while the
+    corrected ATX text, hidden inside an HTML comment, satisfied the raw
+    substring requirement beside it. Both halves are structural now."""
+    lines = text.split("\n")
+    out = []
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            out.append(stripped)
+            continue
+        following = lines[index + 1].strip() if index + 1 < len(lines) else ""
+        if stripped and len(following) >= 2 and (
+                set(following) == {"="} or set(following) == {"-"}):
+            out.append(stripped)
+    return out
+
+
 def _stale_gold_heading(text):
-    for line in text.split("\n"):
-        if line.lstrip().startswith("#") and _STALE_GOLD_HEADING.search(line):
-            return line.strip()
+    for line in _heading_lines(text):
+        if _STALE_GOLD_HEADING.search(line):
+            return line
     return None
 
 
-def test_restoring_the_stale_gold_authoring_heading_fails_the_guard():
-    """ROUND-6 FINDING R6-6, as the reviewer ran it: the stale heading restored.
-
-    The R5-7 guard read `POLICY-DRAFT.md` only as far as its first `---`, and the
-    heading it protects is three hundred lines below that — so the mutation
-    passed. This asserts both halves: the guard sees the restored heading, and
-    the truncated read the guard used to do does NOT, which is the whole content
-    of the finding."""
+def test_the_policy_draft_carries_the_corrected_verification_heading():
+    """Gold IS authored; V7 and V8 are verification items. The corrected heading
+    must be a HEADING of the document — not a string somewhere in it — and the
+    stale spelling must appear on no heading at all."""
     with open(os.path.join(_study(), "design", "POLICY-DRAFT.md"), "rb") as handle:
         whole = handle.read().decode("utf-8")
-    assert _GOLD_SECTION_HEADING in whole
-    assert _stale_gold_heading(whole) is None
+    headings = _heading_lines(whole)
+    assert headings.count(_GOLD_SECTION_HEADING) == 1, (
+        "POLICY-DRAFT.md must carry the corrected heading exactly once, as a "
+        "heading: %r" % _GOLD_SECTION_HEADING)
+    assert _stale_gold_heading(whole) is None, (
+        "POLICY-DRAFT.md still calls its verification section open for gold "
+        "authoring: %r" % _stale_gold_heading(whole))
+
+
+def test_restoring_the_stale_gold_authoring_heading_fails_the_guard():
+    """R6-6 and ROUND-7 FINDING R7-7, run as the reviewer ran them: the stale
+    heading restored as ATX, restored as SETEXT, and the corrected text buried
+    in an HTML comment while a Setext heading carries the stale words. Every one
+    must be found, and the truncated read the R5-7 guard used must not."""
+    with open(os.path.join(_study(), "design", "POLICY-DRAFT.md"), "rb") as handle:
+        whole = handle.read().decode("utf-8")
     stale = "### Still open for gold authoring"
-    mutated = whole.replace(_GOLD_SECTION_HEADING, stale, 1)
-    assert mutated != whole
-    assert _stale_gold_heading(mutated) == stale, (
-        "the restored stale heading must be found")
-    truncated = mutated.split("\n---", 1)[0]
+    atx = whole.replace(_GOLD_SECTION_HEADING, stale, 1)
+    assert atx != whole
+    assert _stale_gold_heading(atx) == stale
+
+    setext = whole.replace(
+        _GOLD_SECTION_HEADING,
+        "Still open for gold authoring\n-----------------------------\n\n"
+        "<!-- %s -->" % _GOLD_SECTION_HEADING, 1)
+    assert setext != whole
+    assert _stale_gold_heading(setext) == "Still open for gold authoring", (
+        "a Setext heading is a heading; R7-7 is the guard that could not see one")
+    assert _GOLD_SECTION_HEADING in setext, (
+        "the reviewer's construction keeps the corrected text in the file, which "
+        "is why a raw substring requirement passed it")
+    assert _heading_lines(setext).count(_GOLD_SECTION_HEADING) == 0, (
+        "the corrected heading is inside an HTML comment and is no longer a "
+        "heading; requiring it as a HEADING is what closes R7-7")
+
+    truncated = atx.split("\n---", 1)[0]
     assert _stale_gold_heading(truncated) is None, (
         "the heading is below the first `---`; a guard that truncates there "
-        "cannot see this mutation, which is exactly what R6-6 found")
-
-
-def test_the_review_directory_and_the_record_carry_the_same_rounds():
-    """The round set derived from the tree rather than from a sentence. A round
-    whose verbatim record landed under `reviews/` without a section here — or the
-    reverse — is the drift R3-10, R4-3 and R5-3 have each caught one spelling of.
-
-    ROUND-6 FINDING R6-1 makes the correspondence the state machine's rather than
-    raw directory equality: a round with a landed REVIEW.md must have a section,
-    a section must have a landed REVIEW.md, and a prompt-only round has neither
-    and is OPEN rather than missing."""
-    states, problems = _round_states()
-    assert problems == [], "\n  ".join([""] + problems)
-    on_disk = _rounds_on_disk()
-    assert sorted(on_disk) == sorted(states), (
-        "reviews/ carries rounds %s and the state machine carries %s"
-        % (sorted(on_disk), sorted(states)))
-    assert sorted(states) == list(range(1, max(states) + 1)), (
-        "the rounds must be 1..N contiguous: %s" % sorted(states))
-    for number, record in sorted(states.items()):
-        assert record["section"] == record["review"], number
-
-
-def test_exactly_one_round_may_be_open_and_it_must_be_the_highest():
-    """ROUND-6 FINDINGS R6-1 AND R6-3, the lifecycle rule itself.
-
-    The round-5 model had no state for an open round, so committing round N's
-    prompt — which the regime requires BEFORE the reviewer reads committed HEAD —
-    made HEAD red by construction, and the reviewer found the suite of record
-    describing a tree that was not HEAD for the second round running. The rule
-    that fixes it takes nothing away from the completed rounds: every round below
-    the highest must be COMPLETE, with a written disposition per finding, and the
-    highest may additionally be in one of the two open states."""
-    text = _review_record()
-    states, problems = _round_states(text)
-    assert problems == [], "\n  ".join([""] + problems)
-    highest = max(states)
-    for number, record in sorted(states.items()):
-        assert record["state"] != MALFORMED, (number, record)
-        if number < highest:
-            assert record["state"] == COMPLETE, (
-                "round %d is not the highest round and is %s; only the highest "
-                "round may be open" % (number, record["state"]))
-    assert states[highest]["state"] in (COMPLETE,) + OPEN_STATES
-
-    # the rule has power in the other direction: an EARLIER round left open must
-    # fail it, so "at most one open round" is not satisfied by "any number of
-    # them". Round highest-1's first disposition cell is emptied.
-    earlier = highest - 1
-    assert states[earlier]["state"] == COMPLETE, earlier
-    name = states[earlier]["findings"][0]
-    row = re.search(r"^\|\s*%s\s*\|([^|]*)\|(.*)\|\s*$" % name, text, re.MULTILINE)
-    assert row, name
-    mutated = text.replace(row.group(0),
-                           "| %s |%s| PENDING |" % (name, row.group(1)), 1)
-    after, problems = _round_states(mutated)
-    assert problems == [], problems
-    assert after[earlier]["state"] == AWAITING_RESPONSE
-    assert [number for number, record in after.items()
-            if record["state"] in OPEN_STATES] != [highest], (
-        "an earlier open round must be visible to the lifecycle rule")
-
-
-def test_a_pending_or_blank_disposition_cell_is_not_a_disposition():
-    """R6-3's construction, run over the real record. The round-5 reading
-    collected the ids in the table and never read the cell beside them, so both
-    of these closed a finding. Each mutation must reopen the round it touches."""
-    text = _review_record()
-    states, _problems = _round_states(text)
-    complete = [number for number, record in states.items()
-                if record["state"] == COMPLETE]
-    assert complete, "no complete round to mutate"
-    number = max(complete)
-    name = states[number]["findings"][0]
-    row = re.search(r"^\|\s*%s\s*\|([^|]*)\|(.*)\|\s*$" % name, text,
-                    re.MULTILINE)
-    assert row, name
-    for replacement in ("", " ", " PENDING ", " — ", " pending "):
-        mutated = text.replace(
-            row.group(0), "| %s |%s|%s|" % (name, row.group(1), replacement), 1)
-        assert mutated != text
-        after, problems = _round_states(mutated)
-        assert problems == [], problems
-        assert name in after[number]["pendingRows"], (
-            "%r read as a written disposition for %s" % (replacement, name))
-        assert after[number]["state"] == AWAITING_RESPONSE, (
-            "round %d stayed closed with %s's cell %r"
-            % (number, name, replacement))
-
-
-def test_a_prompt_only_round_reads_as_open_and_not_as_a_broken_tree(tmp_path):
-    """R6-1's construction: the round-opening commit. `reviews/round-N/PROMPT.md`
-    is committed and nothing else exists yet — no review, no record section, no
-    dispositions. That tree is the regime working correctly, and the model must
-    say so rather than failing.
-
-    Built as a scratch `reviews/` beside the real record so the whole reading
-    runs: the state machine, the lifecycle rule, and the front doors' obligation
-    to name the open round."""
-    text = _review_record()
-    states, _problems = _round_states(text)
-    highest = max(states)
-    reviews = tmp_path / "reviews"
-    for number in states:
-        (reviews / ("round-%d" % number)).mkdir(parents=True)
-        (reviews / ("round-%d" % number) / "PROMPT.md").write_text("p\n")
-        (reviews / ("round-%d" % number) / "REVIEW.md").write_text("r\n")
-    opened = highest + 1
-    (reviews / ("round-%d" % opened)).mkdir()
-    (reviews / ("round-%d" % opened) / "PROMPT.md").write_text("prompt\n")
-
-    after, problems = _round_states(text, str(reviews))
-    assert problems == [], "\n  ".join([""] + problems)
-    assert after[opened]["state"] == AWAITING_REVIEW, after[opened]
-    assert after[opened]["verdict"] is None
-    for number in states:
-        assert after[number]["state"] == states[number]["state"], number
-
-    # and the review landing WITHOUT a record section is still malformed
-    (reviews / ("round-%d" % opened) / "REVIEW.md").write_text("review\n")
-    _after, problems = _round_states(text, str(reviews))
-    assert problems, (
-        "a landed review with no section in the record must be reported")
-
-
-def test_the_review_records_own_round_sections_do_not_contradict_their_tables():
-    """R4-3 on the record itself. The round-4 section said "no R4 finding has
-    been dispositioned yet" as a heading line; if a disposition table is then
-    appended beneath it, the two disagree and `_round_records()` — which every
-    header test reads — believes the table. The pending sentence must go when
-    the table lands.
-
-    ROUND-6 FINDING R6-3: the sentence is bound to the STATE rather than to the
-    presence of a row, so a table of `PENDING` cells is a pending round and must
-    still say so."""
-    text = _review_record()
-    states, problems = _round_states(text)
-    assert problems == [], "\n  ".join([""] + problems)
-    sections = _ROUND.split(text)[1:]
-    offenders = []
-    for index in range(0, len(sections), 2):
-        number = int(sections[index])
-        body = sections[index + 1]
-        pending = re.search(
-            r"no R%d finding has been dispositioned yet" % number, body)
-        if states[number]["state"] == COMPLETE and pending:
-            offenders.append("round %d is complete and still says nothing has "
-                             "been dispositioned" % number)
-        if states[number]["state"] == AWAITING_RESPONSE and not pending:
-            offenders.append("round %d is open (%s undispositioned) and its "
-                             "section does not say so"
-                             % (number, len(states[number]["findings"])
-                                - len(states[number]["dispositions"])))
-    assert offenders == [], "\n  ".join([""] + offenders)
+        "cannot see this mutation, which is what R6-6 found")
 
 
 # --- ROUND-4 FINDINGS R4-1 and R4-2: the adequacy lemma's own measurement ---
@@ -2154,19 +2032,22 @@ def test_the_deletion_lemma_publishes_all_three_of_its_measured_metrics(
                     "%s states %r about m-a-183 and the measured differences "
                     "are %s" % (surface, phrase,
                                 [measured[name] for name in difference_metrics]))
-        # POSITIVE: exactly one block carries the rendered clause, verbatim, and
-        # the sentence carrying it does not deny it.
+        # POSITIVE: exactly one block carries the rendered clause, verbatim.
+        #
+        # ROUND-7 FINDING R7-2, and the registered decision descopes it rather
+        # than escalating it. The round-6 version also asked whether the words
+        # BEFORE the clause negated it, which the reviewer defeated from the
+        # other side (`It is false that …` enclosing the whole block) and which
+        # rejected the true sentence "there are not 7 differences" from a third.
+        # The polarity analysis is deleted: what remains is exact reproduction of
+        # a clause RENDERED from the measurement, and a surface that reproduces
+        # its own attestation and then denies it is review's problem.
         carrying = [block for block in blocks if clause in _plain(block)]
         assert len(carrying) == 1, (
             "%s must carry m-a-183's measured clause exactly once, verbatim:\n"
             "  %s\nfound %d block(s) that do"
             % (surface, clause, len(carrying)))
         text = _plain(carrying[0])
-        start = text.index(clause)
-        sentence_start = max(text.rfind(". ", 0, start) + 1, 0)
-        assert _negated(text[sentence_start:start], ()) is None, (
-            "%s encloses the measured clause in a negation: %r"
-            % (surface, text[sentence_start:start][-120:]))
         assert live in text and checked in text
 
 
@@ -2246,119 +2127,45 @@ def test_the_region_lemma_price_separates_the_class_from_the_repairs_cost():
         assert row["preRepairDisposition"] == "dropped"
 
 
-_NUMBER_WORDS = {0: "zero", 1: "one", 2: "two", 3: "three", 4: "four",
-                 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine",
-                 10: "ten", 11: "eleven", 12: "twelve"}
-
-# The two ROLES the split assigns, as the documents phrase them. A number in a
-# role is the claim; the number alone is not.
+# ROUND-4 FINDING R4-2's reader-facing half, DESCOPED at round 7.
 #
-# ROUND-6 FINDING R6-2: `were already` is gone from the pre-existing list. It
-# matched "whose round-1 counterparts were already drops for the same
-# mechanisms" — a sentence about a different class — and a role vocabulary loose
-# enough to need sentence scoping is a vocabulary that cannot be swept
-# document-wide, which is what the finding asks for.
-_MARGINAL_ROLE = (r"the repair's (?:marginal )?price"
-                  r"|marginally because of the repair"
-                  r"|exist only because of the repair"
-                  r"|are the repair's marginal"
-                  r"|marginal to the repair")
-_PRE_EXISTING_ROLE = (r"already unkillable"
-                      r"|already dropped"
-                      r"|corpus had already"
-                      r"|already before it")
-
-
-_NUMBER_TOKEN = r"(?<![\w-])(\d+|%s)\b" % "|".join(_NUMBER_WORDS.values())
-
-# Where a clause begins, for the negation question. A role claim is negated when
-# the negation sits anywhere between the clause boundary and the role phrase —
-# "it is not the case that six are the repair's price" negates from before the
-# number, which is the position R5-2's gap check could not see (R6-2).
-_CLAUSE_BREAK = re.compile(r"[.;:—(]|\bbut\b|\bwhile\b|\bwhereas\b")
+# R5-2 and R6-2 each rebuilt a prose sweep over the two ROLES the split assigns
+# — "the repair's marginal price", "already unkillable" — with a number read out
+# of the words around them and a polarity judged over an enclosing clause. Round
+# 7's registered decision retires that layer with the rest of the
+# English-semantics guards: `_role_claims()`, `_MARGINAL_ROLE`,
+# `_PRE_EXISTING_ROLE`, `_NUMBER_TOKEN`, `_CLAUSE_BREAK` and `_NUMBER_WORDS` are
+# deleted, and with them the test that ran the reviewer's false and negated role
+# constructions.
+#
+# What remains is the POSITIVE attestation, which is the half that never
+# depended on reading English: one labelled line, RENDERED from the derived
+# artifact, required VERBATIM of all three registered surfaces. A surface whose
+# counts move without the artifact fails; a surface that reproduces the line and
+# then argues against it in the next sentence passes here and fails review.
 
 
 def _split_price_line(price):
     """The split as ONE labelled line, rendered from the derived artifact.
 
-    R6-2's fix on the attribution half, and the same method as the lemma's:
-    every registered surface must carry this verbatim, so the counts a reader
+    Every registered surface must carry this verbatim, so the counts a reader
     sees are the counts `adequacy_region_lemma_price.json` derived, and a
-    surface that states them in some other form fails rather than being
-    searched for."""
+    surface that states them in some other form fails rather than being searched
+    for."""
     return ("Gross class size: %d; marginal to the X1 repair: %d; already "
             "unkillable before it: %d"
             % (price["grossClassSize"], price["marginalToRepairCount"],
                price["preExistingDropCount"]))
 
 
-def _role_claims(text, role, gross):
-    """Every number stated IN a role, document-wide, with its polarity.
-
-    Returns `(value, phrase, negated)`. Two changes from R5-2's reading, both
-    R6-2's (the reviewer defeated it twice over): the search is over the WHOLE
-    document rather than only over sentences that quote the class size — a false
-    role claim does not have to mention nine — and negation is judged over the
-    enclosing CLAUSE rather than over the gap between the number and the role, so
-    a denial before the number is a denial. A negated claim is not skipped; it is
-    returned, because denying the true number is as false as stating the wrong
-    one.
-
-    The claim is read from the ROLE outwards rather than from a number forwards:
-    for every occurrence of the role phrase, the nearest number in the forty
-    characters before it is the number claimed. A number-first reading is
-    non-overlapping and therefore droppable — "every one of the seven exist only
-    because of the repair" consumed its match at `one`, found `seven` in the gap,
-    and discarded the whole claim. The partitive is stripped per sentence first,
-    so "six of the nine are the repair's marginal price" is one claim about six."""
-    partitive = re.compile(r"\bof (?:the )?(?:%s|%d)\b"
-                           % (_NUMBER_WORDS[gross], gross))
-    number = re.compile(_NUMBER_TOKEN)
-    out = []
-    for sentence in re.split(r"(?<=\.)\s+", text):
-        stripped = partitive.sub(" ", sentence)
-        for match in re.finditer(role, stripped):
-            window = stripped[max(0, match.start() - 40):match.start()]
-            found = list(number.finditer(window))
-            if not found:
-                continue
-            token = found[-1].group(1)
-            value = (int(token.replace(",", "")) if token[0].isdigit()
-                     else [k for k, v in _NUMBER_WORDS.items() if v == token][0])
-            at = match.start() - (len(window) - found[-1].start())
-            breaks = [edge.end() for edge in
-                      _CLAUSE_BREAK.finditer(stripped, 0, at)]
-            clause = stripped[breaks[-1] if breaks else 0:match.end()]
-            out.append((value,
-                        " ".join(stripped[at:match.end()].split()),
-                        _negated(clause, ()) is not None))
-    return out
-
-
 def test_the_documents_state_the_marginal_price_and_not_only_the_class_size(
         adequacy_text, flat):
-    """R4-2 on the reader-facing surfaces, rebuilt for ROUND-5 FINDING R5-2.
-
-    The class size and the repair's price are different quantities, and every
-    registered surface must publish both, in their roles. The R4-2 guard searched
-    each document for the two NUMBERS and skipped any document that did not quote
-    the class at all — so "nine marginal, none pre-existing" plus an unrelated six
-    somewhere in the file passed it, which is the false attribution the finding
-    exists to forbid.
-
-    So: no surface is skipped, and each number is required in its ROLE — the
-    marginal count attributed to the repair, the pre-existing count withheld from
-    it — with every role statement in the document checked, not just one.
-
-    ROUND-6 FINDING R6-2 rebuilds both halves again, because the reviewer
-    defeated both. The POSITIVE half is now the labelled line
-    `_split_price_line()` renders from the derived artifact, required verbatim of
-    every surface — a false additional role claim cannot satisfy it, because it
-    is not a search. The NEGATIVE half is document-wide, so a role claim in a
-    sentence that never mentions the class is still read, and it judges NEGATION
-    over the enclosing clause: an affirmative claim must state the true number
-    and a negated claim must not deny it. "Six are not the repair's marginal
-    price" is a false sentence, and R5-2's reading skipped it."""
+    """R4-2 on the reader-facing surfaces. The class size and the repair's price
+    are different quantities, and every registered surface must publish both —
+    in the one labelled form the artifact renders, exactly once each, so that
+    the numbers a reader sees and the numbers the generator derived cannot drift
+    apart. The surface must also NAME the class it is attributing, because a
+    labelled line about an unnamed class attributes nothing."""
     price = _load("design/mutants/adequacy_region_lemma_price.json")
     gross = price["grossClassSize"]
     marginal = price["marginalToRepairCount"]
@@ -2373,68 +2180,32 @@ def test_the_documents_state_the_marginal_price_and_not_only_the_class_size(
                 ("POLICY-DRAFT.md", policy))
     for name, raw in surfaces:
         text = _plain(raw)
-        lowered = text.lower()
-        assert price["class"] in lowered, (
+        assert price["class"] in text.lower(), (
             "%s must name the %s class it is attributing" % (name, price["class"]))
         assert text.count(line) == 1, (
             "%s must carry the derived split exactly once, verbatim:\n  %s"
             % (name, line))
-        # the labelled line is the POSITIVE attestation, checked above by
-        # reproduction; it is taken out before the prose sweep so that its own
-        # `…repair: 6; already unkillable before it: 3` does not read as a prose
-        # role claim about 6.
-        prose = lowered.replace(line.lower(), " ")
-        for role, expected, what in ((_MARGINAL_ROLE, marginal, "marginal"),
-                                     (_PRE_EXISTING_ROLE, pre_existing,
-                                      "pre-existing")):
-            claims = _role_claims(prose, role, gross)
-            assert [claim for claim in claims if not claim[2]], (
-                "%s never states the %s count (%d) in its role"
-                % (name, what, expected))
-            for value, phrase, negated in claims:
-                if negated:
-                    assert value != expected, (
-                        "%s denies the %s count: %r — the derived split says %d"
-                        % (name, what, phrase, expected))
-                else:
-                    assert value == expected, (
-                        "%s says %r; the %s count is %d, not %d"
-                        % (name, phrase, what, expected, value))
 
 
-def test_a_false_or_negated_role_claim_anywhere_in_a_surface_fails(
-        adequacy_text):
-    """ROUND-6 FINDING R6-2's two role constructions, run over the real document.
-
-    The reviewer passed R5-2's guard twice: with an additional FALSE role claim
-    in a sentence that never mentions the class size (the guard only read
-    sentences that did), and with an explicit DENIAL of the true numbers (the
-    guard skipped any gap containing "not", so a denial was invisible rather than
-    forbidden). Both must now be found."""
+def test_the_split_line_moves_when_the_derived_split_moves():
+    """The property that makes the line worth requiring: it is RENDERED, so a
+    corpus whose split changes changes the sentence every surface owes, and a
+    surface that keeps the old one fails the test above rather than passing a
+    search that never noticed."""
     price = _load("design/mutants/adequacy_region_lemma_price.json")
-    gross = price["grossClassSize"]
-    text = _plain(adequacy_text).lower()
-
-    # 1. a false claim in a sentence that says nothing about the class size
-    false_claim = (" every one of the seven exist only because of the repair. ")
-    claims = _role_claims(text + false_claim, _MARGINAL_ROLE, gross)
-    assert (7, "seven exist only because of the repair", False) in \
-        [(value, phrase, negated) for value, phrase, negated in claims], claims
-    assert any(value != price["marginalToRepairCount"] and not negated
-               for value, _phrase, negated in claims), (
-        "a role claim outside the class-size sentences must be read")
-
-    # 2. an explicit denial of each true number
-    for role, expected in ((_MARGINAL_ROLE, price["marginalToRepairCount"]),
-                           (_PRE_EXISTING_ROLE, price["preExistingDropCount"])):
-        denial = (" it is not the case that %s are the repair's marginal price "
-                  "and %s were already unkillable. "
-                  % (_NUMBER_WORDS[expected], _NUMBER_WORDS[expected]))
-        found = [claim for claim in _role_claims(text + denial, role, gross)
-                 if claim[2]]
-        assert found, "the denial %r was not read as a denial" % denial
-        assert any(value == expected for value, _phrase, _negated in found), (
-            "the denial names %d and the guard read %s" % (expected, found))
+    line = _split_price_line(price)
+    for member in ("grossClassSize", "marginalToRepairCount",
+                   "preExistingDropCount"):
+        moved = dict(price)
+        moved[member] = price[member] + 1
+        assert _split_price_line(moved) != line, member
+    with open(os.path.join(_study(), "design", "mutants", "ADEQUACY.md"),
+              "rb") as handle:
+        text = _plain(handle.read().decode("utf-8"))
+    assert text.count(line) == 1
+    moved = dict(price,
+                 marginalToRepairCount=price["marginalToRepairCount"] + 1)
+    assert _split_price_line(moved) not in text
 
 
 def test_the_adequacy_record_names_the_members_of_both_halves_of_the_split():
@@ -2682,7 +2453,67 @@ def _parse_workflow_jobs(text):
         job["keys"] = {match.group(1): match.group(2).strip()
                        for match in (re.match(r"^    ([\w-]+):\s*(.*)$", line)
                                      for line in job["lines"]) if match}
+        job["problems"] = _strict_job_problems(job["lines"])
     return jobs
+
+
+# ROUND-7 FINDING R7-5: refuse on unparseable, never skip.
+_JOB_KEY = re.compile(r"^    ([A-Za-z][\w-]*):\s*(.*)$")
+_STEP_ITEM = re.compile(r"^      - ([A-Za-z][\w-]*):\s*(.*)$")
+_STEP_KEY = re.compile(r"^        ([A-Za-z][\w-]*):\s*(.*)$")
+_STEP_MEMBER = re.compile(r"^          ([A-Za-z][\w-]*):\s*(.*)$")
+_BLOCK_SCALARS = ("|", ">", "|-", ">-", "|+", ">+")
+
+
+def _strict_job_problems(lines):
+    """Every construct this reading does not RECOGNISE, as a problem.
+
+    ROUND-7 FINDING R7-5. The round-6 parser matched unquoted `[\\w-]+` keys and
+    silently dropped every line that did not match, so valid YAML `"if": false`
+    — the same mapping, quoted — disappeared from the parsed job and
+    `_disabling_conditions()` returned nothing at all. A guard whose blind spot
+    is a syntactic variant of the thing it forbids is not a guard.
+
+    So the job's own lines are walked and anything outside the registered shape
+    is REPORTED rather than ignored. The enforcement then fails closed over a
+    workflow this reading cannot vouch for, and the answer to a legitimate new
+    construct is to widen this grammar deliberately — which is a decision
+    somebody makes — rather than to inherit a silent hole."""
+    problems, in_steps, block_indent = [], False, None
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        if block_indent is not None and indent >= block_indent:
+            continue                     # the body of a block scalar
+        block_indent = None
+        match = _JOB_KEY.match(line)
+        if match:
+            in_steps = (match.group(1) == "steps"
+                        and match.group(2).strip() == "")
+            if match.group(2).strip() in _BLOCK_SCALARS:
+                block_indent = 6
+            continue
+        if not in_steps:
+            problems.append(
+                "the job carries a construct this reading does not recognise, "
+                "and an unrecognised construct is a refusal rather than a skip "
+                "(R7-5): %r" % line)
+            continue
+        for pattern, body in ((_STEP_ITEM, 10), (_STEP_KEY, 10),
+                              (_STEP_MEMBER, 12)):
+            match = pattern.match(line)
+            if match:
+                if match.group(2).strip() in _BLOCK_SCALARS:
+                    block_indent = body
+                break
+        else:
+            problems.append(
+                "the job's steps carry a construct this reading does not "
+                "recognise, and an unrecognised construct is a refusal rather "
+                "than a skip (R7-5): %r" % line)
+    return problems
 
 
 def _parse_steps(lines):
@@ -2831,8 +2662,13 @@ def _disabling_conditions(job):
     that a runner and the two commands were there, so `if: false` on the job —
     or on either required step — left every assertion passing over a job that
     never executes. A job that cannot fail is not enforcement, and the
-    registration's claim is that CI RUNS the deterministic controls."""
-    problems = []
+    registration's claim is that CI RUNS the deterministic controls.
+
+    ROUND-7 FINDING R7-5 adds the parser's own refusals to the list. A job this
+    reading cannot fully account for is a job whose disabling conditions this
+    reading cannot have counted, so the unparseable construct IS a disabling
+    condition as far as the enforcement is concerned."""
+    problems = list(job.get("problems", []))
     for key in ("if", "continue-on-error"):
         if key in job["keys"]:
             problems.append("the job carries a job-level %s: %r"
@@ -2877,6 +2713,52 @@ def test_the_registered_ci_job_carries_no_condition_that_disables_it():
         jobs = _parse_workflow_jobs(workflow.replace(raw, mutated_raw, 1))
         assert "study-019-harness" in jobs, label
         assert _disabling_conditions(jobs["study-019-harness"]) != [], (
+            "%s left the job looking enforced" % label)
+
+
+def test_a_construct_the_ci_reading_cannot_parse_is_a_refusal_and_not_a_skip():
+    """ROUND-7 FINDING R7-5, run as the reviewer wrote it, plus the general
+    rule it is an instance of.
+
+    `"if": false` is valid YAML and means exactly what `if: false` means. The
+    round-6 mini-parser accepted only unquoted keys, so the quoted spelling was
+    not "rejected" — it was INVISIBLE, and the job it disabled passed every
+    assertion about the job's shape. Four constructions here: the reviewer's
+    quoted `if` at the job level, the same at the step level, a quoted
+    `continue-on-error`, and a plain unknown line. Each must make the job
+    unvouchable, and the real job must be parsed with no problem at all."""
+    workflow = _workflow()
+    if workflow is None:
+        pytest.skip("the study tree is not inside the repository carrying ci.yml")
+    job, _reason = _study_019_job()
+    assert job is not None, "no Study 019 job in the workflow"
+    assert job["problems"] == [], (
+        "the real job must parse cleanly; if this fails the grammar is too "
+        "narrow and the answer is to widen it deliberately, not to skip")
+    assert _disabling_conditions(job) == []
+
+    raw = job["raw"]
+    mutations = (
+        ('quoted job-level "if"',
+         raw.replace("    runs-on:", '    "if": false\n    runs-on:', 1)),
+        ('quoted job-level "continue-on-error"',
+         raw.replace("    runs-on:",
+                     '    "continue-on-error": true\n    runs-on:', 1)),
+        ('quoted step-level "if"',
+         raw.replace("        run: python -m pytest harness/tests -q",
+                     '        "if": false\n'
+                     "        run: python -m pytest harness/tests -q", 1)),
+        ("an unknown job-level construct",
+         raw.replace("    runs-on:", "    <<: *disable\n    runs-on:", 1)),
+    )
+    for label, mutated_raw in mutations:
+        assert mutated_raw != raw, label
+        jobs = _parse_workflow_jobs(workflow.replace(raw, mutated_raw, 1))
+        assert "study-019-harness" in jobs, label
+        mutated = jobs["study-019-harness"]
+        assert mutated["problems"] != [], (
+            "%s parsed as if it were not there" % label)
+        assert _disabling_conditions(mutated) != [], (
             "%s left the job looking enforced" % label)
 
 
