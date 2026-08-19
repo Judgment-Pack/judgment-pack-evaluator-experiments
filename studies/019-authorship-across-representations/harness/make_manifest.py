@@ -91,7 +91,28 @@ tree, because the failure is a committed byte and a working tree can be clean
 of it while the index is not; `manifest_problems()` reports it and `--freeze`
 refuses on it.
 
-Run: <the pinned interpreter> harness/make_manifest.py [--check | --freeze]
+**ROUND-8 FINDINGS R8-2 AND R8-8: two registered validators sat BESIDE the
+gate.** R7-8 brought the sealed reviewer set inside the freeze as a set of
+FILENAMES — closure, and a pin with a named source — and the component that
+actually validates it, `e4lib/reviewer.py`'s `load()`, was never called from
+here. The reviewer's construction: with the manifest digest re-pinned, one
+reviewer payload replaced by `{}` left `pending=[]`, closure clean and `--freeze`
+successful, while `load()` refused the same tree with `REVIEWER-SET-DIGEST`. A
+filename check beside a schema/digest validator is not the validator, so
+`reviewer_load_problems()` calls it — the non-executing path, exactly as §1a
+registers — and both `--check` and `--freeze` read the answer.
+
+R8-8 is the same shape at the other artifact: `design/BRIEF.md` §2.3 registers a
+freeze-time full-grid `project -> re-serialize -> byte-equal` assertion and
+`design/POLICY-DRAFT.md` registers range/form validation of the canonical grid
+at freeze, and no step ran either. `harness/grid_gate.py` is that assertion and
+`freeze_gate_problems()` runs it here.
+
+Both are reachable on their own as `--freeze-gates`, so the ceremony's step F5c
+is a command rather than a memory.
+
+Run: <the pinned interpreter> harness/make_manifest.py
+                                      [--check | --freeze | --freeze-gates]
 """
 
 import argparse
@@ -454,6 +475,76 @@ def reviewer_set_closure_problems(study=None):
     return problems
 
 
+def reviewer_load_problems(study=None):
+    """ROUND-8 FINDING R8-2. The sealed set's OWN loader, run at the gate.
+
+    `reviewer_set_closure_problems()` above compares filenames; `load()` is the
+    component that validates `reviewerSetVersion`, the registered manifest
+    members, the 6-10 cardinality, both languages, every record's members, the
+    registered `rm-<language>-NN.<ext>` filename, containment on real paths, and
+    every payload's digest — and the freeze never called it. The reviewer's
+    construction was one payload replaced by `{}`: closure clean, `pending=[]`,
+    `--freeze` successful, and `load()` refusing the same tree.
+
+    It is called with the registry's pin when the registry has one, so the
+    digest that binds the executed bytes to the freeze is checked here too; a
+    null pin (pre-freeze) still gets the whole schema and every payload digest.
+    `load()` runs no engine, which is what keeps "first executed at the primary
+    attempt" true of the pre-attempt path.
+    """
+    root = Path(study) if study is not None else STUDY
+    here = root / REVIEWER_SET_DIR
+    if not here.is_dir():
+        return []                        # pending, not invalid
+    try:
+        from e4lib import reviewer as reviewer_module
+    except ImportError as error:
+        return ["the sealed reviewer set's loader could not be imported (%s); "
+                "the freeze may not anchor a set nothing validated" % error]
+    pinned = None
+    registry = root / "harness" / "PINS.json"
+    if registry.is_file():
+        try:
+            pins = json.loads(registry.read_text(encoding="utf-8"))
+        except (ValueError, UnicodeDecodeError):
+            pins = {}
+        pinned = (pins.get("reviewerMutantSet") or {}).get("sha256") \
+            if isinstance(pins.get("reviewerMutantSet"), dict) else None
+    try:
+        reviewer_module.load(str(here), pinned)
+    except reviewer_module.ReviewerSetError as error:
+        return ["the sealed reviewer set does not load: %s" % error]
+    except (OSError, ValueError) as error:
+        return ["the sealed reviewer set could not be read (%s: %s)"
+                % (type(error).__name__, error)]
+    return []
+
+
+def grid_assertion_problems(study=None):
+    """ROUND-8 FINDING R8-8. The registered freeze-time grid assertion, run.
+
+    `design/BRIEF.md` §2.3 registers `project -> re-serialize -> byte-equal` over
+    the FULL grid with a nonzero exit, and `design/POLICY-DRAFT.md` registers
+    that the canonical grid carries no malformed or out-of-range values,
+    "asserted at freeze". `harness/grid_gate.py` is both assertions; this is the
+    line that makes the ceremony run them."""
+    try:
+        import grid_gate
+    except ImportError as error:
+        return ["the canonical-grid assertion could not be imported (%s)" % error]
+    root = Path(study) if study is not None else STUDY
+    return ["canonical grid: " + problem
+            for problem in grid_gate.grid_problems(str(root))]
+
+
+def freeze_gate_problems(study=None):
+    """The registered validators that are not filename comparisons, in one
+    list: the sealed set's loader (R8-2) and the canonical grid's freeze-time
+    assertion (R8-8). `--check` reports them, `--freeze` refuses on them, and
+    `--freeze-gates` runs exactly these."""
+    return reviewer_load_problems(study) + grid_assertion_problems(study)
+
+
 def payload_closure_problems(study=None):
     """R6-5. Exact closure: manifest ↔ directory ↔ covered set.
 
@@ -641,6 +732,11 @@ def manifest_problems():
     # not close against the manifest naming it. Reported here so `--check` says
     # it, and refused below so `--freeze` cannot anchor it.
     problems.extend(payload_closure_problems())
+    # ROUND-8 FINDINGS R8-2 AND R8-8. Neither is a digest mismatch either: a
+    # sealed set that its own loader refuses, and a canonical grid that fails
+    # the assertion two design documents register for the freeze. `--check`
+    # says both, and `--freeze` refuses on both.
+    problems.extend(freeze_gate_problems())
     return problems
 
 
@@ -650,9 +746,28 @@ def main(argv=None):
     parser.add_argument("--freeze", action="store_true",
                         help="write the manifest, refusing while any registered "
                              "document is still pending")
+    parser.add_argument("--freeze-gates", dest="gates", action="store_true",
+                        help="run the registered freeze-time validators alone: "
+                             "the sealed reviewer set's loader (R8-2) and the "
+                             "canonical grid's assertion (R8-8)")
     arguments = parser.parse_args(argv)
     pending = pending_documents()
     bytecode = tracked_bytecode()
+    if arguments.gates:
+        # ROUND-8 FINDINGS R8-2 AND R8-8, as a step an operator can run and a
+        # CI job can call. Reported before the manifest work below, and on its
+        # own, because these two are about the ARTIFACTS being frozen rather
+        # than about the covered set.
+        gates = freeze_gate_problems()
+        for problem in gates:
+            print("refused: " + problem)
+        if not gates:
+            print("freeze gates hold: the sealed reviewer set loads and the "
+                  "canonical grid assertion holds")
+        if not (arguments.check or arguments.freeze):
+            return 1 if gates else 0
+        if gates:
+            return 1
     if arguments.check:
         problems = manifest_problems()
         for problem in problems:
@@ -683,6 +798,15 @@ def main(argv=None):
         closure = payload_closure_problems()
         if closure:
             for problem in closure:
+                print("refused: " + problem)
+            return 1
+        # ROUND-8 FINDINGS R8-2 AND R8-8: and the two registered VALIDATORS,
+        # which closure is not. A set whose loader refuses it and a grid that
+        # fails the assertion registered for this moment are both anchorable
+        # without this call, which is exactly what the reviewer constructed.
+        gates = freeze_gate_problems()
+        if gates:
+            for problem in gates:
                 print("refused: " + problem)
             return 1
     MANIFEST_PATH.write_text(manifest_text(), encoding="utf-8")

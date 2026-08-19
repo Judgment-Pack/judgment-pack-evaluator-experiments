@@ -124,10 +124,17 @@ mechanical.
   },
   {
    "number": 8,
-   "state": "awaiting-review",
-   "verdict": null,
-   "severities": null,
-   "findings": null
+   "state": "complete",
+   "verdict": "DO NOT FREEZE",
+   "severities": {
+    "BLOCKER": 3,
+    "MAJOR": 4,
+    "MINOR": 1
+   },
+   "findings": {
+    "first": 1,
+    "last": 8
+   }
   }
  ]
 }
@@ -640,3 +647,45 @@ carry, and a surface may reproduce a measured clause and then argue against it. 
 these is caught by a test any more. That is the registered decision: the truth of free prose
 rests on review, and four rounds of evidence say a suite that tries to hold it instead
 produces false accepts, false rejects, and a widening parser that the next round defeats.
+
+## Round 8 — 2026-08-19
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox, same invocation shape as all rounds.
+- Verbatim record: [`reviews/round-8/PROMPT.md`](reviews/round-8/PROMPT.md),
+  [`reviews/round-8/REVIEW.md`](reviews/round-8/REVIEW.md).
+- Verdict: **DO NOT FREEZE** — 3 BLOCKER, 4 MAJOR, 1 MINOR (R8-1 … R8-8).
+- **The descope decision is upheld on its merits**, in the reviewer's own words: the
+  regime requires recorded review, written dispositions and the exact final verdict, "not
+  a test that adjudicates arbitrary English"; returning free-prose truth to review while
+  retaining rendered exact strings, artifact comparisons and targeted bans "is therefore
+  correct." The findings are against the structural replacement's completeness, not the
+  decision.
+- Round-7 disposition verification: R7-2/5/6 hold, R7-4 holds narrowly, the rest partial
+  with residuals enumerated as this round's findings.
+- R8-1 is the regime's own arithmetic: an open round cannot be the final round; it closes
+  by this ceremony completing and a later round returning the exact words.
+
+### Dispositions
+
+(Written 2026-08-19 at round close. Suite of record 780/780, working tree and archive
+reconstruction both, the reconstruction's tree hash byte-identical to the index. Thirteen
+single-point mutation checks run against the new safeguards; one deliberate redundancy —
+the liveness helper applied at both record-section and disposition-row reading — cannot be
+discriminated by any single-point mutation, and the record says so rather than claiming
+otherwise.)
+
+| # | Sev | Disposition |
+|---|---|---|
+| R8-1 | BLOCKER | **Accepted as the regime's own statement; no change.** An open round is not a final round; it closes by this ceremony completing and a later round returning the exact words. One corollary assertion added, labelled not-a-gate: the freeze verdict is in the closed vocabulary and no round has returned it, so a future round that does forces a deliberate revisit. |
+| R8-2 | BLOCKER | **Accepted.** The freeze path calls the sealed set's own loader — schema, cardinality, languages, filenames, digests — from `--check`, `--freeze`, and the new `--freeze-gates`; the rehearsal tree carries a real sealed set so the rehearsal survives the real gates; four tampering constructions are named refusals including the reviewer's payload-replacement. |
+| R8-3 | BLOCKER | **Accepted.** The verdict vocabulary is closed to the review prompt's own output contract; the block, the review's final line, and the tree-derived state must agree on every declared member — flipping a verdict in the real record's block now fails two tests. |
+| R8-4 | MAJOR | **Accepted.** The block parser refuses duplicate keys at every depth, surplus members at every level, and mistyped members — readable-two-ways JSON is a refusal, not a choice. |
+| R8-5 | MAJOR | **Accepted.** Duplicate finding ids refuse with the round marked malformed; disposition rows and record sections are read through one fence- and comment-aware liveness helper, with the reviewer's commented-out-table construction a named case. |
+| R8-6 | MAJOR | **Accepted.** One marker-span reading serves both the checker and the writer: exactly one pair, in order, enclosing exactly the rendered sentence; a malformed pair refuses without touching bytes — the old partition's destructive path is itself asserted gone. |
+| R8-7 | MINOR | **Accepted.** Heading scanning shares the liveness helper; fenced and commented `#` lines are not headings, and the Setext lookahead is preserved by line-count-stable filtering. |
+| R8-8 | MAJOR | **Accepted; the promise from the brief is wired.** `harness/grid_gate.py` runs the registered domain, fixed-scale, and project→re-serialize→byte-equal assertions over every grid in the tree from `--check`, `--freeze`, and `--freeze-gates`; it holds over the real 117-row grid and refuses seeded scale loss, exponent forms, and range violations. |
+
+**Post-revision state.** Suite 757 → 780 (23 new tests, all green both ways); the freeze
+gate now exercises its own loaders and the grid gate; fifteen pending ceremony
+obligations, unchanged and enumerated.

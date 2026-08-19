@@ -1122,6 +1122,65 @@ _ROUND = re.compile(r"^## Round (\d+) — ", re.MULTILINE)
 _REVISIONS = ("first", "second", "third", "fourth", "fifth", "sixth",
               "seventh", "eighth", "ninth", "tenth")
 
+# ROUND-8 FINDINGS R8-5 AND R8-7: ONE reading of what a Markdown document
+# actually presents, shared by the two structural readers that needed it.
+#
+# Both findings are the same defect at two surfaces. `_disposition_rows()` read
+# every `|`-shaped line, so wrapping all nine of round 7's rows in a multiline
+# HTML comment left the round reading `complete` with its whole table commented
+# out; `_heading_lines()` read every `#`-prefixed line, so the exact required
+# heading placed inside a fenced code block or a multiline comment satisfied the
+# heading requirement while a Setext heading beside it carried the stale words.
+# A structural reader that counts inactive content is not reading structure.
+#
+# `_live_lines()` returns one entry per input line with everything the document
+# does NOT present replaced by the empty string: fenced code (``` or ~~~) and
+# HTML comments, including comments that open and close mid-line and comments
+# that span lines. The line COUNT is preserved because the Setext reading looks
+# at the following line, and an inactive line must be a blank there rather than
+# absent. Fenced code wins over comments, because inside a fence a `<!--` is
+# literal text.
+#
+# The direction of every error this makes is the closed one: content wrongly
+# read as inactive leaves a finding undispositioned (its round stays open) and a
+# heading unread (the corrected-heading requirement fails). Neither can
+# manufacture a pass.
+_FENCE = re.compile(r"^\s{0,3}(`{3,}|~{3,})")
+
+
+def _live_lines(text):
+    """Every line of `text`, with fenced-code and HTML-comment content blanked."""
+    out, fence, in_comment = [], None, False
+    for raw in text.split("\n"):
+        if fence is not None:
+            stripped = raw.strip()
+            if stripped.startswith(fence) and set(stripped) == set(fence):
+                fence = None
+            out.append("")
+            continue
+        live, rest = "", raw
+        while rest:
+            if in_comment:
+                index = rest.find("-->")
+                if index < 0:
+                    rest = ""
+                else:
+                    rest, in_comment = rest[index + 3:], False
+            else:
+                index = rest.find("<!--")
+                if index < 0:
+                    live, rest = live + rest, ""
+                else:
+                    live, rest = live + rest[:index], rest[index + 4:]
+                    in_comment = True
+        opening = _FENCE.match(live)
+        if opening:
+            fence = opening.group(1)
+            out.append("")
+            continue
+        out.append(live)
+    return out
+
 
 def _review_record():
     with open(os.path.join(_study(), "PREREG-REVIEW.md"), "rb") as handle:
@@ -1217,7 +1276,12 @@ def _record_sections(text):
 
     R7-4's other half: the round-6 reading checked that the heading numbers were
     ASCENDING and then stored them in a dictionary, so two adjacent `## Round 5`
-    headings passed the ordering check and one section overwrote the other."""
+    headings passed the ordering check and one section overwrote the other.
+
+    ROUND-8 FINDING R8-5: the sections are cut out of the document's LIVE text,
+    so a `## Round N` heading inside a fence or a comment is not a section and a
+    section's commented-out body is not read as content."""
+    text = "\n".join(_live_lines(text))
     numbers = [int(match.group(1)) for match in _ROUND.finditer(text)]
     problems = []
     if numbers != sorted(numbers):
@@ -1237,7 +1301,8 @@ def _record_sections(text):
 
 
 def _disposition_rows(number, body):
-    """`({id: cell}, [ids whose cell is a placeholder], {id: severity})`.
+    """`({id: cell}, [ids whose cell is a placeholder], {id: severity},
+    [ids named by more than one row])`.
 
     The table is a STRUCTURED surface and is parsed as one: a leading pipe,
     three cells — id, severity, disposition — and a closing pipe. A row of any
@@ -1245,9 +1310,24 @@ def _disposition_rows(number, body):
     undispositioned and its round stays open, which is the fail-closed
     direction. `strip("|")` is the reading this cannot use: it eats BOTH
     trailing pipes of `| R6-1 | BLOCKER ||` and turns an empty disposition cell
-    into a two-cell line."""
-    written, pending, severities = {}, [], {}
-    for line in body.split("\n"):
+    into a two-cell line.
+
+    ROUND-8 FINDING R8-5, in its two halves:
+
+    * **identity.** Rows went into dictionaries with no duplicate check, and
+      completion was key-set equality, so a SECOND row for a finding — with a
+      different severity and a contradictory disposition — silently replaced the
+      first and the round still read `complete`. A finding named twice has no
+      disposition: it has two, and which one the record means is not something a
+      later reader can recover. Duplicates are reported and the round is
+      malformed.
+    * **liveness.** Rows were read out of the raw text, so wrapping all nine of
+      round 7's rows in one multiline HTML comment left the table `complete`
+      with nothing in it. The body is read through `_live_lines()`, the same
+      helper R8-7's heading reader uses.
+    """
+    written, pending, severities, duplicates = {}, [], {}, []
+    for line in _live_lines(body):
         stripped = line.strip()
         if not stripped.startswith("|"):
             continue
@@ -1259,12 +1339,17 @@ def _disposition_rows(number, body):
         if not match or int(match.group(1)) != number:
             continue
         name = "R%d-%d" % (number, int(match.group(2)))
+        if name in severities:
+            if name not in duplicates:
+                duplicates.append(name)
+            continue
         severities[name] = cells[1]
         if _is_disposition(cells[2]):
             written[name] = cells[2]
         else:
             pending.append(name)
-    return written, sorted(pending, key=_finding_order), severities
+    return (written, sorted(pending, key=_finding_order), severities,
+            sorted(duplicates, key=_finding_order))
 
 
 def _review_finding_ids(number, reviews=None):
@@ -1283,14 +1368,48 @@ def _review_finding_ids(number, reviews=None):
                   key=_finding_order)
 
 
+# ROUND-8 FINDING R8-3. The verdict, read from the reviewer's own bytes.
+#
+# The block's verdict was any non-empty string and nothing compared it to
+# anything: changing round 7's block verdict to `FREEZABLE AS WRITTEN` passed
+# every structural predicate in this module while the verbatim review still
+# ended `DO NOT FREEZE`. The freeze rule reads that token, so this is the one
+# datum in the block that could authorise a freeze the record refuses.
+#
+# The comparison is PROTOCOL PARSING, not English semantics. The review prompt's
+# output contract is "then one line exactly: `freezable as written`,
+# `freezable after listed fixes`, or `DO NOT FREEZE`", so the review's final
+# non-blank line is a token from a closed set, and it must be the token the
+# block records. Nothing here reads a sentence for its meaning.
+_VERDICT_OF_LINE = {line.casefold(): token for token, line
+                    in render_round_status.VERDICT_LINES.items()}
+
+
+def _review_verdict(number, reviews=None):
+    """`(token, final line)` for the round's verbatim review, `(None, None)`
+    when no review has landed, and `(None, line)` when the final line is not one
+    of the three contract tokens."""
+    path = os.path.join(reviews or _reviews_dir(), "round-%d" % number,
+                        "REVIEW.md")
+    if not os.path.isfile(path):
+        return None, None
+    with open(path, "rb") as handle:
+        text = handle.read().decode("utf-8")
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
+    if not lines:
+        return None, ""
+    return _VERDICT_OF_LINE.get(lines[-1].casefold()), lines[-1]
+
+
 def _tree_states(record_text=None, reviews=None):
     """`({number: facts}, problems)` — the state each round's ARTIFACTS show.
 
     This is the structural half of the cross-check and it is derived
     INDEPENDENTLY of the block: the prompt file, the verbatim review, the
-    record's section, the finding ids the review itself carries, and the
-    disposition cells beside them. Nothing here reads a sentence for its
-    meaning. `_block_states()` below declares the same thing, and
+    record's section, the finding ids the review itself carries, the verdict
+    token its final line spells, and the disposition cells and severity column
+    beside them. Nothing here reads a sentence for its meaning.
+    `_block_states()` below declares the same things, and
     `test_the_state_the_block_declares_is_the_state_the_artifacts_show` is where
     the two must agree.
 
@@ -1299,6 +1418,11 @@ def _tree_states(record_text=None, reviews=None):
         awaiting-review     prompt only
         awaiting-response   prompt + review + section, dispositions incomplete
         malformed           anything else
+
+    ROUND-8 FINDING R8-3: the derived facts are now EVERY member the block
+    declares — `state`, `verdict`, `severities` and `findings` — because the
+    comparison used to be over `state` alone and the other three were declared
+    against nothing.
     """
     text = _review_record() if record_text is None else record_text
     reviews = reviews or _reviews_dir()
@@ -1310,20 +1434,39 @@ def _tree_states(record_text=None, reviews=None):
     for number in sorted(set(sections) | set(on_disk)):
         artifacts = on_disk.get(number, {"prompt": False, "review": False})
         body = sections.get(number)
+        verdict, final_line = _review_verdict(number, reviews)
         facts = {
             "prompt": artifacts["prompt"],
             "review": artifacts["review"],
             "section": body is not None,
             "findings": _review_finding_ids(number, reviews) or [],
+            "verdict": verdict,
+            "finalLine": final_line,
             "dispositions": {},
             "pendingRows": [],
             "rowSeverities": {},
+            "duplicateRows": [],
         }
         if body is not None:
-            written, pending, row_severities = _disposition_rows(number, body)
+            written, pending, row_severities, duplicates = _disposition_rows(
+                number, body)
             facts["dispositions"] = written
             facts["pendingRows"] = pending
             facts["rowSeverities"] = row_severities
+            facts["duplicateRows"] = duplicates
+        # R8-3: the severity counts the TABLE states, comparable with the
+        # block's map — counted only when the table's row set is exactly the
+        # review's finding set, because a partial table counts nothing.
+        facts["severities"] = None
+        if facts["findings"] and \
+                sorted(facts["rowSeverities"], key=_finding_order) == facts["findings"]:
+            counted = {}
+            for name in facts["findings"]:
+                counted[facts["rowSeverities"][name]] = \
+                    counted.get(facts["rowSeverities"][name], 0) + 1
+            facts["severities"] = counted
+        facts["range"] = ({"first": 1, "last": len(facts["findings"])}
+                          if facts["findings"] else None)
 
         if not facts["prompt"]:
             facts["state"] = MALFORMED
@@ -1331,6 +1474,23 @@ def _tree_states(record_text=None, reviews=None):
                 "round %d has no committed reviews/round-%d/PROMPT.md; the "
                 "regime commits the prompt before the reviewer reads"
                 % (number, number))
+        elif facts["duplicateRows"]:
+            # R8-5: a finding named by two rows has two dispositions and two
+            # severities, and which one the record means is not recoverable.
+            facts["state"] = MALFORMED
+            problems.append(
+                "round %d's disposition table carries more than one row for %s; "
+                "a finding named twice has no disposition"
+                % (number, ", ".join(facts["duplicateRows"])))
+        elif facts["review"] and verdict is None:
+            # R8-3: a landed review whose final line is not one of the three
+            # contract tokens is a review nothing can be bound to.
+            facts["state"] = MALFORMED
+            problems.append(
+                "round %d's verbatim review ends %r and the output contract "
+                "registers exactly %s"
+                % (number, final_line,
+                   ", ".join(render_round_status.VERDICT_LINES.values())))
         elif facts["review"] != facts["section"]:
             facts["state"] = MALFORMED
             problems.append(
@@ -1512,8 +1672,10 @@ def test_every_rounds_disposition_table_agrees_with_the_block():
     for number, entry in sorted(_block_states().items()):
         if entry["state"] == AWAITING_REVIEW:
             continue
-        written, pending, severities = _disposition_rows(number,
-                                                         sections[number])
+        written, pending, severities, duplicates = _disposition_rows(
+            number, sections[number])
+        assert duplicates == [], (
+            "round %d's table names %s more than once" % (number, duplicates))
         expected = ["R%d-%d" % (number, index)
                     for index in range(1, entry["findings"]["last"] + 1)]
         if entry["state"] == COMPLETE:
@@ -1535,10 +1697,13 @@ def test_every_rounds_disposition_table_agrees_with_the_block():
 
 
 def test_the_state_the_block_declares_is_the_state_the_artifacts_show():
-    """The two halves, compared. The block DECLARES a state; `_tree_states()`
-    DERIVES one from the prompt, the review, the section and the cells. A
-    declaration nothing checks is the failure mode this whole round is about, so
-    the declaration is checked against the tree and not the other way round."""
+    """The two halves, compared — EVERY declared member, not the state alone.
+
+    The block DECLARES a state, a verdict, severity counts and a finding range;
+    `_tree_states()` DERIVES all four from the prompt, the review, its final
+    line, its finding ids, the section and the cells. ROUND-8 FINDING R8-3 is
+    that only `state` was ever compared, so the other three were declarations
+    nothing checked — which is the failure mode this whole layer exists for."""
     states, problems = _tree_states()
     assert problems == [], "\n  ".join([""] + problems)
     declared = _block_states()
@@ -1546,9 +1711,287 @@ def test_the_state_the_block_declares_is_the_state_the_artifacts_show():
         "the tree shows rounds %s and the block declares %s"
         % (sorted(states), sorted(declared)))
     for number in sorted(states):
-        assert states[number]["state"] == declared[number]["state"], (
+        facts, entry = states[number], declared[number]
+        assert facts["state"] == entry["state"], (
             "round %d's artifacts show %s and the block declares %s"
-            % (number, states[number]["state"], declared[number]["state"]))
+            % (number, facts["state"], entry["state"]))
+        assert facts["verdict"] == entry["verdict"], (
+            "round %d's verbatim review ends %r, which is the verdict %r, and "
+            "the block declares %r"
+            % (number, facts["finalLine"], facts["verdict"], entry["verdict"]))
+        assert facts["range"] == entry["findings"], (
+            "round %d's review carries %d finding ids and the block declares "
+            "the range %r"
+            % (number, len(facts["findings"]), entry["findings"]))
+        if facts["severities"] is None:
+            assert facts["state"] != COMPLETE, (
+                "round %d is complete and its table's severity column does not "
+                "cover its findings" % number)
+            assert entry["severities"] is None or facts["state"] in OPEN_STATES
+            continue
+        stated = {name: count for name, count
+                  in (entry["severities"] or {}).items() if count}
+        assert facts["severities"] == stated, (
+            "round %d's table counts %s by severity and the block declares %s"
+            % (number, facts["severities"], stated))
+
+
+# --- ROUND-8 FINDING R8-3: the verdict is bound to the review ----------------
+
+def test_every_rounds_block_verdict_is_the_token_its_review_returned():
+    """The positive attestation, over the real tree: every round that has
+    returned a verdict ends its verbatim review with one of the output
+    contract's three lines, and the block records that line's token."""
+    for number, entry in sorted(_block_states().items()):
+        verdict, final_line = _review_verdict(number)
+        if entry["state"] == AWAITING_REVIEW:
+            assert verdict is None and final_line is None, (
+                "round %d is awaiting review and a verbatim review has landed"
+                % number)
+            continue
+        assert verdict is not None, (
+            "round %d's verbatim review ends %r, which is not one of the output "
+            "contract's three lines" % (number, final_line))
+        assert entry["verdict"] == verdict, (
+            "round %d's review ends %r and the block records %r"
+            % (number, final_line, entry["verdict"]))
+
+
+def test_a_block_verdict_the_review_did_not_return_is_refused():
+    """R8-3, run as the reviewer ran it: round 7's block verdict changed to
+    `FREEZABLE AS WRITTEN` — the one token that would authorise a freeze —
+    while its verbatim review still ends `DO NOT FREEZE`. Every structural
+    predicate passed. Two things must refuse it now: the closed vocabulary (a
+    verdict outside the contract is not a verdict) and the binding to the
+    reviewer's own final line."""
+    text = _review_record()
+    block = _block(text)
+    rounds = block["rounds"]
+
+    def _record_with(new_rounds):
+        body = json.dumps({"blockVersion": 1, "rounds": new_rounds}, indent=2)
+        head, _, rest = text.partition(render_round_status.BLOCK_OPEN)
+        _, _, tail = rest.partition(render_round_status.BLOCK_CLOSE)
+        return "%s%s\n%s\n%s%s" % (head, render_round_status.BLOCK_OPEN, body,
+                                   render_round_status.BLOCK_CLOSE, tail)
+
+    refusing = [number for number, entry in _block_states().items()
+                if entry["verdict"] == render_round_status.DO_NOT_FREEZE]
+    assert refusing, "no round returned DO NOT FREEZE; the mutation is vacuous"
+    number = max(refusing)
+    flipped = [dict(entry) for entry in rounds]
+    flipped[number - 1]["verdict"] = render_round_status.FREEZABLE
+    mutated = _record_with(flipped)
+    # the block still parses — `FREEZABLE AS WRITTEN` is a contract token — and
+    # the BINDING is what catches it
+    declared = {entry["number"]: entry
+                for entry in render_round_status.parse_block(mutated)["rounds"]}
+    verdict, final_line = _review_verdict(number)
+    assert verdict == render_round_status.DO_NOT_FREEZE, final_line
+    assert declared[number]["verdict"] != verdict, (
+        "the mutation must move the declared verdict")
+
+    # and a verdict outside the contract is refused one layer earlier
+    invented = [dict(entry) for entry in rounds]
+    invented[number - 1]["verdict"] = "FREEZABLE, PROBABLY"
+    with pytest.raises(render_round_status.BlockError):
+        render_round_status.parse_block(_record_with(invented))
+    for empty in ("", "   "):
+        blanked = [dict(entry) for entry in rounds]
+        blanked[number - 1]["verdict"] = empty
+        with pytest.raises(render_round_status.BlockError):
+            render_round_status.parse_block(_record_with(blanked))
+    # …and the unmutated block still parses, so the refusals are not simply wide
+    assert render_round_status.parse_block(_record_with(rounds))
+
+
+def test_the_freeze_verdict_is_a_token_no_round_has_returned():
+    """A corollary of R8-3's closed vocabulary, and NOT a freeze gate.
+
+    ROUND-8 FINDING R8-1 asks for a pre-anchor review-eligibility gate; the
+    maintainer's disposition accepts the finding as the regime's own statement —
+    an open round is not a final round, and the round it names is the one this
+    response answers — and adds no gate for it here. What the closed vocabulary
+    makes cheap is the arithmetic itself, as data: the freeze requires exactly
+    `freezable as written`, that token is in the vocabulary, and no round has
+    returned it. When one does, this assertion is what has to be revisited
+    deliberately rather than a sentence somebody forgot to update."""
+    assert render_round_status.FREEZE_VERDICT in render_round_status.VERDICTS
+    returned = {entry["verdict"] for entry in _block_states().values()
+                if entry["verdict"]}
+    assert render_round_status.FREEZE_VERDICT not in returned, (
+        "a round has returned the freeze verdict; the freeze gate and this "
+        "study's front-door banners must be revisited, not this assertion")
+
+
+# --- ROUND-8 FINDING R8-4: the block is schema-closed at every depth ---------
+
+def test_a_block_readable_two_ways_is_refused():
+    """R8-4, in the three constructions the reviewer ran. The block's own
+    docstring promised to refuse anything readable two ways and then used the
+    ordinary decoder: a duplicate `blockVersion`, a duplicate `verdict` inside a
+    round entry, and a surplus TOP-LEVEL member were all accepted, the first two
+    resolving last-one-wins while a human reader saw the first."""
+    text = _review_record()
+    block = _block(text)
+    body = json.dumps(block, indent=1)
+
+    def _record_with_body(new_body):
+        head, _, rest = text.partition(render_round_status.BLOCK_OPEN)
+        _, _, tail = rest.partition(render_round_status.BLOCK_CLOSE)
+        return "%s%s\n%s\n%s%s" % (head, render_round_status.BLOCK_OPEN,
+                                   new_body, render_round_status.BLOCK_CLOSE,
+                                   tail)
+
+    assert render_round_status.parse_block(_record_with_body(body))
+
+    duplicate_top = body.replace('{\n "blockVersion": 1,',
+                                 '{\n "blockVersion": 1,\n "blockVersion": 2,', 1)
+    assert duplicate_top != body
+    with pytest.raises(render_round_status.BlockError) as caught:
+        render_round_status.parse_block(_record_with_body(duplicate_top))
+    assert "twice" in str(caught.value)
+
+    duplicate_nested = body.replace('"verdict": "%s"'
+                                    % block["rounds"][0]["verdict"],
+                                    '"verdict": "%s",\n   "verdict": "%s"'
+                                    % (block["rounds"][0]["verdict"],
+                                       render_round_status.FREEZABLE), 1)
+    assert duplicate_nested != body
+    with pytest.raises(render_round_status.BlockError) as caught:
+        render_round_status.parse_block(_record_with_body(duplicate_nested))
+    assert "twice" in str(caught.value)
+
+    surplus_top = json.dumps(dict(block, note="a member nothing reads"), indent=1)
+    with pytest.raises(render_round_status.BlockError) as caught:
+        render_round_status.parse_block(_record_with_body(surplus_top))
+    assert "note" in str(caught.value)
+
+    missing_top = json.dumps({"rounds": block["rounds"]}, indent=1)
+    with pytest.raises(render_round_status.BlockError):
+        render_round_status.parse_block(_record_with_body(missing_top))
+
+    # and the nested objects are closed too: a surplus member in `findings`
+    surplus_range = [dict(entry) for entry in block["rounds"]]
+    surplus_range[0] = dict(surplus_range[0],
+                            findings=dict(surplus_range[0]["findings"],
+                                          note="x"))
+    with pytest.raises(render_round_status.BlockError):
+        render_round_status.parse_block(_record_with_body(
+            json.dumps({"blockVersion": 1, "rounds": surplus_range}, indent=1)))
+
+
+# --- ROUND-8 FINDING R8-5: the disposition table's identities and liveness ---
+
+def test_a_duplicate_disposition_row_is_refused_and_not_overwritten():
+    """R8-5's first half, run as the reviewer ran it: a SECOND row for a finding,
+    carrying a different severity and a contradictory disposition. The rows went
+    into dictionaries with no duplicate check and completion was key-set
+    equality, so the later row silently won and the round still read `complete`."""
+    text = _review_record()
+    states, _problems = _tree_states(text)
+    complete = [number for number, facts in states.items()
+                if facts["state"] == COMPLETE]
+    assert complete, "no complete round to mutate"
+    number = max(complete)
+    name = states[number]["findings"][0]
+    row = re.search(r"^\|\s*%s\s*\|[^|]*\|.*\|\s*$" % name, text, re.MULTILINE)
+    assert row, name
+    contradiction = "| %s | MINOR | **Rejected.** The finding does not hold. |" \
+        % name
+    mutated = text.replace(row.group(0), row.group(0) + "\n" + contradiction, 1)
+    assert mutated != text
+
+    written, _pending, severities, duplicates = _disposition_rows(
+        number, _record_sections(mutated)[0][number])
+    assert duplicates == [name], duplicates
+    assert severities[name] != "MINOR", (
+        "the first row must not be overwritten by the duplicate")
+    assert "does not hold" not in written.get(name, ""), (
+        "the contradictory later row must not become the disposition")
+
+    after, problems = _tree_states(mutated)
+    assert after[number]["state"] == MALFORMED, (
+        "a round whose table names a finding twice is not a complete round")
+    assert any("more than one row for %s" % name in problem
+               for problem in problems), problems
+
+
+def test_a_commented_out_disposition_table_does_not_complete_a_round():
+    """R8-5's second half, the reviewer's construction exactly: wrapping ALL of
+    a round's rows in one multiline HTML comment left the round reading
+    `complete` with its whole table inactive. A fenced code block is the same
+    defect in the other inactive context."""
+    text = _review_record()
+    states, _problems = _tree_states(text)
+    complete = [number for number, facts in states.items()
+                if facts["state"] == COMPLETE]
+    number = max(complete)
+    rows = re.findall(r"^\|\s*R%d-\d+\s*\|.*\|\s*$" % number, text, re.MULTILINE)
+    assert len(rows) == len(states[number]["findings"]), (rows, number)
+    block_of_rows = "\n".join(rows)
+    assert block_of_rows in text
+
+    for label, wrapper in (
+            ("an HTML comment", "<!--\n%s\n-->"),
+            ("a fenced code block", "```\n%s\n```")):
+        mutated = text.replace(block_of_rows, wrapper % block_of_rows, 1)
+        assert mutated != text, label
+        after, _problems = _tree_states(mutated)
+        assert after[number]["dispositions"] == {}, (
+            "%s is not a disposition table: %s" % (label, after[number]))
+        assert after[number]["state"] != COMPLETE, (
+            "round %d stayed complete with its whole table inside %s"
+            % (number, label))
+
+
+# --- ROUND-8 FINDING R8-7: an inactive heading is not a heading --------------
+
+def test_a_heading_inside_a_fence_or_a_comment_is_not_a_heading():
+    """R8-7, in the reviewer's two constructions: the real corrected heading
+    replaced by a generic one, with the exact required line placed inside a
+    fenced code block, and the same inside a multiline HTML comment. Both
+    passed both predicates — the ban saw no stale heading and the requirement
+    saw its heading."""
+    with open(os.path.join(_study(), "design", "POLICY-DRAFT.md"), "rb") as handle:
+        whole = handle.read().decode("utf-8")
+    assert _heading_lines(whole).count(_GOLD_SECTION_HEADING) == 1
+
+    for label, replacement in (
+            ("a fenced code block",
+             "### Verification items\n\n```\n%s\n```" % _GOLD_SECTION_HEADING),
+            ("a multiline HTML comment",
+             "### Verification items\n\n<!--\n%s\n-->" % _GOLD_SECTION_HEADING),
+            ("a tilde-fenced code block",
+             "### Verification items\n\n~~~\n%s\n~~~" % _GOLD_SECTION_HEADING)):
+        mutated = whole.replace(_GOLD_SECTION_HEADING, replacement, 1)
+        assert mutated != whole, label
+        assert _GOLD_SECTION_HEADING in mutated, (
+            "the construction keeps the exact text in the file, which is why a "
+            "raw substring requirement passed it (%s)" % label)
+        assert _heading_lines(mutated).count(_GOLD_SECTION_HEADING) == 0, (
+            "the corrected heading is inside %s and is not a heading" % label)
+
+    # …and the same liveness must not hide a STALE heading that is live: the
+    # ban still fires when the stale words sit outside every inactive context
+    stale = "### Still open for gold authoring"
+    fenced_decoy = whole.replace(
+        _GOLD_SECTION_HEADING,
+        "%s\n\n```\n%s\n```" % (stale, _GOLD_SECTION_HEADING), 1)
+    assert _stale_gold_heading(fenced_decoy) == stale
+
+
+def test_the_live_line_reader_keeps_the_documents_own_line_count():
+    """`_live_lines()` is shared by the table reader and the heading reader, and
+    the Setext half of the second one looks at the FOLLOWING line — so blanking
+    inactive content must never change how many lines there are."""
+    for relative in ("PREREG-REVIEW.md", "PREREGISTRATION.md",
+                     os.path.join("design", "POLICY-DRAFT.md")):
+        with open(os.path.join(_study(), relative), "rb") as handle:
+            text = handle.read().decode("utf-8")
+        assert len(_live_lines(text)) == len(text.split("\n")), relative
+    sample = "a\n<!-- b\nc -->\nd\n```\n# e\n```\n# f\n"
+    assert _live_lines(sample) == ["a", "", "", "d", "", "", "", "# f", ""]
 
 
 def test_a_placeholder_disposition_cell_reopens_its_round():
@@ -1600,8 +2043,14 @@ def test_a_prompt_only_round_reads_as_open_and_not_as_a_broken_tree(tmp_path):
         # the live tree may itself hold a prompt-only round, and giving it a
         # scratch review would manufacture exactly the mismatch under test.
         if states[number]["section"]:
+            # A scratch review carries a finding id and ends with one of the
+            # output contract's three tokens (R8-3), because a review that ends
+            # any other way is malformed and this construction is about a
+            # PROMPT-ONLY round, not about a malformed one.
             (reviews / ("round-%d" % number) / "REVIEW.md").write_text(
-                "R%d-1\n" % number)
+                "R%d-1\n\n%s\n"
+                % (number, render_round_status.VERDICT_LINES[
+                    render_round_status.DO_NOT_FREEZE]))
     opened = highest + 1
     (reviews / ("round-%d" % opened)).mkdir()
     (reviews / ("round-%d" % opened) / "PROMPT.md").write_text("prompt\n")
@@ -1611,10 +2060,12 @@ def test_a_prompt_only_round_reads_as_open_and_not_as_a_broken_tree(tmp_path):
     assert after[opened]["state"] == AWAITING_REVIEW, after[opened]
 
     # and a review landing WITHOUT a record section is still malformed
-    (reviews / ("round-%d" % opened) / "REVIEW.md").write_text("review\n")
+    (reviews / ("round-%d" % opened) / "REVIEW.md").write_text(
+        "R%d-1\n\nDO NOT FREEZE\n" % opened)
     _after, problems = _tree_states(text, str(reviews))
-    assert problems, (
-        "a landed review with no section in the record must be reported")
+    assert any("a record section" in problem for problem in problems), (
+        "a landed review with no section in the record must be reported: %s"
+        % problems)
 
 
 # --- the rendered sentence, required verbatim -------------------------------
@@ -1687,6 +2138,90 @@ def test_the_rendered_sentence_moves_when_the_block_moves():
                 "%s carries the sentence %s would render" % (relative, label))
 
 
+# --- ROUND-8 FINDING R8-6: the markers are bound to what they enclose --------
+
+def test_the_markers_must_enclose_the_sentence_and_not_merely_coexist_with_it(
+        tmp_path):
+    """R8-6, in the reviewer's constructions. `surface_problems()` counted the
+    sentence and counted the markers and never required
+    `BEGIN < the sentence < END`, so a document with a correct sentence
+    ANYWHERE and a marker pair ANYWHERE passed — including a pair in the wrong
+    order, and including markers enclosing something else entirely."""
+    wanted = render_round_status.sentence(_study())
+    good = ("# doc\n\n%s\n%s\n%s\n\ntail\n"
+            % (render_round_status.BEGIN, wanted, render_round_status.END))
+
+    def _problems(text):
+        surface = tmp_path / render_round_status.SURFACES[0]
+        surface.parent.mkdir(parents=True, exist_ok=True)
+        for relative in render_round_status.SURFACES:
+            path = tmp_path / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(good, encoding="utf-8")
+        surface.write_text(text, encoding="utf-8")
+        # the block is read from the real record; only the surfaces are scratch
+        (tmp_path / "PREREG-REVIEW.md").write_text(_review_record(),
+                                                   encoding="utf-8")
+        return render_round_status.surface_problems(str(tmp_path))
+
+    assert _problems(good) == []
+
+    reversed_pair = ("# doc\n\n%s\n%s\n%s\n\ntail\n"
+                     % (render_round_status.END, wanted,
+                        render_round_status.BEGIN))
+    assert any("order" in problem for problem in _problems(reversed_pair)), (
+        "markers in the order END … BEGIN must be named, not partitioned")
+
+    out_of_band = ("# doc\n\n%s\n\n%s\nsomething else\n%s\n\ntail\n"
+                   % (wanted, render_round_status.BEGIN,
+                      render_round_status.END))
+    problems = _problems(out_of_band)
+    assert any("markers enclose" in problem for problem in problems), problems
+
+    second_copy = ("# doc\n\n%s\n%s\n%s\n\n%s\n"
+                   % (render_round_status.BEGIN, wanted,
+                      render_round_status.END, wanted))
+    problems = _problems(second_copy)
+    assert any("second copy" in problem for problem in problems), problems
+
+
+def test_write_refuses_a_malformed_marker_pair_rather_than_rewriting_over_it(
+        tmp_path):
+    """R8-6's destructive half. `write()` partitioned on the first `BEGIN` and
+    then on the first `END` in what followed, so on a REVERSED pair the middle
+    was empty and the tail began after the `END` — writing it DISCARDED
+    everything between the two markers. The refusal is asserted to leave the
+    bytes untouched, which is the property that matters."""
+    wanted = render_round_status.sentence(_study())
+    reversed_pair = ("# doc\n\n%s\nload-bearing body\n%s\n\ntail\n"
+                     % (render_round_status.END, render_round_status.BEGIN))
+    for relative in render_round_status.SURFACES:
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(reversed_pair, encoding="utf-8")
+    (tmp_path / "PREREG-REVIEW.md").write_text(_review_record(),
+                                               encoding="utf-8")
+    with pytest.raises(render_round_status.BlockError) as caught:
+        render_round_status.write(str(tmp_path))
+    assert "order" in str(caught.value)
+    for relative in render_round_status.SURFACES:
+        assert (tmp_path / relative).read_text(encoding="utf-8") == \
+            reversed_pair, "a refused write must not touch the document"
+
+    # and an ORDERED pair is rewritten in place, keeping head and tail
+    ordered = ("# doc\n\n%s\nstale\n%s\n\ntail\n"
+               % (render_round_status.BEGIN, render_round_status.END))
+    for relative in render_round_status.SURFACES:
+        (tmp_path / relative).write_text(ordered, encoding="utf-8")
+    moved = render_round_status.write(str(tmp_path))
+    assert sorted(moved) == sorted(render_round_status.SURFACES)
+    for relative in render_round_status.SURFACES:
+        after = (tmp_path / relative).read_text(encoding="utf-8")
+        assert after.startswith("# doc\n\n") and after.endswith("\n\ntail\n")
+        assert wanted in after and "stale" not in after
+    assert render_round_status.surface_problems(str(tmp_path)) == []
+
+
 def test_the_registration_header_names_the_round_it_responds_to():
     """The revision a reader is holding is only meaningful against the round it
     answers: the highest COMPLETE round in the block. An open round is one this
@@ -1742,8 +2277,15 @@ def _heading_lines(text):
     R7-7: the round-6 guard recognised ATX only, so a Setext
     `Still open for gold authoring` heading was invisible to the ban while the
     corrected ATX text, hidden inside an HTML comment, satisfied the raw
-    substring requirement beside it. Both halves are structural now."""
-    lines = text.split("\n")
+    substring requirement beside it. Both halves are structural now.
+
+    ROUND-8 FINDING R8-7: and INACTIVE `#` lines were still counted. A generic
+    heading in place of the real one, with the exact required line placed inside
+    a fenced code block or a multiline HTML comment, satisfied both predicates —
+    the ban saw no stale heading and the requirement saw its heading. The lines
+    come through `_live_lines()` now, the same helper R8-5's table reader uses,
+    so a heading is a heading only where the document presents one."""
+    lines = _live_lines(text)
     out = []
     for index, line in enumerate(lines):
         stripped = line.strip()

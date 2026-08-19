@@ -31,6 +31,26 @@ Run at round-open and at round-close, so the ceremony commit is mechanical:
 
 `--check` is what the suite asserts in a second way; `--write` regenerates the
 sentence on all three surfaces from the block and reports which ones moved.
+
+**ROUND-8 FINDINGS R8-3, R8-4 and R8-6 — the machine-readable surface made
+actually machine-readable.** Round 7 replaced an English parser with data, and
+the reviewer then attacked the data as data rather than as prose, which is the
+right attack and found three holes:
+
+* **R8-3** — the verdict was any non-empty string and was compared to nothing.
+  Changing round 7's block verdict to `FREEZABLE AS WRITTEN` passed every
+  structural predicate in the suite while the verbatim review still ended
+  `DO NOT FREEZE`. `VERDICT_LINES` closes the vocabulary to the review prompt's
+  own output contract and binds each token to the line the reviewer writes.
+* **R8-4** — the block promised to refuse anything readable two ways and used
+  the ordinary decoder. Duplicate members resolved last-one-wins at every
+  depth, and surplus TOP-LEVEL members were accepted. `_no_duplicate_members()`
+  and `_closed_object()` are the two halves of that promise, kept.
+* **R8-6** — the sentence and the markers were counted independently and never
+  ordered, so a correct sentence out of band satisfied the check while the
+  markers enclosed something else, and `--write` over a REVERSED pair deleted
+  everything between them. `marker_span()` is now the one reading both the
+  check and the rewrite use.
 """
 
 import argparse
@@ -60,6 +80,41 @@ AWAITING_REVIEW = "awaiting-review"
 AWAITING_RESPONSE = "awaiting-response"
 STATES = (COMPLETE, AWAITING_REVIEW, AWAITING_RESPONSE)
 OPEN_STATES = (AWAITING_REVIEW, AWAITING_RESPONSE)
+
+# ROUND-8 FINDING R8-3: the block's verdict is a PROTOCOL TOKEN, not free text.
+#
+# `parse_block()` accepted any non-empty string, and nothing compared the token
+# to the review it claims to summarise: changing round 7's block verdict to
+# `FREEZABLE AS WRITTEN` passed every structural predicate in the suite while
+# the verbatim review still ended `DO NOT FREEZE`. The freeze rule reads that
+# token, so an unbound verdict is the one datum in the block that could say the
+# study is freezable while the record says it is not.
+#
+# The vocabulary is the review prompt's own output contract — "then one line
+# exactly: `freezable as written`, `freezable after listed fixes`, or
+# `DO NOT FREEZE`" — carried here as the three tokens the block may record,
+# mapped to the exact line the reviewer is asked to write. Comparing the two is
+# structural protocol parsing (a closed token set against one line), not English
+# semantics: `harness/tests/test_prereg_currency.py` requires each round's block
+# verdict to be the token its verbatim review's final non-blank line spells.
+FREEZABLE = "FREEZABLE AS WRITTEN"
+FREEZABLE_AFTER_FIXES = "FREEZABLE AFTER LISTED FIXES"
+DO_NOT_FREEZE = "DO NOT FREEZE"
+
+# `{block token: the review's own final line}`. The contract writes two of the
+# three in lower case and one in upper; case is therefore not load-bearing and
+# the comparison folds it, while the WORDS are exact.
+VERDICT_LINES = {
+    FREEZABLE: "freezable as written",
+    FREEZABLE_AFTER_FIXES: "freezable after listed fixes",
+    DO_NOT_FREEZE: "DO NOT FREEZE",
+}
+VERDICTS = tuple(VERDICT_LINES)
+
+# The one verdict the regime accepts as a freeze authorisation (RFC 0009's
+# repository-local rule, quoted in `PREREG-REVIEW.md`'s header). Named here so
+# the freeze gate reads a constant rather than a spelling.
+FREEZE_VERDICT = FREEZABLE
 
 PREFIX = ("ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by "
           "harness/render_round_status.py; edit the block, never this sentence)")
@@ -91,30 +146,75 @@ def block_text(record_text):
     return record_text[opens[0] + len(BLOCK_OPEN):closes[0]]
 
 
+BLOCK_MEMBERS = ("blockVersion", "rounds")
+ROUND_MEMBERS = ("number", "state", "verdict", "severities", "findings")
+SEVERITIES = ("BLOCKER", "MAJOR", "MINOR")
+
+
+def _no_duplicate_members(pairs):
+    """ROUND-8 FINDING R8-4, first half: the object hook that makes "readable
+    two ways" impossible AT EVERY DEPTH.
+
+    `json.loads` resolves a repeated member by last-one-wins, silently. The
+    block promised to refuse anything readable two ways and then read itself
+    with the ordinary decoder, so a second `blockVersion` or a second `verdict`
+    parsed clean and a reader of the file saw the first one. This hook runs on
+    every object the decoder builds, so the refusal is not a top-level courtesy."""
+    seen, out = set(), {}
+    for key, value in pairs:
+        if key in seen:
+            raise ValueError("the member %r appears twice in one object; a "
+                             "block that can be read two ways is not a "
+                             "machine-readable surface" % key)
+        seen.add(key)
+        out[key] = value
+    return out
+
+
+def _closed_object(where, value, members):
+    """ROUND-8 FINDING R8-4, second half: an object is EXACTLY its registered
+    members. Surplus members were refused inside round entries and nowhere else,
+    so a top-level member the renderer never reads sat in the block unremarked —
+    which is where a second, stale, human-read copy of the lifecycle lives."""
+    if not isinstance(value, dict):
+        raise BlockError("%s is a JSON %s and the registered shape is an object"
+                         % (where, type(value).__name__))
+    surplus = sorted(set(value) - set(members))
+    if surplus:
+        raise BlockError("%s carries unregistered member(s) %s; the registered "
+                         "shape is exactly %s"
+                         % (where, ", ".join(surplus), ", ".join(members)))
+    missing = [member for member in members if member not in value]
+    if missing:
+        raise BlockError("%s is missing the member(s) %s"
+                         % (where, ", ".join(missing)))
+
+
 def parse_block(record_text):
     """The block as a validated structure.
 
     Every shape requirement is refused rather than defaulted: a block that can
-    be read two ways is not a machine-readable surface."""
+    be read two ways is not a machine-readable surface. ROUND-8 FINDING R8-4 is
+    that the sentence was true of the round entries and false of everything
+    else — duplicate members were resolved last-one-wins at every depth and the
+    top level accepted surplus members — so the reading is now closed on both
+    axes and member-by-member on type."""
     try:
-        block = json.loads(block_text(record_text))
+        block = json.loads(block_text(record_text),
+                           object_pairs_hook=_no_duplicate_members)
     except ValueError as error:
         raise BlockError("the round-state block is not readable JSON: %s" % error)
-    if not isinstance(block, dict) or not isinstance(block.get("rounds"), list):
-        raise BlockError("the round-state block must be an object with a "
-                         "`rounds` list")
-    if block.get("blockVersion") != 1:
+    _closed_object("the round-state block", block, BLOCK_MEMBERS)
+    if not isinstance(block["rounds"], list):
+        raise BlockError("the round-state block's `rounds` is a JSON %s and the "
+                         "registered shape is a list"
+                         % type(block["rounds"]).__name__)
+    if block["blockVersion"] != 1 or isinstance(block["blockVersion"], bool):
         raise BlockError("blockVersion is %r and this study registers 1"
-                         % block.get("blockVersion"))
+                         % (block["blockVersion"],))
     numbers = []
     for index, entry in enumerate(block["rounds"]):
-        if not isinstance(entry, dict):
-            raise BlockError("round entry %d is not an object" % index)
-        surplus = sorted(set(entry) - {"number", "state", "verdict",
-                                       "severities", "findings"})
-        if surplus:
-            raise BlockError("round entry %d carries unregistered member(s) %s"
-                             % (index, ", ".join(surplus)))
+        _closed_object("round entry %d" % index, entry, ROUND_MEMBERS)
         number = entry.get("number")
         if not isinstance(number, int) or isinstance(number, bool) or number < 1:
             raise BlockError("round entry %d has no positive integer `number`"
@@ -132,13 +232,17 @@ def parse_block(record_text):
                     "round %d is awaiting review and cannot carry a verdict, "
                     "severity counts or a finding range" % number)
             continue
-        if not isinstance(verdict, str) or not verdict.strip():
-            raise BlockError("round %d must record the verdict it returned"
-                             % number)
+        # R8-3: a CLOSED vocabulary, so the block cannot record a verdict the
+        # output contract has no line for and nothing can compare it against.
+        if verdict not in VERDICTS:
+            raise BlockError(
+                "round %d records the verdict %r and the review prompt's output "
+                "contract registers exactly %s"
+                % (number, verdict, ", ".join(VERDICTS)))
         if not isinstance(severities, dict) or not severities:
             raise BlockError("round %d must record its severity counts" % number)
         for name, count in sorted(severities.items()):
-            if name not in ("BLOCKER", "MAJOR", "MINOR"):
+            if name not in SEVERITIES:
                 raise BlockError("round %d records the severity %r" % (number, name))
             if not isinstance(count, int) or isinstance(count, bool) or count < 0:
                 raise BlockError("round %d's %s count is %r"
@@ -147,6 +251,7 @@ def parse_block(record_text):
             raise BlockError("round %d must record its finding range as "
                              "{first, last}" % number)
         if findings["first"] != 1 or not isinstance(findings["last"], int) \
+                or isinstance(findings["last"], bool) \
                 or findings["last"] < 1:
             raise BlockError("round %d's finding range must start at 1 and end "
                              "at a positive integer: %r" % (number, findings))
@@ -245,10 +350,42 @@ def flat(text):
     return " ".join(text.split())
 
 
+def marker_span(relative, text):
+    """ROUND-8 FINDING R8-6, first half: `(begin offset, end offset)`, or a
+    named refusal.
+
+    The markers were COUNTED and never ORDERED. `write()` then partitioned on
+    the first `BEGIN` and, in the partition after it, on the first `END` — so a
+    document whose markers appear END-first has an empty middle and a `tail`
+    that starts after the `END`, and rewriting it DISCARDED everything between
+    the two markers, which on a reversed pair is the whole body of the document.
+    Order is checked here, once, and both `surface_problems()` and `write()` ask
+    this function rather than counting for themselves."""
+    begins = [match.start() for match in re.finditer(re.escape(BEGIN), text)]
+    ends = [match.start() for match in re.finditer(re.escape(END), text)]
+    if len(begins) != 1 or len(ends) != 1:
+        return None, ("%s must carry exactly one %s / %s marker pair; it "
+                      "carries %d and %d"
+                      % (relative, BEGIN, END, len(begins), len(ends)))
+    if ends[0] < begins[0]:
+        return None, ("%s carries its round-status markers in the order %s … "
+                      "%s; the sentence lives BETWEEN them, and rewriting a "
+                      "reversed pair would delete the text they enclose"
+                      % (relative, END, BEGIN))
+    return (begins[0], ends[0]), None
+
+
 def surface_problems(study=None):
     """Every front door that does not carry the rendered sentence exactly once,
-    and every one whose markers are missing (the markers are what `--write`
-    replaces between)."""
+    between its markers, and nowhere else.
+
+    ROUND-8 FINDING R8-6, second half: the sentence and the markers were counted
+    INDEPENDENTLY, so a document carrying the correct sentence anywhere at all
+    and a marker pair anywhere at all passed — including a pair in the wrong
+    order, and including a copy of the sentence out of band while the markers
+    enclosed something else. The markers are what `--write` regenerates, so what
+    they enclose is what this study attests; a copy outside them is a second,
+    unregenerated attestation that the next round leaves stale."""
     root = Path(study) if study is not None else STUDY
     wanted = flat(sentence(study))
     problems = []
@@ -258,36 +395,46 @@ def surface_problems(study=None):
             problems.append("%s does not exist" % relative)
             continue
         text = path.read_text(encoding="utf-8")
-        count = flat(text).count(wanted)
-        if count != 1:
+        span, refusal = marker_span(relative, text)
+        if refusal is not None:
+            problems.append(refusal)
+            continue
+        begin, end = span
+        enclosed = flat(text[begin + len(BEGIN):end])
+        if enclosed != wanted:
             problems.append(
-                "%s must carry the rendered round-status sentence exactly once, "
-                "verbatim; it carries it %d time(s)" % (relative, count))
-        if text.count(BEGIN) != 1 or text.count(END) != 1:
-            problems.append(
-                "%s must carry exactly one %s / %s marker pair"
-                % (relative, BEGIN, END))
+                "%s's round-status markers enclose %r and the block renders "
+                "%r; run `python harness/render_round_status.py --write`"
+                % (relative, enclosed, wanted))
+        for where, outside in (("before", text[:begin]),
+                               ("after", text[end + len(END):])):
+            if wanted in flat(outside):
+                problems.append(
+                    "%s carries a second copy of the rendered round-status "
+                    "sentence %s its markers; only the enclosed one is "
+                    "regenerated, so the other goes stale silently"
+                    % (relative, where))
     return problems
 
 
 def write(study=None):
     """Replace the text between the markers on every surface. Returns the
-    surfaces that moved. Refuses a surface whose markers are absent rather than
-    guessing where the sentence goes."""
+    surfaces that moved. Refuses a surface whose markers are absent OR out of
+    order rather than guessing where the sentence goes (R8-6): a rewrite that
+    can delete the document's body is not a mechanical ceremony."""
     root = Path(study) if study is not None else STUDY
     wanted = sentence(study)
     moved = []
     for relative in SURFACES:
         path = root / relative
         text = path.read_text(encoding="utf-8")
-        if text.count(BEGIN) != 1 or text.count(END) != 1:
+        span, refusal = marker_span(relative, text)
+        if refusal is not None:
             raise BlockError(
-                "%s carries %d/%d round-status markers; add the pair by hand "
-                "once, and this command keeps it current afterwards"
-                % (relative, text.count(BEGIN), text.count(END)))
-        head, _, rest = text.partition(BEGIN)
-        _, _, tail = rest.partition(END)
-        updated = "%s%s\n%s\n%s%s" % (head, BEGIN, wanted, END, tail)
+                "%s; add the pair by hand once, in order, and this command "
+                "keeps it current afterwards" % refusal)
+        begin, end = span
+        updated = "%s%s\n%s\n%s" % (text[:begin], BEGIN, wanted, text[end:])
         if updated != text:
             path.write_text(updated, encoding="utf-8")
             moved.append(relative)

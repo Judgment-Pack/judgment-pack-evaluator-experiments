@@ -230,6 +230,43 @@ _SCRATCH_JPS = ("m-a-001", "m-a-002")
 _SCRATCH_REGO = ("m-b-001.rego", "m-b-002.rego")
 
 
+# ROUND-8 FINDING R8-2 AND R8-8: the scratch tree is a REHEARSAL of the freeze,
+# so it must satisfy the freeze's validators and not only its filename checks.
+#
+# The old scratch tree wrote `scratch gold/GOLD.json` into the gold suite and a
+# two-record sealed manifest with no `language`, no `sha256` and `{}` payloads —
+# and expected `--freeze` to succeed. That expectation is exactly what R8-2
+# names: it memorialised the bypass, because the loader that would have refused
+# the set was never called. A scratch tree that could not survive the real gates
+# proves nothing about them, so it is built to survive them.
+_SCRATCH_SEALED = (("rm-jps-01", "jps", ".json"),
+                   ("rm-jps-02", "jps", ".json"),
+                   ("rm-jps-03", "jps", ".json"),
+                   ("rm-rego-01", "rego", ".rego"),
+                   ("rm-rego-02", "rego", ".rego"),
+                   ("rm-rego-03", "rego", ".rego"))
+
+# A minimal canonical grid in the registered shape: decimal strings at the
+# registered fixed scale, JSON null for an omitted input, sanctions always
+# present. `harness/grid_gate.py` runs over it at the scratch freeze exactly as
+# it runs over `design/gold/gold.json` here and `gold/GOLD.json` at the freeze.
+_SCRATCH_GRID = {
+    "goldVersion": "scratch",
+    "rows": [
+        {"id": "g-1",
+         "inputs": {"risk": "20", "spend": "50000.00", "sanctions": "CLEAR",
+                    "country": "LOW", "newVendor": "no", "critical": "no",
+                    "prior": "no", "finEvidence": "present",
+                    "insurance": "present"}},
+        {"id": "g-2",
+         "inputs": {"risk": None, "spend": "2000000.00", "sanctions": "MATCH",
+                    "country": None, "newVendor": None, "critical": None,
+                    "prior": None, "finEvidence": "present",
+                    "insurance": None}},
+    ],
+}
+
+
 def _scratch_study(root):
     """A tree with every registered document present and nothing else, so a
     freeze over it turns on exactly the payload sets.
@@ -237,7 +274,9 @@ def _scratch_study(root):
     ROUND-6 FINDING R6-5: the two mutant MANIFESTs are written as REAL manifests
     — arm A a list of records keyed by `id`, arm B a mapping with a `mutants`
     list keyed by `file`, which is what `e4lib/e4.py` reads — because the freeze
-    gate now derives the expected payload set from them."""
+    gate now derives the expected payload set from them. ROUND-8 FINDING R8-8:
+    and `gold/GOLD.json` is a REAL canonical grid, because the freeze now runs
+    the registered grid assertion over it."""
     import json
     for name in make_manifest.REGISTERED_DOCUMENTS:
         path = root / name
@@ -250,26 +289,45 @@ def _scratch_study(root):
         json.dumps({"mutants": [{"id": name.split(".")[0], "file": name,
                                  "status": "valid"} for name in _SCRATCH_REGO]}),
         encoding="utf-8")
+    (root / "gold" / "GOLD.json").write_text(json.dumps(_SCRATCH_GRID),
+                                             encoding="utf-8")
     (root / "harness").mkdir(parents=True, exist_ok=True)
     return root
 
 
 def _fill_payloads(root):
     """Exactly the payloads the scratch manifests name — including the SEALED
-    REVIEWER SET, which ROUND-7 FINDING R7-8 brought inside the closure: its
-    manifest is the shape `e4lib/reviewer.py` loads, and the files beside it are
-    exactly the ones it names."""
-    import json
+    REVIEWER SET, which ROUND-7 FINDING R7-8 brought inside the closure and
+    ROUND-8 FINDING R8-2 brought inside the LOADER: its manifest is the shape
+    `e4lib/reviewer.py` validates, with the registered cardinality, both
+    languages, the registered `rm-<language>-NN.<ext>` filenames and every
+    payload's real digest."""
     for name in _SCRATCH_JPS:
         _fill(root, "mutants/jps", "*.json", name + ".json")
     for name in _SCRATCH_REGO:
         _fill(root, "mutants/rego", "*.rego", name)
-    _fill(root, "controls/reviewer-mutants", "*.json", "rm-jps-01.json")
-    _fill(root, "controls/reviewer-mutants", "*.rego", "rm-rego-01.rego")
-    (root / "controls" / "reviewer-mutants" / "MANIFEST.json").write_text(
-        json.dumps({"reviewerSetVersion": 1,
-                    "mutants": [{"id": "rm-jps-01", "file": "rm-jps-01.json"},
-                                {"id": "rm-rego-01", "file": "rm-rego-01.rego"}]}),
+    _write_sealed_set(root)
+
+
+def _write_sealed_set(root, records=_SCRATCH_SEALED):
+    """The sealed set and its manifest, digests included, so `load()` passes."""
+    import hashlib
+    import json
+    sealed = root / "controls" / "reviewer-mutants"
+    sealed.mkdir(parents=True, exist_ok=True)
+    for path in sealed.iterdir():
+        if path.is_file():
+            path.unlink()
+    mutants = []
+    for identity, language, extension in records:
+        name = identity + extension
+        body = ("{}\n" if extension == ".json"
+                else "package study.mutant\n").encode("utf-8")
+        (sealed / name).write_bytes(body)
+        mutants.append({"id": identity, "language": language, "file": name,
+                        "sha256": hashlib.sha256(body).hexdigest()})
+    (sealed / "MANIFEST.json").write_text(
+        json.dumps({"reviewerSetVersion": 1, "mutants": mutants}),
         encoding="utf-8")
 
 
@@ -528,6 +586,138 @@ def test_the_reviewer_set_pin_is_reported_by_the_gate_with_its_source(study):
         assert str(recorded).split(":")[-1] == digest
         assert not [name for name in pending
                     if "reviewerMutantSet" in name]
+
+
+# --- ROUND-8 FINDING R8-2: the freeze runs the sealed set's own LOADER -------
+
+def test_the_freeze_invokes_the_sealed_sets_loader_and_not_only_its_filenames(
+        tmp_path, monkeypatch):
+    """R8-2, in the reviewer's construction and three more.
+
+    The freeze checked filenames and covered-set closure and never called
+    `e4lib.reviewer.load()`, which is the component that validates the schema,
+    the cardinality, the languages, the registered filenames and every payload's
+    DIGEST. With the manifest digest pinned, replacing one payload with `{}`
+    left `pending=[]`, closure clean and `--freeze` successful, while `load()`
+    refused the same tree with `REVIEWER-SET-DIGEST`.
+
+    Each mutation below leaves the FILENAMES exactly as the manifest names them,
+    so closure stays clean and the only thing that can refuse is the loader."""
+    import json
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    sealed = root / "controls" / "reviewer-mutants"
+    manifest = sealed / "MANIFEST.json"
+    original = manifest.read_text(encoding="utf-8")
+
+    assert make_manifest.reviewer_load_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+    assert make_manifest.main(["--freeze-gates"]) == 0
+
+    # 1. the reviewer's own construction: a payload replaced by `{}`, its NAME
+    #    unchanged, so closure sees nothing and the digest is wrong
+    payload = sealed / "rm-jps-01.json"
+    kept = payload.read_bytes()
+    payload.write_bytes(b"{ }\n")
+    assert make_manifest.reviewer_set_closure_problems(root) == [], (
+        "the filename check cannot see this, which is the finding")
+    problems = make_manifest.reviewer_load_problems(root)
+    assert any("REVIEWER-SET-DIGEST" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+    assert make_manifest.main(["--freeze-gates"]) == 1
+    # …and `--check` says it too: the gate reports through `manifest_problems()`
+    # as well as refusing, because an operator who runs `--check` and sees
+    # nothing has been told the set is sound.
+    assert any("sealed reviewer set" in problem
+               for problem in make_manifest.manifest_problems()), (
+        "a loader refusal must reach --check, not only --freeze")
+    payload.write_bytes(kept)
+    assert make_manifest.reviewer_load_problems(root) == []
+
+    # 2. cardinality: the registered set is 6-10 and a manifest naming five
+    #    records (with its five payloads beside it) closes on filenames
+    _write_sealed_set(root, _SCRATCH_SEALED[:5])
+    assert make_manifest.reviewer_set_closure_problems(root) == []
+    problems = make_manifest.reviewer_load_problems(root)
+    assert any("5 mutants" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+
+    # 3. languages: a set that reaches one arm only, closure still clean
+    _write_sealed_set(root, tuple(("rm-jps-%02d" % index, "jps", ".json")
+                                  for index in range(1, 7)))
+    problems = make_manifest.reviewer_load_problems(root)
+    assert any("both languages" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+
+    # 4. schema: a surplus manifest member, every filename unchanged
+    _write_sealed_set(root)
+    body = json.loads(manifest.read_text(encoding="utf-8"))
+    manifest.write_text(json.dumps(dict(body, note="unregistered")),
+                        encoding="utf-8")
+    problems = make_manifest.reviewer_load_problems(root)
+    assert any("REVIEWER-SET-SCHEMA" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+
+    manifest.write_text(original, encoding="utf-8")
+    _write_sealed_set(root)
+    assert make_manifest.reviewer_load_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+
+
+def test_the_loader_runs_over_the_real_sealed_set_and_the_gate_reports_it(study):
+    """The same call over the tree that is actually being frozen. The sealed set
+    is committed during the review rounds, so this has power now rather than at
+    the freeze — and `--check` must report a loader refusal, not only `--freeze`."""
+    if not os.path.isdir(os.path.join(study, make_manifest.REVIEWER_SET_DIR)):
+        pytest.skip("the sealed reviewer set has not landed yet")
+    assert make_manifest.reviewer_load_problems(study) == []
+    assert [problem for problem in make_manifest.manifest_problems()
+            if "sealed reviewer set" in problem] == []
+
+
+# --- ROUND-8 FINDING R8-8: the registered grid assertion is in the ceremony --
+
+def test_the_freeze_runs_the_canonical_grid_assertion(tmp_path, monkeypatch):
+    """R8-8. `design/BRIEF.md` §2.3 registers a freeze-time full-grid
+    `project -> re-serialize -> byte-equal` assertion with a nonzero exit, and
+    `design/POLICY-DRAFT.md` registers range/form validation of the canonical
+    grid at freeze. Neither ran anywhere. Two seeded grids must refuse the
+    freeze here — the named scale-loss construction and a range violation — and
+    the correct grid must close it."""
+    import json
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    grid = root / "gold" / "GOLD.json"
+    original = grid.read_text(encoding="utf-8")
+    assert make_manifest.grid_assertion_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+
+    # the construction the BRIEF names: `70.10` authored as `70.1`
+    seeded = json.loads(original)
+    seeded["rows"][0]["inputs"]["spend"] = "70.1"
+    grid.write_text(json.dumps(seeded), encoding="utf-8")
+    problems = make_manifest.grid_assertion_problems(root)
+    assert any("scale 1" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+    assert make_manifest.main(["--freeze-gates"]) == 1
+
+    # and a range violation
+    seeded = json.loads(original)
+    seeded["rows"][0]["inputs"]["risk"] = "120"
+    grid.write_text(json.dumps(seeded), encoding="utf-8")
+    problems = make_manifest.grid_assertion_problems(root)
+    assert any("0..100" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+
+    grid.write_text(original, encoding="utf-8")
+    assert make_manifest.grid_assertion_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
 
 
 # --- ROUND-5 FINDING R5-1: tracked bytecode is refused, from the INDEX -------

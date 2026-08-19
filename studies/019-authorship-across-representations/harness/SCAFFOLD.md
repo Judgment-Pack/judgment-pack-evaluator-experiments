@@ -666,6 +666,38 @@ Each step fills exactly one link, and every link is checkable before the next.
    complete without this step. The set's payload closure — every file the sealed
    manifest names present, no unnamed file beside it, and the study manifest
    covering exactly that set — is checked with the two mutant corpora's.
+
+   **Round-8 finding R8-2**: step 1 above was written as an instruction to the
+   operator and nothing invoked it. `--freeze` checked FILENAMES — closure, and
+   the pin's presence — and never called `load()`, so a payload replaced by `{}`
+   under its registered name left closure clean, `pending` empty and the freeze
+   successful, while the loader refused the same tree with
+   `REVIEWER-SET-DIGEST`. `make_manifest.reviewer_load_problems()` calls the
+   non-executing loader now, from `--check`, from `--freeze` and from
+   `--freeze-gates`, so this step is a command rather than a reminder.
+5c. **Run the registered freeze-time GATES** — round-8 findings **R8-2** and
+   **R8-8**:
+
+       <the pinned interpreter> harness/make_manifest.py --freeze-gates
+
+   Two registered assertions, both of which ran nowhere before this round:
+   - the sealed reviewer set's own loader (5b above); and
+   - the **canonical-grid assertion**, `harness/grid_gate.py`. `design/BRIEF.md`
+     §2.3 registers it in these words — the canonical grid is decimal strings at
+     a registered fixed scale per numeric field, the Rego projection is
+     `to_number` over those exact bytes, "with a freeze-time round-trip
+     assertion over the full grid (project → re-serialize → byte-equal, exit
+     nonzero otherwise)" — and `design/POLICY-DRAFT.md` registers beside it that
+     "the canonical grid carries no malformed or out-of-range values, asserted
+     at freeze". The gate runs both over every row of every grid in the tree
+     (`gold/GOLD.json` once it exists, `design/gold/gold.json` today): the
+     registered domain in arm A's wire form, the fixed scale stated as a scale,
+     and the byte-equal round trip. `harness/tests/test_grid_gate.py` runs it
+     against a seeded `70.10 → 70.1` scale loss and a seeded range violation.
+
+   `--freeze` refuses on either, so this step is checkable rather than
+   remembered; running it alone first is how an operator sees which of the two
+   is not ready.
 6. **Regenerate `harness/PORTS.md`'s destination digests** for every file the
    remaining ports touched, then re-pin `ownPorts.sha256`. `PORTS.md` before
    `PINS.json`, always: the registry pins the ports table and never the reverse.
